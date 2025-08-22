@@ -1,0 +1,51 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace BSI.Integra.Persistencia.Modelos.IntegraDB
+{
+    public partial class TListaNegraMensaje
+    {
+        /// <summary>
+        /// Identificador unico de tabla
+        /// </summary>
+        public int Id { get; set; }
+        /// <summary>
+        /// Lista de id de lista serndingblue
+        /// </summary>
+        public string IdLista { get; set; } = null!;
+        /// <summary>
+        /// Id De Listas Excluidas de sendingblue
+        /// </summary>
+        public string IdListaExcluida { get; set; } = null!;
+        public string Respuesta { get; set; } = null!;
+        public bool EstadoGuardado { get; set; }
+        /// <summary>
+        /// Estado del registro (creado o eliminado)
+        /// </summary>
+        public bool Estado { get; set; }
+        /// <summary>
+        /// Sistema Automatico Usuario de creacion
+        /// </summary>
+        public string UsuarioCreacion { get; set; } = null!;
+        /// <summary>
+        /// Sistema Automatico Usuario de modificacion
+        /// </summary>
+        public string UsuarioModificacion { get; set; } = null!;
+        /// <summary>
+        /// Sistema Automatico Fecha de creacion
+        /// </summary>
+        public DateTime FechaCreacion { get; set; }
+        /// <summary>
+        /// Sistema Automatico Fecha de modificacion
+        /// </summary>
+        public DateTime FechaModificacion { get; set; }
+        /// <summary>
+        /// Campo de sistema automatico que guarda la version del registro
+        /// </summary>
+        public byte[] RowVersion { get; set; } = null!;
+        /// <summary>
+        /// Id de la tabla Original al migrar
+        /// </summary>
+        public int? IdMigracion { get; set; }
+    }
+}

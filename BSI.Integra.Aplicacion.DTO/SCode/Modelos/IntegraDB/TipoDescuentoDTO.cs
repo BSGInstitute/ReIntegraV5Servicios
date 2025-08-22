@@ -1,0 +1,63 @@
+﻿namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
+{
+    public class TipoDescuentoDTO
+    {
+        public int Id { get; set; }
+        public string Codigo { get; set; } = null!;
+        public string Descripcion { get; set; } = null!;
+        public int Formula { get; set; }
+        public int? PorcentajeGeneral { get; set; }
+        public int? PorcentajeMatricula { get; set; }
+        public int? FraccionesMatricula { get; set; }
+        public int? PorcentajeCuotas { get; set; }
+        public int? CuotasAdicionales { get; set; }
+    }
+    public class TipoDescuentoComboDTO
+    {
+        public int Id { get; set; }
+        public string Codigo { get; set; } = null!;
+        public string Descripcion { get; set; } = null!;
+    }
+    public class TipoDescuentoOportunidadDTO
+    {
+        public int Id { get; set; }
+        public string Codigo { get; set; } = null!;
+        public string Descripcion { get; set; } = null!;
+        public int Formula { get; set; }
+        public int? PorcentajeGeneral { get; set; }
+        public int? PorcentajeMatricula { get; set; }
+        public int? FraccionesMatricula { get; set; }
+        public int? PorcentajeCuotas { get; set; }
+        public int? CuotasAdicionales { get; set; }
+        public string Tipo { get; set; } = null!;
+    }
+
+    public class ComboTipoDescuentoDTO
+    {
+        public IEnumerable<FormulaTipoDescuentoDTO> FormulaTipoDescuentos { get; set; }
+        public IEnumerable<AgendaTipoUsuarioDTO> TiposUsuario { get; set; }
+        public IEnumerable<ComboDTO> ProgramasGeneral { get; set; }
+    }
+
+    public class CompuestoTipoDescuentoDTO
+    {
+        public int Id { get; set; }
+        public string Codigo { get; set; } = null!;
+        public string Descripcion { get; set; } = null!;
+        public int Formula { get; set; }
+        public int? PorcentajeGeneral { get; set; }
+        public int? PorcentajeMatricula { get; set; }
+        public int? FraccionesMatricula { get; set; }
+        public int? PorcentajeCuotas { get; set; }
+        public int? CuotasAdicionales { get; set; }
+        public List<string> TipoDescuentoAsesorCoordinadorPw { get; set; }
+
+    }
+    public class TipoDescuentoProgramaDTO
+    {
+        public int IdTipoDescuento { get; set; }
+        public List<int> IdPgeneral { get; set; }
+    }
+
+
+}

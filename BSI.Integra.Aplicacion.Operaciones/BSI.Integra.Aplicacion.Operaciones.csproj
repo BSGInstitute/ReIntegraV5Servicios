@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="SCode\BO\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="11.0.1" />
+    <PackageReference Include="Dapper" Version="2.0.123" />
+    <PackageReference Include="EPPlus" Version="6.1.1" />
+    <PackageReference Include="QRCoder" Version="1.3.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BSI.Integra.Aplicacion.Base\BSI.Integra.Aplicacion.Base.csproj" />
+    <ProjectReference Include="..\BSI.Integra.Aplicacion.Comercial\BSI.Integra.Aplicacion.Comercial.csproj" />
+    <ProjectReference Include="..\BSI.Integra.Aplicacion.DTO\BSI.Integra.Aplicacion.DTO.csproj" />
+    <ProjectReference Include="..\BSI.Integra.Aplicacion.GestionPersonas\BSI.Integra.Aplicacion.GestionPersonas.csproj" />
+    <ProjectReference Include="..\BSI.Integra.Aplicacion.Planificacion\BSI.Integra.Aplicacion.Planificacion.csproj" />
+    <ProjectReference Include="..\BSI.Integra.Aplicacion.Transversal\BSI.Integra.Aplicacion.Transversal.csproj" />
+    <ProjectReference Include="..\BSI.Integra.Repositorio\BSI.Integra.Repositorio.csproj" />
+  </ItemGroup>
+
+</Project>

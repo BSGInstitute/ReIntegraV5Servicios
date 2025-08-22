@@ -1,0 +1,60 @@
+﻿using AutoMapper;
+using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Persistencia.Infrastructure;
+using BSI.Integra.Persistencia.Modelos.IntegraDB;
+using BSI.Integra.Repositorio.Repository.Interface.Planificacion;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
+{
+    /// Repositorio: PlataformaPagoRepository
+    /// Autor: Gilmer Qm
+    /// Fecha: 08/06/2023
+    /// <summary>
+    /// Gestión general de T_PlataformaPago
+    /// </summary>
+    public class PlataformaPagoRepository : GenericRepository<TPlataformaPago>, IPlataformaPagoRepository
+    {
+        private Mapper _mapper;
+        public PlataformaPagoRepository(IntegraDBContext context, IConnectionFactory connectionFactory, IDapperRepository dapperRepository) : base(context, connectionFactory, dapperRepository)
+        {
+            //var config = new MapperConfiguration(cfg =>
+            //{
+            //    cfg.CreateMap<TPlataformaPago, PlataformaPago>(MemberList.None).ReverseMap();
+            //});
+            //_mapper = new Mapper(config);
+        }
+        /// Autor: Gilmer Qm
+        /// Fecha: 08/06/2023
+        /// <summary>
+        ///  Obtiene el combo
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<ComboDTO>> ObtenerComboAsync()
+        {
+            try
+            {
+                var _query = @"SELECT Id,
+                                   Nombre
+                            FROM pla.T_PlataformaPago
+                            WHERE Estado = 1;";
+                var pgeneralDB = await _dapperRepository.QueryDapperAsync(_query, new { });
+                if (!string.IsNullOrEmpty(pgeneralDB) && !pgeneralDB.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<IEnumerable<ComboDTO>>(pgeneralDB);
+                }
+                return null;
+            }
+            catch (Exception Ex)
+            {
+                throw new Exception(Ex.Message);
+            }
+        } 
+    }
+}

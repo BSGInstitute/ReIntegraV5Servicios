@@ -1,0 +1,17 @@
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+
+namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
+{
+    public interface IInformacionProgramaService
+    {
+        CargarInformacionProgramaAutomaticoRespuestaDTO CargarInformacionProgramaAutomatico(int idCentroCosto, int codigoPais, int idMatriculaCabecera, int idOportunidad);
+        CargarInformacionProgramaAutomaticoRespuestaDTO CargarInformacionProgramaAutomaticoSpeech(int idCentroCosto, int codigoPais, int idMatriculaCabecera, int idOportunidad);
+        CargarInformacionProgramaRespuestaDTO CargarInformacionPrograma(int idPGeneral, int codigoPais, int idMatriculaCabecera, int idOportunidad);
+
+        string ObtenerContenidoHorarios(List<ModalidadProgramaDTO> modalidades, string initContenido, int idPGeneral);
+        string ObtenerContenidoTarifario(List<TarifarioDetalleAgendaDTO> tarifarios);
+        List<ResumenProgramaV2DTO> CargarResumenProgramasV2(Dictionary<string, string> filtros);
+        List<PreguntaFrecuenteSeccionesDTO> CargarInformacionPrograma(List<PreguntaFrecuentePGeneralRespuestaDTO> repositorioPreguntaFrecuente);
+        List<PreguntaFrecuenteSeccionesDTO> CargarInformacionProgramaChange(List<PreguntaFrecuentePGeneralRespuestaDTO> preguntaFrecuentePGeneralDTO);
+    }
+}

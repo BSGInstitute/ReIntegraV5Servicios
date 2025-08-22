@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
+{
+    public class AreaCcDTO
+    {
+        public int Id {  get; set; }
+        public string Nombre { get; set; }
+        public string Codigo { get; set; }
+        //Adicional
+        public int Total { get; set; }
+    }
+}

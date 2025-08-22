@@ -1,0 +1,78 @@
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.Operaciones.Service.Implementacion;
+using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
+using BSI.Integra.Persistencia.Modelos.IntegraDB;
+using BSI.Integra.Repositorio.UnitOfWork;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
+
+namespace BSI.Integra.Servicios.Controllers
+{
+    /// Controlador: DepartamentoPaiController
+    /// Autor: Jorge Gamero.
+    /// Fecha: 19/09/2024
+    /// <summary>
+    /// Gestión de DepartamentoPai
+    /// </summary>
+    [Route("api/[controller]")]
+    [ApiController]
+    [EnableCors("CorsVista")]
+    public class DepartamentoPaiController : Controller
+    {
+        private IUnitOfWork unitOfWork;
+        public DepartamentoPaiController(IUnitOfWork unitOfWork)
+        {
+            this.unitOfWork = unitOfWork;
+        }
+        
+        /// Tipo Función: GET
+        /// Autor: Jorge Gamero
+        /// Fecha: 19/09/2024
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene Id y Nombre de todos los registros de la tabla para combos
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public ActionResult ObtenerCombo()
+        {
+            try
+            {
+                var departamentoPaiService = new DepartamentoPaiService(unitOfWork);
+                var resultado = departamentoPaiService.ObtenerCombo();
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Jorge Gamero
+        /// Fecha: 25/09/2024
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene código de departamento por Id
+        /// </summary>
+        /// <returns> CodigoDepartamentoDTO </returns>
+        [Route("[action]/{id}")]
+        [HttpGet]
+        public ActionResult ObtenerCodigoPorId(int id)
+        {
+            try
+            {
+                var departamentoPaiService = new DepartamentoPaiService(unitOfWork);
+                var resultado = departamentoPaiService.ObtenerCodigoPorId(id);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+    }
+}

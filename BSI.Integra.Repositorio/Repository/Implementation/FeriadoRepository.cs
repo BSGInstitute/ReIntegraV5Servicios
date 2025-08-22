@@ -1,0 +1,252 @@
+﻿using AutoMapper;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
+using BSI.Integra.Persistencia.Infrastructure;
+using BSI.Integra.Persistencia.Modelos.IntegraDB;
+using BSI.Integra.Repositorio.Repository.Interface;
+using Newtonsoft.Json;
+
+namespace BSI.Integra.Repositorio.Repository.Implementation
+{
+    /// Repositorio: FeriadoRepository
+    /// Autor: Griselberto Huaman
+    /// Fecha: 28/06/2022
+    /// <summary>
+    /// Gestión general de T_Feriado
+    /// </summary>
+    public class FeriadoRepository : GenericRepository<TFeriado>, IFeriadoRepository
+    {
+        private Mapper _mapper;
+
+        public FeriadoRepository(IntegraDBContext context, IConnectionFactory connectionFactory, IDapperRepository dapperRepository) : base(context, connectionFactory, dapperRepository)
+        {
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<TFeriado, Feriado>(MemberList.None).ReverseMap();
+            });
+            _mapper = new Mapper(config);
+        }
+        #region Metodos Base
+        private TFeriado MapeoEntidad(Feriado entidad)
+        {
+            try
+            {
+                return _mapper.Map<TFeriado>(entidad);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public TFeriado Add(Feriado entidad)
+        {
+            try
+            {
+                var Feriado = MapeoEntidad(entidad);
+                base.Insert(Feriado);
+                return Feriado;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public TFeriado Update(Feriado entidad)
+        {
+            try
+            {
+                var Feriado = MapeoEntidad(entidad);
+                var entidadExistente = base.FirstBy(w => w.Id == entidad.Id, s => new { s.RowVersion });
+                Feriado.RowVersion = entidadExistente.RowVersion;
+
+                base.Update(Feriado);
+                return Feriado;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public bool Delete(int id, string usuario)
+        {
+            try
+            {
+                base.Delete(id, usuario);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<TFeriado> Add(IEnumerable<Feriado> listadoEntidad)
+        {
+            try
+            {
+                List<TFeriado> listado = new List<TFeriado>();
+                foreach (var entidad in listadoEntidad)
+                {
+                    listado.Add(MapeoEntidad(entidad));
+                }
+                base.Insert(listado);
+                return listado;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<TFeriado> Update(IEnumerable<Feriado> listadoEntidad)
+        {
+            try
+            {
+                if (listadoEntidad == null)
+                    throw new ArgumentNullException("El listado es nulo");
+
+                List<TFeriado> listado = new List<TFeriado>();
+                foreach (var entidad in listadoEntidad)
+                {
+                    listado.Add(MapeoEntidad(entidad));
+                }
+                var infoExistente = base.GetBy(w => listadoEntidad.Select(s => s.Id).Contains(w.Id), s => new { s.Id, s.RowVersion });
+                foreach (var item in listado)
+                {
+                    var entidadExistente = infoExistente.FirstOrDefault(w => w.Id == item.Id);
+                    item.RowVersion = entidadExistente.RowVersion;
+                }
+                base.Update(listado);
+                return listado;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public bool Delete(IEnumerable<int> listadoIds, string usuario)
+        {
+            try
+            {
+                base.Delete(listadoIds, usuario);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+        /// Autor: Griselberto Huaman
+        /// Fecha: 28/06/2022
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de T_Feriado.
+        /// </summary>
+        /// <returns> List<FeriadoDTO> </returns>
+        public IEnumerable<FeriadoDTO> Obtener()
+        {
+            try
+            {
+                var query = @"
+                    SELECT [Id]
+                          ,[Tipo]
+                          ,[Dia]
+                          ,[Motivo]
+                          ,[Frecuencia]
+                          ,[IdTroncalCiudad]
+                    FROM [pla].[T_Feriado]
+                    WHERE Estado=1";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<IEnumerable<FeriadoDTO>>(resultado)!;
+                }
+                return new List<FeriadoDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#FR-O-001@Error en Obtener: {ex.Message}", ex);
+            }
+        }
+        /// Autor: Flavio R. Mamani Fabian
+        /// Fecha: 31/05/2023
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene T_Feriado por id
+        /// </summary>
+        /// <returns> Feriado </returns>
+        public Feriado? ObtenerPorId(int id)
+        {
+            try
+            {
+                var query = @"
+                        SELECT Id, Tipo, Dia, Motivo, Frecuencia, IdTroncalCiudad, Estado, FechaCreacion, FechaModificacion, UsuarioCreacion, UsuarioModificacion, RowVersion, IdMigracion 
+                        FROM pla.T_Feriado
+                        WHERE Estado = 1 AND Id=@id";
+                var resultado = _dapperRepository.FirstOrDefault(query, new { id });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<Feriado>(resultado)!;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#FR-OPI-001@Error en ObtenerPorId: {ex.Message}", ex);
+            }
+        }
+        /// Autor: Flavio R. Mamani Fabian
+        /// Fecha: 31/05/2023
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de T_Feriado por ids.
+        /// </summary>
+        /// <returns> Lista Feriado </returns>
+        public IEnumerable<Feriado> ObtenerPorIds(IEnumerable<int> ids)
+        {
+            try
+            {
+                var query = @"
+                        SELECT Id, Tipo, Dia, Motivo, Frecuencia, IdTroncalCiudad, Estado, FechaCreacion, FechaModificacion, UsuarioCreacion, UsuarioModificacion, RowVersion, IdMigracion 
+                        FROM pla.T_Feriado
+                        WHERE Estado = 1 AND Id IN @ids";
+                var resultado = _dapperRepository.QueryDapper(query, new { ids });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<IEnumerable<Feriado>>(resultado)!;
+                }
+                return new List<Feriado>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#FR-OPIs-001@Error en ObtenerPorIds: {ex.Message}", ex);
+            }
+        }
+        /// Autor: Flavio R. Mamani Fabian
+        /// Fecha: 31/05/2023
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de T_Feriado por tipo.
+        /// </summary>
+        /// <returns> Lista Feriado </returns>
+        public IEnumerable<Feriado> ObtenerPorTipo(int tipo)
+        {
+            try
+            {
+                var query = @"
+                        SELECT Id, Tipo, Dia, Motivo, Frecuencia, IdTroncalCiudad, Estado, FechaCreacion, FechaModificacion, UsuarioCreacion, UsuarioModificacion, RowVersion, IdMigracion 
+                        FROM pla.T_Feriado
+                        WHERE Estado = 1 AND Tipo = @tipo";
+                var resultado = _dapperRepository.QueryDapper(query, new { tipo });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<IEnumerable<Feriado>>(resultado)!;
+                }
+                return new List<Feriado>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#FR-OPIs-001@Error en ObtenerPorIds: {ex.Message}", ex);
+            }
+        }
+    }
+}

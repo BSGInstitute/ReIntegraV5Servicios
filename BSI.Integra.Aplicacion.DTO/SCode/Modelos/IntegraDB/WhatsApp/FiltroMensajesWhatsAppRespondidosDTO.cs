@@ -1,0 +1,21 @@
+﻿using BSI.Integra.Aplicacion.DTO.SCode;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.WhatsApp
+{
+    public class FiltroMensajesWhatsAppRespondidosDTO
+    {
+        public int Page { get; set; }
+        public int PageSize { get; set; }
+        public int Skip { get; set; }
+        public int Take { get; set; }
+        public int BandejaRespondidos { get; set; }
+        public List<ValorIntDTO> ListaEstadoCreacionOportunidad { get; set; }
+        public GridFiltersDTO FiltroKendo { get; set; }
+
+    }
+}
