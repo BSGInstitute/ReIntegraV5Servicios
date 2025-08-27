@@ -700,6 +700,14 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
             try
             {
                 var existe = _unitOfWork.LinkedInApiRepository.ObtenerIdPorGuidLinkedInLead(dto.GuidLinkedInLead);
+                var valorPais = _unitOfWork.LinkedInApiRepository.ObtenerQuestionLeadForm(dto.GuidLinkedInLead);
+                if (valorPais!=null)
+                {
+                    if(valorPais.Pais != dto.Pais)
+                    {
+                        _unitOfWork.LinkedInApiRepository.ActualizarPaisQuestionLeadForm(dto, usuario);
+                    }
+                }
                 if (existe.Valor == null)
                 {
                     var respuesta = _unitOfWork.LinkedInApiRepository.CrearFormularioRegularizado(dto, usuario);
@@ -730,7 +738,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
 
             try
             {
-                var url = "https://integrav5-oportunidad-servicios.bsginstitute.com/api/LinkedIn/SubirOportunidadesPendientes"
+                var url = "https://localhost:44366/api/LinkedIn/SubirOportunidadesPendientes"
                           + "?usuario=" + Uri.EscapeDataString(usuario);
 
                 using var http = new HttpClient();

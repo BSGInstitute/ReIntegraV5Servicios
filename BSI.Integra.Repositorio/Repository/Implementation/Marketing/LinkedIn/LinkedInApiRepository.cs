@@ -829,6 +829,32 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.LinkedIn
             }
 
         }
+
+
+        public bool ActualizarPaisQuestionLeadForm(LinkedInActualizarDTO dto, string usuario)
+        {
+            try
+            {
+                var query = "mkt.SP_QuestionLeadForm_ActualizarPais";
+                var parametros = new
+                {
+                    GuidLinkedInLead = dto.GuidLinkedInLead,
+                    Pais = dto.Pais,
+                    UsuarioModificacion = usuario
+                };
+
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(query, parametros);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ActualizarFormularioRegularizado() {ex.Message}", ex);
+            }
+
+        }
+
+
+
         public List<InformacionBaseOportunidad> ObtenerReportePendientesRevisados()
         {
             try
@@ -891,7 +917,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.LinkedIn
                 var query = @"
                     SELECT
 	                    Estado as Valor
-                    FROM mkt.T_LinkedInFormularioRegularizado";
+                    FROM mkt.V_ControlEnvioLinkedin";
                 var resultado = _dapperRepository.FirstOrDefault(query, null);
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
@@ -906,7 +932,36 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.LinkedIn
                 throw;
             }
         }
+        public QuestionLeadFormDTO? ObtenerQuestionLeadForm(string GuidLinkedInLead)
+        {
+            try
+            {
+                QuestionLeadFormDTO rpta = new QuestionLeadFormDTO();
+                var query = @"
+                   SELECT Id,
+                       GuidLinkedInLead,
+                       Nombre,
+                       Pais,
+                       Cargo,
+                       AreaFormacion,
+                       AreaTrabajo,
+                       Industria 
+                    FROM mkt.T_QuestionLeadForm 
+                    WHERE Estado = 1 AND GuidLinkedInLead = @GuidLinkedInLead";
+                var resultado = _dapperRepository.FirstOrDefault(query, new { GuidLinkedInLead });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    rpta = JsonConvert.DeserializeObject<QuestionLeadFormDTO>(resultado)!;
 
+                    return rpta;
+                }
+                return rpta; ;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Se ha producido un error al ejecutar el método ObtenerPorIdGrupoCampaign()", ex);
+            }
+        }
 
 
     }

@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
@@ -55,6 +58,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TAsignacionAutomaticaTipoError> TAsignacionAutomaticaTipoErrors { get; set; } = null!;
         public virtual DbSet<TAsignacionOportunidad> TAsignacionOportunidads { get; set; } = null!;
         public virtual DbSet<TAsignacionOportunidadLog> TAsignacionOportunidadLogs { get; set; } = null!;
+        public virtual DbSet<TAsignacionPreguntaExaman> TAsignacionPreguntaExamen { get; set; } = null!;
         public virtual DbSet<TAsignacionRegular> TAsignacionRegulars { get; set; } = null!;
         public virtual DbSet<TAutenticacionServicioExterno> TAutenticacionServicioExternos { get; set; } = null!;
         public virtual DbSet<TAvatar> TAvatars { get; set; } = null!;
@@ -954,6 +958,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TWhatsAppUsuario> TWhatsAppUsuarios { get; set; } = null!;
         public virtual DbSet<TWhatsAppUsuarioCredencial> TWhatsAppUsuarioCredencials { get; set; } = null!;
         public virtual DbSet<TZonaHorariaPai> TZonaHorariaPais { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.UseCollation("Modern_Spanish_CI_AS");
@@ -3772,6 +3777,52 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasForeignKey(d => d.IdAsignacionOportunidad)
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_T_AsignacionOportunidadLog_T_AsignacionOportunidad");
+            });
+
+            modelBuilder.Entity<TAsignacionPreguntaExaman>(entity =>
+            {
+                entity.ToTable("T_AsignacionPreguntaExamen", "gp");
+
+                entity.HasIndex(e => new { e.IdPregunta, e.IdExamen, e.Estado }, "INC_T_AsignacionPreguntaExamen_IdPregunta_IdExamen");
+
+                entity.Property(e => e.Id).HasComment("Pk de la tabla");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de modificacion");
+
+                entity.Property(e => e.GrupoBloquePregunta).HasComment("Numero de Bloque de un Grupo Especifico de Preguntas por Examen");
+
+                entity.Property(e => e.IdExamen).HasComment("Fk de la tabla T_Examen");
+
+                entity.Property(e => e.IdMigracion).HasComment("Id de la tabla Original al migrar");
+
+                entity.Property(e => e.IdPregunta).HasComment("Fk de la tabla T_Pregunta");
+
+                entity.Property(e => e.NroOrden).HasComment("Nro Orden");
+
+                entity.Property(e => e.Puntaje).HasComment("Puntaje");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de modificacion");
             });
 
             modelBuilder.Entity<TAsignacionRegular>(entity =>

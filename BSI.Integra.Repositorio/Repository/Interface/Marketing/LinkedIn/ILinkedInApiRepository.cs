@@ -44,8 +44,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Marketing.LinkedIn
 
         bool CrearFormularioRegularizado(LinkedInActualizarDTO dto, string usuario);
         bool ActualizarFormularioRegularizado(LinkedInActualizarDTO dto, string usuario);
+        bool ActualizarPaisQuestionLeadForm(LinkedInActualizarDTO dto, string usuario);
         IntDTO? ObtenerIdPorGuidLinkedInLead(string GuidLinkedInLead);
-
+        QuestionLeadFormDTO? ObtenerQuestionLeadForm(string GuidLinkedInLead);
         void VerificarOportunidadEnLeads(VerificarOportunidadLead dto);
         List<InformacionBaseOportunidad> ObtenerReportePendientesRevisados();
         BoolDTO ValidarCreacionOportunidadLinkedinEstado();

@@ -131,6 +131,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin
         public DateTime? FechaLead { get; set; }
         public DateTime? FechaIntegra { get; set; }
         public int? CuentaAsociada { get; set; }
+        public int? IdAlumno { get; set; }
     }
 
 
@@ -191,9 +192,20 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin
         public string? AreaTrabajo { get; set; }
         public string? Cargo { get; set; }
         public string? Industria { get; set; }
+        public string? Pais { get; set; }
     }
 
 
-
+    public class QuestionLeadFormDTO
+    {
+        public string? GuidLinkedInLead { get; set; }
+        public string? AreaFormacion { get; set; }
+        public string? AreaTrabajo { get; set; }
+        public string? Cargo { get; set; }
+        public string? Industria { get; set; }
+        public string? Pais { get; set; }
+        public string? Nombre { get; set; }
+        public int Id { get; set; }
+    }
 
 }

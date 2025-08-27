@@ -73,6 +73,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 if (codigoFase == "IP" || codigoFase == "PF" || codigoFase == "IC")
                     reprogramacion.IntervaloSigProgramacionMin = 150;
             }
+
+            //En el caso de IP siempre seran 4 horas
+            if (codigoFase == "IP")
+            {
+                reprogramacion.IntervaloSigProgramacionMin = 240;
+            }
+            //fin - En el caso de IP siempre seran 4 horas
+
             if (reprogramacionesAsesor == null)
             {
                 if (reprogramacion == null)
