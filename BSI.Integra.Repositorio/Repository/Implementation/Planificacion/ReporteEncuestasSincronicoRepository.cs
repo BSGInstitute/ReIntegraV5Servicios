@@ -573,7 +573,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         }
 
 
-        public void ActualizarVisibleValoracionEncuesta(int id, int modalidad, string usuario)
+        public void ActualizarVisibleValoracionEncuesta(int id, int modalidad, int visible, string usuario)
         {
             try
             {
@@ -582,7 +582,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 {
                     Id = id,
                     Modalidad = modalidad,
-                    Usuario = usuario
+                    Usuario = usuario,
+                    Visible = visible
                 };
 
                 var resultado = _dapperRepository.QuerySPDapper(query, parametros);

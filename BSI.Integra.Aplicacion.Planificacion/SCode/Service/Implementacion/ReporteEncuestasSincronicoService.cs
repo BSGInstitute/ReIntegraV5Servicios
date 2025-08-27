@@ -300,7 +300,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     {
                             foreach (var id in dto.IdRespuestas)
                             {
-                                _unitOfWork.ReporteEncuestasSincronicoRepository.ActualizarVisibleValoracionEncuesta(id, dto.Modalidad, usuario);
+                                _unitOfWork.ReporteEncuestasSincronicoRepository.ActualizarVisibleValoracionEncuesta(id, dto.Modalidad,dto.VisiblePw, usuario);
                             }
                             return true;
                     }

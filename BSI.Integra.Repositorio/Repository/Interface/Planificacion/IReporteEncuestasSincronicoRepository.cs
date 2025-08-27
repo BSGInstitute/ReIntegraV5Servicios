@@ -23,6 +23,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         void GuardarTestimonio(TestimonioEntidadDTO dto, string usuario);
         void ActualizarEstadoTestimonioEstado(TestimonioEntidadActualizarDTO dto, string usuario);
         public List<ReportePGeneralValoracion>? GenerarReporteValoracionTotal(filtroValoracionDTO filtro);
-        void ActualizarVisibleValoracionEncuesta(int id, int modalidad, string usuario);
+        void ActualizarVisibleValoracionEncuesta(int id, int modalidad, int visible, string usuario);
     }
 }
