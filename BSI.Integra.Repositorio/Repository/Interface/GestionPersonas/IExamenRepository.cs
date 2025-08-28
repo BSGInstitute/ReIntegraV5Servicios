@@ -25,5 +25,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.GestionPersonas
         List<EstructuraBasicaDTO> ObtenerExamenNoAsignadoProcesoSeleccion(int IdProcesoSeleccion);
         List<ExamenAsignadoProcesoDTO> ObtenerExamenAsignadoProcesoSeleccion(int IdProcesoSeleccion);
 
+        IEnumerable<ExamenVDTO> ObtenerEvaluacion();
+
     }
 }

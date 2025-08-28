@@ -244,7 +244,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                              FROM [gp].[V_PreguntaRespuestaAOnline]
                              WHERE IdPregunta = @idPregunta
                              ORDER BY IdRespuestaPregunta DESC";
-                var resultado = _dapperRepository.QueryDapper(query, new { idPregunta });
+                var resultado = _dapperRepository.QueryDapper(query, new { idPregunta = idPregunta });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
                     rpta = JsonConvert.DeserializeObject<List<PreguntaRespuestaAsincronicaDTO>>(resultado);
@@ -256,6 +256,61 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 throw ex;
             }
         }
-
+        public List<RespuestaPregunta> ObtenerRespuestaPorIdPregunta(int idPregunta) {
+            try
+            {
+                var rpta = new List<RespuestaPregunta>();
+                var query = @"SELECT Id
+		                        ,IdPregunta
+		                        ,EnunciadoRespuesta
+		                        ,NroOrden
+		                        ,Puntaje
+		                        ,Estado
+		                        ,UsuarioCreacion
+		                        ,UsuarioModificacion
+		                        ,FechaCreacion
+		                        ,FechaModificacion
+		                        ,RowVersion FROM gp.T_RespuestaPregunta
+                                WHERE
+                                Estado=1 AND IdPregunta=@Id";
+                var resultado = _dapperRepository.QueryDapper(query, new { Id = idPregunta });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    rpta = JsonConvert.DeserializeObject<List<RespuestaPregunta>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<PreguntaRespuestaAsincronicaDTO> ObtenerRespuesta(int idPregunta)
+        {
+            try
+            {
+                var rpta = new List<PreguntaRespuestaAsincronicaDTO>();
+                var query = @"SELECT
+                                  
+                                    IdRespuestaPregunta, 
+                                    IdPregunta, 
+                                    NroOrden, 
+                                    EnunciadoRespuesta, 
+                                    Puntaje 
+                             FROM [gp].[V_PreguntaRespuestaAOnline]
+                             WHERE IdPregunta = @IdPregunta
+                             ORDER BY IdRespuestaPregunta DESC";
+                var resultado = _dapperRepository.QueryDapper(query, new { IdPregunta = idPregunta });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    rpta = JsonConvert.DeserializeObject<List<PreguntaRespuestaAsincronicaDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

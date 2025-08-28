@@ -66,5 +66,20 @@ namespace BSI.Integra.Servicios.Controllers.GestionPersonas
             }
         }
 
+        //////////ObtenerExamenes
+        [HttpGet("[action]")]
+        public IActionResult ObtenerEvaluacion()
+        {
+            try
+            {
+                var listaExamen = _examenAsignadoEvaluadorService.ObtenerEvaluacion();
+                return Ok(listaExamen);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
     }
 }

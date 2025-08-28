@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface.Planificacion;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -30,6 +32,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 cfg.CreateMap<TPreguntaIntentoDetalle, PreguntaIntentoDetalle>(MemberList.None).ReverseMap();
                 cfg.CreateMap<TPreguntaProgramaCapacitacion, PreguntaProgramaCapacitacion>(MemberList.None).ReverseMap();
                 cfg.CreateMap<TRespuestaPreguntaProgramaCapacitacion, RespuestaPreguntaProgramaCapacitacion>(MemberList.None).ReverseMap();
+                cfg.CreateMap<PreguntaIntento, PreguntaIntentoDTO>(MemberList.None).ReverseMap();
+                
             });
             _mapper = new Mapper(config);
         }

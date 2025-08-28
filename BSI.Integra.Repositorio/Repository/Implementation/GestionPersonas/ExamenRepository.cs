@@ -451,5 +451,26 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.GestionPersonas
             }
         }
 
+        public IEnumerable<ExamenVDTO> ObtenerEvaluacion() {
+            try
+            {
+                List<ExamenVDTO> rpta = new List<ExamenVDTO>();
+                var query = @"
+                    SELECT IdExamen, NombreExamen, 
+                        FactorComponente, IdEvaluacion 
+                        FROM gp.V_TExamenTest_ObtenerExamenesAsociados WHERE Estado = 1 ";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ExamenVDTO>>(resultado);
+
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

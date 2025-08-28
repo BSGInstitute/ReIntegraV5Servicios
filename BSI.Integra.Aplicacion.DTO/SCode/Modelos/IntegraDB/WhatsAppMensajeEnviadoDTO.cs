@@ -312,6 +312,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string? Pais { get; set; }
         public string? NumeroWhatsApp { get; set; }
         public int ? IdPersonalVentanas { get; set; }
+        public int? IdOportunidad { get; set; }
+        public string? Rango { get; set; }
     }
     public class ObtenerChatWhatsAppMarketingPorCelularDTO
     {

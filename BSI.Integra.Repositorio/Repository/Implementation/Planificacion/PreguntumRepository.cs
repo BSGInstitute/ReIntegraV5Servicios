@@ -1,6 +1,10 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.GestionPersonas;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.GestionPersonas;
 using BSI.Integra.Aplicacion.Operaciones.SCode.Service.Implementacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Infrastructure;
@@ -29,6 +33,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             var config = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<TPreguntum, Preguntum>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TPreguntum, PreguntaIntento>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TPreguntaIntento, PreguntaIntento>(MemberList.None).ReverseMap();
+
             });
             _mapper = new Mapper(config);
         }
@@ -247,6 +254,112 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+        public IEnumerable<Aplicacion.DTO.SCode.Modelos.IntegraDB.PreguntaRegistradaDTO> Obtener() {
+            try
+            {
+                List<Aplicacion.DTO.SCode.Modelos.IntegraDB.PreguntaRegistradaDTO> rpta = new List<Aplicacion.DTO.SCode.Modelos.IntegraDB.PreguntaRegistradaDTO>();
+                var query = @"
+                    SELECT Id, 
+                           Enunciado, 
+                           IdTipoRespuesta,
+                           IdPreguntaTipo,
+                           MinutosPorPregunta,
+                           RespuestaAleatoria, 
+                           ActivarFeedBackRespuestaCorrecta, 
+                           ActivarFeedBackRespuestaIncorrecta, 
+                           MostrarFeedbackInmediato, 
+                           MostrarFeedbackPorPregunta, 
+                           NumeroMaximoIntento, 
+                           ActivarFeedbackMaximoIntento,
+                           MensajeFeedbackIntento,
+                           IdExamen, 
+                           ComponenteExamen,
+                           IdTipoRespuestaCalificacion,
+                           FactorRespuesta,
+                           IdPreguntaCategoria 
+                           FROM [gp].[V_TPregunta_ObtenerPreguntasRegistradas] WHERE Estado = 1 AND RowNumber = 1
+";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<Aplicacion.DTO.SCode.Modelos.IntegraDB.PreguntaRegistradaDTO>>(resultado);
+
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<TipoRespuestaCalificacionDTO> ObtenerTipoRespuestaCategoria() {
+            try
+            {
+                List<TipoRespuestaCalificacionDTO> rpta = new List<TipoRespuestaCalificacionDTO>();
+                var query = @"
+                    SELECT Id, 
+                            Nombre
+                           FROM gp.T_TipoRespuestaCalificacion WHERE Estado = 1
+";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<TipoRespuestaCalificacionDTO>>(resultado);
+
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public void InsertarPreguntas(List<Preguntum> preguntas)
+        {
+            try
+            {
+                List<TPreguntum> listado = new List<TPreguntum>();
+                foreach (var entidad in preguntas)
+                {
+                    listado.Add(MapeoEntidad(entidad));
+                }
+                base.Insert(listado);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<RespuestaPreguntaDTO> ObtenerRespuestaPregunta(int idPregunta) {
+            try
+            {
+                List<RespuestaPreguntaDTO> rpta = new List<RespuestaPreguntaDTO>();
+                var query = @"SELECT 
+                            Id, 
+                            IdPregunta, 
+                            RespuestaCorrecta, 
+                            NroOrdenRespuesta, 
+                            NroOrden, EnunciadoRespuesta, 
+                            Puntaje, FeedbackPositivo, 
+                            FeedbackNegativo    
+                            FROM [gp].[V_TRespuestaPregunta_ObtenerRespuestasPregunta] WHERE Estado = 1 AND IdPregunta = @IdPregunta
+";
+                var resultado = _dapperRepository.QueryDapper(query, new { IdPregunta = idPregunta});
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<RespuestaPreguntaDTO>>(resultado);
+
+                }
+                return rpta;
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 

@@ -1,4 +1,7 @@
-﻿using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.GestionPersonas;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.GestionPersonas;
 using BSI.Integra.Aplicacion.Operaciones.SCode.Service.Implementacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -22,5 +25,11 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         #endregion
         Preguntum ObtenerPorId(int id);
         List<BancoPreguntumDTO> ObtenerPreguntaEncuestaAsincronica();
+        IEnumerable<Aplicacion.DTO.SCode.Modelos.IntegraDB.PreguntaRegistradaDTO> Obtener();
+        IEnumerable<TipoRespuestaCalificacionDTO> ObtenerTipoRespuestaCategoria();
+
+        void InsertarPreguntas(List<Preguntum> pregunta);
+
+        IEnumerable<RespuestaPreguntaDTO> ObtenerRespuestaPregunta(int id);
     }
 }

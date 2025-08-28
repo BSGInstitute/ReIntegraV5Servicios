@@ -10,5 +10,6 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Interface
         bool ActualizarFactorComponente(FactorComponenteDTO Json);
         List<FactorComponenteDTO> ObtenerComponentePorEvaluacion(int idEvaluacion);
         List<ExamenVDTO> ObtenerComponentesPorEvaluacion(int idEvaluacion);
+        IEnumerable<ExamenVDTO> ObtenerEvaluacion();
     }
 }

@@ -75,5 +75,10 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                 throw new Exception(e.Message);
             }
         }
+
+        public IEnumerable<ExamenVDTO> ObtenerEvaluacion() {
+            return _unitOfWork.ExamenRepository.ObtenerEvaluacion();
+        }
+
     }
 }

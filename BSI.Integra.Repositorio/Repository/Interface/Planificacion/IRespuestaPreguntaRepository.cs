@@ -1,4 +1,5 @@
-﻿using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.GestionPersonas;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
@@ -17,7 +18,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         bool Delete(IEnumerable<int> listadoIds, string usuario);
         #endregion
         RespuestaPregunta ObtenerPorId(int id);
+        List<RespuestaPregunta> ObtenerRespuestaPorIdPregunta(int id);
         IEnumerable<RespuestaPreguntaFactorDesaprovatorioComboDTO> ObtenerFactorDesaprovatorio();
         List<PreguntaRespuestaAsincronicaDTO> ObtenerRespuestaPregunta(int idPregunta);
+        IEnumerable<PreguntaRespuestaAsincronicaDTO> ObtenerRespuesta(int idPregunta);
     }
 }

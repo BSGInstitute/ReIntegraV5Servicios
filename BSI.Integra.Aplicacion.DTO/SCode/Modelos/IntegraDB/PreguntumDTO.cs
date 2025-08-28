@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.GestionPersonas;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -73,5 +75,56 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public bool? PreguntaActiva { get; set; }
     }
 
+    public class PreguntaRegistradaDTO
+    {
+        public int Id { get; set; }
+        public string Enunciado { get; set; }
+        public int IdTipoRespuesta { get; set; }
+        public int? IdPreguntaTipo { get; set; }
+        public int? MinutosPorPregunta { get; set; }
+        public bool? RespuestaAleatoria { get; set; }
+        public bool? ActivarFeedBackRespuestaCorrecta { get; set; }
+        public bool? ActivarFeedBackRespuestaIncorrecta { get; set; }
+        public bool? MostrarFeedbackInmediato { get; set; }
+        public bool? MostrarFeedbackPorPregunta { get; set; }
+        public int? NumeroMaximoIntento { get; set; }
+        public bool? ActivarFeedbackMaximoIntento { get; set; }
+        public string MensajeFeedbackIntento { get; set; }
+        public int? IdExamen { get; set; }
+        public string ComponenteExamen { get; set; }
+        public int? IdTipoRespuestaCalificacion { get; set; }
+        public int? FactorRespuesta { get; set; }
+        public int? IdPreguntaCategoria { get; set; }
+    }
+
+    public class CompuestoPreguntaDTO
+    {
+        public PreguntaEvaluacionDTO Pregunta { get; set; }
+        public ExamenPreguntaDTO? Examen { get; set; }
+        public PreguntaIntentoDTO PreguntaIntento { get; set; }
+        public List<RespuestaPreguntaDTO> RespuestaPregunta { get; set; }
+    }
+    public class ExamenPreguntaDTO
+    {
+        public List<int>? ListaExamen { get; set; }
+    }
+    public class PreguntaEvaluacionDTO
+    {
+        public int Id { get; set; }
+        public bool? ActivarFeedBackRespuestaCorrecta { get; set; }
+        public bool? ActivarFeedBackRespuestaIncorrecta { get; set; }
+        public string Enunciado { get; set; }
+        public int? IdPreguntaTipo { get; set; }
+        public int IdTipoRespuesta { get; set; }
+        public int? MinutosPorPregunta { get; set; }
+        public bool? MostrarFeedbackInmediato { get; set; }
+        public bool? MostrarFeedbackPorPregunta { get; set; }
+        public bool RespuestaAleatoria { get; set; }
+        public int? IdTipoRespuestaCalificacion { get; set; }
+        public int? FactorRespuesta { get; set; }
+        public int? IdPreguntaCategoria { get; set; }
+    }
+
+    
 }
 

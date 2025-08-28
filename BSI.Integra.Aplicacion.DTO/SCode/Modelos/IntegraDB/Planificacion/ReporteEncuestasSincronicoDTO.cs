@@ -361,4 +361,25 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public int Modalidad { get; set; }
         public int VisiblePw { get; set; }
     }
+
+    public class ListaPreguntaAgrupadaDTO {
+        public int Id { get; set; }
+        public string Enunciado { get; set; }
+        public int? IdTipoRespuesta { get; set; }
+        public int? IdPreguntaTipo { get; set; }
+        public int? MinutosPorPregunta { get; set; }
+        public bool? RespuestaAleatoria { get; set; }
+        public bool? ActivarFeedBackRespuestaCorrecta { get; set; }
+        public bool? ActivarFeedBackRespuestaIncorrecta { get; set; }
+        public bool? MostrarFeedbackInmediato { get; set; }
+        public bool? MostrarFeedbackPorPregunta { get; set; }
+        public int? NumeroMaximoIntento { get; set; }
+        public bool? ActivarFeedbackMaximoIntento { get; set; }
+        public string? MensajeFeedback { get; set; }
+        public List<int?> ListaExamen { get; set; }
+        public List<string> ComponenteExamen { get; set; }
+        public int? IdTipoRespuestaCalificacion { get; set; }
+        public int? FactorRespuesta { get; set; }
+        public int? IdPreguntaCategoria { get; set; }
+    }
 }

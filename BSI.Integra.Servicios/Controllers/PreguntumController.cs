@@ -1,16 +1,28 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.GestionPersonas;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.GestionPersonas;
 using BSI.Integra.Aplicacion.Operaciones.SCode.Service.Implementacion;
 using BSI.Integra.Aplicacion.Operaciones.SCode.Service.Interface;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
+using BSI.Integra.Repositorio.Repository.Implementation.Planificacion;
 using BSI.Integra.Repositorio.UnitOfWork;
+using BSI.Integra.Servicios.Configurations;
+using BSI.Integra.Servicios.Helpers;
+using CsvHelper;
+using CsvHelper.Configuration;
+using Google.Api.Ads.Common.Util;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
+using System.Transactions;
 
 namespace BSI.Integra.Servicios.Controllers
 {
-  
+
     /// Controlador: SolicitudTipoReporteController
     /// Autor: Jorge Gamero
     /// Fecha: 05/05/2025
@@ -20,12 +32,17 @@ namespace BSI.Integra.Servicios.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [EnableCors("CorsVista")]
-    public class PreguntumController : Controller
+    public class PreguntumController : ControllerBase
     {
         private IUnitOfWork unitOfWork;
-        public PreguntumController(IUnitOfWork unitOfWork)
+        private IPreguntumService preguntumService;
+        private ITokenManager tokenManager;
+
+        public PreguntumController(IUnitOfWork unitOfWork, ITokenManager tokenManager)
         {
             this.unitOfWork = unitOfWork;
+            this.preguntumService = new PreguntumService(unitOfWork);
+            this.tokenManager = tokenManager;
         }
         /// Tipo Función: POST
         /// Autor: Jorge Gamero
@@ -328,5 +345,239 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
+        [HttpPost("[action]")]
+        public IActionResult InsertarPregunta([FromBody] CompuestoPreguntaDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            try
+            {
+                return Ok(preguntumService.InsertarPregunta(dto, tokenManager.UserName));
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        [HttpGet("[action]")]
+        public IActionResult ObtenerTipoRespuestaCategoria()
+        {
+            var resultado = preguntumService.ObtenerTipoRespuestaCategoria();
+            return Ok(resultado);
+        }
+
+        [HttpGet("[action]")]
+        public IActionResult Obtener()
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var resultado = preguntumService.Obtener();
+                var resultadoAgrupado = resultado.GroupBy(x => new
+            {
+                x.Id,
+                x.Enunciado,
+                x.IdTipoRespuesta,
+                x.IdPreguntaTipo,
+                x.MinutosPorPregunta,
+                x.RespuestaAleatoria,
+                x.ActivarFeedBackRespuestaCorrecta,
+                x.ActivarFeedBackRespuestaIncorrecta,
+                x.MostrarFeedbackInmediato,
+                x.MostrarFeedbackPorPregunta,
+                x.NumeroMaximoIntento,
+                x.ActivarFeedbackMaximoIntento,
+                x.MensajeFeedbackIntento,
+                x.IdTipoRespuestaCalificacion,
+                x.FactorRespuesta,
+                x.IdPreguntaCategoria
+            }).Select(x => new ListaPreguntaAgrupadaDTO
+            {
+                Id = x.Key.Id,
+                Enunciado = x.Key.Enunciado,
+                IdTipoRespuesta = x.Key.IdTipoRespuesta,
+                IdPreguntaTipo = x.Key.IdPreguntaTipo,
+                MinutosPorPregunta = x.Key.MinutosPorPregunta,
+                RespuestaAleatoria = x.Key.RespuestaAleatoria,
+                ActivarFeedBackRespuestaCorrecta = x.Key.ActivarFeedBackRespuestaCorrecta,
+                ActivarFeedBackRespuestaIncorrecta = x.Key.ActivarFeedBackRespuestaIncorrecta,
+                MostrarFeedbackInmediato = x.Key.MostrarFeedbackInmediato,
+                MostrarFeedbackPorPregunta = x.Key.MostrarFeedbackPorPregunta,
+                NumeroMaximoIntento = x.Key.NumeroMaximoIntento,
+                ActivarFeedbackMaximoIntento = x.Key.ActivarFeedbackMaximoIntento,
+                MensajeFeedback = x.Key.MensajeFeedbackIntento,
+                IdTipoRespuestaCalificacion = x.Key.IdTipoRespuestaCalificacion,
+                FactorRespuesta = x.Key.FactorRespuesta,
+                IdPreguntaCategoria = x.Key.IdPreguntaCategoria,
+                ComponenteExamen = x.GroupBy(y => y.ComponenteExamen).Select(y => y.Key).ToList(),
+                ListaExamen = x.GroupBy(z => z.IdExamen).Select(z => z.Key).ToList()
+            }).ToList();
+            return Ok(resultadoAgrupado);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("[action]/{id}")]
+        public IActionResult ObtenerID(int id)
+        {
+            var resultado = unitOfWork.PreguntumRepository.ObtenerPorId(id);
+            return Ok(resultado);
+        }
+
+        [HttpGet("[action]/{id}")]
+        public IActionResult ObtenerRespuestaPregunta(int id) {
+            try {
+                var respuesta = preguntumService.ObtenerRespuestaPregunta(id);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Mensaje = ex.Message });
+            }
+        }
+        [HttpGet("[action]")]
+        public IActionResult ObtenerComboTipoPregunta()
+        {
+            var resultado = preguntumService.ObtenerComboTipoPregunta();
+            return Ok(resultado);
+        }
+
+        [HttpPut("[action]")]
+        public IActionResult ActualizarPregunta([FromBody] CompuestoPreguntaDTO dto) {
+            try
+            {
+                var resultado = preguntumService.ActualizarPregunta(dto, tokenManager.UserName);
+                return Ok(resultado);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        [HttpDelete("[action]/{id}")]
+        public IActionResult EliminarPregunta(int id) {
+            try {
+                var resultado = preguntumService.EliminarPregunta(id, tokenManager.UserName);
+                return Ok(resultado);
+            }
+            catch {
+                throw;
+            }
+            
+        }
+        [HttpPost("[action]")]
+        public IActionResult ImportarExcel([FromForm] RespuestaPreguntaImportadaDTO Dto)
+        {
+            CsvFile file = new CsvFile();
+            List<string> listaErrores = new List<string>();
+            try
+            {
+                int indexError = 0;
+                int indexTotal = 0;
+                var pregunta = unitOfWork.PreguntumRepository.FirstById(Dto.IdPregunta);
+                using (var reader = new StreamReader(Dto.File.OpenReadStream()))
+                using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    Delimiter = ";",
+                    MissingFieldFound = null,   // ignora si falta un campo
+                    HeaderValidated = null      // ignora si el header no coincide
+                }))
+                {
+                    csv.Read();
+                    csv.ReadHeader();
+
+                    while (csv.Read())
+                    {
+                        int? puntajeTipoRespuesta = null;
+                        int? puntaje = csv.GetField<int?>("Puntaje");
+                        bool? respuestaCorrecta = csv.GetField<bool?>("RespuestaCorrecta");
+
+                        if (pregunta.IdTipoRespuestaCalificacion.HasValue)
+                        {
+                            int tipoRes = pregunta.IdTipoRespuestaCalificacion.Value;
+
+                            if (tipoRes == 1) // Directo
+                            {
+                                puntajeTipoRespuesta = puntaje;
+                            }
+                            else if (tipoRes == 2) // Inversa
+                            {
+                                if (pregunta.FactorRespuesta.HasValue)
+                                {
+                                    int factorRes = pregunta.FactorRespuesta.Value;
+                                    puntajeTipoRespuesta = factorRes - puntaje;
+                                }
+                            }
+                            else // Negativo
+                            {
+                                if (pregunta.FactorRespuesta.HasValue)
+                                {
+                                    int factorRes = pregunta.FactorRespuesta.Value;
+                                    if (respuestaCorrecta.HasValue)
+                                    {
+                                        if (!respuestaCorrecta.Value)
+                                            puntajeTipoRespuesta = puntaje - factorRes;
+                                        else
+                                            puntajeTipoRespuesta = puntaje;
+                                    }
+                                }
+                            }
+                        }
+
+                        indexTotal++;
+
+                        try
+                        {
+                            var respuestaPregunta = new RespuestaPregunta()
+                            {
+                                IdPregunta = Dto.IdPregunta,
+                                RespuestaCorrecta = csv.GetField<bool?>("RespuestaCorrecta"),
+                                NroOrden = csv.GetField<int>("NroOrden"),
+                                EnunciadoRespuesta = csv.GetField<string>("EnunciadoRespuesta"),
+                                NroOrdenRespuesta = csv.GetField<int?>("NroOrdenRespuesta"),
+                                Puntaje = csv.GetField<int?>("Puntaje"),
+                                FeedbackPositivo = csv.GetField<string>("FeedbackPositivo"),
+                                FeedbackNegativo = csv.GetField<string>("FeedbackNegativo"),
+                                Estado = true,
+                                UsuarioCreacion = tokenManager.UserName,
+                                UsuarioModificacion = tokenManager.UserName,
+                                FechaCreacion = DateTime.Now,
+                                FechaModificacion = DateTime.Now,
+                                PuntajeTipoRespuesta = puntajeTipoRespuesta
+                            }; unitOfWork.RespuestaPreguntaRepository.Add(respuestaPregunta);
+
+                            unitOfWork.Commit();
+                        }
+                        catch (Exception e)
+                        {
+                            indexError++;
+                            listaErrores.Add("Error en: " + csv.GetField<string>("EnunciadoRespuesta") + " - " + e.Message);
+                        }
+                    }
+
+                    
+                }
+                ImportarExcelRespuestaDTO resultadoImportarExcel = new()
+                {
+                    Total = indexTotal,
+                    Correcto = (indexTotal - indexError),
+                    Error = indexError,
+                    Errores = listaErrores
+                };
+                return Ok(resultadoImportarExcel);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message); ;
+            }
+        }
     }
 }

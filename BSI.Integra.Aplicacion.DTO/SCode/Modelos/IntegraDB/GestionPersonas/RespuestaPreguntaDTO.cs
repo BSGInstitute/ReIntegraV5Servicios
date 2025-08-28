@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.GestionPersonas
 {
     public class RespuestaPreguntaDTO
     {
+        public int? id { get; set; }
         public int? IdPregunta { get; set; }
         public bool? RespuestaCorrecta { get; set; }
         public int NroOrden { get; set; }
@@ -43,6 +45,19 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.GestionPersonas
         public string? EnunciadoRespuesta { get; set; }
         public int? NroOrden { get; set; }
         public decimal? Puntaje { get; set; }
+    }
+
+    public class PreguntaRespuesta {
+        public int IdRespuestaPregunta { get; set; }
+        public int IdPregunta { get; set; }
+        public string? EnunciadoRespuesta { get; set; }
+        public int? NroOrden { get; set; }
+        public decimal? Puntaje { get; set; }
+    }
+
+    public class RespuestaPreguntaImportadaDTO {
+        public IFormFile File { get; set; }
+        public int IdPregunta { get; set; }
     }
 
 }

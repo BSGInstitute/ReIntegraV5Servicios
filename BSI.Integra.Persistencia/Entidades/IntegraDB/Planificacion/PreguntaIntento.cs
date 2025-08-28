@@ -13,7 +13,7 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion
         public int? NumeroMaximoIntento { get; set; }
         public bool? ActivarFeedbackMaximoIntento { get; set; }
         public string? MensajeFeedback { get; set; }
-        public List<PreguntaIntentoDetalle> PreguntaIntentoDetalles { get; set; }
-        public List<PreguntaProgramaCapacitacion> PreguntaProgramaCapacitacions { get; set; }
+        public List<PreguntaIntentoDetalle>? PreguntaIntentoDetalles { get; set; }
+        public List<PreguntaProgramaCapacitacion>? PreguntaProgramaCapacitacions { get; set; }
     }
 }

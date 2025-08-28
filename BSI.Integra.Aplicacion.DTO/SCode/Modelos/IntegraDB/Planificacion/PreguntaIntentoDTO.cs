@@ -13,6 +13,6 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public int? NumeroMaximoIntento { get; set; }
         public bool? ActivarFeedbackMaximoIntento { get; set; }
         public string? MensajeFeedback { get; set; }
-        public List<PreguntaIntentoDetalleDTO> PreguntaIntentoDetalles { get; set; }
+        public List<PreguntaIntentoDetalleDTO>? PreguntaIntentoDetalles { get; set; }
     }
 }
