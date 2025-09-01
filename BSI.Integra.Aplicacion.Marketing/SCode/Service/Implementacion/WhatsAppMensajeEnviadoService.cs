@@ -1574,8 +1574,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
             };
 
             // 2. Envio de chats al modelo IA
-            string url = $"http://api-asistente-marketing-whatsapp.bsginstitute.com/testing/api/extractor_texto/consulta/";
-            //string url = $"http://api-asistente-marketing-whatsapp.bsginstitute.com/api/extractor_texto/consulta/";
+            string url = $"http://api-asistente-marketing-whatsapp.bsginstitute.com/api/extractor_texto/consulta/";
 
             var Serializer = new JavaScriptSerializer();
             var serializedResult = Serializer.Serialize(datosExtraccionRegistrosRequest);
