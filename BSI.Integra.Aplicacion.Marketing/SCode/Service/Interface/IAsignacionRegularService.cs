@@ -42,7 +42,9 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Interface
         bool? InsertarOrigenSector(InsertarOrigenSectorDTO OrigenSector, string UsuarioCreacion);
         bool? ActualizarConfiguracionAsignacionRegular(List<ObtenerAsesorConfiguracionPorPaisDTO> ListaConfiguracionAsignacionRegular, String UsuarioModificacion);
         bool? ActualizarTopeOportunidad(int idAsignacionRegular, int TopeOportunidad, String UsuarioModificacion);
+        bool? ActualizarTopeAsignacionDiaria(int idAsignacionRegular, int TopeAsignacionDiaria, String UsuarioModificacion);
         bool? EliminarOrigenSector(int Id, string UsuarioModificacion);
+
         List<ListaCategoriaOrigenNoConfigurada> ObtenerCategoriaOrigen();
         List<CategoriaOrigenPorSectorDTO> ObtenerCategoriaOrigenPorSector(int IdOrigenSector);
         bool? InsertarCategoriaOrigenPorSector(int IdOrigenSector, ListaCategoriaOrigenDTO ListaCategoriaOrigen, String UsuarioCreacion);
@@ -51,5 +53,5 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Interface
 
     }
 
-    
+
 }

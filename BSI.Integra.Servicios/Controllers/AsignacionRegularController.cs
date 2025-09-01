@@ -33,7 +33,7 @@ namespace BSI.Integra.Servicios.Controllers
             _scopeFactory = scopeFactory;
         }
 
-     
+
         /// Tipo Función: POST
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 12/08/2022
@@ -614,41 +614,42 @@ namespace BSI.Integra.Servicios.Controllers
 
             try
             {
-        
+
                 var claimsIdentity = User.Identity as ClaimsIdentity;
                 var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
                 var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
 
                 Task.Run(async () =>
+
                 {
-         
+
                     using (var scope = _scopeFactory.CreateScope())
                     {
-              
+
                         var unitOfWorkEnScope = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-            
+
                         var servicioEnScope = new AsignacionRegularAutomaticaService(unitOfWorkEnScope);
 
                         try
                         {
-                         
+
                             bool resultado = await servicioEnScope.EjecutarAsignacionDatosAutomatizada(usuario);
 
-                            if (resultado)
-                                servicioEnScope.EnvioCorreoValidado(" La asignación de datos finalizó correctamente.");
-                            else
-                                servicioEnScope.EnvioCorreoValidado(" La asignación terminó con errores o no pudo ejecutarse.");
+                            //    if (resultado)
+                            //        servicioEnScope.EnvioCorreoValidado(" La asignación de datos finalizó correctamente.");
+                            //    else
+                            //        servicioEnScope.EnvioCorreoValidado(" La asignación terminó con errores o no pudo ejecutarse.");
                         }
                         catch (Exception ex)
                         {
-                     
-                            servicioEnScope.EnvioCorreoValidado($" Ocurrió un error interno en segundo plano: {ex.Message}");
+
+                            //    servicioEnScope.EnvioCorreoValidado($" Ocurrió un error interno en segundo plano: {ex.Message}");
                         }
-                    
+
                     }
                 });
 
-   
+
                 return Ok(new { mensaje = "La asignación fue iniciada y se está ejecutando en segundo plano." });
             }
             catch (Exception ex)
@@ -782,7 +783,7 @@ namespace BSI.Integra.Servicios.Controllers
 
             try
             {
-              
+
                 Task.Run(async () =>
                 {
                     try
@@ -790,11 +791,11 @@ namespace BSI.Integra.Servicios.Controllers
                         var usuario = "SYSTEMV5";
                         var servicio = new AsignacionRegularAutomaticaService(unitOfWork);
                         await servicio.EjecutarAsignacionDatosAutomatizada(usuario);
-                      
+
                     }
                     catch (Exception ex)
                     {
-                     
+
                         Console.WriteLine($" Error en ejecución automática: {ex.Message}");
                     }
                 });
@@ -1322,6 +1323,42 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+
+
+        /// <summary>
+        /// Autor: Miguel Valdivia
+        /// Fecha: 27/08/2025
+        /// Version: 1.0
+        /// Actualiza el tope de asignación diaria
+        /// </summary>
+        /// <param name="id">ID de la asignación regular</param>
+        /// <param name="TopeAsignacionDiaria">Nuevo tope de asignación diaria</param>
+        /// <returns>IActionResult</returns>
+        [HttpPost("ActualizarTopeAsignacionDiaria/{id}/{TopeAsignacionDiaria}")]
+        public IActionResult ActualizarTopeAsignacionDiaria(int id, int TopeAsignacionDiaria)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var claimsIdentity = User.Identity as ClaimsIdentity;
+                var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+                var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
+                var servicio = new AsignacionRegularService(unitOfWork);
+                var respuesta = servicio.ActualizarTopeAsignacionDiaria(id, TopeAsignacionDiaria, usuario);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+
 
         /// Tipo Función: POST
         /// Autor: Edson Daniel Mayta Escobedo

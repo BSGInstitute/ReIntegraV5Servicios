@@ -154,8 +154,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 {
                     Console.WriteLine("Cancelando asignación automática para priorizar la manual...");
 
-                    _cts.Cancel(); 
-                    await Task.Delay(500); 
+                    _cts.Cancel();
+                    await Task.Delay(500);
 
                     _cts = new CancellationTokenSource();
                     _ejecucionManualEnCurso = true;
@@ -164,13 +164,13 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 else
                 {
                     Console.WriteLine("Ya hay una asignación en proceso, omitiendo ejecución automática.");
-                    return false;  
+                    return false;
                 }
             }
 
             try
             {
-              
+
                 if (!esManual && (DateTime.Now - _ultimaEjecucionManual).TotalMinutes < 15)
                 {
                     Console.WriteLine("Se ejecutó recientemente una asignación manual. Bloqueando la automática.");
@@ -179,7 +179,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                 Console.WriteLine($" Iniciando asignación {(esManual ? "MANUAL" : "AUTOMÁTICA")}...");
 
-               
+
                 bool resultadoWhatsapp = await AsignacionAutomatizadaAsesorWhatsapp(Usuario, _cts.Token);
                 bool resultadoNormal = await AsignacionAutomatizadaAsesor(Usuario, _cts.Token);
 
@@ -209,13 +209,13 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
             if (!_semaforo.Wait(0))
             {
-                lock (_semaforo) 
+                lock (_semaforo)
                 {
                     if (esManual)
                     {
                         Console.WriteLine("Cancelando asignación automática para priorizar la manual...");
                         _cts.Cancel(); // Cancela cualquier asignación automática en proceso
-                        Task.Delay(500).Wait(); 
+                        Task.Delay(500).Wait();
                     }
                     else
                     {
@@ -267,19 +267,19 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 {
                     if (esManual)
                     {
-                        _ejecucionManualEnCurso = false; 
+                        _ejecucionManualEnCurso = false;
                     }
                     else
                     {
-                        _ejecucionAutomaticaEnCurso = false; 
+                        _ejecucionAutomaticaEnCurso = false;
                     }
                     if (_semaforo.CurrentCount == 0)
                     {
-                        _semaforo.Release(); 
+                        _semaforo.Release();
                     }
                 }
 
-              //  _semaforo.Release();
+                //  _semaforo.Release();
                 Console.WriteLine(" Asignación finalizada, permitiendo nuevas ejecuciones.");
             }
         }
@@ -378,7 +378,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                 if (!Usuario.Equals("SYSTEMV5", StringComparison.OrdinalIgnoreCase))
                 {
-                    EnvioCorreoAsignacion("Inicio de la asignación de datos");
+                    //EnvioCorreoAsignacion("Inicio de la asignación de datos");
                 }
                 List<ObtenerOportunidadConfiguradaV2DTO> ListaOportunidadesConfiguradas = _unitOfWork.AsignacionRegularRepository.ObtenerOportunidadConfigurada();
 
@@ -390,7 +390,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                     try
                     {
-                        
+
                         if (!asesoresActivosPorConfiguracion.ContainsKey(oportunidad.IdPGeneral.Value))
                         {
                             List<ObtenerAsesoresPorOportunidadDTO> asesores = _unitOfWork.AsignacionRegularRepository.ObtenerAsesoresPorOportunidad(oportunidad.IdPGeneral);
@@ -572,7 +572,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 {
                     try
                     {
-                       
+
 
                         List<ObtenerAsesoresPorOportunidadDTO> ListaAsesoresPorCofiguracion = new List<ObtenerAsesoresPorOportunidadDTO>();
                         ListaAsesoresPorCofiguracion = _unitOfWork.AsignacionRegularRepository.ObtenerAsesoresPorOportunidad(Opor.IdPGeneral);
@@ -682,14 +682,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         Console.WriteLine(ex.Message);
                     }
                 }
-               
+
                 if (!Usuario.Equals("SYSTEMV5", StringComparison.OrdinalIgnoreCase))
                 {
-                    EnvioCorreoAsignacion("Fin Asignacion de datos");
+                    //EnvioCorreoAsignacion("Fin Asignacion de datos");
                 }
 
                 return true;
-               
+
 
             }
             catch (Exception ex)
