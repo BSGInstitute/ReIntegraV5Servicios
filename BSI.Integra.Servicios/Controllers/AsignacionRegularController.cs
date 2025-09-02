@@ -635,15 +635,15 @@ namespace BSI.Integra.Servicios.Controllers
 
                             bool resultado = await servicioEnScope.EjecutarAsignacionDatosAutomatizada(usuario);
 
-                            //    if (resultado)
-                            //        servicioEnScope.EnvioCorreoValidado(" La asignación de datos finalizó correctamente.");
-                            //    else
-                            //        servicioEnScope.EnvioCorreoValidado(" La asignación terminó con errores o no pudo ejecutarse.");
+                                if (resultado)
+                                    servicioEnScope.EnvioCorreoValidado(" La asignación de datos finalizó correctamente.");
+                                else
+                                    servicioEnScope.EnvioCorreoValidado(" La asignación terminó con errores o no pudo ejecutarse.");
                         }
                         catch (Exception ex)
                         {
 
-                            //    servicioEnScope.EnvioCorreoValidado($" Ocurrió un error interno en segundo plano: {ex.Message}");
+                                servicioEnScope.EnvioCorreoValidado($" Ocurrió un error interno en segundo plano: {ex.Message}");
                         }
 
                     }

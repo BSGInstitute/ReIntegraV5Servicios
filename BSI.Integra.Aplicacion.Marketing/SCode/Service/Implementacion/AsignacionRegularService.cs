@@ -6,7 +6,6 @@ using BSI.Integra.Aplicacion.Marketing.Service.Interface;
 using BSI.Integra.Aplicacion.Marketing.Service.Interface.Marketing.WhatsApp;
 using BSI.Integra.Aplicacion.Servicios.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
-using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -719,7 +718,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
             try
             {
 
-                //EnvioCorreoAsignacion("Inicio de la asignacion de datos");
+                EnvioCorreoAsignacion("Inicio de la asignacion de datos");
 
                 bool? EstadoActualizacion = false;
                 List<ObtenerOportunidadConfiguradaV2DTO> ListaOportunidadesConfiguradas = new List<ObtenerOportunidadConfiguradaV2DTO>();

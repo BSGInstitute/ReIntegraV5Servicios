@@ -378,7 +378,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                 if (!Usuario.Equals("SYSTEMV5", StringComparison.OrdinalIgnoreCase))
                 {
-                    //EnvioCorreoAsignacion("Inicio de la asignación de datos");
+                    EnvioCorreoAsignacion("Inicio de la asignación de datos");
                 }
                 List<ObtenerOportunidadConfiguradaV2DTO> ListaOportunidadesConfiguradas = _unitOfWork.AsignacionRegularRepository.ObtenerOportunidadConfigurada();
 
@@ -685,7 +685,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                 if (!Usuario.Equals("SYSTEMV5", StringComparison.OrdinalIgnoreCase))
                 {
-                    //EnvioCorreoAsignacion("Fin Asignacion de datos");
+                    EnvioCorreoAsignacion("Fin Asignacion de datos");
                 }
 
                 return true;
