@@ -522,7 +522,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var _query = string.Empty;
                 ComboCampaniaGeneralDetalleResponsableWhatsAppDTO dto = new ComboCampaniaGeneralDetalleResponsableWhatsAppDTO();
                 dto.IdPGeneral = new List<ComboGeneralDTO>();
-                _query = "SELECT Id, CONCAT(Nombres,' ', Apellidos) AS Nombre FROM gp.T_Personal WHERE id IN (4659, 4823, 5145, 6066,6108,201,6013) AND Activo = 1 AND IdPersonalAreaTrabajo = 4;";
+                _query = "SELECT Id, Nombre FROM mkt.V_RegistroResponsableWhatsapp";
                 var respuestaIdPersonall = _dapperRepository.QueryDapper(_query, new { });
 
                 if (!string.IsNullOrEmpty(respuestaIdPersonall) && !respuestaIdPersonall.Contains("[]"))
