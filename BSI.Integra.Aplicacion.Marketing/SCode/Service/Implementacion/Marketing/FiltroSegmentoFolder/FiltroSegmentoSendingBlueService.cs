@@ -51,14 +51,21 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.FiltroSegmento
         {
             var alumnoService = new AlumnoService(unitOfWork);
             var resultado = unitOfWork.filtroSegmentoSendinBlueRepository.ObtenerResultadoFiltroSegmento(id, idFiltroSegmentoTipoContacto);
-            foreach (var item in resultado)
-            {
-                if (!string.IsNullOrWhiteSpace(item.Email1))
-                    item.Email1Encriptado = alumnoService.EncriptarCorreoHash(item.Email1);
+            //foreach (var item in resultado)
+            //{
+            //    if (!string.IsNullOrWhiteSpace(item.Email1))
+            //        item.Email1Encriptado = alumnoService.EncriptarCorreoHash(item.Email1);
 
-                if (!string.IsNullOrWhiteSpace(item.Celular))
-                    item.CelularEncriptado = alumnoService.EncriptarNumeroHash(Regex.Replace(item.Celular, @"[^\d]", ""));
-            }
+            //    if (!string.IsNullOrWhiteSpace(item.Celular))
+            //        item.CelularEncriptado = alumnoService.EncriptarNumeroHash(Regex.Replace(item.Celular, @"[^\d]", ""));
+            //}
+
+            resultado = resultado.Select(x =>
+            {
+                x.Email1Encriptado = alumnoService.EncriptarCorreoHash(x.Email1);
+                x.CelularEncriptado = alumnoService.EncriptarNumeroHash(Regex.Replace(x.Celular, @"[^\d]", ""));
+                return x;
+            }).ToList();
 
             return resultado;
         }
