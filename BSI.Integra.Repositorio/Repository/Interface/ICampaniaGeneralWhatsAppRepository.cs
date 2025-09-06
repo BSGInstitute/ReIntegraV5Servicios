@@ -60,6 +60,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public NombreDTO OntenerUltimoProgramaInteresado(int idAlumno);
         public DiasWhatsappDTO ObtenerDiasPorPrioridadWhatsapp(IdDTO id);
         public List<ObtenerCampaniaGeneralDetalleResponsablePorPrioridadDTO> ObtenerCampaniaGeneralDetalleResponsablePorPrioridadAlterno(IdDiasWhatsappDTO datos);
+        public string ObtenerUltimoMensajeCampaniaEnviado(string celularAlumno);
 
     }
 }

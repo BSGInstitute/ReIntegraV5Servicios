@@ -72,16 +72,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         bool VerificarActualizarAlumno(int idAlumno);
         public void RegistrarActualizacionAlumno(int idAlumno, string usuario);
         public bool EsAsesorVentasValido(int idAsesor);
-
-
-
-
-
-
-
-
-
-
+        public string ObtenerRangoProbabilidadAlumno(int idAlumno);
+        public List<MensajeExtraccionRegistroDTO> ObtenerChatWhatsAppMarketingPorCelularRangoFecha(string celularAlumno, DateTime fechaInicio, DateTime fechaFin);
 
 
     }

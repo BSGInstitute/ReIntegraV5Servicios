@@ -2290,8 +2290,74 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         }
 
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 28/08/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el rango de probabilidad (A, B, C) de un IdAlumno
+        /// </summary>
+        /// <param name="idAlumno">Id del Alumno</param>
+        /// <returns>Rango de probabilidad</returns>
+        public string ObtenerRangoProbabilidadAlumno(int idAlumno)
+        {
+            try
+            {
+                var query = @"SELECT TOP 1
+                                        PGPCD.Tipo AS Rango
+                                    FROM
+                                        com.T_Oportunidad O
+                                        INNER JOIN mkt.V_ModeloPredictivoProbabilidadIdProbabilidadRegistro MP
+                                            ON O.Id = MP.IdOportunidad
+                                        LEFT JOIN pla.T_ProgramaGeneralPuntoCorteDetalle PGPCD
+                                            ON PGPCD.IdProgramaGeneralPuntoCorte = ISNULL(MP.IdProgramaGeneralPuntoCorte_Pais, MP.IdProgramaGeneralPuntoCorte_PorDefecto)
+                                            AND MP.Probabilidad >= PGPCD.ValorMinimo
+                                            AND MP.Probabilidad < PGPCD.ValorMaximo
+                                            AND PGPCD.Estado = 1
+                                    WHERE
+                                        O.IdAlumno = @IdAlumno
+                                    ORDER BY
+                                        MP.IdOportunidad DESC";
 
+                var response = _dapperRepository.FirstOrDefault(query, new { IdAlumno = idAlumno });
 
+                return response ?? string.Empty;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 29/08/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene chats de para WhatsAppMarketing por celular y rango de fecha
+        /// </summary>
+        /// <param name="celularAlumno">Celular del alumno</param>
+        /// <param name="fechaInicio">Fecha de inicio</param>
+        /// <param name="fechaFin">Fecha de fin</param>
+        /// <returns>Listadode chats asociados al celularAlumno</returns>
+        public List<MensajeExtraccionRegistroDTO> ObtenerChatWhatsAppMarketingPorCelularRangoFecha(string celularAlumno, DateTime fechaInicio, DateTime fechaFin)
+        {
+            try
+            {
+                List<MensajeExtraccionRegistroDTO> ChatsWhatsAppMarketing = new List<MensajeExtraccionRegistroDTO>();
+
+                var resultado = _dapperRepository.QuerySPDapper("mkt.SP_ObtenerChatWhatsAppMarketingPorCelularRangoFecha", new { Celular = celularAlumno, FechaInicio = fechaInicio, FechaFin = fechaFin });
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    ChatsWhatsAppMarketing = JsonConvert.DeserializeObject<List<MensajeExtraccionRegistroDTO>>(resultado);
+                }
+
+                return ChatsWhatsAppMarketing;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
 
     }
 }
