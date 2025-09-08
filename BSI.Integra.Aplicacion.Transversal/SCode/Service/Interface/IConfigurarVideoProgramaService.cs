@@ -1,5 +1,6 @@
 ﻿using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using Microsoft.AspNetCore.Http;
@@ -27,5 +28,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         byte[] ObtenerPlantillaExcelConfiguracionDeVideo(int idPGeneral);
         (int cantidadCorrecto, int cantidadIncorrecto) ImportarExcel(IFormFile archivoExcel, string usuario);
         (List<EstructuraProgramaCapituloDTO> estructuraProgramaCapitulo, List<SesionSubSesionPreguntaInteractivaDTO> estructuraProgramaSesion) ObtenerCombosModulo();
+        bool ActualizarDescargaReproduccionVideo(ActualizarDescargaReproduccionDTO dto, string usuario);
+        ConfigurarConteodeVideosPorTipo ObtenerConteosdeVideosTipo(int idPGeneral);
     }
 }

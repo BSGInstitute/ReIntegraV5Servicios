@@ -134,6 +134,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// indica el estado actual de la configuracion del video 
         /// </summary>
         public bool? Activo { get; set; }
+        public string? VideoIdVimeo { get; set; }
+        public int? ReproduccionVideo { get; set; }
+        public int? DescargaVideo { get; set; }
 
         public virtual TDocumentoSeccionPw IdDocumentoSeccionPwNavigation { get; set; } = null!;
         public virtual TPgeneral IdPgeneralNavigation { get; set; } = null!;
