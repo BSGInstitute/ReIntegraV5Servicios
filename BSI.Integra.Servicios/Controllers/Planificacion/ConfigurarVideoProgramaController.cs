@@ -10,6 +10,7 @@ using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Implementation;
 using BSI.Integra.Repositorio.Repository.Implementation.Planificacion;
 using BSI.Integra.Repositorio.UnitOfWork;
+using BSI.Integra.Servicios.Configurations;
 using BSI.Integra.Servicios.Helpers;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -30,10 +31,12 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
     [EnableCors("CorsVista")]
     public class ConfigurarVideoProgramaController : Controller
     {
+        private ITokenManager _tokenManager;
         private IConfigurarVideoProgramaService _configurarVideoProgramaService;
-        public ConfigurarVideoProgramaController(IUnitOfWork unitOfWork)
+        public ConfigurarVideoProgramaController(IUnitOfWork unitOfWork , ITokenManager tokenManager)
         {
             _configurarVideoProgramaService = new ConfigurarVideoProgramaService(unitOfWork);
+            _tokenManager = tokenManager;
         }
         /// Tipo Función: POST
         /// Autor: Gilmer Qm
@@ -455,5 +458,30 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 return BadRequest(e.Message);
             }
         }
+
+        [Authorize]
+        [JwtExpirationValidation]
+        [HttpPut("[action]")]
+        public IActionResult ActualizarDescargaReproduccionVideo([FromBody] ActualizarDescargaReproduccionDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var respuesta = _configurarVideoProgramaService.ActualizarDescargaReproduccionVideo(dto, _tokenManager.UserName);
+            return Ok(respuesta);
+        }
+
+
+
+
+        [HttpGet("[action]/{idPGeneral}")]
+        public IActionResult ObtenerConteosdeVideosTipo(int idPGeneral)
+        {
+            var resultado = _configurarVideoProgramaService.ObtenerConteosdeVideosTipo(idPGeneral);
+            return Ok(resultado);
+        }
+
+
     }
 }

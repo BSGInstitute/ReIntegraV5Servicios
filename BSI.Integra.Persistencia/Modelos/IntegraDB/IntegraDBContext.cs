@@ -961,6 +961,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TWhatsAppUsuario> TWhatsAppUsuarios { get; set; } = null!;
         public virtual DbSet<TWhatsAppUsuarioCredencial> TWhatsAppUsuarioCredencials { get; set; } = null!;
         public virtual DbSet<TZonaHorariaPai> TZonaHorariaPais { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.UseCollation("Modern_Spanish_CI_AS");
@@ -9916,6 +9917,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.Configurado).HasComment("Si el registro tiene configuracion");
 
+                entity.Property(e => e.DescargaVideo).HasComment("Se registra el Id para descarga de Videos sea de Vimeo y/o brightcove");
+
                 entity.Property(e => e.Estado).HasComment("Creado o eliminado");
 
                 entity.Property(e => e.FechaCreacion)
@@ -9979,6 +9982,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.NumeroFila).HasComment("El numero de la fila que se registra el registro capitulo, seccion o subsesion");
 
+                entity.Property(e => e.ReproduccionVideo).HasComment("Se registra el Id para reproduccion de Videos sea de Vimeo y/o brightcove");
+
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
                     .IsConcurrencyToken()
@@ -10011,6 +10016,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.Property(e => e.VideoIdBrightcove)
                     .HasMaxLength(150)
                     .HasComment("Se registra el Id de video del proveedor brightcove");
+
+                entity.Property(e => e.VideoIdVimeo)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Se registra el Id de video del proveedor Vimeo");
 
                 entity.HasOne(d => d.IdDocumentoSeccionPwNavigation)
                     .WithMany(p => p.TConfigurarVideoProgramas)

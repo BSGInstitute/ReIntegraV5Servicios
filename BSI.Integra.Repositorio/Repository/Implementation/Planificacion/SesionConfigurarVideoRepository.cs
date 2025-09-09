@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
@@ -296,5 +297,58 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 throw new Exception(e.Message);
             }
         }
+
+
+        public bool ActualizarDescargaReproduccionVideo(ActualizarDescargaReproduccionDTO dto, string usuario)
+        {
+            try
+            {
+                var query = "pla.SP_ConfigurarVideoPrograma_ActualizarReproduccionDescarga";
+                var parametros = new
+                {
+                    IdPgeneral = dto.IdPgeneral,
+                    ReproduccionVideo = dto.ReproduccionVideo,
+                    DescargaVideo = dto.DescargaVideo,
+                    UsuarioModificacion = usuario
+                };
+
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(query, parametros);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ActualizarFormularioRegularizado() {ex.Message}", ex);
+            }
+
+        }
+
+
+
+        public ConfigurarConteodeVideosPorTipo ObtenerConteosdeVideosTipo(int idPGeneral)
+        {
+            try
+            {
+                ConfigurarConteodeVideosPorTipo rpta = new ConfigurarConteodeVideosPorTipo();
+                var query = @"
+                    SELECT
+	                   IdPGeneral,
+                       CantidadDescarga_Brightcove,
+                       CantidadDescarga_Vimeo,
+                       CantidadReproduccion_Brightcove,
+                       CantidadReproduccion_Vimeo
+                    FROM pla.V_ObtenerConfiguracionVideoMasivoPGeneral where IdPGeneral = @idPGeneral";
+                var resultado = _dapperRepository.FirstOrDefault(query, new { idPGeneral = idPGeneral });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<ConfigurarConteodeVideosPorTipo>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }

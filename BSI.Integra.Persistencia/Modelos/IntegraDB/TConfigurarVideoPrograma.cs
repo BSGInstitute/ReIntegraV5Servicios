@@ -134,6 +134,18 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// indica el estado actual de la configuracion del video 
         /// </summary>
         public bool? Activo { get; set; }
+        /// <summary>
+        /// Se registra el Id de video del proveedor Vimeo
+        /// </summary>
+        public string? VideoIdVimeo { get; set; }
+        /// <summary>
+        /// Se registra el Id para reproduccion de Videos sea de Vimeo y/o brightcove
+        /// </summary>
+        public int? ReproduccionVideo { get; set; }
+        /// <summary>
+        /// Se registra el Id para descarga de Videos sea de Vimeo y/o brightcove
+        /// </summary>
+        public int? DescargaVideo { get; set; }
 
         public virtual TDocumentoSeccionPw IdDocumentoSeccionPwNavigation { get; set; } = null!;
         public virtual TPgeneral IdPgeneralNavigation { get; set; } = null!;
