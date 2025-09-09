@@ -1681,6 +1681,29 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 29/08/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Captura registros de alumnos en base a chats mediante un modelo IA
+        /// </summary>
+        /// <param name="datosExtraccionRegistros">Contiene celular del alumno y rango de antiguedad de chats</param>
+        /// <returns>Datos capturados por el modelo IA</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public async Task<ActionResult> CapturarRegistrosModeloIA([FromBody] DatosExtraccionRegistrosDTO datosExtraccionRegistros)
+        {
+            try
+            {
+                var _servicioWhatsappMsjEnv = new WhatsAppMensajeEnviadoService(_unitOfWork);
+                var resultado = await _servicioWhatsappMsjEnv.CapturarRegistrosModeloIA(datosExtraccionRegistros);
 
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

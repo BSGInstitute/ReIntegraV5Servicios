@@ -513,6 +513,10 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 
 
     }
+    public class UltimoMensajeDTO
+    {
+        public string UltimoMensaje { get; set; }
+    }
 }
 
 

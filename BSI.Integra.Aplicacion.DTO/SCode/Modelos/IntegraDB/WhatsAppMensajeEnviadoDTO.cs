@@ -346,6 +346,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? IdPaisEmpresa { get; set; }
         public List<ObtenerChatWhatsAppMarketingAlumnoDTO>? ListaAlumnosPorCelular { get; set; }
         public List<ObtenerChatWhatsAppMarketingMensajeDTO>? MensajePorCelular { get; set; }
+        public string? Rango { get; set; }
+
     }
     public class ObtenerChatWhatsAppMarketingAlumnoDTO
     {
@@ -682,6 +684,48 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdAlumno { get; set; }
         public int IdPGeneral { get; set; }
 
+    }
+
+
+    //Modelos para CapturarRegistrosModeloIA
+    public class DatosExtraccionRegistrosDTO
+    {
+        public int Rango { get; set; }
+        public string CelularAlumno { get; set; }
+    }
+
+    public class DatosExtraccionRegistrosRequestDTO
+    {
+        public string Id_cliente { get; set; }
+        public string Timestamp { get; set; }
+        public List<MensajeExtraccionRegistroDTO> Mensajes { get; set; }
+        public List<string> Campos { get; set; }
+        public string Info_curso { get; set; }
+    }
+    public class MensajeExtraccionRegistroDTO
+    {
+        public string Id { get; set; }
+        public string Contenido { get; set; }
+        public string Remitente { get; set; }
+        public string Timestamp { get; set; }
+    }
+
+    public class DatosExtraccionRegistrosResponseDTO
+    {
+        public string Id_Cliente { get; set; }
+        public string Nombres { get; set; }
+        public string Apellidos { get; set; }
+        public DatoExtraccion Cargo { get; set; }
+        public DatoExtraccion Area_De_Formacion { get; set; }
+        public DatoExtraccion Area_De_Trabajo { get; set; }
+        public DatoExtraccion Industria { get; set; }
+        public string Timestamp { get; set; }
+    }
+    public class DatoExtraccion
+    {
+        public string Tipo { get; set; }
+        public int Id { get; set; }
+        public string Valor { get; set; }
     }
 }
 
