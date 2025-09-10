@@ -1,0 +1,1123 @@
+﻿using BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
+using BSI.Integra.Persistencia.Entidades.IntegraDB.Comercial;
+using BSI.Integra.Repositorio.UnitOfWork;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR.Client;
+using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad.TranscriptionDTO;
+
+namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
+{
+    /// Controlador: LineamientoCalificacionController
+    /// Autor: Joseph Llanque.
+    /// Fecha:07/03/2025
+    /// <summary>
+    /// Fase Calificacion
+    /// </summary>
+    [Route("api/[controller]")]
+    [ApiController]
+    [EnableCors("CorsVista")]
+    public class LineamientoCalificacionController : Controller
+    {
+        private IUnitOfWork unitOfWork;
+        public LineamientoCalificacionController(IUnitOfWork unitOfWork)
+        {
+            this.unitOfWork = unitOfWork;
+        }
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 03/07/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una insercion basica a la tabla
+        /// </summary>
+        /// <param name="lineamientoCalificacionEntradaDTO"> Datos necesarios para la insercion de datos </param>
+        /// <returns> Entidad: LineamientoCalificacion </returns>
+        [HttpPost("[Action]")]
+        public IActionResult Insertar([FromBody] LineamientoCalificacionEntradaDTO lineamientoCalificacionEntradaDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var LineamientoCalificacion = new LineamientoCalificacion();
+                LineamientoCalificacion.IdCriterioCalificacionLlamada = lineamientoCalificacionEntradaDTO.IdCriterioCalificacionLlamada;
+                LineamientoCalificacion.IdCriticidadCalificacion = lineamientoCalificacionEntradaDTO.IdCriticidadCalificacion;
+                LineamientoCalificacion.NombreLineamiento = lineamientoCalificacionEntradaDTO.NombreLineamiento;
+                LineamientoCalificacion.Orden = lineamientoCalificacionEntradaDTO.Orden;
+                LineamientoCalificacion.Descripcion = lineamientoCalificacionEntradaDTO.Descripcion;
+                LineamientoCalificacion.HerramientaAnalisis = lineamientoCalificacionEntradaDTO.HerramientaAnalisis;
+                LineamientoCalificacion.Version = lineamientoCalificacionEntradaDTO.Version;
+                LineamientoCalificacion.EsVigente = lineamientoCalificacionEntradaDTO.EsVigente;
+                LineamientoCalificacion.FechaVigenciaInicio = lineamientoCalificacionEntradaDTO.FechaVigenciaInicio;
+                LineamientoCalificacion.FechaVigenciaFin = lineamientoCalificacionEntradaDTO.FechaVigenciaFin;
+                LineamientoCalificacion.UsuarioCreacion = lineamientoCalificacionEntradaDTO.Usuario;
+                LineamientoCalificacion.UsuarioModificacion = lineamientoCalificacionEntradaDTO.Usuario;
+                LineamientoCalificacion.FechaCreacion = DateTime.Now;
+                LineamientoCalificacion.FechaModificacion = DateTime.Now;
+                LineamientoCalificacion.Estado = true;
+                var resultado = lineamientoCalificacionService.Add(LineamientoCalificacion);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque.
+        /// Fecha:07/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una insercion basica de tipo lista a la tabla
+        /// </summary>
+        /// <param name="lineamientoCalificacionEntradaDTO"> Datos necesarios para la insercion de datos </param>
+        /// <returns> List<LineamientoCalificacion> </returns>
+        [HttpPost("[Action]")]
+        public IActionResult InsertarLista([FromBody] List<LineamientoCalificacionEntradaDTO> lineamientoCalificacionEntradaDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var lineamientoCalificacionLista = new List<LineamientoCalificacion>();
+                foreach (var entidad in lineamientoCalificacionEntradaDTO)
+                {
+                    var LineamientoCalificacion = new LineamientoCalificacion();
+                    LineamientoCalificacion.IdCriterioCalificacionLlamada = entidad.IdCriterioCalificacionLlamada;
+                    LineamientoCalificacion.IdCriticidadCalificacion = entidad.IdCriticidadCalificacion;
+                    LineamientoCalificacion.NombreLineamiento = entidad.NombreLineamiento;
+                    LineamientoCalificacion.Orden = entidad.Orden;
+                    LineamientoCalificacion.Descripcion = entidad.Descripcion;
+                    LineamientoCalificacion.HerramientaAnalisis = entidad.HerramientaAnalisis;
+                    LineamientoCalificacion.UsuarioCreacion = entidad.Usuario;
+                    LineamientoCalificacion.UsuarioModificacion = entidad.Usuario;
+                    LineamientoCalificacion.FechaCreacion = DateTime.Now;
+                    LineamientoCalificacion.FechaModificacion = DateTime.Now;
+                    LineamientoCalificacion.Estado = true;
+                    lineamientoCalificacionLista.Add(LineamientoCalificacion);
+                }
+                var resultado = lineamientoCalificacionService.Add(lineamientoCalificacionLista);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque.
+        /// Fecha:07/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una insercion basica a la tabla
+        /// </summary>
+        /// <param name="lineamientoCalificacionEntradaDTO"> Datos necesarios para la insercion de datos </param>
+        /// <returns> Entidad: LineamientoCalificacion </returns>
+        [HttpPut("[Action]")]
+        public IActionResult Actualizar([FromBody] LineamientoCalificacionEntradaDTO lineamientoCalificacionEntradaDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var LineamientoCalificacion = new LineamientoCalificacion();
+                LineamientoCalificacion = lineamientoCalificacionService.ObtenerPorId(lineamientoCalificacionEntradaDTO.Id.Value);
+                LineamientoCalificacion.IdCriterioCalificacionLlamada = lineamientoCalificacionEntradaDTO.IdCriterioCalificacionLlamada;
+                LineamientoCalificacion.IdCriticidadCalificacion = lineamientoCalificacionEntradaDTO.IdCriticidadCalificacion;
+                LineamientoCalificacion.NombreLineamiento = lineamientoCalificacionEntradaDTO.NombreLineamiento;
+                LineamientoCalificacion.Orden = lineamientoCalificacionEntradaDTO.Orden;
+                LineamientoCalificacion.Descripcion = lineamientoCalificacionEntradaDTO.Descripcion;
+                LineamientoCalificacion.HerramientaAnalisis = lineamientoCalificacionEntradaDTO.HerramientaAnalisis;
+                LineamientoCalificacion.Version = lineamientoCalificacionEntradaDTO.Version;
+                LineamientoCalificacion.EsVigente = lineamientoCalificacionEntradaDTO.EsVigente;
+                LineamientoCalificacion.FechaVigenciaInicio = lineamientoCalificacionEntradaDTO.FechaVigenciaInicio;
+                LineamientoCalificacion.FechaVigenciaFin = lineamientoCalificacionEntradaDTO.FechaVigenciaFin;
+                LineamientoCalificacion.UsuarioModificacion = lineamientoCalificacionEntradaDTO.Usuario;
+                LineamientoCalificacion.FechaModificacion = DateTime.Now;
+                var resultado = lineamientoCalificacionService.Update(LineamientoCalificacion);
+                return Ok(resultado);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque.
+        /// Fecha:07/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una insercion basica a la tabla
+        /// </summary>
+        /// <param name="lineamientoCalificacionEntradaDTO"> Datos necesarios para la insercion de datos </param>
+        /// <returns> Entidad: LineamientoCalificacion </returns>
+        [HttpPut("[Action]")]
+        public IActionResult ActualizarLista([FromBody] List<LineamientoCalificacionEntradaDTO> lineamientoCalificacionEntradaDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var lineamientoCalificacionLista = new List<LineamientoCalificacion>();
+                foreach (var entidad in lineamientoCalificacionEntradaDTO)
+                {
+                    var LineamientoCalificacion = new LineamientoCalificacion();
+                    LineamientoCalificacion = lineamientoCalificacionService.ObtenerPorId(entidad.Id.Value);
+                    LineamientoCalificacion.IdCriterioCalificacionLlamada = entidad.IdCriterioCalificacionLlamada;
+                    LineamientoCalificacion.IdCriticidadCalificacion = entidad.IdCriticidadCalificacion;
+                    LineamientoCalificacion.NombreLineamiento = entidad.NombreLineamiento;
+                    LineamientoCalificacion.Orden = entidad.Orden;
+                    LineamientoCalificacion.Descripcion = entidad.Descripcion;
+                    LineamientoCalificacion.HerramientaAnalisis = entidad.HerramientaAnalisis;
+                    LineamientoCalificacion.UsuarioModificacion = entidad.Usuario;
+                    LineamientoCalificacion.FechaModificacion = DateTime.Now;
+                }
+                var resultado = lineamientoCalificacionService.Update(lineamientoCalificacionLista);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque.
+        /// Fecha:07/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una insercion basica a la tabla
+        /// </summary>
+        /// <param name="id"> Id de la entidad </param>
+        /// <param name="usuario"> Autor de la modificacion </param>
+        /// <returns> true or false </returns>
+        [HttpDelete("Eliminar/{id}/{usuario}")]
+        public IActionResult Eliminar(int id, string usuario)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.Delete(id, usuario);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque.
+        /// Fecha:07/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una insercion basica a la tabla
+        /// </summary>
+        /// <param name="listadoIds"> Id de la entidad </param>
+        /// <param name="usuario"> Autor de la modificacion </param>
+        /// <returns> true or false </returns>
+        [HttpDelete("EliminarListado/{usuario}")]
+        public IActionResult EliminarListado(List<int> listadoIds, string usuario)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.Delete(listadoIds, usuario);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 26/12/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public ActionResult ObtenerCombo()
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ObtenerCombo();
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public ActionResult ObtenerLineamiento()
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ObtenerLineamiento();
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public ActionResult EsquemaCalificacionConfigurado()
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.EsquemaCalificacionConfigurado();
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 03/07/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una insercion basica a la tabla
+        /// </summary>
+        /// <param name="congelamientoConfiguracionDTO"> Datos necesarios para la insercion de datos </param>
+        /// <returns> Entidad: LineamientoCalificacion </returns>
+        [HttpPost("[Action]")]
+        public IActionResult CongelarConfiguracion([FromBody] CongelamientoConfiguracionDTO congelamientoConfiguracionDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.CongelarConfiguracion(congelamientoConfiguracionDTO);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 03/07/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una insercion basica a la tabla
+        /// </summary>
+        /// <param name="congelamientoConfiguracionDTO"> Datos necesarios para la insercion de datos </param>
+        /// <returns> Entidad: LineamientoCalificacion </returns>
+        [HttpPost("[Action]")]
+        public IActionResult ActivarConfiguracion([FromBody] CongelamientoConfiguracionActivaDTO activarConfiguracion)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ActivarConfiguracion(activarConfiguracion);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public ActionResult HistorialVersionCalificacionLlamada()
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.HistorialVersionCalificacionLlamada();
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]/{idLlamada}")]
+        [HttpGet]
+        public ActionResult ObtenerNotaCalificacionLineamiento(int idLlamada)
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ObtenerNotaCalificacionLineamiento(idLlamada);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]/{IdOportunidad}/{IdLlamadaWebphoneCruceCentral3Cx}")]
+        [HttpGet]
+        public ActionResult ObtenerNotaCalificacionLineamientoHistorico(int IdOportunidad, int IdLlamadaWebphoneCruceCentral3Cx)
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ObtenerNotaCalificacionLineamientoHistorico(IdOportunidad, IdLlamadaWebphoneCruceCentral3Cx);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]/{idLlamada}")]
+        [HttpGet]
+        public ActionResult ObtenerNotaCalificacionLineamientoGeneral(int idLlamada)
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ObtenerNotaCalificacionLineamientoGeneral(idLlamada);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]/{idLlamada}")]
+        [HttpGet]
+        public ActionResult ObtenerNotaCalificacionAutomaticaLineamiento(int idLlamada)
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ObtenerNotaCalificacionAutomaticaLineamiento(idLlamada);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 03/07/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una insercion basica a la tabla
+        /// </summary>
+        /// <param name="congelamientoConfiguracionDTO"> Datos necesarios para la insercion de datos </param>
+        /// <returns> Entidad: LineamientoCalificacion </returns>
+        [HttpPost("[Action]")]
+        public IActionResult GuardarCalificacionLlamada([FromBody] CalificacionLlamadaManualDTO activarConfiguracion)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.GuardarCalificacionLlamada(activarConfiguracion);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 03/07/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una insercion basica a la tabla
+        /// </summary>
+        /// <param name="congelamientoConfiguracionDTO"> Datos necesarios para la insercion de datos </param>
+        /// <returns> Entidad: LineamientoCalificacion </returns>
+        [HttpPost("[Action]")]
+        public IActionResult CalificarLlamadaAutomaticamente([FromBody] CalificacionLlamadaAutomaticaDTO informacionCalificacion)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.CalificarLlamadaAutomaticamente(informacionCalificacion);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 03/07/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una insercion basica a la tabla
+        /// </summary>
+        /// <param name="congelamientoConfiguracionDTO"> Datos necesarios para la insercion de datos </param>
+        /// <returns> Entidad: LineamientoCalificacion </returns>
+        [HttpPost("[Action]")]
+        public IActionResult ActualizarEstadoCalificacionLlamada([FromBody] EstadoLlamadaCalificadaDTO estadoLlamada)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ActualizarEstadoCalificacionLlamada(estadoLlamada);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 03/07/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una insercion basica a la tabla
+        /// </summary>
+        /// <param name="congelamientoConfiguracionDTO"> Datos necesarios para la insercion de datos </param>
+        /// <returns> Entidad: LineamientoCalificacion </returns>
+        [HttpPost("[Action]")]
+        public IActionResult ConfigurarPanelAutomatico([FromBody] ConfiguracionTranscripcionDTO configuracion)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ConfigurarPanelAutomatico(configuracion);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 03/07/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una insercion basica a la tabla
+        /// </summary>
+        /// <param name="congelamientoConfiguracionDTO"> Datos necesarios para la insercion de datos </param>
+        /// <returns> Entidad: LineamientoCalificacion </returns>
+        [HttpPost("[Action]")]
+        public IActionResult ConfigurarPanelAutomaticoCalificacion([FromBody] ConfiguracionTranscripcionDTO configuracion)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ConfigurarPanelAutomaticoCalificacion(configuracion);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 03/07/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una insercion basica a la tabla
+        /// </summary>
+        /// <param name="congelamientoConfiguracionDTO"> Datos necesarios para la insercion de datos </param>
+        /// <returns> Entidad: LineamientoCalificacion </returns>
+        [HttpPost("[Action]")]
+        public IActionResult ConfigurarPanelCalificacionAuto([FromBody] ConfiguracionTranscripcionDTO configuracion)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ConfigurarPanelCalificacionAuto(configuracion);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 03/07/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una insercion basica a la tabla
+        /// </summary>
+        /// <param name="congelamientoConfiguracionDTO"> Datos necesarios para la insercion de datos </param>
+        /// <returns> Entidad: LineamientoCalificacion </returns>
+        [HttpPost("[Action]")]
+        public IActionResult ConfigurarPanelTranscripcionAuto([FromBody] ConfiguracionTranscripcionDTO configuracion)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ConfigurarPanelTranscripcionAuto(configuracion);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 03/07/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una insercion basica a la tabla
+        /// </summary>
+        /// <param name="congelamientoConfiguracionDTO"> Datos necesarios para la insercion de datos </param>
+        /// <returns> Entidad: LineamientoCalificacion </returns>
+        [HttpPost("[Action]")]
+        public IActionResult ActivarConfiguracionTranscripcionAuto([FromBody] ConfiguracionActivoProcesoDTO configuracion)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ActivarConfiguracionTranscripcionAuto(configuracion);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 03/07/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una insercion basica a la tabla
+        /// </summary>
+        /// <param name="congelamientoConfiguracionDTO"> Datos necesarios para la insercion de datos </param>
+        /// <returns> Entidad: LineamientoCalificacion </returns>
+        [HttpPost("[Action]")]
+        public IActionResult ActivarConfiguracionCalificacionAuto([FromBody] ConfiguracionActivoProcesoDTO configuracion)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ActivarConfiguracionCalificacionAuto(configuracion);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public ActionResult ObtenerConfiguracionMasivaActiva()
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ObtenerConfiguracionMasivaActiva();
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public ActionResult ObtenerConfiguracionCalificacionMasivaActiva()
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ObtenerConfiguracionCalificacionMasivaActiva();
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public ActionResult ObtenerConfiguracionCalificacionAuto()
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ObtenerConfiguracionCalificacionAuto();
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public ActionResult ObtenerConfiguracionTranscripcionAuto()
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ObtenerConfiguracionTranscripcionAuto();
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<ActionResult<List<bool>>> TranscripcionAuto()
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = await lineamientoCalificacionService.TranscripcionAuto(1);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+
+
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<ActionResult<List<bool>>> CalificacionAuto()
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = await lineamientoCalificacionService.CalificacionAuto(1);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<ActionResult<List<bool>>> TranscripcionMasiva()
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = await lineamientoCalificacionService.TranscripcionAuto(2);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<ActionResult<List<bool>>> CalificacionMasiva()
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = await lineamientoCalificacionService.CalificacionAuto(2);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 14/08/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Reporte de calificación de clientes (agrupado por llamada).
+        /// Calcula promedio excluyendo -1 y devuelve puntos críticos (3 peores).
+        /// </summary>
+        [HttpPost("[Action]")]
+        public IActionResult ReporteCalificacionClientes([FromBody] ReporteCalificacionRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+
+                var resultado = lineamientoCalificacionService.ObtenerReporte(request);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 14/08/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Reporte de calificación de clientes (agrupado por llamada).
+        /// Calcula promedio excluyendo -1 y devuelve puntos críticos (3 peores).
+        /// </summary>
+        [HttpPost("[Action]")]
+        public IActionResult ReporteCalificacionFase([FromBody] ReporteCalificacionRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+
+                var resultado = lineamientoCalificacionService.ObtenerReporteFase(request);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+
+        /// <summary>
+        /// Obtiene el promedio global de calificaciones para el rango de fechas especificado.
+        /// Calcula el promedio de todas las calificaciones válidas (excluyendo -1).
+        /// </summary>
+        /// <param name="request">Parámetros de filtrado</param>
+        /// <returns>Promedio global, total de llamadas y total de calificaciones</returns>
+        [HttpPost("[Action]")]
+        public IActionResult ObtenerPromedioGlobal([FromBody] ReporteCalificacionGlobalRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ObtenerPromedioGlobal(request);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+
+        /// <summary>
+        /// Obtiene calificaciones por fase para una llamada específica
+        /// </summary>
+        /// <param name="idLlamada">ID de la llamada</param>
+        /// <param name="tipoCalificacion">Tipo de calificación (0=Manual, 1=Automática)</param>
+        /// <returns>Lista de calificaciones por fase</returns>
+        [Route("[action]/{idLlamada}/{tipoCalificacion}")]
+        [HttpGet]
+        public ActionResult ObtenerCalificacionFase(int idLlamada, bool tipoCalificacion)
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ObtenerCalificacionFase(idLlamada, tipoCalificacion);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// <summary>
+        /// Obtiene calificaciones por fase para una llamada específica
+        /// </summary>
+        /// <param name="idLlamada">ID de la llamada</param>
+        /// <param name="tipoCalificacion">Tipo de calificación (0=Manual, 1=Automática)</param>
+        /// <returns>Lista de calificaciones por fase</returns>
+        [Route("[action]/{idLlamada}")]
+        [HttpGet]
+        public ActionResult ObtenerInformacionLlamada(int idLlamada)
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ObtenerInformacionLlamada(idLlamada);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+
+
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 27/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza el procesamiento de transcripcion de llamadas
+        /// </summary>
+        /// <param name="TranscriptionWebhookPayload"> Datos necesarios para la insercion de datos </param>
+        /// <returns> DTO: TranscriptionWebhookPayloadDTO </returns>
+        [HttpPost("[Action]")]
+        public async Task<IActionResult> ProcesarCalificacionBatch([FromBody] ResultadoEvaluacionBatch payload)
+        {
+
+            if (payload == null)
+            {
+                return BadRequest("Payload de Calificacion inválido.");
+            }
+
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                HubConnection signalRConnection = null;
+                await lineamientoCalificacionService.ProcesarCalificacionBatch(payload);
+                signalRConnection = new HubConnectionBuilder()
+                    .WithUrl($"https://signalr-prototipo.bsginstitute.com/hubIntegraHub?idUsuario={payload.IdPersonal}&usuarioNombre={payload.UserName}&rooms=")
+                    .WithAutomaticReconnect()
+                    .ConfigureLogging(logging =>
+                    {
+                        logging.AddConsole();
+                        logging.SetMinimumLevel(LogLevel.Debug);
+                    })
+                    .Build();
+
+                await signalRConnection.StartAsync();
+
+                // 4. Enviar notificación
+                await signalRConnection.InvokeAsync("NotificarCalificacion",
+                    payload.IdLlamada.ToString(),
+                    "success",
+                    payload.IdPersonal?.ToString(),
+                    payload.contacto);
+
+                return Ok("Calififacion registrada correctamente.");
+
+            }
+            catch (System.Exception ex)
+            {
+                // Registra el error según corresponda
+                return StatusCode(500, $"Error al insertar la calificacion: {ex.Message}");
+            }
+        }
+
+    }
+
+}

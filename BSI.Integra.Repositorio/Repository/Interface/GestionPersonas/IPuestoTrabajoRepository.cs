@@ -25,7 +25,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.GestionPersonas
         List<PuestoTrabajoGestionContratoDTO> ObtenerPuestoTrabajoRemuneracionDet(int IdPuestoTrabajoRemuneracion);
         List<FuncionPuestoTrabajoDTO> ObtenerFuncionPuestoTrabajo();
         List<PuestoTrabajoPorFechaDTO> ObtenerPuestoTrabajoRegistradoFechaModificacion();
-    
+        
 
     }
 }

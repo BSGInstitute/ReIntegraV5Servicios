@@ -1604,7 +1604,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         public List<ChatWhatsAppMarketingDTO> ObtenerChatWhatsAppMarketingv2(int tab, DateTime fechaInicio, DateTime fechaFin)
         {
             try
-            {               
+            {
                 var resultado = _dapperRepository.QuerySPDapper("mkt.SP_ObtenerChatWhatsAppMarketingV2", new { Tab = tab, FechaInicio = fechaInicio, FechaFin = fechaFin });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
                 {

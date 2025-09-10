@@ -5,6 +5,12 @@
         public List<MontoPagoModalidadDTO> MontosPorPais { get; set; }
         public List<BeneficioDTO> ListaBeneficios { get; set; }
     }
+
+    public class ObtenerMontos2RespuestaDTOjson
+    {
+        public List<MontoPagoModalidadDTO> MontosPorPais { get; set; }
+        public List<BeneficioDTOjson> ListaBeneficios { get; set; }
+    }
     public class CargarInformacionProgramaRespuestaDTO
     {
         public string EtiquetaFormasPago { get; set; }
@@ -14,6 +20,17 @@
         public string InformacionPrograma { get; set; }
         public string EtiquetaTarifarios { get; set; }
         public List<BeneficioDTO> ListaBeneficios { get; set; }
+    }
+
+    public class CargarInformacionProgramaRespuestaDTOjson
+    {
+        public string EtiquetaFormasPago { get; set; }
+        public string EtiquetaBeneficiosInversion { get; set; }
+        public string EtiquetaExpositores { get; set; }
+        public string EtiquetaDuracionHorarios { get; set; }
+        public string InformacionPrograma { get; set; }
+        public string EtiquetaTarifarios { get; set; }
+        public List<BeneficioDTOjson> ListaBeneficios { get; set; }
     }
 
     public class ProgramasPorCodigoPaisComboDTO
@@ -53,6 +70,16 @@
         public string Inversion { get; set; }
         public string Certificacion { get; set; }
     }
+
+    public class ResumenProgramaV2DTOjson
+    {
+        public int? IdArea { get; set; }
+        public int? IdSubArea { get; set; }
+        public string NombrePrograma { get; set; }
+        public string Duracion { get; set; }
+        public string Inversion { get; set; }
+        public string Certificacion { get; set; }
+    }
     public class CargarInformacionProgramaAutomaticoRespuestaDTO
     {
         public int IdPGeneral { get; set; }
@@ -64,6 +91,19 @@
         public string EtiquetaFormasPago { get; set; }
         public string EtiquetaTarifarios { get; set; }
         public List<BeneficioDTO> ListaBeneficios { get; set; }
+    }
+
+    public class CargarInformacionProgramaAutomaticoRespuestaDTOjson
+    {
+        public int IdPGeneral { get; set; }
+        public string InformacionPrograma { get; set; }
+        public List<ResumenProgramaV2DTOjson> ResumenProgramasV2 { get; set; }
+        public string EtiquetaDuracionHorarios { get; set; }
+        public string EtiquetaExpositores { get; set; }
+        public string EtiquetaBeneficiosInversion { get; set; }
+        public string EtiquetaFormasPago { get; set; }
+        public string EtiquetaTarifarios { get; set; }
+        public List<BeneficioDTOjson> ListaBeneficios { get; set; }
     }
 
 

@@ -192,6 +192,45 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 throw ex;
             }
         }
+
+        /// Autor: Gilmer Quispe.
+        /// Fecha: 01/10/2022
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene un listado de ChatDetalleIntegra filtrado por idInteraccion
+        /// </summary>
+        /// <param name="idInteraccion"></param>
+        /// <returns> Lista de Entidad List<ChatDetalleIntegra> </returns>
+        public CursoOportunidadDTO ObtenerCursoOportunidad(int idOportunidad)
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerCursoOportunidad(idOportunidad);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        /// Autor: Gilmer Quispe.
+        /// Fecha: 01/10/2022
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene un listado de ChatDetalleIntegra filtrado por idInteraccion
+        /// </summary>
+        /// <param name="idInteraccion"></param>
+        /// <returns> Lista de Entidad List<ChatDetalleIntegra> </returns>
+        public List<ChatHistorialComercialDTO> DetalleChatPorIdAlumno(int idAlumno, int idPGeneral)
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerDetalleChatPorIdAlumno(idAlumno,idPGeneral);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         /// Autor: Gilmer Quispe.
         /// Fecha: 05/12/2022
         /// Versión: 1.0
@@ -330,6 +369,25 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             {
                 throw ex;
             }
+        }
+        /// Autor: Max Mantilla
+        /// Fecha: 2024-12-10
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de T_ChatDetalleIntegra segun su IdCoordinadorAcademico
+        /// </summary>
+        /// <returns> List<ChatActivoDetalleIntegraDTO> </returns>
+        public List<ChatActivoDetalleIntegraDTO> ObtenerChatsAcademicosHabilitadosCoordinadora(int IdCoordinadorAcademico, bool EsOnline)
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerChatsAcademicosHabilitadosCoordinadora(IdCoordinadorAcademico,EsOnline);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
         }
     }
 }

@@ -926,7 +926,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.LinkedIn
                     return rpta;
                 }
                 return rpta; ;
-            }
+        }
             catch (Exception ex)
             {
                 throw;

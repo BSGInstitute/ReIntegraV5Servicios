@@ -19,6 +19,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<ChatDetalleIntegraComboDTO> ObtenerCombo();
         HistorialChatRecibidosDTO ObtenerHistorialChatRecibidos(int idPersonal, int idAlumno);
         List<ChatDetalleIntegra> ObtenerDetalleChatPorIdInteraccion(int idInteraccion);
+        CursoOportunidadDTO ObtenerCursoOportunidad(int idOportunidad);
+        List<ChatHistorialComercialDTO> ObtenerDetalleChatPorIdAlumno(int idAlumno,int idPGeneral);
         List<ChatDetalleIntegra> ObtenerDetalleChatPorIdInteraccionControlMensajesSoporte(int idAlumno);
 
         bool FinalizarChatAtc(int idMatriculaCabecera,string userName);
@@ -27,5 +29,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         List<DatosSesionChatComercialDTO> GetIdUltimaInteraccionComercial(int idAlumno);
         ChatDetalleIntegra ObtenerPorIntegraChatYRemintente(int idInteraccionChatIntegra, string idRemitente);
         List<HistorialChatDetalleIntegraDTO> ObtenerHistorialChatDetalleIntegra(int idMatriculaCabecera);
+        List<ChatActivoDetalleIntegraDTO> ObtenerChatsAcademicosHabilitadosCoordinadora(int IdCoordinadorAcademico, bool EsOnline);
     }
 }

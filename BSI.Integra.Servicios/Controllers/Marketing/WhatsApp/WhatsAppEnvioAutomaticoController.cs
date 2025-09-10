@@ -18,9 +18,12 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.WhatsApp
     public class WhatsAppEnvioAutomaticoController : ControllerBase
     {
         private IUnitOfWork unitOfWork;
-        public WhatsAppEnvioAutomaticoController(IUnitOfWork unitOfWork)
+        private readonly IServiceScopeFactory _scopeFactory;
+
+        public WhatsAppEnvioAutomaticoController(IUnitOfWork unitOfWork, IServiceScopeFactory scopeFactory)
         {
             this.unitOfWork = unitOfWork;
+            _scopeFactory = scopeFactory;
         }
 
         [Route("[Action]")]
@@ -35,6 +38,36 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.WhatsApp
             catch (Exception ex)
             {
                 return BadRequest(ex);
+            }
+        }
+
+
+        /// <summary>
+        /// Ejecuta la campaña general de envío de mensajes de WhatsApp de forma asíncrona en segundo plano.
+        /// </summary>
+        /// <returns>OK si el proceso fue iniciado.</returns>
+        [Route("[Action]")]
+        [HttpGet]
+        public ActionResult EjecutarCampaniaGeneralEnvioWhatsAppAuto()
+        {
+            try
+            {
+                Task.Run(async () =>
+                {
+                    using (var scope = _scopeFactory.CreateScope())
+                    {
+                        var unitOfWorkEnScope = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                        var service = new WhatsAppEnvioAutomaticoService(unitOfWorkEnScope);
+
+                        await service.EjecutarCampaniaGeneralEnvioWhatsAppAuto();
+                    }
+                });
+
+                return Ok("Campaña de envío de WhatsApp iniciada en segundo plano. Verifique los logs para el estado de envíos individuales.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error al iniciar la campaña de WhatsApp: {ex.Message}");
             }
         }
 

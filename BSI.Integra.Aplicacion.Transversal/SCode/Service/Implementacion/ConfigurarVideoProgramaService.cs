@@ -1210,15 +1210,15 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                 columna++;
                                 if(i < columnasAdicionalExcel.Count())
                                 {
-                                    worksheet.Cells[fila, columna].Value = columnasAdicionalExcel[i].Minuto;
-                                    columna++;
-                                    worksheet.Cells[fila, columna].Value = columnasAdicionalExcel[i].IdTipoVista;
-                                    columna++;
-                                    worksheet.Cells[fila, columna].Value = columnasAdicionalExcel[i].NroDiapositiva;
-                                    columna++;
-                                    worksheet.Cells[fila, columna].Value = columnasAdicionalExcel[i].ConLogoVideo == true ? "si" : columnasAdicionalExcel[i].ConLogoVideo == false ? "no" : "";
-                                    columna++;
-                                    worksheet.Cells[fila, columna].Value = columnasAdicionalExcel[i].ConLogoDiapositiva == true ? "si" : columnasAdicionalExcel[i].ConLogoDiapositiva == false ? "no" : "";
+                                worksheet.Cells[fila, columna].Value = columnasAdicionalExcel[i].Minuto;
+                                columna++;
+                                worksheet.Cells[fila, columna].Value = columnasAdicionalExcel[i].IdTipoVista;
+                                columna++;
+                                worksheet.Cells[fila, columna].Value = columnasAdicionalExcel[i].NroDiapositiva;
+                                columna++;
+                                worksheet.Cells[fila, columna].Value = columnasAdicionalExcel[i].ConLogoVideo == true ? "si" : columnasAdicionalExcel[i].ConLogoVideo == false ? "no" : "";
+                                columna++;
+                                worksheet.Cells[fila, columna].Value = columnasAdicionalExcel[i].ConLogoDiapositiva == true ? "si" : columnasAdicionalExcel[i].ConLogoDiapositiva == false ? "no" : "";
                                 }
                                 fila++;
                             }

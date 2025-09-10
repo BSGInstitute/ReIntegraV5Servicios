@@ -7157,7 +7157,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _preguntaEncuestaCategoriaRepository ?? new PreguntaEncuestaCategoriaRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
-        
+
         private IPreguntaEncuestaRepository _preguntaEncuestaRepository;
         IPreguntaEncuestaRepository IUnitOfWork.PreguntaEncuestaRepository
         {
@@ -7256,6 +7256,18 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _siigoApiRepository ?? new SiigoApiRepository(_dapperRepository);
             }
         }
+
+        private IWavixRepository _wavixRepository;
+        IWavixRepository IUnitOfWork.WavixRepository
+        {
+            get
+            {
+                return _wavixRepository ?? new WavixRepository(_dapperRepository);
+            }
+        }
+
+
+
 
 
 
@@ -7826,6 +7838,51 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private IFaseCalificacionRepository _faseCalificacionRepository;
+        IFaseCalificacionRepository IUnitOfWork.FaseCalificacionRepository
+        {
+            get
+            {
+                return _faseCalificacionRepository ?? new FaseCalificacionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private ICriterioCalificacionLlamadaRepository _criterioCalificacionLlamadaRepository;
+        ICriterioCalificacionLlamadaRepository IUnitOfWork.CriterioCalificacionLlamadaRepository
+        {
+            get
+            {
+                return _criterioCalificacionLlamadaRepository ?? new CriterioCalificacionLlamadaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private ILineamientoCalificacionRepository _linemaientoCalificacionRepository;
+        ILineamientoCalificacionRepository IUnitOfWork.LineamientoCalificacionRepository
+        {
+            get
+            {
+                return _linemaientoCalificacionRepository ?? new LineamientoCalificacionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IPuntosGeneralesRepository _puntosGeneralesRepository;
+        IPuntosGeneralesRepository IUnitOfWork.PuntosGeneralesRepository
+        {
+            get
+            {
+                return _puntosGeneralesRepository ?? new PuntosGeneralesRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private ICriticidadCalificacionRepository _criticidadCalificacionRepository;
+        ICriticidadCalificacionRepository IUnitOfWork.CriticidadCalificacionRepository
+        {
+            get
+            {
+                return _criticidadCalificacionRepository ?? new CriticidadCalificacionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+
         private IPEspecificoCodigoPartnerRepository _pEspecificoCodigoPartnerRepository;
         IPEspecificoCodigoPartnerRepository IUnitOfWork.PEspecificoCodigoPartnerRepository
         {
@@ -7843,6 +7900,46 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private ITranscripcionLlamadaRepository _transcripcionLlamadaRepository;
+        ITranscripcionLlamadaRepository IUnitOfWork.TranscripcionLlamadaRepository
+        {
+            get
+            {
+                return _transcripcionLlamadaRepository ?? new TranscripcionLlamadaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IFraseCombinadaRepository _fraseCombinadaRepository;
+        IFraseCombinadaRepository IUnitOfWork.FraseCombinadaRepository
+        {
+            get
+            {
+                return _fraseCombinadaRepository ?? new FraseCombinadaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IFraseReconocidaRepository _fraseReconocidaRepository;
+        IFraseReconocidaRepository IUnitOfWork.FraseReconocidaRepository
+        {
+            get
+            {
+                return _fraseReconocidaRepository ?? new FraseReconocidaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IDetalleFraseReconocidaRepository _detalleFraseReconocidaRepository;
+        IDetalleFraseReconocidaRepository IUnitOfWork.DetalleFraseReconocidaRepository
+        {
+            get
+            {
+                return _detalleFraseReconocidaRepository ?? new DetalleFraseReconocidaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IRecomendacionRepository _recomendacionRepository;
+        IRecomendacionRepository IUnitOfWork.RecomendacionRepository
+        {
+            get
+            {
+                return _recomendacionRepository ?? new RecomendacionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
         private IProcesoSeleccionPuntajeCalificacionRepository _procesoSeleccionPuntajeCalificacionRepository;
         IProcesoSeleccionPuntajeCalificacionRepository IUnitOfWork.ProcesoSeleccionPuntajeCalificacionRepository
         {

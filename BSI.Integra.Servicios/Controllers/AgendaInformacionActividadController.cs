@@ -15,15 +15,21 @@ using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Implementation;
 using BSI.Integra.Repositorio.Repository.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
+using iText.Kernel.Pdf.Statistics;
 using BSI.Integra.Servicios.Helpers;
+using BSI.Integra.Servicios.Helpers.InformacionProgramaEstructurada;
+using HtmlAgilityPack;
 using iTextSharp.text.pdf.codec.wmf;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Globalization;
 using System.Security.Claims;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Transactions;
-
+using static BSI.Integra.Servicios.Controllers.AgendaInformacionActividadController;
 namespace BSI.Integra.Servicios.Controllers
 {
     /// Controlador: AgendaInformacionActividadController
@@ -114,6 +120,46 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        
+        /// Tipo Función: GET
+        /// Autor: Carlos Crispin R.
+        /// Mdificado por: Jose Vega (2025-08-27) - Ajuste para retornar JSON estructurado en la respuesta.
+        /// Fecha: 09/10/2024
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el Publico Objetivo para un Programa General para la nueva version de la agenda
+        /// </summary>
+        /// <param name="idCentroCosto">Id del Centro de Costo asociado al Programa</param>
+        /// <param name="idOportunidad">Id de la Oportunidad asociada a las Respuestas</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerPublicoObjetivoProgramaNuevaAgendaV3json/{idCentroCosto}/{idOportunidad}")]
+        public IActionResult ObtenerPublicoObjetivoProgramaNuevaAgendaV3json(int idCentroCosto, int idOportunidad)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var servicio = new PGeneralService(_unitOfWork);
+
+                // Resultado original
+                var resultado = servicio.ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3(idCentroCosto, idOportunidad);
+
+                // Proyecta a JToken para limpieza homogénea
+                var token = Newtonsoft.Json.Linq.JToken.FromObject(resultado);
+
+                // Limpia HTML/entidades en todos los strings del grafo
+                JsonSanitizerHelpers.LimpiarHtmlRecursivo(token);
+
+                // Devuelve JSON limpio e indentado
+                return Content(token.ToString(Newtonsoft.Json.Formatting.Indented), "application/json");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 22/07/2022
@@ -166,6 +212,44 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// Tipo Función: GET
+        /// Autor: Erick Marcelo Quispe.
+        /// Mdificado por: Jose Vega (2025-08-27) - Ajuste para retornar JSON estructurado en la respuesta.
+        /// Fecha: 22/07/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene las Motivaciones y sus Argumentos asociados a un Programa General.
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad asociada al Programa</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerArgumentosMotivacionProgramaPorIdOportunidadjson/{idOportunidad}")]
+        public IActionResult ObtenerArgumentosMotivacionProgramaPorIdOportunidadjson(int idOportunidad)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var servicio = new ProgramaGeneralMotivacionService(_unitOfWork);
+
+                // Resultado original
+                var resultado = servicio.ObtenerMotivacionesDetalleParaAgendaPorIdOportunidad(idOportunidad);
+
+                // Proyecta a JToken para limpieza homogénea
+                var token = Newtonsoft.Json.Linq.JToken.FromObject(resultado);
+
+                // Limpia HTML/entidades en todos los strings del grafo (detalle, solucion, etc.)
+                JsonSanitizerHelpers.LimpiarHtmlRecursivo(token);
+
+                // Devuelve JSON limpio e indentado
+                return Content(token.ToString(Newtonsoft.Json.Formatting.Indented), "application/json");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         /// Tipo Función: GET
         /// Autor: Jonathan Caipo
         /// Fecha: 30/11/2022
@@ -193,6 +277,45 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// Tipo Función: GET
+        /// Autor: Jonathan Caipo
+        /// Mdificado por: Jose Vega (2025-08-27) - Ajuste para retornar JSON estructurado en la respuesta.
+        /// Fecha: 30/11/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la informacion de Oportunidades asociada a una ClasificacionPersona y un Alumno.
+        /// </summary>
+        /// <param name="idClasificacionPersona">Id de Clasificacion Persona</param>
+        /// <param name="idAlumno">Id del Alumno</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerOportunidadInformacionjson/{idAlumno}/{idClasificacionPersona}")]
+        public IActionResult ObtenerOportunidadInformacionjson(int idAlumno, int idClasificacionPersona)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var servicio = new OportunidadInformacionService(_unitOfWork);
+
+                // Resultado original
+                var resultado = servicio.ObtenerOportunidadInformacion(idAlumno, idClasificacionPersona);
+
+                // Proyecta a JToken para limpieza homogénea
+                var token = Newtonsoft.Json.Linq.JToken.FromObject(resultado);
+
+                // Limpia HTML/entidades en todos los strings del grafo
+                JsonSanitizerHelpers.LimpiarHtmlRecursivo(token);
+
+                // Devuelve JSON limpio e indentado
+                return Content(token.ToString(Newtonsoft.Json.Formatting.Indented), "application/json");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 25/07/2022
@@ -213,6 +336,44 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 var servicio = new ProgramaGeneralProblemaService(_unitOfWork);
                 return Ok(servicio.ObtenerProgramaGeneralProblemaDetalleParaAgendaPorIdOportunidad(idOportunidad));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Erick Marcelo Quispe.
+        /// Mdificado por: Jose Vega (2025-08-27) - Ajuste para retornar JSON estructurado en la respuesta.
+        /// Fecha: 25/07/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene Problemas de ProgramaGeneral y sus Argumentos asociados a una Oportunidad.
+        /// </summary>
+        /// <param name="idOportunidad">Id del Alumno</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerProgramaGeneralProblemaDetallePorIdOportunidadjson/{idOportunidad}")]
+        public IActionResult ObtenerProgramaGeneralProblemaDetallePorIdOportunidadjson(int idOportunidad)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var servicio = new ProgramaGeneralProblemaService(_unitOfWork);
+
+                // Obtiene el resultado original
+                var resultado = servicio.ObtenerProgramaGeneralProblemaDetalleParaAgendaPorIdOportunidad(idOportunidad);
+
+                // Proyecta a JToken para poder limpiar HTML en todo el grafo
+                var token = Newtonsoft.Json.Linq.JToken.FromObject(resultado);
+
+                // Limpia HTML/entidades en todos los strings (detalle, solucion, etc.)
+                JsonSanitizerHelpers.LimpiarHtmlRecursivo(token);
+
+                // Devuelve JSON limpio e indentado
+                return Content(token.ToString(Newtonsoft.Json.Formatting.Indented), "application/json");
             }
             catch (Exception ex)
             {
@@ -935,6 +1096,50 @@ namespace BSI.Integra.Servicios.Controllers
 
                 var respuesta = informacionProgramaService.CargarInformacionProgramaAutomatico(idCentroCosto, codigoPais, idMatriculaCabecera, idOportunidad);
                 return Ok(new { respuesta });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Erick Marcelo Quispe.
+        /// Mdificado por: Jose Vega (2025-08-27) - Ajuste para retornar JSON estructurado en la respuesta.
+        /// Fecha: 11/08/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Genera HTML de resumen de programas Versión 1
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionProgramav1json")]
+        public IActionResult ObtenerInformacionProgramav1json([FromBody] Dictionary<string, string> filtro)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var informacionProgramaService = new InformacionProgramaService(_unitOfWork);
+
+                var idCentroCosto = Convert.ToInt32(filtro["idCentroCosto"]);
+                var codigoPais = Convert.ToInt32(filtro["codigoPais"]);
+                var idMatriculaCabecera = Convert.ToInt32(filtro["idMatriculaCabecera"]);
+                var idOportunidad = Convert.ToInt32(filtro["idOportunidad"]);
+
+                var respuesta = informacionProgramaService.CargarInformacionProgramaAutomaticojson(
+                    idCentroCosto, codigoPais, idMatriculaCabecera, idOportunidad
+                );
+
+                var raiz = JObject.FromObject(respuesta);
+
+                // NO limpiar todo aún. NormalizarEstructura ya:
+                //  - parsea InformacionPrograma a JSON estructurado (si aplica)
+                //  - luego aplica LimpiarHtmlRecursivo sobre el grafo resultante
+                JsonSanitizerHelpers.NormalizarEstructura(raiz);
+
+                return Content(raiz.ToString(Newtonsoft.Json.Formatting.Indented), "application/json");
             }
             catch (Exception e)
             {
@@ -2138,7 +2343,7 @@ namespace BSI.Integra.Servicios.Controllers
                 {
                     speechBienvenidaDespedidaDTO.IdPlantillaBienvenida = 1448;
                 }
-                else if (alumno.IdCodigoPais == 51 && alumno.Modalidad == "Online Sincronica") 
+                else if (alumno.IdCodigoPais == 51 && alumno.Modalidad == "Online Sincronica")
                 {
                     speechBienvenidaDespedidaDTO.IdPlantillaBienvenida = 1671;
                 }
@@ -3025,11 +3230,10 @@ namespace BSI.Integra.Servicios.Controllers
         /// </summary>
         /// <returns> Información de Interacciones de Oportunidad  </returns>
         /// <returns> Lista de Objeto DTO : List<ReporteSeguimientoOportunidadLogGridDTO> </returns>
-        [Route("[action]/{idAlumno}/{idOportunidad}/{idPadre}")]
+        [Route("[action]/{idAlumno}/{idOportunidad}/{idPadre}/{pageNumber}/{pageSize}")]
         [HttpGet]
-        public ActionResult ObtenerHistorialInteraccionesOportunidadATC(int idAlumno, int? idOportunidad, int? idPadre)
+        public ActionResult ObtenerHistorialInteraccionesOportunidadATC(int idAlumno, int? idOportunidad, int? idPadre, int pageNumber, int pageSize)
         {
-            
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -3040,7 +3244,45 @@ namespace BSI.Integra.Servicios.Controllers
                 ReporteService reporteService = new ReporteService(_unitOfWork);
                 int idOportunidadtemp = idOportunidad == null ? 0 : idOportunidad.Value;
                 int idPadretemp = idPadre == null ? 0 : idPadre.Value;
-                var resultado = reporteService.ObtenerOportunidadesLogPorAlumnoATC(idAlumno, idOportunidadtemp, idPadretemp);
+                var resultado = reporteService.ObtenerOportunidadesLogPorAlumnoATC(idAlumno, idOportunidadtemp, idPadretemp, pageNumber, pageSize);
+                var listanueva = new List<ReporteSeguimientoNWActividadAlternoATCDTO>
+                {
+                    resultado.Items.Where(x => x.Estado == "NO EJECUTADO").FirstOrDefault()
+                };
+                listanueva.AddRange(resultado.Items.Where(x => x.Estado != "NO EJECUTADO").OrderByDescending(x => x.FechaModificacion).ToList());
+
+                return Ok(new { Actividades = listanueva, TotalActividades = resultado.TotalActividades });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        /// TipoFuncion: GET
+        /// Autor: Jonathan Caipo
+        /// Fecha: 16/11/2022
+        /// Version: 1.0
+        /// <summary>
+        ///  Obtiene Historial de Interacciones de Oportunidad
+        /// </summary>
+        /// <returns> Información de Interacciones de Oportunidad  </returns>
+        /// <returns> Lista de Objeto DTO : List<ReporteSeguimientoOportunidadLogGridDTO> </returns>
+        [Route("[action]/{idAlumno}/{idOportunidad}/{idPadre}/{pageNumber}/{pageSize}")]
+        [HttpGet]
+        public ActionResult ObtenerHistorialInteraccionesOportunidadOperaciones(int idAlumno, int? idOportunidad, int? idPadre,int pageNumber, int pageSize)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                OportunidadService oportunidadService = new OportunidadService(_unitOfWork);
+                ReporteService reporteService = new ReporteService(_unitOfWork);
+                int idOportunidadtemp = idOportunidad == null ? 0 : idOportunidad.Value;
+                int idPadretemp = idPadre == null ? 0 : idPadre.Value;
+                var resultado = reporteService.ObtenerOportunidadesLogPorAlumnoOperaciones(idAlumno, idOportunidadtemp, idPadretemp, pageNumber, pageSize);
                 var listanueva = new List<ReporteSeguimientoNWActividadAlternoATCDTO>
                 {
                     resultado.Where(x => x.Estado == "NO EJECUTADO").FirstOrDefault()
@@ -4304,7 +4546,7 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            
+
         }
 
         /// Tipo Función: GET
@@ -4334,11 +4576,53 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 return BadRequest(ex.Message);
             }
+            }
+
+
+        /// Tipo Función: POST
+        /// Autor: Erick Marcelo Quispe.
+        /// Mdificado por: Jose Vega (2025-08-27) - Ajuste para retornar JSON estructurado en la respuesta.
+        /// Fecha: 11/08/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Genera HTML de resumen de programas Versión 1
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionProgramaSpeechjson")]
+        public IActionResult ObtenerInformacionProgramaSpeechjson([FromBody] Dictionary<string, string> filtro)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var informacionProgramaService = new InformacionProgramaService(_unitOfWork);
+
+                var idCentroCosto = Convert.ToInt32(filtro["idCentroCosto"]);
+                var codigoPais = Convert.ToInt32(filtro["codigoPais"]);
+                var idMatriculaCabecera = Convert.ToInt32(filtro["idMatriculaCabecera"]);
+                var idOportunidad = Convert.ToInt32(filtro["idOportunidad"]);
+
+
+                var respuesta = informacionProgramaService.CargarInformacionProgramaAutomaticoSpeechjson(
+                    idCentroCosto, codigoPais, idMatriculaCabecera, idOportunidad
+                );
+
+
+                var raiz = JObject.FromObject(respuesta);
+
+                JsonSanitizerHelpers.NormalizarEstructura(raiz);
+
+                return Content(raiz.ToString(Newtonsoft.Json.Formatting.Indented), "application/json");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
         }
 
     }
-
-
-
-
+    
 }

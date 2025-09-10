@@ -2,6 +2,7 @@
 using BSI.Integra.Aplicacion.Comercial.Service.Implementacion;
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.Wavix;
 using BSI.Integra.Aplicacion.Marketing.Service.Interface;
 using BSI.Integra.Aplicacion.Marketing.Service.Interface.Marketing.WhatsApp;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
@@ -1154,6 +1155,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.What
                         else
                         {
                             mensaje = "Error en credenciales de login o nrevise su conexcion de red para el servidor de whatsapp.";
+                            mensaje = "Error en credenciales de login o revise su conexion de red para el servidor de whatsapp.";
                             estadoWhatsapp = false;
                             //return ("Error en credenciales de login o nrevise su conexcion de red para el servidor de whatsapp.");
                         }
@@ -2904,6 +2906,32 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.What
             }
             catch (Exception ex)
             {
+            }
+        }
+        public async void WavixNotificacionesMensaje(int idPersonal,EstadoLlamadaDTO envioString)
+        {
+            string respuesta = "OK";
+            try
+            {
+
+                //var url2 = "https://integrav4-signalrcore.bsginstitute.com/";
+                var url2 = "https://localhost:7120/";
+
+                var connection = new HubConnectionBuilder()
+                .WithUrl(url2 + "hubChatWhatsapp_Peru?idUsuario=WebHook&&usuarioNombre=WebHook&&rooms=''")
+                .Build();
+
+                await connection.StartAsync();
+
+                await connection.InvokeAsync("NotificarWavixEstadoLlamada", idPersonal, envioString);
+
+                //await connection.StopAsync();
+
+            }
+            catch (Exception ex)
+            {
+
+
             }
         }
 

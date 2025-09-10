@@ -851,22 +851,22 @@ namespace BSI.Integra.Servicios.Controllers
         [HttpPost]
         public ActionResult CrearOportunidadesWebHookFacebookLista([FromBody] List<int> idAsignacionAutomaticaList)
         {
-            if (idAsignacionAutomaticaList == null || !idAsignacionAutomaticaList.Any())
+            try
             {
-                return BadRequest("La lista de IdAsignacionAutomatica no puede estar vacía.");
-            }
+                IOportunidadService servicio = new OportunidadService(unitOfWork);
 
-            Task.Run(() =>
-            {
-                using (var scope = HttpContext.RequestServices.CreateScope())
+          
+                if (idAsignacionAutomaticaList == null || !idAsignacionAutomaticaList.Any())
                 {
-                    var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-                    var servicio = new OportunidadService(unitOfWork);
-                    servicio.CrearOportunidadesWebHookFacebookLista(idAsignacionAutomaticaList);
+                    return BadRequest("La lista de IdAsignacionAutomatica no puede estar vacía.");
                 }
-            });
-
-            return Ok(new { mensaje = "El procesamiento se está ejecutando en segundo plano." });
+                var resultados = servicio.CrearOportunidadesWebHookFacebookLista(idAsignacionAutomaticaList);
+                return Ok(resultados);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { mensaje = ex.Message });
+            }
         }
 
 

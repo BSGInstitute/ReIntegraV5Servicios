@@ -25,8 +25,12 @@
         public string? EstadoLlamada { get; set; }
         public string? SubEstadoLlamada { get; set; }
         public string? UrlGrabacion { get; set; }
+        public string? UrlGrabacion2 { get; set; }
         public string? NombreGrabacion { get; set; }
         public string? Webphone { get; set; }
         public string OrigenLlamada { get; set; }
+        public string? TranscripcionLlamada { get; set; }
+        public bool? esLlamadaCalificada { get; set; }
+        public bool? esLlamadaTranscrita { get; set; }
     }
 }

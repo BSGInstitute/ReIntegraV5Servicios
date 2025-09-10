@@ -20,7 +20,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
     {
         private IUnitOfWork _unitOfWork;
         private string permisosHeader;
-
+  
         private const string API_WOLKBOX = "agentbox.php";
         private WolkboxTokenLogDTO _wolkboxTokenLog = new();
         private StringDTO token;
@@ -56,7 +56,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
                     _unitOfWork.LinkedInApiRepository.ActualizarEstadoEnviado(1);
                     return false;
                 }
-                if (campañas && form)   
+                if (campañas && form)
                 {
                     leads = await ObtenerLeads();
                 }
@@ -101,7 +101,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
 
         public async Task<bool> ObtenerForms()
         {
-
+            
             _unitOfWork.LinkedInApiRepository.ActualizarEstadoEnviado(2);
             try
             {
@@ -115,12 +115,12 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
                 while (hasMoreData)
                 {
                     var parametros = new List<string>
-                    {
-                            $"adForms?q=account&account=urn:li:sponsoredAccount:{sponsoredAccount}",
-                            $"totals=true",
-                            $"start={start}",
-                            $"count={count}"
-                    };
+            {
+                $"adForms?q=account&account=urn:li:sponsoredAccount:{sponsoredAccount}",
+                $"totals=true",
+                $"start={start}",
+                $"count={count}"
+            };
 
                     var (jsonString, statusCode) = await SolicitudHttpLinkedin(parametros);
                     if (statusCode != HttpStatusCode.OK)
@@ -214,7 +214,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
                         }
                     }
 
-
+                  
                     hasMoreData = elements.Count == count;
                     start += count;
                 }
@@ -303,7 +303,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
                         }
                     }
 
-
+      
                     hasMoreData = elements.Count == count;
 
                     start += count;
@@ -459,20 +459,20 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
                 catch (HttpRequestException ex)
                 {
                     Console.WriteLine($"Error en la solicitud HTTP: {ex.Message}");
-
+                    
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error en la solicitud HTTP: {ex.Message}");
-
+                    
                     throw;
                 }
 
-
+              
                 intentos++;
                 Console.WriteLine($"Reintentando... ({intentos}/{maxIntentos})");
 
-
+               
                 await Task.Delay(1000);
             }
 
@@ -499,9 +499,9 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
                         var parametros = new List<string>
                 {
                     $"adFormResponses?q=account&account=urn:li:sponsoredAccount:{sponsoredAccount}",
-                                $"form=urn:li:adForm:{formId.Valor}",
-                                $"start={start}",
-                                $"count={count}"
+                    $"form=urn:li:adForm:{formId.Valor}",
+                    $"start={start}",
+                    $"count={count}"
                 };
 
                         var (jsonString, statusCode) = await SolicitudHttpLinkedin(parametros);
@@ -633,7 +633,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
                 List<InformacionBaseOportunidad> leadAceptados = _unitOfWork.LinkedInApiRepository.BuscarDatoLeadAprobados();
                 List<InformacionBaseOportunidad> leadRevisar = _unitOfWork.LinkedInApiRepository.BuscarDatoLeadARevisar();
                 var insertarRevisados = _unitOfWork.LinkedInApiRepository.InsertaOportunidadesparaRevisar();
-
+                
                 DateTime fechaHoraActual = DateTime.Now;
                 IOportunidadService servicio = new OportunidadService(_unitOfWork);
                 var usuario = "mkilimajer";
@@ -653,7 +653,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
                         _unitOfWork.LinkedInApiRepository.RegistrarOportunidadesNoCreadads(fechaHoraActual);
                     }
 
-
+                    
                     _unitOfWork.LinkedInApiRepository.ActualizarEstadoEnviado(5);
                     return resultado;
 
@@ -674,7 +674,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
         }
         public IEnumerable<ReporteLeadsDTO> ObtenerReporteLeadsByFecha(FiltroLandingPagePortaLinkedInDTO filtro)
         {
-
+        
             var leads = _unitOfWork.LinkedInApiRepository.ObtenerReporteLeadsByFecha(filtro);
             var alumnoService = new AlumnoService(_unitOfWork);
             foreach (var lead in leads)

@@ -39,9 +39,32 @@
         public DateTime FechaCreacion { get; set; }
         public string IdRemitente { get; set; }
     }
+    public class ChatHistorialComercialDTO
+    {
+        public int IdInteraccionChatIntegra { get; set; }
+        public string NombreRemitente { get; set; }
+        public string? Mensaje { get; set; }
+        public DateTime Fecha { get; set; }
+        public string? IdRemitente { get; set; }
+        public bool? MensajeOfensivo { get; set; }
+        public bool Estado { get; set; }
+        public string? IdContactoPortalSegmento { get; set; }
+        public int? IdPGeneral { get; set; }
+        public string? IdFaseOportunidadPortalWeb { get; set; }
+        public int? IdAlumno { get; set; }
+    }
+
+    public class CursoOportunidadDTO
+    {
+        public int IdOportunidad { get; set; }
+        public int IdCentroCosto { get; set; }
+        public int IdPespecifico { get; set; }
+        public int IdProgramaGeneral { get; set; }
+    }
     public class HistorialChatEntradaDTO
     {
         public int valor { get; set; }
+        public bool esOnline { get; set; }
     }
 
     public class DatosSesionChatDTO
@@ -81,5 +104,15 @@
         public bool? EsAcademico { get; set; }
         public bool? EsSoporteTecnico { get; set; }
         public int? IdMatriculaCabecera { get; set; }
+    }
+    public class ChatActivoDetalleIntegraDTO
+    {
+        public int IdMatriculaCabecera { get; set; }
+        public string Mensaje { get; set; }
+        public DateTime FechaCreacion { get; set; }
+        public string IdRemitente { get; set; }
+        public string Emisor { get; set; }
+        public bool EsChatBot { get; set; }
+        public int Pendientes { get; set; }
     }
 }

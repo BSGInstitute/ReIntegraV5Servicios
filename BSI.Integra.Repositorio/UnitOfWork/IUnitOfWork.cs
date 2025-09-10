@@ -894,6 +894,8 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IMotivoInactividadRepository MotivoInactividadRepository { get; }
         ISistemaPensionarioRepository SistemaPensionarioRepository { get; }
         IMelissaRepository MelissaRepository { get; }
+        IWavixRepository WavixRepository { get; }
+
         IFacturamaRepository FacturamaRepository { get; }
         IPersonalRemuneracionRepository PersonalRemuneracionRepository { get; }
         IPersonalCeseRepository PersonalCeseRepository { get; }
@@ -927,9 +929,22 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         ICentralLlamadaDireccionRepository CentralLlamadaDireccionRepository { get; }
         IEvaluacionCategoriaRepository EvaluacionCategoriaRepository { get; }
 
+        IFaseCalificacionRepository FaseCalificacionRepository { get; }
+        ICriterioCalificacionLlamadaRepository CriterioCalificacionLlamadaRepository { get; }
+        ILineamientoCalificacionRepository LineamientoCalificacionRepository { get; }
+        ICriticidadCalificacionRepository CriticidadCalificacionRepository { get; }
+        IPuntosGeneralesRepository PuntosGeneralesRepository { get; }
+
+
+
         IPEspecificoCodigoPartnerRepository PEspecificoCodigoPartnerRepository { get; }
         IMatriculaFormularioProgresivoRepository MatriculaFormularioProgresivoRepository { get; }
 
+        ITranscripcionLlamadaRepository TranscripcionLlamadaRepository { get; }
+        IFraseCombinadaRepository FraseCombinadaRepository { get; }
+        IFraseReconocidaRepository FraseReconocidaRepository { get; }
+        IDetalleFraseReconocidaRepository DetalleFraseReconocidaRepository { get; }
+        IRecomendacionRepository RecomendacionRepository { get; }
         IProcesoSeleccionPuntajeCalificacionRepository ProcesoSeleccionPuntajeCalificacionRepository { get; }
 
     }

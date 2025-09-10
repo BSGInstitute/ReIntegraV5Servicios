@@ -97,8 +97,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         List<DateTime> ObtenerActividadesNoEjecutadas(int idOportunidad);
         List<ReporteSeguimientoOportunidadLogDTO> ObtenerListaOportunidadLog(int idOportunidad);
         List<ReporteSeguimientoOportunidadLogDTO> ObtenerListaOportunidadLogPorIdAlumno(int idAlumno, int idOportunidad, int idPadre);
-        IEnumerable<OportunidadLogReporteATCDTO> ObtenerOportunidadLogReporteSeguimientoV5ATC(int idAlumno, int idOportunidad, int idPadre,int diferenciaHoraria);
+       OportunidadLogReporteOperacionesDTO ObtenerOportunidadLogReporteSeguimientoV5ATC(int idAlumno, int idOportunidad, int idPadre,int diferenciaHoraria,int pageNumber,int pageSize);
         //List<OportunidadLogReporteSeguimientoDetalleATCDTO> ObtenerListaOportunidadLogPorIdAlumnoATC(int idAlumno, int idOportunidad, int idPadre);
+        IEnumerable<OportunidadLogReporteATCDTO> ObtenerOportunidadLogReporteSeguimientoV5Operaciones(int idAlumno, int idOportunidad, int idPadre, int diferenciaHoraria, int numberPage, int pageSize);
 
         List<ReporteActividadOcurrenciaDTO> ReporteActividadOcurrenciaPorIdAlumno(int idAlumno);
         ReporteSeguimientoOportunidadLogGridDTO ObtenerOportunidadCodigoFaseporIdAlumno(int idAlumno, int idOportunidad);

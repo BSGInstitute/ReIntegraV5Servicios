@@ -67,6 +67,7 @@
         public string TipoSolicitudOperaciones { get; set; }
         public string? Color { get; set; }
         public int? TipoRegistro { get; set; }
+        public bool? EsOnline { get; set; }
         public Dictionary<string, List<ActividadAgendaDTO>> ActividadesAgenda { get; set; }
     }
     public class ActividadesPorFiltroRespuestaDTO

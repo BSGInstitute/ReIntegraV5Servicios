@@ -4608,39 +4608,89 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     {
                         if (conincidenciasEmail == null && (idPersonalEmailRepetido == null || idPersonalEmailRepetido == 0))
                         {
-                            personal.Nombres = Json.Nombres;
-                            personal.Apellidos = Json.Apellidos;
-                            personal.Rol = Json.Area;
-                            personal.AreaAbrev = Json.AreaAbrev;
-                            personal.IdJefe = Json.IdJefe;
-                            personal.IdDominioPbx = Json.IdDominioPbx;
-                            personal.DiferenciaHoraria = horario.DiferenciaHoraria;
-                            personal.CodigoPaisDiferenciaHoraria = horario.Id;
-                            personal.Dominio = dominio.Nombre;
-                            personal.IdDominioPbx = dominio.Id;
-                            personal.Central = Json.Central;
-                            personal.TipoPersonal = Json.AsesorCoordinador;
-                            personal.Email = Json.Email;
-                            personal.Anexo = Json.Anexo;
-                            personal.Anexo3Cx = Json.Anexo;
-                            personal.UsuarioAsterisk = Json.UsuarioAsterisk;
-                            personal.ContrasenaAsterisk = Json.ContrasenaAsterisk;
-                            personal.UsuarioModificacion = usuarioIntegra;
-                            personal.FechaModificacion = DateTime.Now;
-                            personal.Estado = true;
-                            personal.Activo = Json.Activo;
-                            personal.Ip1 = Json.Ip1;
-                            personal.Ip2 = Json.Ip2;
-                            personal.IdPersonalAreaTrabajo = Json.IdPersonalAreaTrabajo;
-                            servicioPersonal.Update(personal);
+                        personal.Nombres = Json.Nombres;
+                        personal.Apellidos = Json.Apellidos;
+                        personal.Rol = Json.Area;
+                        personal.AreaAbrev = Json.AreaAbrev;
+                        personal.IdJefe = Json.IdJefe;
+                        personal.IdDominioPbx = Json.IdDominioPbx;
+                        personal.DiferenciaHoraria = horario.DiferenciaHoraria;
+                        personal.CodigoPaisDiferenciaHoraria = horario.Id;
+                        personal.Dominio = dominio.Nombre;
+                        personal.IdDominioPbx = dominio.Id;
+                        personal.Central = Json.Central;
+                        personal.TipoPersonal = Json.AsesorCoordinador;
+                        personal.Email = Json.Email;
+                        personal.Anexo = Json.Anexo;
+                        personal.Anexo3Cx = Json.Anexo;
+                        personal.UsuarioAsterisk = Json.UsuarioAsterisk;
+                        personal.ContrasenaAsterisk = Json.ContrasenaAsterisk;
+                        personal.UsuarioModificacion = usuarioIntegra;
+                        personal.FechaModificacion = DateTime.Now;
+                        personal.Estado = true;
+                        personal.Activo = Json.Activo;
+                        personal.Ip1 = Json.Ip1;
+                        personal.Ip2 = Json.Ip2;
+                        personal.IdPersonalAreaTrabajo = Json.IdPersonalAreaTrabajo;
+                        servicioPersonal.Update(personal);
 
-                            if (!(rolAnterior.ToUpper().Equals(personal.Rol.ToUpper())) || !(tipoPersonalAnterior.ToUpper().Equals(personal.TipoPersonal?.ToUpper() ?? "")))
+                        if (!(rolAnterior.ToUpper().Equals(personal.Rol.ToUpper())) || !(tipoPersonalAnterior.ToUpper().Equals(personal.TipoPersonal?.ToUpper() ?? "")))
+                        {
+                            var personalLogUpdate = _unitOfWork.PersonalLogRepository.ObtenerPorIdPersonal(personal.Id).ToList().Where(x => x.IdPersonal == personal.Id && (x.EstadoRol == true || x.EstadoTipoPersonal == true) && x.FechaFin == null).FirstOrDefault();
+                            var personalCambioJefe = _unitOfWork.PersonalLogRepository.ObtenerPorIdPersonal(personal.Id).ToList().Where(x => x.IdPersonal == personal.Id && (x.EstadoIdJefe == true && x.EstadoRol == false && x.EstadoTipoPersonal == false) && x.FechaFin == null).OrderByDescending(x => x.Id).FirstOrDefault();
+                            estadoCambioRolJefe = personalLogUpdate.EstadoIdJefe == true && personalLogUpdate.EstadoRol == true && personalLogUpdate.EstadoTipoPersonal == true;
+                            if (estadoCambioRolJefe && personalCambioJefe == null)
                             {
-                                var personalLogUpdate = _unitOfWork.PersonalLogRepository.ObtenerPorIdPersonal(personal.Id).ToList().Where(x => x.IdPersonal == personal.Id && (x.EstadoRol == true || x.EstadoTipoPersonal == true) && x.FechaFin == null).FirstOrDefault();
+                                PersonalLog personalLog = new PersonalLog();
+                                personalLog.IdPersonal = personal.Id;
+                                personalLog.Rol = personal.Rol;
+                                personalLog.TipoPersonal = personal.TipoPersonal;
+                                personalLog.IdJefe = idJefeAnterior;
+                                personalLog.EstadoRol = false;
+                                personalLog.EstadoTipoPersonal = false;
+                                personalLog.EstadoIdJefe = true;
+                                personalLog.FechaInicio = personalLogUpdate.FechaInicio;
+                                personalLog.FechaFin = null;
+                                personalLog.Estado = true;
+                                personalLog.UsuarioModificacion = usuarioIntegra;
+                                personalLog.UsuarioCreacion = usuarioIntegra;
+                                personalLog.FechaCreacion = DateTime.Now;
+                                personalLog.FechaModificacion = DateTime.Now;
+                                _unitOfWork.PersonalLogRepository.Add(personalLog);
+                            }
+                            personalLogUpdate.FechaFin = new DateTime(DateTime.Now.AddDays(-1).Year, DateTime.Now.AddDays(-1).Month, DateTime.Now.AddDays(-1).Day, 23, 59, 59);
+                            personalLogUpdate.UsuarioModificacion = usuarioIntegra;
+                            personalLogUpdate.FechaModificacion = DateTime.Now;
+                            _unitOfWork.PersonalLogRepository.Update(personalLogUpdate);
+
+                            PersonalLog personalLogBO = new PersonalLog();
+                            personalLogBO.IdPersonal = personal.Id;
+                            personalLogBO.Rol = personal.Rol;
+                            personalLogBO.TipoPersonal = personal.TipoPersonal;
+                            personalLogBO.IdJefe = personal.IdJefe;
+                            personalLogBO.EstadoRol = rolAnterior != personal.Rol;
+                            personalLogBO.EstadoTipoPersonal = tipoPersonalAnterior != personal.TipoPersonal;
+                            personalLogBO.EstadoIdJefe = false;
+                            personalLogBO.FechaInicio = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0); ;
+                            personalLogBO.FechaFin = null;
+                            personalLogBO.Estado = true;
+                            personalLogBO.UsuarioModificacion = usuarioIntegra;
+                            personalLogBO.UsuarioCreacion = usuarioIntegra;
+                            personalLogBO.FechaCreacion = DateTime.Now;
+                            personalLogBO.FechaModificacion = DateTime.Now;
+
+                            _unitOfWork.PersonalLogRepository.Add(personalLogBO);
+                        }
+                        if (idJefeAnterior != personal.IdJefe)
+                        {
+                            if (estadoCambioRolJefe == false)
+                            {
+                                var personalLogUpdate = _unitOfWork.PersonalLogRepository.ObtenerPorIdPersonal(personal.Id).ToList().Where(x => x.IdPersonal == personal.Id && (x.EstadoIdJefe == true) && x.FechaFin == null).OrderByDescending(x => x.Id).FirstOrDefault();
                                 var personalCambioJefe = _unitOfWork.PersonalLogRepository.ObtenerPorIdPersonal(personal.Id).ToList().Where(x => x.IdPersonal == personal.Id && (x.EstadoIdJefe == true && x.EstadoRol == false && x.EstadoTipoPersonal == false) && x.FechaFin == null).OrderByDescending(x => x.Id).FirstOrDefault();
                                 estadoCambioRolJefe = personalLogUpdate.EstadoIdJefe == true && personalLogUpdate.EstadoRol == true && personalLogUpdate.EstadoTipoPersonal == true;
                                 if (estadoCambioRolJefe && personalCambioJefe == null)
                                 {
+
                                     PersonalLog personalLog = new PersonalLog();
                                     personalLog.IdPersonal = personal.Id;
                                     personalLog.Rol = personal.Rol;
@@ -4658,113 +4708,63 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                     personalLog.FechaModificacion = DateTime.Now;
                                     _unitOfWork.PersonalLogRepository.Add(personalLog);
                                 }
-                                personalLogUpdate.FechaFin = new DateTime(DateTime.Now.AddDays(-1).Year, DateTime.Now.AddDays(-1).Month, DateTime.Now.AddDays(-1).Day, 23, 59, 59);
-                                personalLogUpdate.UsuarioModificacion = usuarioIntegra;
-                                personalLogUpdate.FechaModificacion = DateTime.Now;
-                                _unitOfWork.PersonalLogRepository.Update(personalLogUpdate);
-
-                                PersonalLog personalLogBO = new PersonalLog();
-                                personalLogBO.IdPersonal = personal.Id;
-                                personalLogBO.Rol = personal.Rol;
-                                personalLogBO.TipoPersonal = personal.TipoPersonal;
-                                personalLogBO.IdJefe = personal.IdJefe;
-                                personalLogBO.EstadoRol = rolAnterior != personal.Rol;
-                                personalLogBO.EstadoTipoPersonal = tipoPersonalAnterior != personal.TipoPersonal;
-                                personalLogBO.EstadoIdJefe = false;
-                                personalLogBO.FechaInicio = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0); ;
-                                personalLogBO.FechaFin = null;
-                                personalLogBO.Estado = true;
-                                personalLogBO.UsuarioModificacion = usuarioIntegra;
-                                personalLogBO.UsuarioCreacion = usuarioIntegra;
-                                personalLogBO.FechaCreacion = DateTime.Now;
-                                personalLogBO.FechaModificacion = DateTime.Now;
-
-                                _unitOfWork.PersonalLogRepository.Add(personalLogBO);
                             }
-                            if (idJefeAnterior != personal.IdJefe)
-                            {
-                                if (estadoCambioRolJefe == false)
-                                {
-                                    var personalLogUpdate = _unitOfWork.PersonalLogRepository.ObtenerPorIdPersonal(personal.Id).ToList().Where(x => x.IdPersonal == personal.Id && (x.EstadoIdJefe == true) && x.FechaFin == null).OrderByDescending(x => x.Id).FirstOrDefault();
-                                    var personalCambioJefe = _unitOfWork.PersonalLogRepository.ObtenerPorIdPersonal(personal.Id).ToList().Where(x => x.IdPersonal == personal.Id && (x.EstadoIdJefe == true && x.EstadoRol == false && x.EstadoTipoPersonal == false) && x.FechaFin == null).OrderByDescending(x => x.Id).FirstOrDefault();
-                                    estadoCambioRolJefe = personalLogUpdate.EstadoIdJefe == true && personalLogUpdate.EstadoRol == true && personalLogUpdate.EstadoTipoPersonal == true;
-                                    if (estadoCambioRolJefe && personalCambioJefe == null)
-                                    {
 
-                                        PersonalLog personalLog = new PersonalLog();
-                                        personalLog.IdPersonal = personal.Id;
-                                        personalLog.Rol = personal.Rol;
-                                        personalLog.TipoPersonal = personal.TipoPersonal;
-                                        personalLog.IdJefe = idJefeAnterior;
-                                        personalLog.EstadoRol = false;
-                                        personalLog.EstadoTipoPersonal = false;
-                                        personalLog.EstadoIdJefe = true;
-                                        personalLog.FechaInicio = personalLogUpdate.FechaInicio;
-                                        personalLog.FechaFin = null;
-                                        personalLog.Estado = true;
-                                        personalLog.UsuarioModificacion = usuarioIntegra;
-                                        personalLog.UsuarioCreacion = usuarioIntegra;
-                                        personalLog.FechaCreacion = DateTime.Now;
-                                        personalLog.FechaModificacion = DateTime.Now;
-                                        _unitOfWork.PersonalLogRepository.Add(personalLog);
-                                    }
-                                }
+                            var personalLogUpdate2 = _unitOfWork.PersonalLogRepository.ObtenerPorIdPersonal(personal.Id).ToList().Where(x => x.IdPersonal == personal.Id && (x.EstadoIdJefe == true) && x.FechaFin == null).OrderByDescending(x => x.Id).FirstOrDefault();
+                            personalLogUpdate2.FechaFin = new DateTime(DateTime.Now.AddDays(-1).Year, DateTime.Now.AddDays(-1).Month, DateTime.Now.AddDays(-1).Day, 23, 59, 59);
+                            personalLogUpdate2.UsuarioModificacion = usuarioIntegra;
+                            personalLogUpdate2.FechaModificacion = DateTime.Now;
+                            _unitOfWork.PersonalLogRepository.Update(personalLogUpdate2);
 
-                                var personalLogUpdate2 = _unitOfWork.PersonalLogRepository.ObtenerPorIdPersonal(personal.Id).ToList().Where(x => x.IdPersonal == personal.Id && (x.EstadoIdJefe == true) && x.FechaFin == null).OrderByDescending(x => x.Id).FirstOrDefault();
-                                personalLogUpdate2.FechaFin = new DateTime(DateTime.Now.AddDays(-1).Year, DateTime.Now.AddDays(-1).Month, DateTime.Now.AddDays(-1).Day, 23, 59, 59);
-                                personalLogUpdate2.UsuarioModificacion = usuarioIntegra;
-                                personalLogUpdate2.FechaModificacion = DateTime.Now;
-                                _unitOfWork.PersonalLogRepository.Update(personalLogUpdate2);
+                            PersonalLog personalLogBO = new PersonalLog();
+                            personalLogBO.IdPersonal = personal.Id;
+                            personalLogBO.Rol = personal.Rol;
+                            personalLogBO.TipoPersonal = personal.TipoPersonal;
+                            personalLogBO.IdJefe = personal.IdJefe;
+                            personalLogBO.EstadoRol = false;
+                            personalLogBO.EstadoTipoPersonal = false;
+                            personalLogBO.EstadoIdJefe = idJefeAnterior != personal.IdJefe;
+                            personalLogBO.FechaInicio = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
+                            personalLogBO.FechaFin = null;
+                            personalLogBO.Estado = true;
+                            personalLogBO.UsuarioModificacion = usuarioIntegra;
+                            personalLogBO.UsuarioCreacion = usuarioIntegra;
+                            personalLogBO.FechaCreacion = DateTime.Now;
+                            personalLogBO.FechaModificacion = DateTime.Now;
+                            _unitOfWork.PersonalLogRepository.Add(personalLogBO);
+                        }
+                        GmailCliente gmailClienteBO;
+                        gmailClienteBO = _unitOfWork.GmailClienteRepository.ObtenerPorIdAsesor(personal.Id);
+                        if (gmailClienteBO == null)
+                        {
+                            gmailClienteBO = new GmailCliente();
+                            gmailClienteBO.IdAsesor = personal.Id;
+                            gmailClienteBO.EmailAsesor = personal.Email;
+                            gmailClienteBO.PasswordCorreo = tmp.PasswordCorreo;
+                            gmailClienteBO.NombreAsesor = string.Concat(personal.Nombres, " ", personal.Apellidos);
+                            gmailClienteBO.IdClient = "-";
+                            gmailClienteBO.ClientSecret = tmp.PasswordCorreo;
+                            gmailClienteBO.Estado = true;
+                            gmailClienteBO.UsuarioCreacion = usuarioIntegra;
+                            gmailClienteBO.UsuarioModificacion = usuarioIntegra;
+                            gmailClienteBO.FechaCreacion = DateTime.Now;
+                            gmailClienteBO.FechaModificacion = DateTime.Now;
+                            _unitOfWork.GmailClienteRepository.Add(gmailClienteBO);
+                        }
+                        else
+                        {
+                            gmailClienteBO.IdAsesor = personal.Id;
+                            gmailClienteBO.EmailAsesor = personal.Email;
+                            gmailClienteBO.PasswordCorreo = tmp.PasswordCorreo;
+                            gmailClienteBO.NombreAsesor = string.Concat(personal.Nombres, " ", personal.Apellidos);
+                            gmailClienteBO.IdClient = "-";
+                            gmailClienteBO.ClientSecret = tmp.PasswordCorreo;
+                            gmailClienteBO.UsuarioModificacion = usuarioIntegra;
+                            gmailClienteBO.FechaModificacion = DateTime.Now;
 
-                                PersonalLog personalLogBO = new PersonalLog();
-                                personalLogBO.IdPersonal = personal.Id;
-                                personalLogBO.Rol = personal.Rol;
-                                personalLogBO.TipoPersonal = personal.TipoPersonal;
-                                personalLogBO.IdJefe = personal.IdJefe;
-                                personalLogBO.EstadoRol = false;
-                                personalLogBO.EstadoTipoPersonal = false;
-                                personalLogBO.EstadoIdJefe = idJefeAnterior != personal.IdJefe;
-                                personalLogBO.FechaInicio = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
-                                personalLogBO.FechaFin = null;
-                                personalLogBO.Estado = true;
-                                personalLogBO.UsuarioModificacion = usuarioIntegra;
-                                personalLogBO.UsuarioCreacion = usuarioIntegra;
-                                personalLogBO.FechaCreacion = DateTime.Now;
-                                personalLogBO.FechaModificacion = DateTime.Now;
-                                _unitOfWork.PersonalLogRepository.Add(personalLogBO);
-                            }
-                            GmailCliente gmailClienteBO;
-                            gmailClienteBO = _unitOfWork.GmailClienteRepository.ObtenerPorIdAsesor(personal.Id);
-                            if (gmailClienteBO == null)
-                            {
-                                gmailClienteBO = new GmailCliente();
-                                gmailClienteBO.IdAsesor = personal.Id;
-                                gmailClienteBO.EmailAsesor = personal.Email;
-                                gmailClienteBO.PasswordCorreo = tmp.PasswordCorreo;
-                                gmailClienteBO.NombreAsesor = string.Concat(personal.Nombres, " ", personal.Apellidos);
-                                gmailClienteBO.IdClient = "-";
-                                gmailClienteBO.ClientSecret = tmp.PasswordCorreo;
-                                gmailClienteBO.Estado = true;
-                                gmailClienteBO.UsuarioCreacion = usuarioIntegra;
-                                gmailClienteBO.UsuarioModificacion = usuarioIntegra;
-                                gmailClienteBO.FechaCreacion = DateTime.Now;
-                                gmailClienteBO.FechaModificacion = DateTime.Now;
-                                _unitOfWork.GmailClienteRepository.Add(gmailClienteBO);
-                            }
-                            else
-                            {
-                                gmailClienteBO.IdAsesor = personal.Id;
-                                gmailClienteBO.EmailAsesor = personal.Email;
-                                gmailClienteBO.PasswordCorreo = tmp.PasswordCorreo;
-                                gmailClienteBO.NombreAsesor = string.Concat(personal.Nombres, " ", personal.Apellidos);
-                                gmailClienteBO.IdClient = "-";
-                                gmailClienteBO.ClientSecret = tmp.PasswordCorreo;
-                                gmailClienteBO.UsuarioModificacion = usuarioIntegra;
-                                gmailClienteBO.FechaModificacion = DateTime.Now;
+                            _unitOfWork.GmailClienteRepository.Update(gmailClienteBO);
 
-                                _unitOfWork.GmailClienteRepository.Update(gmailClienteBO);
-
-                            }
+                        }
                         }
                         else
                         {
@@ -4788,7 +4788,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             catch (Exception ex)
             {
                 return new ResultadoDTOv2
-                {
+            {
                     Exito = false,
                     Mensaje = ex.Message
                 };

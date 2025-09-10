@@ -679,7 +679,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 string url = $"https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphFacebookMarketing";
                 //string url = $"https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphFacebookMarketing";
                 try
-                    {
+                {
                         //datoRespuesta = UrlPost(url, serializedResult);
                         datoRespuesta = Task.Run(() => UrlPostAsync(url, serializedResult)).Result;
                         PreCampaniaGeneralDetalleResponsableAlumnoWhatsAppDTO item = new PreCampaniaGeneralDetalleResponsableAlumnoWhatsAppDTO();
@@ -697,14 +697,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     catch { }
                     return false;
 
-                  
+                 
 
-            }
+                    }
             catch (Exception ex)
-            {
+                    {
                 throw ex;
             }
-        }
+                    }
         public bool EnvioMensajeArchivoFacebook(WhatsAppMensajeArchivoFacebookDTO json, int idPersonal, string usuario)
         {
             try

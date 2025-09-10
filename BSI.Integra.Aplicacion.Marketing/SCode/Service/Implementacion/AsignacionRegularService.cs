@@ -1729,169 +1729,169 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
 
 
 
-        // Logical de esignal envio de whatsapp alumnos asignados- falta impelntar Cristian
+    // Logical de esignal envio de whatsapp alumnos asignados- falta impelntar Cristian
 
-        //public bool EnvioWhats(int idOportunidad, int idPais, int idPersonal, int IdCategoriaOrigen)
-        //{
-        //    try
-        //    {
+    //public bool EnvioWhats(int idOportunidad, int idPais, int idPersonal, int IdCategoriaOrigen)
+    //{
+    //    try
+    //    {
 
-        //        DateTime currentTime = DateTime.Now;
+    //        DateTime currentTime = DateTime.Now;
 
-        //        PlantillaAsig plantilla = new PlantillaAsig();
+    //        PlantillaAsig plantilla = new PlantillaAsig();
 
-        //        var alumno = _unitOfWork.AsignacionRegularRepository.ObtenerAlumnoPorOportunidad(idOportunidad);
-        //        var contador = _unitOfWork.AsignacionRegularRepository.ObtenerContadorBic(idOportunidad);
-        //        var pgeneral = _unitOfWork.AsignacionRegularRepository.ObtenerPGeneralPorOportunidad(idOportunidad);
-        //        var idplantilla = 0;
+    //        var alumno = _unitOfWork.AsignacionRegularRepository.ObtenerAlumnoPorOportunidad(idOportunidad);
+    //        var contador = _unitOfWork.AsignacionRegularRepository.ObtenerContadorBic(idOportunidad);
+    //        var pgeneral = _unitOfWork.AsignacionRegularRepository.ObtenerPGeneralPorOportunidad(idOportunidad);
+    //        var idplantilla = 0;
 
-        //        List<DatosPlantillaWhatsAppDTO> objetoPlantilla = new List<DatosPlantillaWhatsAppDTO>();
-        //        objetoPlantilla.Add(new DatosPlantillaWhatsAppDTO());
+    //        List<DatosPlantillaWhatsAppDTO> objetoPlantilla = new List<DatosPlantillaWhatsAppDTO>();
+    //        objetoPlantilla.Add(new DatosPlantillaWhatsAppDTO());
 
-        //        objetoPlantilla[0].codigo = "{tAlumnos.nombre1}";
-        //        objetoPlantilla[0].texto = alumno.Count > 0 ? alumno[0].Nombre : string.Empty;
+    //        objetoPlantilla[0].codigo = "{tAlumnos.nombre1}";
+    //        objetoPlantilla[0].texto = alumno.Count > 0 ? alumno[0].Nombre : string.Empty;
 
-        //        if ((contador.DiasSinContactoManhana > 3) || (contador.DiasSinContactoTarde > 3))
-        //        {
-        //            if (currentTime.Hour >= 9 && currentTime.Hour < 19)
-        //            {
-        //                plantilla = ReemplazarEtiquetas(1702, IdCategoriaOrigen, idPersonal, pgeneral.IdPGeneral);
-        //                idplantilla = 1702;
-        //            }
-        //        }
-        //        else if (currentTime.Hour >= 9 && currentTime.Hour < 19)
-        //        {
-        //            plantilla = ReemplazarEtiquetas(1701, IdCategoriaOrigen, idPersonal, pgeneral.IdPGeneral);
-        //            idplantilla = 1701;
-        //        }
-
-
-        //        WhatsAppMensajePlantillaComDTO envioWhats = new WhatsAppMensajePlantillaComDTO();
-
-        //        envioWhats.WaTo = alumno[0].Celular;
-        //        envioWhats.WaTypeMensaje = 8;
-        //        envioWhats.WaBody = plantilla.Descripcion;
-        //        envioWhats.IdPlantilla = idplantilla;
-        //        envioWhats.WaCaption = plantilla.Texto;
-        //        envioWhats.IdPais = idPais;
-        //        envioWhats.IdAlumno = alumno[0].Id;
-        //        envioWhats.DatosPlantillaWhatsApp = objetoPlantilla;
+    //        if ((contador.DiasSinContactoManhana > 3) || (contador.DiasSinContactoTarde > 3))
+    //        {
+    //            if (currentTime.Hour >= 9 && currentTime.Hour < 19)
+    //            {
+    //                plantilla = ReemplazarEtiquetas(1702, IdCategoriaOrigen, idPersonal, pgeneral.IdPGeneral);
+    //                idplantilla = 1702;
+    //            }
+    //        }
+    //        else if (currentTime.Hour >= 9 && currentTime.Hour < 19)
+    //        {
+    //            plantilla = ReemplazarEtiquetas(1701, IdCategoriaOrigen, idPersonal, pgeneral.IdPGeneral);
+    //            idplantilla = 1701;
+    //        }
 
 
-        //        WhatsAppMensajeEnviadoApiComercialService whatsAppMensajesService = new WhatsAppMensajeEnviadoApiComercialService(_unitOfWork);
+    //        WhatsAppMensajePlantillaComDTO envioWhats = new WhatsAppMensajePlantillaComDTO();
 
-        //        whatsAppMensajesService.EnvioMensajePorPlantilla(envioWhats, "WhatsappAsesor", idPersonal);
-
-        //        return true;
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
-
-        //public PlantillaAsig ReemplazarEtiquetas(int idPlantilla, int idCategoria, int idPersonal, int idPGeneral)
-        //{
-        //    try
-        //    {
-        //        var categoria = _unitOfWork.CategoriaOrigenRepository.ObtenerPorId(idCategoria);
-        //        var plantilla = _unitOfWork.PlantillaRepository.ObtenerPlantillaClaveValor(idPlantilla);
-        //        var pgeneral = _unitOfWork.PGeneralRepository.ObtenerPorId(idPGeneral);
-        //        var personal = _unitOfWork.PersonalRepository.ObtenerPorId(idPersonal);
-
-        //        if (plantilla.Texto.Contains("{tPersonal.proveedor}"))
-        //        {
-        //            if (categoria.Descripcion == "Datos provenientes de envios Masivos de Mensajes de Texto" ||
-        //                categoria.Descripcion == "Formulario Version de Prueba - Sitio Web" ||
-        //                categoria.Descripcion == "Formulario a partir de aviso en Google" ||
-        //                categoria.Descripcion == "Formulario de Contactenos - Sitio Web" ||
-        //                categoria.Descripcion == "Formulario de Registro - Sitio Web" ||
-        //                categoria.Descripcion == "Fomulario - Sitio Web" ||
-        //                categoria.Descripcion == "Formulario a partir de aviso de Google" ||
-        //                categoria.Descripcion == "Formulario - Sitio Web" ||
-        //                categoria.Descripcion == "Formulario Contactenos - Sitio Web" ||
-        //                categoria.Descripcion == "Formulario Versión Prueba - Sitio Web" ||
-        //                categoria.Descripcion == "Formularios de Clientes Potenciales de Google" ||
-        //                categoria.Descripcion == "Mensaje de Texto")
-        //            {
-        //                plantilla.Texto = plantilla.Texto.Replace("{tPersonal.proveedor}", "Sitio Web");
-        //            }
-        //            else if (
-        //                categoria.Descripcion == "Marcador Predictivo Bases Propias" ||
-        //                categoria.Descripcion == "Llamada Oficina")
-        //            {
-        //                plantilla.Texto = plantilla.Texto.Replace("{tPersonal.proveedor}", "Lllamada Telefonica");
-        //            }
-        //            else if (
-        //                categoria.Descripcion == "Datos ingresados de facebook redirigidos a whatsapp - Remarketing" ||
-        //                categoria.Descripcion == "Datos ingresados de facebook redirigidos a whatsapp - Publico abierto" ||
-        //                categoria.Descripcion == "Respuesta por Whatsapp de correos Mailing" ||
-        //                categoria.Descripcion == "Whatsapp")
-        //            {
-        //                plantilla.Texto = plantilla.Texto.Replace("{tPersonal.proveedor}", "Whatsapp");
-        //            }
-        //            else if (
-        //                categoria.Descripcion == "Chat - Sitio Web")
-        //            {
-        //                plantilla.Texto = plantilla.Texto.Replace("{tPersonal.proveedor}", "Chat de Nuestro Sitio Web");
-        //            }
-        //            else if (
-        //                categoria.Descripcion == "Mailing Rpta - Marketing" ||
-        //                categoria.Descripcion == "Formulario a partir de correo electronico" ||
-        //                categoria.Descripcion == "Mailing")
-        //            {
-        //                plantilla.Texto = plantilla.Texto.Replace("{tPersonal.proveedor}", "Correo Electronico");
-        //            }
-        //            else if (
-        //                categoria.Descripcion == "Datos de Inbox Comentarios - Instangram" ||
-        //                categoria.Descripcion == "Comentarios de Instagram" ||
-        //                categoria.Descripcion == "Mensajes de Facebook" ||
-        //                categoria.Descripcion == "Comentarios Chat")
-        //            {
-        //                plantilla.Texto = plantilla.Texto.Replace("{tPersonal.proveedor}", "Inbox o Comentarios");
-        //            }
-        //            else if (
-        //                categoria.Descripcion == "Formulario a partir de aviso en Facebook" ||
-        //                categoria.Descripcion == "Comentarios de Facebook")
-        //            {
-        //                plantilla.Texto = plantilla.Texto.Replace("{tPersonal.proveedor}", "Facebook");
-        //            }
-        //            else if (
-        //                categoria.Descripcion == "Twitter")
-        //            {
-        //                plantilla.Texto = plantilla.Texto.Replace("{tPersonal.proveedor}", "Twitter");
-        //            }
-        //            else if (
-        //                categoria.Descripcion == "Formulario a partir de aviso en Instagram")
-        //            {
-        //                plantilla.Texto = plantilla.Texto.Replace("{tPersonal.proveedor}", "Instagram");
-        //            }
-        //        }
-        //        if (plantilla.Texto.Contains("{tPegeneral.Nombre}"))
-        //        {
-        //            plantilla.Texto = plantilla.Texto.Replace("{tPegeneral.Nombre}", pgeneral.Nombre);
-        //        }
-        //        if (plantilla.Texto.Contains("{tPersonal.NombreCompleto}"))
-        //        {
-        //            plantilla.Texto = plantilla.Texto.Replace("{tPersonal.NombreCompleto}", $"{personal.Nombres} {personal.ApellidoPaterno} {personal.ApellidoMaterno}");
-        //        }
+    //        envioWhats.WaTo = alumno[0].Celular;
+    //        envioWhats.WaTypeMensaje = 8;
+    //        envioWhats.WaBody = plantilla.Descripcion;
+    //        envioWhats.IdPlantilla = idplantilla;
+    //        envioWhats.WaCaption = plantilla.Texto;
+    //        envioWhats.IdPais = idPais;
+    //        envioWhats.IdAlumno = alumno[0].Id;
+    //        envioWhats.DatosPlantillaWhatsApp = objetoPlantilla;
 
 
-        //        PlantillaAsig plantillaDatos = new PlantillaAsig();
+    //        WhatsAppMensajeEnviadoApiComercialService whatsAppMensajesService = new WhatsAppMensajeEnviadoApiComercialService(_unitOfWork);
 
-        //        plantillaDatos.Nombre = plantilla.Nombre;
-        //        plantillaDatos.Texto = plantilla.Texto;
-        //        plantillaDatos.Descripcion = plantilla.Descripcion;
+    //        whatsAppMensajesService.EnvioMensajePorPlantilla(envioWhats, "WhatsappAsesor", idPersonal);
 
-        //        return plantillaDatos;
+    //        return true;
 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        throw ex;
+    //    }
+    //}
+
+    //public PlantillaAsig ReemplazarEtiquetas(int idPlantilla, int idCategoria, int idPersonal, int idPGeneral)
+    //{
+    //    try
+    //    {
+    //        var categoria = _unitOfWork.CategoriaOrigenRepository.ObtenerPorId(idCategoria);
+    //        var plantilla = _unitOfWork.PlantillaRepository.ObtenerPlantillaClaveValor(idPlantilla);
+    //        var pgeneral = _unitOfWork.PGeneralRepository.ObtenerPorId(idPGeneral);
+    //        var personal = _unitOfWork.PersonalRepository.ObtenerPorId(idPersonal);
+
+    //        if (plantilla.Texto.Contains("{tPersonal.proveedor}"))
+    //        {
+    //            if (categoria.Descripcion == "Datos provenientes de envios Masivos de Mensajes de Texto" ||
+    //                categoria.Descripcion == "Formulario Version de Prueba - Sitio Web" ||
+    //                categoria.Descripcion == "Formulario a partir de aviso en Google" ||
+    //                categoria.Descripcion == "Formulario de Contactenos - Sitio Web" ||
+    //                categoria.Descripcion == "Formulario de Registro - Sitio Web" ||
+    //                categoria.Descripcion == "Fomulario - Sitio Web" ||
+    //                categoria.Descripcion == "Formulario a partir de aviso de Google" ||
+    //                categoria.Descripcion == "Formulario - Sitio Web" ||
+    //                categoria.Descripcion == "Formulario Contactenos - Sitio Web" ||
+    //                categoria.Descripcion == "Formulario Versión Prueba - Sitio Web" ||
+    //                categoria.Descripcion == "Formularios de Clientes Potenciales de Google" ||
+    //                categoria.Descripcion == "Mensaje de Texto")
+    //            {
+    //                plantilla.Texto = plantilla.Texto.Replace("{tPersonal.proveedor}", "Sitio Web");
+    //            }
+    //            else if (
+    //                categoria.Descripcion == "Marcador Predictivo Bases Propias" ||
+    //                categoria.Descripcion == "Llamada Oficina")
+    //            {
+    //                plantilla.Texto = plantilla.Texto.Replace("{tPersonal.proveedor}", "Lllamada Telefonica");
+    //            }
+    //            else if (
+    //                categoria.Descripcion == "Datos ingresados de facebook redirigidos a whatsapp - Remarketing" ||
+    //                categoria.Descripcion == "Datos ingresados de facebook redirigidos a whatsapp - Publico abierto" ||
+    //                categoria.Descripcion == "Respuesta por Whatsapp de correos Mailing" ||
+    //                categoria.Descripcion == "Whatsapp")
+    //            {
+    //                plantilla.Texto = plantilla.Texto.Replace("{tPersonal.proveedor}", "Whatsapp");
+    //            }
+    //            else if (
+    //                categoria.Descripcion == "Chat - Sitio Web")
+    //            {
+    //                plantilla.Texto = plantilla.Texto.Replace("{tPersonal.proveedor}", "Chat de Nuestro Sitio Web");
+    //            }
+    //            else if (
+    //                categoria.Descripcion == "Mailing Rpta - Marketing" ||
+    //                categoria.Descripcion == "Formulario a partir de correo electronico" ||
+    //                categoria.Descripcion == "Mailing")
+    //            {
+    //                plantilla.Texto = plantilla.Texto.Replace("{tPersonal.proveedor}", "Correo Electronico");
+    //            }
+    //            else if (
+    //                categoria.Descripcion == "Datos de Inbox Comentarios - Instangram" ||
+    //                categoria.Descripcion == "Comentarios de Instagram" ||
+    //                categoria.Descripcion == "Mensajes de Facebook" ||
+    //                categoria.Descripcion == "Comentarios Chat")
+    //            {
+    //                plantilla.Texto = plantilla.Texto.Replace("{tPersonal.proveedor}", "Inbox o Comentarios");
+    //            }
+    //            else if (
+    //                categoria.Descripcion == "Formulario a partir de aviso en Facebook" ||
+    //                categoria.Descripcion == "Comentarios de Facebook")
+    //            {
+    //                plantilla.Texto = plantilla.Texto.Replace("{tPersonal.proveedor}", "Facebook");
+    //            }
+    //            else if (
+    //                categoria.Descripcion == "Twitter")
+    //            {
+    //                plantilla.Texto = plantilla.Texto.Replace("{tPersonal.proveedor}", "Twitter");
+    //            }
+    //            else if (
+    //                categoria.Descripcion == "Formulario a partir de aviso en Instagram")
+    //            {
+    //                plantilla.Texto = plantilla.Texto.Replace("{tPersonal.proveedor}", "Instagram");
+    //            }
+    //        }
+    //        if (plantilla.Texto.Contains("{tPegeneral.Nombre}"))
+    //        {
+    //            plantilla.Texto = plantilla.Texto.Replace("{tPegeneral.Nombre}", pgeneral.Nombre);
+    //        }
+    //        if (plantilla.Texto.Contains("{tPersonal.NombreCompleto}"))
+    //        {
+    //            plantilla.Texto = plantilla.Texto.Replace("{tPersonal.NombreCompleto}", $"{personal.Nombres} {personal.ApellidoPaterno} {personal.ApellidoMaterno}");
+    //        }
+
+
+    //        PlantillaAsig plantillaDatos = new PlantillaAsig();
+
+    //        plantillaDatos.Nombre = plantilla.Nombre;
+    //        plantillaDatos.Texto = plantilla.Texto;
+    //        plantillaDatos.Descripcion = plantilla.Descripcion;
+
+    //        return plantillaDatos;
+
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        throw ex;
+    //    }
+    //}
 
 
         public bool EnvioCorreoFacebook(string mensaje)
@@ -1915,7 +1915,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                 mailServiceAlerta.SendMessageTask();
 
                 return true;
-            }
+}
             catch (Exception ex)
             {
                 Console.WriteLine($"Error in EnvioCorreoAsignacion: {ex.Message}");

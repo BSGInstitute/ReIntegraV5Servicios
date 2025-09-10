@@ -195,11 +195,16 @@
         public string? SubEstadoLlamada { get; set; }
         public string? NombreGrabacion { get; set; }
         public string? UrlGrabacion { get; set; }
+        public string? UrlGrabacion2 { get; set; }
         public string? WebphoneGrabacion { get; set; }
         public string? TelefonoDestinoReal { get; set; }
         public string? TelefonoDestino { get; set; }
         public string? AnexoCentral { get; set; }
         public string? OrigenLlamada { get; set; }
+        public string? TranscripcionLlamada { get; set; }
+        public bool? esLlamadaCalificada { get; set; }
+        public bool? esLlamadaTranscrita { get; set; }
+
     }
     public class OportunidadLogReporteSeguimientoNWDetalleDTO
     {

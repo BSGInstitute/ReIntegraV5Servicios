@@ -770,8 +770,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 }
 
                 
-                try
-                {
+            try
+            {
                     foreach (var item in listaOportunidades)
                     {
                         if (item.AplicaEnvioWhatsapp)
@@ -1056,7 +1056,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                     UsuarioCreacion = Usuario,
                                     UsuarioModificacion = Usuario
                                 };
-                                asigTemp=(_repAsignacionOportunidad.Add(asig));
+                                asigTemp = (_repAsignacionOportunidad.Add(asig));
                             }
                             else
                             {
@@ -1242,7 +1242,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 _repLog.Insert(new TLog
                 {
                     Ip = "-",
-                    Usuario="-",
+                    Usuario = "-",
                     Maquina = "-",
                     Ruta = "AsignarAsesorAuto-GENERAL",
                     Parametros = $"{AsignarAsesor.IdAsesor},{AsignarAsesor.IdCentroCosto},{AsignarAsesor.IdOportunidades}/{Usuario}",

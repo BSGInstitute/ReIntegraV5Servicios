@@ -2676,7 +2676,7 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                 foreach (var item in listaNotasProcesoSeleccionComplemento)
                 {
 
-                    var puntaje = Convert.ToDecimal(item.Registro, null);   
+                    var puntaje = Convert.ToDecimal(item.Registro, null);
 
                     if (item.CalificaPorCentil)
                     {
@@ -2731,7 +2731,7 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                     }
                 }
 
-              //finalmente se concatenan las dos listas para obtener el resultado final
+                //finalmente se concatenan las dos listas para obtener el resultado final
                 listaNotasProcesoSeleccion = listaNotasProcesoSeleccion.Concat(listaNotasProcesoSeleccionComplemento).ToList();
 
 
