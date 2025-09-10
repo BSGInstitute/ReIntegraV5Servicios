@@ -21,6 +21,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
             TPersonalLogs = new HashSet<TPersonalLog>();
             TPersonalMotivoTiempoInactividads = new HashSet<TPersonalMotivoTiempoInactividad>();
             TPersonalPuestoSedeHistoricos = new HashSet<TPersonalPuestoSedeHistorico>();
+            TPersonalWavixTemps = new HashSet<TPersonalWavixTemp>();
             TPlantillaRevisionPws = new HashSet<TPlantillaRevisionPw>();
             TPrioridadMailChimpLista = new HashSet<TPrioridadMailChimpListum>();
             TSmsConfiguracionEnvios = new HashSet<TSmsConfiguracionEnvio>();
@@ -357,6 +358,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual ICollection<TPersonalLog> TPersonalLogs { get; set; }
         public virtual ICollection<TPersonalMotivoTiempoInactividad> TPersonalMotivoTiempoInactividads { get; set; }
         public virtual ICollection<TPersonalPuestoSedeHistorico> TPersonalPuestoSedeHistoricos { get; set; }
+        public virtual ICollection<TPersonalWavixTemp> TPersonalWavixTemps { get; set; }
         public virtual ICollection<TPlantillaRevisionPw> TPlantillaRevisionPws { get; set; }
         public virtual ICollection<TPrioridadMailChimpListum> TPrioridadMailChimpLista { get; set; }
         public virtual ICollection<TSmsConfiguracionEnvio> TSmsConfiguracionEnvios { get; set; }
