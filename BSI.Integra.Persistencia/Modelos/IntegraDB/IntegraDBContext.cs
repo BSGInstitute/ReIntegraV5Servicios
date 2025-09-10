@@ -165,7 +165,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TConfiguracionMarcadorMensaje> TConfiguracionMarcadorMensajes { get; set; } = null!;
         public virtual DbSet<TConfiguracionMarcadorPredictivo> TConfiguracionMarcadorPredictivos { get; set; } = null!;
         public virtual DbSet<TConfiguracionPeriodoMatricula> TConfiguracionPeriodoMatriculas { get; set; } = null!;
-        public virtual DbSet<TConfiguracionPersonalWavixTemp> TConfiguracionPersonalWavixTemps { get; set; } = null!;
         public virtual DbSet<TConfiguracionProyeccionFur> TConfiguracionProyeccionFurs { get; set; } = null!;
         public virtual DbSet<TConfiguracionResumenGrabacionOnline> TConfiguracionResumenGrabacionOnlines { get; set; } = null!;
         public virtual DbSet<TConfiguracionTipoMarcacion> TConfiguracionTipoMarcacions { get; set; } = null!;
@@ -583,7 +582,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TPersonalSeguroSalud> TPersonalSeguroSaluds { get; set; } = null!;
         public virtual DbSet<TPersonalSistemaPensionario> TPersonalSistemaPensionarios { get; set; } = null!;
         public virtual DbSet<TPersonalTipoFuncion> TPersonalTipoFuncions { get; set; } = null!;
-        public virtual DbSet<TPersonalWavixTemp> TPersonalWavixTemps { get; set; } = null!;
         public virtual DbSet<TPespecifico> TPespecificos { get; set; } = null!;
         public virtual DbSet<TPespecificoCodigoPartner> TPespecificoCodigoPartners { get; set; } = null!;
         public virtual DbSet<TPespecificoConsumo> TPespecificoConsumos { get; set; } = null!;
@@ -9657,54 +9655,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario modificacion");
-            });
-
-            modelBuilder.Entity<TConfiguracionPersonalWavixTemp>(entity =>
-            {
-                entity.ToTable("T_ConfiguracionPersonalWavixTemp", "conf");
-
-                entity.HasComment("Esta tabla almacena los numeros asignados por asesor de wavix");
-
-                entity.Property(e => e.Id).HasComment("Identificador único de la tabla (autoincremental)");
-
-                entity.Property(e => e.Estado).HasComment("Estado del registro (1 = Activo, 0 = Inactivo)");
-
-                entity.Property(e => e.FechaCreacion)
-                    .HasColumnType("datetime")
-                    .HasComment("Fecha de creación del registro");
-
-                entity.Property(e => e.FechaModificacion)
-                    .HasColumnType("datetime")
-                    .HasComment("Fecha de la última modificación del registro");
-
-                entity.Property(e => e.IdPais).HasComment("Identificador del país asociado al número");
-
-                entity.Property(e => e.IdPersonalWavix).HasComment("Llave foránea que referencia al personal Wavix");
-
-                entity.Property(e => e.Numero)
-                    .HasMaxLength(50)
-                    .HasComment("Número telefónico asignado al asesor");
-
-                entity.Property(e => e.Predeterminado).HasComment("Indica si el número es el predeterminado (1 = Sí, 0 = No)");
-
-                entity.Property(e => e.RowVersion)
-                    .IsRowVersion()
-                    .IsConcurrencyToken()
-                    .HasComment("Campo utilizado para control de concurrencia (versión de fila)");
-
-                entity.Property(e => e.UsuarioCreacion)
-                    .HasMaxLength(50)
-                    .HasComment("Usuario que creó el registro");
-
-                entity.Property(e => e.UsuarioModificacion)
-                    .HasMaxLength(50)
-                    .HasComment("Último usuario que modificó el registro");
-
-                entity.HasOne(d => d.IdPersonalWavixNavigation)
-                    .WithMany(p => p.TConfiguracionPersonalWavixTemps)
-                    .HasForeignKey(d => d.IdPersonalWavix)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_T_ConfiguracionPersonalWavixTemp_PersonalWavixTemp_IdPersonalWavix");
             });
 
             modelBuilder.Entity<TConfiguracionProyeccionFur>(entity =>
@@ -35070,54 +35020,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
-            });
-
-            modelBuilder.Entity<TPersonalWavixTemp>(entity =>
-            {
-                entity.ToTable("T_PersonalWavixTemp", "conf");
-
-                entity.HasComment("Esta tabla almacena los id de sip trunk creado para cada usuario");
-
-                entity.Property(e => e.Id).HasComment("Identificador único de la tabla (autoincremental)");
-
-                entity.Property(e => e.Estado).HasComment("Estado del registro (1 = Activo, 0 = Inactivo)");
-
-                entity.Property(e => e.FechaCreacion)
-                    .HasColumnType("datetime")
-                    .HasComment("Fecha de creación del registro");
-
-                entity.Property(e => e.FechaModificacion)
-                    .HasColumnType("datetime")
-                    .HasComment("Fecha de la última modificación del registro");
-
-                entity.Property(e => e.IdPersonal).HasComment("Llave foránea que referencia al personal asignado");
-
-                entity.Property(e => e.IdSipTrunk)
-                    .HasMaxLength(50)
-                    .HasComment("Código o identificador del SIP Trunk asociado al personal");
-
-                entity.Property(e => e.RowVersion)
-                    .IsRowVersion()
-                    .IsConcurrencyToken()
-                    .HasComment("Campo utilizado para control de concurrencia (versión de fila)");
-
-                entity.Property(e => e.UrlServer)
-                    .HasMaxLength(300)
-                    .HasComment("URL o dirección del servidor SIP asociado");
-
-                entity.Property(e => e.UsuarioCreacion)
-                    .HasMaxLength(50)
-                    .HasComment("Usuario que creó el registro");
-
-                entity.Property(e => e.UsuarioModificacion)
-                    .HasMaxLength(50)
-                    .HasComment("Último usuario que modificó el registro");
-
-                entity.HasOne(d => d.IdPersonalNavigation)
-                    .WithMany(p => p.TPersonalWavixTemps)
-                    .HasForeignKey(d => d.IdPersonal)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_T_PersonalWavixTemp_Personal_IdPersonalWavix");
             });
 
             modelBuilder.Entity<TPespecifico>(entity =>
