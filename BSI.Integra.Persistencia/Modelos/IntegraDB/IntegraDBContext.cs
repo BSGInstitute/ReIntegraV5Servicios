@@ -199,7 +199,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TCourier> TCouriers { get; set; } = null!;
         public virtual DbSet<TCourierDetalle> TCourierDetalles { get; set; } = null!;
         public virtual DbSet<TCriterioCalificacion> TCriterioCalificacions { get; set; } = null!;
-        public virtual DbSet<TCriterioCalificacionFaseOportunidad> TCriterioCalificacionFaseOportunidads { get; set; } = null!;
         public virtual DbSet<TCriterioCalificacionLlamadum> TCriterioCalificacionLlamada { get; set; } = null!;
         public virtual DbSet<TCriterioDoc> TCriterioDocs { get; set; } = null!;
         public virtual DbSet<TCriterioEvaluacion> TCriterioEvaluacions { get; set; } = null!;
@@ -418,7 +417,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TIvrTipoConfiguracion> TIvrTipoConfiguracions { get; set; } = null!;
         public virtual DbSet<TLandingPage> TLandingPages { get; set; } = null!;
         public virtual DbSet<TLineamientoCalificacion> TLineamientoCalificacions { get; set; } = null!;
-        public virtual DbSet<TLineamientoCalificacionFase> TLineamientoCalificacionFases { get; set; } = null!;
         public virtual DbSet<TLineamientoEvaluacion> TLineamientoEvaluacions { get; set; } = null!;
         public virtual DbSet<TLinkedInCampaign> TLinkedInCampaigns { get; set; } = null!;
         public virtual DbSet<TLinkedInForm> TLinkedInForms { get; set; } = null!;
@@ -930,7 +928,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TTitulo> TTitulos { get; set; } = null!;
         public virtual DbSet<TTokenPostulanteProcesoSeleccion> TTokenPostulanteProcesoSeleccions { get; set; } = null!;
         public virtual DbSet<TTranscripcionLlamadum> TTranscripcionLlamada { get; set; } = null!;
-        public virtual DbSet<TTransicionCalificacionFase> TTransicionCalificacionFases { get; set; } = null!;
         public virtual DbSet<TTroncalCiudad> TTroncalCiudads { get; set; } = null!;
         public virtual DbSet<TTroncalPgeneral> TTroncalPgenerals { get; set; } = null!;
         public virtual DbSet<TUrlBlockStorage> TUrlBlockStorages { get; set; } = null!;
@@ -11807,63 +11804,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
-            });
-
-            modelBuilder.Entity<TCriterioCalificacionFaseOportunidad>(entity =>
-            {
-                entity.ToTable("T_CriterioCalificacionFaseOportunidad", "com");
-
-                entity.HasComment("Define criterios adicionales que condicionan la transicion entre fases de oportunidad.");
-
-                entity.Property(e => e.Id).HasComment("Clave primaria del criterio.");
-
-                entity.Property(e => e.Descripcion)
-                    .HasMaxLength(500)
-                    .IsUnicode(false)
-                    .HasComment("Descripción del criterio.");
-
-                entity.Property(e => e.Estado).HasComment("Campo de auditoria Estado (eliminacion logica) del registro");
-
-                entity.Property(e => e.FechaCreacion)
-                    .HasColumnType("datetime")
-                    .HasComment("Campo de auditoria Fecha Creacion del registro");
-
-                entity.Property(e => e.FechaModificacion)
-                    .HasColumnType("datetime")
-                    .HasComment("Campo de auditoria Fecha Modificacion del registro");
-
-                entity.Property(e => e.IdMigracion).HasComment("Campo de auditoria IdMigracion del registro");
-
-                entity.Property(e => e.IdTransicionCalificacionFase).HasComment("Transicion a la que pertenece el criterio.");
-
-                entity.Property(e => e.Nombre)
-                    .HasMaxLength(200)
-                    .IsUnicode(false)
-                    .HasComment("Nombre del criterio.");
-
-                entity.Property(e => e.Orden)
-                    .HasDefaultValueSql("((1))")
-                    .HasComment("Orden del criterio (entero ≥ 1, puede repetirse).");
-
-                entity.Property(e => e.RowVersion)
-                    .IsRowVersion()
-                    .IsConcurrencyToken()
-                    .HasComment("Campo de auditoria RowVersion del registro");
-
-                entity.Property(e => e.UsuarioCreacion)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasComment("Campo de auditoria Usuario Creacion del registro");
-
-                entity.Property(e => e.UsuarioModificacion)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasComment("Campo de auditoria Usuario Modificacion del registro");
-
-                entity.HasOne(d => d.IdTransicionCalificacionFaseNavigation)
-                    .WithMany(p => p.TCriterioCalificacionFaseOportunidads)
-                    .HasForeignKey(d => d.IdTransicionCalificacionFase)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
             modelBuilder.Entity<TCriterioCalificacionLlamadum>(entity =>
@@ -25191,68 +25131,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasForeignKey(d => d.IdCriticidadCalificacion)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_T_LineamientoCalificacion_T_CriticidadCalificacion");
-            });
-
-            modelBuilder.Entity<TLineamientoCalificacionFase>(entity =>
-            {
-                entity.ToTable("T_LineamientoCalificacionFase", "com");
-
-                entity.HasComment("Especifica lineamientos o pautas de evaluacion asociados a un criterio de transicion de fase.");
-
-                entity.Property(e => e.Id).HasComment("Clave primaria del lineamiento.");
-
-                entity.Property(e => e.Descripcion)
-                    .HasMaxLength(500)
-                    .IsUnicode(false)
-                    .HasComment("Descripción del lineamiento.");
-
-                entity.Property(e => e.Estado).HasComment("Campo de auditoria Estado (eliminacion logica) del registro");
-
-                entity.Property(e => e.FechaCreacion)
-                    .HasColumnType("datetime")
-                    .HasComment("Campo de auditoria Fecha Creacion del registro");
-
-                entity.Property(e => e.FechaModificacion)
-                    .HasColumnType("datetime")
-                    .HasComment("Campo de auditoria Fecha Modificacion del registro");
-
-                entity.Property(e => e.IdCriterioCalificacionFaseOportunidad).HasComment("Criterio asociado.");
-
-                entity.Property(e => e.IdCriticidadCalificacion).HasComment("Criticidad asociada (FK a com.T_CriticidadCalificacion).");
-
-                entity.Property(e => e.IdMigracion).HasComment("Campo de auditoria IdMigracion del registro");
-
-                entity.Property(e => e.Nombre)
-                    .HasMaxLength(200)
-                    .IsUnicode(false)
-                    .HasComment("Nombre del lineamiento.");
-
-                entity.Property(e => e.Orden).HasComment("Orden del lineamiento (entero ≥ 1, puede repetirse).");
-
-                entity.Property(e => e.RowVersion)
-                    .IsRowVersion()
-                    .IsConcurrencyToken()
-                    .HasComment("Campo de auditoria RowVersion del registro");
-
-                entity.Property(e => e.UsuarioCreacion)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasComment("Campo de auditoria Usuario Creacion del registro");
-
-                entity.Property(e => e.UsuarioModificacion)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasComment("Campo de auditoria Usuario Modificacion del registro");
-
-                entity.HasOne(d => d.IdCriterioCalificacionFaseOportunidadNavigation)
-                    .WithMany(p => p.TLineamientoCalificacionFases)
-                    .HasForeignKey(d => d.IdCriterioCalificacionFaseOportunidad)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
-
-                entity.HasOne(d => d.IdCriticidadCalificacionNavigation)
-                    .WithMany(p => p.TLineamientoCalificacionFases)
-                    .HasForeignKey(d => d.IdCriticidadCalificacion)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
             modelBuilder.Entity<TLineamientoEvaluacion>(entity =>
@@ -53944,60 +53822,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasForeignKey(d => d.IdLlamadaWebphoneCruceCentralTresCx)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_T_TranscripcionLlamada_T_LlamadaWebphoneCruceCentralTresCx");
-            });
-
-            modelBuilder.Entity<TTransicionCalificacionFase>(entity =>
-            {
-                entity.ToTable("T_TransicionCalificacionFase", "com");
-
-                entity.HasComment("Registra las reglas de transicion permitidas entre fases de oportunidad dentro de los procesos comerciales.");
-
-                entity.Property(e => e.Id).HasComment("Clave primaria de la transicion.");
-
-                entity.Property(e => e.Estado).HasComment("Campo de auditoria Estado (eliminacion logica) del registro");
-
-                entity.Property(e => e.FechaCreacion)
-                    .HasColumnType("datetime")
-                    .HasComment("Campo de auditoria Fecha Creacion del registro");
-
-                entity.Property(e => e.FechaModificacion)
-                    .HasColumnType("datetime")
-                    .HasComment("Campo de auditoria Fecha Modificacion del registro");
-
-                entity.Property(e => e.IdFaseOportunidadDestino)
-                    .HasColumnName("IdFaseOportunidad_Destino")
-                    .HasComment("Fase de oportunidad (destino).");
-
-                entity.Property(e => e.IdFaseOportunidadOrigen)
-                    .HasColumnName("IdFaseOportunidad_Origen")
-                    .HasComment("Fase de oportunidad (origen).");
-
-                entity.Property(e => e.IdMigracion).HasComment("Campo de auditoria IdMigracion del registro");
-
-                entity.Property(e => e.RowVersion)
-                    .IsRowVersion()
-                    .IsConcurrencyToken()
-                    .HasComment("Campo de auditoria RowVersion del registro");
-
-                entity.Property(e => e.UsuarioCreacion)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasComment("Campo de auditoria Usuario Creacion del registro");
-
-                entity.Property(e => e.UsuarioModificacion)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasComment("Campo de auditoria Usuario Modificacion del registro");
-
-                entity.HasOne(d => d.IdFaseOportunidadDestinoNavigation)
-                    .WithMany(p => p.TTransicionCalificacionFaseIdFaseOportunidadDestinoNavigations)
-                    .HasForeignKey(d => d.IdFaseOportunidadDestino)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
-
-                entity.HasOne(d => d.IdFaseOportunidadOrigenNavigation)
-                    .WithMany(p => p.TTransicionCalificacionFaseIdFaseOportunidadOrigenNavigations)
-                    .HasForeignKey(d => d.IdFaseOportunidadOrigen)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
             modelBuilder.Entity<TTroncalCiudad>(entity =>

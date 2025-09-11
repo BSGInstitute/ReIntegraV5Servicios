@@ -5,12 +5,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     public partial class TFaseOportunidad
     {
-        public TFaseOportunidad()
-        {
-            TTransicionCalificacionFaseIdFaseOportunidadDestinoNavigations = new HashSet<TTransicionCalificacionFase>();
-            TTransicionCalificacionFaseIdFaseOportunidadOrigenNavigations = new HashSet<TTransicionCalificacionFase>();
-        }
-
         /// <summary>
         /// Llave primaria
         /// </summary>
@@ -67,7 +61,5 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public bool? VisibleEnReporte { get; set; }
 
-        public virtual ICollection<TTransicionCalificacionFase> TTransicionCalificacionFaseIdFaseOportunidadDestinoNavigations { get; set; }
-        public virtual ICollection<TTransicionCalificacionFase> TTransicionCalificacionFaseIdFaseOportunidadOrigenNavigations { get; set; }
     }
 }
