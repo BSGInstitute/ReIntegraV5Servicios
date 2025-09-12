@@ -90,6 +90,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 facebookFormularioLeadgen.UsuarioModificacion = "WebhookFacebook";
                 facebookFormularioLeadgen.FechaCreacion = DateTime.Now;
                 facebookFormularioLeadgen.FechaModificacion = DateTime.Now;
+                facebookFormularioLeadgen.Plataforma = LeadgenInformacionDTO.Plataforma;
 
                 try
                 {

@@ -20159,6 +20159,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+
+                entity.Property(e => e.Plataforma)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Plataforma de origen del lead (Facebook, Instagram, etc.)");
             });
 
             modelBuilder.Entity<TFaseByPlantilla>(entity =>
