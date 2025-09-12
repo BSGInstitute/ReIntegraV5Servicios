@@ -10,6 +10,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TCriticidadCalificacion()
         {
+            TLineamientoCalificacionFases = new HashSet<TLineamientoCalificacionFase>();
             TLineamientoCalificacions = new HashSet<TLineamientoCalificacion>();
         }
 
@@ -20,7 +21,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// <summary>
         /// Nombre de la criticidad
         /// </summary>
-        public string NombreCriticidad { get; set; } = null!;
+        public string Nombre { get; set; } = null!;
         /// <summary>
         /// Descripción de la criticidad
         /// </summary>
@@ -50,6 +51,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
 
+        public virtual ICollection<TLineamientoCalificacionFase> TLineamientoCalificacionFases { get; set; }
         public virtual ICollection<TLineamientoCalificacion> TLineamientoCalificacions { get; set; }
     }
 }
