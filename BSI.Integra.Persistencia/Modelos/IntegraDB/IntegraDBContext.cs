@@ -930,7 +930,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TTitulo> TTitulos { get; set; } = null!;
         public virtual DbSet<TTokenPostulanteProcesoSeleccion> TTokenPostulanteProcesoSeleccions { get; set; } = null!;
         public virtual DbSet<TTranscripcionLlamadum> TTranscripcionLlamada { get; set; } = null!;
-        public virtual DbSet<TTransicionCalificacionFase> TTransicionCalificacionFases { get; set; } = null!;
+        public virtual DbSet<TTransicionFase> TTransicionFases { get; set; } = null!;
         public virtual DbSet<TTroncalCiudad> TTroncalCiudads { get; set; } = null!;
         public virtual DbSet<TTroncalPgeneral> TTroncalPgenerals { get; set; } = null!;
         public virtual DbSet<TUrlBlockStorage> TUrlBlockStorages { get; set; } = null!;
@@ -11832,18 +11832,13 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasColumnType("datetime")
                     .HasComment("Campo de auditoria Fecha Modificacion del registro");
 
-                entity.Property(e => e.IdMigracion).HasComment("Campo de auditoria IdMigracion del registro");
-
-                entity.Property(e => e.IdTransicionCalificacionFase).HasComment("Transicion a la que pertenece el criterio.");
+                entity.Property(e => e.Orden)
+                    .HasComment("Orden del criterio (entero ≥ 1, puede repetirse).");
 
                 entity.Property(e => e.Nombre)
                     .HasMaxLength(200)
                     .IsUnicode(false)
                     .HasComment("Nombre del criterio.");
-
-                entity.Property(e => e.Orden)
-                    .HasDefaultValueSql("((1))")
-                    .HasComment("Orden del criterio (entero ≥ 1, puede repetirse).");
 
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
@@ -11860,10 +11855,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsUnicode(false)
                     .HasComment("Campo de auditoria Usuario Modificacion del registro");
 
-                entity.HasOne(d => d.IdTransicionCalificacionFaseNavigation)
+                /*entity.HasOne(d => d.IdTransicionCalificacionFaseNavigation)
                     .WithMany(p => p.TCriterioCalificacionFaseOportunidads)
                     .HasForeignKey(d => d.IdTransicionCalificacionFase)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
+                    .OnDelete(DeleteBehavior.ClientSetNull);*/
             });
 
             modelBuilder.Entity<TCriterioCalificacionLlamadum>(entity =>
@@ -25244,7 +25239,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsUnicode(false)
                     .HasComment("Campo de auditoria Usuario Modificacion del registro");
 
-                entity.HasOne(d => d.IdCriterioCalificacionFaseOportunidadNavigation)
+               /* entity.HasOne(d => d.IdCriterioCalificacionFaseOportunidadNavigation)
                     .WithMany(p => p.TLineamientoCalificacionFases)
                     .HasForeignKey(d => d.IdCriterioCalificacionFaseOportunidad)
                     .OnDelete(DeleteBehavior.ClientSetNull);
@@ -25252,7 +25247,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.HasOne(d => d.IdCriticidadCalificacionNavigation)
                     .WithMany(p => p.TLineamientoCalificacionFases)
                     .HasForeignKey(d => d.IdCriticidadCalificacion)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
+                    .OnDelete(DeleteBehavior.ClientSetNull);*/
             });
 
             modelBuilder.Entity<TLineamientoEvaluacion>(entity =>
@@ -53946,9 +53941,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasConstraintName("FK_T_TranscripcionLlamada_T_LlamadaWebphoneCruceCentralTresCx");
             });
 
-            modelBuilder.Entity<TTransicionCalificacionFase>(entity =>
+            modelBuilder.Entity<TTransicionFase>(entity =>
             {
-                entity.ToTable("T_TransicionCalificacionFase", "com");
+                entity.ToTable("T_TransicionFaseOportunidad", "com");
 
                 entity.HasComment("Registra las reglas de transicion permitidas entre fases de oportunidad dentro de los procesos comerciales.");
 
@@ -53965,14 +53960,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Campo de auditoria Fecha Modificacion del registro");
 
                 entity.Property(e => e.IdFaseOportunidadDestino)
-                    .HasColumnName("IdFaseOportunidad_Destino")
+                    .HasColumnName("IdFaseOportunidadDestino")
                     .HasComment("Fase de oportunidad (destino).");
 
                 entity.Property(e => e.IdFaseOportunidadOrigen)
-                    .HasColumnName("IdFaseOportunidad_Origen")
+                    .HasColumnName("IdFaseOportunidadOrigen")
                     .HasComment("Fase de oportunidad (origen).");
-
-                entity.Property(e => e.IdMigracion).HasComment("Campo de auditoria IdMigracion del registro");
 
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
@@ -53990,14 +53983,15 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Campo de auditoria Usuario Modificacion del registro");
 
                 entity.HasOne(d => d.IdFaseOportunidadDestinoNavigation)
-                    .WithMany(p => p.TTransicionCalificacionFaseIdFaseOportunidadDestinoNavigations)
-                    .HasForeignKey(d => d.IdFaseOportunidadDestino)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
+                .WithMany(p => p.TTransicionFaseIdFaseOportunidadDestinoNavigations)
+                .HasForeignKey(d => d.IdFaseOportunidadDestino)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
                 entity.HasOne(d => d.IdFaseOportunidadOrigenNavigation)
-                    .WithMany(p => p.TTransicionCalificacionFaseIdFaseOportunidadOrigenNavigations)
+                    .WithMany(p => p.TTransicionFaseIdFaseOportunidadOrigenNavigations)
                     .HasForeignKey(d => d.IdFaseOportunidadOrigen)
                     .OnDelete(DeleteBehavior.ClientSetNull);
+
             });
 
             modelBuilder.Entity<TTroncalCiudad>(entity =>

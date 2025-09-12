@@ -63,7 +63,7 @@ namespace BSI.Integra.Aplicacion.Operaciones.Service.Implementacion
         {
             try
             {
-                _unitOfWork.SolicitudTipoReporteRepository.Delete(id, usuario);
+                _unitOfWork.TransicionFaseRepository.Delete(id, usuario);
                 _unitOfWork.Commit();
                 return true;
             }
@@ -105,7 +105,7 @@ namespace BSI.Integra.Aplicacion.Operaciones.Service.Implementacion
         {
             try
             {
-                _unitOfWork.SolicitudTipoReporteRepository.Delete(listadoIds, usuario);
+                _unitOfWork.TransicionFaseRepository.Delete(listadoIds, usuario);
                 _unitOfWork.Commit();
                 return true;
             }

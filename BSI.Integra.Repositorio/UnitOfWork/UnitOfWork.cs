@@ -7851,5 +7851,41 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _procesoSeleccionPuntajeCalificacionRepository ?? new ProcesoSeleccionPuntajeCalificacionRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+
+        private ICriterioCalificacionFaseRepository _criterioCalificacionFaseRepository;
+        ICriterioCalificacionFaseRepository IUnitOfWork.CriterioFaseRepository
+        {
+            get
+            {
+                return _criterioCalificacionFaseRepository ?? new CriterioCalificacionFaseRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGenericRepository<TLineamientoCalificacionFase> _lineamientoCalificacionFaseRepository;
+        IGenericRepository<TLineamientoCalificacionFase> IUnitOfWork.LineamientoCalificacionFaseRepository
+        {
+            get
+            {
+                return _lineamientoCalificacionFaseRepository ?? new GenericRepository<TLineamientoCalificacionFase>(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGenericRepository<TCriticidadCalificacion> _criticidadCalificacionRepository;
+        IGenericRepository<TCriticidadCalificacion> IUnitOfWork.CriticidadCalificacionRepository
+        {
+            get
+            {
+                return _criticidadCalificacionRepository ?? new GenericRepository<TCriticidadCalificacion>(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private ITransicionCalificacionFaseRepository _transicionCalificacionFaseRepository;
+        ITransicionCalificacionFaseRepository IUnitOfWork.TransicionFaseRepository
+        {
+            get
+            {
+                return _transicionCalificacionFaseRepository ?? new TransicionCalificacionFaseRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
     }
 }

@@ -52,7 +52,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// <summary>
         /// Campo de auditoria IdMigracion del registro
         /// </summary>
-        public Guid? IdMigracion { get; set; }
 
         public virtual TFaseOportunidad IdFaseOportunidadDestinoNavigation { get; set; } = null!;
         public virtual TFaseOportunidad IdFaseOportunidadOrigenNavigation { get; set; } = null!;

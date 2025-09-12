@@ -1,30 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
-    /// <summary>
-    /// Define criterios adicionales que condicionan la transicion entre fases de oportunidad.
-    /// </summary>
-    public partial class TCriterioCalificacionFaseOportunidad
+    public partial class TTransicionFase
     {
 
         /// <summary>
-        /// Clave primaria del criterio.
+        /// Clave primaria de la transicion.
         /// </summary>
         public int Id { get; set; }
         /// <summary>
-        /// Orden del criterio (entero ≥ 1, puede repetirse).
+        /// Fase de oportunidad (origen).
         /// </summary>
-        public int Orden { get; set; }
+        public int IdFaseOportunidadOrigen { get; set; }
         /// <summary>
-        /// Nombre del criterio.
+        /// Fase de oportunidad (destino).
         /// </summary>
-        public string Nombre { get; set; } = null!;
-        /// <summary>
-        /// Descripción del criterio.
-        /// </summary>
-        public string Descripcion { get; set; } = null!;
+        public int IdFaseOportunidadDestino { get; set; }
         /// <summary>
         /// Campo de auditoria Estado (eliminacion logica) del registro
         /// </summary>
@@ -53,5 +49,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Campo de auditoria IdMigracion del registro
         /// </summary>
 
+        public virtual TFaseOportunidad IdFaseOportunidadDestinoNavigation { get; set; } = null!;
+        public virtual TFaseOportunidad IdFaseOportunidadOrigenNavigation { get; set; } = null!;
     }
 }

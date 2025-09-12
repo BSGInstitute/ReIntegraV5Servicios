@@ -7,8 +7,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TFaseOportunidad()
         {
-            TTransicionCalificacionFaseIdFaseOportunidadDestinoNavigations = new HashSet<TTransicionCalificacionFase>();
-            TTransicionCalificacionFaseIdFaseOportunidadOrigenNavigations = new HashSet<TTransicionCalificacionFase>();
+
+            TTransicionFaseIdFaseOportunidadDestinoNavigations = new HashSet<TTransicionFase>();
+            TTransicionFaseIdFaseOportunidadOrigenNavigations = new HashSet<TTransicionFase>();
         }
 
         /// <summary>
@@ -67,7 +68,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public bool? VisibleEnReporte { get; set; }
 
-        public virtual ICollection<TTransicionCalificacionFase> TTransicionCalificacionFaseIdFaseOportunidadDestinoNavigations { get; set; }
-        public virtual ICollection<TTransicionCalificacionFase> TTransicionCalificacionFaseIdFaseOportunidadOrigenNavigations { get; set; }
+        public virtual ICollection<TTransicionFase> TTransicionFaseIdFaseOportunidadDestinoNavigations { get; set; }
+        public virtual ICollection<TTransicionFase> TTransicionFaseIdFaseOportunidadOrigenNavigations { get; set; }
     }
 }
+    
