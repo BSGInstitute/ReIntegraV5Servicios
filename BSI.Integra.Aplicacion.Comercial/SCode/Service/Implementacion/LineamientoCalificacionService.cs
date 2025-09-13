@@ -624,7 +624,9 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     contacto = "Generico",/*Lo recibe para enviar por signal cuando es manual el proceso*/
                     audio_url = item.UrlAudioProcesado,
                     locale = "es-ES",
-                    ocurrencia = item.Ocurrencia
+                    ocurrencia = item.Ocurrencia,
+                    faseOrigen=item.IdFaseOportunidadAnt,
+                    faseDestino=item.IdFaseOportunidad
                 };
 
                 await semaphore.WaitAsync();
@@ -708,96 +710,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             httpClient.DefaultRequestHeaders.Add("User-Agent", "PostmanRuntime/7.44.0");
             httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
             httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
-
-            //var semaphore = new SemaphoreSlim(2);// 2 llamadas concuerrentes
-
-            //var tasks = items.Select(async item =>
-            //{
-            //    await semaphore.WaitAsync();
-            //    try
-            //    {
-            //        // Filtrar histórico
-            //        var historicos = itemsOrdenados
-            //            .Where(x => x.IdOportunidad == item.IdOportunidad && x.IdActividadDetalle < item.IdActividadDetalle)
-            //            .ToList();
-
-            //        // Validar histórico: todos deben estar transcritos y calificados
-            //        bool historicoOk = historicos.All(h => h.EsLlamadaTranscrita == true && h.EsLlamadaCalificada == true);
-
-            //        // Validar actual: solo transcrita, no calificada
-            //        bool actualOk = item.EsLlamadaTranscrita == true && item.EsLlamadaCalificada != true;
-            //        if (!historicoOk || !actualOk)
-            //            return false; // No califica cuiando no cumple el historico previo trascrito y calificado
-
-            //        var llamadasHistoricas = itemsOrdenados
-            //                                               .Where(x => x.IdOportunidad == item.IdOportunidad && x.IdActividadDetalle <= item.IdActividadDetalle)
-            //                                               .OrderBy(x => x.IdActividadDetalle)
-            //                                               .Select(x => x.IdLlamada)
-            //                                               .ToList();
-
-
-            //        var transcripcionesHistoricas = new List<TranscripcionCompletaResponseDTO>();
-            //        foreach (var idLlamadaHistorica in llamadasHistoricas)
-            //        {
-            //            var transcripcionHistorica = await ObtenerTranscripcion(idLlamadaHistorica);
-            //            if (transcripcionHistorica != null)
-            //                transcripcionesHistoricas.Add(transcripcionHistorica);
-            //        }
-            //        /*Se debe limpiar la data , actualmte se obtiene en html*/
-            //        /*Se obteine data  acerta de la informacion del programa*/
-            //        CargarInformacionProgramaAutomaticoRespuestaDTO InformacionPrograma = serviceInformacionPrograma.CargarInformacionProgramaAutomatico(item.IdCentroCosto, item.IdCodigoPais, 0, 0);
-            //        /*Se obteine data  acerta del apartado presentacion programa de la ficha de la agenda*/
-            //        CargarInformacionProgramaAutomaticoRespuestaDTO PresentacionPrograma = serviceInformacionPrograma.CargarInformacionProgramaAutomaticoSpeech(item.IdCentroCosto, item.IdCodigoPais, 0, 0);
-            //        /*Se obteine data  acerta de Motivaciones del Programa*/
-            //        IEnumerable<ProgramaGeneralMotivacionDetalleAgendaDTO> MotivacionPrograma = serviceMotivacionesPrograma.ObtenerMotivacionesDetalleParaAgendaPorIdOportunidad(item.IdOportunidad);
-            //        /*Informacion de solicitudes de informacion previas a la actual*/
-            //        OportunidadInformacionDTO HistoricoSolicitudInformacion = serviceInformacionOportunidad.ObtenerOportunidadInformacion(item.IdAlumno, item.IdClasificacionPersona);
-            //        /*Se obteine data  acerta de Objetivo programa*/
-            //        IEnumerable<PGeneralPublicoObjetivoParaAgendaDTO> PublicoObjetivoPrograma = servicePGeneral.ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3(item.IdCentroCosto, item.IdOportunidad);
-            //        /*Se obteine data  acerta de lso problemas reportados para el cliente*/
-            //        IEnumerable<ProgramaGeneralProblemaDetalleAgendaDTO> ObjecionesCliente = serviceObjeciones.ObtenerProgramaGeneralProblemaDetalleParaAgendaPorIdOportunidad(item.IdOportunidad);
-
-            //        // Agrupar toda la información en una variable brochure
-            //        var brochure = new
-            //        {
-            //            InformacionPrograma = InformacionPrograma,
-            //            PresentacionPrograma = PresentacionPrograma,
-            //            MotivacionPrograma = MotivacionPrograma,
-            //            HistoricoSolicitudInformacion = HistoricoSolicitudInformacion,
-            //            PublicoObjetivoPrograma = PublicoObjetivoPrograma,
-            //            ObjecionesCliente = ObjecionesCliente
-            //        };
-
-            //        var payload = new
-            //        {
-
-            //            idPersonal= item.IdPersonal_Asignado,
-            //            contacto = "Generico" ,/*Lo recibe para enviar por signal cuando es manual el proceso*/
-            //            userName = "System-auto",
-            //            idCodigoPais= item.IdCodigoPais.ToString(),
-            //            transcription = transcripcionesHistoricas,
-            //            lineamientos,
-            //            brochure
-            //        };
-
-            //        var response = await httpClient.PostAsJsonAsync("grading/queue/batch", payload);
-            //        response.EnsureSuccessStatusCode();
-            //        var json = await response.Content.ReadAsStringAsync();
-            //        var evaluacionData = JsonSerializer.Deserialize<ResultadoEvaluacion>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            //        return true;
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        return false;
-            //    }
-            //    finally
-            //    {
-            //        semaphore.Release();
-            //    }
-            //});
-
-            var semaphore = new SemaphoreSlim(2);
+            var semaphore = new SemaphoreSlim(10);
             foreach (var oportunidad in itemsAgrupadosPorOportunidad)
             {
                 var llamadasParaCalificar = ObtenerSiguienteLlamadaParaCalificar(oportunidad.IdOportunidad);
@@ -827,10 +740,13 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
                         if (!historicoOk || !actualOk)
                             return false; // No califica cuando no cumple el histórico previo transcrito y calificado
+                        var todasLasLlamadas = _unitOfWork.LineamientoCalificacionRepository
+                                                        .ObtenerHistoricoLlamadaCompletoPorIdOportunidad(oportunidad.IdOportunidad);
 
-                        var llamadasHistoricas = oportunidad.Llamadas
+                       var llamadasHistoricas = todasLasLlamadas
                             .Where(x => x.IdActividadDetalle <= item.IdActividadDetalle)
-                            .OrderBy(x => x.IdActividadDetalle)
+                            .OrderByDescending(x => x.IdActividadDetalle)
+                            .ThenByDescending(x => x.IdLlamada)
                             .Select(x => x.IdLlamada)
                             .ToList();
 
@@ -915,9 +831,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
             // Ordenar por fechaLlamada (orden cronológico real)
             var llamadasOrdenadas = todasLasLlamadas
-                .OrderBy(x => x.FechaLlamada)
-                .ThenBy(x => x.IdActividadDetalle)
-                .ToList();
+                .OrderBy(x => x.IdActividadDetalle) // Primero por ID (más antiguo)
+                .ThenBy(x => x.FechaLlamada).ToList();        // Luego por fecha (más antigua)
 
             // Buscar la primera llamada que esté transcrita pero no calificada
             var primeraLlamadaParaCalificar = llamadasOrdenadas
@@ -1185,6 +1100,25 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         Nota = kvp.Calificacion,
                         Comentario = kvp.Feedback
                     });
+                }
+            }
+            // Si todas las notas de criterios y puntos generales son -1 y existen todos los puntos generales,
+            // actualizar el comentario de cada punto general con el valor de evaluacionData.IterrupcionLlamada
+            bool todosCriteriosMenosUno = calificaciones.All(x => x.Nota == -1);
+            bool todosPuntosGeneralesMenosUno = calificacionesPuntosGenerales.All(x => x.Nota == -1);
+            bool tieneTodosPuntosGenerales = evaluacion.Puntosgenerales != null &&
+                calificacionesPuntosGenerales.Count == evaluacion.Puntosgenerales.Count;
+
+
+            if (todosCriteriosMenosUno && todosPuntosGeneralesMenosUno && tieneTodosPuntosGenerales)
+            {
+                foreach (var punto in calificacionesPuntosGenerales)
+                {
+                    punto.Comentario = evaluacionData.InterrupcionLlamada;
+                }
+                foreach (var criterio in calificaciones)
+                {
+                    criterio.Comentario = evaluacionData.InterrupcionLlamada;
                 }
             }
 

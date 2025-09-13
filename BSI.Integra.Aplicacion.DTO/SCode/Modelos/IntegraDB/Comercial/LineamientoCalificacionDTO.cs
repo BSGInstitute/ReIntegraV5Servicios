@@ -400,6 +400,10 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
 
         [JsonPropertyName("puntoscriticos")]
         public List<PuntoCritico>? Puntoscriticos { get; set; }
+        [JsonPropertyName("interrupcionLlamada")]
+        public string? InterrupcionLlamada { get; set; }
+
+
 
     }
 

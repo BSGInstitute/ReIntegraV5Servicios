@@ -155,6 +155,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         Duration = transcripcion.Duration,
                         Summary = transcripcion.Summary,
                         Ocurrencia_Consistente = transcripcion.OcurrenciaConsistente.HasValue && transcripcion.OcurrenciaConsistente.Value ? "si" : "no",
+                        ComentarioConsistenciaOcurrencia = transcripcion?.ComentarioConsistenciaOcurrencia,
 
                         CombinedRecognizedPhrases = data
                             .Where(x => x.FraseCombinadaId != null)
