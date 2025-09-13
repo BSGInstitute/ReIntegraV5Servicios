@@ -963,15 +963,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TWhatsAppUsuarioCredencial> TWhatsAppUsuarioCredencials { get; set; } = null!;
         public virtual DbSet<TZonaHorariaPai> TZonaHorariaPais { get; set; } = null!;
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=20.124.236.106;Initial Catalog=integraDB-MapeoV5;Persist Security Info=False;User ID=pase;Password=B$TeMp2024;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30;");
-            }
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.UseCollation("Modern_Spanish_CI_AS");
@@ -2577,6 +2568,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.Id).HasComment("Es primary key");
 
+                entity.Property(e => e.ColorArea)
+                    .HasMaxLength(15)
+                    .IsUnicode(false)
+                    .HasComment("Color del area capacitacion");
+
                 entity.Property(e => e.Descripcion)
                     .HasMaxLength(100)
                     .IsUnicode(false)
@@ -2636,6 +2632,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsRowVersion()
                     .IsConcurrencyToken()
                     .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UrlIconoArea)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Url del Icono del Area capacitacion");
 
                 entity.Property(e => e.UsuarioCreacion)
                     .HasMaxLength(50)
