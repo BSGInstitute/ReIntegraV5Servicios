@@ -14,7 +14,7 @@ namespace BSI.Integra.Aplicacion.Servicios.Interface
         CriterioCalificacionFase ActualizarCriterio(CriterioCalificacionFase entidad);
         bool EliminarCriterio(int id, string usuario);
         List<CriterioCalificacionFaseDTO> ObtenerCriteriosCalificacionFase();
-        List<CriterioCalificacionFaseDTO> ObtenerCriteriosPorTransicion(int idTransicionCalificacionFase);
+        List<CriterioCalificacionFaseDTO> ObtenerPorId(int idTransicionCalificacionFase);
         CriterioCalificacionFase ObtenerCriterioCalificacionFasePorId(int idCriterioCalificacionFase);
         //Task<Dictionary<string, List<ComboDTO>>> ObtenerCriticidad();
         IEnumerable<ComboDTO> ListaCriterios();

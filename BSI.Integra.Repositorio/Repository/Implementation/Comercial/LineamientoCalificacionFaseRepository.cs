@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -107,6 +108,71 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+        public bool Delete(int id, string usuario)
+        {
+            try
+            {
+                base.Delete(id, usuario);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public LineamientoCalificacionFase ObtenerLineamientoCalificacionFasePorId(int idLineamientoCalificacionFase)
+        {
+            try
+            {
+                var rpta = new LineamientoCalificacionFase();
+                var query = @"SELECT Id,
+                                 IdCriterioCalificacionFaseOportunidad,
+                                 IdCriticidadCalificacion,
+                                 Orden,
+                                 Nombre,
+                                 Descripcion
+                          FROM com.T_LineamientoCalificacionFase
+                    WHERE Estado = 1 AND Id = @Id";
+                var resultado = _dapperRepository.FirstOrDefault(query, new { Id = idLineamientoCalificacionFase });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    rpta = JsonConvert.DeserializeObject<LineamientoCalificacionFase>(resultado)!;
+                    return rpta;
+                }
+                return null;
+
+
+            }
+            catch (Exception E)
+            {
+                throw new Exception(E.Message);
+            }
+        }
+        public IEnumerable<ComboDTO> ListaLineamientos()
+        {
+            try
+            {
+                var query = @"
+                    SELECT 
+                        Id, Nombre
+                    FROM 
+                        FROM com.T_LineamientoCalificacionFase
+                    WHERE 
+                        Estado = 1
+                    ORDER BY
+                        Nombre";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<IEnumerable<ComboDTO>>(resultado)!;
+                }
+                return new List<ComboDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#CCFR-OC-001@Error en ObtenerCombo: {ex.Message}", ex);
             }
         }
     }

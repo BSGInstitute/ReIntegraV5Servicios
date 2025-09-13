@@ -1,4 +1,5 @@
-﻿using BSI.Integra.Persistencia.Entidades.IntegraDB;
+﻿using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using System;
 using System.Collections.Generic;
@@ -13,5 +14,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
         TLineamientoCalificacionFase Add(LineamientoCalificacionFase entidad);
         LineamientoCalificacionFase ObtenerPorId(int id);
         TLineamientoCalificacionFase Update(LineamientoCalificacionFase entidad);
+        bool Delete(int id, string usuario);
+        LineamientoCalificacionFase ObtenerLineamientoCalificacionFasePorId(int idLineamientoCalificacionFase);
+        IEnumerable<ComboDTO> ListaLineamientos();
+        
     }
 }

@@ -1,10 +1,13 @@
 ﻿using BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion;
+using BSI.Integra.Aplicacion.Comercial.SCode.Service.Interface;
 using BSI.Integra.Aplicacion.Comercial.Service.Implementacion;
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.Operaciones.Service.Implementacion;
 using BSI.Integra.Aplicacion.Operaciones.Service.Interface;
+using BSI.Integra.Aplicacion.Servicios.Implementacion;
+using BSI.Integra.Aplicacion.Servicios.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Implementation.Comercial;
@@ -27,10 +30,12 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
     public class LineamientoCalificacionFaseController : Controller
     {
         private IUnitOfWork _unitOfWork;
+        private ILineamientoCalificacionFaseService _lineamientoCalificacionFaseService;
 
         public LineamientoCalificacionFaseController(IUnitOfWork unitOfWork)
         {
             this._unitOfWork = unitOfWork;
+            _lineamientoCalificacionFaseService = new LineamientoCalificacionFaseService(_unitOfWork);
         }
 
         /// Tipo Función: POST
@@ -113,7 +118,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             }
         }
 
-        [HttpDelete("Eliminar/{id}/{usuario}")]
+       [HttpDelete("Eliminar/{id}/{usuario}")]
         public IActionResult Eliminar(int id, string usuario)
         {
             if (!ModelState.IsValid)
@@ -123,8 +128,22 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             try
             {
 
-                var lineamientoCalificacionFaseService = new LineamientoCalificacionFaseService(unitOfWork);
+                var lineamientoCalificacionFaseService = new LineamientoCalificacionFaseService(_unitOfWork);
                 var resultado = lineamientoCalificacionFaseService.Delete(id, usuario);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [Route("[action]/{id}")]
+        [HttpGet]
+        public IActionResult ObtenerPorId(int id)
+        {
+            try
+            {
+                var resultado = _lineamientoCalificacionFaseService.ObtenerLineamientoCalificacionFasePorId(id);
                 return Ok(resultado);
             }
             catch (Exception ex)

@@ -256,7 +256,7 @@ namespace BSI.Integra.Aplicacion.Servicios.Implementacion
         /// </summary>
         /// <param name="idTransicionCalificacionFase">ID de la transición</param>
         /// <returns>Lista de criterios</returns>
-        public List<CriterioCalificacionFaseDTO> ObtenerCriteriosPorTransicion(int idTransicionCalificacionFase)
+        public List<CriterioCalificacionFaseDTO> ObtenerPorId(int idTransicionCalificacionFase)
         {
             try
             {

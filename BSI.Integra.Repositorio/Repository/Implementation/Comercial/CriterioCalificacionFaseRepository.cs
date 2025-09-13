@@ -260,9 +260,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var resultado = _dapperRepository.FirstOrDefault(query, new { Id = idCriterioCalificacionFase });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
-                    rpta = JsonConvert.DeserializeObject<CriterioCalificacionFase>(resultado)!;
+                  rpta = JsonConvert.DeserializeObject<CriterioCalificacionFase>(resultado)!;
+                  return rpta;
                 }
                 return null;
+
+
             }
             catch (Exception E)
             {
@@ -283,7 +286,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 string query = @"SELECT Id,
-                                       IdTransicionCalificacionFase,
                                        Orden,
                                        Nombre,
                                        Descripcion,

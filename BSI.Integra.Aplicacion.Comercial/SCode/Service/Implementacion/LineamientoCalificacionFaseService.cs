@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.Comercial.SCode.Service.Interface;
+using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
@@ -71,6 +72,36 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+        /// Autor: José Vega
+        /// Fecha: 20/09/2023
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene un criterio de calificación de fase por su ID
+        /// </summary>
+        /// <param name="idCriterioCalificacionFase">ID del criterio</param>
+        /// <returns>Detalles del criterio</returns>
+        public LineamientoCalificacionFase ObtenerLineamientoCalificacionFasePorId(int idLineamientoCalificacionFase)
+        {
+            try
+            {
+                return _unitOfWork.LineamientoCalificacionFaseRepository.ObtenerLineamientoCalificacionFasePorId(idLineamientoCalificacionFase);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public IEnumerable<ComboDTO> ListaLineamientos()
+        {
+            try
+            {
+                return _unitOfWork.LineamientoCalificacionFaseRepository.ListaLineamientos();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
     }

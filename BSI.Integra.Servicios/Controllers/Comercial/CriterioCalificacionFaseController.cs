@@ -194,7 +194,7 @@ namespace BSI.Integra.Servicios.Controllers
         {
             try
             {
-                var resultado = new { criteriosCalificacionFase = _criterioCalificacionFaseService.ObtenerCriteriosPorTransicion(idTransicion) };
+                var resultado = new { criteriosCalificacionFase = _criterioCalificacionFaseService.ObtenerPorId(idTransicion) };
                 return Ok(resultado);
             }
             catch (Exception ex)
@@ -240,7 +240,7 @@ namespace BSI.Integra.Servicios.Controllers
         {
             try
             {
-                var resultado = _criterioCalificacionFaseService.ObtenerCriterioCalificacionFasePorId(id);
+                var resultado = _criterioCalificacionFaseService.ObtenerPorId(id);
                 return Ok(resultado);
             }
             catch (Exception ex)
