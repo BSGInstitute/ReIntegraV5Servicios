@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Repositorio.Repository.Interface
 {
-    public interface ITransicionCalificacionFaseRepository : IGenericRepository<TTransicionFase>
+    public interface ITransicionCalificacionFaseRepository : IGenericRepository<TTransicionFaseOportunidad>
     {
         #region Metodos Base
-        TTransicionFase Add(TransicionCalificacionFase entidad);
-        TTransicionFase Update(TransicionCalificacionFase entidad);
+        TTransicionFaseOportunidad Add(TransicionCalificacionFase entidad);
+        TTransicionFaseOportunidad Update(TransicionCalificacionFase entidad);
         bool Delete(int id, string usuario);
-        IEnumerable<TTransicionFase> Add(IEnumerable<TransicionCalificacionFase> listadoEntidad);
-        IEnumerable<TTransicionFase> Update(IEnumerable<TransicionCalificacionFase> listadoEntidad);
+        IEnumerable<TTransicionFaseOportunidad> Add(IEnumerable<TransicionCalificacionFase> listadoEntidad);
+        IEnumerable<TTransicionFaseOportunidad> Update(IEnumerable<TransicionCalificacionFase> listadoEntidad);
         bool Delete(IEnumerable<int> listadoIds, string usuario);
         #endregion
 

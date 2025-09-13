@@ -2,7 +2,7 @@
 
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
-    public partial class TTransicionCalificacionFase : BaseIntegraEntity
+    public partial class TTransicionFaseOportunidad : BaseIntegraEntity
     {
     }
 }

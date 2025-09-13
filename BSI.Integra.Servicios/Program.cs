@@ -138,6 +138,7 @@ builder.Services.AddTransient<ITransicionCalificacionFaseService, TransicionCali
 builder.Services.AddTransient<ITransicionCalificacionFaseRepository, TransicionCalificacionFaseRepository>();
 
 
+
 builder.Services.AddScoped<ITokenManager, TokenManager>();
 
 

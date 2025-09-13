@@ -4,57 +4,58 @@ using System.Collections.Generic;
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     /// <summary>
-    /// Registra las reglas de transicion permitidas entre fases de oportunidad dentro de los procesos comerciales.
+    /// Define las transiciones permitidas entre fases de oportunidad, incluyendo su control de auditoría.
     /// </summary>
-    public partial class TTransicionCalificacionFase
+    public partial class TTransicionFaseOportunidad
     {
-        public TTransicionCalificacionFase()
+        public TTransicionFaseOportunidad()
         {
-            TCriterioCalificacionFaseOportunidads = new HashSet<TCriterioCalificacionFaseOportunidad>();
+            TTransicionFaseCriterioOportunidads = new HashSet<TTransicionFaseCriterioOportunidad>();
         }
 
         /// <summary>
-        /// Clave primaria de la transicion.
+        /// Clave primaria de la transición entre fases.
         /// </summary>
         public int Id { get; set; }
         /// <summary>
-        /// Fase de oportunidad (origen).
+        /// Fase de oportunidad origen de la transición.
         /// </summary>
         public int IdFaseOportunidadOrigen { get; set; }
         /// <summary>
-        /// Fase de oportunidad (destino).
+        /// Fase de oportunidad destino de la transición.
         /// </summary>
         public int IdFaseOportunidadDestino { get; set; }
         /// <summary>
-        /// Campo de auditoria Estado (eliminacion logica) del registro
+        /// Campo de auditoría Estado (eliminación lógica) del registro.
         /// </summary>
         public bool Estado { get; set; }
         /// <summary>
-        /// Campo de auditoria Usuario Creacion del registro
+        /// Campo de auditoría Usuario Creación del registro.
         /// </summary>
         public string UsuarioCreacion { get; set; } = null!;
         /// <summary>
-        /// Campo de auditoria Usuario Modificacion del registro
+        /// Campo de auditoría Usuario Modificación del registro.
         /// </summary>
         public string UsuarioModificacion { get; set; } = null!;
         /// <summary>
-        /// Campo de auditoria Fecha Creacion del registro
+        /// Campo de auditoría Fecha Creación del registro.
         /// </summary>
         public DateTime FechaCreacion { get; set; }
         /// <summary>
-        /// Campo de auditoria Fecha Modificacion del registro
+        /// Campo de auditoría Fecha Modificación del registro.
         /// </summary>
         public DateTime FechaModificacion { get; set; }
         /// <summary>
-        /// Campo de auditoria RowVersion del registro
+        /// Campo de control de concurrencia (RowVersion).
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
         /// <summary>
-        /// Campo de auditoria IdMigracion del registro
+        /// Identificador de migración utilizado para procesos de sincronización.
         /// </summary>
+        public int? IdMigracion { get; set; }
 
         public virtual TFaseOportunidad IdFaseOportunidadDestinoNavigation { get; set; } = null!;
         public virtual TFaseOportunidad IdFaseOportunidadOrigenNavigation { get; set; } = null!;
-        public virtual ICollection<TCriterioCalificacionFaseOportunidad> TCriterioCalificacionFaseOportunidads { get; set; }
+        public virtual ICollection<TTransicionFaseCriterioOportunidad> TTransicionFaseCriterioOportunidads { get; set; }
     }
 }

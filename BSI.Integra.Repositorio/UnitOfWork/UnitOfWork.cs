@@ -7861,12 +7861,12 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
-        private IGenericRepository<TLineamientoCalificacionFase> _lineamientoCalificacionFaseRepository;
-        IGenericRepository<TLineamientoCalificacionFase> IUnitOfWork.LineamientoCalificacionFaseRepository
+        private ILineamientoCalificacionFaseRepository _lineamientoCalificacionFaseRepository;
+        ILineamientoCalificacionFaseRepository IUnitOfWork.LineamientoCalificacionFaseRepository
         {
             get
             {
-                return _lineamientoCalificacionFaseRepository ?? new GenericRepository<TLineamientoCalificacionFase>(_context, _connectionFactory, _dapperRepository);
+                return _lineamientoCalificacionFaseRepository ?? new LineamientoCalificacionFaseRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
 

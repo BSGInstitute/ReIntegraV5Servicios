@@ -21,7 +21,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// <summary>
         /// Nombre de la criticidad
         /// </summary>
-        public string NombreCriticidad { get; set; } = null!;
+        public string Nombre { get; set; } = null!;
         /// <summary>
         /// Descripción de la criticidad
         /// </summary>

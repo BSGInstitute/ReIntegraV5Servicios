@@ -4,10 +4,15 @@ using System.Collections.Generic;
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     /// <summary>
-    /// Define criterios adicionales que condicionan la transicion entre fases de oportunidad.
+    /// Define criterios adicionales que condicionan la transición entre fases de oportunidad.
     /// </summary>
     public partial class TCriterioCalificacionFaseOportunidad
     {
+        public TCriterioCalificacionFaseOportunidad()
+        {
+            TLineamientoCalificacionFases = new HashSet<TLineamientoCalificacionFase>();
+            TTransicionFaseCriterioOportunidads = new HashSet<TTransicionFaseCriterioOportunidad>();
+        }
 
         /// <summary>
         /// Clave primaria del criterio.
@@ -50,8 +55,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
         /// <summary>
-        /// Campo de auditoria IdMigracion del registro
+        /// Id de la tabla Original al migrar
         /// </summary>
+        public int? IdMigracion { get; set; }
 
+        public virtual ICollection<TLineamientoCalificacionFase> TLineamientoCalificacionFases { get; set; }
+        public virtual ICollection<TTransicionFaseCriterioOportunidad> TTransicionFaseCriterioOportunidads { get; set; }
     }
 }

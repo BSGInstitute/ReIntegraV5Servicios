@@ -21,14 +21,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
     /// <summary>
     /// Gestión general de T_TransicionCalificacionFase
     /// </summary>
-    public class TransicionCalificacionFaseRepository : GenericRepository<TTransicionFase>, ITransicionCalificacionFaseRepository
+    public class TransicionCalificacionFaseRepository : GenericRepository<TTransicionFaseOportunidad>, ITransicionCalificacionFaseRepository
     {
         private Mapper _mapper;
         public TransicionCalificacionFaseRepository(IntegraDBContext context, IConnectionFactory connectionFactory, IDapperRepository dapperRepository) : base(context, connectionFactory, dapperRepository)
         {
             var config = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<TTransicionFase, TransicionCalificacionFase>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TTransicionFaseOportunidad, TransicionCalificacionFase>(MemberList.None).ReverseMap();
                 cfg.CreateMap<TCriterioCalificacionFaseOportunidad, CriterioCalificacionFaseOportunidad>(MemberList.None).ReverseMap();
                 cfg.CreateMap<TLineamientoCalificacionFase, LineamientoCalificacionFase>(MemberList.None).ReverseMap();
             });
@@ -36,11 +36,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         }
 
         #region Metodos Base
-        private TTransicionFase MapeoEntidad(TransicionCalificacionFase entidad)
+        private TTransicionFaseOportunidad MapeoEntidad(TransicionCalificacionFase entidad)
         {
             try
             {
-                TTransicionFase transicionFase = _mapper.Map<TTransicionFase>(entidad);
+                TTransicionFaseOportunidad transicionFase = _mapper.Map<TTransicionFaseOportunidad>(entidad);
                 
                 // Aquí puedes agregar el mapeo de colecciones relacionadas si es necesario
                 // Por ejemplo, si tienes colecciones como en el ejemplo del CriterioEvaluacion
@@ -52,7 +52,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
-        public TTransicionFase Add(TransicionCalificacionFase entidad)
+        public TTransicionFaseOportunidad Add(TransicionCalificacionFase entidad)
         {
             try
             {
@@ -78,11 +78,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }*/
-        public IEnumerable<TTransicionFase> Add(IEnumerable<TransicionCalificacionFase> listadoEntidad)
+        public IEnumerable<TTransicionFaseOportunidad> Add(IEnumerable<TransicionCalificacionFase> listadoEntidad)
         {
             try
             {
-                List<TTransicionFase> listado = new List<TTransicionFase>();
+                List<TTransicionFaseOportunidad> listado = new List<TTransicionFaseOportunidad>();
                 foreach (var entidad in listadoEntidad)
                 {
                     listado.Add(MapeoEntidad(entidad));
@@ -96,7 +96,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public TTransicionFase Update(TransicionCalificacionFase entidad)
+        public TTransicionFaseOportunidad Update(TransicionCalificacionFase entidad)
         {
             try
             {
@@ -127,11 +127,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }*/
 
-        public IEnumerable<TTransicionFase> Update(IEnumerable<TransicionCalificacionFase> listadoEntidad)
+        public IEnumerable<TTransicionFaseOportunidad> Update(IEnumerable<TransicionCalificacionFase> listadoEntidad)
         {
             try
             {
-                List<TTransicionFase> listado = new List<TTransicionFase>();
+                List<TTransicionFaseOportunidad> listado = new List<TTransicionFaseOportunidad>();
                 foreach (var entidad in listadoEntidad)
                 {
                     listado.Add(MapeoEntidad(entidad));

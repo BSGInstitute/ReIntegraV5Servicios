@@ -39,7 +39,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
 
             var mapperConfig = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<TTransicionFase, TransicionCalificacionFase>().ReverseMap();
+                cfg.CreateMap<TTransicionFaseOportunidad, TransicionCalificacionFase>().ReverseMap();
                 cfg.CreateMap<TransicionCalificacionFase, TransicionCalificacionFaseCreateDTO>().ReverseMap();
             });
             _mapper = new Mapper(mapperConfig);
