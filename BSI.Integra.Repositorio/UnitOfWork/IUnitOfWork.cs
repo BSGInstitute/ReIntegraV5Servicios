@@ -1,4 +1,6 @@
-﻿using BSI.Integra.Repositorio.Repository.Implementation;
+﻿using BSI.Integra.Persistencia.Modelos.IntegraDB;
+using BSI.Integra.Repositorio.Repository;
+using BSI.Integra.Repositorio.Repository.Implementation;
 using BSI.Integra.Repositorio.Repository.Interface;
 using BSI.Integra.Repositorio.Repository.Interface.Comercial;
 using BSI.Integra.Repositorio.Repository.Interface.Configuracion;
@@ -947,5 +949,12 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IRecomendacionRepository RecomendacionRepository { get; }
         IProcesoSeleccionPuntajeCalificacionRepository ProcesoSeleccionPuntajeCalificacionRepository { get; }
 
+
+
+        ICriterioCalificacionFaseRepository CriterioFaseRepository { get; }
+        IGenericRepository<TCriticidadCalificacion> CriticidadCalificacionRepository { get; }
+
+        ITransicionCalificacionFaseRepository TransicionFaseRepository { get; }
+        ILineamientoCalificacionFaseRepository LineamientoCalificacionFaseRepository { get; }
     }
 }

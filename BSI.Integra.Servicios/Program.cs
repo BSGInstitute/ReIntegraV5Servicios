@@ -1,5 +1,9 @@
 using BSI.Integra.Aplicacion.Comercial.Service.Implementacion;
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
+using BSI.Integra.Aplicacion.Comercial.Service.Implementacion;
+using BSI.Integra.Aplicacion.Comercial.Service.Interface;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Sendingblue;
 using BSI.Integra.Aplicacion.Marketing.Service.Interface.Sendingblue;
 using BSI.Integra.Aplicacion.Operaciones.Service.Implementacion;
@@ -15,9 +19,11 @@ using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDBInteraccion;
 using BSI.Integra.Repositorio.Repository;
-using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
+using BSI.Integra.Repositorio.Repository.Implementation.Comercial;
 using BSI.Integra.Repositorio.Repository.IntegraDBInteraccion.DapperRepository;
 using BSI.Integra.Repositorio.Repository.IntegraDBInteraccion.UnitOfWork;
+using BSI.Integra.Repositorio.Repository.Interface.Comercial;
+using BSI.Integra.Repositorio.Repository.Interface.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Configurations;
 using BSI.Integra.Servicios.Helpers;
@@ -27,8 +33,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SI.Integra.Repositorio.Repository.IntegraDBInteraccion.DapperRepository;
 using System.Text;
-using BSI.Integra.Repositorio.Repository.Interface.Marketing.FacebookLeadsRecuperacionDatos;
-using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.FacebookLeadsRecuperacionDatos;
+using BSI.Integra.Repositorio.Repository.Interface;
+using BSI.Integra.Repositorio.Repository.Implementation;
 
 
 
@@ -127,6 +133,11 @@ builder.Services.AddTransient<IProgramaGeneralMaterialEstudioAdicionalService, P
 builder.Services.AddTransient<ICourierService, CourierService>();
 builder.Services.AddTransient<ICourierDetalleService, CourierDetalleService>();
 builder.Services.AddTransient<IMatriculaFormularioProgresivoService, MatriculaFormularioProgresivoService>();
+
+builder.Services.AddTransient<ITransicionCalificacionFaseService, TransicionCalificacionFaseService>();
+builder.Services.AddTransient<ITransicionCalificacionFaseRepository, TransicionCalificacionFaseRepository>();
+
+
 
 builder.Services.AddScoped<ITokenManager, TokenManager>();
 
