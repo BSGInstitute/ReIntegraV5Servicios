@@ -208,7 +208,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             try
             {
                 var comboDTOs = new List<CriticidadCalificacion>();
-                var query = @"SELECT  Id,NombreCriticidad, Descripcion
+                var query = @"SELECT  Id,Nombre AS NombreCriticidad, Descripcion
                                 FROM com.T_CriticidadCalificacion
                                 WHERE Estado =1";
                 var resultado = _dapperRepository.QueryDapper(query, null);

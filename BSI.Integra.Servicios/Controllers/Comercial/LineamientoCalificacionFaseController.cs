@@ -60,10 +60,10 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             {
                 var lineamientoCalificacionFaseService = new LineamientoCalificacionFaseService(_unitOfWork);
                 var lineamientoCalificacionFase = new LineamientoCalificacionFase();
-                lineamientoCalificacionFase.IdCriterioCalificacionFaseOportunidad = lineamientoCalificacionFaseDTO.IdCriterioCalificacionFaseOportunidad;
+                lineamientoCalificacionFase.IdCriterioCalificacionFaseOportunidad = lineamientoCalificacionFaseDTO.IdCriterioAnalisisCambioFase;
                 lineamientoCalificacionFase.Orden = lineamientoCalificacionFaseDTO.Orden;
-                lineamientoCalificacionFase.IdCriticidadCalificacion = lineamientoCalificacionFaseDTO.IdCriticidadCalificacion;
-                lineamientoCalificacionFase.Nombre = lineamientoCalificacionFaseDTO.Nombre;
+                lineamientoCalificacionFase.IdCriticidadCalificacion = lineamientoCalificacionFaseDTO.IdCriticidadLineamiento;
+                lineamientoCalificacionFase.Nombre = lineamientoCalificacionFaseDTO.NombreLineamiento;
                 lineamientoCalificacionFase.Descripcion = lineamientoCalificacionFaseDTO.Descripcion;
                 lineamientoCalificacionFase.Estado = true;
                 lineamientoCalificacionFase.UsuarioCreacion = lineamientoCalificacionFaseDTO.Usuario;
@@ -100,10 +100,10 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
                 var lineamientoCalificacionFaseService = new LineamientoCalificacionFaseService(_unitOfWork);
                 var lineamientoCalificacionFase = new LineamientoCalificacionFase();
                 lineamientoCalificacionFase = lineamientoCalificacionFaseService.ObtenerPorId(lineamientoCalificacionFaseDTO.Id.Value);
-                lineamientoCalificacionFase.IdCriterioCalificacionFaseOportunidad = lineamientoCalificacionFaseDTO.IdCriterioCalificacionFaseOportunidad;
+                lineamientoCalificacionFase.IdCriterioCalificacionFaseOportunidad = lineamientoCalificacionFaseDTO.IdCriterioAnalisisCambioFase;
                 lineamientoCalificacionFase.Orden = lineamientoCalificacionFaseDTO.Orden;
-                lineamientoCalificacionFase.IdCriticidadCalificacion = lineamientoCalificacionFaseDTO.IdCriticidadCalificacion;
-                lineamientoCalificacionFase.Nombre = lineamientoCalificacionFaseDTO.Nombre;
+                lineamientoCalificacionFase.IdCriticidadCalificacion = lineamientoCalificacionFaseDTO.IdCriticidadLineamiento;
+                lineamientoCalificacionFase.Nombre = lineamientoCalificacionFaseDTO.NombreLineamiento;
                 lineamientoCalificacionFase.Descripcion = lineamientoCalificacionFaseDTO.Descripcion;
                 lineamientoCalificacionFase.Estado = true;
                 lineamientoCalificacionFase.UsuarioModificacion = lineamientoCalificacionFaseDTO.Usuario;

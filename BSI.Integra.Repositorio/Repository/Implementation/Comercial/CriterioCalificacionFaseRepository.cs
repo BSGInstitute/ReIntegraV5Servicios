@@ -166,7 +166,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         Orden,
                         Nombre,
                         Descripcion,
-                        UsuarioCreacion AS Usuario
+                        UsuarioCreacion AS Usuario,
+                        Estado,
+                        FechaCreacion,
+                        FechaModificacion
                     FROM com.T_CriterioCalificacionFaseOportunidad
                     WHERE Estado = 1 
                     ORDER BY Id DESC";
