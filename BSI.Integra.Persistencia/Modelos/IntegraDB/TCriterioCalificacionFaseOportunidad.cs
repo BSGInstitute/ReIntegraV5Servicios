@@ -4,23 +4,20 @@ using System.Collections.Generic;
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     /// <summary>
-    /// Define criterios adicionales que condicionan la transicion entre fases de oportunidad.
+    /// Define criterios adicionales que condicionan la transición entre fases de oportunidad.
     /// </summary>
     public partial class TCriterioCalificacionFaseOportunidad
     {
         public TCriterioCalificacionFaseOportunidad()
         {
             TLineamientoCalificacionFases = new HashSet<TLineamientoCalificacionFase>();
+            TTransicionFaseCriterioOportunidads = new HashSet<TTransicionFaseCriterioOportunidad>();
         }
 
         /// <summary>
         /// Clave primaria del criterio.
         /// </summary>
         public int Id { get; set; }
-        /// <summary>
-        /// Transicion a la que pertenece el criterio.
-        /// </summary>
-        public int IdTransicionCalificacionFase { get; set; }
         /// <summary>
         /// Orden del criterio (entero ≥ 1, puede repetirse).
         /// </summary>
@@ -58,11 +55,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
         /// <summary>
-        /// Campo de auditoria IdMigracion del registro
+        /// Id de la tabla Original al migrar
         /// </summary>
-        public Guid? IdMigracion { get; set; }
+        public int? IdMigracion { get; set; }
 
-        public virtual TTransicionCalificacionFase IdTransicionCalificacionFaseNavigation { get; set; } = null!;
         public virtual ICollection<TLineamientoCalificacionFase> TLineamientoCalificacionFases { get; set; }
+        public virtual ICollection<TTransicionFaseCriterioOportunidad> TTransicionFaseCriterioOportunidads { get; set; }
     }
 }
