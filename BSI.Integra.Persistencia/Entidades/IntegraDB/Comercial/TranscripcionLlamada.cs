@@ -18,6 +18,7 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB.Comercial
         public string? Duration { get; set; }
         public string? Summary { get; set; }
         public bool? OcurrenciaConsistente { get; set; }
+        public string? ComentarioConsistenciaOcurrencia { get; set; }
         public List<FraseCombinada> FraseCombinada { get; set; }
         public List<FraseReconocida> FraseReconocida { get; set; }
         public List<RecomendacionTranscripcion> RecomendacionTranscripcions { get; set; }

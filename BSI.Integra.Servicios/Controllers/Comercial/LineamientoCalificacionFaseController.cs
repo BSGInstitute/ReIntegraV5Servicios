@@ -60,9 +60,9 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             {
                 var lineamientoCalificacionFaseService = new LineamientoCalificacionFaseService(_unitOfWork);
                 var lineamientoCalificacionFase = new LineamientoCalificacionFase();
-                lineamientoCalificacionFase.IdCriterioCalificacionFaseOportunidad = lineamientoCalificacionFaseDTO.IdCriterioAnalisisCambioFase;
+                lineamientoCalificacionFase.IdCriterioCalificacionFaseOportunidad = lineamientoCalificacionFaseDTO.IdCriterioCalificacionFaseOportunidad;
                 lineamientoCalificacionFase.Orden = lineamientoCalificacionFaseDTO.Orden;
-                lineamientoCalificacionFase.IdCriticidadCalificacion = lineamientoCalificacionFaseDTO.IdCriticidadLineamiento;
+                lineamientoCalificacionFase.IdCriticidadCalificacion = lineamientoCalificacionFaseDTO.IdCriticidadCalificacion;
                 lineamientoCalificacionFase.Nombre = lineamientoCalificacionFaseDTO.NombreLineamiento;
                 lineamientoCalificacionFase.Descripcion = lineamientoCalificacionFaseDTO.Descripcion;
                 lineamientoCalificacionFase.Estado = true;
@@ -100,9 +100,9 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
                 var lineamientoCalificacionFaseService = new LineamientoCalificacionFaseService(_unitOfWork);
                 var lineamientoCalificacionFase = new LineamientoCalificacionFase();
                 lineamientoCalificacionFase = lineamientoCalificacionFaseService.ObtenerPorId(lineamientoCalificacionFaseDTO.Id.Value);
-                lineamientoCalificacionFase.IdCriterioCalificacionFaseOportunidad = lineamientoCalificacionFaseDTO.IdCriterioAnalisisCambioFase;
+                lineamientoCalificacionFase.IdCriterioCalificacionFaseOportunidad = lineamientoCalificacionFaseDTO.IdCriterioCalificacionFaseOportunidad;
                 lineamientoCalificacionFase.Orden = lineamientoCalificacionFaseDTO.Orden;
-                lineamientoCalificacionFase.IdCriticidadCalificacion = lineamientoCalificacionFaseDTO.IdCriticidadLineamiento;
+                lineamientoCalificacionFase.IdCriticidadCalificacion = lineamientoCalificacionFaseDTO.IdCriticidadCalificacion;
                 lineamientoCalificacionFase.Nombre = lineamientoCalificacionFaseDTO.NombreLineamiento;
                 lineamientoCalificacionFase.Descripcion = lineamientoCalificacionFaseDTO.Descripcion;
                 lineamientoCalificacionFase.Estado = true;
@@ -186,7 +186,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         {
             try
             {
-                var resultado = new { transicionesFase = _lineamientoCalificacionFaseService.ListaLineamientos() };
+                var resultado = _lineamientoCalificacionFaseService.ListaLineamientos();
                 return Ok(resultado);
             }
             catch (Exception ex)
