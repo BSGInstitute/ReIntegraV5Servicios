@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.Comercial.SCode.Service.Interface;
 using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
@@ -93,7 +94,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 throw new Exception(ex.Message);
             }
         }
-        public IEnumerable<ComboDTO> ListaLineamientos()
+        public List<LineamientoCalificacionFaseDTO> ListaLineamientos()
         {
             try
             {

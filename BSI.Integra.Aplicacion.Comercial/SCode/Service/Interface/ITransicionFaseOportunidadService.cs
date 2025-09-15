@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
 {
-    public interface ITransicionCalificacionFaseService
+    public interface ITransicionFaseOportunidadService
     {
-        TransicionCalificacionFase Update(TransicionCalificacionFase entidad);
+        TransicionFaseOportunidad Update(TransicionFaseOportunidad entidad);
         bool Delete(int id, string usuario);
         List<TransicionCalificacionFaseDTO> ObtenerTransicionesCalificacionFase();
-        TransicionCalificacionFase ObtenerTransicionCalificacionFasePorId(int id);
+        TransicionFaseOportunidad ObtenerTransicionCalificacionFasePorId(int id);
     }
 }

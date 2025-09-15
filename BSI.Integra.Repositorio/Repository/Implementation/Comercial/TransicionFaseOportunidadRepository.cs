@@ -21,14 +21,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
     /// <summary>
     /// Gestión general de T_TransicionFaseOportunidad
     /// </summary>
-    public class TransicionCalificacionFaseRepository : GenericRepository<TTransicionFaseOportunidad>, ITransicionCalificacionFaseRepository
+    public class TransicionFaseOportunidadRepository : GenericRepository<TTransicionFaseOportunidad>, ITransicionFaseOportunidadRepository
     {
         private Mapper _mapper;
-        public TransicionCalificacionFaseRepository(IntegraDBContext context, IConnectionFactory connectionFactory, IDapperRepository dapperRepository) : base(context, connectionFactory, dapperRepository)
+        public TransicionFaseOportunidadRepository(IntegraDBContext context, IConnectionFactory connectionFactory, IDapperRepository dapperRepository) : base(context, connectionFactory, dapperRepository)
         {
             var config = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<TTransicionFaseOportunidad, TransicionCalificacionFase>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TTransicionFaseOportunidad, TransicionFaseOportunidad>(MemberList.None).ReverseMap();
                 cfg.CreateMap<TCriterioCalificacionFaseOportunidad, CriterioCalificacionFaseOportunidad>(MemberList.None).ReverseMap();
                 cfg.CreateMap<TLineamientoCalificacionFase, LineamientoCalificacionFase>(MemberList.None).ReverseMap();
             });
@@ -36,7 +36,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         }
 
         #region Metodos Base
-        private TTransicionFaseOportunidad MapeoEntidad(TransicionCalificacionFase entidad)
+        private TTransicionFaseOportunidad MapeoEntidad(TransicionFaseOportunidad entidad)
         {
             try
             {
@@ -49,7 +49,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
-        public TTransicionFaseOportunidad Add(TransicionCalificacionFase entidad)
+        public TTransicionFaseOportunidad Add(TransicionFaseOportunidad entidad)
         {
             try
             {
@@ -62,7 +62,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
-        public IEnumerable<TTransicionFaseOportunidad> Add(IEnumerable<TransicionCalificacionFase> listadoEntidad)
+        public IEnumerable<TTransicionFaseOportunidad> Add(IEnumerable<TransicionFaseOportunidad> listadoEntidad)
         {
             try
             {
@@ -80,7 +80,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public TTransicionFaseOportunidad Update(TransicionCalificacionFase entidad)
+        public TTransicionFaseOportunidad Update(TransicionFaseOportunidad entidad)
         {
             try
             {
@@ -95,7 +95,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public IEnumerable<TTransicionFaseOportunidad> Update(IEnumerable<TransicionCalificacionFase> listadoEntidad)
+        public IEnumerable<TTransicionFaseOportunidad> Update(IEnumerable<TransicionFaseOportunidad> listadoEntidad)
         {
             try
             {
@@ -175,7 +175,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public TransicionCalificacionFase ObtenerPorId(int id)
+        public TransicionFaseOportunidad ObtenerPorId(int id)
         {
             try
             {
@@ -197,7 +197,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 string resultado = _dapperRepository.FirstOrDefault(query, new { Id = id });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
-                    return JsonConvert.DeserializeObject<TransicionCalificacionFase>(resultado)!;
+                    return JsonConvert.DeserializeObject<TransicionFaseOportunidad>(resultado)!;
                 }
                 return null;
             }

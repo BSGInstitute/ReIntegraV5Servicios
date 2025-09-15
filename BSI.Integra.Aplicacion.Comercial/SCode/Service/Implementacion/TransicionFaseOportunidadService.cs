@@ -24,36 +24,36 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
     /// <summary>
     /// Servicio para la gestión de TransicionCalificacionFase
     /// </summary>
-    public class TransicionCalificacionFaseService : ITransicionCalificacionFaseService
+    public class TransicionFaseOportunidadService : ITransicionFaseOportunidadService
     {
         private IUnitOfWork _unitOfWork;
-        private ITransicionCalificacionFaseRepository _transicionCalificacionFaseRepository;
+        private ITransicionFaseOportunidadRepository _transicionCalificacionFaseRepository;
         private Mapper _mapper;
 
-        public ITransicionCalificacionFaseRepository TransicionCalificacionFaseRepository { get => _transicionCalificacionFaseRepository; set => _transicionCalificacionFaseRepository = value; }
+        public ITransicionFaseOportunidadRepository TransicionCalificacionFaseRepository { get => _transicionCalificacionFaseRepository; set => _transicionCalificacionFaseRepository = value; }
 
-        public TransicionCalificacionFaseService(IUnitOfWork unitOfWork)
+        public TransicionFaseOportunidadService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            TransicionCalificacionFaseRepository = _unitOfWork.TransicionFaseRepository;
+            TransicionCalificacionFaseRepository = _unitOfWork.TransicionFaseOportunidadRepository;
 
             var mapperConfig = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<TTransicionFaseOportunidad, TransicionCalificacionFase>().ReverseMap();
-                cfg.CreateMap<TransicionCalificacionFase, TransicionCalificacionFaseCreateDTO>().ReverseMap();
+                cfg.CreateMap<TTransicionFaseOportunidad, TransicionFaseOportunidad>().ReverseMap();
+                cfg.CreateMap<TransicionFaseOportunidad, TransicionCalificacionFaseCreateDTO>().ReverseMap();
             });
             _mapper = new Mapper(mapperConfig);
         }
 
-        public TransicionCalificacionFase Update(TransicionCalificacionFase entidad)
+        public TransicionFaseOportunidad Update(TransicionFaseOportunidad entidad)
         {
 
 
             try
             {
-                var modelo = _unitOfWork.TransicionFaseRepository.Update(entidad);
+                var modelo = _unitOfWork.TransicionFaseOportunidadRepository.Update(entidad);
                 _unitOfWork.Commit();
-                return _mapper.Map<TransicionCalificacionFase>(modelo);
+                return _mapper.Map<TransicionFaseOportunidad>(modelo);
             }
             catch (Exception ex)
             {
@@ -66,7 +66,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         {
             try
             {
-                _unitOfWork.TransicionFaseRepository.Delete(id, usuario);
+                _unitOfWork.TransicionFaseOportunidadRepository.Delete(id, usuario);
                 _unitOfWork.Commit();
                 return true;
             }
@@ -88,11 +88,11 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
         }
 
-        public TransicionCalificacionFase ObtenerTransicionCalificacionFasePorId(int idTransicionCalificacionFase)
+        public TransicionFaseOportunidad ObtenerTransicionCalificacionFasePorId(int idTransicionCalificacionFase)
         {
             try
             {
-                return _unitOfWork.TransicionFaseRepository.ObtenerTransicionCalificacionFasePorId(idTransicionCalificacionFase);
+                return _unitOfWork.TransicionFaseOportunidadRepository.ObtenerPorId(idTransicionCalificacionFase);
 
             }
             catch (Exception ex)
@@ -101,13 +101,13 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
         }
 
-        public TransicionCalificacionFase Add(TransicionCalificacionFase entidad)
+        public TransicionFaseOportunidad Add(TransicionFaseOportunidad entidad)
         {
             try
             {
-                var modelo = _unitOfWork.TransicionFaseRepository.Add(entidad);
+                var modelo = _unitOfWork.TransicionFaseOportunidadRepository.Add(entidad);
                 _unitOfWork.Commit();
-                return _mapper.Map<TransicionCalificacionFase>(modelo);
+                return _mapper.Map<TransicionFaseOportunidad>(modelo);
             }
             catch (Exception ex)
             {

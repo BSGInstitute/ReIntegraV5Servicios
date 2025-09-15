@@ -1,4 +1,5 @@
 ﻿using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Interface
         LineamientoCalificacionFase Update(LineamientoCalificacionFase entidad);
         //LineamientoCalificacionFase ObtenerLineamientoCalificacionFasePorId(int idLineamientoCalificacionFase);
         LineamientoCalificacionFase ObtenerLineamientoCalificacionFasePorId(int idLineamientoCalificacionFase);
-        IEnumerable<ComboDTO> ListaLineamientos();
+        List<LineamientoCalificacionFaseDTO> ListaLineamientos();
 
 
     }

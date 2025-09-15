@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
 {
-    public class TransicionCalificacionFaseCreateDTO
+  /*  public class TransicionCalificacionFaseCreateDTO
     {
         public int IdFaseOportunidadOrigen { get; set; }
         public int IdFaseOportunidadDestino { get; set; }
@@ -20,5 +20,5 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public int IdFaseOportunidadOrigen { get; set; }
         public int IdFaseOportunidadDestino { get; set; }
         public string Usuario { get; set; }
-    }
+    } */
 }

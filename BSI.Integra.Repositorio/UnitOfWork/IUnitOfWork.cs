@@ -939,7 +939,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         ICriterioCalificacionFaseRepository CriterioFaseRepository { get; }
         IGenericRepository<TCriticidadCalificacion> CriticidadCalificacionRepository { get; }
 
-        ITransicionCalificacionFaseRepository TransicionFaseRepository { get; }
+        ITransicionFaseOportunidadRepository TransicionFaseOportunidadRepository { get; }
         ILineamientoCalificacionFaseRepository LineamientoCalificacionFaseRepository { get; }
     }
 }

@@ -28,15 +28,15 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
     [Route("api/[controller]")]
     [ApiController]
     [EnableCors("CorsVista")]
-    public class TransicionFaseController : ControllerBase
+    public class TransicionFaseOportunidadController : ControllerBase
     {
         private IUnitOfWork _unitOfWork;
-        private ITransicionCalificacionFaseService _transicionCalificacionFaseService;
+        private ITransicionFaseOportunidadService _transicionCalificacionFaseService;
 
-        public TransicionFaseController(IUnitOfWork unitOfWork)
+        public TransicionFaseOportunidadController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _transicionCalificacionFaseService = new TransicionCalificacionFaseService(_unitOfWork);
+            _transicionCalificacionFaseService = new TransicionFaseOportunidadService(_unitOfWork);
         }
 
         [Route("[action]")]
@@ -50,8 +50,8 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             }
             try
             {
-                var transicionCalificacionFaseService = new TransicionCalificacionFaseService(_unitOfWork);
-                var transicionCalificacionFase = new TransicionCalificacionFase();
+                var transicionCalificacionFaseService = new TransicionFaseOportunidadService(_unitOfWork);
+                var transicionCalificacionFase = new TransicionFaseOportunidad();
                 transicionCalificacionFase.IdFaseOportunidadOrigen = TransicionCalificacionFaseCreateDTO.IdFaseOportunidadOrigen;
                 transicionCalificacionFase.IdFaseOportunidadDestino = TransicionCalificacionFaseCreateDTO.IdFaseOportunidadDestino;
                 transicionCalificacionFase.Estado = true;
@@ -77,8 +77,8 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             }
             try
             {
-                var transicionCalificacionFaseService = new TransicionCalificacionFaseService(_unitOfWork);
-                var transicionCalificacionFase = new TransicionCalificacionFase();
+                var transicionCalificacionFaseService = new TransicionFaseOportunidadService(_unitOfWork);
+                var transicionCalificacionFase = new TransicionFaseOportunidad();
                 transicionCalificacionFase = transicionCalificacionFaseService.ObtenerTransicionCalificacionFasePorId(transicionCalificacionFaseDTO.Id);
                 transicionCalificacionFase.IdFaseOportunidadOrigen = transicionCalificacionFaseDTO.IdFaseOportunidadOrigen;
                 transicionCalificacionFase.IdFaseOportunidadDestino = transicionCalificacionFaseDTO.IdFaseOportunidadDestino;
@@ -110,7 +110,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             try
             {
 
-                var transicionCalificacionFaseService = new TransicionCalificacionFaseService(_unitOfWork);
+                var transicionCalificacionFaseService = new TransicionFaseOportunidadService(_unitOfWork);
                 var resultado = transicionCalificacionFaseService.Delete(id, usuario);
                 return Ok(resultado);
             }

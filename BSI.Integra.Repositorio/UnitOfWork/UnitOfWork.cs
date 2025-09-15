@@ -7879,12 +7879,12 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
-        private ITransicionCalificacionFaseRepository _transicionCalificacionFaseRepository;
-        ITransicionCalificacionFaseRepository IUnitOfWork.TransicionFaseRepository
+        private ITransicionFaseOportunidadRepository _transicionFaseOportunidadRepository;
+        ITransicionFaseOportunidadRepository IUnitOfWork.TransicionFaseOportunidadRepository
         {
             get
             {
-                return _transicionCalificacionFaseRepository ?? new TransicionCalificacionFaseRepository(_context, _connectionFactory, _dapperRepository);
+                return _transicionFaseOportunidadRepository ?? new TransicionFaseOportunidadRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
     }
