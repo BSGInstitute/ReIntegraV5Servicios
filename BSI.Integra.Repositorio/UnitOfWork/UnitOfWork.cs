@@ -7967,14 +7967,14 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
-        private IGenericRepository<TCriticidadCalificacion> _criticidadCalificacionRepository;
-        IGenericRepository<TCriticidadCalificacion> IUnitOfWork.CriticidadCalificacionRepository
-        {
-            get
-            {
-                return _criticidadCalificacionRepository ?? new GenericRepository<TCriticidadCalificacion>(_context, _connectionFactory, _dapperRepository);
-            }
-        }
+        //private IGenericRepository<TCriticidadCalificacion> _criticidadCalificacionRepository;
+        //IGenericRepository<TCriticidadCalificacion> IUnitOfWork.CriticidadCalificacionRepository
+        //{
+        //    get
+        //    {
+        //        return _criticidadCalificacionRepository ?? new GenericRepository<TCriticidadCalificacion>(_context, _connectionFactory, _dapperRepository);
+        //    }
+        //}
 
         private ITransicionCalificacionFaseRepository _transicionCalificacionFaseRepository;
         ITransicionCalificacionFaseRepository IUnitOfWork.TransicionFaseRepository

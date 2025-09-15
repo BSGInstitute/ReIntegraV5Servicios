@@ -185,10 +185,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 List<CriterioCalificacionFaseDTO> criteriosFiltro = new();
                 var query = @"SELECT Id,
-                        IdTransicionCalificacionFase,
                         Orden,
                         Nombre,
-                        Descripcion
+                        Descripcion,
+                        UsuarioCreacion AS Usuario
                     FROM com.T_CriterioCalificacionFaseOportunidad
                     WHERE Estado = 1 
                     ORDER BY Id DESC";
@@ -251,10 +251,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var rpta = new CriterioCalificacionFase();
-                var query = @"SELECT Id,
-                           Orden,
-                           Nombre,
-                           Descripcion
+                var query = @"SELECT   Id,
+		                               Nombre,
+		                               Descripcion,
+		                               Orden,
+		                               Estado,
+		                               FechaCreacion,
+		                               FechaModificacion,
+		                               UsuarioCreacion,
+		                               UsuarioModificacion    
                     FROM com.T_CriterioCalificacionFaseOportunidad
                     WHERE Estado = 1 AND Id = @Id";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { Id = idCriterioCalificacionFase });
