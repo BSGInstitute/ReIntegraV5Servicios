@@ -116,6 +116,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         transcriptionEntity.RecomendacionTranscripcions.Add(recomendacionTranscripcion);
                     }
                 }
+
                 _unitOfWork.TranscripcionLlamadaRepository.Add(transcriptionEntity);
                 _unitOfWork.Commit();
             }
