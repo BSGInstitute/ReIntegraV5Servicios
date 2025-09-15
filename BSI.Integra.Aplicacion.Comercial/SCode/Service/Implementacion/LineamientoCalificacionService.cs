@@ -1250,6 +1250,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         })
                         .ToList();
 
+
                     return new LlamadaCalificadaDTO
                     {
                         IdLlamada = g.Key,
@@ -1273,10 +1274,27 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         OcurrenciaPadreAlterno = first.OcurrenciaPadreAlterno,
                         OcurrenciaAlterno = first.OcurrenciaAlterno,
                         EstadoOcurrenciaAlterno = first.EstadoOcurrenciaAlterno,
-                        PuntosCriticos = puntosCriticos
+                        PuntosCriticos = puntosCriticos,
+                        ComentarioLlamadaNoCalificada = null,
+                        OcurrenciaConsistente=first.OcurrenciaConsistente,
+                        ComentarioConsistenciaOcurrencia=first.ComentarioConsistenciaOcurrencia
+
                     };
                 })
                 .ToList();
+            // Asignar ComentarioLlamadaNoCalificada después del agrupado
+            foreach (var llamada in agrupado)
+            {
+                if (!llamada.Promedio.HasValue)
+                {
+                    var comentariosNoCalificada = filas
+                        .Where(x => x.IdLlamada == llamada.IdLlamada  && !string.IsNullOrWhiteSpace(x.Comentario))
+                        .Select(x => x.Comentario)
+                        .FirstOrDefault();
+
+                    llamada.ComentarioLlamadaNoCalificada = comentariosNoCalificada;
+                }
+            }
 
             return new ReporteCalificacionResponse
             {

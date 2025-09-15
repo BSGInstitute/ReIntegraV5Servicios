@@ -531,6 +531,10 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public string? OcurrenciaPadreAlterno { get; set; }
         public string? OcurrenciaAlterno { get; set; }
         public string? EstadoOcurrenciaAlterno { get; set; }
+        public string? ComentarioLlamadaNoCalificada { get; set; }
+        public bool? OcurrenciaConsistente { get; set; }
+
+        public string? ComentarioConsistenciaOcurrencia { get; set; }
 
 
 
@@ -572,6 +576,11 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public string? OcurrenciaPadreAlterno { get; set; }
         public string? OcurrenciaAlterno { get; set; }
         public string? EstadoOcurrenciaAlterno { get; set; }
+        public string? ComentarioLlamadaNoCalificada { get; set; }
+        public bool? OcurrenciaConsistente { get; set; }
+
+        public string? ComentarioConsistenciaOcurrencia { get; set; }
+
 
         public List<PuntoCriticoDTO> PuntosCriticos { get; set; }
     }
