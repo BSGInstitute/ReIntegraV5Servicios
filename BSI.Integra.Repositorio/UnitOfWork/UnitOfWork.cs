@@ -7967,6 +7967,14 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private ITransicionFaseCriterioOportunidadRepository _transicionFaseCriterioOportunidadRepository;
+        ITransicionFaseCriterioOportunidadRepository IUnitOfWork.TransicionFaseCriterioOportunidadRepository
+        {
+            get
+            {
+                return _transicionFaseCriterioOportunidadRepository ?? new TransicionFaseCriterioOportunidadRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
         //private IGenericRepository<TCriticidadCalificacion> _criticidadCalificacionRepository;
         //IGenericRepository<TCriticidadCalificacion> IUnitOfWork.CriticidadCalificacionRepository
         //{
