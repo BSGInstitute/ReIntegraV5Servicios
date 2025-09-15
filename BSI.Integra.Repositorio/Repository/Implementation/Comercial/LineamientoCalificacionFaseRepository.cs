@@ -159,7 +159,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 List<LineamientoCalificacionFaseDTO> lineamientoFiltro = new();
                 var query = @"
                     SELECT 
-                        Id, Nombre, Orden, Descripcion, IdCriterioCalificacionFaseOportunidad, IdCriticidadCalificacion, UsuarioModificacion
+                        Id, Nombre AS NombreLineamiento, Orden, Descripcion, IdCriterioCalificacionFaseOportunidad, IdCriticidadCalificacion, UsuarioModificacion
                     FROM 
                         com.T_LineamientoCalificacionFase
                     WHERE 
