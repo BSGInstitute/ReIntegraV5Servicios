@@ -45,50 +45,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             _mapper = new Mapper(mapperConfig);
         }
 
-        public TransicionCalificacionFaseCreateDTO InsertarTransicionCalificacionFase(TransicionCalificacionFaseCreateDTO transicionCalificacionFaseCreateDTO, string usuario)
-        {
-            try
-            {
-                using (var scope = new TransactionScope(TransactionScopeOption.RequiresNew, TransactionScopeAsyncFlowOption.Enabled))
-                {
-
-                    TransicionCalificacionFase TransicionCalificacionFase = new TransicionCalificacionFase();
-                    // Mapear el DTO a la entidad del modelo (TransicionCalificacionFase)
-
-
-                    // Establecer propiedades adicionales
-                    TransicionCalificacionFase.IdFaseOportunidadOrigen = transicionCalificacionFaseCreateDTO.IdFaseOportunidadOrigen;
-                    TransicionCalificacionFase.IdFaseOportunidadDestino = transicionCalificacionFaseCreateDTO.IdFaseOportunidadDestino;
-                    TransicionCalificacionFase.Estado = true;
-                    TransicionCalificacionFase.UsuarioCreacion = usuario;
-                    TransicionCalificacionFase.UsuarioModificacion = usuario;
-                    TransicionCalificacionFase.FechaCreacion = DateTime.Now;
-                    TransicionCalificacionFase.FechaModificacion = DateTime.Now;
-
-                    // Insertar la entidad en la base de datos usando el método Add que acepta una entidad única
-                    //var entidadInsertada = _transicionCalificacionFaseRepository.Add(TransicionCalificacionFase);
-                    //var retorno = _mapper.Map<TransicionCalificacionFaseCreateDTO>(TransicionCalificacionFase);
-                    //var retorno = _mapper.Map<TransicionCalificacionFaseCreateDTO>(_transicionCalificacionFaseRepository.Add(TransicionCalificacionFase));
-                    var retorno = _unitOfWork.TransicionFaseRepository.Add(TransicionCalificacionFase);
-                    _unitOfWork.Commit();
-                    scope.Complete();
-
-                    // Mapear la entidad insertada de vuelta al DTO
-
-                    return _mapper.Map<TransicionCalificacionFaseCreateDTO>(retorno);
-                    /*var retorno = _mapper.Map<CriterioEvaluacionDTO>(_unitOfWork.CriterioEvaluacionRepository.Add(criterioEvaluacion));
-                    _unitOfWork.Commit();
-                    scope.Complete();
-                    return (retorno);*/
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error al insertar transición de fase: {ex.Message}");
-            }
-        }
-
-        public TransicionCalificacionFase ActualizarTransicionCalificacionFase(TransicionCalificacionFase entidad)
+        public TransicionCalificacionFase Update(TransicionCalificacionFase entidad)
         {
 
 
@@ -141,42 +98,6 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             catch (Exception ex)
             {
                 throw ex;
-            }
-        }
-
-        public async Task<Dictionary<string, object>> ObtenerFasesOportunidad()
-        {
-            try
-            {
-                // Implementar la lógica para obtener los combos necesarios para el módulo
-                // Por ejemplo: fases origen, fases destino, criticidades, etc.
-                var combos = new Dictionary<string, object>();
-
-                // Ejemplo:
-                var fasesRepositorio = _unitOfWork.FaseOportunidadRepository;
-                var fasesOportunidad = fasesRepositorio.GetAll().Where(x => x.Estado).Select(x => new ComboDTO { Id = x.Id, Nombre = x.Nombre }).ToList();
-
-                combos.Add("fasesOportunidad", fasesOportunidad);
-
-                // Aquí se pueden agregar más combos según se necesite
-
-                return combos;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public IEnumerable<TransicionCalificacionFaseDTO> ObtenerCombo()
-        {
-            try
-            {
-                return TransicionCalificacionFaseRepository.ObtenerCombo();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
             }
         }
 

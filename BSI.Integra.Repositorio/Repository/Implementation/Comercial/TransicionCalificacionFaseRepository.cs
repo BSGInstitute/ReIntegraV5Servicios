@@ -179,11 +179,21 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 List<TransicionCalificacionFaseDTO> transicionesFiltro = new();
-                var query = @"SELECT Id,
-                        IdFaseOportunidad_Origen,
-                        IdFaseOportunidad_Destino
-                    FROM com.T_TransicionCalificacionFase
-                    WHERE Estado = 1 order by Id desc";
+                var query = @"SELECT 
+                    tcf.Id, 
+                    fo.Nombre,
+                    tcf.IdFaseOportunidadOrigen AS IdFaseOportunidadOrigen,
+                    tcf.IdFaseOportunidadDestino AS IdFaseOportunidadDestino,
+                    CONCAT(
+                        fo.Nombre, ' (', tcf.IdFaseOportunidadOrigen, ') -> ', 
+                        fd.Nombre, ' (', tcf.IdFaseOportunidadDestino, ')'
+                    ) AS Nombre
+                FROM 
+                    com.T_TransicionFaseOportunidad tcf
+                    INNER JOIN pla.T_FaseOportunidad fo ON tcf.IdFaseOportunidadOrigen = fo.Id
+                    INNER JOIN pla.T_FaseOportunidad fd ON tcf.IdFaseOportunidadDestino = fd.Id
+                WHERE 
+                    tcf.Estado = 1";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
@@ -232,19 +242,21 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                string query = @"SELECT Id,
-                                   IdFaseOportunidadOrigen,
-                                   IdFaseOportunidadDestino,
-                                   Estado,
-                                   UsuarioCreacion,
-                                   UsuarioModificacion,
-                                   FechaCreacion,
-                                   FechaModificacion,
-                                   RowVersion,
-                                   IdMigracion
-                            FROM com.T_TransicionCalificacionFase
-                            WHERE Estado = 1
-                                  AND Id = @Id;";
+                string query = @"SELECT 
+                    tcf.Id, 
+                    fo.Nombre,
+                    tcf.IdFaseOportunidadOrigen AS IdFaseOportunidadOrigen,
+                    tcf.IdFaseOportunidadDestino AS IdFaseOportunidadDestino,
+                    CONCAT(
+                        fo.Nombre, ' (', tcf.IdFaseOportunidadOrigen, ') -> ', 
+                        fd.Nombre, ' (', tcf.IdFaseOportunidadDestino, ')'
+                    ) AS Nombre
+                FROM 
+                    com.T_TransicionFaseOportunidad tcf
+                    INNER JOIN pla.T_FaseOportunidad fo ON tcf.IdFaseOportunidadOrigen = fo.Id
+                    INNER JOIN pla.T_FaseOportunidad fd ON tcf.IdFaseOportunidadDestino = fd.Id
+                WHERE 
+                    tcf.Estado = 1 AND Id = @Id;";
                 string resultado = _dapperRepository.FirstOrDefault(query, new { Id = id });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
@@ -255,39 +267,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception ex)
             {
                 throw new Exception($"#TCF-OPI-001@Error en ObtenerPorId: {ex.Message}", ex);
-            }
-        }
-
-        public IEnumerable<TransicionCalificacionFaseDTO> ObtenerCombo()
-        {
-            try
-            {
-                var query = @"
-                SELECT 
-                    tcf.Id, 
-                    fo.Nombre,
-                    tcf.IdFaseOportunidad_Origen AS IdFaseOportunidadOrigen,
-                    tcf.IdFaseOportunidad_Destino AS IdFaseOportunidadDestino,
-                    CONCAT(
-                        fo.Nombre, ' (', tcf.IdFaseOportunidad_Origen, ') -> ', 
-                        fd.Nombre, ' (', tcf.IdFaseOportunidad_Destino, ')'
-                    ) AS Nombre
-                FROM 
-                    com.T_TransicionCalificacionFase tcf
-                    INNER JOIN pla.T_FaseOportunidad fo ON tcf.IdFaseOportunidad_Origen = fo.Id
-                    INNER JOIN pla.T_FaseOportunidad fd ON tcf.IdFaseOportunidad_Destino = fd.Id
-                WHERE 
-                    tcf.Estado = 1";
-                var resultado = _dapperRepository.QueryDapper(query, null);
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                {
-                    return JsonConvert.DeserializeObject<IEnumerable<TransicionCalificacionFaseDTO>>(resultado)!;
-                }
-                return new List<TransicionCalificacionFaseDTO>();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"#TCF-OC-001@Error en ObtenerCombo: {ex.Message}", ex);
             }
         }
     }

@@ -12,12 +12,9 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
 {
     public interface ITransicionCalificacionFaseService
     {
-        TransicionCalificacionFaseCreateDTO InsertarTransicionCalificacionFase(TransicionCalificacionFaseCreateDTO request, string usuario);
-        TransicionCalificacionFase ActualizarTransicionCalificacionFase(TransicionCalificacionFase entidad);
+        TransicionCalificacionFase Update(TransicionCalificacionFase entidad);
         bool Delete(int id, string usuario);
         List<TransicionCalificacionFaseDTO> ObtenerTransicionesCalificacionFase();
         TransicionCalificacionFase ObtenerTransicionCalificacionFasePorId(int id);
-        Task<Dictionary<string, object>> ObtenerFasesOportunidad();
-        IEnumerable<TransicionCalificacionFaseDTO> ObtenerCombo();
     }
 }

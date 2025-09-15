@@ -217,11 +217,9 @@ namespace BSI.Integra.Aplicacion.Servicios.Implementacion
         {
             try
             {
-                // Eliminar detalles (lineamientos) primero
-                _repCriterioCalificacionFase.EliminarDetalles(id);
-
-                // Luego eliminar el criterio principal
-                return _repCriterioCalificacionFase.Delete(id, usuario);
+                _unitOfWork.CriterioFaseRepository.Delete(id, usuario);
+                _unitOfWork.Commit();
+                return true;
             }
             catch (Exception ex)
             {

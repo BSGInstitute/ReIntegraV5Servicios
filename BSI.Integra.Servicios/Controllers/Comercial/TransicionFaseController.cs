@@ -50,27 +50,6 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             }
             try
             {
-                var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
-                var resultado = _transicionCalificacionFaseService.InsertarTransicionCalificacionFase(TransicionCalificacionFaseCreateDTO, registroClaimToken.UserName);
-                return Ok(resultado);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [Route("[action]")]
-        [Authorize]
-        [HttpPost]
-        public IActionResult Insertar2([FromBody] TransicionCalificacionFaseCreateDTO TransicionCalificacionFaseCreateDTO)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
                 var transicionCalificacionFaseService = new TransicionCalificacionFaseService(_unitOfWork);
                 var transicionCalificacionFase = new TransicionCalificacionFase();
                 transicionCalificacionFase.IdFaseOportunidadOrigen = TransicionCalificacionFaseCreateDTO.IdFaseOportunidadOrigen;
@@ -105,7 +84,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
                 transicionCalificacionFase.IdFaseOportunidadDestino = transicionCalificacionFaseDTO.IdFaseOportunidadDestino;
                 transicionCalificacionFase.UsuarioModificacion = transicionCalificacionFaseDTO.Usuario;
                 transicionCalificacionFase.FechaModificacion = DateTime.Now;
-                var resultado = transicionCalificacionFaseService.ActualizarTransicionCalificacionFase(transicionCalificacionFase);
+                var resultado = transicionCalificacionFaseService.Update(transicionCalificacionFase);
                 return Ok(resultado);
             }
             catch (Exception ex)
@@ -114,8 +93,8 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             }
         }
 
-        /// Autor: [Su Nombre]
-        /// Fecha: [Fecha Actual]
+        /// Autor: Jose Vega
+        /// Fecha: 15/09/2025
         /// Version: 1.0
         /// <summary>
         /// Realiza una eliminacion logica a la tabla TransicionCalificacionFase y sus tablas detalles
@@ -143,8 +122,8 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
 
 
         /// Tipo Función: GET 
-        /// Autor: [Su Nombre]
-        /// Fecha: [Fecha Actual]
+        /// Autor: Jose Vega
+        /// Fecha: 15/09/2025
         /// Versión: 1.0
         /// <summary>
         /// Obtiene la lista de TransicionCalificacionFase y su detalles  
@@ -166,31 +145,8 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         }
 
         /// Tipo Función: GET 
-        /// Autor: [Su Nombre]
-        /// Fecha: [Fecha Actual]
-        /// Versión: 1.0
-        /// <summary>
-        /// Obtiene la lista de combos para el módulo de Transición de Fases  
-        /// </summary> 
-        /// <returns> Dictionary<string, object> </returns>
-        [Route("[action]")]
-        [HttpGet]
-        public async Task<IActionResult> ObtenerFasesOportunidad()
-        {
-            try
-            {
-                var resultado = await _transicionCalificacionFaseService.ObtenerFasesOportunidad();
-                return Ok(resultado);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        /// Tipo Función: GET 
-        /// Autor: [Su Nombre]
-        /// Fecha: [Fecha Actual]
+        /// Autor: Jose Vega
+        /// Fecha: 15/09/2025
         /// Versión: 1.0
         /// <summary>
         /// Obtiene la información de una Transición de Fase por Id
@@ -203,29 +159,6 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             try
             {
                 var resultado = _transicionCalificacionFaseService.ObtenerTransicionCalificacionFasePorId(id);
-                return Ok(resultado);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        /// Tipo Función: GET 
-        /// Autor: [Su Nombre]
-        /// Fecha: [Fecha Actual]
-        /// Versión: 1.0
-        /// <summary>
-        /// Obtiene el combo de Transiciones de Fases
-        /// </summary> 
-        /// <returns> List<ComboDTO> </returns>
-        [Route("[action]")]
-        [HttpGet]
-        public IActionResult ObtenerCombo()
-        {
-            try
-            {
-                var resultado = _transicionCalificacionFaseService.ObtenerCombo();
                 return Ok(resultado);
             }
             catch (Exception ex)

@@ -11832,7 +11832,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsUnicode(false)
                     .HasComment("Descripción del criterio.");
 
-                entity.Property(e => e.Estado).HasComment("Campo de auditoria Estado (eliminacion logica) del registro");
+                entity.Property(e => e.Estado).HasComment("Campo de auditoria Estado (eliminacion logica) del registro")
+                    .HasDefaultValue(1);
 
                 entity.Property(e => e.FechaCreacion)
                     .HasColumnType("datetime")
@@ -25209,7 +25210,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsUnicode(false)
                     .HasComment("Descripción del lineamiento.");
 
-                entity.Property(e => e.Estado).HasComment("Campo de auditoria Estado (eliminacion logica) del registro");
+                entity.Property(e => e.Estado).HasComment("Campo de auditoria Estado (eliminacion logica) del registro")
+                    .HasDefaultValue(1);
 
                 entity.Property(e => e.FechaCreacion)
                     .HasColumnType("datetime")
@@ -53962,7 +53964,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.Id).HasComment("Clave primaria del registro de relación.");
 
-                entity.Property(e => e.Estado).HasComment("Campo de auditoría Estado (eliminación lógica) del registro.");
+                entity.Property(e => e.Estado).HasComment("Campo de auditoría Estado (eliminación lógica) del registro.")
+                    .HasDefaultValue(1);
 
                 entity.Property(e => e.FechaCreacion)
                     .HasColumnType("datetime")
@@ -54014,7 +54017,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.Id).HasComment("Clave primaria de la transición entre fases.");
 
-                entity.Property(e => e.Estado).HasComment("Campo de auditoría Estado (eliminación lógica) del registro.");
+                entity.Property(e => e.Estado).HasComment("Campo de auditoría Estado (eliminación lógica) del registro.")
+                    .HasDefaultValue(1);
 
                 entity.Property(e => e.FechaCreacion)
                     .HasColumnType("datetime")

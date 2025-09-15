@@ -2,6 +2,7 @@
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.Operaciones.Service.Implementacion;
 using BSI.Integra.Aplicacion.Servicios.Implementacion;
 using BSI.Integra.Aplicacion.Servicios.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
@@ -134,7 +135,7 @@ namespace BSI.Integra.Servicios.Controllers
 
         /// Tipo Función: DELETE 
         /// Autor: José Vega
-        /// Fecha: 20/09/2023
+        /// Fecha: 20/09/2025
         /// Versión: 1.0
         /// <summary>
         /// Realiza una eliminación lógica a la tabla T_CriterioCalificacionFaseOportunidad y sus tablas detalles  
@@ -142,13 +143,13 @@ namespace BSI.Integra.Servicios.Controllers
         /// <returns> bool </returns>
         [Route("[action]/{id}/{usuario}")]
         [HttpDelete]
-        [Authorize]
-        public ActionResult Eliminar(int id)
+        public ActionResult Eliminar(int id, string usuario)
         {
             try
             {
-                var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
-                var resultado = _criterioCalificacionFaseService.EliminarCriterio(id, registroClaimToken.UserName);
+
+                var criterioCalificacionFaseService = new CriterioCalificacionFaseService(_unitOfWork);
+                var resultado = criterioCalificacionFaseService.EliminarCriterio(id, usuario);
                 return Ok(resultado);
             }
             catch (Exception e)
@@ -159,7 +160,7 @@ namespace BSI.Integra.Servicios.Controllers
 
         /// Tipo Función: GET 
         /// Autor: José Vega
-        /// Fecha: 20/09/2023
+        /// Fecha: 20/09/2025
         /// Versión: 1.0
         /// <summary>
         /// Obtiene la lista de todos los criterios de calificación de fase  

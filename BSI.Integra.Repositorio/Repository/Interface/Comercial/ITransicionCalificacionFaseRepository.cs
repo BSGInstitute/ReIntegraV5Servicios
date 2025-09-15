@@ -24,6 +24,5 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         List<TransicionCalificacionFaseDTO> ObtenerTransicionesCalificacionFase();
         TransicionCalificacionFase ObtenerTransicionCalificacionFasePorId(int idTransicionCalificacionFase);
         TransicionCalificacionFase ObtenerPorId(int id);
-        IEnumerable<TransicionCalificacionFaseDTO> ObtenerCombo();
     }
 }

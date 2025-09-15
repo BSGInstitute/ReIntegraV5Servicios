@@ -254,7 +254,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var query = @"SELECT Id,
                            Orden,
                            Nombre,
-                           Descripcion
+                           Descripcion,
+                           UsuarioCreacion,
+                           FechaCreacion,
+                           IdMigracion
                     FROM com.T_CriterioCalificacionFaseOportunidad
                     WHERE Estado = 1 AND Id = @Id";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { Id = idCriterioCalificacionFase });
