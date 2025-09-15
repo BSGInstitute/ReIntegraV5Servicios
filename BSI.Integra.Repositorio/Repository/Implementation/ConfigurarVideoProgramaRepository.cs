@@ -194,7 +194,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                        ConLogoVideo,
                                        ConLogoDiapositiva,
                                        TotalSegundos,
-                                       VideoIdBrightcove
+                                       VideoIdBrightcove,
+                                       VideoIdVimeo,
+                                       ReproduccionVideo,
+                                       DescargaVideo
                             FROM pla.V_ListadoEstructuraPrograma
                             WHERE IdPGeneral = @IdPGeneral
                             ORDER BY NumeroFila,
@@ -341,6 +344,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                    IdDocumentoSeccionPw,
                                    VideoId,
                                    VideoIdBrightcove,
+                                   VideoIdVimeo,
+                                   ReproduccionVideo,
+                                   DescargaVideo,
                                    TotalMinutos,
                                    Archivo,
                                    NroDiapositivas,

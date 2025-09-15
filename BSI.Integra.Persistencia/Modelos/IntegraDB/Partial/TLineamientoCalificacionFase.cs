@@ -1,8 +1,9 @@
-﻿using BSI.Integra.Aplicacion.Base;
+﻿
+using BSI.Integra.Aplicacion.Base;
 
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
-    public partial class TLineamientoCalificacionFase : BaseIntegraEntity
+    public partial class TLineamientoCalificacionFase : BaseIntegraEntity 
     {
     }
 }

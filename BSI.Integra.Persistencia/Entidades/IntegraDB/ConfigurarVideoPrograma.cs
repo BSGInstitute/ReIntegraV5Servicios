@@ -42,6 +42,9 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
         public int? ImagenDiapositivaPosicionY { get; set; }
         [StringLength(150)]
         public string? VideoIdBrightcove { get; set; }
+        public string? VideoIdVimeo { get; set; }
+        public int? ReproduccionVideo { get; set; }
+        public int? DescargaVideo { get; set; }
         public bool? Activo { get; set; }
         public List<SesionConfigurarVideo> SesionConfigurarVideos { get; set; }
     }
