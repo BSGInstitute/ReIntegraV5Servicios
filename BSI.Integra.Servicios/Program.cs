@@ -134,8 +134,8 @@ builder.Services.AddTransient<ICourierService, CourierService>();
 builder.Services.AddTransient<ICourierDetalleService, CourierDetalleService>();
 builder.Services.AddTransient<IMatriculaFormularioProgresivoService, MatriculaFormularioProgresivoService>();
 
-builder.Services.AddTransient<ITransicionCalificacionFaseService, TransicionCalificacionFaseService>();
-builder.Services.AddTransient<ITransicionCalificacionFaseRepository, TransicionCalificacionFaseRepository>();
+builder.Services.AddTransient<ITransicionFaseOportunidadService, TransicionFaseOportunidadService>();
+builder.Services.AddTransient<ITransicionFaseOportunidadRepository, TransicionFaseOportunidadRepository>();
 
 
 

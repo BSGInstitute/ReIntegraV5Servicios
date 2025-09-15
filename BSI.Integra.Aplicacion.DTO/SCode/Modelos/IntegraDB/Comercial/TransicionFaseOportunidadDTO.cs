@@ -12,7 +12,6 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string Nombre { get; set; }
         public int IdFaseOportunidadOrigen { get; set; }
         public int IdFaseOportunidadDestino { get; set; }
-        public List<CriterioCalificacionFaseOportunidadDTO>? CriterioCalificacionFaseOportunidad { get; set; }
     }
 
 }

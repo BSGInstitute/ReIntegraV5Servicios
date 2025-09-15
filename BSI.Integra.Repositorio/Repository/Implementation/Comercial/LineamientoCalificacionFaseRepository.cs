@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -81,8 +82,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                         UsuarioModificacion,
                         FechaCreacion,
                         FechaModificacion,
-                        RowVersion,
-                        IdMigracion 
+                        RowVersion
                     FROM com.T_LineamientoCalificacionFase
                     WHERE Estado = 1 AND Id=@Id";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { Id = id });
@@ -132,7 +132,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                                  IdCriticidadCalificacion,
                                  Orden,
                                  Nombre,
-                                 Descripcion
+                                 Descripcion,
+                                 Estado,
+                                 UsuarioCreacion, UsuarioModificacion, FechaCreacion, FechaModificacion,RowVersion
                           FROM com.T_LineamientoCalificacionFase
                     WHERE Estado = 1 AND Id = @Id";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { Id = idLineamientoCalificacionFase });
@@ -150,25 +152,26 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 throw new Exception(E.Message);
             }
         }
-        public IEnumerable<ComboDTO> ListaLineamientos()
+        public List<LineamientoCalificacionFaseDTO> ListaLineamientos()
         {
             try
             {
+                List<LineamientoCalificacionFaseDTO> lineamientoFiltro = new();
                 var query = @"
                     SELECT 
-                        Id, Nombre
+                        Id, Nombre, Orden, Descripcion, IdCriterioCalificacionFaseOportunidad, IdCriticidadCalificacion, UsuarioModificacion
                     FROM 
-                        FROM com.T_LineamientoCalificacionFase
+                        com.T_LineamientoCalificacionFase
                     WHERE 
                         Estado = 1
                     ORDER BY
-                        Nombre";
+                        Orden";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
-                    return JsonConvert.DeserializeObject<IEnumerable<ComboDTO>>(resultado)!;
+                    lineamientoFiltro = JsonConvert.DeserializeObject<List<LineamientoCalificacionFaseDTO>>(resultado)!;
                 }
-                return new List<ComboDTO>();
+                return lineamientoFiltro;
             }
             catch (Exception ex)
             {

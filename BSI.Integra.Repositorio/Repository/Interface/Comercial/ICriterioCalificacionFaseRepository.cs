@@ -19,10 +19,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         #endregion
 
         List<CriterioCalificacionFaseDTO> ObtenerCriteriosCalificacionFase();
-        List<CriterioCalificacionFaseDTO> ObtenerCriteriosPorTransicion(int idTransicionCalificacionFase);
-        CriterioCalificacionFase ObtenerCriterioCalificacionFasePorId(int idCriterioCalificacionFase);
-        bool EliminarDetalles(int id);
         CriterioCalificacionFase ObtenerPorId(int id);
-        IEnumerable<ComboDTO> ListaCriterios();
     }
 }

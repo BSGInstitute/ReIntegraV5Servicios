@@ -15,7 +15,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 {
     /// Repositorio: CriterioCalificacionFaseRepository
     /// Autor: José Vega
-    /// Fecha: 20/09/2023
+    /// Fecha: 20/09/2025
     /// <summary>
     /// Gestión general de T_CriterioCalificacionFaseOportunidad
     /// </summary>
@@ -151,29 +151,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         #endregion
 
         /// Autor: José Vega
-        /// Fecha: 20/09/2023
-        /// Version: 1.0
-        /// <summary>
-        /// Elimina de manera lógica los registros de tablas detalle de T_CriterioCalificacionFaseOportunidad
-        /// </summary>
-        /// <param name="id"> PK de T_CriterioCalificacionFaseOportunidad </param> 
-        /// <returns> bool </returns>
-        public bool EliminarDetalles(int id)
-        {
-            try
-            {
-                string spReporte = "[com].[SP_EliminarCriterioCalificacionFaseDetalles]";
-                string resultadoReporte = _dapperRepository.QuerySPDapper(spReporte, new { IdCriterioCalificacionFase = id });
-                return true;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
-        /// Autor: José Vega
-        /// Fecha: 20/09/2023
+        /// Fecha: 20/09/2025
         /// Version: 1.0
         /// <summary>
         /// Obtiene todos los registros con los detalles de T_CriterioCalificacionFaseOportunidad
@@ -206,83 +184,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         }
 
         /// Autor: José Vega
-        /// Fecha: 20/09/2023
+        /// Fecha: 20/09/2025
         /// Version: 1.0
         /// <summary>
-        /// Obtiene todos los criterios asociados a una transición específica
-        /// </summary>
-        /// <param name="idTransicionCalificacionFase">ID de la transición</param>
-        /// <returns> List<CriterioCalificacionFaseDTO> </returns>
-        public List<CriterioCalificacionFaseDTO> ObtenerCriteriosPorTransicion(int idTransicionCalificacionFase)
-        {
-            try
-            {
-                List<CriterioCalificacionFaseDTO> criteriosFiltro = new();
-                var query = @"SELECT Id,
-                        IdTransicionCalificacionFase,
-                        Orden,
-                        Nombre,
-                        Descripcion
-                    FROM com.T_CriterioCalificacionFaseOportunidad
-                    WHERE Estado = 1 AND IdTransicionCalificacionFase = @idTransicionCalificacionFase
-                    ORDER BY Orden";
-                var resultado = _dapperRepository.QueryDapper(query, new { idTransicionCalificacionFase });
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                {
-                    criteriosFiltro = JsonConvert.DeserializeObject<List<CriterioCalificacionFaseDTO>>(resultado)!;
-                }
-                return criteriosFiltro;
-            }
-            catch (Exception E)
-            {
-                throw new Exception(E.Message);
-            }
-        }
-
-        /// Autor: José Vega
-        /// Fecha: 20/09/2023
-        /// Version: 1.0
-        /// <summary>
-        /// Obtiene todos los registros con los detalles de T_CriterioCalificacionFaseOportunidad
-        /// </summary>
-        /// <returns> CriterioCalificacionFaseDTO </returns>
-        public CriterioCalificacionFase ObtenerCriterioCalificacionFasePorId(int idCriterioCalificacionFase)
-        {
-            try
-            {
-                var rpta = new CriterioCalificacionFase();
-                var query = @"SELECT   Id,
-		                               Nombre,
-		                               Descripcion,
-		                               Orden,
-		                               Estado,
-		                               FechaCreacion,
-		                               FechaModificacion,
-		                               UsuarioCreacion,
-		                               UsuarioModificacion    
-                    FROM com.T_CriterioCalificacionFaseOportunidad
-                    WHERE Estado = 1 AND Id = @Id";
-                var resultado = _dapperRepository.FirstOrDefault(query, new { Id = idCriterioCalificacionFase });
-                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
-                {
-                  rpta = JsonConvert.DeserializeObject<CriterioCalificacionFase>(resultado)!;
-                  return rpta;
-                }
-                return null;
-
-
-            }
-            catch (Exception E)
-            {
-                throw new Exception(E.Message);
-            }
-        }
-
-        /// Autor: José Vega
-        /// Fecha: 20/09/2023
-        /// Version: 1.0
-        /// <summary>
-        /// Obtiene todos los campos de un registro por el PK
+        /// Obtiene un campo específico por ID
         /// </summary>
         /// <param name="id"> PK de T_CriterioCalificacionFaseOportunidad </param> 
         /// <returns> CriterioCalificacionFase </returns>
@@ -314,39 +219,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception ex)
             {
                 throw new Exception($"#CCFR-OPI-001@Error en ObtenerPorId: {ex.Message}", ex);
-            }
-        }
-
-        /// Autor: José Vega
-        /// Fecha: 20/09/2023
-        /// Version: 1.0
-        /// <summary>
-        /// Obtiene todo el combo de la tabla T_CriterioCalificacionFaseOportunidad
-        /// </summary>
-        /// <returns> Lista DTO - List<ComboDTO>() </returns>
-        public IEnumerable<ComboDTO> ListaCriterios()
-        {
-            try
-            {
-                var query = @"
-                    SELECT 
-                        Id, Nombre
-                    FROM 
-                        com.T_CriterioCalificacionFaseOportunidad
-                    WHERE 
-                        Estado = 1
-                    ORDER BY
-                        Nombre";
-                var resultado = _dapperRepository.QueryDapper(query, null);
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                {
-                    return JsonConvert.DeserializeObject<IEnumerable<ComboDTO>>(resultado)!;
-                }
-                return new List<ComboDTO>();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"#CCFR-OC-001@Error en ObtenerCombo: {ex.Message}", ex);
             }
         }
     }

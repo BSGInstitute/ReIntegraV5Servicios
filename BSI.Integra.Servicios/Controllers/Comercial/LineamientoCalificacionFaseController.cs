@@ -40,7 +40,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
 
         /// Tipo Función: POST
         /// Autor: Jose Vega
-        /// Fecha: 13/09/2025
+        /// Fecha: 15/09/2025
         /// Versión: 1.0
         /// <summary>
         /// Realiza una insercion basica a la tabla
@@ -79,15 +79,15 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             }
         }
 
-        /// Tipo Función: POST
+        /// Tipo Función: PUT
         /// Autor: Jose Vega
-        /// Fecha: 13/09/2025
+        /// Fecha: 15/09/2025
         /// Versión: 1.0
         /// <summary>
-        /// Realiza una insercion basica a la tabla
+        /// Actualiza los datos de la entidad LineamientoCalificacionFase
         /// </summary>
-        /// <param name="solicitudTipoReporteEntradaDTO"> Datos necesarios para la insercion de datos </param>
-        /// <returns> Entidad: SolicitudTipoReporte </returns>
+        /// <param name="lineamientoCalificacionFaseDTO"> Datos necesarios para la actualización </param>
+        /// <returns> Entidad: LineamientoCalificacionFase </returns>
         [HttpPut("[Action]")]
         public IActionResult Actualizar([FromBody] LineamientoCalificacionFaseDTO lineamientoCalificacionFaseDTO)
         {
@@ -118,7 +118,17 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             }
         }
 
-       [HttpDelete("Eliminar/{id}/{usuario}")]
+        /// Tipo Función: DELETE
+        /// Autor: Jose Vega
+        /// Fecha: 15/09/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Elimina un registro de LineamientoCalificacionFase por Id
+        /// </summary>
+        /// <param name="id"> Id de la entidad a eliminar </param>
+        /// <param name="usuario"> Usuario que ejecuta la eliminación </param>
+        /// <returns> true or false </returns>
+        [HttpDelete("Eliminar/{id}/{usuario}")]
         public IActionResult Eliminar(int id, string usuario)
         {
             if (!ModelState.IsValid)
@@ -137,6 +147,16 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
                 return BadRequest(ex.Message);
             }
         }
+
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 15/09/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los datos de LineamientoCalificacionFase por Id
+        /// </summary>
+        /// <param name="id"> Id de la entidad a consultar </param>
+        /// <returns> Entidad: LineamientoCalificacionFase </returns>
         [Route("[action]/{id}")]
         [HttpGet]
         public IActionResult ObtenerPorId(int id)
@@ -144,6 +164,29 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             try
             {
                 var resultado = _lineamientoCalificacionFaseService.ObtenerLineamientoCalificacionFasePorId(id);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: GET 
+        /// Autor: Jose Vega
+        /// Fecha: 15/09/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la lista de TransicionCalificacionFase y su detalles  
+        /// </summary> 
+        /// <returns> List<TransicionCalificacionFaseDTO> </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public IActionResult Obtener()
+        {
+            try
+            {
+                var resultado = new { transicionesFase = _lineamientoCalificacionFaseService.ListaLineamientos() };
                 return Ok(resultado);
             }
             catch (Exception ex)
