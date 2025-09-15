@@ -16,10 +16,10 @@ using System.Threading.Tasks;
 namespace BSI.Integra.Repositorio.Repository.Implementation
 {
     /// Repositorio: TransicionCalificacionFaseRepository
-    /// Autor: [Su Nombre]
-    /// Fecha: [Fecha Actual]
+    /// Autor: Jose Vega
+    /// Fecha: 15/09/2025
     /// <summary>
-    /// Gestión general de T_TransicionCalificacionFase
+    /// Gestión general de T_TransicionFaseOportunidad
     /// </summary>
     public class TransicionCalificacionFaseRepository : GenericRepository<TTransicionFaseOportunidad>, ITransicionCalificacionFaseRepository
     {
@@ -42,9 +42,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 TTransicionFaseOportunidad transicionFase = _mapper.Map<TTransicionFaseOportunidad>(entidad);
                 
-                // Aquí puedes agregar el mapeo de colecciones relacionadas si es necesario
-                // Por ejemplo, si tienes colecciones como en el ejemplo del CriterioEvaluacion
-
                 return transicionFase;
             }
             catch (Exception ex)
@@ -65,19 +62,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
-        /*        public TSolicitudTipoReporte Add(SolicitudTipoReporte entidad)
-        {
-            try
-            {
-                var SolicitudTipoReporte = MapeoEntidad(entidad);
-                base.Insert(SolicitudTipoReporte);
-                return SolicitudTipoReporte;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }*/
         public IEnumerable<TTransicionFaseOportunidad> Add(IEnumerable<TransicionCalificacionFase> listadoEntidad)
         {
             try
@@ -110,22 +94,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
-        /*         public TSolicitudTipoReporte Update(SolicitudTipoReporte entidad)
-        {
-            try
-            {
-                var SolicitudTipoReporte = MapeoEntidad(entidad);
-                var entidadExistente = base.FirstBy(w => w.Id == entidad.Id, s => new { s.RowVersion });
-                SolicitudTipoReporte.RowVersion = entidadExistente.RowVersion;
-
-                base.Update(SolicitudTipoReporte);
-                return SolicitudTipoReporte;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }*/
 
         public IEnumerable<TTransicionFaseOportunidad> Update(IEnumerable<TransicionCalificacionFase> listadoEntidad)
         {
@@ -204,37 +172,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception E)
             {
                 throw new Exception(E.Message);
-            }
-        }
-
-        public TransicionCalificacionFase ObtenerTransicionCalificacionFasePorId(int idTransicionCalificacionFase)
-        {
-            try
-            {
-                var rpta = new TransicionCalificacionFase();
-
-                var query = @"SELECT Id,
-                        IdFaseOportunidadOrigen,
-                        IdFaseOportunidadDestino,
-                                       Estado,
-                                       UsuarioCreacion,
-                                       UsuarioModificacion,
-                                       FechaCreacion,
-                                       FechaModificacion,
-                                       RowVersion,
-                                       IdMigracion 
-                    FROM com.T_TransicionFaseOportunidad
-                    WHERE Estado = 1 AND Id = @Id";
-                var resultado = _dapperRepository.FirstOrDefault(query, new { Id = idTransicionCalificacionFase });
-                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
-                {
-                    rpta = JsonConvert.DeserializeObject<TransicionCalificacionFase>(resultado)!;
-                }
-                return rpta;
-            }
-            catch (Exception Ex)
-            {
-                throw Ex;
             }
         }
 

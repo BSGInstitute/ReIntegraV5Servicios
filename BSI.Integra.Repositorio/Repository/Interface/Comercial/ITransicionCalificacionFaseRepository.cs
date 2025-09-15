@@ -22,7 +22,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         #endregion
 
         List<TransicionCalificacionFaseDTO> ObtenerTransicionesCalificacionFase();
-        TransicionCalificacionFase ObtenerTransicionCalificacionFasePorId(int idTransicionCalificacionFase);
         TransicionCalificacionFase ObtenerPorId(int id);
     }
 }
