@@ -53894,6 +53894,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.Id).HasComment("Llave primaria de la transcripción");
 
+                entity.Property(e => e.ComentarioConsistenciaOcurrencia)
+                    .HasMaxLength(4000)
+                    .IsUnicode(false)
+                    .HasComment("Comentario sobre la consistencia de la ocurrencia");
+
                 entity.Property(e => e.Duration)
                     .HasMaxLength(50)
                     .IsUnicode(false)
