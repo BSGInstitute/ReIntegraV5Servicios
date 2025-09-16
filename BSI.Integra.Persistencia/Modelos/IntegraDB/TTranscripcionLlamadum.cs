@@ -75,6 +75,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Campo de sistema que almacena la versión del registro
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
+        /// <summary>
+        /// Comentario sobre la consistencia de la ocurrencia
+        /// </summary>
+        public string? ComentarioConsistenciaOcurrencia { get; set; }
 
         public virtual TLlamadaWebphoneCruceCentralTresCx IdLlamadaWebphoneCruceCentralTresCxNavigation { get; set; } = null!;
         public virtual ICollection<TFraseCombinadum> TFraseCombinada { get; set; }

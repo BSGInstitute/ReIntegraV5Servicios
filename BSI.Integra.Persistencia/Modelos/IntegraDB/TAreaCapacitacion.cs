@@ -85,6 +85,14 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Id de la tabla Original al migrar
         /// </summary>
         public Guid? IdMigracion { get; set; }
+        /// <summary>
+        /// Color del area capacitacion
+        /// </summary>
+        public string? ColorArea { get; set; }
+        /// <summary>
+        /// Url del Icono del Area capacitacion
+        /// </summary>
+        public string? UrlIconoArea { get; set; }
 
         public virtual ICollection<TAreaCampaniaMailingDetalle> TAreaCampaniaMailingDetalles { get; set; }
         public virtual ICollection<TAreaParametroSeoPw> TAreaParametroSeoPws { get; set; }

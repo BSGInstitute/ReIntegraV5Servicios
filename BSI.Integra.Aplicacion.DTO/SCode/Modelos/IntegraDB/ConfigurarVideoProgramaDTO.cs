@@ -27,6 +27,9 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? ImagenDiapositivaPosicionX { get; set; }
         public int? ImagenDiapositivaPosicionY { get; set; }
         public string? VideoIdBrightcove { get; set; }
+        public string? VideoIdVimeo { get; set; }
+        public int? ReproduccionVideo { get; set; }
+        public int? DescargaVideo { get; set; }
         public bool? Activo { get; set; }
         public List<SesionConfigurarVideoDTO> SesionConfigurarVideos { get; set; }
     }
@@ -62,7 +65,10 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? NroDiapositiva { get; set; }
         public bool? ConLogoVideo { get; set; }
         public bool? ConLogoDiapositiva { get; set; }
-        public string VideoIdBrightcove { get; set; }
+        public string? VideoIdBrightcove { get; set; }
+        public string? VideoIdVimeo { get; set; }
+        public int? ReproduccionVideo { get; set; }
+        public int? DescargaVideo { get; set; }
     }
 
     public class EstructuraCapituloProgramaAlternoDTO
@@ -112,7 +118,10 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? NroDiapositiva { get; set; }
         public bool? ConLogoVideo { get; set; }
         public bool? ConLogoDiapositiva { get; set; }
-        public string VideoIdBrightcove { get; set; }
+        public string? VideoIdBrightcove { get; set; }
+        public string? VideoIdVimeo { get; set; }
+        public int? ReproduccionVideo { get; set; }
+        public int? DescargaVideo { get; set; }
     }
     public class ConfigurarVideoProgramaBasicoDTO
     {
@@ -122,4 +131,23 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string NroDiapositivas { get; set; }
         public string TotalMinutos { get; set; }
     }
+
+
+
+
+    public class ActualizarDescargaReproduccionDTO
+    {
+        public int IdPgeneral { get; set; }
+        public int? ReproduccionVideo { get; set; }
+        public int? DescargaVideo { get; set; }
+    }
+    public class ConfigurarConteodeVideosPorTipo
+    {
+        public int IdPgeneral { get; set; }
+        public int? CantidadReproduccion_Brightcove { get; set; }
+        public int? CantidadReproduccion_Vimeo { get; set; }
+        public int? CantidadDescarga_Brightcove { get; set; }
+        public int? CantidadDescarga_Vimeo { get; set; }
+    }
+
 }

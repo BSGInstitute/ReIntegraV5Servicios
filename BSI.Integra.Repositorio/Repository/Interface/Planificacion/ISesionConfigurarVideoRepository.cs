@@ -1,4 +1,6 @@
 ﻿using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -25,5 +27,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         IntDTO EliminarSesionesConfiguracionVideo(int idPGeneral, string usuario);
         SesionConfigurarVideo ObtenerPorId(int id);
         IEnumerable<InformacionSesionConfigurarVideoDTO> ObtenerPorIdPGeneral(int idPGeneral);
+        bool ActualizarDescargaReproduccionVideo(ActualizarDescargaReproduccionDTO dto, string usuario);
+        ConfigurarConteodeVideosPorTipo ObtenerConteosdeVideosTipo(int idPGeneral);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
@@ -121,6 +122,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     listaValoresExcel.Add(new CampoObligatorioCeldaDTO { Campo = "Posicion X - ImgDiapositiva", Columna = 21, FlagObligatorio = false });
                     listaValoresExcel.Add(new CampoObligatorioCeldaDTO { Campo = "Posicion Y - ImgDiapositiva", Columna = 22, FlagObligatorio = false });
                     listaValoresExcel.Add(new CampoObligatorioCeldaDTO { Campo = "Id Brightcove", Columna = 23, FlagObligatorio = false });
+                    listaValoresExcel.Add(new CampoObligatorioCeldaDTO { Campo = "Id Vimeo", Columna = 24, FlagObligatorio = false });
+                    listaValoresExcel.Add(new CampoObligatorioCeldaDTO { Campo = "ReproduccionVideo", Columna = 25, FlagObligatorio = false });
+                    listaValoresExcel.Add(new CampoObligatorioCeldaDTO { Campo = "DescargaVideo", Columna = 26, FlagObligatorio = false });
                     #endregion
 
                     object[,] valoresExcel = worksheet.Cells.GetValue<object[,]>();
@@ -155,7 +159,10 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             existeSubsesion = valoresExcel[i, listaValoresExcel.First(x => x.Campo == "Subsesion").Columna] != null && valoresExcel[i, listaValoresExcel.First(x => x.Campo == "Subsesion").Columna] != string.Empty;
                             configurarVideoPrograma.IdDocumentoSeccionPw = existeSubsesion ? idSubseccion : idSesion;
                             configurarVideoPrograma.VideoId = valoresExcel[i, listaValoresExcel.First(x => x.Campo == "Id Video").Columna].ToString();
-                            configurarVideoPrograma.VideoIdBrightcove = valoresExcel[i, listaValoresExcel.First(x => x.Campo == "Id Brightcove").Columna].ToString();
+                            configurarVideoPrograma.VideoIdBrightcove = valoresExcel[i, listaValoresExcel.First(x => x.Campo == "Id Brightcove").Columna]?.ToString();
+                            configurarVideoPrograma.VideoIdVimeo = valoresExcel[i, listaValoresExcel.First(x => x.Campo == "Id Vimeo").Columna]?.ToString();
+                            configurarVideoPrograma.ReproduccionVideo = Convert.ToInt32(valoresExcel[i, listaValoresExcel.First(x => x.Campo == "ReproduccionVideo").Columna]);
+                            configurarVideoPrograma.DescargaVideo = Convert.ToInt32(valoresExcel[i, listaValoresExcel.First(x => x.Campo == "DescargaVideo").Columna]);
                             configurarVideoPrograma.TotalMinutos = valoresExcel[i, listaValoresExcel.First(x => x.Campo == "Total segundos").Columna].ToString();
                             configurarVideoPrograma.Archivo = valoresExcel[i, listaValoresExcel.First(x => x.Campo == "Archivo de diapositiva").Columna].ToString();
                             configurarVideoPrograma.NroDiapositivas = valoresExcel[i, listaValoresExcel.First(x => x.Campo == "Nro. de diapositivas").Columna].ToString();
@@ -509,6 +516,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             estructuraCapituloPrograma.ConLogoDiapositiva = itemRegistros.ConLogoDiapositiva;
                             estructuraCapituloPrograma.IdConfigurarVideoPrograma = itemRegistros.IdConfigurarVideoPrograma;
                             estructuraCapituloPrograma.VideoIdBrightcove = itemRegistros.VideoIdBrightcove;
+                            estructuraCapituloPrograma.VideoIdVimeo = itemRegistros.VideoIdVimeo;
+                            estructuraCapituloPrograma.ReproduccionVideo = itemRegistros.ReproduccionVideo;
+                            estructuraCapituloPrograma.DescargaVideo = itemRegistros.DescargaVideo;
                             break;
                         case "Sesion":
                             estructuraCapituloPrograma.Sesion = itemRegistros.Contenido;
@@ -538,6 +548,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             estructuraCapituloPrograma.ConLogoDiapositiva = itemRegistros.ConLogoDiapositiva;
                             estructuraCapituloPrograma.IdConfigurarVideoPrograma = itemRegistros.IdConfigurarVideoPrograma;
                             estructuraCapituloPrograma.VideoIdBrightcove = itemRegistros.VideoIdBrightcove;
+                            estructuraCapituloPrograma.VideoIdVimeo = itemRegistros.VideoIdVimeo;
+                            estructuraCapituloPrograma.ReproduccionVideo = itemRegistros.ReproduccionVideo;
+                            estructuraCapituloPrograma.DescargaVideo = itemRegistros.DescargaVideo;
                             break;
                         case "SubSeccion":
                             estructuraCapituloPrograma.SubSesion = itemRegistros.Contenido;
@@ -569,6 +582,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                 estructuraCapituloPrograma.ConLogoDiapositiva = itemRegistros.ConLogoDiapositiva;
                                 estructuraCapituloPrograma.IdConfigurarVideoPrograma = itemRegistros.IdConfigurarVideoPrograma;
                                 estructuraCapituloPrograma.VideoIdBrightcove = itemRegistros.VideoIdBrightcove;
+                                estructuraCapituloPrograma.VideoIdVimeo = itemRegistros.VideoIdVimeo;
+                                estructuraCapituloPrograma.ReproduccionVideo = itemRegistros.ReproduccionVideo;
+                                estructuraCapituloPrograma.DescargaVideo = itemRegistros.DescargaVideo;
                             }
                             break;
                         default:
@@ -633,6 +649,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 camposAdicionales.Add(new CampoObligatorioDTO() { Campo = "Posicion X - ImgDiapositiva", FlagObligatorio = false });
                 camposAdicionales.Add(new CampoObligatorioDTO() { Campo = "Posicion Y - ImgDiapositiva", FlagObligatorio = false });
                 camposAdicionales.Add(new CampoObligatorioDTO() { Campo = "Id Brightcove", FlagObligatorio = false });
+                camposAdicionales.Add(new CampoObligatorioDTO() { Campo = "Id Vimeo", FlagObligatorio = false });
+                camposAdicionales.Add(new CampoObligatorioDTO() { Campo = "ReproduccionVideo", FlagObligatorio = false });
+                camposAdicionales.Add(new CampoObligatorioDTO() { Campo = "DescargaVideo", FlagObligatorio = false });
                 #endregion
 
                 #region Creacion Plantilla
@@ -733,6 +752,12 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         worksheet.Cells[fila, columna].Value = dato.ImagenDiapositivaPosicionY;
                         columna++;
                         worksheet.Cells[fila, columna].Value = dato.VideoIdBrightcove;
+                        columna++;
+                        worksheet.Cells[fila, columna].Value = dato.VideoIdVimeo;
+                        columna++;
+                        worksheet.Cells[fila, columna].Value = dato.ReproduccionVideo;
+                        columna++;
+                        worksheet.Cells[fila, columna].Value = dato.DescargaVideo;
                         fila++;
                     }
 
@@ -818,6 +843,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 configurarVideoPrograma.IdDocumentoSeccionPw = configurarVideoProgramaDTO.IdDocumentoSeccionPw;
                 configurarVideoPrograma.VideoId = configurarVideoProgramaDTO.VideoId;
                 configurarVideoPrograma.VideoIdBrightcove = configurarVideoProgramaDTO.VideoIdBrightcove;
+                configurarVideoPrograma.VideoIdVimeo = configurarVideoProgramaDTO.VideoIdVimeo;
+                configurarVideoPrograma.DescargaVideo = configurarVideoProgramaDTO.DescargaVideo;
+                configurarVideoPrograma.ReproduccionVideo = configurarVideoProgramaDTO.ReproduccionVideo;
                 configurarVideoPrograma.TotalMinutos = configurarVideoProgramaDTO.TotalMinutos;
                 configurarVideoPrograma.Archivo = configurarVideoProgramaDTO.Archivo;
                 configurarVideoPrograma.NroDiapositivas = configurarVideoProgramaDTO.NroDiapositivas;
@@ -1387,6 +1415,27 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             {
                 throw;
             }
+        }
+
+
+        public bool ActualizarDescargaReproduccionVideo(ActualizarDescargaReproduccionDTO dto, string usuario)
+        {
+            try
+            {
+                
+                var respuesta = _unitOfWork.SesionConfigurarVideoRepository.ActualizarDescargaReproduccionVideo(dto, usuario);
+                return respuesta;
+                  
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public ConfigurarConteodeVideosPorTipo ObtenerConteosdeVideosTipo(int idPGeneral) 
+        {
+            return _unitOfWork.SesionConfigurarVideoRepository.ObtenerConteosdeVideosTipo(idPGeneral);
         }
     }
 }

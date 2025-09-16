@@ -82,8 +82,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
 
 
         public bool? ActualizarConfiguracionDetalle(DetallePaisConfiguracionAsignacionRegularDTO paisConfiguracionAsignacionRegular, string usuario);
-
-
-
+        bool? ActualizarTopeAsignacionDiaria(int idAsignacionRegular, int topeAsignacionDiaria, string usuarioModificacion);
     }
 }

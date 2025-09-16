@@ -180,6 +180,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                             EsVisibleWeb = dto.AreaCapacitacion.EsVisibleWeb,
                             DescripcionHtml = dto.AreaCapacitacion.DescripcionHtml,
                             IdAreaCapacitacionFacebook = dto.AreaCapacitacion.IdAreaCapacitacionFacebook,
+                            ColorArea = dto.AreaCapacitacion.ColorArea,
+                            UrlIconoArea = dto.AreaCapacitacion.UrlIconoArea,
                             Estado = true,
                             FechaCreacion = DateTime.Now,
                             FechaModificacion = DateTime.Now,
@@ -244,6 +246,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                             ImgSecundaria = item.ImgSecundaria,
                             ImgPortadaAlt = item.ImgPortadaAlt,
                             ImgSecundariaAlt = item.ImgSecundariaAlt,
+                            UrlIconoArea = item.UrlIconoArea,
+                            ColorArea = item.ColorArea,
                             IdArea = item.IdArea,
                             EsWeb = item.EsWeb,
                             DescripcionHtml = item.DescripcionHtml,
@@ -294,6 +298,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                             entidad.ImgSecundaria = dto.AreaCapacitacion.ImgSecundaria;
                             entidad.ImgPortadaAlt = dto.AreaCapacitacion.ImgPortadaAlt;
                             entidad.ImgSecundariaAlt = dto.AreaCapacitacion.ImgSecundariaAlt;
+                            entidad.ColorArea = dto.AreaCapacitacion.ColorArea;
+                            entidad.UrlIconoArea = dto.AreaCapacitacion.UrlIconoArea;
                             entidad.IdArea = dto.AreaCapacitacion.IdArea;
                             entidad.EsVisibleWeb = dto.AreaCapacitacion.EsVisibleWeb;
                             entidad.EsWeb = dto.AreaCapacitacion.EsWeb;

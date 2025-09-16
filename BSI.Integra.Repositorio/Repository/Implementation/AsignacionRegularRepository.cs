@@ -277,8 +277,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 List<ObtenerListaAsesorDTO> ConfiguracionPais = new List<ObtenerListaAsesorDTO>();
-                var resultado = _dapperRepository.QueryDapper("SELECT Id,Coordinador,Asesor,Prioridad,EstadoAsesor,OportunidadesAbiertas,TopeOportunidad,ActivarAsignacionAutomatica FROM mkt.V_ObtenerListaAsesor ORDER BY Coordinador DESC", new { });
+                var resultado = _dapperRepository.QueryDapper("SELECT Id, Coordinador, Asesor, Prioridad, EstadoAsesor, OportunidadesAbiertas, TopeOportunidad, OportunidadesAbiertasHoy, TopeAsignacionDiaria, ActivarAsignacionAutomatica FROM mkt.V_ObtenerListaAsesor ORDER BY Coordinador DESC", new { });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+
+
+
                 {
                     ConfiguracionPais = JsonConvert.DeserializeObject<List<ObtenerListaAsesorDTO>>(resultado);
                 }
@@ -802,6 +805,36 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 EstadoActualizacionDTO RespuestaBool = new EstadoActualizacionDTO();
                 RespuestaBool.Valor = false;
                 var resultado = _dapperRepository.QuerySPFirstOrDefault("mkt.SP_ActualizarTopeOportunidad", new { idAsignacionRegular, TopeOportunidad, UsuarioModificacion });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    RespuestaBool = JsonConvert.DeserializeObject<EstadoActualizacionDTO>(resultado);
+                    return RespuestaBool.Valor;
+                }
+                return RespuestaBool.Valor;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
+
+        /// Autor: Miguel Valdivia
+        /// Fecha: 27/08/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Activa o desactiva Asignación Diaria
+        /// </summary>
+        /// <returns> bool </returns>
+        public bool? ActualizarTopeAsignacionDiaria(int idAsignacionRegular, int TopeAsignacionDiaria, String UsuarioModificacion)
+        {
+            try
+            {
+                EstadoActualizacionDTO RespuestaBool = new EstadoActualizacionDTO();
+                RespuestaBool.Valor = false;
+                var resultado = _dapperRepository.QuerySPFirstOrDefault("mkt.SP_ActualizarTopeAsignacionDiaria", new { idAsignacionRegular, TopeAsignacionDiaria, UsuarioModificacion });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
                     RespuestaBool = JsonConvert.DeserializeObject<EstadoActualizacionDTO>(resultado);

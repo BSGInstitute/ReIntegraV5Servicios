@@ -52,6 +52,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         public DiasWhatsappDTO ObtenerDiasPorPrioridadWhatsapp(IdDTO id);
         public ObtenerCampaniaGeneralDetalleResponsablePorPrioridadAgrupadoDTO ObtenerCampaniaGeneralDetalleResponsablePorPrioridadAlterno(IdDiasWhatsappDTO datos);
         public bool EnvioMensajePorTextoFacebook(WhatsAppMensajeTextoFacebookDTO json);
-
+        public string ObtenerUltimoMensajeCampaniaEnviado(string celularAlumno);
     }
 }
