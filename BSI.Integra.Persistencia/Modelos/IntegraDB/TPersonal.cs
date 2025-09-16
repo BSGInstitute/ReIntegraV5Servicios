@@ -357,7 +357,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual ICollection<TPersonalLog> TPersonalLogs { get; set; }
         public virtual ICollection<TPersonalMotivoTiempoInactividad> TPersonalMotivoTiempoInactividads { get; set; }
         public virtual ICollection<TPersonalPuestoSedeHistorico> TPersonalPuestoSedeHistoricos { get; set; }
-
         public virtual ICollection<TPlantillaRevisionPw> TPlantillaRevisionPws { get; set; }
         public virtual ICollection<TPrioridadMailChimpListum> TPrioridadMailChimpLista { get; set; }
         public virtual ICollection<TSmsConfiguracionEnvio> TSmsConfiguracionEnvios { get; set; }

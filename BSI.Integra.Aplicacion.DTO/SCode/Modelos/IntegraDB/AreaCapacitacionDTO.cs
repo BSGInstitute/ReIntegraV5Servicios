@@ -16,6 +16,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public bool EsWeb { get; set; }
         public string? DescripcionHtml { get; set; }
         public int? IdAreaCapacitacionFacebook { get; set; }
+        public string? ColorArea { get; set; }
+        public string? UrlIconoArea { get; set; }
     }
     public class AreaCapacitacionFiltroDTO
     {
