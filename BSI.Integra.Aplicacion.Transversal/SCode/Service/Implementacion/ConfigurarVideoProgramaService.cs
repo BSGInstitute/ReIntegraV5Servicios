@@ -159,8 +159,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             existeSubsesion = valoresExcel[i, listaValoresExcel.First(x => x.Campo == "Subsesion").Columna] != null && valoresExcel[i, listaValoresExcel.First(x => x.Campo == "Subsesion").Columna] != string.Empty;
                             configurarVideoPrograma.IdDocumentoSeccionPw = existeSubsesion ? idSubseccion : idSesion;
                             configurarVideoPrograma.VideoId = valoresExcel[i, listaValoresExcel.First(x => x.Campo == "Id Video").Columna].ToString();
-                            configurarVideoPrograma.VideoIdBrightcove = valoresExcel[i, listaValoresExcel.First(x => x.Campo == "Id Brightcove").Columna].ToString();
-                            configurarVideoPrograma.VideoIdVimeo = valoresExcel[i, listaValoresExcel.First(x => x.Campo == "Id Vimeo").Columna].ToString();
+                            configurarVideoPrograma.VideoIdBrightcove = valoresExcel[i, listaValoresExcel.First(x => x.Campo == "Id Brightcove").Columna]?.ToString();
+                            configurarVideoPrograma.VideoIdVimeo = valoresExcel[i, listaValoresExcel.First(x => x.Campo == "Id Vimeo").Columna]?.ToString();
                             configurarVideoPrograma.ReproduccionVideo = Convert.ToInt32(valoresExcel[i, listaValoresExcel.First(x => x.Campo == "ReproduccionVideo").Columna]);
                             configurarVideoPrograma.DescargaVideo = Convert.ToInt32(valoresExcel[i, listaValoresExcel.First(x => x.Campo == "DescargaVideo").Columna]);
                             configurarVideoPrograma.TotalMinutos = valoresExcel[i, listaValoresExcel.First(x => x.Campo == "Total segundos").Columna].ToString();

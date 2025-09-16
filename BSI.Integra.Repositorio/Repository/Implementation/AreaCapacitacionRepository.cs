@@ -209,7 +209,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                        IdArea,
                                        EsWeb,
                                        DescripcionHTML,
-                                       IdAreaCapacitacionFacebook
+                                       IdAreaCapacitacionFacebook,
+                                       ColorArea,
+                                       UrlIconoArea
                                 FROM pla.T_AreaCapacitacion
                                 WHERE Estado = 1
                                 ORDER BY Id DESC;";

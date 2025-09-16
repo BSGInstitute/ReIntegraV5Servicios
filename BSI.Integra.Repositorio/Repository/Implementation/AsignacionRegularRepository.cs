@@ -1572,7 +1572,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
 
                 List<ObtenerAsesoresPorOportunidadDTO> ListaConfiguracionPrincipal = new List<ObtenerAsesoresPorOportunidadDTO>();
-                var resultado = _dapperRepository.QuerySPDapper("mkt.SP_ObtenerAsesoresPorOportunidadV2", new { IdProgramaGeneral });
+                var resultado = _dapperRepository.QuerySPDapper("mkt.SP_ObtenerAsesoresPorOportunidad", new { IdProgramaGeneral });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
                     ListaConfiguracionPrincipal = JsonConvert.DeserializeObject<List<ObtenerAsesoresPorOportunidadDTO>>(resultado);
