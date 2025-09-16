@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad.TranscriptionDTO;
 
 namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
 {
@@ -17,6 +18,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         TransicionFaseOportunidad Add(TransicionFaseOportunidad entidad);
         TransicionFaseOportunidad Update(TransicionFaseOportunidad entidad);
         bool Delete(int id, string usuario);
+        Task InsertTransicionAsync(TransicionFaseOportunidadDTO transicionFaseOportunidadDTO);
         #endregion
         List<TransicionFaseOportunidadDTO> Obtener();
         TransicionFaseOportunidad ObtenerPorId(int id);

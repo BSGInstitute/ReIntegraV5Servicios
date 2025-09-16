@@ -47,7 +47,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         /// </summary>
         /// <param name="TransicionCalificacionFaseCreateDTO">Datos necesarios para la inserción de la transición de fase de oportunidad.</param>
         /// <returns>Entidad: TransicionFaseOportunidad</returns>
-        [Route("[action]")]
+        /*[Route("[action]")]
         [Authorize]
         [HttpPost]
         public IActionResult Insertar([FromBody] TransicionFaseOportunidadEntradaDTO TransicionFaseOportunidadEntradaDTO)
@@ -74,6 +74,37 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             {
                 return BadRequest(ex.Message);
             }
+        }*/
+
+        [Route("[action]")]
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> Insertar2([FromBody] TransicionFaseOportunidadDTO transicionFaseOportunidadEntradaDTO)
+        {
+            if (transicionFaseOportunidadEntradaDTO == null)
+            {
+                return BadRequest("Payload de transición inválido.");
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                // Instanciar el servicio
+                var transicionService = new TransicionFaseOportunidadService(_unitOfWork);
+
+                // Mapear el DTO a la entidad y sus hijos (idealmente el servicio lo hace)
+                await transicionService.InsertTransicionAsync(transicionFaseOportunidadEntradaDTO);
+
+                return Ok("Transición insertada correctamente.");
+            }
+            catch (Exception ex)
+            {
+                // Mejor registrar el error con un logger
+                return StatusCode(500, $"Error al insertar la transición: {ex.Message}");
+            }
         }
 
         /// Tipo Función: POST
@@ -99,7 +130,6 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
                 transicionCalificacionFase = transicionCalificacionFaseService.ObtenerPorId(TransicionFaseOportunidadEntradaDTO.Id);
                 transicionCalificacionFase.IdFaseOportunidadOrigen = TransicionFaseOportunidadEntradaDTO.IdFaseOportunidadOrigen;
                 transicionCalificacionFase.IdFaseOportunidadDestino = TransicionFaseOportunidadEntradaDTO.IdFaseOportunidadDestino;
-                transicionCalificacionFase.UsuarioModificacion = TransicionFaseOportunidadEntradaDTO.Usuario;
                 transicionCalificacionFase.FechaModificacion = DateTime.Now;
                 var resultado = transicionCalificacionFaseService.Update(transicionCalificacionFase);
                 return Ok(resultado);

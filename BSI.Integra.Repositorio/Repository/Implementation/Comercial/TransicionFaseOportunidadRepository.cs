@@ -117,7 +117,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     INNER JOIN pla.T_FaseOportunidad fo ON tcf.IdFaseOportunidadOrigen = fo.Id
                     INNER JOIN pla.T_FaseOportunidad fd ON tcf.IdFaseOportunidadDestino = fd.Id
                 WHERE 
-                    tcf.Estado = 1 AND Id = @Id;";
+                    tcf.Estado = 1 AND tcf.Id = @Id;";
                 string resultado = _dapperRepository.FirstOrDefault(query, new { Id = id });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {

@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
+using BSI.Integra.Aplicacion.Base;
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
+using BSI.Integra.Persistencia.Entidades.IntegraDB.Comercial;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository;
@@ -15,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
+using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad.TranscriptionDTO;
 
 namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
 {
@@ -37,6 +41,9 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             var mapperConfig = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<TTransicionFaseOportunidad, TransicionFaseOportunidad>().ReverseMap();
+                cfg.CreateMap<TCriterioCalificacionFaseOportunidad, TransicionFaseCriterioOportunidad>().ReverseMap();
+                cfg.CreateMap<TransicionFaseOportunidadDTO, TransicionFaseOportunidad>().ReverseMap();
+                cfg.CreateMap<TransicionFaseCriterioOportunidadDTO, TransicionFaseCriterioOportunidad>().ReverseMap();
             });
             _mapper = new Mapper(mapperConfig);
         }
@@ -78,6 +85,47 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 _unitOfWork.TransicionFaseOportunidadRepository.Delete(id, usuario);
                 _unitOfWork.Commit();
                 return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private void AsignarValoresComunes(dynamic e)
+        {
+            e.UsuarioCreacion = "Prueba";
+            e.UsuarioModificacion = "Prueba";
+            e.FechaCreacion = DateTime.Now;
+            e.FechaModificacion = DateTime.Now;
+            e.Estado = true;
+        }
+        public async Task InsertTransicionAsync(TransicionFaseOportunidadDTO transicionFaseOportunidadDTO)
+        {
+            try
+            {
+                if (transicionFaseOportunidadDTO.TransicionFaseCriterioOportunidad == null)
+                    throw new ArgumentNullException("La propiedad Transcription es nula.");
+
+                // Mapear el padre
+                var transicionEntity = _mapper.Map<TransicionFaseOportunidad>(transicionFaseOportunidadDTO);
+                AsignarValoresComunes(transicionEntity);
+
+                // Mapear la lista de hijos
+                if (transicionFaseOportunidadDTO.TransicionFaseCriterioOportunidad != null)
+                {
+                    var criterioEntities = _mapper.Map<List<TransicionFaseCriterioOportunidad>>(transicionFaseOportunidadDTO.TransicionFaseCriterioOportunidad);
+                    foreach (var criterio in criterioEntities)
+                    {
+                        AsignarValoresComunes(criterio);
+                        transicionEntity.TransicionFaseCriterioOportunidad.Add(criterio);
+
+                    }
+                    transicionEntity.TransicionFaseCriterioOportunidad = criterioEntities;
+                }
+
+                _unitOfWork.TransicionFaseOportunidadRepository.Add(transicionEntity);
+                _unitOfWork.Commit();
             }
             catch (Exception ex)
             {
