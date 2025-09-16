@@ -16,9 +16,6 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Interface
         TransicionFaseCriterioOportunidad Add(TransicionFaseCriterioOportunidad entidad);
         TransicionFaseCriterioOportunidad Update(TransicionFaseCriterioOportunidad entidad);
         bool Delete(int id, string usuario);
-        /*List<TransicionFaseCriterioOportunidad> Add(List<TransicionFaseCriterioOportunidad> listadoEntidad);
-        List<TransicionFaseCriterioOportunidad> Update(List<TransicionFaseCriterioOportunidad> listadoEntidad);
-        bool Delete(List<int> listadoIds, string usuario);*/
         #endregion
         List<TransicionFaseCriterioOportunidadDTO> Obtener();
         TransicionFaseCriterioOportunidad ObtenerPorId(int id);

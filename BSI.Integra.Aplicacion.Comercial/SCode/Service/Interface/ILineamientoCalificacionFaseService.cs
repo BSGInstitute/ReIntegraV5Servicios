@@ -11,13 +11,13 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Interface
 {
     public interface ILineamientoCalificacionFaseService
     {
-        LineamientoCalificacionFase Add(LineamientoCalificacionFase entidad);
-
-        LineamientoCalificacionFase ObtenerPorId(int id);
+        #region
+        LineamientoCalificacionFase Add(LineamientoCalificacionFase entidad);  
         LineamientoCalificacionFase Update(LineamientoCalificacionFase entidad);
-        //LineamientoCalificacionFase ObtenerLineamientoCalificacionFasePorId(int idLineamientoCalificacionFase);
-        LineamientoCalificacionFase ObtenerLineamientoCalificacionFasePorId(int idLineamientoCalificacionFase);
-        List<LineamientoCalificacionFaseDTO> ListaLineamientos();
+        bool Delete(int id, string usuario);
+        #endregion
+        LineamientoCalificacionFase ObtenerPorId(int id);
+        List<LineamientoCalificacionFaseDTO> Obtener();
 
 
     }

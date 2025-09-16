@@ -31,26 +31,25 @@ namespace BSI.Integra.Servicios.Controllers
     public class CriterioCalificacionFaseController : ControllerBase
     {
         private IUnitOfWork _unitOfWork;
-        private ICriterioCalificacionFaseService _criterioCalificacionFaseService;
 
         public CriterioCalificacionFaseController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _criterioCalificacionFaseService = new CriterioCalificacionFaseService(_unitOfWork);
         }
 
         /// Tipo Función: POST 
-        /// Autor: José Vega
-        /// Fecha: 20/09/2023
+        /// Autor: Jose Vega
+        /// Fecha: 20/09/2025
         /// Versión: 1.0
         /// <summary>
-        /// Inserta un nuevo criterio de calificación de fase con sus lineamientos  
-        /// </summary> 
-        /// <returns> bool </returns>
+        /// Inserta un nuevo criterio de calificación de fase con sus lineamientos.
+        /// </summary>
+        /// <param name="criterioCalificacionFaseCreateDTO">Datos necesarios para la inserción del criterio.</param>
+        /// <returns>bool</returns>
         [Route("[action]")]
         [Authorize]
         [HttpPost]
-        public IActionResult Insertar([FromBody] CriterioCalificacionFaseCreateDTO criterioCalificacionFaseCreateDTO)
+        public IActionResult Insertar([FromBody] CriterioCalificacionFaseEntradaDTO criterioCalificacionFaseEntradaDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -60,12 +59,12 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 var criterioCalificacionFaseService = new CriterioCalificacionFaseService(_unitOfWork);
                 var criterioCalificacionFase = new CriterioCalificacionFase();
-                criterioCalificacionFase.Orden = criterioCalificacionFaseCreateDTO.Orden;
-                criterioCalificacionFase.Nombre = criterioCalificacionFaseCreateDTO.Nombre;
-                criterioCalificacionFase.Descripcion = criterioCalificacionFaseCreateDTO.Descripcion;
+                criterioCalificacionFase.Orden = criterioCalificacionFaseEntradaDTO.Orden;
+                criterioCalificacionFase.Nombre = criterioCalificacionFaseEntradaDTO.Nombre;
+                criterioCalificacionFase.Descripcion = criterioCalificacionFaseEntradaDTO.Descripcion;
                 criterioCalificacionFase.Estado = true;
-                criterioCalificacionFase.UsuarioCreacion = criterioCalificacionFaseCreateDTO.Usuario;
-                criterioCalificacionFase.UsuarioModificacion = criterioCalificacionFaseCreateDTO.Usuario;
+                criterioCalificacionFase.UsuarioCreacion = criterioCalificacionFaseEntradaDTO.Usuario;
+                criterioCalificacionFase.UsuarioModificacion = criterioCalificacionFaseEntradaDTO.Usuario;
                 criterioCalificacionFase.FechaCreacion = DateTime.Now;
                 criterioCalificacionFase.FechaModificacion = DateTime.Now;
                 var resultado = criterioCalificacionFaseService.Add(criterioCalificacionFase);
@@ -78,15 +77,16 @@ namespace BSI.Integra.Servicios.Controllers
         }
 
         /// Tipo Función: PUT 
-        /// Autor: José Vega
-        /// Fecha: 20/09/2023
+        /// Autor: Jose Vega
+        /// Fecha: 20/09/2025
         /// Versión: 1.0
         /// <summary>
-        /// Actualiza un criterio de calificación de fase existente con sus lineamientos  
-        /// </summary> 
-        /// <returns> bool </returns>
+        /// Actualiza un criterio de calificación de fase existente y sus lineamientos.
+        /// </summary>
+        /// <param name="criterioCalificacionFaseUpdateDTO">Datos necesarios para la actualización del criterio.</param>
+        /// <returns>bool</returns>
         [HttpPut("[Action]")]
-        public IActionResult Actualizar([FromBody] CriterioCalificacionFaseUpdateDTO criterioCalificacionFaseUpdateDTO)
+        public IActionResult Actualizar([FromBody] CriterioCalificacionFaseEntradaDTO criterioCalificacionFaseEntradaDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -96,13 +96,13 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 var criterioCalificacionFaseService = new CriterioCalificacionFaseService(_unitOfWork);
                 var criterioCalificacionFase = new CriterioCalificacionFase();
-                criterioCalificacionFase = criterioCalificacionFaseService.ObtenerPorId(criterioCalificacionFaseUpdateDTO.Id);
-                criterioCalificacionFase.Orden = criterioCalificacionFaseUpdateDTO.Orden;
-                criterioCalificacionFase.Nombre = criterioCalificacionFaseUpdateDTO.Nombre;
-                criterioCalificacionFase.Descripcion = criterioCalificacionFaseUpdateDTO.Descripcion;
-                criterioCalificacionFase.UsuarioModificacion = criterioCalificacionFaseUpdateDTO.Usuario;
+                criterioCalificacionFase = criterioCalificacionFaseService.ObtenerPorId(criterioCalificacionFaseEntradaDTO.Id);
+                criterioCalificacionFase.Orden = criterioCalificacionFaseEntradaDTO.Orden;
+                criterioCalificacionFase.Nombre = criterioCalificacionFaseEntradaDTO.Nombre;
+                criterioCalificacionFase.Descripcion = criterioCalificacionFaseEntradaDTO.Descripcion;
+                criterioCalificacionFase.UsuarioModificacion = criterioCalificacionFaseEntradaDTO.Usuario;
                 criterioCalificacionFase.FechaModificacion = DateTime.Now;
-                var resultado = criterioCalificacionFaseService.ActualizarCriterio(criterioCalificacionFase);
+                var resultado = criterioCalificacionFaseService.Update(criterioCalificacionFase);
                 return Ok(resultado);
             }
             catch (Exception ex)
@@ -111,16 +111,16 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
-
-
         /// Tipo Función: DELETE 
-        /// Autor: José Vega
+        /// Autor: Jose Vega
         /// Fecha: 20/09/2025
         /// Versión: 1.0
         /// <summary>
-        /// Realiza una eliminación lógica a la tabla T_CriterioCalificacionFaseOportunidad y sus tablas detalles  
-        /// </summary> 
-        /// <returns> bool </returns>
+        /// Realiza una eliminación lógica en la tabla T_CriterioCalificacionFaseOportunidad y sus tablas detalle.
+        /// </summary>
+        /// <param name="id">Id del criterio de calificación de fase a eliminar.</param>
+        /// <param name="usuario">Usuario que ejecuta la eliminación.</param>
+        /// <returns>bool</returns>
         [Route("[action]/{id}/{usuario}")]
         [HttpDelete]
         public ActionResult Eliminar(int id, string usuario)
@@ -129,7 +129,7 @@ namespace BSI.Integra.Servicios.Controllers
             {
 
                 var criterioCalificacionFaseService = new CriterioCalificacionFaseService(_unitOfWork);
-                var resultado = criterioCalificacionFaseService.EliminarCriterio(id, usuario);
+                var resultado = criterioCalificacionFaseService.Delete(id, usuario);
                 return Ok(resultado);
             }
             catch (Exception e)
@@ -139,20 +139,21 @@ namespace BSI.Integra.Servicios.Controllers
         }
 
         /// Tipo Función: GET 
-        /// Autor: José Vega
+        /// Autor: Jose Vega
         /// Fecha: 20/09/2025
         /// Versión: 1.0
         /// <summary>
-        /// Obtiene la lista de todos los criterios de calificación de fase  
-        /// </summary> 
-        /// <returns> List<CriterioCalificacionFaseDTO> </returns>
+        /// Obtiene la lista de todos los criterios de calificación de fase.
+        /// </summary>
+        /// <returns>List<CriterioCalificacionFaseDTO></returns>
         [Route("[action]")]
         [HttpGet]
         public IActionResult Obtener()
         {
             try
             {
-                var resultado = new { criteriosCalificacionFase = _criterioCalificacionFaseService.ObtenerCriteriosCalificacionFase() };
+                var criterioCalificacionFaseService = new CriterioCalificacionFaseService(_unitOfWork);
+                var resultado = criterioCalificacionFaseService.Obtener();
                 return Ok(resultado);
             }
             catch (Exception ex)
@@ -162,20 +163,22 @@ namespace BSI.Integra.Servicios.Controllers
         }
 
         /// Tipo Función: GET 
-        /// Autor: José Vega
-        /// Fecha: 20/09/2023
+        /// Autor: Jose Vega
+        /// Fecha: 20/09/2025
         /// Versión: 1.0
         /// <summary>
-        /// Obtiene el detalle de un criterio de calificación de fase por su ID  
-        /// </summary> 
-        /// <returns> CriterioCalificacionFaseDTO </returns>
+        /// Obtiene el detalle de un criterio de calificación de fase por su ID.
+        /// </summary>
+        /// <param name="id">Id del criterio de calificación de fase.</param>
+        /// <returns>CriterioCalificacionFaseDTO</returns>
         [Route("[action]/{id}")]
         [HttpGet]
         public IActionResult ObtenerPorId(int id)
         {
             try
             {
-                var resultado = _criterioCalificacionFaseService.ObtenerPorId(id);
+                var criterioCalificacionFaseService = new CriterioCalificacionFaseService(_unitOfWork);
+                var resultado = criterioCalificacionFaseService.ObtenerPorId(id);
                 return Ok(resultado);
             }
             catch (Exception ex)

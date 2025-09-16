@@ -18,38 +18,33 @@ namespace BSI.Integra.Aplicacion.Servicios.Implementacion
 {
     /// Servicio: CriterioCalificacionFaseService
     /// Autor: José Vega
-    /// Fecha: 20/09/2023
+    /// Fecha: 15/09/2025
     /// <summary>
-    /// Servicio para gestionar los criterios de calificación de fase
+    /// Servicio para la gestión de CriterioCalificacionFase
     /// </summary>
     public class CriterioCalificacionFaseService : ICriterioCalificacionFaseService
     {
         private IUnitOfWork _unitOfWork;
-        private ICriterioCalificacionFaseRepository _repCriterioCalificacionFase;
         private Mapper _mapper;
-
-        public ICriterioCalificacionFaseRepository CriterioCalificacionFaseRepository { get => _repCriterioCalificacionFase; set => _repCriterioCalificacionFase = value; }
 
         public CriterioCalificacionFaseService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            CriterioCalificacionFaseRepository = _unitOfWork.CriterioFaseRepository;
 
             var mapperConfig = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<TCriterioCalificacionFaseOportunidad, CriterioCalificacionFase>().ReverseMap();
-                cfg.CreateMap<CriterioCalificacionFase, CriterioCalificacionFaseCreateDTO>().ReverseMap();
             });
             _mapper = new Mapper(mapperConfig);
 
         }
 
-
+        #region Metodos Base
         public CriterioCalificacionFase Add(CriterioCalificacionFase entidad)
         {
             try
             {
-                var modelo = _unitOfWork.CriterioFaseRepository.Add(entidad);
+                var modelo = _unitOfWork.CriterioCalificacionFaseRepository.Add(entidad);
                 _unitOfWork.Commit();
                 return _mapper.Map<CriterioCalificacionFase>(modelo);
             }
@@ -59,22 +54,12 @@ namespace BSI.Integra.Aplicacion.Servicios.Implementacion
             }
         }
 
-
-        /// Autor: José Vega
-        /// Fecha: 20/09/2023
-        /// Version: 1.0
-        /// <summary>
-        /// Actualiza un criterio de calificación de fase existente y sus lineamientos
-        /// </summary>
-        /// <param name="criterioCalificacionFaseDTO">Datos del criterio a actualizar</param>
-        /// <param name="usuario">Usuario que realiza la operación</param>
-        /// <returns>bool</returns>
-        public CriterioCalificacionFase ActualizarCriterio(CriterioCalificacionFase entidad)
+        public CriterioCalificacionFase Update(CriterioCalificacionFase entidad)
    {
 
             try
             {
-                var modelo = _unitOfWork.CriterioFaseRepository.Update(entidad);
+                var modelo = _unitOfWork.CriterioCalificacionFaseRepository.Update(entidad);
                 _unitOfWork.Commit();
                 return _mapper.Map<CriterioCalificacionFase>(modelo);
             }
@@ -84,20 +69,11 @@ namespace BSI.Integra.Aplicacion.Servicios.Implementacion
             }
         }
 
-        /// Autor: José Vega
-        /// Fecha: 20/09/2023
-        /// Version: 1.0
-        /// <summary>
-        /// Elimina de manera lógica un criterio de calificación de fase y sus lineamientos
-        /// </summary>
-        /// <param name="id">ID del criterio a eliminar</param>
-        /// <param name="usuario">Usuario que realiza la operación</param>
-        /// <returns>bool</returns>
-        public bool EliminarCriterio(int id, string usuario)
+        public bool Delete(int id, string usuario)
         {
             try
             {
-                _unitOfWork.CriterioFaseRepository.Delete(id, usuario);
+                _unitOfWork.CriterioCalificacionFaseRepository.Delete(id, usuario);
                 _unitOfWork.Commit();
                 return true;
             }
@@ -106,19 +82,20 @@ namespace BSI.Integra.Aplicacion.Servicios.Implementacion
                 throw new Exception(ex.Message);
             }
         }
+        #endregion
 
         /// Autor: José Vega
         /// Fecha: 20/09/2023
         /// Version: 1.0
         /// <summary>
-        /// Obtiene todos los criterios de calificación de fase
+        /// Obtiene todos los registros de la tabla
         /// </summary>
-        /// <returns>Lista de criterios</returns>
-        public List<CriterioCalificacionFaseDTO> ObtenerCriteriosCalificacionFase()
+        /// <returns>CriterioCalificacionFaseDTO</returns>
+        public List<CriterioCalificacionFaseDTO> Obtener()
         {
             try
             {
-                return _repCriterioCalificacionFase.ObtenerCriteriosCalificacionFase();
+                return _unitOfWork.CriterioCalificacionFaseRepository.Obtener();
             }
             catch (Exception ex)
             {
@@ -130,15 +107,15 @@ namespace BSI.Integra.Aplicacion.Servicios.Implementacion
         /// Fecha: 20/09/2023
         /// Version: 1.0
         /// <summary>
-        /// Obtiene todos los criterios asociados a una transición específica
+        /// Obtiene todos los campos de T_CriterioCalificacionFaseOportunidad por el Id.
         /// </summary>
         /// <param name="idTransicionCalificacionFase">ID de la transición</param>
-        /// <returns>Lista de criterios</returns>
-        public CriterioCalificacionFase ObtenerPorId(int idTransicionCalificacionFase)
+        /// <returns>CriterioCalificacionFase</returns>
+        public CriterioCalificacionFase ObtenerPorId(int id)
         {
             try
             {
-                return _repCriterioCalificacionFase.ObtenerPorId(idTransicionCalificacionFase);
+                return _unitOfWork.CriterioCalificacionFaseRepository.ObtenerPorId(id);
             }
             catch (Exception ex)
             {

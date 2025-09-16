@@ -11,10 +11,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 {
+    /// Repositorio: LineamientoCalificacionFaseRepository
+    /// Autor: Jose Vega
+    /// Fecha: 15/09/2025
+    /// <summary>
+    /// Gestión general de T_LineamientoCalificacionFase
+    /// </summary>
     public class LineamientoCalificacionFaseRepository : GenericRepository<TLineamientoCalificacionFase>, ILineamientoCalificacionFaseRepository
     {
         private Mapper _mapper;
@@ -27,9 +32,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             });
             _mapper = new Mapper(config);
         }
-    
 
-                private TLineamientoCalificacionFase MapeoEntidad(LineamientoCalificacionFase entidad)
+        #region
+        private TLineamientoCalificacionFase MapeoEntidad(LineamientoCalificacionFase entidad)
         {
             try
             {
@@ -57,46 +62,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             }
         }
 
-        /// Autor: Jose Vega
-        /// Fecha: 13/09/2025
-        /// Version: 1.0
-        /// <summary>
-        /// Obtiene todos los campos de T_SolicitudCategoria por el Id.
-        /// </summary>
-        /// <param name="id"> Id de la entidad </param>
-        /// <returns> SolicitudTipoReporte </returns>
-        public LineamientoCalificacionFase ObtenerPorId(int id)
-        {
-            try
-            {
-                var rpta = new LineamientoCalificacionFase();
-                var query = @"
-					SELECT Id,
-						IdCriterioCalificacionFaseOportunidad,
-                        Orden,
-						IdCriticidadCalificacion,
-                        Nombre,
-                        Descripcion,
-                        Estado,
-                        UsuarioCreacion,
-                        UsuarioModificacion,
-                        FechaCreacion,
-                        FechaModificacion,
-                        RowVersion
-                    FROM com.T_LineamientoCalificacionFase
-                    WHERE Estado = 1 AND Id=@Id";
-                var resultado = _dapperRepository.FirstOrDefault(query, new { Id = id });
-                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
-                {
-                    rpta = JsonConvert.DeserializeObject<LineamientoCalificacionFase>(resultado);
-                }
-                return rpta;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
         public TLineamientoCalificacionFase Update(LineamientoCalificacionFase entidad)
         {
             try
@@ -122,44 +87,76 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 throw ex;
             }
         }
-        public LineamientoCalificacionFase ObtenerLineamientoCalificacionFasePorId(int idLineamientoCalificacionFase)
+        #endregion
+        /// Autor: Jose Vega
+        /// Fecha: 15/09/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los campos de T_LineamientoCalificacionFase por el Id.
+        /// </summary>
+        /// <param name="id"> Id de la entidad </param>
+        /// <returns> LineamientoCalificacionFase </returns>
+        public LineamientoCalificacionFase ObtenerPorId(int id)
         {
             try
             {
                 var rpta = new LineamientoCalificacionFase();
-                var query = @"SELECT Id,
-                                 IdCriterioCalificacionFaseOportunidad,
-                                 IdCriticidadCalificacion,
-                                 Orden,
-                                 Nombre,
-                                 Descripcion,
-                                 Estado,
-                                 UsuarioCreacion, UsuarioModificacion, FechaCreacion, FechaModificacion,RowVersion
-                          FROM com.T_LineamientoCalificacionFase
-                    WHERE Estado = 1 AND Id = @Id";
-                var resultado = _dapperRepository.FirstOrDefault(query, new { Id = idLineamientoCalificacionFase });
+                var query = @"
+					SELECT 
+                        Id,
+                        Nombre AS NombreLineamiento,
+                        Orden,
+                        Descripcion,
+                        IdCriterioCalificacionFaseOportunidad,
+                        IdCriticidadCalificacion,
+                        Estado,
+                        UsuarioCreacion,
+                        UsuarioModificacion,
+                        FechaCreacion,
+                        FechaModificacion,
+                        RowVersion,
+                        IdMigracion
+                    FROM com.T_LineamientoCalificacionFase
+                    WHERE Estado = 1 AND Id=@Id";
+                var resultado = _dapperRepository.FirstOrDefault(query, new { Id = id });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
-                    rpta = JsonConvert.DeserializeObject<LineamientoCalificacionFase>(resultado)!;
-                    return rpta;
+                    rpta = JsonConvert.DeserializeObject<LineamientoCalificacionFase>(resultado);
                 }
-                return null;
-
-
+                return rpta;
             }
-            catch (Exception E)
+            catch (Exception ex)
             {
-                throw new Exception(E.Message);
+                throw ex;
             }
         }
-        public List<LineamientoCalificacionFaseDTO> ListaLineamientos()
+        /// Autor: José Vega
+        /// Fecha: 15/09/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los registros con los detalles de T_LineamientoCalificacionFase
+        /// </summary>
+        /// <returns> List<LineamientoCalificacionFaseDTO> </returns>
+        public List<LineamientoCalificacionFaseDTO> Obtener()
         {
             try
             {
                 List<LineamientoCalificacionFaseDTO> lineamientoFiltro = new();
                 var query = @"
                     SELECT 
-                        Id, Nombre AS NombreLineamiento, Orden, Descripcion, IdCriterioCalificacionFaseOportunidad, IdCriticidadCalificacion, UsuarioModificacion
+                        Id,
+                        Nombre AS NombreLineamiento,
+                        Orden,
+                        Descripcion,
+                        IdCriterioCalificacionFaseOportunidad,
+                        IdCriticidadCalificacion,
+                        Estado,
+                        UsuarioCreacion,
+                        UsuarioModificacion,
+                        FechaCreacion,
+                        FechaModificacion,
+                        RowVersion,
+                        IdMigracion
                     FROM 
                         com.T_LineamientoCalificacionFase
                     WHERE 

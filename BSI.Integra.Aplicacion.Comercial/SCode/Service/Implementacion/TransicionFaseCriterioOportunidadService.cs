@@ -17,6 +17,12 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 {
+    /// Service: SolicitudTipoReporteService
+    /// Autor: Jose Vega.
+    /// Fecha: 15/09/2025
+    /// <summary>
+    /// Gestión general de T_TransicionFaseCriterioOportunidad
+    /// </summary>
     public class TransicionFaseCriterioOportunidadService : ITransicionFaseCriterioOportunidadService
     {
         private IUnitOfWork _unitOfWork;
@@ -75,56 +81,16 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             }
         }
 
-        /*public List<TransicionFaseCriterioOportunidad> Add(List<TransicionFaseCriterioOportunidad> listadoEntidad)
-        {
-            try
-            {
-                var modelo = _unitOfWork.TransicionFaseCriterioOportunidadRepository.Add(listadoEntidad);
-                _unitOfWork.Commit();
-                return _mapper.Map<List<TransicionFaseCriterioOportunidad>>(modelo);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public List<TransicionFaseCriterioOportunidad> Update(List<TransicionFaseCriterioOportunidad> listadoEntidad)
-        {
-            try
-            {
-                var modelo = _unitOfWork.TransicionFaseCriterioOportunidadRepository.Update(listadoEntidad);
-                _unitOfWork.Commit();
-                return _mapper.Map<List<TransicionFaseCriterioOportunidad>>(modelo);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public bool Delete(List<int> listadoIds, string usuario)
-        {
-            try
-            {
-                _unitOfWork.TransicionFaseCriterioOportunidadRepository.Delete(listadoIds, usuario);
-                _unitOfWork.Commit();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }*/
         #endregion
-        /// Autor: Gilmer Quispe
-        /// Fecha: 21/12/2022
+
+        /// Autor: Jose Vega
+        /// Fecha: 15/09/2025
         /// Version: 1.0
         /// <summary>
-        /// Obtiene todos los campos de T_SolicitudCategoria por el Id.
+        /// Obtiene todos los campos de T_TransicionFaseCriterioOportunidad por el Id.
         /// </summary>
         /// <param name="id"> Id de la entidad </param>
-        /// <returns> SolicitudTipoReporte </returns>
+        /// <returns> TransicionFaseCriterioOportunidad </returns>
         public TransicionFaseCriterioOportunidad ObtenerPorId(int id)
         {
             try
@@ -136,13 +102,13 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 throw ex;
             }
         }
-        /// Autor: Gilmer Quispe
-        /// Fecha: 25/12/2022
+        /// Autor: Jose Vega
+        /// Fecha: 15/09/2025
         /// Version: 1.0
         /// <summary>
         /// Obtiene todos los registros de la tabla
         /// </summary> 
-        /// <returns> IEnumerable<ComboDTO> </returns>
+        /// <returns> List<TransicionFaseCriterioOportunidadDTO> </returns>
         public List<TransicionFaseCriterioOportunidadDTO> Obtener()
         {
             try

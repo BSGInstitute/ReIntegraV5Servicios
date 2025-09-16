@@ -7949,8 +7949,9 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        //TransicionFase
         private ICriterioCalificacionFaseRepository _criterioCalificacionFaseRepository;
-        ICriterioCalificacionFaseRepository IUnitOfWork.CriterioFaseRepository
+        ICriterioCalificacionFaseRepository IUnitOfWork.CriterioCalificacionFaseRepository
         {
             get
             {
@@ -7975,14 +7976,6 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _transicionFaseCriterioOportunidadRepository ?? new TransicionFaseCriterioOportunidadRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
-        //private IGenericRepository<TCriticidadCalificacion> _criticidadCalificacionRepository;
-        //IGenericRepository<TCriticidadCalificacion> IUnitOfWork.CriticidadCalificacionRepository
-        //{
-        //    get
-        //    {
-        //        return _criticidadCalificacionRepository ?? new GenericRepository<TCriticidadCalificacion>(_context, _connectionFactory, _dapperRepository);
-        //    }
-        //}
 
         private ITransicionFaseOportunidadRepository _transicionFaseOportunidadRepository;
         ITransicionFaseOportunidadRepository IUnitOfWork.TransicionFaseOportunidadRepository

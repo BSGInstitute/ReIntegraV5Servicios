@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation
 {
-    /// Repositorio: TransicionCalificacionFaseRepository
+    /// Repositorio: TransicionFaseOportunidadRepository
     /// Autor: Jose Vega
     /// Fecha: 15/09/2025
     /// <summary>
@@ -29,8 +29,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             var config = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<TTransicionFaseOportunidad, TransicionFaseOportunidad>(MemberList.None).ReverseMap();
-                cfg.CreateMap<TCriterioCalificacionFaseOportunidad, CriterioCalificacionFaseOportunidad>(MemberList.None).ReverseMap();
-                cfg.CreateMap<TLineamientoCalificacionFase, LineamientoCalificacionFase>(MemberList.None).ReverseMap();
             });
             _mapper = new Mapper(config);
         }
@@ -62,23 +60,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
-        public IEnumerable<TTransicionFaseOportunidad> Add(IEnumerable<TransicionFaseOportunidad> listadoEntidad)
-        {
-            try
-            {
-                List<TTransicionFaseOportunidad> listado = new List<TTransicionFaseOportunidad>();
-                foreach (var entidad in listadoEntidad)
-                {
-                    listado.Add(MapeoEntidad(entidad));
-                }
-                base.Insert(listado);
-                return listado;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
 
         public TTransicionFaseOportunidad Update(TransicionFaseOportunidad entidad)
         {
@@ -95,25 +76,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public IEnumerable<TTransicionFaseOportunidad> Update(IEnumerable<TransicionFaseOportunidad> listadoEntidad)
-        {
-            try
-            {
-                List<TTransicionFaseOportunidad> listado = new List<TTransicionFaseOportunidad>();
-                foreach (var entidad in listadoEntidad)
-                {
-                    listado.Add(MapeoEntidad(entidad));
-                }
-                base.Update(listado);
-                return listado;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-
         public bool Delete(int id, string usuario)
         {
             try
@@ -127,54 +89,16 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-
-        public bool Delete(IEnumerable<int> listadoIds, string usuario)
-        {
-            try
-            {
-                base.Delete(listadoIds, usuario);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
         #endregion
 
-        public List<TransicionCalificacionFaseDTO> ObtenerTransicionesCalificacionFase()
-        {
-            try
-            {
-                List<TransicionCalificacionFaseDTO> transicionesFiltro = new();
-                var query = @"SELECT 
-                    tcf.Id, 
-                    fo.Nombre,
-                    tcf.IdFaseOportunidadOrigen AS IdFaseOportunidadOrigen,
-                    tcf.IdFaseOportunidadDestino AS IdFaseOportunidadDestino,
-                    CONCAT(
-                        fo.Nombre, ' (', tcf.IdFaseOportunidadOrigen, ') -> ', 
-                        fd.Nombre, ' (', tcf.IdFaseOportunidadDestino, ')'
-                    ) AS Nombre
-                FROM 
-                    com.T_TransicionFaseOportunidad tcf
-                    INNER JOIN pla.T_FaseOportunidad fo ON tcf.IdFaseOportunidadOrigen = fo.Id
-                    INNER JOIN pla.T_FaseOportunidad fd ON tcf.IdFaseOportunidadDestino = fd.Id
-                WHERE 
-                    tcf.Estado = 1";
-                var resultado = _dapperRepository.QueryDapper(query, null);
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                {
-                    transicionesFiltro = JsonConvert.DeserializeObject<List<TransicionCalificacionFaseDTO>>(resultado)!;
-                }
-                return transicionesFiltro;
-            }
-            catch (Exception E)
-            {
-                throw new Exception(E.Message);
-            }
-        }
-
+        /// Autor: Jose Vega
+        /// Fecha: 15/09/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los campos de T_TransicionFaseOportunidad por el Id.
+        /// </summary>
+        /// <param name="id"> Id de la entidad </param>
+        /// <returns> TransicionFaseOportunidad </returns>
         public TransicionFaseOportunidad ObtenerPorId(int id)
         {
             try
@@ -204,6 +128,46 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception ex)
             {
                 throw new Exception($"#TCF-OPI-001@Error en ObtenerPorId: {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 15/09/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary> 
+        /// <returns> List<TransicionFaseOportunidadDTO> </returns>
+        public List<TransicionFaseOportunidadDTO> Obtener()
+        {
+            try
+            {
+                List<TransicionFaseOportunidadDTO> transicionesFiltro = new();
+                var query = @"SELECT 
+                    tcf.Id, 
+                    fo.Nombre,
+                    tcf.IdFaseOportunidadOrigen AS IdFaseOportunidadOrigen,
+                    tcf.IdFaseOportunidadDestino AS IdFaseOportunidadDestino,
+                    CONCAT(
+                        fo.Nombre, ' (', tcf.IdFaseOportunidadOrigen, ') -> ', 
+                        fd.Nombre, ' (', tcf.IdFaseOportunidadDestino, ')'
+                    ) AS Nombre
+                FROM 
+                    com.T_TransicionFaseOportunidad tcf
+                    INNER JOIN pla.T_FaseOportunidad fo ON tcf.IdFaseOportunidadOrigen = fo.Id
+                    INNER JOIN pla.T_FaseOportunidad fd ON tcf.IdFaseOportunidadDestino = fd.Id
+                WHERE 
+                    tcf.Estado = 1";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    transicionesFiltro = JsonConvert.DeserializeObject<List<TransicionFaseOportunidadDTO>>(resultado)!;
+                }
+                return transicionesFiltro;
+            }
+            catch (Exception E)
+            {
+                throw new Exception(E.Message);
             }
         }
     }

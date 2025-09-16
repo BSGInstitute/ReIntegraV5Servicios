@@ -16,12 +16,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         TTransicionFaseOportunidad Add(TransicionFaseOportunidad entidad);
         TTransicionFaseOportunidad Update(TransicionFaseOportunidad entidad);
         bool Delete(int id, string usuario);
-        IEnumerable<TTransicionFaseOportunidad> Add(IEnumerable<TransicionFaseOportunidad> listadoEntidad);
-        IEnumerable<TTransicionFaseOportunidad> Update(IEnumerable<TransicionFaseOportunidad> listadoEntidad);
-        bool Delete(IEnumerable<int> listadoIds, string usuario);
         #endregion
-
-        List<TransicionCalificacionFaseDTO> ObtenerTransicionesCalificacionFase();
         TransicionFaseOportunidad ObtenerPorId(int id);
+        List<TransicionFaseOportunidadDTO> Obtener();
+
     }
 }

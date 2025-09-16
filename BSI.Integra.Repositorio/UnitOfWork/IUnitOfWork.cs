@@ -950,9 +950,8 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IProcesoSeleccionPuntajeCalificacionRepository ProcesoSeleccionPuntajeCalificacionRepository { get; }
 
 
-
-        ICriterioCalificacionFaseRepository CriterioFaseRepository { get; }
-        //IGenericRepository<TCriticidadCalificacion> CriticidadCalificacionRepository { get; }
+        //TransicionFase
+        ICriterioCalificacionFaseRepository CriterioCalificacionFaseRepository { get; }
         ITransicionFaseCriterioOportunidadRepository TransicionFaseCriterioOportunidadRepository { get; }
         ITransicionFaseOportunidadRepository TransicionFaseOportunidadRepository { get; }
         ILineamientoCalificacionFaseRepository LineamientoCalificacionFaseRepository { get; }

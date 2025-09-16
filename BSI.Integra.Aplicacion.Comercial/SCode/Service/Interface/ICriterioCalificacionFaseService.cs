@@ -9,12 +9,12 @@ namespace BSI.Integra.Aplicacion.Servicios.Interface
 {
     public interface ICriterioCalificacionFaseService
     {
-        //bool InsertarCriterio(CriterioCalificacionFaseDTO criterioCalificacionFaseDTO, string usuario);
-        //bool ActualizarCriterio(CriterioCalificacionFaseDTO criterioCalificacionFaseDTO, string usuario);
-        CriterioCalificacionFase ActualizarCriterio(CriterioCalificacionFase entidad);
-        bool EliminarCriterio(int id, string usuario);
-        List<CriterioCalificacionFaseDTO> ObtenerCriteriosCalificacionFase();
-        CriterioCalificacionFase ObtenerPorId(int idTransicionCalificacionFase);
-
+        #region
+        CriterioCalificacionFase Add(CriterioCalificacionFase entidad);
+        CriterioCalificacionFase Update(CriterioCalificacionFase entidad);
+        bool Delete(int id, string usuario);
+        #endregion
+        List<CriterioCalificacionFaseDTO> Obtener();
+        CriterioCalificacionFase ObtenerPorId(int id);
     }
 }

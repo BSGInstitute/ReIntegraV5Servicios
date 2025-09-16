@@ -15,6 +15,12 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 {
+    /// Repositorio: TransicionFaseCriterioOportunidadRepository
+    /// Autor: Jose Vega
+    /// Fecha: 15/09/2025
+    /// <summary>
+    /// Gestión general de T_TransicionFaseCriterioOportunidad
+    /// </summary>
     public class TransicionFaseCriterioOportunidadRepository : GenericRepository<TTransicionFaseCriterioOportunidad>, ITransicionFaseCriterioOportunidadRepository
     {
         private Mapper _mapper;
@@ -54,23 +60,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 throw ex;
             }
         }
-        public IEnumerable<TTransicionFaseCriterioOportunidad> Add(IEnumerable<TransicionFaseCriterioOportunidad> listadoEntidad)
-        {
-            try
-            {
-                List<TTransicionFaseCriterioOportunidad> listado = new List<TTransicionFaseCriterioOportunidad>();
-                foreach (var entidad in listadoEntidad)
-                {
-                    listado.Add(MapeoEntidad(entidad));
-                }
-                base.Insert(listado);
-                return listado;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
 
         public TTransicionFaseCriterioOportunidad Update(TransicionFaseCriterioOportunidad entidad)
         {
@@ -87,25 +76,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             }
         }
 
-        public IEnumerable<TTransicionFaseCriterioOportunidad> Update(IEnumerable<TransicionFaseCriterioOportunidad> listadoEntidad)
-        {
-            try
-            {
-                List<TTransicionFaseCriterioOportunidad> listado = new List<TTransicionFaseCriterioOportunidad>();
-                foreach (var entidad in listadoEntidad)
-                {
-                    listado.Add(MapeoEntidad(entidad));
-                }
-                base.Update(listado);
-                return listado;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-
         public bool Delete(int id, string usuario)
         {
             try
@@ -118,22 +88,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 throw ex;
             }
         }
-
-
-        public bool Delete(IEnumerable<int> listadoIds, string usuario)
-        {
-            try
-            {
-                base.Delete(listadoIds, usuario);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
         #endregion
 
+        /// Autor: Jose Vega
+        /// Fecha: 15/09/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary> 
+        /// <returns> List<TransicionFaseCriterioOportunidadDTO> </returns>
         public List<TransicionFaseCriterioOportunidadDTO> Obtener()
         {
             try
@@ -163,6 +126,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 15/09/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los campos de T_TransicionFaseCriterioOportunidad por el Id.
+        /// </summary>
+        /// <param name="id"> Id de la entidad </param>
+        /// <returns> TransicionFaseCriterioOportunidad </returns>
         public TransicionFaseCriterioOportunidad ObtenerPorId(int id)
         {
             try

@@ -15,7 +15,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 {
     /// Repositorio: CriterioCalificacionFaseRepository
     /// Autor: José Vega
-    /// Fecha: 20/09/2025
+    /// Fecha: 15/09/2025
     /// <summary>
     /// Gestión general de T_CriterioCalificacionFaseOportunidad
     /// </summary>
@@ -89,105 +89,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
-
-        public IEnumerable<TCriterioCalificacionFaseOportunidad> Add(IEnumerable<CriterioCalificacionFase> listadoEntidad)
-        {
-            try
-            {
-                List<TCriterioCalificacionFaseOportunidad> listado = new List<TCriterioCalificacionFaseOportunidad>();
-                foreach (var entidad in listadoEntidad)
-                {
-                    listado.Add(MapeoEntidad(entidad));
-                }
-                base.Insert(listado);
-                return listado;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public IEnumerable<TCriterioCalificacionFaseOportunidad> Update(IEnumerable<CriterioCalificacionFase> listadoEntidad)
-        {
-            try
-            {
-                if (listadoEntidad == null)
-                    throw new ArgumentNullException("El listado es nulo");
-
-                List<TCriterioCalificacionFaseOportunidad> listado = new List<TCriterioCalificacionFaseOportunidad>();
-                foreach (var entidad in listadoEntidad)
-                {
-                    listado.Add(MapeoEntidad(entidad));
-                }
-
-                var infoExistente = base.GetBy(w => listadoEntidad.Select(s => s.Id).Contains(w.Id), s => new { s.Id, s.RowVersion });
-                foreach (var item in listado)
-                {
-                    var entidadExistente = infoExistente.FirstOrDefault(w => w.Id == item.Id);
-                    item.RowVersion = entidadExistente.RowVersion;
-                }
-                base.Update(listado);
-                return listado;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public bool Delete(IEnumerable<int> listadoIds, string usuario)
-        {
-            try
-            {
-                base.Delete(listadoIds, usuario);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
         #endregion
 
-        /// Autor: José Vega
-        /// Fecha: 20/09/2025
-        /// Version: 1.0
-        /// <summary>
-        /// Obtiene todos los registros con los detalles de T_CriterioCalificacionFaseOportunidad
-        /// </summary>
-        /// <returns> List<CriterioCalificacionFaseDTO> </returns>
-        public List<CriterioCalificacionFaseDTO> ObtenerCriteriosCalificacionFase()
-        {
-            try
-            {
-                List<CriterioCalificacionFaseDTO> criteriosFiltro = new();
-                var query = @"SELECT Id,
-                        Orden,
-                        Nombre,
-                        Descripcion,
-                        UsuarioCreacion AS Usuario,
-                        Estado,
-                        FechaCreacion,
-                        FechaModificacion
-                    FROM com.T_CriterioCalificacionFaseOportunidad
-                    WHERE Estado = 1 
-                    ORDER BY Id DESC";
-                var resultado = _dapperRepository.QueryDapper(query, null);
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                {
-                    criteriosFiltro = JsonConvert.DeserializeObject<List<CriterioCalificacionFaseDTO>>(resultado)!;
-                }
-                return criteriosFiltro;
-            }
-            catch (Exception E)
-            {
-                throw new Exception(E.Message);
-            }
-        }
 
         /// Autor: José Vega
-        /// Fecha: 20/09/2025
+        /// Fecha: 15/09/2025
         /// Version: 1.0
         /// <summary>
         /// Obtiene un campo específico por ID
@@ -222,6 +128,45 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception ex)
             {
                 throw new Exception($"#CCFR-OPI-001@Error en ObtenerPorId: {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: José Vega
+        /// Fecha: 15/09/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los registros con los detalles de T_CriterioCalificacionFaseOportunidad
+        /// </summary>
+        /// <returns> List<CriterioCalificacionFaseDTO> </returns>
+        public List<CriterioCalificacionFaseDTO> Obtener()
+        {
+            try
+            {
+                List<CriterioCalificacionFaseDTO> criteriosFiltro = new();
+                var query = @"SELECT Id,
+                        Orden,
+                        Nombre,
+                        Descripcion,
+                        Estado,
+                        UsuarioCreacion,
+                        UsuarioModificacion,
+                        FechaCreacion,
+                        FechaModificacion,
+                        RowVersion,
+                        IdMigracion
+                    FROM com.T_CriterioCalificacionFaseOportunidad
+                    WHERE Estado = 1 
+                    ORDER BY Id DESC";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    criteriosFiltro = JsonConvert.DeserializeObject<List<CriterioCalificacionFaseDTO>>(resultado)!;
+                }
+                return criteriosFiltro;
+            }
+            catch (Exception E)
+            {
+                throw new Exception(E.Message);
             }
         }
     }

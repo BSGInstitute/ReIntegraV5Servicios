@@ -1,4 +1,5 @@
-﻿using BSI.Integra.Aplicacion.Comercial.Service.Implementacion;
+﻿using BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion;
+using BSI.Integra.Aplicacion.Comercial.Service.Implementacion;
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
@@ -31,18 +32,25 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
     public class TransicionFaseOportunidadController : ControllerBase
     {
         private IUnitOfWork _unitOfWork;
-        private ITransicionFaseOportunidadService _transicionCalificacionFaseService;
 
         public TransicionFaseOportunidadController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _transicionCalificacionFaseService = new TransicionFaseOportunidadService(_unitOfWork);
         }
 
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 15/09/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una inserción básica en la tabla TransicionFaseOportunidad.
+        /// </summary>
+        /// <param name="TransicionCalificacionFaseCreateDTO">Datos necesarios para la inserción de la transición de fase de oportunidad.</param>
+        /// <returns>Entidad: TransicionFaseOportunidad</returns>
         [Route("[action]")]
         [Authorize]
         [HttpPost]
-        public IActionResult Insertar([FromBody] TransicionCalificacionFaseCreateDTO TransicionCalificacionFaseCreateDTO)
+        public IActionResult Insertar([FromBody] TransicionFaseOportunidadEntradaDTO TransicionFaseOportunidadEntradaDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -52,11 +60,11 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             {
                 var transicionCalificacionFaseService = new TransicionFaseOportunidadService(_unitOfWork);
                 var transicionCalificacionFase = new TransicionFaseOportunidad();
-                transicionCalificacionFase.IdFaseOportunidadOrigen = TransicionCalificacionFaseCreateDTO.IdFaseOportunidadOrigen;
-                transicionCalificacionFase.IdFaseOportunidadDestino = TransicionCalificacionFaseCreateDTO.IdFaseOportunidadDestino;
+                transicionCalificacionFase.IdFaseOportunidadOrigen = TransicionFaseOportunidadEntradaDTO.IdFaseOportunidadOrigen;
+                transicionCalificacionFase.IdFaseOportunidadDestino = TransicionFaseOportunidadEntradaDTO.IdFaseOportunidadDestino;
                 transicionCalificacionFase.Estado = true;
-                transicionCalificacionFase.UsuarioCreacion = TransicionCalificacionFaseCreateDTO.Usuario;
-                transicionCalificacionFase.UsuarioModificacion = TransicionCalificacionFaseCreateDTO.Usuario;
+                transicionCalificacionFase.UsuarioCreacion = TransicionFaseOportunidadEntradaDTO.Usuario;
+                transicionCalificacionFase.UsuarioModificacion = TransicionFaseOportunidadEntradaDTO.Usuario;
                 transicionCalificacionFase.FechaCreacion = DateTime.Now;
                 transicionCalificacionFase.FechaModificacion = DateTime.Now;
                 var resultado = transicionCalificacionFaseService.Add(transicionCalificacionFase);
@@ -68,8 +76,17 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             }
         }
 
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 15/09/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una inserción básica en la tabla TransicionFaseOportunidad.
+        /// </summary>
+        /// <param name="TransicionCalificacionFaseCreateDTO">Datos necesarios para la inserción de la transición de fase de oportunidad.</param>
+        /// <returns>Entidad: TransicionFaseOportunidad</returns>
         [HttpPut("[Action]")]
-        public IActionResult Actualizar([FromBody] TransicionCalificacionFaseUpdateDTO transicionCalificacionFaseDTO)
+        public IActionResult Actualizar([FromBody] TransicionFaseOportunidadEntradaDTO TransicionFaseOportunidadEntradaDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -79,10 +96,10 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             {
                 var transicionCalificacionFaseService = new TransicionFaseOportunidadService(_unitOfWork);
                 var transicionCalificacionFase = new TransicionFaseOportunidad();
-                transicionCalificacionFase = transicionCalificacionFaseService.ObtenerTransicionCalificacionFasePorId(transicionCalificacionFaseDTO.Id);
-                transicionCalificacionFase.IdFaseOportunidadOrigen = transicionCalificacionFaseDTO.IdFaseOportunidadOrigen;
-                transicionCalificacionFase.IdFaseOportunidadDestino = transicionCalificacionFaseDTO.IdFaseOportunidadDestino;
-                transicionCalificacionFase.UsuarioModificacion = transicionCalificacionFaseDTO.Usuario;
+                transicionCalificacionFase = transicionCalificacionFaseService.ObtenerPorId(TransicionFaseOportunidadEntradaDTO.Id);
+                transicionCalificacionFase.IdFaseOportunidadOrigen = TransicionFaseOportunidadEntradaDTO.IdFaseOportunidadOrigen;
+                transicionCalificacionFase.IdFaseOportunidadDestino = TransicionFaseOportunidadEntradaDTO.IdFaseOportunidadDestino;
+                transicionCalificacionFase.UsuarioModificacion = TransicionFaseOportunidadEntradaDTO.Usuario;
                 transicionCalificacionFase.FechaModificacion = DateTime.Now;
                 var resultado = transicionCalificacionFaseService.Update(transicionCalificacionFase);
                 return Ok(resultado);
@@ -93,13 +110,16 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             }
         }
 
+        /// Tipo Función: DELETE
         /// Autor: Jose Vega
         /// Fecha: 15/09/2025
-        /// Version: 1.0
+        /// Versión: 1.0
         /// <summary>
-        /// Realiza una eliminacion logica a la tabla TransicionCalificacionFase y sus tablas detalles
+        /// Realiza una eliminación lógica en la tabla TransicionFaseOportunidad.
         /// </summary>
-        /// <returns> bool </returns>  
+        /// <param name="id">Id de la transición de fase de oportunidad a eliminar.</param>
+        /// <param name="usuario">Usuario que ejecuta la eliminación.</param>
+        /// <returns>bool</returns>
         [HttpDelete("Eliminar/{id}/{usuario}")]
         public IActionResult Eliminar(int id, string usuario)
         {
@@ -120,22 +140,21 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             }
         }
 
-
-        /// Tipo Función: GET 
+        /// Tipo Función: GET
         /// Autor: Jose Vega
         /// Fecha: 15/09/2025
         /// Versión: 1.0
         /// <summary>
-        /// Obtiene la lista de TransicionCalificacionFase y su detalles  
-        /// </summary> 
-        /// <returns> List<TransicionCalificacionFaseDTO> </returns>
-        [Route("[action]")]
+        /// Obtiene la lista de TransicionFaseOportunidad y sus detalles.
+        /// </summary>
+        /// <returns>List<TransicionFaseOportunidadDTO></returns>
         [HttpGet]
         public IActionResult Obtener()
         {
             try
             {
-                var resultado = new { transicionesFase = _transicionCalificacionFaseService.ObtenerTransicionesCalificacionFase() };
+                var transicionFaseOportunidadService = new TransicionFaseOportunidadService(_unitOfWork);
+                var resultado = transicionFaseOportunidadService.Obtener();
                 return Ok(resultado);
             }
             catch (Exception ex)
@@ -144,21 +163,23 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             }
         }
 
-        /// Tipo Función: GET 
+        /// Tipo Función: GET
         /// Autor: Jose Vega
         /// Fecha: 15/09/2025
         /// Versión: 1.0
         /// <summary>
-        /// Obtiene la información de una Transición de Fase por Id
-        /// </summary> 
-        /// <returns> TransicionCalificacionFaseDTO </returns>
+        /// Obtiene la información de una TransiciónFaseOportunidad por Id.
+        /// </summary>
+        /// <param name="id">Id de la transición de fase de oportunidad.</param>
+        /// <returns>Entidad: TransicionFaseOportunidadDTO</returns>
         [Route("[action]/{id}")]
         [HttpGet]
         public IActionResult ObtenerPorId(int id)
         {
             try
             {
-                var resultado = _transicionCalificacionFaseService.ObtenerTransicionCalificacionFasePorId(id);
+                var transicionFaseOportunidadService = new TransicionFaseOportunidadService(_unitOfWork);
+                var resultado = transicionFaseOportunidadService.ObtenerPorId(id);
                 return Ok(resultado);
             }
             catch (Exception ex)

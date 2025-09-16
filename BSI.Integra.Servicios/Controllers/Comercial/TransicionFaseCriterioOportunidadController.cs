@@ -30,6 +30,15 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
                 _unitOfWork = unitOfWork;
             }
 
+            /// Tipo Función: POST
+            /// Autor: Jose Vega
+            /// Fecha: 15/09/2025
+            /// Versión: 1.0
+            /// <summary>
+            /// Realiza una inserción básica en la tabla TransicionFaseCriterioOportunidad.
+            /// </summary>
+            /// <param name="transicionFaseCriterioOportunidadEntradaDTO">Datos necesarios para la inserción.</param>
+            /// <returns>Entidad: TransicionFaseCriterioOportunidad</returns>
             [Route("[action]")]
             [Authorize]
             [HttpPost]
@@ -59,6 +68,15 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
                 }
             }
 
+            /// Tipo Función: PUT
+            /// Autor: Jose Vega
+            /// Fecha: 15/09/2025
+            /// Versión: 1.0
+            /// <summary>
+            /// Actualiza los datos de la entidad TransicionFaseCriterioOportunidad.
+            /// </summary>
+            /// <param name="transicionFaseCriterioOportunidadEntradaDTO">Datos necesarios para la actualización.</param>
+            /// <returns>Entidad: TransicionFaseCriterioOportunidad</returns>
             [HttpPut("[Action]")]
             public IActionResult Actualizar([FromBody] TransicionFaseCriterioOportunidadEntradaDTO transicionFaseCriterioOportunidadEntradaDTO)
             {
@@ -84,13 +102,16 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
                 }
             }
 
+            /// Tipo Función: DELETE
             /// Autor: Jose Vega
             /// Fecha: 15/09/2025
-            /// Version: 1.0
+            /// Versión: 1.0
             /// <summary>
-            /// Realiza una eliminacion logica a la tabla TransicionCalificacionFase y sus tablas detalles
+            /// Realiza una eliminación lógica en la tabla TransicionFaseCriterioOportunidad.
             /// </summary>
-            /// <returns> bool </returns>  
+            /// <param name="id">Id de la entidad a eliminar.</param>
+            /// <param name="usuario">Usuario que ejecuta la eliminación.</param>
+            /// <returns>bool</returns>
             [HttpDelete("Eliminar/{id}/{usuario}")]
             public IActionResult Eliminar(int id, string usuario)
             {
@@ -111,15 +132,14 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
                 }
             }
 
-
-            /// Tipo Función: GET 
+            /// Tipo Función: GET
             /// Autor: Jose Vega
             /// Fecha: 15/09/2025
             /// Versión: 1.0
             /// <summary>
-            /// Obtiene la lista de TransicionCalificacionFase y su detalles  
-            /// </summary> 
-            /// <returns> List<TransicionCalificacionFaseDTO> </returns>
+            /// Obtiene la lista de TransicionFaseCriterioOportunidad y sus detalles.
+            /// </summary>
+            /// <returns>List<TransicionFaseCriterioOportunidadDTO></returns>
             [Route("[action]")]
             [HttpGet]
             public IActionResult Obtener()
@@ -136,14 +156,15 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
                 }
             }
 
-            /// Tipo Función: GET 
+            /// Tipo Función: GET
             /// Autor: Jose Vega
             /// Fecha: 15/09/2025
             /// Versión: 1.0
             /// <summary>
-            /// Obtiene la información de una Transición de Fase por Id
-            /// </summary> 
-            /// <returns> TransicionCalificacionFaseDTO </returns>
+            /// Obtiene la información de una TransiciónFaseCriterioOportunidad por Id.
+            /// </summary>
+            /// <param name="id">Id de la transición de fase criterio oportunidad.</param>
+            /// <returns>Entidad: TransicionFaseCriterioOportunidadDTO</returns>
             [Route("[action]/{id}")]
             [HttpGet]
             public IActionResult ObtenerPorId(int id)
@@ -159,7 +180,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
                     return BadRequest(ex.Message);
                 }
             
-        }
+            } 
     }
 }
 

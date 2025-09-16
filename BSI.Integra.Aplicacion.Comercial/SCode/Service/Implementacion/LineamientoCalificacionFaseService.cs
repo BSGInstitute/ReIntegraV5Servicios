@@ -13,6 +13,12 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 {
+    /// Servicio: LineamientoCalificacionFaseService
+    /// Autor: José Vega.
+    /// Fecha: 15/09/2025
+    /// <summary>
+    /// Servicio para la gestión de LineamientoCalificacionFase
+    /// </summary>
     public class LineamientoCalificacionFaseService : ILineamientoCalificacionFaseService
     {
         private IUnitOfWork _unitOfWork;
@@ -37,17 +43,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 throw ex;
             }
         }
-        public LineamientoCalificacionFase ObtenerPorId(int id)
-        {
-            try
-            {
-                return _unitOfWork.LineamientoCalificacionFaseRepository.ObtenerPorId(id);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+
         public LineamientoCalificacionFase Update(LineamientoCalificacionFase entidad)
         {
             try
@@ -75,30 +71,39 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 throw ex;
             }
         }
+
         /// Autor: José Vega
         /// Fecha: 20/09/2023
         /// Version: 1.0
         /// <summary>
-        /// Obtiene un criterio de calificación de fase por su ID
+        /// Obtiene todos los campos de T_LineamientoCalificacionFase por el Id.
         /// </summary>
-        /// <param name="idCriterioCalificacionFase">ID del criterio</param>
-        /// <returns>Detalles del criterio</returns>
-        public LineamientoCalificacionFase ObtenerLineamientoCalificacionFasePorId(int idLineamientoCalificacionFase)
+        /// <param name="id">ID de la transición</param>
+        /// <returns>LineamientoCalificacionFase</returns>
+        public LineamientoCalificacionFase ObtenerPorId(int id)
         {
             try
             {
-                return _unitOfWork.LineamientoCalificacionFaseRepository.ObtenerLineamientoCalificacionFasePorId(idLineamientoCalificacionFase);
+                return _unitOfWork.LineamientoCalificacionFaseRepository.ObtenerPorId(id);
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw ex;
             }
         }
-        public List<LineamientoCalificacionFaseDTO> ListaLineamientos()
+
+        /// Autor: José Vega
+        /// Fecha: 20/09/2023
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns>LineamientoCalificacionFaseDTO</returns>
+        public List<LineamientoCalificacionFaseDTO> Obtener()
         {
             try
             {
-                return _unitOfWork.LineamientoCalificacionFaseRepository.ListaLineamientos();
+                return _unitOfWork.LineamientoCalificacionFaseRepository.Obtener();
             }
             catch (Exception ex)
             {
