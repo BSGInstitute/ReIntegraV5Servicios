@@ -76,10 +76,19 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             }
         }*/
 
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 15/09/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una inserción en la tabla TransicionFaseOportunidad.
+        /// </summary>
+        /// <param name="transicionFaseOportunidadEntradaDTO">Datos necesarios para la inserción de la transición de fase de oportunidad.</param>
+        /// <returns>Entidad: TransicionFaseOportunidad</returns>
         [Route("[action]")]
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Insertar2([FromBody] TransicionFaseOportunidadDTO transicionFaseOportunidadEntradaDTO)
+        public async Task<IActionResult> Insertar([FromBody] TransicionFaseOportunidadDTO transicionFaseOportunidadEntradaDTO)
         {
             if (transicionFaseOportunidadEntradaDTO == null)
             {
@@ -92,20 +101,26 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
 
             try
             {
-                // Instanciar el servicio
                 var transicionService = new TransicionFaseOportunidadService(_unitOfWork);
-
-                // Mapear el DTO a la entidad y sus hijos (idealmente el servicio lo hace)
                 await transicionService.InsertTransicionAsync(transicionFaseOportunidadEntradaDTO);
 
                 return Ok("Transición insertada correctamente.");
             }
             catch (Exception ex)
             {
-                // Mejor registrar el error con un logger
                 return StatusCode(500, $"Error al insertar la transición: {ex.Message}");
             }
         }
+
+        /// Tipo Función: put
+        /// Autor: Jose Vega
+        /// Fecha: 15/09/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza una modificación en la tabla TransicionFaseOportunidad.
+        /// </summary>
+        /// <param name="TransicionFaseOportunidadDTO">Datos necesarios para la modificación de la transición de fase de oportunidad.</param>
+        /// <returns>Entidad: TransicionFaseOportunidad</returns>
         [HttpPut("[Action]")]
         [Authorize]
         public async Task<IActionResult> Actualizar([FromBody] TransicionFaseOportunidadDTO dto)

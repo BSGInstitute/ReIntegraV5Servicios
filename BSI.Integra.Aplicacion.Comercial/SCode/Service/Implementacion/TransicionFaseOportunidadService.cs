@@ -41,8 +41,6 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
 
             var mapperConfig = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<TTransicionFaseOportunidad, TransicionFaseOportunidad>().ReverseMap();
-                cfg.CreateMap<TCriterioCalificacionFaseOportunidad, TransicionFaseCriterioOportunidad>().ReverseMap();
                 cfg.CreateMap<TransicionFaseOportunidadDTO, TransicionFaseOportunidad>().ReverseMap();
                 cfg.CreateMap<TransicionFaseCriterioOportunidadDTO, TransicionFaseCriterioOportunidad>().ReverseMap();
             });
@@ -125,17 +123,33 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 if (transicionFaseOportunidadDTO.TransicionFaseCriterioOportunidad == null)
                     throw new ArgumentNullException("La propiedad TransicionFaseCriterioOportunidad es nula.");
 
-                // Mapear el padre
+                var transicionesExistentes = _unitOfWork.TransicionFaseOportunidadRepository.Obtener()
+                    .Where(t => t.IdFaseOportunidadOrigen == transicionFaseOportunidadDTO.IdFaseOportunidadOrigen
+                        && t.IdFaseOportunidadDestino == transicionFaseOportunidadDTO.IdFaseOportunidadDestino)
+                    .ToList();
+
+                if (transicionesExistentes.Any())
+                {
+                    throw new InvalidOperationException(
+                        $"Ya existe una transición con origen {transicionFaseOportunidadDTO.IdFaseOportunidadOrigen} y " +
+                        $"destino {transicionFaseOportunidadDTO.IdFaseOportunidadDestino}. Use la función de actualización en su lugar.");
+                }
+
                 var transicionEntity = _mapper.Map<TransicionFaseOportunidad>(transicionFaseOportunidadDTO);
                 transicionEntity.UsuarioCreacion = transicionFaseOportunidadDTO.Usuario;
                 transicionEntity.UsuarioModificacion = transicionFaseOportunidadDTO.Usuario;
                 AsignarValoresComunes(transicionEntity);
 
-                // Mapear la lista de hijos
                 if (transicionFaseOportunidadDTO.TransicionFaseCriterioOportunidad != null)
                 {
+                    var criteriosSinDuplicados = transicionFaseOportunidadDTO.TransicionFaseCriterioOportunidad
+                        .GroupBy(c => c.IdCriterioCalificacionFaseOportunidad)
+                        .Select(g => g.First())
+                        .ToList();
+
                     transicionEntity.TransicionFaseCriterioOportunidad = new List<TransicionFaseCriterioOportunidad>();
-                    var criterioEntities = _mapper.Map<List<TransicionFaseCriterioOportunidad>>(transicionFaseOportunidadDTO.TransicionFaseCriterioOportunidad);
+                    var criterioEntities = _mapper.Map<List<TransicionFaseCriterioOportunidad>>(criteriosSinDuplicados);
+
                     foreach (var criterio in criterioEntities)
                     {
                         criterio.IdTransicionFaseOportunidad = transicionEntity.Id;
@@ -143,7 +157,6 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                         criterio.UsuarioModificacion = transicionFaseOportunidadDTO.Usuario;
                         AsignarValoresComunes(criterio);
                         transicionEntity.TransicionFaseCriterioOportunidad.Add(criterio);
-
                     }
                 }
 
@@ -152,7 +165,10 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
             catch (Exception ex)
             {
-                throw ex;
+                if (ex is InvalidOperationException)
+                    throw;
+
+                throw new Exception($"Error al insertar la transición: {ex.Message}", ex);
             }
         }
 
@@ -160,70 +176,100 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         {
             try
             {
-                // 1. Obtener la entidad actual desde DB asegurando que se carga con sus relaciones
                 var entidadActual = _unitOfWork.TransicionFaseOportunidadRepository.ObtenerPorId(dto.Id.Value);
                 if (entidadActual == null)
                     throw new Exception("Transición no encontrada.");
 
-                // Inicializa colección de hijos si es null
-                if (entidadActual.TransicionFaseCriterioOportunidad == null)
-                    entidadActual.TransicionFaseCriterioOportunidad = new List<TransicionFaseCriterioOportunidad>();
+                bool hayCambiosEnPadre =
+                    entidadActual.IdFaseOportunidadOrigen != dto.IdFaseOportunidadOrigen ||
+                    entidadActual.IdFaseOportunidadDestino != dto.IdFaseOportunidadDestino;
 
-                // Actualizar campos del padre
-                entidadActual.IdFaseOportunidadOrigen = dto.IdFaseOportunidadOrigen;
-                entidadActual.IdFaseOportunidadDestino = dto.IdFaseOportunidadDestino;
-                entidadActual.FechaModificacion = DateTime.Now;
-                entidadActual.UsuarioModificacion = dto.Usuario;
-
-                // Sincronizar hijos - primero obtener los IDs existentes
-                var criteriosExistentes = entidadActual.TransicionFaseCriterioOportunidad.ToList();
-                var idsDto = dto.TransicionFaseCriterioOportunidad?.Select(x => x.Id).Where(id => id > 0).ToList() ?? new List<int>();
-
-                // Eliminar hijos que ya no están en DTO
-                var criteriosParaEliminar = criteriosExistentes.Where(x => x.Id > 0 && !idsDto.Contains(x.Id)).ToList();
-                foreach (var criterioEliminar in criteriosParaEliminar)
+                if (hayCambiosEnPadre)
                 {
-                    entidadActual.TransicionFaseCriterioOportunidad.Remove(criterioEliminar);
-                    _unitOfWork.TransicionFaseCriterioOportunidadRepository.DeleteCriterios(criterioEliminar.Id, "Prueba");
+                    var transicionesExistentes = _unitOfWork.TransicionFaseOportunidadRepository.Obtener()
+                        .Where(t => t.IdFaseOportunidadOrigen == dto.IdFaseOportunidadOrigen
+                            && t.IdFaseOportunidadDestino == dto.IdFaseOportunidadDestino
+                            && t.Id != entidadActual.Id)
+                        .ToList();
+
+                    if (transicionesExistentes.Any())
+                    {
+                        throw new InvalidOperationException(
+                            $"Ya existe una transición con origen {dto.IdFaseOportunidadOrigen} y destino {dto.IdFaseOportunidadDestino}. No se puede actualizar.");
+                    }
+
+                    entidadActual.IdFaseOportunidadOrigen = dto.IdFaseOportunidadOrigen;
+                    entidadActual.IdFaseOportunidadDestino = dto.IdFaseOportunidadDestino;
+                    entidadActual.FechaModificacion = DateTime.Now;
+                    entidadActual.UsuarioModificacion = dto.Usuario;
+                    _unitOfWork.TransicionFaseOportunidadRepository.Update(entidadActual);
                 }
 
-                // Agregar/Actualizar hijos
-                if (dto.TransicionFaseCriterioOportunidad != null)
+                var hijosDTO = dto.TransicionFaseCriterioOportunidad ?? new List<TransicionFaseCriterioOportunidadDTO>();
+                if (hijosDTO.Count == 0)
                 {
-                    foreach (var itemDto in dto.TransicionFaseCriterioOportunidad)
+                    await _unitOfWork.CommitAsync();
+                    return;
+                }
+
+                var hijosBD = _unitOfWork.TransicionFaseOportunidadRepository
+                    .ObtenerPorIdTransicion(entidadActual.Id);
+
+                var hijosDTOAgrupados = hijosDTO
+                    .GroupBy(x => x.IdCriterioCalificacionFaseOportunidad)
+                    .Select(g => g.First())
+                    .ToList();
+
+                foreach (var itemDto in hijosDTOAgrupados)
+                {
+                    var hijoExistente = hijosBD.FirstOrDefault(x =>
+                        x.IdCriterioCalificacionFaseOportunidad == itemDto.IdCriterioCalificacionFaseOportunidad);
+
+                    if (itemDto.Estado.HasValue && itemDto.Estado.Value == false)
                     {
-                        if (itemDto.Id > 0)
+                        if (hijoExistente != null)
                         {
-                            var criterio = _unitOfWork.TransicionFaseCriterioOportunidadRepository.ObtenerPorId(itemDto.Id);
-                            if (criterio != null)
-                            {
-                                criterio.IdCriterioCalificacionFaseOportunidad = itemDto.IdCriterioCalificacionFaseOportunidad;
-                                if (itemDto.Estado.HasValue)
-                                criterio.Estado = itemDto.Estado.Value;
-                                criterio.FechaModificacion = DateTime.Now;
-                                criterio.UsuarioModificacion = dto.Usuario;
-
-                                _unitOfWork.TransicionFaseCriterioOportunidadRepository.Update(criterio);
-                            }
+                            _unitOfWork.TransicionFaseCriterioOportunidadRepository.DeleteCriterios(hijoExistente.Id, dto.Usuario);
                         }
-                        else
+                        continue;
+                    }
+
+                    if (hijoExistente != null)
+                    {
+                        if (hijoExistente.Estado != true)
                         {
-                            var nuevoHijo = new TransicionFaseCriterioOportunidad
-                            {
-                                IdTransicionFaseOportunidad = entidadActual.Id,
-                                IdCriterioCalificacionFaseOportunidad = itemDto.IdCriterioCalificacionFaseOportunidad,
-                                Estado = itemDto.Estado ?? true,
-                                UsuarioModificacion = dto.Usuario,
-                                FechaCreacion = DateTime.Now,
-                                FechaModificacion = DateTime.Now
-                            };
-
-                            _unitOfWork.TransicionFaseCriterioOportunidadRepository.Add(nuevoHijo);
+                            hijoExistente.Estado = true;
+                            hijoExistente.FechaModificacion = DateTime.Now;
+                            hijoExistente.UsuarioModificacion = dto.Usuario;
+                            _unitOfWork.TransicionFaseCriterioOportunidadRepository.Update(hijoExistente);
                         }
+                    }
+                    else
+                    {
+                        var nuevoHijo = new TransicionFaseCriterioOportunidad
+                        {
+                            IdTransicionFaseOportunidad = entidadActual.Id,
+                            IdCriterioCalificacionFaseOportunidad = itemDto.IdCriterioCalificacionFaseOportunidad,
+                            Estado = true,
+                            UsuarioCreacion = dto.Usuario,
+                            UsuarioModificacion = dto.Usuario,
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now
+                        };
+                        _unitOfWork.TransicionFaseCriterioOportunidadRepository.Add(nuevoHijo);
                     }
                 }
 
-                _unitOfWork.TransicionFaseOportunidadRepository.Update(entidadActual);
+                var criteriosParaEliminar = hijosBD.Where(hijo =>
+                    !hijosDTOAgrupados.Any(dto =>
+                        dto.IdCriterioCalificacionFaseOportunidad == hijo.IdCriterioCalificacionFaseOportunidad)
+                ).ToList();
+
+                foreach (var criterioEliminar in criteriosParaEliminar)
+                {
+                    _unitOfWork.TransicionFaseCriterioOportunidadRepository.DeleteCriterios(criterioEliminar.Id, dto.Usuario);
+                }
+
                 await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)

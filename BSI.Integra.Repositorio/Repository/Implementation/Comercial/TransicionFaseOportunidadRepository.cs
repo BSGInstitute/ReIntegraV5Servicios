@@ -143,37 +143,37 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 string query = @"SELECT 
-    -- Información de la transición
-    tfo.Id, tfo.IdFaseOportunidadOrigen, tfo.IdFaseOportunidadDestino, 
-    tfo.Estado, tfo.UsuarioCreacion, tfo.UsuarioModificacion, 
-    tfo.FechaCreacion, tfo.FechaModificacion, tfo.RowVersion, tfo.IdMigracion,
+                    -- Información de la transición
+                    tfo.Id, tfo.IdFaseOportunidadOrigen, tfo.IdFaseOportunidadDestino, 
+                    tfo.Estado, tfo.UsuarioCreacion, tfo.UsuarioModificacion, 
+                    tfo.FechaCreacion, tfo.FechaModificacion, tfo.RowVersion, tfo.IdMigracion,
     
-    -- Información de la fase de origen
-    fOrigen.Codigo AS CodigoFaseOrigen, 
-    fOrigen.Nombre AS NombreFaseOrigen,
+                    -- Información de la fase de origen
+                    fOrigen.Codigo AS CodigoFaseOrigen, 
+                    fOrigen.Nombre AS NombreFaseOrigen,
     
-    -- Información de la fase de destino
-    fDestino.Codigo AS CodigoFaseDestino,
-    fDestino.Nombre AS NombreFaseDestino,
+                    -- Información de la fase de destino
+                    fDestino.Codigo AS CodigoFaseDestino,
+                    fDestino.Nombre AS NombreFaseDestino,
     
-    -- Información de criterios asociados a la transición
-    tfco.Id AS CriterioTransicionId, 
-    tfco.IdTransicionFaseOportunidad,
-    tfco.IdCriterioCalificacionFaseOportunidad,
-    ccfo.Nombre AS NombreCriterio,
-    ccfo.Descripcion AS DescripcionCriterio
-FROM 
-    com.T_TransicionFaseOportunidad tfo
-LEFT JOIN 
-    pla.T_FaseOportunidad fOrigen ON tfo.IdFaseOportunidadOrigen = fOrigen.Id
-LEFT JOIN 
-    pla.T_FaseOportunidad fDestino ON tfo.IdFaseOportunidadDestino = fDestino.Id
-LEFT JOIN 
-    com.T_TransicionFaseCriterioOportunidad tfco ON tfo.Id = tfco.IdTransicionFaseOportunidad
-LEFT JOIN 
-    com.T_CriterioCalificacionFaseOportunidad ccfo ON tfco.IdCriterioCalificacionFaseOportunidad = ccfo.Id
-WHERE 
-    tfo.Id = @Id";
+                    -- Información de criterios asociados a la transición
+                    tfco.Id AS CriterioTransicionId, 
+                    tfco.IdTransicionFaseOportunidad,
+                    tfco.IdCriterioCalificacionFaseOportunidad,
+                    ccfo.Nombre AS NombreCriterio,
+                    ccfo.Descripcion AS DescripcionCriterio
+                FROM 
+                    com.T_TransicionFaseOportunidad tfo
+                LEFT JOIN 
+                    pla.T_FaseOportunidad fOrigen ON tfo.IdFaseOportunidadOrigen = fOrigen.Id
+                LEFT JOIN 
+                    pla.T_FaseOportunidad fDestino ON tfo.IdFaseOportunidadDestino = fDestino.Id
+                LEFT JOIN 
+                    com.T_TransicionFaseCriterioOportunidad tfco ON tfo.Id = tfco.IdTransicionFaseOportunidad
+                LEFT JOIN 
+                    com.T_CriterioCalificacionFaseOportunidad ccfo ON tfco.IdCriterioCalificacionFaseOportunidad = ccfo.Id
+                WHERE 
+                    tfo.Estado = 1 AND tfo.Id = @Id";
                 string resultado = _dapperRepository.FirstOrDefault(query, new { Id = id });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
@@ -200,35 +200,35 @@ WHERE
             {
                 List<TransicionFaseOportunidadPlanoDto> transicionesFiltro = new();
                 var query = @"SELECT 
-    -- Información de la transición
-    tfo.Id, tfo.IdFaseOportunidadOrigen, tfo.IdFaseOportunidadDestino, 
-    tfo.Estado, tfo.UsuarioCreacion, tfo.UsuarioModificacion, 
-    tfo.FechaCreacion, tfo.FechaModificacion, tfo.RowVersion, tfo.IdMigracion,
+                    -- Información de la transición
+                    tfo.Id, tfo.IdFaseOportunidadOrigen, tfo.IdFaseOportunidadDestino, 
+                    tfo.Estado, tfo.UsuarioCreacion, tfo.UsuarioModificacion, 
+                    tfo.FechaCreacion, tfo.FechaModificacion, tfo.RowVersion, tfo.IdMigracion,
     
-    -- Información de la fase de origen
-    fOrigen.Codigo AS CodigoFaseOrigen, 
-    fOrigen.Nombre AS NombreFaseOrigen,
+                    -- Información de la fase de origen
+                    fOrigen.Codigo AS CodigoFaseOrigen, 
+                    fOrigen.Nombre AS NombreFaseOrigen,
     
-    -- Información de la fase de destino
-    fDestino.Codigo AS CodigoFaseDestino,
-    fDestino.Nombre AS NombreFaseDestino,
+                    -- Información de la fase de destino
+                    fDestino.Codigo AS CodigoFaseDestino,
+                    fDestino.Nombre AS NombreFaseDestino,
     
-    -- Información de criterios asociados a la transición
-    tfco.Id AS CriterioTransicionId, 
-    tfco.IdTransicionFaseOportunidad,
-    tfco.IdCriterioCalificacionFaseOportunidad,
-    ccfo.Nombre AS NombreCriterio,
-    ccfo.Descripcion AS DescripcionCriterio
-FROM 
-    com.T_TransicionFaseOportunidad tfo
-LEFT JOIN 
-    pla.T_FaseOportunidad fOrigen ON tfo.IdFaseOportunidadOrigen = fOrigen.Id
-LEFT JOIN 
-    pla.T_FaseOportunidad fDestino ON tfo.IdFaseOportunidadDestino = fDestino.Id
-LEFT JOIN 
-    com.T_TransicionFaseCriterioOportunidad tfco ON tfo.Id = tfco.IdTransicionFaseOportunidad
-LEFT JOIN 
-    com.T_CriterioCalificacionFaseOportunidad ccfo ON tfco.IdCriterioCalificacionFaseOportunidad = ccfo.Id
+                    -- Información de criterios asociados a la transición
+                    tfco.Id AS CriterioTransicionId, 
+                    tfco.IdTransicionFaseOportunidad,
+                    tfco.IdCriterioCalificacionFaseOportunidad,
+                    ccfo.Nombre AS NombreCriterio,
+                    ccfo.Descripcion AS DescripcionCriterio
+                FROM 
+                    com.T_TransicionFaseOportunidad tfo
+                LEFT JOIN 
+                    pla.T_FaseOportunidad fOrigen ON tfo.IdFaseOportunidadOrigen = fOrigen.Id
+                LEFT JOIN 
+                    pla.T_FaseOportunidad fDestino ON tfo.IdFaseOportunidadDestino = fDestino.Id
+                LEFT JOIN 
+                    com.T_TransicionFaseCriterioOportunidad tfco ON tfo.Id = tfco.IdTransicionFaseOportunidad
+                LEFT JOIN 
+                    com.T_CriterioCalificacionFaseOportunidad ccfo ON tfco.IdCriterioCalificacionFaseOportunidad = ccfo.Id
                 WHERE 
                     tfo.Estado = 1";
                 var resultado = _dapperRepository.QueryDapper(query, null);
