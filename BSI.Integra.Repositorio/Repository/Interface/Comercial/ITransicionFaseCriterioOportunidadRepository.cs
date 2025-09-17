@@ -16,7 +16,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
         #region Metodos Base
         TTransicionFaseCriterioOportunidad Add(TransicionFaseCriterioOportunidad entidad);
         TTransicionFaseCriterioOportunidad Update(TransicionFaseCriterioOportunidad entidad);
-        bool Delete(int id, string usuario);
+        bool DeleteCriterios(int id, string usuario);
         #endregion
 
         List<TransicionFaseCriterioOportunidadDTO> Obtener();

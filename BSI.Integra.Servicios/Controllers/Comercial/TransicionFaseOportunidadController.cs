@@ -106,6 +106,26 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
                 return StatusCode(500, $"Error al insertar la transición: {ex.Message}");
             }
         }
+        [HttpPut("[Action]")]
+        [Authorize]
+        public async Task<IActionResult> Actualizar([FromBody] TransicionFaseOportunidadDTO dto)
+        {
+            if (dto == null)
+                return BadRequest("Payload de actualización inválido.");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var service = new TransicionFaseOportunidadService(_unitOfWork);
+                await service.UpdateTransicionAsync(dto);
+                return Ok("Transición actualizada correctamente.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al actualizar la transición: {ex.Message}");
+            }
+        }
 
         /// Tipo Función: POST
         /// Autor: Jose Vega
@@ -116,7 +136,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         /// </summary>
         /// <param name="TransicionCalificacionFaseCreateDTO">Datos necesarios para la inserción de la transición de fase de oportunidad.</param>
         /// <returns>Entidad: TransicionFaseOportunidad</returns>
-        [HttpPut("[Action]")]
+        /*[HttpPut("[Action]")]
         public IActionResult Actualizar([FromBody] TransicionFaseOportunidadEntradaDTO TransicionFaseOportunidadEntradaDTO)
         {
             if (!ModelState.IsValid)
@@ -138,7 +158,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             {
                 return BadRequest(ex.Message);
             }
-        }
+        }*/
 
         /// Tipo Función: DELETE
         /// Autor: Jose Vega

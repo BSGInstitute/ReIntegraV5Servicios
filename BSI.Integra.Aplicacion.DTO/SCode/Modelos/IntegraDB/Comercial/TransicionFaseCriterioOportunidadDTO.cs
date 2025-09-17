@@ -11,7 +11,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
     {
         public int Id { get; set; }
         public int IdTransicionFaseOportunidad { get; set; }
-        public int IdCriterioCalificacionFaseOportunidad { get; set; }   
+        public int IdCriterioCalificacionFaseOportunidad { get; set; }
+        public bool? Estado { get; set; }
     }
     public class TransicionFaseCriterioOportunidadEntradaDTO
     {

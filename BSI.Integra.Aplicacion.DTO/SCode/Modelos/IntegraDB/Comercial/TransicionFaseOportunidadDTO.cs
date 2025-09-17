@@ -13,8 +13,18 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? Id { get; set; }
         public int IdFaseOportunidadOrigen { get; set; }
         public int IdFaseOportunidadDestino { get; set; }
+        public string? Usuario { get; set; }
         public List<TransicionFaseCriterioOportunidadDTO> TransicionFaseCriterioOportunidad { get; set; }
     }
+
+    public class TransicionFaseCriterioOportunidado
+    {
+        public int Id { get; set; }
+        public int IdTransicionFaseOportunidad { get; set; }
+        public int IdCriterioCalificacionFaseOportunidad { get; set; }
+    }
+
+
 
     public class TransicionFaseOportunidadEntradaDTO
     {
@@ -22,6 +32,16 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdFaseOportunidadOrigen { get; set; }
         public int IdFaseOportunidadDestino { get; set; }
         public List<TransicionFaseCriterioOportunidadDTO> TransicionFaseCriterioOportunidad { get; set; }
+    }
+
+    public class TransicionFaseOportunidadPlanoDto
+    {
+        public int Id { get; set; }
+        public int IdFaseOportunidadOrigen { get; set; }
+        public int IdFaseOportunidadDestino { get; set; }
+        public int? CriterioTransicionId { get; set; }
+        public int? IdTransicionFaseOportunidad { get; set; }
+        public int? IdCriterioCalificacionFaseOportunidad { get; set; }
     }
 
 }

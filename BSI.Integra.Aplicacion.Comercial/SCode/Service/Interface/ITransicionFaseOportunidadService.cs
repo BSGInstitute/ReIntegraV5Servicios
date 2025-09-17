@@ -19,8 +19,9 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         TransicionFaseOportunidad Update(TransicionFaseOportunidad entidad);
         bool Delete(int id, string usuario);
         Task InsertTransicionAsync(TransicionFaseOportunidadDTO transicionFaseOportunidadDTO);
+        Task UpdateTransicionAsync(TransicionFaseOportunidadDTO dto);
         #endregion
-        List<TransicionFaseOportunidadDTO> Obtener();
+        List<TransicionFaseOportunidadPlanoDto> Obtener();
         TransicionFaseOportunidad ObtenerPorId(int id);
     }
 }

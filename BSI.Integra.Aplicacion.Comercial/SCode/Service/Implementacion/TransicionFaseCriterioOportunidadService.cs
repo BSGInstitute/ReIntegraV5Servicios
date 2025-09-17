@@ -71,7 +71,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         {
             try
             {
-                _unitOfWork.TransicionFaseCriterioOportunidadRepository.Delete(id, usuario);
+                _unitOfWork.TransicionFaseCriterioOportunidadRepository.DeleteCriterios(id, usuario);
                 _unitOfWork.Commit();
                 return true;
             }

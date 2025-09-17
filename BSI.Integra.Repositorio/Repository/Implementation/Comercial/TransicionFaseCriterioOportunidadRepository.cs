@@ -76,7 +76,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             }
         }
 
-        public bool Delete(int id, string usuario)
+        public bool DeleteCriterios(int id, string usuario)
         {
             try
             {
@@ -148,7 +148,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 							FechaModificacion,
 							RowVersion,
 							IdMigracion
-							FROM com.T_TransicionFaseCriterioOportunidad WHERE Estado = 1 AND Id =  @Id;";
+							FROM com.T_TransicionFaseCriterioOportunidad WHERE Estado = 1 AND Id = @Id;";
                 string resultado = _dapperRepository.FirstOrDefault(query, new { Id = id });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
