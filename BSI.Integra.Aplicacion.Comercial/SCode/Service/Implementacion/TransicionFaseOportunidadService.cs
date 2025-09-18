@@ -195,7 +195,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                     if (transicionesExistentes.Any())
                     {
                         throw new InvalidOperationException(
-                            $"Ya existe una transición con origen {dto.IdFaseOportunidadOrigen} y destino {dto.IdFaseOportunidadDestino}. No se puede actualizar.");
+                            $"Ya existe una transición con origen {dto.IdFaseOportunidadOrigen} y destino {dto.IdFaseOportunidadDestino}. En su lugar, actualice la transición existente.");
                     }
 
                     entidadActual.IdFaseOportunidadOrigen = dto.IdFaseOportunidadOrigen;

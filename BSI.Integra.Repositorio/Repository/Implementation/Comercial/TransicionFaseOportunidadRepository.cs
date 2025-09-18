@@ -59,19 +59,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
-        /*public TTransicionFaseOportunidad Add(TransicionFaseOportunidad entidad)
-        {
-            try
-            {
-                var TransicionCalificacionFase = MapeoEntidad(entidad);
-                base.Insert(TransicionCalificacionFase);
-                return TransicionCalificacionFase;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }*/
+
         public TTransicionFaseOportunidad Add(TransicionFaseOportunidad entidad)
         {
             try
@@ -244,6 +232,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 15/09/2025
+        /// Version: 1.0
+        /// <summary>
+        ///  Obtiene todos los campos de T_TransicionFaseCriterioOportunidad por el Id.
+        /// </summary> 
+        /// <returns> List<TransicionFaseCriterioOportunidad> </returns>
         public List<TransicionFaseCriterioOportunidad> ObtenerPorIdTransicion(int idTransicionFaseOportunidad)
         {
             try

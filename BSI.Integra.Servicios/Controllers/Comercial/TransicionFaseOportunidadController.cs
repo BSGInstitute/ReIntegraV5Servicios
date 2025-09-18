@@ -44,44 +44,6 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         /// Fecha: 15/09/2025
         /// Versión: 1.0
         /// <summary>
-        /// Realiza una inserción básica en la tabla TransicionFaseOportunidad.
-        /// </summary>
-        /// <param name="TransicionCalificacionFaseCreateDTO">Datos necesarios para la inserción de la transición de fase de oportunidad.</param>
-        /// <returns>Entidad: TransicionFaseOportunidad</returns>
-        /*[Route("[action]")]
-        [Authorize]
-        [HttpPost]
-        public IActionResult Insertar([FromBody] TransicionFaseOportunidadEntradaDTO TransicionFaseOportunidadEntradaDTO)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                var transicionCalificacionFaseService = new TransicionFaseOportunidadService(_unitOfWork);
-                var transicionCalificacionFase = new TransicionFaseOportunidad();
-                transicionCalificacionFase.IdFaseOportunidadOrigen = TransicionFaseOportunidadEntradaDTO.IdFaseOportunidadOrigen;
-                transicionCalificacionFase.IdFaseOportunidadDestino = TransicionFaseOportunidadEntradaDTO.IdFaseOportunidadDestino;
-                transicionCalificacionFase.Estado = true;
-                transicionCalificacionFase.UsuarioCreacion = TransicionFaseOportunidadEntradaDTO.Usuario;
-                transicionCalificacionFase.UsuarioModificacion = TransicionFaseOportunidadEntradaDTO.Usuario;
-                transicionCalificacionFase.FechaCreacion = DateTime.Now;
-                transicionCalificacionFase.FechaModificacion = DateTime.Now;
-                var resultado = transicionCalificacionFaseService.Add(transicionCalificacionFase);
-                return Ok(resultado);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }*/
-
-        /// Tipo Función: POST
-        /// Autor: Jose Vega
-        /// Fecha: 15/09/2025
-        /// Versión: 1.0
-        /// <summary>
         /// Realiza una inserción en la tabla TransicionFaseOportunidad.
         /// </summary>
         /// <param name="transicionFaseOportunidadEntradaDTO">Datos necesarios para la inserción de la transición de fase de oportunidad.</param>
@@ -144,39 +106,6 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
                 return StatusCode(500, $"Error al actualizar la transición: {ex.Message}");
             }
         }
-
-        /// Tipo Función: POST
-        /// Autor: Jose Vega
-        /// Fecha: 15/09/2025
-        /// Versión: 1.0
-        /// <summary>
-        /// Realiza una inserción básica en la tabla TransicionFaseOportunidad.
-        /// </summary>
-        /// <param name="TransicionCalificacionFaseCreateDTO">Datos necesarios para la inserción de la transición de fase de oportunidad.</param>
-        /// <returns>Entidad: TransicionFaseOportunidad</returns>
-        /*[HttpPut("[Action]")]
-        public IActionResult Actualizar([FromBody] TransicionFaseOportunidadEntradaDTO TransicionFaseOportunidadEntradaDTO)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                var transicionCalificacionFaseService = new TransicionFaseOportunidadService(_unitOfWork);
-                var transicionCalificacionFase = new TransicionFaseOportunidad();
-                transicionCalificacionFase = transicionCalificacionFaseService.ObtenerPorId(TransicionFaseOportunidadEntradaDTO.Id);
-                transicionCalificacionFase.IdFaseOportunidadOrigen = TransicionFaseOportunidadEntradaDTO.IdFaseOportunidadOrigen;
-                transicionCalificacionFase.IdFaseOportunidadDestino = TransicionFaseOportunidadEntradaDTO.IdFaseOportunidadDestino;
-                transicionCalificacionFase.FechaModificacion = DateTime.Now;
-                var resultado = transicionCalificacionFaseService.Update(transicionCalificacionFase);
-                return Ok(resultado);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }*/
 
         /// Tipo Función: DELETE
         /// Autor: Jose Vega

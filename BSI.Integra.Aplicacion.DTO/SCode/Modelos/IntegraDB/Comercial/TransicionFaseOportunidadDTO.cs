@@ -17,15 +17,6 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public List<TransicionFaseCriterioOportunidadDTO> TransicionFaseCriterioOportunidad { get; set; }
     }
 
-    public class TransicionFaseCriterioOportunidado
-    {
-        public int Id { get; set; }
-        public int IdTransicionFaseOportunidad { get; set; }
-        public int IdCriterioCalificacionFaseOportunidad { get; set; }
-    }
-
-
-
     public class TransicionFaseOportunidadEntradaDTO
     {
         public int Id { get; set; }

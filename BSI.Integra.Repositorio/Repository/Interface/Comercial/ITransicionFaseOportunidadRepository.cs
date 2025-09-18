@@ -14,7 +14,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
     public interface ITransicionFaseOportunidadRepository : IGenericRepository<TTransicionFaseOportunidad>
     {
         #region Metodos Base
-        // TTransicionFaseOportunidad Add(TransicionFaseOportunidad entidad);
         TTransicionFaseOportunidad Add(TransicionFaseOportunidad entidad);
         TTransicionFaseOportunidad Update(TransicionFaseOportunidad entidad);
         bool Delete(int id, string usuario);
