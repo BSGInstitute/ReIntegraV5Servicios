@@ -5,6 +5,7 @@ using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.Operaciones.Service.Implementacion;
 using BSI.Integra.Aplicacion.Operaciones.Service.Interface;
+using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
@@ -121,8 +122,10 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         /// </summary>
         /// <param name="TransicionFaseOportunidadDTO">Datos necesarios para la modificación de la transición de fase de oportunidad.</param>
         /// <returns>Entidad: TransicionFaseOportunidad</returns>
-        [HttpPut("[Action]")]
+        [Route("[action]")]
         [Authorize]
+        [HttpPut]
+
         public async Task<IActionResult> Actualizar([FromBody] TransicionFaseOportunidadDTO dto)
         {
             if (dto == null)
@@ -185,8 +188,10 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         /// <param name="id">Id de la transición de fase de oportunidad a eliminar.</param>
         /// <param name="usuario">Usuario que ejecuta la eliminación.</param>
         /// <returns>bool</returns>
-        [HttpDelete("Eliminar/{id}/{usuario}")]
-        public IActionResult Eliminar(int id, string usuario)
+        [Route("[action]/{id}")]
+        [Authorize]
+        [HttpDelete]
+        public IActionResult Eliminar(int id)
         {
             if (!ModelState.IsValid)
             {
@@ -194,6 +199,9 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             }
             try
             {
+                var claimsIdentity = User.Identity as ClaimsIdentity;
+                var servicio = new ActividadCabeceraService(_unitOfWork);
+                var usuario = claimsIdentity.Claims.Where(x => x.Type == "UserName").Select(s => s.Value).First();
 
                 var transicionCalificacionFaseService = new TransicionFaseOportunidadService(_unitOfWork);
                 var resultado = transicionCalificacionFaseService.Delete(id, usuario);
@@ -213,6 +221,8 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         /// Obtiene la lista de TransicionFaseOportunidad y sus detalles.
         /// </summary>
         /// <returns>List<TransicionFaseOportunidadDTO></returns>
+        [Route("[action]")]
+        [Authorize]
         [HttpGet]
         public IActionResult Obtener()
         {
@@ -238,6 +248,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         /// <param name="id">Id de la transición de fase de oportunidad.</param>
         /// <returns>Entidad: TransicionFaseOportunidadDTO</returns>
         [Route("[action]/{id}")]
+        [Authorize]
         [HttpGet]
         public IActionResult ObtenerPorId(int id)
         {

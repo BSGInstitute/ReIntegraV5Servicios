@@ -5,6 +5,7 @@ using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.Operaciones.Service.Implementacion;
 using BSI.Integra.Aplicacion.Servicios.Implementacion;
 using BSI.Integra.Aplicacion.Servicios.Interface;
+using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
@@ -85,7 +86,9 @@ namespace BSI.Integra.Servicios.Controllers
         /// </summary>
         /// <param name="criterioCalificacionFaseUpdateDTO">Datos necesarios para la actualización del criterio.</param>
         /// <returns>bool</returns>
-        [HttpPut("[Action]")]
+        [Route("[action]")]
+        [Authorize]
+        [HttpPut]
         public IActionResult Actualizar([FromBody] CriterioCalificacionFaseEntradaDTO criterioCalificacionFaseEntradaDTO)
         {
             if (!ModelState.IsValid)
@@ -121,13 +124,17 @@ namespace BSI.Integra.Servicios.Controllers
         /// <param name="id">Id del criterio de calificación de fase a eliminar.</param>
         /// <param name="usuario">Usuario que ejecuta la eliminación.</param>
         /// <returns>bool</returns>
-        [Route("[action]/{id}/{usuario}")]
+        [Route("[action]/{id}")]
+        [Authorize]
         [HttpDelete]
-        public ActionResult Eliminar(int id, string usuario)
+        public ActionResult Eliminar(int id)
         {
             try
             {
+                var claimsIdentity = User.Identity as ClaimsIdentity;
+                var servicio = new ActividadCabeceraService(_unitOfWork);
 
+                var usuario = claimsIdentity.Claims.Where(x => x.Type == "UserName").Select(s => s.Value).First();
                 var criterioCalificacionFaseService = new CriterioCalificacionFaseService(_unitOfWork);
                 var resultado = criterioCalificacionFaseService.Delete(id, usuario);
                 return Ok(resultado);
@@ -147,6 +154,7 @@ namespace BSI.Integra.Servicios.Controllers
         /// </summary>
         /// <returns>List<CriterioCalificacionFaseDTO></returns>
         [Route("[action]")]
+        [Authorize]
         [HttpGet]
         public IActionResult Obtener()
         {
@@ -172,6 +180,7 @@ namespace BSI.Integra.Servicios.Controllers
         /// <param name="id">Id del criterio de calificación de fase.</param>
         /// <returns>CriterioCalificacionFaseDTO</returns>
         [Route("[action]/{id}")]
+        [Authorize]
         [HttpGet]
         public IActionResult ObtenerPorId(int id)
         {

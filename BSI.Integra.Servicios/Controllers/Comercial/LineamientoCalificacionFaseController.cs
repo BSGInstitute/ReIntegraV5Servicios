@@ -8,6 +8,7 @@ using BSI.Integra.Aplicacion.Operaciones.Service.Implementacion;
 using BSI.Integra.Aplicacion.Operaciones.Service.Interface;
 using BSI.Integra.Aplicacion.Servicios.Implementacion;
 using BSI.Integra.Aplicacion.Servicios.Interface;
+using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Implementation.Comercial;
@@ -15,6 +16,7 @@ using BSI.Integra.Repositorio.Repository.Interface.Comercial;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BSI.Integra.Servicios.Controllers.Comercial
 {
@@ -86,7 +88,9 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         /// </summary>
         /// <param name="lineamientoCalificacionFaseDTO"> Datos necesarios para la actualización </param>
         /// <returns> Entidad: LineamientoCalificacionFase </returns>
-        [HttpPut("[Action]")]
+        [Route("[action]")]
+        [Authorize]
+        [HttpPut]
         public IActionResult Actualizar([FromBody] LineamientoCalificacionFaseEntradaDTO lineamientoCalificacionFaseEntradaDTO)
         {
             if (!ModelState.IsValid)
@@ -126,8 +130,10 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         /// <param name="id"> Id de la entidad a eliminar </param>
         /// <param name="usuario"> Usuario que ejecuta la eliminación </param>
         /// <returns> true or false </returns>
-        [HttpDelete("Eliminar/{id}/{usuario}")]
-        public IActionResult Eliminar(int id, string usuario)
+        [Route("[action]/{id}")]
+        [Authorize]
+        [HttpDelete]
+        public IActionResult Eliminar(int id)
         {
             if (!ModelState.IsValid)
             {
@@ -135,7 +141,9 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             }
             try
             {
-
+                var claimsIdentity = User.Identity as ClaimsIdentity;
+                var servicio = new ActividadCabeceraService(_unitOfWork);
+                var usuario = claimsIdentity.Claims.Where(x => x.Type == "UserName").Select(s => s.Value).First();
                 var lineamientoCalificacionFaseService = new LineamientoCalificacionFaseService(_unitOfWork);
                 var resultado = lineamientoCalificacionFaseService.Delete(id, usuario);
                 return Ok(resultado);
@@ -156,6 +164,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         /// <param name="id"> Id de la entidad a consultar </param>
         /// <returns> Entidad: LineamientoCalificacionFase </returns>
         [Route("[action]/{id}")]
+        [Authorize]
         [HttpGet]
         public IActionResult ObtenerPorId(int id)
         {
@@ -180,6 +189,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         /// </summary> 
         /// <returns> List<TransicionCalificacionFaseDTO> </returns>
         [Route("[action]")]
+        [Authorize]
         [HttpGet]
         public IActionResult Obtener()
         {
