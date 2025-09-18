@@ -7,6 +7,7 @@ using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace BSI.Integra.Servicios.Controllers
 {
@@ -21,14 +22,16 @@ namespace BSI.Integra.Servicios.Controllers
     [EnableCors("CorsVista")]
     public class ReporteActividadesRealizadasController : ControllerBase
     {
+        private readonly IMemoryCache _cache;
         private IUnitOfWork unitOfWork;
         private IConfiguracionAccesoPersonalService _configuracionAccesoPersonalService;
         private IReporteActividadesRealizadasService _reporteActividadesRealizadasService;
-        public ReporteActividadesRealizadasController(IUnitOfWork unitOfWork, IConfiguracionAccesoPersonalService configuracionAccesoPersonalService)
+        public ReporteActividadesRealizadasController(IUnitOfWork unitOfWork, IConfiguracionAccesoPersonalService configuracionAccesoPersonalService, IMemoryCache cache)
         {
             this.unitOfWork = unitOfWork;
             _configuracionAccesoPersonalService = configuracionAccesoPersonalService;
             _reporteActividadesRealizadasService = new ReporteActividadesRealizadasService(unitOfWork);
+            _cache = cache;
         }
         /// TipoFuncion: GET
         /// Autor: Jonathan Caipo
@@ -40,15 +43,41 @@ namespace BSI.Integra.Servicios.Controllers
         /// Obtiene información para combos de interfaz
         /// </summary>
         /// <returns> Combos para modulo comercial <returns>
+        //[Route("[action]/{idPersonal}")]
+        //[HttpGet]
+        //public async Task<ActionResult<FiltroReporteActividadRealizadaAlternoDTO>> ObtenerCombo(int idPersonal)
+        //{
+        //    IReporteSeguimientoOportunidadService servicio = new ReporteSeguimientoOportunidadService(unitOfWork);
+        //    idPersonal = _configuracionAccesoPersonalService.ObtenerIdPersonalAcceso(idPersonal, "Comercial/ReporteActividadRealizada");
+        //    var resultado = await _reporteActividadesRealizadasService.ObtenerCombo(idPersonal);
+        //    return Ok(resultado);
+        //}
+
         [Route("[action]/{idPersonal}")]
         [HttpGet]
         public async Task<ActionResult<FiltroReporteActividadRealizadaAlternoDTO>> ObtenerCombo(int idPersonal)
         {
+           
+
             IReporteSeguimientoOportunidadService servicio = new ReporteSeguimientoOportunidadService(unitOfWork);
             idPersonal = _configuracionAccesoPersonalService.ObtenerIdPersonalAcceso(idPersonal, "Comercial/ReporteActividadRealizada");
+
+            string cacheKey = $"combo_{idPersonal}";
+
+            if (_cache.TryGetValue(cacheKey, out FiltroReporteActividadRealizadaAlternoDTO cacheValue))
+            {
+                return cacheValue;
+
+            }
+
             var resultado = await _reporteActividadesRealizadasService.ObtenerCombo(idPersonal);
-            return Ok(resultado);
+
+            _cache.Set(cacheKey, resultado, TimeSpan.FromHours(24));
+
+            return resultado;
+
         }
+
         /// TipoFuncion: POST
         /// Autor: Jonathan Caipo
         /// Fecha: 30/09/2022
