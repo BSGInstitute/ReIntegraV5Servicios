@@ -1507,6 +1507,25 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
 
 
+        /// <summary>
+        /// Obtiene calificaciones por fase para una llamada específica
+        /// </summary>
+        /// <param name="idLlamada">ID de la llamada</param>
+        /// <param name="tipoCalificacion">Tipo de calificación (0=Manual, 1=Automática)</param>
+        /// <returns>Lista de calificaciones por fase</returns>
+        //public async Task ProcesarRecomendacionesBatch(ResultadoEvaluacionBatch payload)
+        //{
+
+        //    if (payload == null)
+        //        throw new ArgumentNullException(nameof(payload), "El cuerpo de calificación es nulo.");
+
+        //   var resultado = _unitOfWork.LineamientoCalificacionRepository.ProcesarRecomendacionesBatch(payloadCalificacion);
+        //    if (!resultado)
+        //        throw new InvalidOperationException("No se pudo guardar la calificación automática en la base de datos.");
+
+        //}
+
+
 
 
 

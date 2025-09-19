@@ -1269,6 +1269,30 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 throw ex;
             }
         }
+
+
+
+
+
+
+        //public IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosConfiguracionCalificacionAuto()
+        //{
+        //    try
+        //    {
+        //        List<LlamadaProcesoAutoDTO> configuracion = new List<LlamadaProcesoAutoDTO>();
+        //        var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ObtenerInformacionCalificacionAutomatica]", new { });
+        //        if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+        //        {
+        //            configuracion = JsonConvert.DeserializeObject<List<LlamadaProcesoAutoDTO>>(resultado);
+        //        }
+        //        return configuracion;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+
+        //}
     }
 
 }

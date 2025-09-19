@@ -1117,6 +1117,57 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
                 return StatusCode(500, $"Error al insertar la calificacion: {ex.Message}");
             }
         }
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 27/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza el procesamiento de transcripcion de llamadas
+        /// </summary>
+        /// <param name="TranscriptionWebhookPayload"> Datos necesarios para la insercion de datos </param>
+        ///// <returns> DTO: TranscriptionWebhookPayloadDTO </returns>
+        //[HttpPost("[Action]")]
+        //public async Task<IActionResult> ProcesarRecomendacionesBatch([FromBody] ResultadoEvaluacionBatch payload)
+        //{
+
+        //    if (payload == null)
+        //    {
+        //        return BadRequest("Payload de Calificacion inválido.");
+        //    }
+
+        //    try
+        //    {
+        //        var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+        //        HubConnection signalRConnection = null;
+        //        await lineamientoCalificacionService.ProcesarRecomendacionesBatch(payload);
+                //signalRConnection = new HubConnectionBuilder()
+                //    .WithUrl($"https://signalr-prototipo.bsginstitute.com/hubIntegraHub?idUsuario={payload.IdPersonal}&usuarioNombre={payload.UserName}&rooms=")
+                //    .WithAutomaticReconnect()
+                //    .ConfigureLogging(logging =>
+                //    {
+                //        logging.AddConsole();
+                //        logging.SetMinimumLevel(LogLevel.Debug);
+                //    })
+                //    .Build();
+
+                //await signalRConnection.StartAsync();
+
+                //// 4. Enviar notificación
+                //await signalRConnection.InvokeAsync("NotificarCalificacion",
+                //    payload.IdLlamada.ToString(),
+                //    "success",
+                //    payload.IdPersonal?.ToString(),
+                //    payload.contacto);
+
+            //    return Ok("Calififacion registrada correctamente.");
+
+            //}
+            //catch (System.Exception ex)
+            //{
+            //    // Registra el error según corresponda
+            //    return StatusCode(500, $"Error al insertar la calificacion: {ex.Message}");
+            //}
+        //}
 
     }
 

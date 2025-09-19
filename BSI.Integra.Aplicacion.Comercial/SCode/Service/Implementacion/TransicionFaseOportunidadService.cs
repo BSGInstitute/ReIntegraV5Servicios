@@ -116,7 +116,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             e.FechaModificacion = DateTime.Now;
             e.Estado = true;
         }
-        public async Task InsertTransicionAsync(TransicionFaseOportunidadDTO transicionFaseOportunidadDTO)
+        public TransicionFaseOportunidad InsertTransicion(TransicionFaseOportunidadDTO transicionFaseOportunidadDTO)
         {
             try
             {
@@ -162,6 +162,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
 
                 _unitOfWork.TransicionFaseOportunidadRepository.Add(transicionEntity);
                 _unitOfWork.Commit();
+                return (transicionEntity); 
             }
             catch (Exception ex)
             {
@@ -172,7 +173,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
         }
 
-        public async Task UpdateTransicionAsync(TransicionFaseOportunidadDTO dto)
+        public TransicionFaseOportunidad UpdateTransicion(TransicionFaseOportunidadDTO dto)
         {
             try
             {
@@ -208,8 +209,8 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 var hijosDTO = dto.TransicionFaseCriterioOportunidad ?? new List<TransicionFaseCriterioOportunidadDTO>();
                 if (hijosDTO.Count == 0)
                 {
-                    await _unitOfWork.CommitAsync();
-                    return;
+                    _unitOfWork.Commit();
+                    return entidadActual; 
                 }
 
                 var hijosBD = _unitOfWork.TransicionFaseOportunidadRepository
@@ -270,7 +271,8 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                     _unitOfWork.TransicionFaseCriterioOportunidadRepository.DeleteCriterios(criterioEliminar.Id, dto.Usuario);
                 }
 
-                await _unitOfWork.CommitAsync();
+                _unitOfWork.Commit();
+                return _unitOfWork.TransicionFaseOportunidadRepository.ObtenerPorId(entidadActual.Id);
             }
             catch (Exception ex)
             {

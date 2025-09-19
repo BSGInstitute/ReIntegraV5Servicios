@@ -51,7 +51,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         [Route("[action]")]
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Insertar([FromBody] TransicionFaseOportunidadDTO transicionFaseOportunidadEntradaDTO)
+        public IActionResult Insertar([FromBody] TransicionFaseOportunidadDTO transicionFaseOportunidadEntradaDTO)
         {
             if (transicionFaseOportunidadEntradaDTO == null)
             {
@@ -65,9 +65,9 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             try
             {
                 var transicionService = new TransicionFaseOportunidadService(_unitOfWork);
-                await transicionService.InsertTransicionAsync(transicionFaseOportunidadEntradaDTO);
+                var resultado= transicionService.InsertTransicion(transicionFaseOportunidadEntradaDTO);
 
-                return Ok("Transición insertada correctamente.");
+                return Ok(resultado);
             }
             catch (Exception ex)
             {
@@ -88,7 +88,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         [Authorize]
         [HttpPut]
 
-        public async Task<IActionResult> Actualizar([FromBody] TransicionFaseOportunidadDTO dto)
+        public IActionResult Actualizar([FromBody] TransicionFaseOportunidadDTO dto)
         {
             if (dto == null)
                 return BadRequest("Payload de actualización inválido.");
@@ -98,8 +98,8 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             try
             {
                 var service = new TransicionFaseOportunidadService(_unitOfWork);
-                await service.UpdateTransicionAsync(dto);
-                return Ok("Transición actualizada correctamente.");
+                var resultado= service.UpdateTransicion(dto);
+                return Ok(resultado);
             }
             catch (Exception ex)
             {

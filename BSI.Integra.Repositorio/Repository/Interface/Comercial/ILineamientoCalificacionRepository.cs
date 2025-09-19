@@ -69,6 +69,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
         IEnumerable<CalificacionFaseDTO> ObtenerCalificacionFase(int idLlamada, bool tipoCalificacion);
         IEnumerable<InformacionLlamadaTresCxDTO> ObtenerInformacionLlamada(int idLlamada);
 
+        //bool ProcesarRecomendacionesBatch(CalificacionLlamadaAutomaticaDTO calificacionLlamada);
+
+
 
 
 
