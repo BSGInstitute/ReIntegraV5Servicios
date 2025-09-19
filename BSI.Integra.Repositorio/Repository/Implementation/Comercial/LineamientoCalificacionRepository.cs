@@ -338,7 +338,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                                      UsuarioModificacion,
                                      FechaCreacion,
                                      FechaModificacion
-                              FROM [com].[T_VersionConfiguracionCalificacionLlamada]
+                              FROM [com].[SP_ObtenerNotaLineamientoPorLlamadaV2]
                               WHERE Estado=1";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
@@ -364,7 +364,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             try
             {
                 var tipoCalificacion = 0;
-                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ObtenerNotaLineamientoPorLlamada]", new { IdLlamadaWebphoneCruceCentral3Cx, tipoCalificacion });
+                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ObtenerNotaLineamientoPorLlamadaV2]", new { IdLlamadaWebphoneCruceCentral3Cx, tipoCalificacion });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
                     return JsonConvert.DeserializeObject<IEnumerable<CalificacionLlamadaDTO>>(resultado);
@@ -389,7 +389,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             try
             {
                 var tipoCalificacion = 1;
-                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ObtenerHistoricoCalificacion]", new
+                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ObtenerHistoricoCalificacionV2]", new
                 {
                     IdOportunidad,
                     IdLlamadaWebphoneCruceCentralTresCx,
@@ -417,7 +417,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
         {
             try
             {
-                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ObtenerNotaLineamientoPorLlamada]", new { IdLlamadaWebphoneCruceCentral3Cx });
+                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ObtenerNotaLineamientoPorLlamadaV2]", new { IdLlamadaWebphoneCruceCentral3Cx });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
                     return JsonConvert.DeserializeObject<IEnumerable<CalificacionLlamadaDTO>>(resultado);
@@ -442,7 +442,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             try
             {
                 var tipoCalificacion = 1;
-                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ObtenerNotaLineamientoPorLlamada]", new { IdLlamadaWebphoneCruceCentral3Cx, tipoCalificacion });
+                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ObtenerNotaLineamientoPorLlamadaV2]", new { IdLlamadaWebphoneCruceCentral3Cx, tipoCalificacion });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
                     return JsonConvert.DeserializeObject<IEnumerable<CalificacionLlamadaDTO>>(resultado);
@@ -1054,7 +1054,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
         public (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporte(ReporteCalificacionRequest req)
         {
             var resultadoQuery = _dapperRepository.QuerySPDapper(
-                      "[com].[SP_ReporteCalificacionCliente]",
+                      "[com].[SP_ReporteCalificacionClienteV2]",
                       new
                       {
                           req.FechaInicio,
@@ -1110,7 +1110,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
         public (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporteFase(ReporteCalificacionRequest req)
         {
             var resultadoQuery = _dapperRepository.QuerySPDapper(
-                      "[com].[SP_ReporteCalificacionFase]",
+                      "[com].[SP_ReporteCalificacionFaseV2]",
                       new
                       {
                           req.FechaInicio,
@@ -1159,7 +1159,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
         public IEnumerable<LlamadaCalificadaRawDTO> ObtenerDatosParaPromedioGlobal(ReporteCalificacionGlobalRequest request)
         {
             var resultado = _dapperRepository.QuerySPDapper(
-                "[com].[SP_ReporteCalificacionGlobal]",
+                "[com].[SP_ReporteCalificacionGlobalV2]",
                 new
                 {
                     request.FechaInicio,
@@ -1211,7 +1211,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             try
             {
                 var resultado = _dapperRepository.QuerySPDapper(
-                    "[com].[SP_ObtenerCalificacionFase]",
+                    "[com].[SP_ReporteCalificacionFaseV2]",
                     new { IdLlamadaWebphoneCruceCentralTresCx = idLlamada, TipoCalificacion = tipoCalificacion }
                 );
 
