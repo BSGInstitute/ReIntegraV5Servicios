@@ -126,46 +126,37 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// </summary>
         /// <param name="id"> Id de la entidad </param>
         /// <returns> TransicionFaseOportunidad </returns>
-        public TransicionFaseOportunidad ObtenerPorId(int id)
+        public TransicionFaseOportunidadPlanoDto ObtenerPorId(int id)
         {
             try
             {
-                string query = @"SELECT 
-                    -- Información de la transición
-                    tfo.Id, tfo.IdFaseOportunidadOrigen, tfo.IdFaseOportunidadDestino, 
-                    tfo.Estado, tfo.UsuarioCreacion, tfo.UsuarioModificacion, 
-                    tfo.FechaCreacion, tfo.FechaModificacion, tfo.RowVersion, tfo.IdMigracion,
-    
-                    -- Información de la fase de origen
-                    fOrigen.Codigo AS CodigoFaseOrigen, 
-                    fOrigen.Nombre AS NombreFaseOrigen,
-    
-                    -- Información de la fase de destino
-                    fDestino.Codigo AS CodigoFaseDestino,
-                    fDestino.Nombre AS NombreFaseDestino,
-    
-                    -- Información de criterios asociados a la transición
-                    tfco.Id AS CriterioTransicionId, 
-                    tfco.IdTransicionFaseOportunidad,
-                    tfco.IdCriterioCalificacionFaseOportunidad,
-                    ccfo.Nombre AS NombreCriterio,
-                    ccfo.Descripcion AS DescripcionCriterio
-                FROM 
-                    com.T_TransicionFaseOportunidad tfo
-                LEFT JOIN 
-                    pla.T_FaseOportunidad fOrigen ON tfo.IdFaseOportunidadOrigen = fOrigen.Id
-                LEFT JOIN 
-                    pla.T_FaseOportunidad fDestino ON tfo.IdFaseOportunidadDestino = fDestino.Id
-                LEFT JOIN 
-                    com.T_TransicionFaseCriterioOportunidad tfco ON tfo.Id = tfco.IdTransicionFaseOportunidad
-                LEFT JOIN 
-                    com.T_CriterioCalificacionFaseOportunidad ccfo ON tfco.IdCriterioCalificacionFaseOportunidad = ccfo.Id
-                WHERE 
-                    tfo.Estado = 1 AND tfo.Id = @Id";
+                string query = @"SELECT IdTransicionFaseOportunidad AS Id,
+                                    IdTransicionFaseOportunidad AS IdTransicionFaseOportunidad,
+                                    IdFaseOportunidadOrigen,
+                                    CodigoFaseOrigen,
+                                    NombreFaseOrigen,
+                                    IdFaseOportunidadDestino,
+                                    CodigoFaseDestino,
+                                    NombreFaseDestino,
+                                    Estado,
+                                    UsuarioCreacion,
+                                    UsuarioModificacion,
+                                    FechaCreacion,
+                                    FechaModificacion,
+                                    RowVersion,
+                                    MigracionId,
+                                    IdTransicionFaseCriterioOportunidad,
+                                    IdTransicionFaseOportunidadReferencia,
+                                    IdCriterioCalificacionFaseOportunidad,
+                                    NombreCriterio,
+                                    DescripcionCriterio
+                                 FROM com.V_TransicionFaseOportunidad_TransicionDeFase 
+                                 WHERE IdTransicionFaseOportunidad = @Id
+                                 ORDER BY FechaCreacion DESC";
                 string resultado = _dapperRepository.FirstOrDefault(query, new { Id = id });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
-                    return JsonConvert.DeserializeObject<TransicionFaseOportunidad>(resultado)!;
+                    return JsonConvert.DeserializeObject<TransicionFaseOportunidadPlanoDto>(resultado)!;
                 }
                 return null;
             }
@@ -187,38 +178,29 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 List<TransicionFaseOportunidadPlanoDto> transicionesFiltro = new();
-                var query = @"SELECT 
-                    -- Información de la transición
-                    tfo.Id, tfo.IdFaseOportunidadOrigen, tfo.IdFaseOportunidadDestino, 
-                    tfo.Estado, tfo.UsuarioCreacion, tfo.UsuarioModificacion, 
-                    tfo.FechaCreacion, tfo.FechaModificacion, tfo.RowVersion, tfo.IdMigracion,
-    
-                    -- Información de la fase de origen
-                    fOrigen.Codigo AS CodigoFaseOrigen, 
-                    fOrigen.Nombre AS NombreFaseOrigen,
-    
-                    -- Información de la fase de destino
-                    fDestino.Codigo AS CodigoFaseDestino,
-                    fDestino.Nombre AS NombreFaseDestino,
-    
-                    -- Información de criterios asociados a la transición
-                    tfco.Id AS CriterioTransicionId, 
-                    tfco.IdTransicionFaseOportunidad,
-                    tfco.IdCriterioCalificacionFaseOportunidad,
-                    ccfo.Nombre AS NombreCriterio,
-                    ccfo.Descripcion AS DescripcionCriterio
-                FROM 
-                    com.T_TransicionFaseOportunidad tfo
-                LEFT JOIN 
-                    pla.T_FaseOportunidad fOrigen ON tfo.IdFaseOportunidadOrigen = fOrigen.Id
-                LEFT JOIN 
-                    pla.T_FaseOportunidad fDestino ON tfo.IdFaseOportunidadDestino = fDestino.Id
-                LEFT JOIN 
-                    com.T_TransicionFaseCriterioOportunidad tfco ON tfo.Id = tfco.IdTransicionFaseOportunidad
-                LEFT JOIN 
-                    com.T_CriterioCalificacionFaseOportunidad ccfo ON tfco.IdCriterioCalificacionFaseOportunidad = ccfo.Id
-                WHERE 
-                    tfo.Estado = 1";
+                var query = @"SELECT
+                                IdTransicionFaseOportunidad AS Id,
+                                IdTransicionFaseOportunidad AS IdTransicionFaseOportunidad,
+                                IdFaseOportunidadOrigen,
+                                CodigoFaseOrigen,
+                                NombreFaseOrigen,
+                                IdFaseOportunidadDestino,
+                                CodigoFaseDestino,
+                                NombreFaseDestino,
+                                Estado,
+                                UsuarioCreacion,
+                                UsuarioModificacion,
+                                FechaCreacion,
+                                FechaModificacion,
+                                RowVersion,
+                                MigracionId,
+                                IdTransicionFaseCriterioOportunidad,
+                                IdTransicionFaseOportunidadReferencia,
+                                IdCriterioCalificacionFaseOportunidad,
+                                NombreCriterio,
+                                DescripcionCriterio
+                            FROM com.V_TransicionFaseOportunidad_TransicionDeFase
+                            ORDER BY FechaCreacion DESC";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
@@ -232,6 +214,54 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 15/09/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los campos de T_TransicionFaseOportunidad por el Id.
+        /// </summary>
+        /// <param name="id"> Id de la entidad </param>
+        /// <returns> TransicionFaseOportunidad </returns>
+        public TransicionFaseOportunidad ObtenerPorIdUD(int id)
+        {
+            try
+            {
+                string query = @"SELECT
+                                    IdTransicionFaseOportunidad AS Id,
+                                    IdTransicionFaseOportunidad AS IdTransicionFaseOportunidad,
+                                    IdFaseOportunidadOrigen,
+                                    CodigoFaseOrigen,
+                                    NombreFaseOrigen,
+                                    IdFaseOportunidadDestino,
+                                    CodigoFaseDestino,
+                                    NombreFaseDestino,
+                                    Estado,
+                                    UsuarioCreacion,
+                                    UsuarioModificacion,
+                                    FechaCreacion,
+                                    FechaModificacion,
+                                    RowVersion,
+                                    MigracionId,
+                                    IdTransicionFaseCriterioOportunidad,
+                                    IdTransicionFaseOportunidadReferencia,
+                                    IdCriterioCalificacionFaseOportunidad,
+                                    NombreCriterio,
+                                    DescripcionCriterio
+                                 FROM com.V_TransicionFaseOportunidad_TransicionDeFase 
+                                 WHERE IdTransicionFaseOportunidad = @Id
+                                 ORDER BY FechaCreacion DESC";
+                string resultado = _dapperRepository.FirstOrDefault(query, new { Id = id });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<TransicionFaseOportunidad>(resultado)!;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#TCF-OPI-001@Error en ObtenerPorId: {ex.Message}", ex);
+            }
+        }
         /// Autor: Jose Vega
         /// Fecha: 15/09/2025
         /// Version: 1.0
