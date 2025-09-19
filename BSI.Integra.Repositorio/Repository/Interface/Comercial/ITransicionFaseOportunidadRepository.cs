@@ -20,7 +20,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         bool DeleteCriterios(int id, string usuario);
         #endregion
         List<TransicionFaseCriterioOportunidad> ObtenerPorIdTransicion(int idTransicionFaseOportunidad);
-        TransicionFaseOportunidad ObtenerPorId(int id);
+        TransicionFaseOportunidadPlanoDto ObtenerPorId(int id);
+        TransicionFaseOportunidad ObtenerPorIdUD(int id);
         List<TransicionFaseOportunidadPlanoDto> Obtener();
 
     }

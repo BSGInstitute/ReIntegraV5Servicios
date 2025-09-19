@@ -80,7 +80,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         {
             try
             {
-                var entidad = _unitOfWork.TransicionFaseOportunidadRepository.ObtenerPorId(id);
+                var entidad = _unitOfWork.TransicionFaseOportunidadRepository.ObtenerPorIdUD(id);
                 if (entidad == null)
                     throw new Exception("La transición a eliminar no existe.");
 
@@ -177,7 +177,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         {
             try
             {
-                var entidadActual = _unitOfWork.TransicionFaseOportunidadRepository.ObtenerPorId(dto.Id.Value);
+                var entidadActual = _unitOfWork.TransicionFaseOportunidadRepository.ObtenerPorIdUD(dto.Id.Value);
                 if (entidadActual == null)
                     throw new Exception("Transición no encontrada.");
 
@@ -272,7 +272,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 }
 
                 _unitOfWork.Commit();
-                return _unitOfWork.TransicionFaseOportunidadRepository.ObtenerPorId(entidadActual.Id);
+                return _unitOfWork.TransicionFaseOportunidadRepository.ObtenerPorIdUD(entidadActual.Id);
             }
             catch (Exception ex)
             {
@@ -307,7 +307,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         /// </summary>
         /// <param name="id"> Id de la entidad </param>
         /// <returns> TransicionFaseOportunidad </returns>
-        public TransicionFaseOportunidad ObtenerPorId(int id)
+        public TransicionFaseOportunidadPlanoDto ObtenerPorId(int id)
         {
             try
             {
@@ -319,6 +319,6 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 throw ex;
             }
         }
-        
+
     }
 }

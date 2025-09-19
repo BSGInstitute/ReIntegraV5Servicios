@@ -22,6 +22,6 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         TransicionFaseOportunidad UpdateTransicion(TransicionFaseOportunidadDTO dto);
         #endregion
         List<TransicionFaseOportunidadPlanoDto> Obtener();
-        TransicionFaseOportunidad ObtenerPorId(int id);
+        TransicionFaseOportunidadPlanoDto ObtenerPorId(int id);
     }
 }
