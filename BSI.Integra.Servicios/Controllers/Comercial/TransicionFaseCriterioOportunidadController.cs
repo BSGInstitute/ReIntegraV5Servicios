@@ -63,7 +63,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
                     transicionFaseCriterioOportunidad.FechaModificacion = DateTime.Now;
                     var resultado = transicionFaseCriterioOportunidadService.Add(transicionFaseCriterioOportunidad);
                         return Ok(resultado);
-            }
+                }
                 catch (Exception ex)
                 {
                     return BadRequest(ex.Message);
