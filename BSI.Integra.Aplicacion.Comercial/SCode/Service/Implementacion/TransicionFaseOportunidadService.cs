@@ -272,7 +272,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 }
 
                 _unitOfWork.Commit();
-                return _unitOfWork.TransicionFaseOportunidadRepository.ObtenerPorId(entidadActual.Id);
+                return _unitOfWork.TransicionFaseOportunidadRepository.ObtenerPorIdUD(entidadActual.Id);
             }
             catch (Exception ex)
             {
