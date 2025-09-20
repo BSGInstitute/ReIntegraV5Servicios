@@ -163,4 +163,9 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string DescripcionPago { get; set; }
         public string MontoPago { get; set; }
     }
+
+    public class EliminarFacturasRequest
+    {
+        public List<int> IdsFacturas { get; set; }
+    }
 }

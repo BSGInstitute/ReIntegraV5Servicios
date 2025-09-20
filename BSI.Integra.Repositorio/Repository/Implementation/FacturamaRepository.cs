@@ -670,6 +670,27 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             var result = _dapperRepository.FirstOrDefault(query, new { id = idCronogramaPagoDetalleFinal });
             return !string.IsNullOrEmpty(result) && result != "null";
         }
+
+        public bool EliminarFacturasPendientesFacturama(List<int> idsFacturas, string usuario)
+        {
+            try
+            {
+                if (idsFacturas == null || !idsFacturas.Any())
+                    return false;
+                
+                const string query = @"UPDATE fin.T_FacturamaFactura
+                                          SET Estado = 0, UsuarioModificacion = @usuario, FechaModificacion = GETDATE()
+                                          WHERE Id IN @ids AND Estado = 1 AND EstadoEnvio = 0";
+                var parametros = new { ids = idsFacturas, usuario };
+                var filasAfectadas = _dapperRepository.QueryDapper(query, parametros);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 
 }

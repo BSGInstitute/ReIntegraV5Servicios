@@ -35,7 +35,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public int ObtenerIdAlumnoPorIdCronograma(int idCronograma);
         public void InsertarActualizarFacturamaAlumno(int idAlumno, FacturamaClienteDTO cliente, FacturamaFacturaDTO factura, string usuario);
         public bool ExisteFacturaConfigurada(int idCronogramaPagoDetalleFinal);
-        
+        public bool EliminarFacturasPendientesFacturama(List<int> idsFacturas, string usuario);
 
     }
 }
