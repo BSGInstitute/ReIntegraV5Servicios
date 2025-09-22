@@ -414,6 +414,35 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
         /// Obtiene todos los registros de la tabla
         /// </summary> 
         /// <returns> IEnumerable<CalificacionLlamadaDTO> </returns>
+        public IEnumerable<HistoricoCalificacionDTO> ObtenerNotaCalificacionPuntoGeneralHistorico(int IdOportunidad, int IdLlamadaWebphoneCruceCentralTresCx)
+        {
+            try
+            {
+                var tipoCalificacion = 1;
+                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ObtenerHistoricoCalificacionPuntoGeneral]", new
+                {
+                    IdOportunidad,
+                    IdLlamadaWebphoneCruceCentralTresCx,
+                    tipoCalificacion
+                });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<IEnumerable<HistoricoCalificacionDTO>>(resultado);
+                }
+                return Enumerable.Empty<HistoricoCalificacionDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        /// Autor: Joseph Llanque
+        /// Fecha: 07/03/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary> 
+        /// <returns> IEnumerable<CalificacionLlamadaDTO> </returns>
         public IEnumerable<CalificacionLlamadaDTO> ObtenerNotaCalificacionLineamientoGeneral(int IdLlamadaWebphoneCruceCentral3Cx)
         {
             try
@@ -1213,8 +1242,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             try
             {
                 var resultado = _dapperRepository.QuerySPDapper(
-                    "[com].[SP_ReporteCalificacionFaseV2]",
-                    new { IdLlamadaWebphoneCruceCentralTresCx = idLlamada, TipoCalificacion = tipoCalificacion }
+                    "[com].[SP_ObtenerCalificacionFaseV2]",
+                    new { IdLlamadaWebphoneCruceCentralTresCx = idLlamada, TipoEvaluacion = tipoCalificacion }
                 );
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))

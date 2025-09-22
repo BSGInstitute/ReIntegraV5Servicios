@@ -335,6 +335,24 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         /// Obtiene todos los registros de la tabla
         /// </summary> 
         /// <returns> IEnumerable<ComboDTO> </returns>
+        public IEnumerable<HistoricoCalificacionDTO> ObtenerNotaCalificacionPuntoGeneralHistorico(int IdOportunidad, int IdLlamadaWebphoneCruceCentral3Cx)
+        {
+            try
+            {
+                return _unitOfWork.LineamientoCalificacionRepository.ObtenerNotaCalificacionPuntoGeneralHistorico(IdOportunidad, IdLlamadaWebphoneCruceCentral3Cx);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        /// Autor: Joseph Llanque.
+        /// Fecha: 03/07/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary> 
+        /// <returns> IEnumerable<ComboDTO> </returns>
         public IEnumerable<CalificacionLlamadaDTO> ObtenerNotaCalificacionLineamientoGeneral(int idLlamada)
         {
             try
@@ -1232,25 +1250,18 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     var first = g.First();
 
                     var notasValidas = g
-                        .Where(x => x.PuntajePromedio >= 0)
-                        .Select(x => x.PuntajePromedio);
+                        .Where(x => x.PuntajePromedio >= 0) 
+                        .Select(x => x.PuntajePromedio)
+                        .ToList();
 
-                    decimal? promedio = notasValidas.Any()
-                        ? Math.Round(notasValidas.Average(), 2)
-                        : (decimal?)null;
+                    decimal? promedio = notasValidas.Count > 0 ? Math.Round(notasValidas.Average(), 2) : (decimal?)null;
+
 
                     var puntosCriticos = g
-                        .Where(x => x.PuntajePromedio >= 0 && !string.IsNullOrWhiteSpace(x.Comentario))
-                        .OrderBy(x => x.PuntajePromedio)
-                        .ThenBy(x => x.IdCalificacionLlamada)
-                        .Take(3)
-                        .Select(x => new PuntoCriticoDTO
-                        {
-                            Nota = x.PuntajePromedio,
-                            TipoCalificacion = x.TipoCalificacion,
-                            Comentario = x.Comentario
-                        })
-                        .ToList();
+                                        .Where(x => !string.IsNullOrWhiteSpace(x.PuntoCritico))
+                                        .Select(x => x.PuntoCritico!.Trim())
+                                        .Distinct()
+                                        .ToList();
 
 
                     return new LlamadaCalificadaDTO
@@ -1279,25 +1290,12 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         PuntosCriticos = puntosCriticos,
                         ComentarioLlamadaNoCalificada = null,
                         OcurrenciaConsistente=first.OcurrenciaConsistente,
-                        ComentarioConsistenciaOcurrencia=first.ComentarioConsistenciaOcurrencia
+                        ComentarioConsistenciaOcurrencia=first.ComentarioConsistenciaOcurrencia,
+                        InterrupcionLlamada=first.InterrupcionLlamada
 
                     };
                 })
                 .ToList();
-            // Asignar ComentarioLlamadaNoCalificada después del agrupado
-            foreach (var llamada in agrupado)
-            {
-                if (!llamada.Promedio.HasValue)
-                {
-                    var comentariosNoCalificada = filas
-                        .Where(x => x.IdLlamada == llamada.IdLlamada  && !string.IsNullOrWhiteSpace(x.Comentario))
-                        .Select(x => x.Comentario)
-                        .FirstOrDefault();
-
-                    llamada.ComentarioLlamadaNoCalificada = comentariosNoCalificada;
-                }
-            }
-
             return new ReporteCalificacionResponse
             {
                 TotalRegistros = total,
@@ -1322,17 +1320,10 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         : (decimal?)null;
 
                     var puntosCriticos = g
-                        .Where(x => x.PuntajePromedio >= 0 && !string.IsNullOrWhiteSpace(x.Comentario))
-                        .OrderBy(x => x.PuntajePromedio)
-                        .ThenBy(x => x.IdCalificacionLlamada)
-                        .Take(3)
-                        .Select(x => new PuntoCriticoDTO
-                        {
-                            Nota = x.PuntajePromedio,
-                            TipoCalificacion = x.TipoCalificacion,
-                            Comentario = x.Comentario
-                        })
-                        .ToList();
+                                        .Where(x => !string.IsNullOrWhiteSpace(x.PuntoCritico))
+                                        .Select(x => x.PuntoCritico!.Trim())
+                                        .Distinct()
+                                        .ToList();
 
                     return new LlamadaCalificadaDTO
                     {
@@ -1354,11 +1345,13 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         IdOcurrenciaPadreAlterno = first.IdOcurrenciaPadreAlterno,
                         IdOcurrenciaActividadAlterno = first.IdOcurrenciaActividadAlterno,
                         IdOcurrenciaAlterno = first.IdOcurrenciaAlterno,
-                        IdVersionConfiguracionCalificacioLlamada = first.IdVersionConfiguracionCalificacioLlamada,
+                        IdVersionConfiguracionCalificacionLlamada = first.IdVersionConfiguracionCalificacionLlamada,
                         OcurrenciaPadreAlterno = first.OcurrenciaPadreAlterno,
                         OcurrenciaAlterno = first.OcurrenciaAlterno,
                         EstadoOcurrenciaAlterno = first.EstadoOcurrenciaAlterno,
-                        PuntosCriticos = puntosCriticos
+                        OcurrenciaConsistente = first.OcurrenciaConsistente,
+                        ComentarioConsistenciaOcurrencia = first.ComentarioConsistenciaOcurrencia,
+                        InterrupcionLlamada = first.InterrupcionLlamada
                     };
                 })
                 .ToList();

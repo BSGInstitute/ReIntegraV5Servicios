@@ -453,6 +453,28 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
         /// Obtiene todos los registros de la tabla
         /// </summary>
         /// <returns> List<ComboDTO> </returns>
+        [Route("[action]/{IdOportunidad}/{IdLlamadaWebphoneCruceCentral3Cx}")]
+        [HttpGet]
+        public ActionResult ObtenerNotaCalificacionPuntoGeneralHistorico(int IdOportunidad, int IdLlamadaWebphoneCruceCentral3Cx)
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ObtenerNotaCalificacionPuntoGeneralHistorico(IdOportunidad, IdLlamadaWebphoneCruceCentral3Cx);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
         [Route("[action]/{idLlamada}")]
         [HttpGet]
         public ActionResult ObtenerNotaCalificacionLineamientoGeneral(int idLlamada)

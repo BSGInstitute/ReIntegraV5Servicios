@@ -107,7 +107,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
     public class CalificacionLlamadaDTO
     {
         public int Id { get; set; }
-        public int IdVersionConfiguracionCalificacioLlamada { get; set; }
+        public int IdVersionConfiguracionCalificacionLlamada { get; set; }
         public int IdLlamadaWebphoneCruceCentralTresCx { get; set; }
         public int? IdCriterioCalificacionLlamada { get; set; }
         public int? IdCalificacionPuntoGeneral { get; set; }
@@ -119,7 +119,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
     public class HistoricoCalificacionDTO
     {
         public int IdCalificacionLlamada { get; set; }
-        public int IdVersionConfiguracionCalificacioLlamada { get; set; }
+        public int IdVersionConfiguracionCalificacionLlamada { get; set; }
         public int IdLlamadaWebphoneCruceCentralTresCx { get; set; }
         public DateTime? FechaInicioLlamadaCentral { get; set; }
         public int? IdCriterioCalificacionLlamada { get; set; }
@@ -543,7 +543,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int? IdOcurrenciaPadreAlterno { get; set; }
         public int? IdOcurrenciaActividadAlterno { get; set; }
         public int? IdOcurrenciaAlterno { get; set; }
-        public int? IdVersionConfiguracionCalificacioLlamada { get; set; }
+        public int? IdVersionConfiguracionCalificacionLlamada { get; set; }
 
         public string? OcurrenciaPadreAlterno { get; set; }
         public string? OcurrenciaAlterno { get; set; }
@@ -552,6 +552,9 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public bool? OcurrenciaConsistente { get; set; }
 
         public string? ComentarioConsistenciaOcurrencia { get; set; }
+        public string? InterrupcionLlamada { get; set; }
+        public string? PuntoCritico { get; set; } 
+
 
 
 
@@ -588,7 +591,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int? IdOcurrenciaPadreAlterno { get; set; }
         public int? IdOcurrenciaActividadAlterno { get; set; }
         public int? IdOcurrenciaAlterno { get; set; }
-        public int? IdVersionConfiguracionCalificacioLlamada { get; set; }
+        public int? IdVersionConfiguracionCalificacionLlamada { get; set; }
 
         public string? OcurrenciaPadreAlterno { get; set; }
         public string? OcurrenciaAlterno { get; set; }
@@ -598,14 +601,16 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
 
         public string? ComentarioConsistenciaOcurrencia { get; set; }
 
+        public string? InterrupcionLlamada { get; set; }
 
-        public List<PuntoCriticoDTO> PuntosCriticos { get; set; }
+
+        public List<string> PuntosCriticos { get; set; }
     }
     public class PuntoCriticoDTO
     {
-        public decimal Nota { get; set; }
-        public bool TipoCalificacion { get; set; }
-        public string Comentario { get; set; }
+        public decimal? Nota { get; set; }
+        public bool? TipoCalificacion { get; set; }
+        public string? PuntoCritico { get; set; }
     }
     public class ReporteCalificacionResponse
     {
@@ -650,11 +655,11 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
     {
         public int Id { get; set; }
         public int IdLlamadaWebphoneCruceCentralTresCx { get; set; }
-        public int IdVersionConfiguracionCalificacioLlamada { get; set; }
+        public int IdVersionConfiguracionCalificacionLlamada { get; set; }
         public int IdFaseCalificacion { get; set; }
         public string Comentario { get; set; }
         public string Brecha { get; set; }
-        public bool TipoCalificacion { get; set; }
+        public bool TipoEvaluacion { get; set; }
     }
     /*FIN DE DTOS REPORTES CALIFICACION*/
 
