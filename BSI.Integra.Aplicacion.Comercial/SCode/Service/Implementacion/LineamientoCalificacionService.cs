@@ -642,6 +642,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 })
                 .ToList();
 
+                ///AQUI LA MODIFICACION DE JSON PARA ENVIAR 
+
                 var payload = new
                 {
                     idLlamada = item.IdLlamada.ToString(),

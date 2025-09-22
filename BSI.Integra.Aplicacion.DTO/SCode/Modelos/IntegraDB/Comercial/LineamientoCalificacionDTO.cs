@@ -756,4 +756,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         /// </summary>
         public DateTime FechaReal { get; set; }
     }
+
+
+
+
 }
