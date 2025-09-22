@@ -16,6 +16,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad.TranscriptionDTO;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
@@ -338,7 +339,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                                      UsuarioModificacion,
                                      FechaCreacion,
                                      FechaModificacion
-                              FROM [com].[SP_ObtenerNotaLineamientoPorLlamadaV2]
+                              FROM com.T_VersionConfiguracionCalificacionLlamada
                               WHERE Estado=1";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
@@ -527,10 +528,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 parametros.Add("@CalificacionesPuntosGenerales", calificacionesPuntoGeneralJson, DbType.String);
                 parametros.Add("@CalificacionesPuntosCriticos", calificacionesPuntoCriticoJson, DbType.String);
                 parametros.Add("@CalificacionesFase", calificacionesFaseJson, DbType.String);
+                parametros.Add("@CalificacionesFinalizacionLlamada", calificacionLlamada.InterrupcionLlamada, DbType.String);
 
                 parametros.Add("@Usuario", calificacionLlamada.Usuario, DbType.String);
 
-                _dapperRepository.QuerySPDapper("[com].[SP_InsertarCalificacionLlamadaAutomatica]", parametros);
+                _dapperRepository.QuerySPDapper("[com].[SP_InsertarCalificacionLlamadaAutomaticaV2]", parametros);
 
                 return true;
             }
@@ -1275,24 +1277,37 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 
 
 
-        //public IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosConfiguracionCalificacionAuto()
-        //{
-        //    try
-        //    {
-        //        List<LlamadaProcesoAutoDTO> configuracion = new List<LlamadaProcesoAutoDTO>();
-        //        var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ObtenerInformacionCalificacionAutomatica]", new { });
-        //        if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
-        //        {
-        //            configuracion = JsonConvert.DeserializeObject<List<LlamadaProcesoAutoDTO>>(resultado);
-        //        }
-        //        return configuracion;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
+        public async Task<InsertRecomendacionResultDTO> ProcesarRecomendacionesBatch(RecomendacionLlamadaDTO recomendaciones)
+        {
+            try
+            {
 
-        //}
+                int id = int.Parse(recomendaciones.IdLlamada);
+                var json = JsonConvert.SerializeObject(new { recomendaciones = recomendaciones.Recomendaciones ?? new List<string>() });
+                var parametros = new
+                {
+                    IdLlamadaWebphoneCruceCentralTresCx = id,
+                    Recomendaciones = json,
+                    Usuario = "System-Auto"
+                };
+                var configuracion = new List<InsertRecomendacionResultDTO>();
+
+
+                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_InsertarRecomendacionTranscripcion]", parametros);
+
+                if (string.IsNullOrWhiteSpace(resultado) || resultado == "[]")
+                    return new InsertRecomendacionResultDTO { IdTranscripcionLlamada = 0, RecomendacionesInsertadas = 0 };
+
+                return resultado.TrimStart().StartsWith("[")
+                    ? JsonConvert.DeserializeObject<List<InsertRecomendacionResultDTO>>(resultado).FirstOrDefault()
+                    : JsonConvert.DeserializeObject<InsertRecomendacionResultDTO>(resultado);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
     }
 
 }

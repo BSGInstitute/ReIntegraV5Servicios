@@ -1,6 +1,7 @@
 ﻿
 
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -145,6 +146,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public List<DetalleCalificacionPuntoGeneralDTO> CalificacionesPuntosGenerales { get; set; }
         public List<DetallePuntosCriticosDTO> CalificacionesPuntosCriticos { get; set; }
         public List<DetalleCalificacionFaseDTO> CalificacionesFase { get; set; }
+        public string? InterrupcionLlamada { get; set; }
         public string Usuario { get; set; }
     }
     public class DetalleCalificacionFaseDTO
@@ -400,7 +402,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
 
         [JsonPropertyName("puntoscriticos")]
         public List<PuntoCritico>? Puntoscriticos { get; set; }
-        [JsonPropertyName("interrupcionLlamada")]
+        [JsonPropertyName("interrupcionllamada")]
         public string? InterrupcionLlamada { get; set; }
 
 
@@ -478,6 +480,21 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
 
         [JsonPropertyName("feedback")]
         public string? Feedback { get; set; }
+    }
+
+    public class RecomendacionLlamadaDTO
+    {
+        [JsonProperty("idLlamada")]
+        public string IdLlamada { get; set; }
+
+        [JsonProperty("recomendaciones")]
+        public List<string> Recomendaciones { get; set; }
+    }
+
+    public class InsertRecomendacionResultDTO
+    {
+        public int IdTranscripcionLlamada { get; set; }
+        public int RecomendacionesInsertadas { get; set; }
     }
 
 

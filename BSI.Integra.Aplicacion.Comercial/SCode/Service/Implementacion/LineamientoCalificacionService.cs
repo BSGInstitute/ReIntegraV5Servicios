@@ -1027,6 +1027,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             var calificacionesPuntosGenerales = new List<DetalleCalificacionPuntoGeneralDTO>();
             var calificacionesPuntosCriticos = new List<DetallePuntosCriticosDTO>();
             var calificacionesFase = new List<DetalleCalificacionFaseDTO>();
+            
 
 
             var evaluacion = evaluacionData;
@@ -1131,6 +1132,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 CalificacionesPuntosGenerales = calificacionesPuntosGenerales,
                 CalificacionesPuntosCriticos = calificacionesPuntosCriticos,
                 CalificacionesFase = calificacionesFase,
+                InterrupcionLlamada= evaluacionData.InterrupcionLlamada,
                 Usuario = usuario
             };
         }
@@ -1513,17 +1515,18 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         /// <param name="idLlamada">ID de la llamada</param>
         /// <param name="tipoCalificacion">Tipo de calificación (0=Manual, 1=Automática)</param>
         /// <returns>Lista de calificaciones por fase</returns>
-        //public async Task ProcesarRecomendacionesBatch(ResultadoEvaluacionBatch payload)
-        //{
+        public async Task<InsertRecomendacionResultDTO> ProcesarRecomendacionesBatch(RecomendacionLlamadaDTO payload)
+        {
 
-        //    if (payload == null)
-        //        throw new ArgumentNullException(nameof(payload), "El cuerpo de calificación es nulo.");
-
-        //   var resultado = _unitOfWork.LineamientoCalificacionRepository.ProcesarRecomendacionesBatch(payloadCalificacion);
-        //    if (!resultado)
-        //        throw new InvalidOperationException("No se pudo guardar la calificación automática en la base de datos.");
-
-        //}
+            try
+            {
+                return await _unitOfWork.LineamientoCalificacionRepository.ProcesarRecomendacionesBatch(payload);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
 
 
