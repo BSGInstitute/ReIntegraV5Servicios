@@ -628,11 +628,20 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
             httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
             httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
-            var semaphore = new SemaphoreSlim(6); // 2 llamadas concuerrentes
+            var semaphore = new SemaphoreSlim(6); // 6 llamadas concuerrentes
 
 
             var tasks = itemsOrdenados.Select(async item =>
             {
+                var historialReprogramaciones = _unitOfWork.LineamientoCalificacionRepository.ObtenerOcurrenciaRegistrada(item.IdOportunidad).Select(oc => new
+                {
+                    IdLlamada = oc.IdLlamada,
+                    EstadoOcurrencia = oc.EstadoOcurrenciaAlterno,
+                    ocurrencia = oc.OcurrenciaAlterno,
+                    Fecha = oc.FechaReal
+                })
+                .ToList();
+
                 var payload = new
                 {
                     idLlamada = item.IdLlamada.ToString(),
@@ -643,7 +652,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     audio_url = item.UrlAudioProcesado,
                     locale = "es-ES",
                     ocurrencia = item.Ocurrencia,
-                    faseOrigen=item.IdFaseOportunidadAnt,
+                    historialReprogramaciones= historialReprogramaciones,
+                    faseOrigen =item.IdFaseOportunidadAnt,
                     faseDestino=item.IdFaseOportunidad
                 };
 

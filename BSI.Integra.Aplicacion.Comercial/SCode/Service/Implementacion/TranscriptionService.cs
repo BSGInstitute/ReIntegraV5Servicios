@@ -52,6 +52,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 if (payload.Transcription == null)
                     throw new ArgumentNullException("La propiedad Transcription es nula.");
                 payload.Transcription.OcurrenciaConsistente = payload.Transcription.OcurrenciaConsistente.ToUpper() == "SI" ? "True" : "False";
+                payload.Transcription.CambioFaseConsistente = payload.Transcription.CambioFaseConsistente.ToUpper() == "SI" ? "True" : "False";
                 var transcriptionEntity = _mapper.Map<TranscripcionLlamada>(payload.Transcription);
                 transcriptionEntity.IdLlamadaWebphoneCruceCentralTresCx = int.Parse(payload.IdLlamada);
                 AsignarValoresComunes(transcriptionEntity);
@@ -157,6 +158,9 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         Summary = transcripcion.Summary,
                         Ocurrencia_Consistente = transcripcion.OcurrenciaConsistente.HasValue && transcripcion.OcurrenciaConsistente.Value ? "si" : "no",
                         ComentarioConsistenciaOcurrencia = transcripcion?.ComentarioConsistenciaOcurrencia,
+                        CambioFaseConsistente = transcripcion.OcurrenciaConsistente.HasValue && transcripcion.CambioFaseConsistente.Value ? "si" : "no",
+                        ComentarioConsistenciaCambioFase = transcripcion?.ComentarioConsistenciaCambioFase,
+
 
                         CombinedRecognizedPhrases = data
                             .Where(x => x.FraseCombinadaId != null)

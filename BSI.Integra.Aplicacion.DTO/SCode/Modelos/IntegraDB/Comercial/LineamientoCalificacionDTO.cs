@@ -696,4 +696,64 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public bool EsLlamadaCalificada { get; set; }
         public bool EsLlamadaTranscrita { get; set; }
     }
+    /// <summary>
+    /// DTO para representar la información de llamadas webphone con sus ocurrencias y estados
+    /// </summary>
+    public class LlamadaWebphoneOcurrenciaDTO
+    {
+        /// <summary>
+        /// Identificador único del alumno
+        /// </summary>
+        public int IdAlumno { get; set; }
+
+        /// <summary>
+        /// Nombre completo del cliente (alumno)
+        /// </summary>
+        public string NombreCliente { get; set; }
+
+        /// <summary>
+        /// Identificador único de la llamada
+        /// </summary>
+        public int IdLlamada { get; set; }
+
+        /// <summary>
+        /// Identificador único de la oportunidad
+        /// </summary>
+        public int IdOportunidad { get; set; }
+
+        /// <summary>
+        /// Identificador de la ocurrencia padre alterno (puede ser nulo)
+        /// </summary>
+        public int? IdOcurrenciaPadreAlterno { get; set; }
+
+        /// <summary>
+        /// Identificador de la ocurrencia de actividad alterno (puede ser nulo)
+        /// </summary>
+        public int? IdOcurrenciaActividadAlterno { get; set; }
+
+        /// <summary>
+        /// Identificador de la ocurrencia alterno (puede ser nulo)
+        /// </summary>
+        public int? IdOcurrenciaAlterno { get; set; }
+
+        /// <summary>
+        /// Nombre de la ocurrencia padre alterno
+        /// </summary>
+        public string OcurrenciaPadreAlterno { get; set; }
+
+        /// <summary>
+        /// Nombre de la ocurrencia alterno
+        /// </summary>
+        public string OcurrenciaAlterno { get; set; }
+
+        /// <summary>
+        /// Estado de la ocurrencia alterno (con lógica de reprogramación manual/automática)
+        /// </summary>
+        public string EstadoOcurrenciaAlterno { get; set; }
+
+        /// <summary>
+        /// Fecha real de la actividad
+        /// </summary>
+        public DateTime FechaReal { get; set; }
+    }
 }

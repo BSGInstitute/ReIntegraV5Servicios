@@ -53,8 +53,14 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad
 
             [JsonPropertyName("ocurrencia_consistente")]
             public string? OcurrenciaConsistente { get; set; }
-            [JsonPropertyName("comentarioCambioFase")]
+
+            [JsonPropertyName("comentarioOcurrencia")]
             public string? ComentarioConsistenciaOcurrencia { get; set; }
+
+            [JsonPropertyName("cambioFase_consistente")]
+            public string? CambioFaseConsistente { get; set; }
+            [JsonPropertyName("comentarioCambioFase")]
+            public string? ComentarioConsistenciaCambioFase { get; set; }
 
             [JsonPropertyName("recomendaciones")]
             public List<string>? Recomendaciones { get; set; }
@@ -155,7 +161,10 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad
             public string Duration { get; set; }
             public string Summary { get; set; }
             public string Ocurrencia_Consistente { get; set; } // "si" o "no"
-            public string ComentarioConsistenciaOcurrencia { get; set; } // "si" o "no"
+            public string ComentarioConsistenciaOcurrencia { get; set; }
+            public string? CambioFaseConsistente { get; set; }
+            public string? ComentarioConsistenciaCambioFase { get; set; }
+
             public List<CombinedRecognizedPhraseDto> CombinedRecognizedPhrases { get; set; }
             public List<RecognizedPhraseDto> RecognizedPhrases { get; set; }
             public List<string> Recomendaciones { get; set; }
@@ -203,6 +212,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad
             public string Summary { get; set; }
             public bool? OcurrenciaConsistente { get; set; }
             public string? ComentarioConsistenciaOcurrencia { get; set; }
+            public bool? CambioFaseConsistente { get; set; }
+            public string? ComentarioConsistenciaCambioFase { get; set; }
             public bool Estado { get; set; }
             public string UsuarioCreacion { get; set; }
             public string UsuarioModificacion { get; set; }

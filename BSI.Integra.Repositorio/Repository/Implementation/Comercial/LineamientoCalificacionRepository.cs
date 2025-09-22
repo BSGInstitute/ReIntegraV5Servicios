@@ -1337,6 +1337,46 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             }
 
         }
+
+        /// <summary>
+        /// Obtiene informacion de llamada de tabla WebPhoneCruceCentralTresCx
+        /// </summary>
+        /// <param name="idLlamada">ID de la llamada</param>
+        /// <param name="tipoCalificacion">Tipo de calificación (0=Manual, 1=Automática)</param>
+        /// <returns>Lista de calificaciones por fase</returns>
+        public IEnumerable<LlamadaWebphoneOcurrenciaDTO> ObtenerOcurrenciaRegistrada(int idOportunidad)
+        {
+            try
+            {
+                var informacionLlamada = new List<LlamadaWebphoneOcurrenciaDTO>();
+                var query = @" SELECT
+                                		IdAlumno,
+                                		NombreCliente,
+                                		IdLlamada,
+                                		IdOportunidad,
+                                		IdOcurrenciaPadreAlterno,
+                                		IdOcurrenciaActividadAlterno,
+                                		IdOcurrenciaAlterno,
+                                		OcurrenciaPadreAlterno,
+                                		OcurrenciaAlterno,
+                                		EstadoOcurrenciaAlterno,
+                                		FechaReal
+                                FROM
+                                		[com].[V_ObtenerHistoricoOcurrencia]
+                                WHERE	idOportunidad = @idOportunidad ORDER BY FechaReal Desc;";
+                var resultado = _dapperRepository.QueryDapper(query, new { IdOportunidad = idOportunidad });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                {
+                    informacionLlamada = JsonConvert.DeserializeObject<List<LlamadaWebphoneOcurrenciaDTO>>(resultado);
+                }
+                return informacionLlamada;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 
 }
