@@ -2,6 +2,7 @@
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
+using BSI.Integra.Servicios.Helpers;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,11 +20,13 @@ namespace BSI.Integra.Servicios.Controllers
     public class RegistroArchivoStorageController : Controller
     {
         private IUnitOfWork unitOfWork;
+        private ITokenManager _tokenManager;
         private string urlimg;
 
-        public RegistroArchivoStorageController(IUnitOfWork unitOfWork)
+        public RegistroArchivoStorageController(IUnitOfWork unitOfWork, ITokenManager tokenManager)
         {
             this.unitOfWork = unitOfWork;
+            _tokenManager = tokenManager;
         }
 
         /// Tipo Función: POST

@@ -20214,6 +20214,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsUnicode(false)
                     .HasComment("NombreCompleto");
 
+                entity.Property(e => e.Plataforma)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Plataforma de origen del lead (Facebook, Instagram, etc.)");
+
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
                     .IsConcurrencyToken()
@@ -53895,6 +53900,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.HasComment("Almacena datos generales de la transcripcion llamada");
 
                 entity.Property(e => e.Id).HasComment("Llave primaria de la transcripción");
+
+                entity.Property(e => e.CambioFaseConsistente).HasComment("Indica si el cambio de fase es consistente (1) o no (0)");
+
+                entity.Property(e => e.ComentarioConsistenciaCambioFase)
+                    .HasMaxLength(4000)
+                    .HasComment("Comentario sobre la consistencia del cambio de fase");
 
                 entity.Property(e => e.ComentarioConsistenciaOcurrencia)
                     .HasMaxLength(4000)

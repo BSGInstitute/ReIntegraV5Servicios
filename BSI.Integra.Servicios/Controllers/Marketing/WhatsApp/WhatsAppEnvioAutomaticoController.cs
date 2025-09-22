@@ -26,20 +26,20 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.WhatsApp
             _scopeFactory = scopeFactory;
         }
 
-        [Route("[Action]")]
-        [HttpGet]
-        public ActionResult EjecutarCampaniaGeneralEnvioWhatsApp()
-        {
-            try
-            {
-                IWhatsAppEnvioAutomaticoService Service = new WhatsAppEnvioAutomaticoService(unitOfWork);
-                return Ok(Service.EjecutarCampaniaGeneralEnvioWhatsApp());
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-        }
+        //[Route("[Action]")]
+        //[HttpGet]
+        //public ActionResult EjecutarCampaniaGeneralEnvioWhatsApp()
+        //{
+        //    try
+        //    {
+        //        IWhatsAppEnvioAutomaticoService Service = new WhatsAppEnvioAutomaticoService(unitOfWork);
+        //        return Ok(Service.EjecutarCampaniaGeneralEnvioWhatsApp());
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex);
+        //    }
+        //}
 
 
         /// <summary>

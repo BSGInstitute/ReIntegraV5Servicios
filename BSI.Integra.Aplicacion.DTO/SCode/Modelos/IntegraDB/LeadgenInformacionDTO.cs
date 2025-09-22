@@ -37,10 +37,11 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string? UpdatedTime { get; set; }
         public string AdsetStatus { get; set; }
         public int Account { get; set; }
+        public string Plataforma { get; set; }
     }
 
 
-   
+
     public class FacebookFormularioLeadgenDTO
     {
         public int Id { get; set; }
