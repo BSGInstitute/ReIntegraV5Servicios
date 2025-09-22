@@ -43,40 +43,40 @@ namespace BSI.Integra.Servicios.Controllers
         /// Obtiene información para combos de interfaz
         /// </summary>
         /// <returns> Combos para modulo comercial <returns>
-        //[Route("[action]/{idPersonal}")]
-        //[HttpGet]
-        //public async Task<ActionResult<FiltroReporteActividadRealizadaAlternoDTO>> ObtenerCombo(int idPersonal)
-        //{
-        //    IReporteSeguimientoOportunidadService servicio = new ReporteSeguimientoOportunidadService(unitOfWork);
-        //    idPersonal = _configuracionAccesoPersonalService.ObtenerIdPersonalAcceso(idPersonal, "Comercial/ReporteActividadRealizada");
-        //    var resultado = await _reporteActividadesRealizadasService.ObtenerCombo(idPersonal);
-        //    return Ok(resultado);
-        //}
-
         [Route("[action]/{idPersonal}")]
         [HttpGet]
         public async Task<ActionResult<FiltroReporteActividadRealizadaAlternoDTO>> ObtenerCombo(int idPersonal)
         {
-           
-
             IReporteSeguimientoOportunidadService servicio = new ReporteSeguimientoOportunidadService(unitOfWork);
             idPersonal = _configuracionAccesoPersonalService.ObtenerIdPersonalAcceso(idPersonal, "Comercial/ReporteActividadRealizada");
-
-            string cacheKey = $"combo_{idPersonal}";
-
-            if (_cache.TryGetValue(cacheKey, out FiltroReporteActividadRealizadaAlternoDTO cacheValue))
-            {
-                return cacheValue;
-
-            }
-
             var resultado = await _reporteActividadesRealizadasService.ObtenerCombo(idPersonal);
-
-            _cache.Set(cacheKey, resultado, TimeSpan.FromHours(24));
-
-            return resultado;
-
+            return Ok(resultado);
         }
+
+        //[Route("[action]/{idPersonal}")]
+        //[HttpGet]
+        //public async Task<ActionResult<FiltroReporteActividadRealizadaAlternoDTO>> ObtenerCombo(int idPersonal)
+        //{
+
+
+        //    IReporteSeguimientoOportunidadService servicio = new ReporteSeguimientoOportunidadService(unitOfWork);
+        //    idPersonal = _configuracionAccesoPersonalService.ObtenerIdPersonalAcceso(idPersonal, "Comercial/ReporteActividadRealizada");
+
+        //    string cacheKey = $"combo_{idPersonal}";
+
+        //    if (_cache.TryGetValue(cacheKey, out FiltroReporteActividadRealizadaAlternoDTO cacheValue))
+        //    {
+        //        return cacheValue;
+
+        //    }
+
+        //    var resultado = await _reporteActividadesRealizadasService.ObtenerCombo(idPersonal);
+
+        //    _cache.Set(cacheKey, resultado, TimeSpan.FromHours(24));
+
+        //    return resultado;
+
+        //}
 
         /// TipoFuncion: POST
         /// Autor: Jonathan Caipo
