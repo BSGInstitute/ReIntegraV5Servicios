@@ -73,6 +73,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
         Task<InsertRecomendacionResultDTO> ProcesarRecomendacionesBatch(RecomendacionLlamadaDTO calificacionLlamada);
 
         IEnumerable<LlamadaWebphoneOcurrenciaDTO> ObtenerOcurrenciaRegistrada(int IdOportunidad);
+        IEnumerable<TransicionFaseOportunidadDTO> ObtenerConfiguracionCambioFaseOportunidad(int idFaseOrigen, int idFaseDestino);
 
 
 
