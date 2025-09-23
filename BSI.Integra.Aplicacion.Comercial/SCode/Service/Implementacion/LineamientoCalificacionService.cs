@@ -24,6 +24,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad.TranscriptionDTO;
 using TransicionFase = BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial.TransicionFase;
+using Microsoft.Extensions.Logging;
+
 
 namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 {
@@ -644,10 +646,9 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     Fecha = oc.FechaReal
                 })
                 .ToList();
-                //AQUI ENTRA EL ARBOL
-                try
-                {
-                    var datos = _unitOfWork.LineamientoCalificacionRepository.ObtenerConfiguracionCambioFaseOportunidad(idFaseOrigen, idFaseDestino);
+
+
+                    var datos = _unitOfWork.LineamientoCalificacionRepository.ObtenerConfiguracionCambioFaseOportunidad(item.IdFaseOportunidad_Ant, item.IdFaseOportunidad);
 
                     var transicionesAgrupadas = datos
                         .GroupBy(t => new {
@@ -700,13 +701,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         .OrderBy(t => t.IdTransicionFaseOportunidad)
                         .ToList();
 
-                    return transicionesAgrupadas;
-                }
-                catch (Exception ex)
-                {
-                    throw ex;
-                }
-                //TERMINA EL ARBOL
+                    
 
                 var payload = new
                 {
@@ -719,7 +714,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     locale = "es-ES",
                     ocurrencia = item.Ocurrencia,
                     historialReprogramaciones= historialReprogramaciones,
-                    faseOrigen =item.IdFaseOportunidadAnt,
+                    informacionFases= transicionesAgrupadas,
+                    faseOrigen =item.IdFaseOportunidad_Ant,
                     faseDestino=item.IdFaseOportunidad
                 };
 
@@ -1367,6 +1363,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         ComentarioLlamadaNoCalificada = null,
                         OcurrenciaConsistente=first.OcurrenciaConsistente,
                         ComentarioConsistenciaOcurrencia=first.ComentarioConsistenciaOcurrencia,
+                        CambioFaseConsistente=first.CambioFaseConsistente,
+                        ComentarioConsistenciaCambioFase=first.ComentarioConsistenciaCambioFase,
                         InterrupcionLlamada=first.InterrupcionLlamada
 
                     };
@@ -1598,34 +1596,134 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         }
 
 
+        
+
+
+
+        public async Task<bool> ProcesarPuntoCriticoDiario()
+        {
+            var informacionDelDia = _unitOfWork.LineamientoCalificacionRepository.ObtenerPuntosCriticosPorDia();
+            if (informacionDelDia == null || !informacionDelDia.Any())
+                return true; 
+
+            var asesores = informacionDelDia.GroupBy(f => f.IdPersonal);
+
+            // 3) Configurar HttpClient
+            using var httpClient = new HttpClient
+            {
+                BaseAddress = new Uri("http://ia-analisis-llamadas-comercial-api.bsginstitute.com/")
+            };
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpClient.DefaultRequestHeaders.Add("Cache-Control", "no-cache");
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "BSG/PCDiario");
+            httpClient.DefaultRequestHeaders.ConnectionClose = false;
+
+            var procesadosOk = 0;
+            var totalAsesores = asesores.Count();
+
+            foreach (var asesorGroup in asesores)
+            {
+                var idPersonal = asesorGroup.Key;
+
+                // 4) Agrupar por llamada del asesor
+                var llamadas = asesorGroup
+                    .GroupBy(x => x.IdLlamadaWebphoneCruceCentralTresCx)
+                    .Select(g =>
+                    {
+                        var resumen = g.Select(x => x.ResumenLlamada)
+                                       .FirstOrDefault(s => !string.IsNullOrWhiteSpace(s));
+
+                        var puntosCriticos = g.Select(x => x.PuntoCritico?.Trim())
+                                              .Where(s => !string.IsNullOrWhiteSpace(s))
+                                              .Distinct(StringComparer.OrdinalIgnoreCase)
+                                              // .Take(3) // si quieres topear por llamada, descomenta
+                                              .ToList()!;
+
+                        return new LlamadaPuntoCriticoDTO
+                        {
+                            idLlamada = g.Key.ToString(),
+                            summary = resumen,
+                            puntoscriticos = puntosCriticos
+                        };
+                    })
+                    .OrderByDescending(l => l.idLlamada)
+                    .ToList();
+
+                if (llamadas.Count == 0)
+                {
+                    // no hay nada que enviar de este asesor; lo consideramos OK
+                    procesadosOk++;
+                    continue;
+                }
+
+                var fechaGeneracion = asesorGroup.First().FechaReal.Date;
+
+                var payload = new RecomendacionPuntoCriticoLlamadaDTO
+                {
+                    items = llamadas
+                };
+
+
+                try
+                {
+                    // Imprimir el JSON generado del payload antes de enviarlo
+                    Console.WriteLine(JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true }));
+                    using var response = await httpClient.PostAsJsonAsync("consolidadocritico/comercial", payload);
+                    response.EnsureSuccessStatusCode();
+                    var json = await response.Content.ReadAsStringAsync();
+                    var resultadoPuntoCritico = JsonSerializer.Deserialize<ResultadoPuntoCriticoConsolidaddoDTO>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+
+                    // Guardar "congelamiento": JSON crudo tal como vino
+                    var resultado = _unitOfWork.LineamientoCalificacionRepository.InsertarCongelamientoPuntoCritico(
+                        idPersonal: idPersonal,
+                        fechaGeneracion: fechaGeneracion,
+                        resultadoPuntoCritico: json
+                    );
+
+                    if (resultado) procesadosOk++;
+                }
+                catch (Exception ex)
+                {
+                        // log y continuar con el siguiente asesor
+                        Console.WriteLine("Error procesando IdPersonal {IdPersonal}", idPersonal);
+
+
+                }
+            }
+
+            // 8) Devuelve OK solo si TODOS los asesores salieron bien
+            return procesadosOk == totalAsesores;
+        }
+        /// Autor: Joseph Llanque.
+        /// Fecha: 03/07/2025
+        /// Version: 1.0
         /// <summary>
-        /// Obtiene calificaciones por fase para una llamada específica
-        /// </summary>
-        /// <param name="idLlamada">ID de la llamada</param>
-        /// <param name="tipoCalificacion">Tipo de calificación (0=Manual, 1=Automática)</param>
-        /// <returns>Lista de calificaciones por fase</returns>
-        //public async Task<InsertRecomendacionResultDTO> ProcesarPuntoCriticoDiario(RecomendacionLlamadaDTO payload)
-        //{
-
-        //    //try
-
-        //    //{
-
-        //    //http://ia-analisis-llamadas-comercial-api.bsginstitute.com/consolidadocritico/comercial
-        //    //    var informacionDelDia = _unitOfWork.LineamientoCalificacionRepository.ObtenerPuntosCriticosPorDia();
-        //    //    return OK("dasd")
-        //    //}
-        //    //catch (Exception ex)
-        //    //{
-        //    //    throw ex;
-        //    //}
-        //}
-
-
-
-
+        /// Obtiene todos el resumen de punto critico diario por asesor
+        /// </summary> 
+        /// <returns> IEnumerable<ComboDTO> </returns>
+        public IEnumerable<PuntoCriticoResumenDiarioDTO> ObtenerPuntoCriticoDiario(PuntoCriticoResumenEntradaDTO payload)
+        {
+            try
+            {
+                var idPersonal = payload.IdPersonal;
+                var FechaGeneracion = payload.FechaGeneracion;
+                return _unitOfWork.LineamientoCalificacionRepository.ObtenerPuntoCriticoDiario(idPersonal,FechaGeneracion);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
     }
 }
+
+
+
+
+    
+
 
 

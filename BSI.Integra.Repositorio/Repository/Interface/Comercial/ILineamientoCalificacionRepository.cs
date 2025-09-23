@@ -3,6 +3,7 @@ using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Comercial;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
+using Google.Api.Ads.AdWords.v201809;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,8 +74,12 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
         Task<InsertRecomendacionResultDTO> ProcesarRecomendacionesBatch(RecomendacionLlamadaDTO calificacionLlamada);
 
         IEnumerable<LlamadaWebphoneOcurrenciaDTO> ObtenerOcurrenciaRegistrada(int IdOportunidad);
-        IEnumerable<TransicionFaseOportunidadDTO> ObtenerConfiguracionCambioFaseOportunidad(int idFaseOrigen, int idFaseDestino);
+        IEnumerable<TransicionCambioFaseOportunidadDTO> ObtenerConfiguracionCambioFaseOportunidad(int idFaseOrigen, int idFaseDestino);
         IEnumerable<PuntosCriticosLlamadaDiaDto> ObtenerPuntosCriticosPorDia();
+        bool InsertarCongelamientoPuntoCritico(int idPersonal, DateTime fechaGeneracion, string resultadoPuntoCritico);
+        IEnumerable<PuntoCriticoResumenDiarioDTO> ObtenerPuntoCriticoDiario(int IdPersonal,DateTime fechaGeneracion);
+
+
 
 
 

@@ -997,6 +997,31 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
         /// Reporte de calificación de clientes (agrupado por llamada).
         /// Calcula promedio excluyendo -1 y devuelve puntos críticos (3 peores).
         /// </summary>
+        [HttpPost("[action]")]
+        public IActionResult ObtenerPuntoCriticoDiario(PuntoCriticoResumenEntradaDTO payload)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+
+                var resultado = lineamientoCalificacionService.ObtenerPuntoCriticoDiario(payload);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 14/08/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Reporte de calificación de clientes (agrupado por llamada).
+        /// Calcula promedio excluyendo -1 y devuelve puntos críticos (3 peores).
+        /// </summary>
         [HttpPost("[Action]")]
         public IActionResult ReporteCalificacionFase([FromBody] ReporteCalificacionRequest request)
         {
@@ -1170,6 +1195,33 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
                 return StatusCode(500, $"Error al insertar la calificacion: {ex.Message}");
             }
         }
+
+
+
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<ActionResult<List<bool>>> ProcesarPuntoCriticoDiario()
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = await lineamientoCalificacionService.ProcesarPuntoCriticoDiario();
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 
     }
 

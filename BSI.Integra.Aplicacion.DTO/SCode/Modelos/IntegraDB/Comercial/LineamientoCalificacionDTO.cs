@@ -312,7 +312,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int IdCentroCosto { get; set; }
 
         public int IdClasificacionPersona { get; set; }
-        public int IdFaseOportunidadAnt { get; set; }
+        public int IdFaseOportunidad_Ant { get; set; }
         public int IdFaseOportunidad { get; set; }
         public string UrlAudioProcesado { get; set; }
         public string Origen { get; set; }
@@ -552,8 +552,11 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public bool? OcurrenciaConsistente { get; set; }
 
         public string? ComentarioConsistenciaOcurrencia { get; set; }
+        public bool? CambioFaseConsistente { get; set; }
+
+        public string? ComentarioConsistenciaCambioFase { get; set; }
         public string? InterrupcionLlamada { get; set; }
-        public string? PuntoCritico { get; set; } 
+        public string? PuntoCritico { get; set; }
 
 
 
@@ -600,6 +603,9 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public bool? OcurrenciaConsistente { get; set; }
 
         public string? ComentarioConsistenciaOcurrencia { get; set; }
+        public bool? CambioFaseConsistente { get; set; }
+
+        public string? ComentarioConsistenciaCambioFase { get; set; }
 
         public string? InterrupcionLlamada { get; set; }
 
@@ -756,44 +762,82 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         /// </summary>
         public DateTime FechaReal { get; set; }
     }
+
+
+
     /// <summary>
     /// DTO que representa la información de la vista de transiciones de fase de oportunidad y sus criterios/lineamientos.
     /// </summary>
-    public class TransicionFaseOportunidadDTO
+    public class  TransicionCambioFaseOportunidadDTO
     {
-        // Transición
         public int IdTransicionFaseOportunidad { get; set; }
 
-        // Fase Origen
         public int IdFaseOrigen { get; set; }
         public string NombreFaseOrigen { get; set; }
         public string CodigoFaseOrigen { get; set; }
 
-        // Fase Destino
         public int IdFaseDestino { get; set; }
         public string NombreFaseDestino { get; set; }
         public string CodigoFaseDestino { get; set; }
 
-        // Criterio
         public int IdCriterio { get; set; }
         public int OrdenCriterio { get; set; }
         public string NombreCriterio { get; set; }
 
-        // Lineamiento
         public int IdLineamientoCalificacionFase { get; set; }
         public int OrdenLineamiento { get; set; }
         public string NombreLineamientoCalificacionFase { get; set; }
         public int IdCriticidadCalificacion { get; set; }
 
-        // Criticidad
         public string NombreCriticidad { get; set; }
     }
-    public class TransicionFaseResponse { public List<TransicionFase> TransicionesFase { get; set; } }
-    public class TransicionFase { public int IdTransicionFaseOportunidad { get; set; } public Fase FaseOrigen { get; set; } public Fase FaseDestino { get; set; } public List<Criterio> Criterios { get; set; } }
-    public class Fase { public int IdFaseDestino; public string NombreFaseDestino; public string CodigoFaseDestino; public int IdFaseOrigen { get; set; } public string NombreFaseOrigen { get; set; } public string CodigoFaseOrigen { get; set; } }
-    public class Criterio { public int IdCriterio { get; set; } public int OrdenCriterio { get; set; } public string NombreCriterio { get; set; } public List<Lineamiento> Lineamientos { get; set; } }
-    public class Lineamiento { public int IdLineamientoCalificacionFase { get; set; } public int OrdenLineamiento { get; set; } public string NombreLineamientoCalificacionFase { get; set; } public Criticidad Criticidad { get; set; } }
-    public class Criticidad { public int IdCriticidadCalificacion { get; set; } public string NombreCriticidad { get; set; } }
+    public class TransicionFaseResponse
+    {
+        public List<TransicionFase> TransicionesFase { get; set; }
+    }
+
+    public class TransicionFase
+    {
+        public int IdTransicionFaseOportunidad { get; set; }
+        public Fase FaseOrigen { get; set; }
+        public Fase FaseDestino { get; set; }
+        public List<Criterio> Criterios { get; set; }
+    }
+
+    public class Fase
+    {
+        public int IdFaseDestino { get; set; }
+        public string NombreFaseDestino { get; set; }
+        public string CodigoFaseDestino { get; set; }
+        public int IdFaseOrigen { get; set; }
+        public string NombreFaseOrigen { get; set; }
+        public string CodigoFaseOrigen { get; set; }
+    }
+
+    public class Criterio
+    {
+        public int IdCriterio { get; set; }
+        public int OrdenCriterio { get; set; }
+        public string NombreCriterio { get; set; }
+        public List<Lineamiento> Lineamientos { get; set; }
+    }
+
+    public class Lineamiento
+    {
+        public int IdLineamientoCalificacionFase { get; set; }
+        public int OrdenLineamiento { get; set; }
+        public string NombreLineamientoCalificacionFase { get; set; }
+        public Criticidad Criticidad { get; set; }
+    }
+
+    public class Criticidad
+    {
+        public int IdCriticidadCalificacion { get; set; }
+        public string NombreCriticidad { get; set; }
+    }
+
+    /*PUNTO CRITICOS DTO */
+
     public class PuntosCriticosLlamadaDiaDto
     {
         public DateTime FechaReal { get; set; }
@@ -803,5 +847,38 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public string? ResumenLlamada { get; set; }
     }
 
+    public class RecomendacionPuntoCriticoLlamadaDTO
+    {
+        public List<LlamadaPuntoCriticoDTO> items { get; set; } = new();
+    }
+    public class ResultadoPuntoCriticoConsolidaddoDTO
+    {
+        public List<string> consolidadocritico { get; set; }
+    }
 
+    public class LlamadaPuntoCriticoDTO
+    {
+        public string idLlamada { get; set; }
+        public string? summary { get; set; }
+        public List<string> puntoscriticos { get; set; } = new();
+    }
+
+    public class AnalisisLlamadasRespuestaDTO
+    {
+        public bool Ok { get; set; }
+        public string? Mensaje { get; set; }
+        public object? Data { get; set; }
+    }
+    public class PuntoCriticoResumenDiarioDTO
+    {
+        public int Id { get; set; }
+        public DateTime FechaCreacion { get; set; }
+        public int IdPersonal { get; set; }
+        public string PuntoCritico { get; set; }
+    }
+    public class PuntoCriticoResumenEntradaDTO
+    {
+        public int IdPersonal { get; set; }
+        public DateTime FechaGeneracion { get; set; }
+    }
 }

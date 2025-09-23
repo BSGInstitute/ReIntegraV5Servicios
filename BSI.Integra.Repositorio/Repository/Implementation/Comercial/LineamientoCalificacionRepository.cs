@@ -18,7 +18,6 @@ using System.Text;
 using System.Threading.Tasks;
 using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad.TranscriptionDTO;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
-using TransicionFaseOportunidadDTO = BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.TransicionFaseOportunidadDTO;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 {
@@ -1384,35 +1383,35 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
         /// <param name="idFaseOrigen">Id de la fase de origen</param>
         /// <param name="idFaseDestino">Id de la fase de destino</param>
         /// <returns>Lista de TransicionFaseOportunidadDTO</returns>
-        public IEnumerable<TransicionFaseOportunidadDTO> ObtenerConfiguracionCambioFaseOportunidad(int idFaseOrigen, int idFaseDestino)
+        public IEnumerable<TransicionCambioFaseOportunidadDTO> ObtenerConfiguracionCambioFaseOportunidad(int idFaseOrigen, int idFaseDestino)
         {
             try
             {
-                var resultado = new List<TransicionFaseOportunidadDTO>();
+                var resultado = new List<TransicionCambioFaseOportunidadDTO>();
                 var query = @"
-            SELECT
-                IdTransicionFaseOportunidad           AS IdTransicionFaseOportunidad,
-                IdFaseOrigen                          AS IdFaseOrigen,
-                NombreFaseOrigen                      AS NombreFaseOrigen,
-                CodigoFaseOrigen                      AS CodigoFaseOrigen,
-                IdFaseDestino                         AS IdFaseDestino,
-                NombreFaseDestino                     AS NombreFaseDestino,
-                CodigoFaseDestino                     AS CodigoFaseDestino,
-                IdCriterio                            AS IdCriterio,
-                OrdenCriterio                         AS OrdenCriterio,
-                NombreCriterio                        AS NombreCriterio,
-                IdLineamientoCalificacionFase         AS IdLineamientoCalificacionFase,
-                OrdenLineamiento                      AS OrdenLineamiento,
-                NombreLineamientoCalificacionFase     AS NombreLineamientoCalificacionFase,
-                IdCriticidadCalificacion              AS IdCriticidadCalificacion,
-                NombreCriticidad                      AS NombreCriticidad
-            FROM com.V_ObtenerConfiguracionCambioFaseOportunidad
-            WHERE IdFaseOrigen = @IdFaseOrigen AND IdFaseDestino = @IdFaseDestino";
+                                SELECT
+                                     IdTransicionFaseOportunidad,
+                                     IdFaseOrigen,
+                                     NombreFaseOrigen,
+                                     CodigoFaseOrigen,
+                                     IdFaseDestino,
+                                     NombreFaseDestino,
+                                     CodigoFaseDestino,
+                                     IdCriterio,
+                                     OrdenCriterio,
+                                     NombreCriterio,
+                                     IdLineamientoCalificacionFase,
+                                     OrdenLineamiento,
+                                     NombreLineamientoCalificacionFase,
+                                     IdCriticidadCalificacion,
+                                     NombreCriticidad
+                                FROM com.V_ObtenerConfiguracionCambioFaseOportunidad
+                                WHERE IdFaseOrigen = @IdFaseOrigen AND IdFaseDestino = @IdFaseDestino";
 
                 var data = _dapperRepository.QueryDapper(query, new { IdFaseOrigen = idFaseOrigen, IdFaseDestino = idFaseDestino });
                 if (!string.IsNullOrEmpty(data) && !data.Equals("[]"))
                 {
-                    resultado = JsonConvert.DeserializeObject<List<TransicionFaseOportunidadDTO>>(data);
+                    resultado = JsonConvert.DeserializeObject<List<TransicionCambioFaseOportunidadDTO>>(data);
                 }
                 return resultado;
             }
@@ -1437,8 +1436,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 		                                IdLlamadaWebphoneCruceCentralTresCx,
 		                                IdPersonal,
 		                                PuntoCritico,
-		                                ResumenLlamada FROM [com].[V_PuntosCriticosLlamadaDia] WHERE CAST(FechaReal AS DATE)=CAST(GETDATE() AS DATE)
-                                WHERE CAST(FechaReal AS DATE)=CAST(GETDATE() AS DATE)";
+		                                ResumenLlamada FROM [com].[V_PuntosCriticosLlamadaDia]
+                                WHERE CAST(FechaReal AS DATE)=CAST(GETDATE()-1 AS DATE)";
                 var resultado = _dapperRepository.QueryDapper(query, new { });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
                 {
@@ -1451,6 +1450,73 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 throw ex;
             }
         }
+
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 07/03/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary> 
+        /// <returns> IEnumerable<ComboDTO> </returns>
+        public bool InsertarCongelamientoPuntoCritico(int idPersonal, DateTime FechaGeneracion , string PuntoCriticoJson)
+        {
+            try
+            {
+                var resultado = JsonConvert.DeserializeObject<ResultadoPuntoCriticoConsolidaddoDTO>(PuntoCriticoJson);
+                var puntosCriticosArray = JsonConvert.SerializeObject(resultado.consolidadocritico);
+
+                var parametros = new DynamicParameters();
+                parametros.Add("@IdPersonal", idPersonal, DbType.Int32);
+                parametros.Add("@FechaGeneracion", FechaGeneracion, DbType.DateTime);
+                parametros.Add("@PuntoCriticoJson", puntosCriticosArray, DbType.String);
+                parametros.Add("@Usuario", "System-Auto", DbType.String);
+
+                _dapperRepository.QuerySPDapper("[com].[SP_InsertarPuntoCriticoResumenDiario]", parametros);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al insertar la calificación de llamada: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Obtiene el resumen diario de puntos críticos para un personal y fecha específicos.
+        /// Consulta la tabla <c>com.T_PuntoCriticoResumenDiario</c> filtrando por <paramref name="idPersonal"/> y la fecha de generación.
+        /// </summary>
+        /// <param name="idPersonal">ID del personal para el cual se busca el resumen diario de puntos críticos.</param>
+        /// <param name="fechaGeneracion">Fecha para la cual se requiere el resumen diario (solo la parte de la fecha es considerada).</param>
+        /// <returns>Lista de <see cref="PuntoCriticoResumenDiarioDTO"/> con los puntos críticos encontrados para el personal y fecha indicados.</returns>
+        public IEnumerable<PuntoCriticoResumenDiarioDTO> ObtenerPuntoCriticoDiario(int idPersonal, DateTime fechaGeneracion)
+        {
+            try
+            {
+                var informacionLlamada = new List<PuntoCriticoResumenDiarioDTO>();
+                var query = @" SELECT  
+                              Id,
+                              FechaCreacion,
+                              FechaGeneracion,
+                              FechaModificacion,
+                              IdPersonal	,
+                              PuntoCritico,
+                              Estado	
+                              FROM com.T_PuntoCriticoResumenDiario
+                                WHERE  IdPersonal=@idPersonal AND CAST(fechaGeneracion AS DATE)=CAST(@fechaGeneracion AS DATE) AND ESTADO=1";
+                var resultado = _dapperRepository.QueryDapper(query, new { idPersonal = idPersonal, fechaGeneracion = fechaGeneracion });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                {
+                    informacionLlamada = JsonConvert.DeserializeObject<List<PuntoCriticoResumenDiarioDTO>>(resultado);
+                }
+                return informacionLlamada;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
 
 
