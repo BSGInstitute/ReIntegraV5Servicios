@@ -11,7 +11,9 @@ using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Comercial;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
+using DocumentFormat.OpenXml.Math;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Google.Api.Ads.AdWords.v201809;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +23,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad.TranscriptionDTO;
+using TransicionFase = BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial.TransicionFase;
 
 namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 {
@@ -641,8 +644,69 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     Fecha = oc.FechaReal
                 })
                 .ToList();
+                //AQUI ENTRA EL ARBOL
+                try
+                {
+                    var datos = _unitOfWork.LineamientoCalificacionRepository.ObtenerConfiguracionCambioFaseOportunidad(idFaseOrigen, idFaseDestino);
 
-                ///AQUI LA MODIFICACION DE JSON PARA ENVIAR 
+                    var transicionesAgrupadas = datos
+                        .GroupBy(t => new {
+                            t.IdTransicionFaseOportunidad,
+                            t.IdFaseOrigen,
+                            t.NombreFaseOrigen,
+                            t.CodigoFaseOrigen,
+                            t.IdFaseDestino,
+                            t.NombreFaseDestino,
+                            t.CodigoFaseDestino
+                        })
+                        .Select(g => new TransicionFase
+                        {
+                            IdTransicionFaseOportunidad = g.Key.IdTransicionFaseOportunidad,
+                            FaseOrigen = new Fase
+                            {
+                                IdFaseOrigen = g.Key.IdFaseOrigen,
+                                NombreFaseOrigen = g.Key.NombreFaseOrigen,
+                                CodigoFaseOrigen = g.Key.CodigoFaseOrigen
+                            },
+                            FaseDestino = new Fase
+                            {
+                                IdFaseDestino = g.Key.IdFaseDestino,
+                                NombreFaseDestino = g.Key.NombreFaseDestino,
+                                CodigoFaseDestino = g.Key.CodigoFaseDestino
+                            },
+                            Criterios = g.GroupBy(c => new {
+                                c.IdCriterio,
+                                c.OrdenCriterio,
+                                c.NombreCriterio
+                            })
+                            .Select(cg => new Criterio
+                            {
+                                IdCriterio = cg.Key.IdCriterio,
+                                OrdenCriterio = cg.Key.OrdenCriterio,
+                                NombreCriterio = cg.Key.NombreCriterio,
+                                Lineamientos = cg.Select(l => new Lineamiento
+                                {
+                                    IdLineamientoCalificacionFase = l.IdLineamientoCalificacionFase,
+                                    OrdenLineamiento = l.OrdenLineamiento,
+                                    NombreLineamientoCalificacionFase = l.NombreLineamientoCalificacionFase,
+                                    Criticidad = new Criticidad
+                                    {
+                                        IdCriticidadCalificacion = l.IdCriticidadCalificacion,
+                                        NombreCriticidad = l.NombreCriticidad
+                                    }
+                                }).OrderBy(l => l.OrdenLineamiento).ToList()
+                            }).OrderBy(c => c.OrdenCriterio).ToList()
+                        })
+                        .OrderBy(t => t.IdTransicionFaseOportunidad)
+                        .ToList();
+
+                    return transicionesAgrupadas;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                //TERMINA EL ARBOL
 
                 var payload = new
                 {

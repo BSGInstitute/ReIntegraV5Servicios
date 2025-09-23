@@ -756,7 +756,44 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         /// </summary>
         public DateTime FechaReal { get; set; }
     }
+    /// <summary>
+    /// DTO que representa la información de la vista de transiciones de fase de oportunidad y sus criterios/lineamientos.
+    /// </summary>
+    public class TransicionFaseOportunidadDTO
+    {
+        // Transición
+        public int IdTransicionFaseOportunidad { get; set; }
 
+        // Fase Origen
+        public int IdFaseOrigen { get; set; }
+        public string NombreFaseOrigen { get; set; }
+        public string CodigoFaseOrigen { get; set; }
+
+        // Fase Destino
+        public int IdFaseDestino { get; set; }
+        public string NombreFaseDestino { get; set; }
+        public string CodigoFaseDestino { get; set; }
+
+        // Criterio
+        public int IdCriterio { get; set; }
+        public int OrdenCriterio { get; set; }
+        public string NombreCriterio { get; set; }
+
+        // Lineamiento
+        public int IdLineamientoCalificacionFase { get; set; }
+        public int OrdenLineamiento { get; set; }
+        public string NombreLineamientoCalificacionFase { get; set; }
+        public int IdCriticidadCalificacion { get; set; }
+
+        // Criticidad
+        public string NombreCriticidad { get; set; }
+    }
+    public class TransicionFaseResponse { public List<TransicionFase> TransicionesFase { get; set; } }
+    public class TransicionFase { public int IdTransicionFaseOportunidad { get; set; } public Fase FaseOrigen { get; set; } public Fase FaseDestino { get; set; } public List<Criterio> Criterios { get; set; } }
+    public class Fase { public int IdFaseDestino; public string NombreFaseDestino; public string CodigoFaseDestino; public int IdFaseOrigen { get; set; } public string NombreFaseOrigen { get; set; } public string CodigoFaseOrigen { get; set; } }
+    public class Criterio { public int IdCriterio { get; set; } public int OrdenCriterio { get; set; } public string NombreCriterio { get; set; } public List<Lineamiento> Lineamientos { get; set; } }
+    public class Lineamiento { public int IdLineamientoCalificacionFase { get; set; } public int OrdenLineamiento { get; set; } public string NombreLineamientoCalificacionFase { get; set; } public Criticidad Criticidad { get; set; } }
+    public class Criticidad { public int IdCriticidadCalificacion { get; set; } public string NombreCriticidad { get; set; } }
     public class PuntosCriticosLlamadaDiaDto
     {
         public DateTime FechaReal { get; set; }
