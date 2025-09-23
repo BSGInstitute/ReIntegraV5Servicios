@@ -158,7 +158,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         Summary = transcripcion.Summary,
                         Ocurrencia_Consistente = transcripcion.OcurrenciaConsistente.HasValue && transcripcion.OcurrenciaConsistente.Value ? "si" : "no",
                         ComentarioConsistenciaOcurrencia = transcripcion?.ComentarioConsistenciaOcurrencia,
-                        CambioFaseConsistente = transcripcion.OcurrenciaConsistente.HasValue && transcripcion.CambioFaseConsistente.Value ? "si" : "no",
+                        CambioFaseConsistente = transcripcion.CambioFaseConsistente.HasValue && transcripcion.CambioFaseConsistente.Value ? "si" : "no",
                         ComentarioConsistenciaCambioFase = transcripcion?.ComentarioConsistenciaCambioFase,
 
 
