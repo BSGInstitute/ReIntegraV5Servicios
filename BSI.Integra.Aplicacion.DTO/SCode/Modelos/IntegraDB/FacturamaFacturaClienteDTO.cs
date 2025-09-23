@@ -18,6 +18,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string PaymentForm { get; set; }
         public string PaymentMethod { get; set; }
         public string ExpeditionPlace { get; set; }
+        public string? Date { get; set; }
         public GlobalInformationDTO? GlobalInformation { get; set; }
         public FacturamaReceiverDTO? Receiver { get; set; }
         public List<FacturamaItemDTO>? Items { get; set; }

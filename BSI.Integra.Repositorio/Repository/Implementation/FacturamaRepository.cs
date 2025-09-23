@@ -315,6 +315,16 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
         public int InsertarFactura(FacturamaFacturaDTO factura, int idFacturamaCliente, string codigoMatricula, int idCronogramaPagoDetalleFinal,string usuario)
         {
+            DateTime fechaEnvio;
+
+            if (string.IsNullOrEmpty(factura.Date))
+                fechaEnvio = DateTime.Now;
+            else
+            {
+                if (!DateTime.TryParse(factura.Date, out fechaEnvio))
+                    fechaEnvio = DateTime.Now;
+            }
+
             var parametros = new DynamicParameters();
             parametros.Add("IdFacturamaCliente", idFacturamaCliente);
             //parametros.Add("CodigoMatricula", codigoMatricula);
@@ -329,7 +339,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             parametros.Add("Periodicity", factura.GlobalInformation?.Periodicity);
             parametros.Add("Months", factura.GlobalInformation?.Months);
             parametros.Add("Year", factura.GlobalInformation?.Year);
-            parametros.Add("IdFacturamaFactura", dbType: DbType.Int32, direction: ParameterDirection.Output); 
+            parametros.Add("IdFacturamaFactura", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parametros.Add("FechaEnvio", fechaEnvio);
 
             _dapperRepository.QuerySPDapper("fin.SP_FacturamaFactura_Insertar", parametros);
 
@@ -430,7 +441,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public void ActualizarFacturaComoEnviada(int idFactura, string uuid, string ? cfdiId, DateTime fechaEnvio, string usuario)
+        public void ActualizarFacturaComoEnviada(int idFactura, string uuid, string ? cfdiId, DateTime? fechaEnvio, string usuario)
         {
             var parametros = new
             {

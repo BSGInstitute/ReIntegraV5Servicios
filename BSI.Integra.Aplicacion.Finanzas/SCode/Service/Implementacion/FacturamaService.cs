@@ -468,7 +468,7 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Implementacion
                 var uuid = ObtenerUUIDDesdeResultado(resultado); 
                
                 var cfdiId = ObtenerCfdiIdDesdeResultado(resultado); 
-                _unitOfWork.FacturamaRepository.ActualizarFacturaComoEnviada(idFactura, uuid, cfdiId, DateTime.Now, usuario);
+                _unitOfWork.FacturamaRepository.ActualizarFacturaComoEnviada(idFactura, uuid, cfdiId, null, usuario);
                 var listaDestinatariosExitosoFacturama = _unitOfWork.GmailCorreoRepository.listaDestinatariosExitosoFacturama();
                 listaDestinatariosExitosoFacturama.Insert(0, new StringDTO { Valor = datos.cliente.Email });
                 foreach (var destinatario in listaDestinatariosExitosoFacturama)
