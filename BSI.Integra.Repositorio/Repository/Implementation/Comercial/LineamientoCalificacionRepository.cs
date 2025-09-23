@@ -1377,6 +1377,38 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             }
         }
 
+        /// <summary>
+        /// Obtiene informacion de llamada de tabla WebPhoneCruceCentralTresCx
+        /// </summary>
+        /// <param name="idLlamada">ID de la llamada</param>
+        /// <param name="tipoCalificacion">Tipo de calificación (0=Manual, 1=Automática)</param>
+        /// <returns>Lista de calificaciones por fase</returns>
+        public IEnumerable<PuntosCriticosLlamadaDiaDto> ObtenerPuntosCriticosPorDia()
+        {
+            try
+            {
+                var informacionLlamada = new List<PuntosCriticosLlamadaDiaDto>();
+                var query = @" SELECT  FechaReal,
+		                                IdLlamadaWebphoneCruceCentralTresCx,
+		                                IdPersonal,
+		                                PuntoCritico,
+		                                ResumenLlamada FROM [com].[V_PuntosCriticosLlamadaDia] WHERE CAST(FechaReal AS DATE)=CAST(GETDATE() AS DATE)
+                                WHERE CAST(FechaReal AS DATE)=CAST(GETDATE() AS DATE)";
+                var resultado = _dapperRepository.QueryDapper(query, new { });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                {
+                    informacionLlamada = JsonConvert.DeserializeObject<List<PuntosCriticosLlamadaDiaDto>>(resultado);
+                }
+                return informacionLlamada;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
     }
 
 }

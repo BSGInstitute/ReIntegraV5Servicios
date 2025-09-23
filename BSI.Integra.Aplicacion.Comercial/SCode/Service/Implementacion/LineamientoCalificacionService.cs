@@ -1534,6 +1534,30 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         }
 
 
+        /// <summary>
+        /// Obtiene calificaciones por fase para una llamada específica
+        /// </summary>
+        /// <param name="idLlamada">ID de la llamada</param>
+        /// <param name="tipoCalificacion">Tipo de calificación (0=Manual, 1=Automática)</param>
+        /// <returns>Lista de calificaciones por fase</returns>
+        //public async Task<InsertRecomendacionResultDTO> ProcesarPuntoCriticoDiario(RecomendacionLlamadaDTO payload)
+        //{
+
+        //    //try
+
+        //    //{
+
+        //    //http://ia-analisis-llamadas-comercial-api.bsginstitute.com/consolidadocritico/comercial
+        //    //    var informacionDelDia = _unitOfWork.LineamientoCalificacionRepository.ObtenerPuntosCriticosPorDia();
+        //    //    return OK("dasd")
+        //    //}
+        //    //catch (Exception ex)
+        //    //{
+        //    //    throw ex;
+        //    //}
+        //}
+
+
 
 
 

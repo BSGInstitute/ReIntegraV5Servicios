@@ -757,7 +757,14 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public DateTime FechaReal { get; set; }
     }
 
-
+    public class PuntosCriticosLlamadaDiaDto
+    {
+        public DateTime FechaReal { get; set; }
+        public int IdLlamadaWebphoneCruceCentralTresCx { get; set; }
+        public int IdPersonal { get; set; }
+        public string PuntoCritico { get; set; } = null!;
+        public string? ResumenLlamada { get; set; }
+    }
 
 
 }
