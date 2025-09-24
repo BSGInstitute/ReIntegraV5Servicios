@@ -1,30 +1,18 @@
-﻿
-
-using AutoMapper;
+﻿using AutoMapper;
 using BSI.Integra.Aplicacion.Comercial.SCode.Service.Interface;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
-using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Comercial;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
-using DocumentFormat.OpenXml.Math;
-using DocumentFormat.OpenXml.Spreadsheet;
-using Google.Api.Ads.AdWords.v201809;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad.TranscriptionDTO;
 using TransicionFase = BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial.TransicionFase;
-using Microsoft.Extensions.Logging;
 
 
 namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
@@ -633,7 +621,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
             httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
             httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
-            var semaphore = new SemaphoreSlim(6); // 6 llamadas concuerrentes
+            var semaphore = new SemaphoreSlim(6); // 6 llamadas concurrentes
 
 
             var tasks = itemsOrdenados.Select(async item =>
@@ -648,60 +636,60 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 .ToList();
 
 
-                    var datos = _unitOfWork.LineamientoCalificacionRepository.ObtenerConfiguracionCambioFaseOportunidad(item.IdFaseOportunidad_Ant, item.IdFaseOportunidad);
+                var datos = _unitOfWork.LineamientoCalificacionRepository.ObtenerConfiguracionCambioFaseOportunidad(item.IdFaseOportunidad_Ant, item.IdFaseOportunidad);
 
-                    var transicionesAgrupadas = datos
-                        .GroupBy(t => new {
-                            t.IdTransicionFaseOportunidad,
-                            t.IdFaseOrigen,
-                            t.NombreFaseOrigen,
-                            t.CodigoFaseOrigen,
-                            t.IdFaseDestino,
-                            t.NombreFaseDestino,
-                            t.CodigoFaseDestino
-                        })
-                        .Select(g => new TransicionFase
+                var transicionesAgrupadas = datos
+                    .GroupBy(t => new {
+                        t.IdTransicionFaseOportunidad,
+                        t.IdFaseOrigen,
+                        t.NombreFaseOrigen,
+                        t.CodigoFaseOrigen,
+                        t.IdFaseDestino,
+                        t.NombreFaseDestino,
+                        t.CodigoFaseDestino
+                    })
+                    .Select(g => new TransicionFase
+                    {
+                        IdTransicionFaseOportunidad = g.Key.IdTransicionFaseOportunidad,
+                        FaseOrigen = new Fase
                         {
-                            IdTransicionFaseOportunidad = g.Key.IdTransicionFaseOportunidad,
-                            FaseOrigen = new Fase
-                            {
-                                IdFaseOrigen = g.Key.IdFaseOrigen,
-                                NombreFaseOrigen = g.Key.NombreFaseOrigen,
-                                CodigoFaseOrigen = g.Key.CodigoFaseOrigen
-                            },
-                            FaseDestino = new Fase
-                            {
-                                IdFaseDestino = g.Key.IdFaseDestino,
-                                NombreFaseDestino = g.Key.NombreFaseDestino,
-                                CodigoFaseDestino = g.Key.CodigoFaseDestino
-                            },
-                            Criterios = g.GroupBy(c => new {
-                                c.IdCriterio,
-                                c.OrdenCriterio,
-                                c.NombreCriterio
-                            })
-                            .Select(cg => new Criterio
-                            {
-                                IdCriterio = cg.Key.IdCriterio,
-                                OrdenCriterio = cg.Key.OrdenCriterio,
-                                NombreCriterio = cg.Key.NombreCriterio,
-                                Lineamientos = cg.Select(l => new Lineamiento
-                                {
-                                    IdLineamientoCalificacionFase = l.IdLineamientoCalificacionFase,
-                                    OrdenLineamiento = l.OrdenLineamiento,
-                                    NombreLineamientoCalificacionFase = l.NombreLineamientoCalificacionFase,
-                                    Criticidad = new Criticidad
-                                    {
-                                        IdCriticidadCalificacion = l.IdCriticidadCalificacion,
-                                        NombreCriticidad = l.NombreCriticidad
-                                    }
-                                }).OrderBy(l => l.OrdenLineamiento).ToList()
-                            }).OrderBy(c => c.OrdenCriterio).ToList()
+                            IdFaseOrigen = g.Key.IdFaseOrigen,
+                            NombreFaseOrigen = g.Key.NombreFaseOrigen,
+                            CodigoFaseOrigen = g.Key.CodigoFaseOrigen
+                        },
+                        FaseDestino = new Fase
+                        {
+                            IdFaseDestino = g.Key.IdFaseDestino,
+                            NombreFaseDestino = g.Key.NombreFaseDestino,
+                            CodigoFaseDestino = g.Key.CodigoFaseDestino
+                        },
+                        Criterios = g.GroupBy(c => new {
+                            c.IdCriterio,
+                            c.OrdenCriterio,
+                            c.NombreCriterio
                         })
-                        .OrderBy(t => t.IdTransicionFaseOportunidad)
-                        .ToList();
+                        .Select(cg => new Criterio
+                        {
+                            IdCriterio = cg.Key.IdCriterio,
+                            OrdenCriterio = cg.Key.OrdenCriterio,
+                            NombreCriterio = cg.Key.NombreCriterio,
+                            Lineamientos = cg.Select(l => new Lineamiento
+                            {
+                                IdLineamientoCalificacionFase = l.IdLineamientoCalificacionFase,
+                                OrdenLineamiento = l.OrdenLineamiento,
+                                NombreLineamientoCalificacionFase = l.NombreLineamientoCalificacionFase,
+                                Criticidad = new Criticidad
+                                {
+                                    IdCriticidadCalificacion = l.IdCriticidadCalificacion,
+                                    NombreCriticidad = l.NombreCriticidad
+                                }
+                            }).OrderBy(l => l.OrdenLineamiento).ToList()
+                        }).OrderBy(c => c.OrdenCriterio).ToList()
+                    })
+                    .OrderBy(t => t.IdTransicionFaseOportunidad)
+                    .ToList();
 
-                    
+
 
                 var payload = new
                 {
@@ -741,6 +729,97 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             return resultados;
         }
 
+        public async Task<List<TranscripcionManualDTO>> TranscripcionManual(TranscripcionManualDTO transcripcionManualDTO)
+        {
+
+            if (transcripcionManualDTO == null)
+            {
+                return new List<TranscripcionManualDTO>();
+            }
+
+            using var httpClient = new HttpClient();
+            httpClient.BaseAddress = new Uri("http://ia-analisis-llamadas-comercial-api.bsginstitute.com/");
+
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpClient.DefaultRequestHeaders.Add("Cache-Control", "no-cache");
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "PostmanRuntime/7.44.0");
+            httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
+            httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
+            httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
+
+            try
+            {
+                var payload = new
+                {
+                    idLlamada = transcripcionManualDTO.IdLlamada.ToString(),
+                    idActividadDetalle = transcripcionManualDTO.IdActividadDetalle.ToString(),
+                    idPersonal = transcripcionManualDTO.IdPersonal,
+                    username = transcripcionManualDTO.Username,
+                    contacto = transcripcionManualDTO.Contacto,
+                    audio_url = transcripcionManualDTO.Audio_Url?.Trim(),
+                    locale = transcripcionManualDTO.Locale,
+                    ocurrencia = transcripcionManualDTO.Ocurrencia,
+                    historialReprogramaciones = transcripcionManualDTO.HistorialReprogramaciones?.Select(h => new {
+                        IdLlamada = h.IdLlamada,
+                        EstadoOcurrencia = h.EstadoOcurrencia,
+                        ocurrencia = h.Ocurrencia,
+                        Fecha = h.Fecha
+                    }).ToList(),
+                    informacionFases = transcripcionManualDTO.InformacionFases?.Select(f => new {
+                        IdTransicionFaseOportunidad = f.IdTransicionFaseOportunidad,
+                        FaseOrigen = new
+                        {
+                            IdFaseOrigen = f.FaseOrigen.IdFaseOrigen,
+                            NombreFaseOrigen = f.FaseOrigen.NombreFaseOrigen,
+                            CodigoFaseOrigen = f.FaseOrigen.CodigoFaseOrigen
+                        },
+                        FaseDestino = new
+                        {
+                            IdFaseDestino = f.FaseDestino.IdFaseDestino,
+                            NombreFaseDestino = f.FaseDestino.NombreFaseDestino,
+                            CodigoFaseDestino = f.FaseDestino.CodigoFaseDestino
+                        },
+                        Criterios = f.Criterios?.Select(c => new {
+                            IdCriterio = c.IdCriterio,
+                            OrdenCriterio = c.OrdenCriterio,
+                            NombreCriterio = c.NombreCriterio,
+                            Lineamientos = c.Lineamientos?.Select(l => new {
+                                IdLineamientoCalificacionFase = l.IdLineamientoCalificacionFase,
+                                OrdenLineamiento = l.OrdenLineamiento,
+                                NombreLineamientoCalificacionFase = l.NombreLineamientoCalificacionFase,
+                                Criticidad = new
+                                {
+                                    IdCriticidadCalificacion = l.Criticidad.IdCriticidadCalificacion,
+                                    NombreCriticidad = l.Criticidad.NombreCriticidad
+                                }
+                            }).OrderBy(l => l.OrdenLineamiento).ToList()
+                        }).OrderBy(c => c.OrdenCriterio).ToList()
+                    }).OrderBy(f => f.IdTransicionFaseOportunidad).ToList(),
+                    faseOrigen = transcripcionManualDTO.FaseOrigen,
+                    faseDestino = transcripcionManualDTO.FaseDestino
+                };
+
+                var response = await httpClient.PostAsJsonAsync("transcriptions/transcribe", payload);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Error en API: {response.StatusCode} - {errorContent}");
+                }
+                else
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Respuesta exitosa: {responseContent}");
+                }
+                return new List<TranscripcionManualDTO> { transcripcionManualDTO };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Excepción en TranscripcionManual: {ex.Message}");
+                throw;
+            }
+        }
 
 
         public async Task<List<bool>> CalificacionAuto(int tipoCalificacion)
