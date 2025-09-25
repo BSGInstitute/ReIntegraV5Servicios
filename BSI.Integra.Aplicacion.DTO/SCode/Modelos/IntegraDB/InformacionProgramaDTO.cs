@@ -1,4 +1,7 @@
-﻿namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
+
+namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 {
     public class ObtenerMontos2RespuestaDTO
     {
@@ -111,6 +114,42 @@
     {
         public string version { get; set; }
         public string beneficio { get; set; }
+    }
+
+
+
+    public class CargarInformacionProgramaEndpointsDTO
+    {
+        // Configuración de beneficios
+        public List<PgeneralConfiguracionBeneficioDTO> ConfiguracionBeneficios { get; set; } 
+        public IEnumerable<DocumentoPwVersionesPGeneralDTO> IntroduccionesBeneficio { get; set; } 
+
+        // Flags
+        public bool EsProgramaPadre { get; set; }
+        public bool EsProgramaTecnico { get; set; }
+
+        // Estructura técnica por hijo
+        public List<ListaCursosPorProgramaDTO> CursosHijo { get; set; } = new();                                   // PGeneralRepository.ListaCursosHijoPorIdPGeneral
+        public Dictionary<int, object> DuracionCursoHijoPorId { get; set; } = new();                                // PGeneralRepository.ObtenerDuracionCursoHijo(IdHijo) (si conoces el tipo, reemplaza object por int/string/DTO)
+        public Dictionary<int, List<ContenidoHijoDTO>> ContenidoEstructuraPorHijoId { get; set; } = new();          // PGeneralRepository.ContenidoEstructuraHijoPadre(IdHijo)
+
+        // Secciones de agenda (raw)
+        public List<ProgramaGeneralSeccionDocumentoDTO> SeccionesPrograma { get; set; } = new();                    // DocumentoAgendaService.ObtenerInformacionProgramaGeneral
+
+        // PEspecífico / PGeneral
+        public List<PEspecificoPorIdPGeneral> FechasInicioPrograma { get; set; } = new();                           // PEspecificoService.ObtenerFechaInicioProgramaTodos
+        public PGeneralAtributosPrincipalesDTO ProgramaGeneral { get; set; }                                         // PGeneralService.ObtenerPGeneralAtributosPrincipalesPorId
+
+        // Área
+        public PGeneralAreaSubAreaDTO AreaSubArea { get; set; }                                                      // PGeneralRepository.ObtenerAreaSubAreaPorIdPGeneral
+        public AreaCapacitacion AreaCapacitacion { get; set; }                                                       // AreaCapacitacionRepository.ObtenerPorId
+
+        // Pagos y tarifarios
+        public List<MontoPagadoDTO> MontoPagado { get; set; } = new();                                               // MontoPagoCronogramaRepository.ObtenerMontoPagado
+        public List<TarifarioDetalleAgendaDTO> Tarifarios { get; set; } = new();                                     // OrigenService.ObtenerTarifariosDetallesAgenda
+
+        // Beneficios filtrados por país
+        public List<PgeneralConfiguracionBeneficioDTO> ConfiguracionBeneficiosFiltradosPorPais { get; set; } = new();
     }
 
 }

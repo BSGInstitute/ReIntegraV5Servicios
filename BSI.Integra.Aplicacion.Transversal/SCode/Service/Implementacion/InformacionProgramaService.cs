@@ -2,6 +2,7 @@
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using System.Globalization;
 using System.Net;
@@ -73,6 +74,133 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             }
             return informacionProgramaAutomatico;
         }
+
+
+
+        public CargarInformacionProgramaEndpointsDTO ObtenerInformacionPrograma(int idCentroCosto, int codigoPais, int idMatriculaCabecera, int idOportunidad)
+        {
+            var servicioPGeneral = new PGeneralService(_unitOfWork);
+            var data = servicioPGeneral.ObtenerPGeneralPEspecificoPorCentroCosto(idCentroCosto);
+            CargarInformacionProgramaEndpointsDTO informacionPrograma = null;
+            List<ResumenProgramaV2DTO> resumenProgramasV2 = null;
+
+            var idPGeneral = data != null ? data.IdProgramaGeneral : 0;
+            var informacionProgramaAutomatico = new CargarInformacionProgramaAutomaticoRespuestaDTO();
+
+            if (idPGeneral != 0)
+            {
+                informacionPrograma = CargarInformacionProgramaSinHTML(idPGeneral,codigoPais,idMatriculaCabecera,idOportunidad);
+            }
+            return informacionPrograma;
+        }
+
+
+
+        public CargarInformacionProgramaEndpointsDTO CargarInformacionProgramaSinHTML(int idPGeneral,int codigoPais,int idMatriculaCabecera, int idOportunidad)
+        {
+            // Servicios
+            var servicioConfiguracionBeneficio = new ConfiguracionBeneficioProgramaGeneralService(_unitOfWork);
+            var servicioDocumentoAgenda = new DocumentoAgendaService(_unitOfWork);
+            IPEspecificoService servicioPEspecifico = new PEspecificoService(_unitOfWork);
+            var servicioPGeneral = new PGeneralService(_unitOfWork);
+            var servicioOrigen = new OrigenService(_unitOfWork);
+
+            // 1) Configuración de beneficios / introducciones
+            var beneficiosV2 = _unitOfWork.ConfiguracionBeneficioProgramaGeneralRepository
+                .ObtenerPGeneralConfiguracionBeneficios(idPGeneral)
+                ?? new List<PgeneralConfiguracionBeneficioDTO>();
+
+            var introducciones = _unitOfWork.ConfiguracionBeneficioProgramaGeneralRepository
+                .ObtenerIntroduccionBeneficio(idPGeneral);
+               
+
+            // 2) Flags de programa (padre/técnico)
+            bool esPadre = _unitOfWork.PGeneralRepository.ProgramaGeneralPadre(idPGeneral);
+            bool esTecnico = _unitOfWork.PGeneralRepository.ProgramaGeneralEsTecnico(idPGeneral);
+
+            // 3) Estructura técnica (raw por hijo)
+            var cursosHijo = _unitOfWork.PGeneralRepository
+                .ListaCursosHijoPorIdPGeneral(idPGeneral)
+                ?? new List<ListaCursosPorProgramaDTO>();
+
+            var duracionPorHijo = new Dictionary<int, object>();
+            var contenidosPorHijo = new Dictionary<int, List<ContenidoHijoDTO>>();
+
+            foreach (var item in cursosHijo)
+            {
+                var idHijo = item.IdHijo;
+                var dur = _unitOfWork.PGeneralRepository.ObtenerDuracionCursoHijo(idHijo); // si conoces el tipo exacto, typarlo
+                duracionPorHijo[idHijo] = dur;
+
+                var cont = _unitOfWork.PGeneralRepository.ContenidoEstructuraHijoPadre(idHijo)
+                    ?? new List<ContenidoHijoDTO>();
+                contenidosPorHijo[idHijo] = cont;
+            }
+
+            // 4) Secciones de programa (raw, sin HTML)
+            var seccionesPrograma = servicioDocumentoAgenda.ObtenerInformacionProgramaGeneral(idPGeneral)
+                ?? new List<ProgramaGeneralSeccionDocumentoDTO>();
+
+            // 5) PEspecífico (fechas/modalidades) y atributos del PGeneral (raw)
+            var fechasInicioPrograma = servicioPEspecifico.ObtenerFechaInicioProgramaTodos(idPGeneral)
+                ?? new List<PEspecificoPorIdPGeneral>();
+
+            var programaGeneral = servicioPGeneral.ObtenerPGeneralAtributosPrincipalesPorId(idPGeneral);
+
+            // 6) Área/Subárea y Área capacitación (raw)
+            var areaSubArea = _unitOfWork.PGeneralRepository.ObtenerAreaSubAreaPorIdPGeneral(idPGeneral);
+            AreaCapacitacion areaCapacitacion = null;
+            if (areaSubArea != null)
+            {
+                var idArea = areaSubArea.IdArea; // ya tipado en PGeneralAreaSubAreaDTO
+                areaCapacitacion = _unitOfWork.AreaCapacitacionRepository.ObtenerPorId(idArea);
+            }
+
+            // 7) Monto pagado (raw)
+            var montosPagados = _unitOfWork.MontoPagoCronogramaRepository
+                .ObtenerMontoPagado(idMatriculaCabecera, idOportunidad)
+                ?? new List<MontoPagadoDTO>();
+
+            // 8) Tarifarios (raw)
+            var tarifarios = servicioOrigen.ObtenerTarifariosDetallesAgenda(idMatriculaCabecera)
+                ?? new List<TarifarioDetalleAgendaDTO>();
+
+            // 9) Beneficios filtrados por país
+            var beneficiosFiltradosPorPais = beneficiosV2
+                .Where(b => b.Paises != null && b.Paises.Contains(codigoPais))
+                .ToList();
+
+            // Ensamblar DTO agregado (SIN HTML)
+            var dto = new CargarInformacionProgramaEndpointsDTO
+            {
+                ConfiguracionBeneficios = beneficiosV2,
+                IntroduccionesBeneficio = introducciones,
+
+                EsProgramaPadre = esPadre,
+                EsProgramaTecnico = esTecnico,
+
+                CursosHijo = cursosHijo,
+                DuracionCursoHijoPorId = duracionPorHijo,
+                ContenidoEstructuraPorHijoId = contenidosPorHijo,
+
+                SeccionesPrograma = seccionesPrograma,
+
+                FechasInicioPrograma = fechasInicioPrograma,
+                ProgramaGeneral = programaGeneral, // PGeneralAtributosPrincipalesDTO
+
+                AreaSubArea = areaSubArea,
+                AreaCapacitacion = areaCapacitacion,
+
+                MontoPagado = montosPagados,
+                Tarifarios = tarifarios,
+
+                ConfiguracionBeneficiosFiltradosPorPais = beneficiosFiltradosPorPais
+            };
+
+            return dto;
+        }
+
+
         public CargarInformacionProgramaAutomaticoRespuestaDTO CargarInformacionProgramaAutomaticoSpeech(int idCentroCosto, int codigoPais, int idMatriculaCabecera, int idOportunidad)
         {
             var servicioPGeneral = new PGeneralService(_unitOfWork);
