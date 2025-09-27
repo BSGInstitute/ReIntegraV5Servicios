@@ -3,6 +3,7 @@ using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Finanzas.SiigoApi;
 using BSI.Integra.Aplicacion.Finanzas.Service.Implementacion;
 using BSI.Integra.Aplicacion.Finanzas.Service.Interface;
+using BSI.Integra.Aplicacion.Marketing.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
@@ -22,6 +23,7 @@ namespace BSI.Integra.Servicios.Controllers
     public class FacturamaApiController : ControllerBase
     {
         private FacturamaService _facturamaApiService;
+        private IUnitOfWork unitOfWork;
 
 
         public FacturamaApiController(IUnitOfWork unitOfWork, ITokenManager tokenManager)
@@ -416,6 +418,39 @@ namespace BSI.Integra.Servicios.Controllers
         {
             var resultado = _facturamaApiService.ExisteFacturaConfigurada(idCronogramaPagoDetalleFinal);
             return Ok(resultado);
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 18/09/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Elimina facturas creadas y pendientes de emitir Facturama
+        /// </summary>
+        /// <param name="idsFacturas">Lista de ids de las facturas a eliminar</param>
+        /// <returns>Resultado (correcto o incorrecto) del eliminar</returns>
+        [Authorize]
+        [Route("EliminarFacturasPendientesFacturama")]
+        [HttpPost]
+        public IActionResult EliminarFacturasPendientesFacturama([FromBody] EliminarFacturasRequest request)
+        {
+            try
+            {
+                var claimsIdentity = User.Identity as ClaimsIdentity;
+                var service = new ActividadCabeceraService(unitOfWork);
+                var usuario = claimsIdentity.Claims.Where(x => x.Type == "UserName").Select(s => s.Value).First();
+                if (string.IsNullOrWhiteSpace(usuario))
+                    return Unauthorized("No se pudo identificar el usuario.");
+
+                var resultado = _facturamaApiService.EliminarFacturasPendientesFacturama(request.IdsFacturas, usuario);
+                if (resultado)
+                    return Ok(new { Message = "Registros eliminados correctamente." });
+             
+                return BadRequest("No se puedieron eliminar todos los registros");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
