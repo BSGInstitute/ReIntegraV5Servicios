@@ -1390,7 +1390,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         .Select(x => x.PuntajePromedio);
 
                     decimal? promedio = notasValidas.Any()
-                        ? Math.Round(notasValidas.Average(), 2)
+                        ? Math.Round(notasValidas.Average(), 0, MidpointRounding.AwayFromZero)/*redondeo matematico solicitado 'or gerencia*/
                         : (decimal?)null;
 
                     var puntosCriticos = g
@@ -1442,30 +1442,34 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         {
             var filas = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosParaPromedioGlobal(request);
 
+            // Agrupa todas las llamadas
+            var agrupadoTotal = filas
+                .GroupBy(f => f.IdLlamada)
+                .ToList();
+            var totalLlamadas = agrupadoTotal.Count;
             // Agrupa todas las llamadas (sin filtrar criterios)
             var agrupado = filas
-                .GroupBy(f => f.IdLlamada)
-                .Select(g =>
-                {
-                    var notasValidas = g
-                        .Where(x => x.PuntajePromedio >= 0)
-                        .Select(x => x.PuntajePromedio);
+               .GroupBy(f => f.IdLlamada)
+               .Select(g =>
+               {
+                   var notasValidas = g
+                       .Where(x => x.PuntajePromedio >= 0)
+                       .Select(x => x.PuntajePromedio);
 
-                    decimal? promedio = notasValidas.Any()
-                        ? Math.Round(notasValidas.Average(), 2)
-                        : (decimal?)null;
+                   decimal? promedio = notasValidas.Any()
+                       ? Math.Round(notasValidas.Average(), 0, MidpointRounding.AwayFromZero)
+                       : (decimal?)null;
 
-                    return new
-                    {
-                        IdLlamada = g.Key,
-                        Promedio = promedio,
-                        TotalCalificaciones = notasValidas.Count()
-                    };
-                })
-                .Where(x => x.Promedio.HasValue)
-                .ToList();
+                   return new
+                   {
+                       IdLlamada = g.Key,
+                       Promedio = promedio,
+                       TotalCalificaciones = notasValidas.Count()
+                   };
+               })
+               .Where(x => x.Promedio.HasValue)
+               .ToList();
 
-            var totalLlamadas = agrupado.Count;
             var totalCalificaciones = agrupado.Sum(x => x.TotalCalificaciones);
 
             // Calcular promedio global excluyendo calificacion
