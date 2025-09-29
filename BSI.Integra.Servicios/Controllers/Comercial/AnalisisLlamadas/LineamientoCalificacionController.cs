@@ -887,6 +887,35 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
         }
 
 
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 24/09/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Procesa la transcripción manual de audio según los datos proporcionados
+        /// </summary>
+        /// <returns> List<TranscripcionManualDTO> </returns>
+        [HttpPost("[Action]")]
+        public async Task<IActionResult> TranscripcionManual([FromBody] TranscripcionManualDTO payload)
+        {
+            if (payload == null)
+            {
+                return BadRequest("Payload de transcripción inválido.");
+            }
+
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = await lineamientoCalificacionService.TranscripcionManual(payload);
+
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al procesar la transcripción: {ex.Message}");
+            }
+        }
+
 
 
         /// Tipo Función: GET
@@ -905,6 +934,31 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
             {
                 var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
                 var resultado = await lineamientoCalificacionService.CalificacionAuto(1);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: Post
+        /// Autor: Lolo Zaa
+        /// Fecha: 25/09/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Proxy para el servicio de calificacion ia
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [HttpPost("CalificacionIndividual")]
+        public async Task<IActionResult> CalificacionIndividual([FromBody] CalificacionIndividualRequestDTO dto)
+        {
+            if (dto == null)
+                return BadRequest("El payload no puede ser nulo.");
+
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = await lineamientoCalificacionService.CalificacionIndividual(dto);
                 return Ok(resultado);
             }
             catch (Exception ex)
