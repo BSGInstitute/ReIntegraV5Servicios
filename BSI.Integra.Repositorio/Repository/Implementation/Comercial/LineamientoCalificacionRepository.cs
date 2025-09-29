@@ -1096,6 +1096,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                           req.IdCentroCosto,
                           req.IdFaseI,
                           req.IdFaseD,
+                          req.EstadoActividadCabecera,
                           req.Pagina,
                           req.TamanioPagina
                       }
@@ -1200,7 +1201,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                         : null,
                     request.IdCentroCosto,
                     request.IdFaseI,
-                    request.IdFaseD
+                    request.IdFaseD,
+                    request.EstadoActividadCabecera
                 }
             );
 
@@ -1437,7 +1439,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 		                                IdPersonal,
 		                                PuntoCritico,
 		                                ResumenLlamada FROM [com].[V_PuntosCriticosLlamadaDia]
-                                WHERE CAST(FechaReal AS DATE)=CAST(GETDATE()-1 AS DATE)";
+                                WHERE CAST(FechaReal AS DATE)=CAST(GETDATE()-2 AS DATE)";
                 var resultado = _dapperRepository.QueryDapper(query, new { });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
                 {

@@ -803,6 +803,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             var semaphore = new SemaphoreSlim(10);
             foreach (var oportunidad in itemsAgrupadosPorOportunidad)
             {
+                
                 var llamadasParaCalificar = ObtenerSiguienteLlamadaParaCalificar(oportunidad.IdOportunidad);
 
                 if (!llamadasParaCalificar.Any())
@@ -872,7 +873,6 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             PublicoObjetivoPrograma = PublicoObjetivoPrograma,
                             ObjecionesCliente = ObjecionesCliente
                         };
-
                         var payload = new
                         {
                             idPersonal = item.IdPersonal_Asignado,
@@ -883,6 +883,18 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             lineamientos,
                             brochure
                         };
+
+
+                        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(
+                            payload,
+                            new System.Text.Json.JsonSerializerOptions
+                            {
+                                WriteIndented = true,
+                                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+                                DictionaryKeyPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                            }
+                        ));
+
 
                         //var response = await httpClient.PostAsJsonAsync("grading/queue/batch", payload);
                         var response = await httpClient.PostAsJsonAsync("grading/queue/batch", payload);
@@ -1315,26 +1327,30 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         public ReporteCalificacionResponse ObtenerReporte(ReporteCalificacionRequest req)
         {
             var (filas, total) = _unitOfWork.LineamientoCalificacionRepository.ObtenerReporte(req);
-            var agrupado = filas
+
+            var filasOrdenadas = filas
+                .OrderByDescending(f => f.FechaInicioLlamadaCentral)
+                .ThenBy(f => f.IdLlamada)
+                .ToList();
+
+            var agrupado = filasOrdenadas
                 .GroupBy(f => f.IdLlamada)
                 .Select(g =>
                 {
                     var first = g.First();
 
                     var notasValidas = g
-                        .Where(x => x.PuntajePromedio >= 0) 
+                        .Where(x => x.PuntajePromedio >= 0)
                         .Select(x => x.PuntajePromedio)
                         .ToList();
 
                     decimal? promedio = notasValidas.Count > 0 ? Math.Round(notasValidas.Average(), 2) : (decimal?)null;
 
-
                     var puntosCriticos = g
-                                        .Where(x => !string.IsNullOrWhiteSpace(x.PuntoCritico))
-                                        .Select(x => x.PuntoCritico!.Trim())
-                                        .Distinct()
-                                        .ToList();
-
+                        .Where(x => !string.IsNullOrWhiteSpace(x.PuntoCritico))
+                        .Select(x => x.PuntoCritico!.Trim())
+                        .Distinct()
+                        .ToList();
 
                     return new LlamadaCalificadaDTO
                     {
@@ -1361,15 +1377,15 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         EstadoOcurrenciaAlterno = first.EstadoOcurrenciaAlterno,
                         PuntosCriticos = puntosCriticos,
                         ComentarioLlamadaNoCalificada = null,
-                        OcurrenciaConsistente=first.OcurrenciaConsistente,
-                        ComentarioConsistenciaOcurrencia=first.ComentarioConsistenciaOcurrencia,
-                        CambioFaseConsistente=first.CambioFaseConsistente,
-                        ComentarioConsistenciaCambioFase=first.ComentarioConsistenciaCambioFase,
-                        InterrupcionLlamada=first.InterrupcionLlamada
-
+                        OcurrenciaConsistente = first.OcurrenciaConsistente,
+                        ComentarioConsistenciaOcurrencia = first.ComentarioConsistenciaOcurrencia,
+                        CambioFaseConsistente = first.CambioFaseConsistente,
+                        ComentarioConsistenciaCambioFase = first.ComentarioConsistenciaCambioFase,
+                        InterrupcionLlamada = first.InterrupcionLlamada
                     };
                 })
                 .ToList();
+
             return new ReporteCalificacionResponse
             {
                 TotalRegistros = total,
@@ -1379,7 +1395,11 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         public ReporteCalificacionResponse ObtenerReporteFase(ReporteCalificacionRequest req)
         {
             var (filas, total) = _unitOfWork.LineamientoCalificacionRepository.ObtenerReporteFase(req);
-            var agrupado = filas
+            var filasOrdenadas = filas
+                .OrderByDescending(f => f.FechaInicioLlamadaCentral)
+                .ThenBy(f => f.IdLlamada)
+                .ToList();
+            var agrupado = filasOrdenadas
                 .GroupBy(f => f.IdLlamada)
                 .Select(g =>
                 {
@@ -1441,14 +1461,17 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         public ReporteCalificacionGlobalResponse ObtenerPromedioGlobal(ReporteCalificacionGlobalRequest request)
         {
             var filas = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosParaPromedioGlobal(request);
-
+            var filasOrdenadas = filas
+    .OrderByDescending(f => f.FechaInicioLlamadaCentral)
+    .ThenBy(f => f.IdLlamada)
+    .ToList();
             // Agrupa todas las llamadas
-            var agrupadoTotal = filas
+            var agrupadoTotal = filasOrdenadas
                 .GroupBy(f => f.IdLlamada)
                 .ToList();
             var totalLlamadas = agrupadoTotal.Count;
             // Agrupa todas las llamadas (sin filtrar criterios)
-            var agrupado = filas
+            var agrupado = filasOrdenadas
                .GroupBy(f => f.IdLlamada)
                .Select(g =>
                {
@@ -1473,7 +1496,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             var totalCalificaciones = agrupado.Sum(x => x.TotalCalificaciones);
 
             // Calcular promedio global excluyendo calificacion
-            var promediosValidos = filas
+            var promediosValidos = filasOrdenadas
                 .Where(x => x.PuntajePromedio >= 0 && x.IdCriterioCalificacion != 36 && x.IdCriterioCalificacion != 37)
                 .Select(x => x.PuntajePromedio);
 
