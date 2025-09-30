@@ -116,13 +116,18 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string beneficio { get; set; }
     }
 
-
-
     public class CargarInformacionProgramaEndpointsDTO
     {
         // Configuración de beneficios
         public List<PgeneralConfiguracionBeneficioDTO> ConfiguracionBeneficios { get; set; } 
-        public IEnumerable<DocumentoPwVersionesPGeneralDTO> IntroduccionesBeneficio { get; set; } 
+        public IEnumerable<DocumentoPwVersionesPGeneralDTO> IntroduccionesBeneficio { get; set; }
+
+        // Inversión
+        public IEnumerable<MontoPagoModalidadDTO> Inversion { get; set; }
+
+        //Modalidades 
+
+        public IEnumerable<ModalidadProgramaDTO> Modalidades { get; set; }
 
         // Flags
         public bool EsProgramaPadre { get; set; }

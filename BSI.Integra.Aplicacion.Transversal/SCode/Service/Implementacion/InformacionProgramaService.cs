@@ -110,6 +110,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 .ObtenerPGeneralConfiguracionBeneficios(idPGeneral)
                 ?? new List<PgeneralConfiguracionBeneficioDTO>();
 
+            var inversion = ObtenerMontos2(idPGeneral, codigoPais);
+
             var introducciones = _unitOfWork.ConfiguracionBeneficioProgramaGeneralRepository
                 .ObtenerIntroduccionBeneficio(idPGeneral);
                
@@ -145,7 +147,56 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             var fechasInicioPrograma = servicioPEspecifico.ObtenerFechaInicioProgramaTodos(idPGeneral)
                 ?? new List<PEspecificoPorIdPGeneral>();
 
+            List<ModalidadProgramaDTO> modalidadGeneral = new List<ModalidadProgramaDTO>();
+
+
             var programaGeneral = servicioPGeneral.ObtenerPGeneralAtributosPrincipalesPorId(idPGeneral);
+            var modalidadGeneralPortal = servicioPEspecifico.ObtenerFechaInicioProgramaTodos(idPGeneral);
+            if (modalidadGeneralPortal == null)
+            {
+                modalidadGeneralPortal = new List<PEspecificoPorIdPGeneral>();
+            }
+            ModalidadProgramaDTO cambiarModelo;
+
+            //Obtencion de Modalidades V2
+            if (modalidadGeneralPortal != null)
+            {
+                foreach (var modalidadPortal in modalidadGeneralPortal)
+                {
+                    cambiarModelo = new ModalidadProgramaDTO()
+                    {
+                        Tipo = modalidadPortal.Tipo,
+                        Ciudad = modalidadPortal.Ciudad,
+                        TipoCiudad = "",
+                        FechaHoraInicio = modalidadPortal.FechaInicioTexto,
+                        NombrePG = programaGeneral.Nombre,
+                        IdPEspecifico = modalidadPortal.Id,
+                        NombreESP = modalidadPortal.Nombre,
+                        NombreCentroCosto = modalidadPortal.CentroCosto,
+                        Duracion = modalidadPortal.Duracion,
+                        Pw_duracion = programaGeneral.PwDuracion,
+                        FechaReal = modalidadPortal.FechaInicio
+                    };
+                    modalidadGeneral.Add(cambiarModelo);
+                }
+            }
+
+            var modalidadAsincronica = modalidadGeneral.Where(s => s.Tipo.Equals("Online Asincronica") && s.Ciudad.Equals("LIMA")).ToList();
+            if (modalidadAsincronica.Count() == 0)
+            {
+                modalidadAsincronica = modalidadGeneral.Where(s => LimpiarCadena(s.Tipo).Equals("Online Asincronica")).ToList();
+            }
+            var modalidadSincronica = modalidadGeneral.Where(s => s.Tipo.Equals("Online Sincronica")).ToList();
+            var modalidadPresencial = modalidadGeneral.Where(s => LimpiarCadena(s.Tipo).Equals("Presencial")).ToList();
+            List<ModalidadProgramaDTO> PruebaModalidad = new List<ModalidadProgramaDTO>();
+            PruebaModalidad.AddRange(modalidadAsincronica);
+            PruebaModalidad.AddRange(modalidadSincronica);
+            PruebaModalidad.AddRange(modalidadPresencial);
+
+            var modalidades = new List<ModalidadProgramaDTO>();
+            modalidades.AddRange(PruebaModalidad);
+
+
 
             // 6) Área/Subárea y Área capacitación (raw)
             var areaSubArea = _unitOfWork.PGeneralRepository.ObtenerAreaSubAreaPorIdPGeneral(idPGeneral);
@@ -175,6 +226,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             {
                 ConfiguracionBeneficios = beneficiosV2,
                 IntroduccionesBeneficio = introducciones,
+                Inversion = inversion.MontosPorPais,
+                Modalidades = modalidades,
 
                 EsProgramaPadre = esPadre,
                 EsProgramaTecnico = esTecnico,
