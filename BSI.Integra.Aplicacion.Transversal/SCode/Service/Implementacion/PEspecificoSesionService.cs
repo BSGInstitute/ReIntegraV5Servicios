@@ -89,6 +89,42 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw;
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 30/09/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la proxima sesion segun el idPEspecifico y un tipo
+        /// </summary>
+        /// <param name="idPEspecifico">Lista de Id PEspecifico</param>
+        /// <param name="tipo">Tipo Programa Especifico</param>
+        /// <returns> List<EspecificoFechasInicioDTO> </returns>
+        public async Task<List<PEspecificoSesionFechaHoraInicioDTO>> ObtenerFechaHoraInicioSesionPorIdPEspecificoAsync(List<int> idPEspecifico, int tipo)
+        {
+            try
+            {
+                List<PEspecificoSesionFechaHoraInicioDTO> fechasHoraInicio = new();
+
+                if (tipo == 1)
+                    fechasHoraInicio = await _unitOfWork.PEspecificoSesionRepository.ObtenerFechaHoraInicioPorIdsPEspecificoPadreAsync(idPEspecifico);
+                else if (tipo == 2)
+                    fechasHoraInicio = await _unitOfWork.PEspecificoSesionRepository.ObtenerFechaHoraInicioPorIdsPEspecificoAsync(idPEspecifico);
+                else
+                    fechasHoraInicio = await _unitOfWork.PEspecificoSesionRepository.ObtenerFechaHoraInicioSinSesionPorIdsPEspecificoAsync(idPEspecifico);
+
+                if (fechasHoraInicio.Any())
+                    return fechasHoraInicio;
+                else if (tipo == 2)
+                    return await _unitOfWork.PEspecificoSesionRepository.ObtenerFechaHoraInicioSinSesionPorIdsPEspecificoAsync(idPEspecifico);
+                else
+                    return fechasHoraInicio;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 22/05/2023
         /// Version: 1.0

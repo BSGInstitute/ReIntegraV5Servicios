@@ -1,13 +1,17 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
+using BSI.Integra.Repositorio.Repository.Implementation;
 using BSI.Integra.Repositorio.UnitOfWork;
+using Newtonsoft.Json;
 using System.Globalization;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+
 
 namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 {
@@ -73,6 +77,692 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             }
             return informacionProgramaAutomatico;
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Cargar información programa todo
+        /// </summary>
+        /// <param name="idCentroCosto">Id de Centro de Costo</param>
+        /// <param name="codigoPais">Codigo de Pais</param>
+        /// <returns>CargarInformacionProgramaTodoRespuestaDTO</returns> 
+        public async Task<CargarInformacionProgramaTodoRespuestaDTO> CargarInformacionProgramaTodoAsync(int idCentroCosto, string codigoPais)
+        {
+            try
+            {
+ 
+                var idPGeneral = await _unitOfWork.DocumentoAgendaRepository.ObtenerIdPGeneralPorIdCentroCostoAsync(idCentroCosto);
+
+                if (idPGeneral <= 0)
+                {
+                    return new CargarInformacionProgramaTodoRespuestaDTO
+                    {
+                        Error = $"No se encontró un programa/curso válido para el centro de costo {idCentroCosto}."
+                    };
+                }
+
+                var resumen = await _unitOfWork.DocumentoAgendaRepository.ObtenerResumenProgramaPorIdPGeneralAsync(idPGeneral);
+                string tipo = resumen?.Any() == true && resumen.First().EsProgramaOCurso == "Curso" ? "Curso" : "Programa";
+
+                var tareas = new List<Task<object>>
+            {
+                Task.Run(async () => (object)await new InformacionProgramaService(_unitOfWork).CargarInformacionProgramaPresentacionAsync(idPGeneral)),
+                Task.Run(async () => (object)await new AgendaInformacionActividadService(_unitOfWork).GetObjetivosAsync(idPGeneral)),
+                Task.Run(async () => (object)await new InformacionProgramaService(_unitOfWork).CargarInformacionProgramaPublicoObjetivoAsync(idPGeneral)),
+                Task.Run(async () => (object)await new InformacionProgramaService(_unitOfWork).CargarInformacionProgramaPrerrequisitosAsync(idPGeneral)),
+                Task.Run(async () => (object)await new InformacionProgramaService(_unitOfWork).CargarInformacionProgramaDuracionHorariosAsync(idPGeneral)),
+                Task.Run(async () => (object)await new InformacionProgramaService(_unitOfWork).CargarInformacionProgramaInversionAsync(idPGeneral, int.TryParse(codigoPais, out var cp) ? cp : 0)),
+                Task.Run(async () => (object)await new AgendaInformacionActividadService(_unitOfWork).GetBeneficiosProgramaAsync(idPGeneral)),
+                Task.Run(async () => (object)await new AgendaInformacionActividadService(_unitOfWork).GetCertificacionesProgramaAsync(idPGeneral)),
+                Task.Run(async () => (object)await new AgendaInformacionActividadService(_unitOfWork).GetMetodologiaProgramaAsync(idPGeneral)),
+                Task.Run(async () => (object)await new InformacionProgramaService(_unitOfWork).CargarInformacionProgramaExpositoresAsync(idPGeneral)),
+                Task.Run(async () => (object)await new InformacionProgramaService(_unitOfWork).CargarInformacionProgramaEstructuraCurricularAsync(idPGeneral)),
+                Task.Run(async () => (object)await new AgendaInformacionActividadService(_unitOfWork).ObtenerResumenPrograma(idPGeneral, idCentroCosto))
+            };
+
+                await Task.WhenAll(tareas);
+
+                var presentacion = (CargarInformacionProgramaPresentacionRespuestaDTO)tareas[0].Result;
+                var objetivos = (ObjetivosResponseDTO)tareas[1].Result;
+                var publicoObjetivo = (CargarInformacionProgramaPublicoObjetivoRespuestaDTO)tareas[2].Result;
+                var prerrequisitos = (CargarInformacionProgramaPrerrequisitosRespuestaDTO)tareas[3].Result;
+                var duracionHorarios = (CargarInformacionProgramaDuracionHorariosRespuestaDTO)tareas[4].Result;
+                var inversion = (CargarInformacionProgramaInversionRespuestaDTO)tareas[5].Result;
+                var beneficios = (BeneficioProgramaResponseDTO)tareas[6].Result;
+                var certificacion = (CertificacionProgramaResponseDTO)tareas[7].Result;
+                var metodologia = (MetodologiaProgramaResponseDTO)tareas[8].Result;
+                var expositores = (CargarInformacionProgramaExpositoresRespuestaDTO)tareas[9].Result;
+                var estructuraCurricular = (CargarInformacionProgramaEstructuraCurricularRespuestaDTO)tareas[10].Result;
+                var modalidadesData = (dynamic)tareas[11].Result;
+
+                List<ModalidadDTO> modalidades = new List<ModalidadDTO>();
+                if (modalidadesData != null)
+                {
+                    var modalidadesProp = modalidadesData.GetType().GetProperty("Modalidades");
+                    if (modalidadesProp != null)
+                    {
+                        var modalidadesList = modalidadesProp.GetValue(modalidadesData) as IEnumerable<dynamic>;
+                        if (modalidadesList != null)
+                        {
+                            foreach (var item in modalidadesList)
+                            {
+                                modalidades.Add(new ModalidadDTO
+                                {
+                                    Tipo = item.Tipo?.ToString() ?? "",
+                                    CentroCosto = item.CentroCosto?.ToString() ?? "",
+                                    FechaInicio = item.FechaInicio?.ToString() ?? ""
+                                });
+                            }
+                        }
+                    }
+                }
+
+                if (tipo == "Curso")
+                {
+                    List<CapituloEstructuraDTO> estructuraCurso = estructuraCurricular.EstructuraCurricular as List<CapituloEstructuraDTO> ?? new List<CapituloEstructuraDTO>();
+
+                    var informacionCurso = new InformacionCursoDTO
+                    {
+                        Modalidades = modalidades,
+                        Inversion = inversion.Inversion ?? new List<InversionVersionDTO>(),
+                        Beneficios = beneficios.Beneficios ?? new List<BeneficioVersionDTO>(),
+                        Presentacion = presentacion.Presentacion ?? new List<string>(),
+                        Objetivos = objetivos.Objetivos ?? new List<string>(),
+                        PublicoObjetivo = publicoObjetivo.PublicoObjetivo ?? new List<string>(),
+                        Prerrequisitos = prerrequisitos.Prerrequisitos ?? new List<string>(),
+                        EstructuraCurricular = estructuraCurso,
+                        DuracionHorarios = duracionHorarios.DuracionHorarios ?? new List<DuracionHorarioItemDTO>(),
+                        Certificacion = certificacion.Certificacion ?? new List<string>(),
+                        Metodologia = metodologia.Metodologia,
+                        Expositores = expositores.Expositores ?? new List<DTO.SCode.Modelos.IntegraDB.ExpositorDTO>(),
+                        PautasComplementarias = new List<string>()
+                    };
+
+                    return new CargarInformacionProgramaTodoRespuestaDTO
+                    {
+                        IdPGeneral = idPGeneral,
+                        EsProgramaOCurso = tipo,
+                        Informacion = informacionCurso,
+                        Error = null
+                    };
+                }
+                else
+                {
+                    List<CursoEstructuraDTO> estructuraPrograma = estructuraCurricular.EstructuraCurricular as List<CursoEstructuraDTO> ?? new List<CursoEstructuraDTO>();
+
+                    var informacionPrograma = new DTO.SCode.Modelos.IntegraDB.InformacionProgramaDTO
+                    {
+                        Presentacion = presentacion.Presentacion ?? new List<string>(),
+                        Objetivos = objetivos.Objetivos ?? new List<string>(),
+                        PublicoObjetivo = publicoObjetivo.PublicoObjetivo ?? new List<string>(),
+                        Prerrequisitos = prerrequisitos.Prerrequisitos ?? new List<string>(),
+                        EstructuraCurricular = estructuraPrograma,
+                        Modalidades = modalidades,
+                        DuracionHorarios = duracionHorarios.DuracionHorarios ?? new List<DuracionHorarioItemDTO>(),
+                        Inversion = inversion.Inversion ?? new List<InversionVersionDTO>(),
+                        Beneficios = beneficios.Beneficios ?? new List<BeneficioVersionDTO>(),
+                        Certificacion = certificacion.Certificacion ?? new List<string>(),
+                        Metodologia = metodologia.Metodologia,
+                        Expositores = expositores.Expositores ?? new List<DTO.SCode.Modelos.IntegraDB.ExpositorDTO>()
+                    };
+
+                    return new CargarInformacionProgramaTodoRespuestaDTO
+                    {
+                        IdPGeneral = idPGeneral,
+                        EsProgramaOCurso = tipo,
+                        Informacion = informacionPrograma,
+                        Error = null
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new CargarInformacionProgramaTodoRespuestaDTO
+                {
+                    IdPGeneral = 0,
+                    EsProgramaOCurso = "",
+                    Informacion = null,
+                    Error = $"Error interno: {ex.Message}"
+                };
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Cargar información programa inversión
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <param name="codigoPais">Codigo de Pais</param>
+        /// <returns>CargarInformacionProgramaInversionRespuestaDTO</returns> 
+        public async Task<CargarInformacionProgramaInversionRespuestaDTO> CargarInformacionProgramaInversionAsync(int idPGeneral, int codigoPais)
+        {
+            try
+            {
+                if (idPGeneral == 0)
+                {
+                    return new CargarInformacionProgramaInversionRespuestaDTO
+                    {
+                        Error = "IdPGeneral no válido"
+                    };
+                }
+
+                var tareaResumen = _unitOfWork.DocumentoAgendaRepository.ObtenerResumenProgramaPorIdPGeneralAsync(idPGeneral);
+
+                var montosBeneficios = await ObtenerMontos2Async(idPGeneral, codigoPais);
+                var montos = montosBeneficios?.MontosPorPais;
+
+                if (montos == null || !montos.Any())
+                {
+                    montosBeneficios = await ObtenerMontosAsync(idPGeneral, codigoPais);
+                    montos = montosBeneficios?.MontosPorPais;
+                }
+
+                var resumen = await tareaResumen;
+                string tipo = "Programa";
+
+                if (resumen != null && resumen.Any())
+                {
+                    tipo = resumen.First().EsProgramaOCurso == "Curso" ? "Curso" : "Programa";
+                }
+
+                var inversionLista = new List<InversionVersionDTO>();
+                if (montos != null && montos.Any())
+                {
+                    inversionLista = montos.Select(m => new InversionVersionDTO
+                    {
+                        Version = m.NombrePaquete,
+                        PrecioContado = m.InversionContado,
+                        PrecioCredito = m.InversionCredito
+                    }).ToList();
+                }
+
+                return new CargarInformacionProgramaInversionRespuestaDTO
+                {
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = tipo,
+                    Inversion = inversionLista,
+                    Error = null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new CargarInformacionProgramaInversionRespuestaDTO
+                {
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = "",
+                    Inversion = new List<InversionVersionDTO>(),
+                    Error = $"Error al cargar inversión: {ex.Message}"
+                };
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Cargar información programa presentación
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>CargarInformacionProgramaPresentacionRespuestaDTO</returns> 
+        public async Task<CargarInformacionProgramaPresentacionRespuestaDTO> CargarInformacionProgramaPresentacionAsync(int idPGeneral)
+        {
+            try
+            {
+                if (idPGeneral == 0)
+                {
+                    return new CargarInformacionProgramaPresentacionRespuestaDTO
+                    {
+                        Error = "IdPGeneral no válido"
+                    };
+                }
+                var tareaResumen = _unitOfWork.DocumentoAgendaRepository.ObtenerResumenProgramaPorIdPGeneralAsync(idPGeneral);
+                var tareaPresentacion = _unitOfWork.DocumentoAgendaRepository.ObtenerPresentacionPorIdPGeneralAsync(idPGeneral);
+
+                await Task.WhenAll(tareaResumen, tareaPresentacion);
+
+                var resumen = await tareaResumen;
+                var jsonContenido = await tareaPresentacion;
+
+                string tipo = "Programa";
+                if (resumen?.Any() == true)
+                {
+                    tipo = resumen.First().EsProgramaOCurso == "Curso" ? "Curso" : "Programa";
+                }
+
+                var parrafos = new List<string>();
+
+                if (!string.IsNullOrWhiteSpace(jsonContenido))
+                {
+                    try
+                    {
+                        var items = JsonConvert.DeserializeObject<List<DetalleSeccionContenidoDTO>>(jsonContenido);
+
+                        if (items?.Any() == true)
+                        {
+                            foreach (var item in items)
+                            {
+                                if (!string.IsNullOrWhiteSpace(item.Contenido))
+                                {
+                                    string texto = item.Contenido;
+                                    texto = System.Net.WebUtility.HtmlDecode(texto);
+                                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"</?p[^>]*>", "\n");
+                                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<br\s*/?>", "\n");
+                                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<[^>]+>", "");
+                                    var lineas = texto
+                                        .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                                        .Select(l => l.Trim())
+                                        .Where(l => !string.IsNullOrEmpty(l));
+
+                                    parrafos.AddRange(lineas);
+                                }
+                            }
+                        }
+                    }
+                    catch (JsonException)
+                    {
+                        string texto = System.Net.WebUtility.HtmlDecode(jsonContenido);
+                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"</?p[^>]*>", "\n");
+                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<br\s*/?>", "\n");
+                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<[^>]+>", "");
+                        parrafos = texto
+                            .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(l => l.Trim())
+                            .Where(l => !string.IsNullOrEmpty(l))
+                            .ToList();
+                    }
+                }
+
+                return new CargarInformacionProgramaPresentacionRespuestaDTO
+                {
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = tipo,
+                    Presentacion = parrafos,
+                    Error = null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new CargarInformacionProgramaPresentacionRespuestaDTO
+                {
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = "",
+                    Presentacion = new List<string>(),
+                    Error = $"Error al cargar presentación: {ex.Message}"
+                };
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Cargar información programa público objetivo
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>CargarInformacionProgramaPublicoObjetivoRespuestaDTO</returns> 
+        public async Task<CargarInformacionProgramaPublicoObjetivoRespuestaDTO> CargarInformacionProgramaPublicoObjetivoAsync(int idPGeneral)
+        {
+            try
+            {
+                if (idPGeneral == 0)
+                {
+                    return new CargarInformacionProgramaPublicoObjetivoRespuestaDTO
+                    {
+                        Error = "IdPGeneral no válido"
+                    };
+                }
+
+                var tareaResumen = _unitOfWork.DocumentoAgendaRepository.ObtenerResumenProgramaPorIdPGeneralAsync(idPGeneral);
+                var tareaPublicoObjetivo = _unitOfWork.DocumentoAgendaRepository.ObtenerPublicoObjetivoPorIdPGeneralAsync(idPGeneral);
+
+                await Task.WhenAll(tareaResumen, tareaPublicoObjetivo);
+
+                var resumen = await tareaResumen;
+                var jsonContenido = await tareaPublicoObjetivo;
+
+                string tipo = "Programa";
+                if (resumen?.Any() == true)
+                {
+                    tipo = resumen.First().EsProgramaOCurso == "Curso" ? "Curso" : "Programa";
+                }
+
+                var parrafos = new List<string>();
+
+                if (!string.IsNullOrWhiteSpace(jsonContenido))
+                {
+                    try
+                    {
+                        var items = JsonConvert.DeserializeObject<List<DetalleSeccionContenidoDTO>>(jsonContenido);
+
+                        if (items?.Any() == true)
+                        {
+                            foreach (var item in items)
+                            {
+                                if (!string.IsNullOrWhiteSpace(item.Contenido))
+                                {
+                                    string texto = System.Net.WebUtility.HtmlDecode(item.Contenido);
+                                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"</?p[^>]*>", "\n");
+                                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<br\s*/?>", "\n");
+                                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<[^>]+>", "");
+                                    var lineas = texto
+                                        .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                                        .Select(l => l.Trim())
+                                        .Where(l => !string.IsNullOrEmpty(l));
+                                    parrafos.AddRange(lineas);
+                                }
+                            }
+                        }
+                    }
+                    catch (JsonException)
+                    {
+                        string texto = System.Net.WebUtility.HtmlDecode(jsonContenido);
+                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"</?p[^>]*>", "\n");
+                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<br\s*/?>", "\n");
+                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<[^>]+>", "");
+                        parrafos = texto
+                            .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(l => l.Trim())
+                            .Where(l => !string.IsNullOrEmpty(l))
+                            .ToList();
+                    }
+                }
+
+                return new CargarInformacionProgramaPublicoObjetivoRespuestaDTO
+                {
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = tipo,
+                    PublicoObjetivo = parrafos,
+                    Error = null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new CargarInformacionProgramaPublicoObjetivoRespuestaDTO
+                {
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = "",
+                    PublicoObjetivo = new List<string>(),
+                    Error = $"Error al cargar público objetivo: {ex.Message}"
+                };
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Cargar información programa duración horarios
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>CargarInformacionProgramaDuracionHorariosRespuestaDTO</returns>
+        public async Task<CargarInformacionProgramaDuracionHorariosRespuestaDTO> CargarInformacionProgramaDuracionHorariosAsync(int idPGeneral)
+        {
+            try
+            {
+                if (idPGeneral == 0)
+                    return new CargarInformacionProgramaDuracionHorariosRespuestaDTO { Error = "IdPGeneral no válido" };
+                var tareaResumen = _unitOfWork.DocumentoAgendaRepository.ObtenerResumenProgramaPorIdPGeneralAsync(idPGeneral);
+                var tareaContenido = _unitOfWork.DocumentoAgendaRepository.ObtenerDuracionHorariosPorIdPGeneralAsync(idPGeneral);
+
+                await Task.WhenAll(tareaResumen, tareaContenido);
+
+                var resumen = await tareaResumen;
+                var jsonContenido = await tareaContenido;
+
+                string tipo = resumen?.Any() == true && resumen.First().EsProgramaOCurso == "Curso" ? "Curso" : "Programa";
+
+                var parrafos = new List<string>();
+                var modalidad = "Modalidad no especificada";
+
+                if (!string.IsNullOrWhiteSpace(jsonContenido))
+                {
+                    try
+                    {
+                        var items = JsonConvert.DeserializeObject<List<DetalleSeccionContenidoDTO>>(jsonContenido);
+                        if (items?.Any() == true)
+                        {
+                            foreach (var item in items)
+                            {
+                                if (!string.IsNullOrWhiteSpace(item.Contenido))
+                                {
+                                    string texto = System.Net.WebUtility.HtmlDecode(item.Contenido);
+                                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"</?p[^>]*>", "\n");
+                                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<br\s*/?>", "\n");
+                                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<[^>]+>", "");
+
+                                    var lineas = texto
+                                        .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                                        .Select(l => l.Trim())
+                                        .Where(l => !string.IsNullOrEmpty(l))
+                                        .ToList();
+
+                                    if (lineas.Any() && lineas[0].ToLower().Contains("modalidad"))
+                                    {
+                                        modalidad = lineas[0];
+                                        lineas.RemoveAt(0);
+                                    }
+
+                                    parrafos.AddRange(lineas);
+                                }
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        string texto = System.Net.WebUtility.HtmlDecode(jsonContenido);
+                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"</?p[^>]*>", "\n");
+                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<br\s*/?>", "\n");
+                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<[^>]+>", "");
+
+                        var lineas = texto
+                            .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(l => l.Trim())
+                            .Where(l => !string.IsNullOrEmpty(l))
+                            .ToList();
+
+                        if (lineas.Any() && lineas[0].ToLower().Contains("modalidad"))
+                        {
+                            modalidad = lineas[0];
+                            lineas.RemoveAt(0); 
+                        }
+
+                        parrafos = lineas;
+                    }
+                }
+                var duracionHorarios = new List<DuracionHorarioItemDTO>
+        {
+            new DuracionHorarioItemDTO
+            {
+                Modalidad = modalidad,
+                Horario = parrafos
+            }
+        };
+
+                return new CargarInformacionProgramaDuracionHorariosRespuestaDTO
+                {
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = tipo,
+                    DuracionHorarios = duracionHorarios,
+                    Error = null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new CargarInformacionProgramaDuracionHorariosRespuestaDTO
+                {
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = "",
+                    DuracionHorarios = new List<DuracionHorarioItemDTO>(),
+                    Error = $"Error al cargar duración y horarios: {ex.Message}"
+                };
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Cargar información programa prerrequisitos
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>CargarInformacionProgramaPrerrequisitosRespuestaDTO</returns> 
+        public async Task<CargarInformacionProgramaPrerrequisitosRespuestaDTO> CargarInformacionProgramaPrerrequisitosAsync(int idPGeneral)
+        {
+            try
+            {
+                if (idPGeneral == 0)
+                    return new CargarInformacionProgramaPrerrequisitosRespuestaDTO { Error = "IdPGeneral no válido" };
+
+                var resumen = await _unitOfWork.DocumentoAgendaRepository.ObtenerResumenProgramaPorIdPGeneralAsync(idPGeneral);
+                string tipo = resumen?.Any() == true && resumen.First().EsProgramaOCurso == "Curso" ? "Curso" : "Programa";
+
+                var jsonContenido = await _unitOfWork.DocumentoAgendaRepository.ObtenerPrerrequisitosPorIdPGeneralAsync(idPGeneral);
+                var prerrequisitos = new List<string>();
+
+                if (!string.IsNullOrWhiteSpace(jsonContenido))
+                {
+                    try
+                    {
+                        var items = JsonConvert.DeserializeObject<List<DetalleSeccionContenidoDTO>>(jsonContenido);
+                        if (items?.Any() == true)
+                        {
+                            foreach (var item in items)
+                            {
+                                if (!string.IsNullOrWhiteSpace(item.Contenido))
+                                {
+                                    string texto = WebUtility.HtmlDecode(item.Contenido);
+                                    texto = Regex.Replace(texto, @"</?p[^>]*>", "\n");
+                                    texto = Regex.Replace(texto, @"<br\s*/?>", "\n");
+                                    texto = Regex.Replace(texto, @"<[^>]+>", "");
+                                    var lineasUnicas = texto
+                                        .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                                        .Select(l => l.Trim())
+                                        .Where(l => !string.IsNullOrEmpty(l))
+                                        .ToList();
+
+                                    prerrequisitos.AddRange(lineasUnicas);
+                                }
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        string texto = WebUtility.HtmlDecode(jsonContenido);
+                        texto = Regex.Replace(texto, @"</?p[^>]*>", "\n");
+                        texto = Regex.Replace(texto, @"<br\s*/?>", "\n");
+                        texto = Regex.Replace(texto, @"<[^>]+>", "");
+                        prerrequisitos = texto
+                            .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(l => l.Trim())
+                            .Where(l => !string.IsNullOrEmpty(l))
+                            .ToList();
+                    }
+                }
+
+                return new CargarInformacionProgramaPrerrequisitosRespuestaDTO
+                {
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = tipo,
+                    Prerrequisitos = prerrequisitos,
+                    Error = null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new CargarInformacionProgramaPrerrequisitosRespuestaDTO
+                {
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = "",
+                    Prerrequisitos = new List<string>(),
+                    Error = $"Error al cargar prerrequisitos: {ex.Message}"
+                };
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Cargar información programa expositores
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>CargarInformacionProgramaExpositoresRespuestaDTO</returns> 
+        public async Task<CargarInformacionProgramaExpositoresRespuestaDTO> CargarInformacionProgramaExpositoresAsync(int idPGeneral)
+        {
+            try
+            {
+                if (idPGeneral == 0)
+                    return new CargarInformacionProgramaExpositoresRespuestaDTO { Error = "IdPGeneral no válido" };
+
+                var tareaResumen = _unitOfWork.DocumentoAgendaRepository.ObtenerResumenProgramaPorIdPGeneralAsync(idPGeneral);
+                var tareaExpositores = _unitOfWork.DocumentoAgendaRepository.ObtenerExpositoresPorIdPGeneralAsync(idPGeneral);
+
+                await Task.WhenAll(tareaResumen, tareaExpositores);
+
+                var resumen = await tareaResumen;
+                var expositoresRaw = await tareaExpositores;
+
+                string tipo = resumen?.Any() == true && resumen.First().EsProgramaOCurso == "Curso" ? "Curso" : "Programa";
+
+                var expositores = new List<DTO.SCode.Modelos.IntegraDB.ExpositorDTO>();
+
+                if (expositoresRaw?.Any() == true)
+                {
+                    foreach (var expositorRaw in expositoresRaw)
+                    {
+                        var nombreCompleto = $"{expositorRaw.PrimerNombre} {expositorRaw.SegundoNombre} {expositorRaw.ApellidoPaterno} {expositorRaw.ApellidoMaterno}".Trim();
+
+                        nombreCompleto = System.Text.RegularExpressions.Regex.Replace(nombreCompleto, @"\s+", " ").Trim();
+
+                        var pais = expositorRaw.NombrePais ?? "";
+                        var nombreConPais = string.IsNullOrEmpty(pais) ? nombreCompleto : $"{nombreCompleto} - {pais}";
+
+                        var htmlDescripcion = expositorRaw.HojaVidaResumidaPerfil ?? "";
+                        string descripcionProcesada;
+
+                        if (!string.IsNullOrEmpty(htmlDescripcion))
+                        {
+                            var texto = System.Net.WebUtility.HtmlDecode(htmlDescripcion);
+                            texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<[^>]+>", "");
+                            texto = System.Text.RegularExpressions.Regex.Replace(texto, @"\s+", " ");
+                            descripcionProcesada = texto.Trim();
+                        }
+                        else
+                        {
+                            descripcionProcesada = string.Empty;
+                        }
+
+                        expositores.Add(new DTO.SCode.Modelos.IntegraDB.ExpositorDTO
+                        {
+                            nombre = nombreConPais,
+                            descripcion = new List<string> { descripcionProcesada }
+                        });
+                    }
+                }
+
+                return new CargarInformacionProgramaExpositoresRespuestaDTO
+                {
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = tipo,
+                    Expositores = expositores,
+                    Error = null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new CargarInformacionProgramaExpositoresRespuestaDTO
+                {
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = "",
+                    Expositores = new List<DTO.SCode.Modelos.IntegraDB.ExpositorDTO>(),
+                    Error = $"Error al cargar expositores: {ex.Message}"
+                };
+            }
+        }
+
         public CargarInformacionProgramaAutomaticoRespuestaDTO CargarInformacionProgramaAutomaticoSpeech(int idCentroCosto, int codigoPais, int idMatriculaCabecera, int idOportunidad)
         {
             var servicioPGeneral = new PGeneralService(_unitOfWork);
@@ -682,6 +1372,191 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 ListaBeneficios = montosBeneficios.ListaBeneficios
             };
 
+        }
+        /// Autor: [Tu Nombre]
+        /// Fecha: [Fecha Actual]
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la estructura curricular formateada según el tipo (Programa o Curso)
+        /// </summary>
+        /// <param name="idPGeneral">Id del Programa General</param>
+        /// <returns>ObtenerEstructuraCurricularResponseDTO</returns>
+        public async Task<CargarInformacionProgramaEstructuraCurricularRespuestaDTO> CargarInformacionProgramaEstructuraCurricularAsync(int idPGeneral)
+        {
+            try
+            {
+                if (idPGeneral == 0)
+                   return new CargarInformacionProgramaEstructuraCurricularRespuestaDTO { Error = "IdPGeneral no válido" };
+                var resumen = await _unitOfWork.DocumentoAgendaRepository.ObtenerResumenProgramaPorIdPGeneralAsync(idPGeneral);
+                string tipo = resumen?.Any() == true && resumen.First().EsProgramaOCurso == "Curso" ? "Curso" : "Programa";
+
+                if (tipo == "Curso")
+                {
+                    var capitulos = await new DocumentoAgendaService(_unitOfWork).ObtenerContenidoEstructuraCurricularTransformadoAsync(idPGeneral);
+
+                    return new CargarInformacionProgramaEstructuraCurricularRespuestaDTO
+                    {
+                        IdPGeneral = idPGeneral,
+                        EsProgramaOCurso = tipo,
+                        EstructuraCurricular = capitulos,
+                        Error = null
+                    };
+                }
+                else
+                {
+                    var lista = await new DocumentoAgendaService(_unitOfWork).ObtenerInformacionProgramaGeneralEstructuraCurricularAsync(idPGeneral);
+
+                    var estructuraSeccion = lista?.FirstOrDefault(x => LimpiarCadena(x.Seccion).ToLower() == "estructura curricular");
+
+                    if (estructuraSeccion == null || !estructuraSeccion.DetalleSeccion?.Any() == true)
+                    {
+                        var tareasVerificacion = new[]
+                        {
+                    _unitOfWork.PGeneralRepository.ProgramaGeneralEsTecnicoAsync(idPGeneral),
+                    _unitOfWork.PGeneralRepository.ProgramaGeneralPadreAsync(idPGeneral)
+                };
+
+                        await Task.WhenAll(tareasVerificacion);
+                        var programaTecnico = await tareasVerificacion[0];
+                        var programaPadre = await tareasVerificacion[1];
+
+                        if (programaTecnico && programaPadre)
+                        {
+                            var listaCursosHijo = await _unitOfWork.PGeneralRepository.ListaCursosHijoPorIdPGeneralAsync(idPGeneral);
+
+                            if (listaCursosHijo?.Any() == true)
+                            {
+                                var tareasCurso = listaCursosHijo.Select(async curso =>
+                                {
+                                    var contenidoCurso = await _unitOfWork.PGeneralRepository.ContenidoEstructuraHijoPadreAsync(curso.IdHijo);
+
+                                    var capitulos = contenidoCurso?
+                                        .GroupBy(x => x.Contenido)
+                                        .Select(x => x.First().Contenido)
+                                        .Where(c => !string.IsNullOrWhiteSpace(c))
+                                        .ToList() ?? new List<string>();
+
+                                    return new CursoEstructuraDTO
+                                    {
+                                        NombreCurso = curso.Curso,
+                                        Capitulos = capitulos
+                                    };
+                                });
+
+                                var cursos = (await Task.WhenAll(tareasCurso)).ToList();
+
+                                return new CargarInformacionProgramaEstructuraCurricularRespuestaDTO
+                                {
+                                    IdPGeneral = idPGeneral,
+                                    EsProgramaOCurso = tipo,
+                                    EstructuraCurricular = cursos,
+                                    Error = null
+                                };
+                            }
+                        }
+
+                        return new CargarInformacionProgramaEstructuraCurricularRespuestaDTO
+                        {
+                            IdPGeneral = idPGeneral,
+                            EsProgramaOCurso = tipo,
+                            EstructuraCurricular = new List<CursoEstructuraDTO>(),
+                            Error = null
+                        };
+                    }
+
+                    var cursosList = estructuraSeccion.DetalleSeccion
+                        .Where(detalle => !string.IsNullOrWhiteSpace(detalle.Titulo) && detalle.DetalleContenido?.Any() == true)
+                        .Select(detalle => new CursoEstructuraDTO
+                        {
+                            NombreCurso = detalle.Titulo,
+                            Capitulos = detalle.DetalleContenido
+                        })
+                        .ToList();
+
+                    if (cursosList.Count == 1 && cursosList[0].NombreCurso.ToLower().Contains("estructura curricular"))
+                    {
+                        var contenidoHTML = cursosList[0].Capitulos.FirstOrDefault();
+                        if (!string.IsNullOrEmpty(contenidoHTML))
+                        {
+                            var cursosProcesados = new List<CursoEstructuraDTO>();
+
+                            try
+                            {
+                                var htmlDecodificado = System.Net.WebUtility.HtmlDecode(contenidoHTML);
+
+                                var patronCurso = @"<p>\s*<strong>\s*([^<]+?)\s*</strong>\s*(?:<strong>\s*([^<]+?)\s*</strong>)?\s*</p>\s*<ul>(.*?)</ul>";
+                                var regexCurso = new System.Text.RegularExpressions.Regex(patronCurso, System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+                                var coincidencias = regexCurso.Matches(htmlDecodificado);
+
+                                foreach (System.Text.RegularExpressions.Match coincidencia in coincidencias)
+                                {
+                                    var nombreCurso = coincidencia.Groups[1].Value.Trim();
+                                    var horasCurso = coincidencia.Groups[2].Success ? coincidencia.Groups[2].Value.Trim() : "";
+                                    var contenidoLista = coincidencia.Groups[3].Value;
+
+                                    string nombreCompleto = !string.IsNullOrEmpty(horasCurso) ? $"{nombreCurso} {horasCurso}" : nombreCurso;
+
+                                    var patronCapitulo = new System.Text.RegularExpressions.Regex(@"<li>\s*([^<]+?)\s*</li>", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                                    var coincidenciasCapitulos = patronCapitulo.Matches(contenidoLista);
+
+                                    var capitulos = new List<string>();
+                                    foreach (System.Text.RegularExpressions.Match capitulo in coincidenciasCapitulos)
+                                    {
+                                        var textoCapitulo = System.Net.WebUtility.HtmlDecode(capitulo.Groups[1].Value.Trim());
+                                        if (!string.IsNullOrEmpty(textoCapitulo))
+                                        {
+                                            capitulos.Add(textoCapitulo);
+                                        }
+                                    }
+
+                                    if (capitulos.Any())
+                                    {
+                                        cursosProcesados.Add(new CursoEstructuraDTO
+                                        {
+                                            NombreCurso = nombreCompleto,
+                                            Capitulos = capitulos
+                                        });
+                                    }
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                cursosProcesados = new List<CursoEstructuraDTO>();
+                            }
+
+                            if (cursosProcesados.Any())
+                            {
+                                return new CargarInformacionProgramaEstructuraCurricularRespuestaDTO
+                                {
+                                    IdPGeneral = idPGeneral,
+                                    EsProgramaOCurso = tipo,
+                                    EstructuraCurricular = cursosProcesados,
+                                    Error = null
+                                };
+                            }
+                        }
+                    }
+
+                    return new CargarInformacionProgramaEstructuraCurricularRespuestaDTO
+                    {
+                        IdPGeneral = idPGeneral,
+                        EsProgramaOCurso = tipo,
+                        EstructuraCurricular = cursosList,
+                        Error = null
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new CargarInformacionProgramaEstructuraCurricularRespuestaDTO
+                {
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = "",
+                    EstructuraCurricular = null,
+                    Error = $"Error al cargar estructura curricular: {ex.Message}"
+                };
+            }
         }
 
         /// Autor: Erick Marcelo Quispe.
@@ -2131,6 +3006,63 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             return new ObtenerMontos2RespuestaDTO() { MontosPorPais = montosPorPais, ListaBeneficios = listaBeneficios };
         }
 
+        private async Task<ObtenerMontos2RespuestaDTO> ObtenerMontos2Async(int idPGeneral, int codigoPais)
+        {
+            var servicioMontoPago = new MontoPagoService(_unitOfWork);
+            var servicioBeneficioPrograma = new ConfiguracionBeneficioProgramaGeneralService(_unitOfWork);
+
+            // Obtener montos en paralelo con beneficios (si ya conocemos que se necesitarán)
+            var montos = await servicioMontoPago.ObtenerMontosPorIdAsync(idPGeneral);
+            var montosPorPais = montos.Where(s => s.Pais.Equals(codigoPais)).OrderBy(x => x.Paquete).ToList();
+
+            var listaBeneficios = new List<BeneficioDTO>();
+
+            if (!montosPorPais.Any())
+            {
+                montosPorPais = montos.Where(s => s.Pais.Equals(0)).OrderBy(x => x.Paquete).ToList();
+
+                var beneficio = await servicioBeneficioPrograma.ObtenerBeneficiosPGeneralTipo1V2InternacionalAsync(idPGeneral);
+                if (beneficio.Any())
+                {
+                    foreach (var item in montosPorPais)
+                    {
+                        var items = beneficio.Where(w => w.Paquete == item.Paquete).OrderBy(w => w.Titulo).Select(w => w.Titulo).ToList();
+                        string detalles = "<ul>";
+                        foreach (var _item in items)
+                        {
+                            detalles += "<li>" + _item + "</li>";
+                        }
+                        detalles += "</ul><br>";
+                        item.Beneficios = detalles;
+                    }
+                }
+                listaBeneficios = beneficio;
+            }
+            else
+            {
+                var beneficios = await servicioBeneficioPrograma.ObtenerBeneficiosPGeneralTipo1V2Async(idPGeneral, codigoPais);
+                if (beneficios.Any())
+                {
+                    foreach (var item in montosPorPais)
+                    {
+                        var items = beneficios.Where(w => w.Paquete == item.Paquete).OrderBy(w => w.OrdenBeneficio).Select(w => w.Titulo).ToList();
+                        string detalles = "<ul>";
+                        if (items.Count > 0)
+                        {
+                            foreach (var _item in items)
+                            {
+                                detalles += "<li>" + _item + "</li>";
+                            }
+                            detalles += "</ul><br>";
+                            item.Beneficios = detalles;
+                        }
+                    }
+                }
+                listaBeneficios = beneficios;
+            }
+            return new ObtenerMontos2RespuestaDTO() { MontosPorPais = montosPorPais, ListaBeneficios = listaBeneficios };
+        }
+
         private ObtenerMontos2RespuestaDTOjson ObtenerMontos2json(int idPGeneral, int codigoPais)
         {
             var servicioMontoPago = new MontoPagoService(_unitOfWork);
@@ -2269,6 +3201,89 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     listaBeneficios.Add(beneficio);
                 }
             }
+            return new ObtenerMontos2RespuestaDTO()
+            {
+                ListaBeneficios = listaBeneficios,
+                MontosPorPais = montosPorPais
+            };
+        }
+
+        private async Task<ObtenerMontos2RespuestaDTO> ObtenerMontosAsync(int idPGeneral, int codigoPais)
+        {
+            var servicioMontoPago = new MontoPagoService(_unitOfWork);
+            var servicioBeneficioPrograma = new ConfiguracionBeneficioProgramaGeneralService(_unitOfWork);
+
+            var montos = await servicioMontoPago.ObtenerMontosPorIdAsync(idPGeneral);
+            var montosPorPais = montos.Where(s => s.Pais.Equals(codigoPais)).OrderBy(x => x.Paquete).ToList();
+
+            var listaBeneficios = new List<BeneficioDTO>();
+
+            if (!montosPorPais.Any())
+            {
+                montosPorPais = montos.Where(s => s.Pais.Equals(0)).OrderBy(x => x.Paquete).ToList();
+                if (montosPorPais.Where(x => x.Paquete == 0).ToList().Count() == 0)
+                {
+                    //tipo 1
+                    var beneficios = await servicioBeneficioPrograma.ObtenerBeneficiosPGeneralTipo1Async(idPGeneral);
+                    foreach (var item in montosPorPais)
+                    {
+                        var items = beneficios.Where(w => w.Paquete == item.Paquete).OrderBy(w => w.OrdenBeneficio).Select(w => w.Titulo).ToList();
+                        string Detalles = "<ul>";
+                        foreach (var item2 in items)
+                        {
+                            Detalles += "<li>" + item2 + "</li>";
+                        }
+                        Detalles += "</ul>";
+                        item.Beneficios = Detalles;
+                    }
+                    listaBeneficios = beneficios;
+                }
+                else
+                {
+                    //tipo 2
+                    var beneficio = await servicioBeneficioPrograma.ObtenerBeneficiosPGeneralTipo2Async(idPGeneral);
+
+                    foreach (var item2 in montosPorPais)
+                    {
+                        item2.Beneficios = beneficio?.Titulo ?? "";
+                    }
+                    if (beneficio != null)
+                        listaBeneficios.Add(beneficio);
+                }
+            }
+            else
+            {
+                if (montosPorPais.Where(x => x.Paquete == 0).ToList().Count() == 0)
+                {
+                    var beneficios = await servicioBeneficioPrograma.ObtenerBeneficiosPGeneralTipo1Async(idPGeneral, codigoPais);
+                    foreach (var item in montosPorPais)
+                    {
+                        var items = beneficios.Where(w => w.Paquete == item.Paquete).OrderBy(w => w.OrdenBeneficio).Select(w => w.Titulo).ToList();
+                        string detalles = "<ul>";
+                        foreach (var _item in items)
+                        {
+                            detalles += "<li>" + _item + "</li>";
+                        }
+                        detalles += "</ul><br>";
+                        item.Beneficios = detalles;
+                    }
+                    listaBeneficios = beneficios;
+                }
+                else
+                {
+                    var beneficio = await servicioBeneficioPrograma.ObtenerBeneficiosPGeneralTipo2Async(idPGeneral);
+                    if (beneficio != null)
+                    {
+                        foreach (var item2 in montosPorPais)
+                        {
+                            item2.Beneficios = beneficio.Titulo;
+                        }
+                    }
+                    if (beneficio != null)
+                        listaBeneficios.Add(beneficio);
+                }
+            }
+
             return new ObtenerMontos2RespuestaDTO()
             {
                 ListaBeneficios = listaBeneficios,

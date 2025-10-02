@@ -26,8 +26,11 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         string ObtenerHorarioSemanaSesionWebex(int idPespecifico);
         List<PEspecificoSesionRecuperacionDTO> ObtenerSesionesPorPEspecifico(int idPespecifico, int idMatriculaCabecera);
         List<PEspecificoSesionFechaHoraInicioDTO> ObtenerFechaHoraInicioPorIdsPEspecificoPadre(List<int> idsPEspecificoPadre);
+        Task<List<PEspecificoSesionFechaHoraInicioDTO>> ObtenerFechaHoraInicioPorIdsPEspecificoPadreAsync(List<int> idsPEspecificoPadre);
         List<PEspecificoSesionFechaHoraInicioDTO> ObtenerFechaHoraInicioPorIdsPEspecifico(List<int> idsPEspecifico);
+        Task<List<PEspecificoSesionFechaHoraInicioDTO>> ObtenerFechaHoraInicioPorIdsPEspecificoAsync(List<int> idsPEspecifico);
         List<PEspecificoSesionFechaHoraInicioDTO> ObtenerFechaHoraInicioSinSesionPorIdsPEspecifico(List<int> idsPEspecifico);
+        Task<List<PEspecificoSesionFechaHoraInicioDTO>> ObtenerFechaHoraInicioSinSesionPorIdsPEspecificoAsync(List<int> idsPEspecifico);
         IEnumerable<InformacionProgramaEspecificoSesionDTO> ObtenerInformacionProgramaEspecificoSesion(int idPespecifico);
         IEnumerable<PEspecificoCronogramaGrupalDTO> ObtenerSesionesPorPEspecificoGrupo(int idPespecifico, int grupo);
         List<PEspecificoSesionGrupoAnteriorDTO> ObtenerSesionesPorPEspecificoGrupoAnterior(int idPespecifico, int grupo);

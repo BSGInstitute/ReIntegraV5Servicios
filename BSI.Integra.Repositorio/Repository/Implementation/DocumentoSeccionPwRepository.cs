@@ -614,6 +614,37 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener datos complementarios programa general V1
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>List<RegistroListaSeccionesDocumentoDTO></returns> 
+        public async Task<List<RegistroListaSeccionesDocumentoDTO>> ObtenerDatosComplementariosProgramaGeneralV1Async(int idPGeneral)
+        {
+            try
+            {
+                List<RegistroListaSeccionesDocumentoDTO> datosComplementarios = new List<RegistroListaSeccionesDocumentoDTO>();
+                string querySeccion = @"SELECT Titulo, Contenido,IdPGeneral, OrdenWeb
+                    FROM pla.V_DatoProgramaGeneralContenidoPorIdPrograma
+                    WHERE IdPGeneral = @IdPGeneral AND Titulo LIKE '%Estructura Curricular%'";
+
+                var resultado = await _dapperRepository.QueryDapperAsync(querySeccion, new { IdPGeneral = idPGeneral }); // Asegúrate que el parámetro coincida
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    datosComplementarios = JsonConvert.DeserializeObject<List<RegistroListaSeccionesDocumentoDTO>>(resultado);
+                }
+                return datosComplementarios;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 10/08/2022
         /// Version: 1.0

@@ -31,6 +31,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         List<RegistroListaSeccionesDocumentoDTO> ObtenerDatosComplementariosProgramaGeneralV2(int idPGeneral);
         List<RegistroListaSeccionesDocumentoDTO> ObtenerDatosComplementariosProgramaGeneralV2Objetivos(int idPGeneral);
         Task<List<RegistroListaSeccionesDocumentoDTO>> ObtenerDatosComplementariosProgramaGeneralV2Async(int idPGeneral);
+        Task<List<RegistroListaSeccionesDocumentoDTO>> ObtenerDatosComplementariosProgramaGeneralV1Async(int idPGeneral);
         List<RegistroListaSeccionesDocumentoDTO> ObtenerDatosComplementariosProgramaGeneralV1(int idPGeneral);
         List<RegistroListaSeccionesDocumentoDTO> ObtenerDatosComplementariosProgramaGeneralV1Speech(int idPGeneral);
         List<ProgramaExpositoresDTO> ObtenerExpositoresPorIdGeneral(int idPGeneral);

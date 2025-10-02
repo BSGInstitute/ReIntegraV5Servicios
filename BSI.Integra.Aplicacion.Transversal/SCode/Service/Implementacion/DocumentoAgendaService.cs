@@ -2,6 +2,7 @@
 using BSI.Integra.Aplicacion.Base.Exceptions;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Transversal.Clases;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
@@ -2858,6 +2859,159 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw;
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener información programa general estructura curricular
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>List<ProgramaGeneralSeccionDocumentoDTO></returns> 
+        public async Task<List<ProgramaGeneralSeccionDocumentoDTO>> ObtenerInformacionProgramaGeneralEstructuraCurricularAsync(int idPGeneral)
+        {
+            try
+            {
+                // Solo usar V1 ya que V2 no devuelve datos
+                var seccionesv1 = await _unitOfWork.DocumentoSeccionPwRepository.ObtenerDatosComplementariosProgramaGeneralV1Async(idPGeneral);
+
+                List<RegistroListaSeccionesDocumentoDTO> seccionResultado = new List<RegistroListaSeccionesDocumentoDTO>();
+
+                // Solo procesar estructura curricular
+                string[] listaTituloV1 = { "estructura curricular" };
+
+                for (var i = 0; i < listaTituloV1.Length; i++)
+                {
+                    var secEstructuraCurricularV1 = seccionesv1.Where(x => LimpiarCadena(x.Titulo).ToLower() == LimpiarCadena(listaTituloV1[i])).FirstOrDefault();
+                    if (secEstructuraCurricularV1 != null && !string.IsNullOrEmpty(secEstructuraCurricularV1.Contenido) && secEstructuraCurricularV1.Contenido != "<vacio></vacio>")
+                    {
+                        seccionResultado.Add(secEstructuraCurricularV1);
+                    }
+                }
+
+                // Procesar solo la estructura curricular
+                var Contenido = new List<ProgramaGeneralEstructuraAgrupadoDTO>();
+
+                if (seccionResultado != null && seccionResultado.Count > 0)
+                {
+                    var _listaCursos2 = seccionResultado.GroupBy(x => new { x.Contenido, x.Titulo }).Select(x => new { x.Key.Contenido, x.Key.Titulo }).ToList();
+                    foreach (var itemCurso in _listaCursos2)
+                    {
+                        var _listaCapitulos = seccionResultado.Where(x => x.Contenido == itemCurso.Contenido).GroupBy(x => new { x.Contenido, x.Cabecera, x.PiePagina }).ToList();
+                        ProgramaGeneralEstructuraAgrupadoDTO obj = new ProgramaGeneralEstructuraAgrupadoDTO();
+                        obj.Seccion = itemCurso.Titulo;
+                        obj.Titulo = itemCurso.Titulo;
+                        obj.DetalleContenido = new List<ProgramaGeneralEstructuraDetalleDTO>();
+
+                        foreach (var itemSecion in _listaCapitulos)
+                        {
+                            ProgramaGeneralEstructuraDetalleDTO tmp = new ProgramaGeneralEstructuraDetalleDTO()
+                            {
+                                Contenido = itemSecion.Key.Contenido,
+                                Cabecera = itemSecion.Key.Cabecera,
+                                PiePagina = itemSecion.Key.PiePagina
+                            };
+                            obj.DetalleContenido.Add(tmp);
+                        }
+                        Contenido.Add(obj);
+                    }
+                }
+
+                var listaProgramaGeneralDocumentoSeccion = Contenido.GroupBy(x => x.Seccion).Select(x => new ProgramaGeneralSeccionDocumentoDTO
+                {
+                    Seccion = x.Key,
+                    DetalleSeccion = x.GroupBy(y => new { y.Titulo, y.DetalleContenido }).Select(y => new ProgramaGeneralSeccionDocumentoDetalleDTO
+                    {
+                        Titulo = y.Key.Titulo,
+                        Cabecera = y.Key.DetalleContenido.GroupBy(z => z.Cabecera).Select(z => z.Key).FirstOrDefault(),
+                        PiePagina = y.Key.DetalleContenido.GroupBy(z => z.PiePagina).Select(z => z.Key).FirstOrDefault(),
+                        DetalleContenido = y.Key.DetalleContenido.Select(z => z.Contenido).ToList()
+                    }).ToList()
+                }).ToList();
+
+                return listaProgramaGeneralDocumentoSeccion;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener contenido estructura curricular transformado
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>List<CapituloEstructuraDTO></returns> 
+        public async Task<List<CapituloEstructuraDTO>> ObtenerContenidoEstructuraCurricularTransformadoAsync(int idPGeneral)
+        {
+            try
+            {
+                var registros = await _unitOfWork.DocumentoAgendaRepository.ObtenerContenidoEstructuraCurricularAsync(idPGeneral);
+
+                var capitulos = new List<CapituloEstructuraDTO>();
+
+                if (registros != null && registros.Any())
+                {
+                    // Agrupar por capítulo (IdSeccionTipoDetalle_PW = 12) y sesiones (IdSeccionTipoDetalle_PW = 13)
+                    var capituloSesiones = new Dictionary<string, List<string>>();
+
+                    foreach (var registro in registros)
+                    {
+                        if (registro.IdSeccionTipoDetalle_PW == 12) // Capítulo
+                        {
+                            if (!capituloSesiones.ContainsKey(registro.Contenido))
+                                capituloSesiones[registro.Contenido] = new List<string>();
+                        }
+                        else if (registro.IdSeccionTipoDetalle_PW == 13) // Sesión
+                        {
+                            // Encontrar el capítulo correspondiente (el último capítulo que apareció antes de esta sesión)
+                            string capituloActual = "";
+
+                            // Buscar el último capítulo (IdSeccionTipoDetalle_PW = 12) que apareció antes de esta sesión
+                            for (int i = registros.IndexOf(registro) - 1; i >= 0; i--)
+                            {
+                                if (registros[i].IdSeccionTipoDetalle_PW == 12)
+                                {
+                                    capituloActual = registros[i].Contenido;
+                                    break;
+                                }
+                            }
+
+                            if (!string.IsNullOrEmpty(capituloActual) && capituloSesiones.ContainsKey(capituloActual))
+                            {
+                                capituloSesiones[capituloActual].Add(registro.Contenido);
+                            }
+                        }
+                    }
+
+                    // Eliminar duplicados y crear el resultado final
+                    foreach (var kvp in capituloSesiones)
+                    {
+                        var sesionesUnicas = kvp.Value.Distinct().ToList();
+
+                        if (sesionesUnicas.Any())
+                        {
+                            capitulos.Add(new CapituloEstructuraDTO
+                            {
+                                Capitulo = kvp.Key,
+                                Sesiones = sesionesUnicas
+                            });
+                        }
+                    }
+                }
+
+                return capitulos;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 10/08/2022
         /// Version: 1.0

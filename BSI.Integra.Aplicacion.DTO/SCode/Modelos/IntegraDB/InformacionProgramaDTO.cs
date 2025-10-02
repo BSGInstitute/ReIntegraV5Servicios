@@ -60,6 +60,22 @@
         public List<MontoPagadoDTO> montopagado { get; set; }
         public List<VersionprogramaDTO> versionAlumno { get; set; }
     }
+    public class ResumenProgramaDTO
+    {
+        public int IdProgramaGeneral { get; set; }
+        public string Categoria { get; set; }
+        public string Tipo { get; set; }
+        public int IdCentroCosto { get; set; }
+        public string NombreCentroCosto { get; set; }
+        public string NombrePrograma { get; set; }
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaCreacion { get; set; }
+    }
+
+    public class ResumenPrograma2DTO
+    {
+            public string EsProgramaOCurso { get; set; }
+    }
 
     public class ResumenProgramaV2DTO
     {

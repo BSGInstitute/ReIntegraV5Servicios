@@ -355,7 +355,28 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
-
+        public async Task<List<BeneficioDTO>> ObtenerBeneficiosPGeneralTipo1V2InternacionalAsync(int idPGeneral)
+        {
+            try
+            {
+                List<BeneficioDTO> rpta = new List<BeneficioDTO>();
+                var query = @"
+            SELECT Paquete,Titulo,OrdenBeneficio
+            FROM pla.V_BeneficiosProgramaTipo1V2
+            WHERE Id = @idPGeneral
+            GROUP BY OrdenBeneficio,Paquete,Titulo";
+                var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<BeneficioDTO>>(resultado) ?? new List<BeneficioDTO>();
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public List<BeneficioDTOjson> ObtenerBeneficiosPGeneralTipo1V2Internacionaljson(int idPGeneral)
         {
             try
@@ -408,7 +429,27 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
-
+        public async Task<List<BeneficioDTO>> ObtenerBeneficiosPGeneralTipo1V2Async(int idPGeneral, int codigoPais)
+        {
+            try
+            {
+                List<BeneficioDTO> rpta = new List<BeneficioDTO>();
+                var query = @"
+            SELECT Paquete, Titulo, OrdenBeneficio
+            FROM pla.V_BeneficiosProgramaTipo1V2
+            WHERE Id = @idPGeneral And CodigoPais = @codigoPais";
+                var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral, codigoPais });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<BeneficioDTO>>(resultado) ?? new List<BeneficioDTO>();
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public List<BeneficioDTOjson> ObtenerBeneficiosPGeneralTipo1V2json(int idPGeneral, int codigoPais)
         {
             try
@@ -468,7 +509,28 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
-
+        public async Task<List<BeneficioDTO>> ObtenerBeneficiosPGeneralTipo1Async(int idPGeneral, int codigoPais)
+        {
+            try
+            {
+                List<BeneficioDTO> rpta = new List<BeneficioDTO>();
+                var query = @"
+            SELECT Paquete, Titulo, OrdenBeneficio
+            FROM pla.V_BeneficiosProgramaTipo1
+            WHERE Id = @idPGeneral
+                AND CodigoPais = @codigoPais";
+                var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral, codigoPais });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<BeneficioDTO>>(resultado) ?? new List<BeneficioDTO>();
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public List<BeneficioDTOjson> ObtenerBeneficiosPGeneralTipo1json(int idPGeneral, int codigoPais)
         {
             try
@@ -510,7 +572,24 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
             return beneficio;
         }
-
+        public async Task<BeneficioDTO> ObtenerBeneficiosPGeneralTipo2Async(int idPGeneral)
+        {
+            try
+            {
+                BeneficioDTO beneficio = new BeneficioDTO();
+                var query = "SELECT Titulo FROM pla.V_BeneficiosProgramaTipo2 WHERE TituloDocumentoSeccion = @nombre AND IdProgramaGeneral = @idPGeneral AND EstadoDocumentoSeccion = 1 AND EstadoProgramaGeneralDocumento = 1 AND EstadoDocumento = 1 AND EstadoProgramaGeneral = 1";
+                var beneficiosDB = await _dapperRepository.FirstOrDefaultAsync(query, new { idPGeneral, nombre = "Beneficios" });
+                if (!string.IsNullOrEmpty(beneficiosDB) && !beneficiosDB.Equals("null"))
+                {
+                    beneficio = JsonConvert.DeserializeObject<BeneficioDTO>(beneficiosDB);
+                }
+                return beneficio;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public BeneficioDTOjson ObtenerBeneficiosPGeneralTipo2json(int idPGeneral)
         {
             BeneficioDTOjson beneficio = new BeneficioDTOjson();

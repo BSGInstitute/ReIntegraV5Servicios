@@ -175,6 +175,17 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw ex;
             }
         }
+        public async Task<List<BeneficioDTO>> ObtenerBeneficiosPGeneralTipo1V2InternacionalAsync(int idPGeneral)
+        {
+            try
+            {
+                return await _unitOfWork.ConfiguracionBeneficioProgramaGeneralRepository.ObtenerBeneficiosPGeneralTipo1V2InternacionalAsync(idPGeneral);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         public List<BeneficioDTOjson> ObtenerBeneficiosPGeneralTipo1V2Internacionaljson(int idPGeneral)
         {
@@ -207,7 +218,17 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw ex;
             }
         }
-
+        public async Task<List<BeneficioDTO>> ObtenerBeneficiosPGeneralTipo1V2Async(int idPGeneral, int codigoPais = 0)
+        {
+            try
+            {
+                return await _unitOfWork.ConfiguracionBeneficioProgramaGeneralRepository.ObtenerBeneficiosPGeneralTipo1V2Async(idPGeneral, codigoPais);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public List<BeneficioDTOjson> ObtenerBeneficiosPGeneralTipo1V2json(int idPGeneral, int codigoPais = 0)
         {
             try
@@ -239,7 +260,17 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw ex;
             }
         }
-
+        public async Task<List<BeneficioDTO>> ObtenerBeneficiosPGeneralTipo1Async(int idPGeneral, int codigoPais = 0)
+        {
+            try
+            {
+                return await _unitOfWork.ConfiguracionBeneficioProgramaGeneralRepository.ObtenerBeneficiosPGeneralTipo1Async(idPGeneral, codigoPais);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public List<BeneficioDTOjson> ObtenerBeneficiosPGeneralTipo1json(int idPGeneral, int codigoPais = 0)
         {
             try
@@ -270,7 +301,17 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw ex;
             }
         }
-
+        public async Task<BeneficioDTO> ObtenerBeneficiosPGeneralTipo2Async(int idPGeneral)
+        {
+            try
+            {
+                return await _unitOfWork.ConfiguracionBeneficioProgramaGeneralRepository.ObtenerBeneficiosPGeneralTipo2Async(idPGeneral);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public BeneficioDTOjson ObtenerBeneficiosPGeneralTipo2json(int idPGeneral)
         {
             try
