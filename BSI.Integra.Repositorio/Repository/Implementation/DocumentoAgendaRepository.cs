@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
 using Newtonsoft.Json;
+using System.Text.RegularExpressions;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation
 {
@@ -253,6 +255,830 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener id PGeneral por id centro costo
+        /// </summary>
+        /// <param name="idCentroCosto">Id de Centro de Costo</param>
+        /// <returns>int</returns> 
+        public async Task<int> ObtenerIdPGeneralPorIdCentroCostoAsync(int idCentroCosto)
+        {
+            var query = @"SELECT TOP 1 IdProgramaGeneral 
+                  FROM pla.T_PEspecifico 
+                  WHERE IdCentroCosto = @idCentroCosto";
+
+            var resultado = await _dapperRepository.QueryDapperAsync(query, new { idCentroCosto });
+
+            if (string.IsNullOrEmpty(resultado) || resultado == "[]")
+                return 0;
+
+            try
+            {
+                var lista = JsonConvert.DeserializeObject<List<dynamic>>(resultado);
+                if (lista?.Any() == true)
+                {
+                    var idPGeneral = lista[0].IdProgramaGeneral;
+                    return Convert.ToInt32(idPGeneral);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error al obtener IdPGeneral: {ex.Message}");
+            }
+
+            return 0;
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener resumen programa por id PGeneral
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>List<ResumenPrograma2DTO></returns> 
+        public async Task<List<ResumenPrograma2DTO>> ObtenerResumenProgramaPorIdPGeneralAsync(int idPGeneral)
+        {
+            try
+            {
+                var query = @"
+                            SELECT 
+                                CASE 
+                                    WHEN CP.Categoria = 'Cursos' THEN 'Curso'
+                                    ELSE 'Programa'
+                                END AS EsProgramaOCurso
+                            FROM pla.T_PGeneral AS PG
+                            INNER JOIN pla.T_CategoriaPrograma AS CP WITH (NOLOCK)
+                                ON CP.Id = PG.IdCategoria
+                            WHERE PG.IdPGeneral = @idPGeneral;";
+
+                var resultadoJson = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
+
+                return JsonConvert.DeserializeObject<List<ResumenPrograma2DTO>>(resultadoJson ?? "[]");
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener prerrequisitos por id PGeneral
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>string</returns> 
+        public async Task<string> ObtenerPrerrequisitosPorIdPGeneralAsync(int idPGeneral)
+        {
+            var query = @"
+			SELECT MAX(dcs.id) as id, s.Nombre, dcs.Contenido
+FROM pla.T_PGeneralDocumento_PW pdc
+INNER JOIN pla.T_Documento_PW dc ON pdc.IdDocumento = dc.Id
+INNER JOIN pla.T_DocumentoSeccion_PW dcs ON dcs.IdDocumentoPW = dc.Id
+INNER JOIN pla.T_Seccion_PW s ON dcs.IdSeccionPW = s.Id
+WHERE pdc.IdPGeneral = @idPGeneral
+    AND dcs.VisibleWeb = 0
+    AND dc.Estado = 1
+    AND dc.IdPlantillaPW IN (10, 11)
+    AND s.Nombre LIKE '%Prerrequisitos%'
+GROUP BY s.Nombre, dcs.Contenido
+ORDER BY id DESC;
+    ";
+
+            var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
+
+            if (string.IsNullOrEmpty(resultado) || resultado == "[]")
+                return null;
+
+            try
+            {
+                return JsonConvert.DeserializeObject<string>(resultado);
+            }
+            catch
+            {
+                return resultado.Trim('"');
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener contenido estructura curricular
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>List<EstructuraCurricularDTO></returns> 
+        public async Task<List<EstructuraCurricularDTO>> ObtenerContenidoEstructuraCurricularAsync(int idPGeneral)
+        {
+            var query = @"
+        SELECT DISTINCT 
+            LSPD.Titulo,
+            LSPD.Contenido,
+            LSPD.IdSeccionTipoDetalle_PW,
+            LSPD.NumeroFila,
+            LSPD.OrdenWeb
+        FROM pla.V_ListaSeccionesPorIdPrograma_Documento LSPD
+        LEFT JOIN pla.V_ListaSeccionesPorIdPrograma_DocumentoDescripcion LSPDD ON LSPD.Titulo = LSPDD.Enlace AND LSPD.IdPGeneral = LSPDD.IdPGeneral
+        WHERE LSPD.Titulo = 'Estructura Curricular'
+            AND LSPD.IdSeccionTipoDetalle_PW != 14
+            AND LSPD.IdSeccionTipoDetalle_PW != 15
+            AND LSPD.IdSeccionTipoDetalle_PW NOT IN (118,119)
+            AND LSPD.IdPGeneral = @idPGeneral 
+        ORDER BY LSPD.NumeroFila ASC";
+
+            var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
+
+            if (string.IsNullOrEmpty(resultado) || resultado == "[]")
+                return new List<EstructuraCurricularDTO>();
+
+            try
+            {
+                return JsonConvert.DeserializeObject<List<EstructuraCurricularDTO>>(resultado) ?? new List<EstructuraCurricularDTO>();
+            }
+            catch
+            {
+                return new List<EstructuraCurricularDTO>();
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener presentacion por id PGeneral
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>string</returns> 
+        public string ObtenerPresentacionPorIdPGeneral(int idPGeneral)
+        {
+            var query = @"SELECT dcs.Contenido
+                            FROM pla.T_PGeneralDocumento_PW pdc
+                            INNER JOIN pla.T_Documento_PW dc ON pdc.IdDocumento = dc.Id
+                            INNER JOIN pla.T_DocumentoSeccion_PW dcs ON dcs.IdDocumentoPW = dc.Id
+                            WHERE 
+                                pdc.IdPGeneral = @idPGeneral
+                                AND dcs.Estado = 1
+                                AND dc.IdPlantillaPW IN (10, 11, 33, 36)
+                                AND (
+                                    dcs.Titulo LIKE '%Presentación%'
+                                )
+                            ORDER BY dcs.OrdenWeb;";
+
+            var resultado = _dapperRepository.QueryDapper(query, new { idPGeneral });
+
+            if (string.IsNullOrEmpty(resultado) || resultado == "[]")
+                return null;
+
+            try
+            {
+                return JsonConvert.DeserializeObject<string>(resultado);
+            }
+            catch
+            {
+                return resultado.Trim('"');
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener presentacion por id PGeneral
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>string</returns> 
+        public async Task<string> ObtenerPresentacionPorIdPGeneralAsync(int idPGeneral)
+        {
+            var query = @"SELECT dcs.Contenido
+                    FROM pla.T_PGeneralDocumento_PW pdc
+                    INNER JOIN pla.T_Documento_PW dc ON pdc.IdDocumento = dc.Id
+                    INNER JOIN pla.T_DocumentoSeccion_PW dcs ON dcs.IdDocumentoPW = dc.Id
+                    WHERE 
+                        pdc.IdPGeneral = @idPGeneral
+                        AND dcs.Estado = 1
+                        AND dc.IdPlantillaPW IN (10, 11, 33, 36)
+                        AND (
+                            dcs.Titulo LIKE '%Presentación%'
+                        )
+                    ORDER BY dcs.OrdenWeb;";
+
+            var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
+
+            if (string.IsNullOrEmpty(resultado) || resultado == "[]")
+                return null;
+
+            try
+            {
+                return JsonConvert.DeserializeObject<string>(resultado);
+            }
+            catch
+            {
+                return resultado.Trim('"');
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener publico objetivo por id PGeneral
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>string</returns> 
+        public string ObtenerPublicoObjetivoPorIdPGeneral(int idPGeneral)
+        {
+            var query = @"SELECT dcs.Contenido
+                            FROM pla.T_PGeneralDocumento_PW pdc
+                            INNER JOIN pla.T_Documento_PW dc ON pdc.IdDocumento = dc.Id
+                            INNER JOIN pla.T_DocumentoSeccion_PW dcs ON dcs.IdDocumentoPW = dc.Id
+                            WHERE 
+                                pdc.IdPGeneral = @idPGeneral
+                                AND dcs.Estado = 1
+                                AND dc.IdPlantillaPW IN (10, 11, 33, 36)
+                                AND (
+                                    dcs.Titulo LIKE '%Público Objetivo%'
+                                )
+                            ORDER BY dcs.OrdenWeb;";
+
+            var resultado = _dapperRepository.QueryDapper(query, new { idPGeneral });
+
+            if (string.IsNullOrEmpty(resultado) || resultado == "[]")
+                return null;
+
+            try
+            {
+                return JsonConvert.DeserializeObject<string>(resultado);
+            }
+            catch
+            {
+                return resultado.Trim('"');
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener publico objetivo por id PGeneral
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>string</returns> 
+        public async Task<string> ObtenerPublicoObjetivoPorIdPGeneralAsync(int idPGeneral)
+        {
+            var query = @"SELECT dcs.Contenido
+                    FROM pla.T_PGeneralDocumento_PW pdc
+                    INNER JOIN pla.T_Documento_PW dc ON pdc.IdDocumento = dc.Id
+                    INNER JOIN pla.T_DocumentoSeccion_PW dcs ON dcs.IdDocumentoPW = dc.Id
+                    WHERE 
+                        pdc.IdPGeneral = @idPGeneral
+                        AND dcs.Estado = 1
+                        AND dc.IdPlantillaPW IN (10, 11, 33, 36)
+                        AND (
+                            dcs.Titulo LIKE '%Público Objetivo%'
+                        )
+                    ORDER BY dcs.OrdenWeb;";
+
+            var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
+
+            if (string.IsNullOrEmpty(resultado) || resultado == "[]")
+                return null;
+
+            try
+            {
+                return JsonConvert.DeserializeObject<string>(resultado);
+            }
+            catch
+            {
+                return resultado.Trim('"');
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener duracion horarios por id PGeneral
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>string</returns> 
+        public string ObtenerDuracionHorariosPorIdPGeneral(int idPGeneral)
+        {
+            var query = @"
+                        SELECT dcs.Contenido
+                        FROM pla.T_PGeneralDocumento_PW pdc
+                        INNER JOIN pla.T_Documento_PW dc ON pdc.IdDocumento = dc.Id
+                        INNER JOIN pla.T_DocumentoSeccion_PW dcs ON dcs.IdDocumentoPW = dc.Id
+                        WHERE 
+                            pdc.IdPGeneral = @idPGeneral
+                            AND dcs.Estado = 1
+                            AND dc.IdPlantillaPW IN (10, 11, 33, 36)
+                            AND (
+                                dcs.Titulo LIKE '%Duracion y Horarios%'
+                            )
+                        ORDER BY dcs.OrdenWeb;";
+
+            var resultado = _dapperRepository.QueryDapper(query, new { idPGeneral });
+
+            if (string.IsNullOrEmpty(resultado) || resultado == "[]")
+                return null;
+
+            try
+            {
+                return JsonConvert.DeserializeObject<string>(resultado);
+            }
+            catch
+            {
+                return resultado.Trim('"');
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener duracion horarios por id PGeneral
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>string</returns> 
+        public async Task<string> ObtenerDuracionHorariosPorIdPGeneralAsync(int idPGeneral)
+        {
+            var query = @"
+                            SELECT dcs.Contenido
+                            FROM pla.T_PGeneralDocumento_PW pdc
+                            INNER JOIN pla.T_Documento_PW dc ON pdc.IdDocumento = dc.Id
+                            INNER JOIN pla.T_DocumentoSeccion_PW dcs ON dcs.IdDocumentoPW = dc.Id
+                            WHERE 
+                                pdc.IdPGeneral = @idPGeneral
+                                AND dcs.Estado = 1
+                                AND dc.IdPlantillaPW IN (10, 11, 33, 36)
+                                AND (
+                                    dcs.Titulo LIKE '%Duracion y Horarios%'
+                                )
+                            ORDER BY dcs.OrdenWeb;";
+
+            var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
+
+            if (string.IsNullOrEmpty(resultado) || resultado == "[]")
+                return null;
+
+            try
+            {
+                return JsonConvert.DeserializeObject<string>(resultado);
+            }
+            catch
+            {
+                return resultado.Trim('"');
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener prerrequisitos por id PGeneral
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>string</returns>
+        public string ObtenerPrerrequisitosPorIdPGeneral(int idPGeneral)
+        {
+            var query = @"
+		                    SELECT Titulo, Contenido,IdPGeneral, OrdenWeb
+                    FROM pla.V_DatoProgramaGeneralContenidoPorIdPrograma
+                    WHERE IdPGeneral = @idPGeneral AND Titulo LIKE '%Pre-Requisitos%'";
+
+            var resultado = _dapperRepository.QueryDapper(query, new { idPGeneral });
+
+            if (string.IsNullOrEmpty(resultado) || resultado == "[]")
+                return null;
+
+            try
+            {
+                return JsonConvert.DeserializeObject<string>(resultado);
+            }
+            catch
+            {
+                return resultado.Trim('"');
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener expositores por id PGeneral
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>string</returns> 
+        public string ObtenerExpositoresPorIdPGeneral(int idPGeneral)
+        {
+            var query = @"SELECT Id,PrimerNombre,SegundoNombre,ApellidoPaterno,ApellidoMaterno,NombrePais,HojaVidaResumidaPerfil,IdPGeneral
+                    FROM pla.V_ObtenerExpositorPorIdPrograma
+                    WHERE IdPGeneral = @idPGeneral";
+
+            var resultado = _dapperRepository.QueryDapper(query, new { idPGeneral });
+
+            if (string.IsNullOrEmpty(resultado) || resultado == "[]")
+                return null;
+
+            try
+            {
+                return JsonConvert.DeserializeObject<string>(resultado);
+            }
+            catch
+            {
+                return resultado.Trim('"');
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener expositores por id PGeneral
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>List<ProgramaExpositoresDTO></returns> 
+        public async Task<List<ProgramaExpositoresDTO>> ObtenerExpositoresPorIdPGeneralAsync(int idPGeneral)
+        {
+            var query = @"SELECT Id,PrimerNombre,SegundoNombre,ApellidoPaterno,ApellidoMaterno,NombrePais,HojaVidaResumidaPerfil,IdPGeneral
+                  FROM pla.V_ObtenerExpositorPorIdPrograma
+                  WHERE IdPGeneral = @idPGeneral";
+
+            var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
+
+            if (string.IsNullOrEmpty(resultado) || resultado == "[]")
+                return new List<ProgramaExpositoresDTO>();
+
+            try
+            {
+                return JsonConvert.DeserializeObject<List<ProgramaExpositoresDTO>>(resultado) ?? new List<ProgramaExpositoresDTO>();
+            }
+            catch
+            {
+                return new List<ProgramaExpositoresDTO>();
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener resumen programa por id PGeneral
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <param name="idCentroCosto">Id de Centro de Costo</param>
+        /// <returns>List<ResumenProgramaDTO></returns> 
+        public async Task<List<Aplicacion.DTO.SCode.Modelos.IntegraDB.ResumenProgramaDTO>> ObtenerResumenProgramaPorIdPGeneral(int idPGeneral, int idCentroCosto)
+        {
+            var query = @"
+        SELECT 
+            PG.IdPGeneral AS IdProgramaGeneral, 
+            CP.Categoria AS Categoria, 
+            MC.Nombre AS Tipo, 
+            CC.Id AS IdCentroCosto,
+            CC.Nombre AS NombreCentroCosto,
+            PG.Nombre AS NombrePrograma,
+            PG.FechaCreacion
+        FROM pla.T_PGeneral AS PG
+        INNER JOIN pla.T_CategoriaPrograma AS CP 
+            ON CP.Id = PG.IdCategoria
+        INNER JOIN pla.T_PGeneralModalidad AS PGM
+            ON PGM.IdPGeneral = PG.IdPGeneral
+        INNER JOIN pla.T_ModalidadCurso AS MC
+            ON MC.Id = PGM.IdModalidadCurso
+        INNER JOIN pla.T_PEspecifico AS PE
+            ON PE.IdProgramaGeneral = PG.IdPGeneral
+        INNER JOIN pla.T_CentroCosto AS CC
+            ON PE.IdCentroCosto = CC.Id
+        WHERE PG.IdPGeneral = @idPGeneral
+          AND CC.Id = @idCentroCosto
+          AND PGM.Estado = 1
+          AND MC.Estado = 1
+          AND CC.Estado = 1;";
+
+            var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral, idCentroCosto });
+            if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+            {
+                return JsonConvert.DeserializeObject<List<Aplicacion.DTO.SCode.Modelos.IntegraDB.ResumenProgramaDTO>>(resultado);
+            }
+            return new List<Aplicacion.DTO.SCode.Modelos.IntegraDB.ResumenProgramaDTO>();
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Get objetivos raw
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>ObjetivosRawDTO</returns> 
+        public async Task<ObjetivosRawDTO> GetObjetivosRawAsync(int idPGeneral)
+        {
+            try
+            {
+                // SQL optimizado - moviendo condiciones al WHERE y usando TOP 1
+                var sql = @"
+                                SELECT 
+                                PG.IdPGeneral,
+                                CP.Categoria AS EsProgramaOCurso,
+                                DS.Contenido AS ObjetivosHtml
+                            FROM pla.T_PGeneral AS PG
+                            INNER JOIN pla.T_CategoriaPrograma AS CP 
+                                ON CP.Id = PG.IdCategoria
+                            INNER JOIN pla.T_PGeneralDocumento_PW AS PGD 
+                                ON PGD.IdPGeneral = PG.IdPGeneral
+                            INNER JOIN pla.T_Documento_PW AS DO 
+                                ON DO.Id = PGD.IdDocumento
+                            INNER JOIN pla.T_DocumentoSeccion_PW AS DS 
+                                ON DS.IdDocumentoPW = DO.Id
+                               AND DS.Estado = 1
+                            INNER JOIN pla.T_Seccion_PW AS S 
+                                ON S.Id = DS.IdSeccionPW
+                               AND S.Nombre = 'Objetivos'
+                            WHERE PG.Id = @idPGeneral;
+                            ";
+
+                // Timeout más agresivo para forzar optimización
+                var resultado = await _dapperRepository.FirstOrDefaultAsync(sql, new { idPGeneral });
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<ObjetivosRawDTO>(resultado);
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Get beneficios raw
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>List<BeneficioRawDTO></returns> 
+        public async Task<List<BeneficioRawDTO>> GetBeneficiosRawAsync(int idPGeneral)
+        {
+            try
+            {
+                var sql = @"
+                            SELECT 
+                  PG.Id AS IdPGeneral,
+                  CP.Categoria AS EsProgramaOCurso,
+                  VP.Id AS IdVersion,
+                  VP.Nombre AS Version,
+                  DCS.id AS idDocumento,
+                  DCS.Contenido AS Beneficio,
+                  DCS.PiePagina AS Nota
+                FROM pla.T_PGeneral PG WITH (NOLOCK)
+                INNER JOIN pla.T_CategoriaPrograma CP WITH (NOLOCK)
+                  ON CP.Id = PG.IdCategoria
+                INNER JOIN pla.T_PGeneralDocumento_PW PDC WITH (NOLOCK)
+                  ON PDC.IdPGeneral = PG.Id AND PDC.Estado = 1
+                INNER JOIN pla.T_Documento_PW DC WITH (NOLOCK)
+                  ON PDC.IdDocumento = DC.Id AND DC.IdPlantillaPW IN (10, 11, 33, 36)
+                INNER JOIN pla.T_DocumentoSeccion_PW DCS WITH (NOLOCK)
+                  ON DCS.IdDocumentoPW = DC.Id AND DCS.Titulo = 'Beneficios' AND DCS.Estado = 1
+                LEFT JOIN pla.T_PGeneralVersionPrograma PGP WITH (NOLOCK)
+                  ON PG.Id = PGP.IdPGeneral
+                LEFT JOIN pla.T_VersionPrograma VP WITH (NOLOCK)
+                  ON VP.Id = PGP.IdVersionPrograma
+                WHERE PG.Id = @idPGeneral";
+
+                var resultado = await _dapperRepository.QueryDapperAsync(sql, new { idPGeneral });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<List<BeneficioRawDTO>>(resultado);
+                }
+                return new List<BeneficioRawDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Get certificaciones raw
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>List<CertificacionRawDTO></returns> 
+        public async Task<List<CertificacionRawDTO>> GetCertificacionesRawAsync(int idPGeneral)
+        {
+            try
+            {
+                var sql = @"
+            SELECT 
+                PG.Id AS IdPGeneral,
+                CP.Categoria AS EsProgramaOCurso,
+                DCS.id AS idDocumento,
+                DCS.Contenido AS Beneficio,
+                DCS.Cabecera AS Cabecera,
+                DCS.PiePagina AS Nota
+            FROM pla.T_PGeneral PG WITH (NOLOCK)
+            INNER JOIN pla.T_CategoriaPrograma CP WITH (NOLOCK)
+                ON CP.Id = PG.IdCategoria
+            INNER JOIN pla.T_PGeneralDocumento_PW PDC WITH (NOLOCK)
+                ON PDC.IdPGeneral = PG.Id AND PDC.Estado = 1
+            INNER JOIN pla.T_Documento_PW DC WITH (NOLOCK)
+                ON PDC.IdDocumento = DC.Id AND DC.IdPlantillaPW IN (10, 11, 33, 36)
+            INNER JOIN pla.T_DocumentoSeccion_PW DCS WITH (NOLOCK)
+                ON DCS.IdDocumentoPW = DC.Id 
+                AND DCS.Titulo IN ('Certificación','Certificaci&#243;n')
+                AND DCS.Estado = 1
+            WHERE PG.Id = @idPGeneral;
+        ";
+
+                var resultado = await _dapperRepository.QueryDapperAsync(sql, new { idPGeneral });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<List<CertificacionRawDTO>>(resultado);
+                }
+                return new List<CertificacionRawDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Get metodologia raw
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>MetodologiaRawDTO</returns> 
+        public async Task<MetodologiaRawDTO> GetMetodologiaRawAsync(int idPGeneral)
+        {
+            var sql = @"
+        SELECT 
+            PG.Id AS IdPGeneral,
+            CP.Categoria AS EsProgramaOCurso,
+            DCS.id AS idDocumento,
+            DCS.Titulo AS Titulo,
+            DCS.Contenido AS ContenidoMetodologia
+        FROM pla.T_PGeneral PG WITH (NOLOCK)
+        INNER JOIN pla.T_CategoriaPrograma CP WITH (NOLOCK)
+            ON CP.Id = PG.IdCategoria
+        INNER JOIN pla.T_PGeneralDocumento_PW PDC WITH (NOLOCK)
+            ON PDC.IdPGeneral = PG.Id AND PDC.Estado = 1
+        INNER JOIN pla.T_Documento_PW DC WITH (NOLOCK)
+            ON PDC.IdDocumento = DC.Id AND DC.IdPlantillaPW IN (10, 11, 33, 36)
+        INNER JOIN pla.T_DocumentoSeccion_PW DCS WITH (NOLOCK)
+            ON DCS.IdDocumentoPW = DC.Id 
+            AND DCS.Titulo IN ('Metodología Online De Este programa')
+            AND DCS.Estado = 1
+        WHERE PG.Id = @idPGeneral
+    ";
+
+            var resultado = await _dapperRepository.FirstOrDefaultAsync(sql, new { idPGeneral });
+            if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+            {
+                return JsonConvert.DeserializeObject<MetodologiaRawDTO>(resultado);
+            }
+            return null;
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Get pautas complementarias raw
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>PautasComplementariasRawDTO</returns> 
+        public async Task<PautasComplementariasRawDTO> GetPautasComplementariasRawAsync(int idPGeneral)
+        {
+            var sql = @"
+        SELECT 
+            PG.Id AS IdPGeneral,
+            CP.Categoria AS EsProgramaOCurso,
+            DCS.id AS idDocumento,
+            DCS.Titulo AS Titulo,
+            DCS.Contenido AS ContenidoMetodologia
+        FROM pla.T_PGeneral PG WITH (NOLOCK)
+        INNER JOIN pla.T_CategoriaPrograma CP WITH (NOLOCK)
+            ON CP.Id = PG.IdCategoria
+        INNER JOIN pla.T_PGeneralDocumento_PW PDC WITH (NOLOCK)
+            ON PDC.IdPGeneral = PG.Id AND PDC.Estado = 1
+        INNER JOIN pla.T_Documento_PW DC WITH (NOLOCK)
+            ON PDC.IdDocumento = DC.Id AND DC.IdPlantillaPW IN (10, 11, 33, 36)
+        INNER JOIN pla.T_DocumentoSeccion_PW DCS WITH (NOLOCK)
+            ON DCS.IdDocumentoPW = DC.Id 
+            AND DCS.Titulo IN ('Pautas Complementarias')
+            AND DCS.Estado = 1
+        WHERE PG.Id = @idPGeneral
+    ";
+
+            var resultado = await _dapperRepository.FirstOrDefaultAsync(sql, new { idPGeneral });
+            if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+            {
+                return JsonConvert.DeserializeObject<PautasComplementariasRawDTO>(resultado);
+            }
+            return null;
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener perfil profesional cliente
+        /// </summary>
+        /// <param name="idAlumno">Id de Alumno</param>
+        /// <returns>PerfilProfesionalClienteDTO</returns> 
+        public async Task<PerfilProfesionalClienteDTO> ObtenerPerfilProfesionalClienteAsync(int idAlumno)
+        {
+            var sql = @"
+        SELECT  
+            AF.Nombre AS AreaFormacion,
+            CA.Nombre AS Cargo,
+            A.PrincipalResponsabilidadProfesional,
+            ISNULL(TE.Nombre, 'Sin Experiencia Registrada') AS AniosExperienciaProfesional,
+            I.Nombre AS Industria,
+            ATR.Nombre AS AreaTrabajo,
+            EMP.Nombre AS Empresa,
+            ISNULL(TEA.Nombre, 'Sin Tamaño de Empresa Registrado') AS TamanioEmpresa
+        FROM mkt.T_Alumno A WITH (NOLOCK)
+        LEFT JOIN pla.T_AreaFormacion AF WITH (NOLOCK) ON AF.Id = A.IdAFormacion
+        LEFT JOIN pla.T_Cargo CA WITH (NOLOCK) ON CA.Id = A.IdCargo
+        LEFT JOIN pla.T_AreaTrabajo ATR WITH (NOLOCK) ON ATR.Id = A.IdATrabajo
+        LEFT JOIN pla.T_Industria I WITH (NOLOCK) ON I.Id = A.IdIndustria
+        LEFT JOIN pla.T_Empresa EMP WITH (NOLOCK) ON EMP.Id = A.IdEmpresa
+        LEFT JOIN pla.T_TiempoExperiencia TE WITH (NOLOCK) ON TE.Id = A.IdExperiencia
+        LEFT JOIN pla.T_TamanioEmpresaAgenda TEA WITH (NOLOCK) ON TEA.Id = A.IdTamanioEmpresaAgenda
+        WHERE A.Id = @idAlumno;
+    ";
+
+            var resultado = await _dapperRepository.FirstOrDefaultAsync(sql, new { idAlumno });
+            if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+            {
+                return JsonConvert.DeserializeObject<PerfilProfesionalClienteDTO>(resultado);
+            }
+            return null;
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Get secciones programa raw
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>List<SeccionProgramaRawDTO></returns> 
+        public async Task<List<SeccionProgramaRawDTO>> GetSeccionesProgramaRawAsync(int idPGeneral)
+        {
+            var sql = @"
+        SELECT  
+            PG.Id AS IdPGeneral,
+            CP.Categoria AS EsProgramaOCurso,
+            DSpw.Id AS IdSeccion,
+            Spw.Nombre AS Titulo,
+            DSpw.Contenido,
+            DSpw.OrdenWeb
+        FROM pla.T_PGeneral PG WITH (NOLOCK)
+        INNER JOIN pla.T_CategoriaPrograma CP WITH (NOLOCK)
+            ON CP.Id = PG.IdCategoria
+        INNER JOIN pla.T_PGeneralDocumento_PW PGDpw WITH (NOLOCK)
+            ON PGDpw.IdPGeneral = PG.Id 
+           AND PGDpw.Estado = 1
+        LEFT JOIN pla.T_Documento_PW DOpw WITH (NOLOCK)
+            ON PGDpw.IdDocumento = DOpw.Id
+           AND DOpw.IdPlantillaPW NOT IN (10, 11)
+        LEFT JOIN pla.T_Documento_PW DOpw2 WITH (NOLOCK)
+            ON PGDpw.IdDocumento = DOpw2.Id
+           AND DOpw2.IdPlantillaPW IN (10, 11, 1)
+        INNER JOIN pla.T_DocumentoSeccion_PW DSpw WITH (NOLOCK)
+            ON DSpw.IdDocumentoPW = ISNULL(DOpw2.Id, DOpw.Id)
+           AND DSpw.Estado = 1
+           AND DSpw.VisibleWeb = 1
+        INNER JOIN pla.T_Seccion_PW Spw WITH (NOLOCK)
+            ON DSpw.IdSeccionPW = Spw.Id
+        WHERE PG.Id = @idPGeneral
+    ";
+
+            var resultado = await _dapperRepository.QueryDapperAsync(sql, new { idPGeneral });
+            if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+            {
+                return JsonConvert.DeserializeObject<List<SeccionProgramaRawDTO>>(resultado);
+            }
+            return new List<SeccionProgramaRawDTO>();
+        }
+    
+
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 03/08/2022
         /// Version: 1.0

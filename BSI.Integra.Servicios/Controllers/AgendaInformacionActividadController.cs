@@ -2,6 +2,7 @@
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.Finanzas.Service.Implementacion;
 using BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion;
 using BSI.Integra.Aplicacion.Marketing.Service.Implementacion;
@@ -15,10 +16,10 @@ using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Implementation;
 using BSI.Integra.Repositorio.Repository.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
-using iText.Kernel.Pdf.Statistics;
 using BSI.Integra.Servicios.Helpers;
 using BSI.Integra.Servicios.Helpers.InformacionProgramaEstructurada;
 using HtmlAgilityPack;
+using iText.Kernel.Pdf.Statistics;
 using iTextSharp.text.pdf.codec.wmf;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -1100,6 +1101,511 @@ namespace BSI.Integra.Servicios.Controllers
             catch (Exception e)
             {
                 return BadRequest(e.Message);
+            }
+        }
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información programa todo
+        /// </summary>
+        /// <param name="request">Request</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionProgramaTodo")]
+        public async Task<IActionResult> ObtenerInformacionProgramaTodo([FromBody] CargarInformacionProgramaTodoRequestDTO request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { Error = "Modelo de solicitud inválido", Detalle = ModelState });
+            }
+
+            try
+            {
+                var servicio = new InformacionProgramaService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionProgramaTodoAsync(request.idCentroCosto, request.codigoPais);
+                return Ok(respuesta);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor", Detalle = e.Message });
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información programa inversión
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionProgramaInversion")]
+        public async Task<IActionResult> ObtenerInformacionProgramaInversion([FromBody] Dictionary<string, string> filtro)
+        {
+            try
+            {
+                if (filtro == null)
+                {
+                    return BadRequest(new { Error = "El cuerpo de la solicitud no puede estar vacío." });
+                }
+
+                if (!filtro.TryGetValue("idPGeneral", out var idPGeneralStr) ||
+                    !int.TryParse(idPGeneralStr, out int idPGeneral))
+                {
+                    return BadRequest(new { Error = "El campo 'idPGeneral' es requerido y debe ser un número entero." });
+                }
+
+                int codigoPais = 604;
+                if (filtro.TryGetValue("codigoPais", out var codigoPaisStr))
+                {
+                    if (!int.TryParse(codigoPaisStr, out codigoPais))
+                    {
+                        return BadRequest(new { Error = "El campo 'codigoPais' debe ser un número entero válido." });
+                    }
+                }
+
+                var servicio = new InformacionProgramaService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionProgramaInversionAsync(idPGeneral, codigoPais);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información programa presentación
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionProgramaPresentacion")]
+        public async Task<IActionResult> ObtenerInformacionProgramaPresentacion([FromBody] Dictionary<string, string> filtro)
+        {
+            try
+            {
+                if (filtro == null || !filtro.TryGetValue("idPGeneral", out var idStr) ||
+                    !int.TryParse(idStr, out int idPGeneral))
+                {
+                    return BadRequest(new { Error = "El campo 'idPGeneral' es requerido y debe ser un número entero." });
+                }
+
+                var servicio = new InformacionProgramaService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionProgramaPresentacionAsync(idPGeneral);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información programa público objetivo
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionProgramaPublicoObjetivo")]
+        public async Task<IActionResult> ObtenerInformacionProgramaPublicoObjetivo([FromBody] Dictionary<string, string> filtro)
+        {
+            try
+            {
+                if (filtro == null || !filtro.TryGetValue("idPGeneral", out var idStr) ||
+                    !int.TryParse(idStr, out int idPGeneral))
+                {
+                    return BadRequest(new { Error = "El campo 'idPGeneral' es requerido y debe ser un número entero." });
+                }
+
+                var servicio = new InformacionProgramaService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionProgramaPublicoObjetivoAsync(idPGeneral);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información programa duración horarios
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionProgramaDuracionHorariosAsync")]
+        public async Task<IActionResult> ObtenerInformacionProgramaDuracionHorariosAsync([FromBody] Dictionary<string, string> filtro)
+        {
+            try
+            {
+                if (filtro == null || !filtro.TryGetValue("idPGeneral", out var idPGeneralStr))
+                {
+                    return BadRequest(new { Error = "El campo 'idPGeneral' es requerido." });
+                }
+
+                if (!int.TryParse(idPGeneralStr, out int idPGeneral))
+                {
+                    return BadRequest(new { Error = "El valor de 'idPGeneral' debe ser un número entero válido." });
+                }
+
+                var servicio = new InformacionProgramaService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionProgramaDuracionHorariosAsync(idPGeneral);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información programa prerrequisitos
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionProgramaPrerrequisitosAsync")]
+        public async Task<IActionResult> ObtenerInformacionProgramaPrerrequisitosAsync([FromBody] Dictionary<string, string> filtro)
+        {
+            try
+            {
+                if (filtro == null || !filtro.TryGetValue("idPGeneral", out var idPGeneralStr))
+                {
+                    return BadRequest(new { Error = "El campo 'idPGeneral' es requerido." });
+                }
+
+                if (!int.TryParse(idPGeneralStr, out int idPGeneral))
+                {
+                    return BadRequest(new { Error = "El valor de 'idPGeneral' debe ser un número entero válido." });
+                }
+
+                var servicio = new InformacionProgramaService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionProgramaPrerrequisitosAsync(idPGeneral);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener estructura curricular
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerEstructuraCurricular")]
+        public async Task<IActionResult> ObtenerEstructuraCurricular([FromBody] Dictionary<string, string> filtro)
+        {
+            try
+            {
+                if (filtro == null || !filtro.TryGetValue("idPGeneral", out var idStr) ||
+                    !int.TryParse(idStr, out int idPGeneral))
+                {
+                    return BadRequest(new { Error = "El campo 'idPGeneral' es requerido y debe ser un número entero." });
+                }
+
+                var servicio = new InformacionProgramaService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionProgramaEstructuraCurricularAsync(idPGeneral);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información programa expositores
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionProgramaExpositores")]
+        public async Task<IActionResult> ObtenerInformacionProgramaExpositores([FromBody] Dictionary<string, string> filtro)
+        {
+            try
+            {
+                if (filtro == null || !filtro.TryGetValue("idPGeneral", out var idPGeneralStr))
+                {
+                    return BadRequest(new { Error = "El campo 'idPGeneral' es requerido." });
+                }
+
+                if (!int.TryParse(idPGeneralStr, out int idPGeneral))
+                {
+                    return BadRequest(new { Error = "El valor de 'idPGeneral' debe ser un número entero válido." });
+                }
+
+                var servicio = new InformacionProgramaService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionProgramaExpositoresAsync(idPGeneral);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener resumen programa modalidades
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <param name="idCentroCosto">Id de Centro de Costo</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerResumenProgramaModalidades/{idPGeneral}/{idCentroCosto}")]
+        public async Task<IActionResult> ObtenerResumenPrograma(int idPGeneral, int idCentroCosto)
+        {
+            try
+            {
+                if (idPGeneral <= 0 || idCentroCosto <= 0)
+                {
+                    return BadRequest(new { Error = "Los parámetros idPGeneral y idCentroCosto deben ser mayores a 0" });
+                }
+
+                var resultado = await _servicioPrincipal.ObtenerResumenPrograma(idPGeneral, idCentroCosto);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener objetivos programa
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerObjetivosPrograma/{idPGeneral}")]
+        public async Task<IActionResult> ObtenerObjetivosPrograma(int idPGeneral)
+        {
+            try
+            {
+                if (idPGeneral <= 0)
+                {
+                    return BadRequest(new { Error = "El parámetro idPGeneral debe ser mayor a 0" });
+                }
+
+                using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(900));
+                var result = await _servicioPrincipal.GetObjetivosAsync(idPGeneral);
+
+                Response.Headers.Add("Cache-Control", "public, max-age=1800"); // 30 minutos
+                Response.Headers.Add("ETag", $"\"{idPGeneral}_{result?.Objetivos?.Count ?? 0}\"");
+
+                return Ok(result);
+            }
+            catch (TaskCanceledException)
+            {
+                return StatusCode(408, new { Error = "Request timeout", IdPGeneral = idPGeneral });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Get beneficios programa
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("beneficios/{idPGeneral}")]
+        public async Task<IActionResult> GetBeneficiosPrograma(int idPGeneral)
+        {
+            try
+            {
+                if (idPGeneral <= 0)
+                {
+                    return BadRequest(new { Error = "El parámetro idPGeneral debe ser mayor a 0" });
+                }
+
+                var result = await _servicioPrincipal.GetBeneficiosProgramaAsync(idPGeneral);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Get certificaciones programa
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("certificaciones/{idPGeneral}")]
+        public async Task<IActionResult> GetCertificacionesPrograma(int idPGeneral)
+        {
+            try
+            {
+                if (idPGeneral <= 0)
+                {
+                    return BadRequest(new { Error = "El parámetro idPGeneral debe ser mayor a 0" });
+                }
+
+                var result = await _servicioPrincipal.GetCertificacionesProgramaAsync(idPGeneral);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Get metodologia programa
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("metodologia/{idPGeneral}")]
+        public async Task<IActionResult> GetMetodologiaPrograma(int idPGeneral)
+        {
+            try
+            {
+                if (idPGeneral <= 0)
+                {
+                    return BadRequest(new { Error = "El parámetro idPGeneral debe ser mayor a 0" });
+                }
+
+                var result = await _servicioPrincipal.GetMetodologiaProgramaAsync(idPGeneral);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Get pautas complementarias programa
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("pautas-complementarias/{idPGeneral}")]
+        public async Task<IActionResult> GetPautasComplementariasPrograma(int idPGeneral)
+        {
+            try
+            {
+                if (idPGeneral <= 0)
+                {
+                    return BadRequest(new { Error = "El parámetro idPGeneral debe ser mayor a 0" });
+                }
+
+                var result = await _servicioPrincipal.GetPautasComplementariasProgramaAsync(idPGeneral);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Get perfil profesional cliente
+        /// </summary>
+        /// <param name="idAlumno">Id de Alumno</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("perfil-profesional-cliente/{idAlumno}")]
+        public async Task<IActionResult> GetPerfilProfesionalCliente(int idAlumno)
+        {
+            try
+            {
+                if (idAlumno <= 0)
+                {
+                    return BadRequest(new { Error = "El parámetro idAlumno debe ser mayor a 0" });
+                }
+
+                var result = await _servicioPrincipal.GetPerfilProfesionalClienteAsync(idAlumno);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Get detalle programa o curso
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("detalle-programa-curso/{idPGeneral}")]
+        public async Task<IActionResult> GetDetalleProgramaOCurso(int idPGeneral)
+        {
+            try
+            {
+                if (idPGeneral <= 0)
+                {
+                    return BadRequest(new { Error = "El parámetro idPGeneral debe ser mayor a 0" });
+                }
+
+                var result = await _servicioPrincipal.GetDetalleProgramaOCursoAsync(idPGeneral);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
             }
         }
 
