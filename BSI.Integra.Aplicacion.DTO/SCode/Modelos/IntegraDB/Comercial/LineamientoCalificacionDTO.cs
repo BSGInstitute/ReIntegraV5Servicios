@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad.TranscriptionDTO;
 
 namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
 {
@@ -880,5 +881,109 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
     {
         public int IdPersonal { get; set; }
         public DateTime FechaGeneracion { get; set; }
+    }
+    //DTOs Calificacion Individual
+    public class CalificacionIndividualRequestDTO
+    {
+        public int IdPersonal { get; set; }
+        public string Contacto { get; set; }
+        public string UserName { get; set; }
+        public string IdCodigoPais { get; set; }
+
+        [JsonPropertyName("transcription")]
+        public List<TranscriptionWebhookPayloadDTO> Transcription { get; set; }
+
+        public LineamientoDto Lineamientos { get; set; }
+        public BrochureDTO Brochure { get; set; }
+    }
+
+    public class LineamientoDto
+    {
+        public Dictionary<string, FaseDto> Fases { get; set; }
+
+        [JsonPropertyName("puntosgenerales")]
+        public List<PuntoGeneralCalifDTO> PuntosGenerales { get; set; }
+    }
+
+    public class FaseDto
+    {
+        public int Id { get; set; }
+        public int Orden { get; set; }
+        public Dictionary<string, CriterioCalifDTO> Criterios { get; set; }
+    }
+
+    public class CriterioCalifDTO
+    {
+        public int Id { get; set; }
+        public int Orden { get; set; }
+        public List<LineamientoCalifDTO> Lineamientos { get; set; }
+    }
+
+    public class LineamientoCalifDTO
+    {
+        public int Id { get; set; }
+        public int Orden { get; set; }
+
+        [JsonPropertyName("lineamiento")]
+        [Required]
+        public string NombreLineamiento { get; set; }
+
+        [JsonPropertyName("importancia")]
+        public string Importancia { get; set; }
+    }
+
+
+
+
+    public class PuntoGeneralCalifDTO
+    {
+        public int Id { get; set; }
+        public int Orden { get; set; }
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+    }
+
+    public class BrochureDTO
+    {
+        public int IdPGeneral { get; set; }
+        public string InformacionPrograma { get; set; }
+        public List<ResumenProgramaV2DTO> ResumenProgramasV2 { get; set; }
+        public string EtiquetaDuracionHorarios { get; set; }
+
+        [JsonPropertyName("etiquetaExpositores")]
+        public string? EtiquetaExpositores { get; set; }
+
+        public string EtiquetaBeneficiosInversion { get; set; }
+        public string EtiquetaFormasPago { get; set; }
+        public string EtiquetaTarifarios { get; set; }
+        public List<BeneficioDTO> ListaBeneficios { get; set; }
+
+        public object InformacionDatoCliente { get; set; }
+        public object InformacionPerfilyFIltradoProspectos { get; set; }
+        public object ArgumentosMotivacionPrograma { get; set; }
+        public object InformacionOportunidad { get; set; }
+        public object PublicoObjetivoDirecto { get; set; }
+        public object ProblemaDetallePrograma { get; set; }
+    }
+    public class ResumenProgramaV2DTO
+    {
+        public int IdArea { get; set; }
+        public int IdSubArea { get; set; }
+        public string NombrePrograma { get; set; }
+        public string Duracion { get; set; }
+        public string Inversion { get; set; }
+        public string Certificacion { get; set; }
+    }
+    public class BeneficioDTO
+    {
+        public int Paquete { get; set; }
+        public string Titulo { get; set; }
+        public int OrdenBeneficio { get; set; }
+    }
+    public class CalificacionIndividualResponseDTO
+    {
+        public int IdEvaluacion { get; set; }
+        public string Estado { get; set; }
+        public string Mensaje { get; set; }
     }
 }

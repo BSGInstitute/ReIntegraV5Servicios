@@ -988,6 +988,44 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             }
             return resultados.ToList();
         }
+        /// Autor: Lolo Zaa.
+        /// Fecha: 25/09/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Recibe el payload de calificación individual y lo envía al endpoint externo. 
+        /// </summary> 
+        /// <returns> IEnumerable<ComboDTO> </returns>
+
+        public async Task<string> CalificacionIndividual(CalificacionIndividualRequestDTO dto)
+        {
+            if (dto == null)
+                throw new ArgumentException("El request no puede ser nulo");
+
+            using var httpClient = new HttpClient
+            {
+                BaseAddress = new Uri("http://ia-analisis-llamadas-comercial-api.bsginstitute.com/")
+            };
+
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpClient.DefaultRequestHeaders.Add("Cache-Control", "no-cache");
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "PostmanRuntime/7.44.0");
+            httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
+            httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
+
+            try
+            {
+                var response = await httpClient.PostAsJsonAsync("grading/queue/batch", dto);
+
+                var content = await response.Content.ReadAsStringAsync();
+
+                return $"Status: {response.StatusCode}\nRespuesta: {content}";
+            }
+            catch (Exception ex)
+            {
+                return $"Excepción en CalificacionIndividual: {ex.Message}";
+            }
+        }
 
         private List<LlamadaProcesoAutoDTO> ObtenerSiguienteLlamadaParaCalificar(int idOportunidad)
         {

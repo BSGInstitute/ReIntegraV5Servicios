@@ -941,6 +941,31 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
                 return BadRequest(ex.Message);
             }
         }
+        /// Tipo Función: Post
+        /// Autor: Lolo Zaa
+        /// Fecha: 25/09/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Proxy para el servicio de calificacion ia
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [HttpPost("CalificacionIndividual")]
+        public async Task<IActionResult> CalificacionIndividual([FromBody] CalificacionIndividualRequestDTO dto)
+        {
+            if (dto == null)
+                return BadRequest("El payload no puede ser nulo.");
+
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = await lineamientoCalificacionService.CalificacionIndividual(dto);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
         /// Tipo Función: GET
         /// Autor: Joseph Llanque
