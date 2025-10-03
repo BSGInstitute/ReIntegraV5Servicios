@@ -3,6 +3,8 @@ using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
+using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
+using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using System.Globalization;
 using System.Net;
@@ -291,6 +293,40 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             return informacionProgramaAutomatico;
         }
 
+
+
+
+
+
+        public InformacionProgramaSpeechDTO CargarInformacionProgramaAutomaticoSpeechV2(int idCentroCosto, int codigoPais, int idMatriculaCabecera, int idOportunidad)
+        {
+            var servicioPGeneral = new PGeneralService(_unitOfWork);
+            IPEspecificoService servicioPEspecifico = new PEspecificoService(_unitOfWork);
+            var data = servicioPGeneral.ObtenerPGeneralPEspecificoPorCentroCosto(idCentroCosto);
+            CargarInformacionProgramaRespuestaDTO informacionPrograma = null;
+            List<ResumenProgramaV2DTO> resumenProgramasV2 = null;
+            var idPGeneral = data != null ? data.IdProgramaGeneral : 0;
+            var informacionProgramaAutomatico = new CargarInformacionProgramaAutomaticoRespuestaDTO();
+            List<PresentacionProgramadto> secciones = _unitOfWork.ProgramaGeneralPresentacionArgumentoRepository.ObtenerProgramaGeneralPresentacionArgumento(idPGeneral);
+            List<PresentacionProgramadto> refuerzoConfianza = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Refuerzo de la confianza", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<PresentacionProgramadto> limitaciones = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Limitaciones", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<PresentacionProgramadto> demostracióndevalor = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Demostración de valor", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<PresentacionProgramadto> aspectosdiferenciadores = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Aspectos diferenciadores", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<PresentacionProgramadto> garantiadeprograma = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Garantia de programa", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<PEspecificoPorIdPGeneral> modalidad = servicioPEspecifico.ObtenerFechaInicioProgramaTodos(idPGeneral);
+            //string newcontenido = ObtenerContenidoHorarios(modalidades, contenido, idPGeneral);
+            InformacionProgramaSpeechDTO resultado = new InformacionProgramaSpeechDTO
+            {
+                RefuerzodeConfianza = refuerzoConfianza,
+                Limitaciones = limitaciones,
+                Demostracióndevalor = demostracióndevalor,
+                Aspectosdiferenciadores = aspectosdiferenciadores,
+                Garantiadeprograma = garantiadeprograma,
+                Modalidad = modalidad
+            };
+
+            return resultado;
+        }
 
         /// Autor: Juan Diego Huanaco Quispe.
         /// Fecha: 24/05/2024
