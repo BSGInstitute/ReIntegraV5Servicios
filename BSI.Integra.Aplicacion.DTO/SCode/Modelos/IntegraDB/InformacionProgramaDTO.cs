@@ -165,6 +165,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public List<PresentacionProgramadto> Aspectosdiferenciadores { get; set; }
         public List<PresentacionProgramadto> Garantiadeprograma { get; set; }
         public List<PEspecificoPorIdPGeneral> Modalidad { get; set; }
+        public List<ProgramaGeneralSeccionDocumentoDTO> DatosAdicionales { get; set; }
 
     }
     

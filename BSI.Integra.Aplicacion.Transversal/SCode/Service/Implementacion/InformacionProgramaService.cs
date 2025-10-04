@@ -301,6 +301,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         public InformacionProgramaSpeechDTO CargarInformacionProgramaAutomaticoSpeechV2(int idCentroCosto, int codigoPais, int idMatriculaCabecera, int idOportunidad)
         {
             var servicioPGeneral = new PGeneralService(_unitOfWork);
+            var sericioDocumentoAgendaService = new DocumentoAgendaService(_unitOfWork);
             IPEspecificoService servicioPEspecifico = new PEspecificoService(_unitOfWork);
             var data = servicioPGeneral.ObtenerPGeneralPEspecificoPorCentroCosto(idCentroCosto);
             CargarInformacionProgramaRespuestaDTO informacionPrograma = null;
@@ -314,6 +315,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             List<PresentacionProgramadto> aspectosdiferenciadores = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Aspectos diferenciadores", StringComparison.OrdinalIgnoreCase)).ToList();
             List<PresentacionProgramadto> garantiadeprograma = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Garantia de programa", StringComparison.OrdinalIgnoreCase)).ToList();
             List<PEspecificoPorIdPGeneral> modalidad = servicioPEspecifico.ObtenerFechaInicioProgramaTodos(idPGeneral);
+            List<ProgramaGeneralSeccionDocumentoDTO> listaadicionales = sericioDocumentoAgendaService.ObtenerListaSeccionDocumentoProgramaGeneralSpeech(idPGeneral);
+
             //string newcontenido = ObtenerContenidoHorarios(modalidades, contenido, idPGeneral);
             InformacionProgramaSpeechDTO resultado = new InformacionProgramaSpeechDTO
             {
@@ -322,7 +325,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 Demostracióndevalor = demostracióndevalor,
                 Aspectosdiferenciadores = aspectosdiferenciadores,
                 Garantiadeprograma = garantiadeprograma,
-                Modalidad = modalidad
+                Modalidad = modalidad,
+                DatosAdicionales = listaadicionales
             };
 
             return resultado;
