@@ -61,6 +61,8 @@ builder.WebHost.ConfigureKestrel(options => options.Limits.MaxRequestBodySize = 
 
 builder.Services.AddControllers();
 
+builder.Services.AddMemoryCache();
+
 var tokenKey = builder.Configuration.GetValue<string>("TokenKey");
 
 var key = Encoding.ASCII.GetBytes(tokenKey);

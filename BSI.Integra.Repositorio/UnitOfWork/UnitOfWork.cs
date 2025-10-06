@@ -7257,6 +7257,14 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private IWavixRepository _wavixRepository;
+        IWavixRepository IUnitOfWork.WavixRepository
+        {
+            get
+            {
+                return _wavixRepository ?? new WavixRepository(_dapperRepository);
+            }
+        }
 
 
         private IProgramaGeneralPresentacionArgumentoRepository _programaGeneralPresentacionArgumentoRepository;

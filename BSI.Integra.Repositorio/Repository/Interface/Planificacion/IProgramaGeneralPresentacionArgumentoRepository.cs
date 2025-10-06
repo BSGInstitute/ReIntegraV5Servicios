@@ -27,5 +27,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         List<CompuestoPresentacionArgumentoModalidadAlternoDTO> ObtenePresentacionArgumentoPorModalidades(int idPGeneral);
         List<ProgramaGeneralPresentacionArgumentoAgendaDTO> ObtenerProgramaGeneralPresentacionArgumentoParaAgendaPorIdOportunidad(int idOportunidad);
         List<RegistroListaSeccionesDocumentoDTO> ObtenerProgramaGeneralPresentacionArgumentoHtml(int idPGeneral);
+        List<PresentacionProgramadto> ObtenerProgramaGeneralPresentacionArgumento(int idPGeneral);
     }
 }
