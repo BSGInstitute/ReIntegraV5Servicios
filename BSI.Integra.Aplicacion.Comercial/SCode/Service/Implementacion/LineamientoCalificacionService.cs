@@ -10,7 +10,9 @@ using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Unicode;
 using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad.TranscriptionDTO;
 using TransicionFase = BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial.TransicionFase;
 
@@ -974,6 +976,15 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             }
                         ));
 
+                        // Prevalidacion de estado de calificacion
+                       var llamadaActualizada = _unitOfWork.LineamientoCalificacionRepository
+                            .ObtenerDatosConfiguracionCalificacionPorIdLlamada(item.IdLlamada);
+
+                        if (llamadaActualizada?.EsLlamadaCalificada == true)
+                        {
+                            Console.WriteLine($"[SKIP] Llamada {item.IdLlamada} ya fue calificada por otro proceso");
+                            return false;
+                        }
 
                         //var response = await httpClient.PostAsJsonAsync("grading/queue/batch", payload);
                         var response = await httpClient.PostAsJsonAsync("grading/queue/batch", payload);
@@ -999,6 +1010,131 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 resultados.AddRange(resultadosOportunidad);
             }
             return resultados.ToList();
+        }
+        public async Task<string?> GenerarCuerpoCalificacion(int idLlamada)
+        {
+
+            var serviceInformacionOportunidad = new OportunidadInformacionService(_unitOfWork);
+            var serviceMotivacionesPrograma = new ProgramaGeneralMotivacionService(_unitOfWork);
+            var serviceObjeciones = new ProgramaGeneralProblemaService(_unitOfWork);
+            var serviceInformacionPrograma = new InformacionProgramaService(_unitOfWork);
+            var servicePGeneral = new PGeneralService(_unitOfWork);
+            LlamadaProcesoAutoDTO items = null;
+          
+            items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionPorIdLlamada(idLlamada);
+
+
+            /*AQui obtengo la version vigente de lineamientos para calificar*/
+            var lineamientoVigente = _unitOfWork.LineamientoCalificacionRepository
+                .HistorialVersionCalificacionLlamada()
+                .FirstOrDefault(x => x.EsVigente);
+
+
+            if (lineamientoVigente == null || items == null)
+                return null;
+
+            var lineamientoVigenteProcesados = JsonSerializer.Deserialize<ConfiguracionLineamientoDTO>(
+                lineamientoVigente.ConfiguracionJSON,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            )!;
+            var resultados = new List<bool>();
+
+            var lineamientos = BuildLineamientosFormateados(lineamientoVigenteProcesados);
+            var llamadasParaCalificar = ObtenerSiguienteLlamadaParaCalificar(items.IdOportunidad);
+
+
+              
+             try
+             {
+                 
+
+                 // Validar actual: solo transcrita, no calificada
+                 bool actualOk = items.EsLlamadaTranscrita == true && items.EsLlamadaCalificada != true;
+
+                 var todasLasLlamadas = _unitOfWork.LineamientoCalificacionRepository
+                                                 .ObtenerHistoricoLlamadaCompletoPorIdOportunidad(items.IdOportunidad);
+
+                 var llamadasHistoricas = todasLasLlamadas
+                      .Where(x => x.IdActividadDetalle <= items.IdActividadDetalle)
+                      .OrderByDescending(x => x.IdActividadDetalle)
+                      .ThenByDescending(x => x.IdLlamada)
+                      .Select(x => x.IdLlamada)
+                      .ToList();
+
+                 var transcripcionesHistoricas = new List<TranscripcionCompletaResponseDTO>();
+                 foreach (var idLlamadaHistorica in llamadasHistoricas)
+                 {
+                     var transcripcionHistorica = await ObtenerTranscripcion(idLlamadaHistorica);
+                     if (transcripcionHistorica != null)
+                         transcripcionesHistoricas.Add(transcripcionHistorica);
+                 }
+
+                 /*Se debe limpiar la data , actualmte se obtiene en html*/
+                 /*Se obteine data  acerta de la informacion del programa*/
+                 CargarInformacionProgramaAutomaticoRespuestaDTO InformacionPrograma = serviceInformacionPrograma.CargarInformacionProgramaAutomatico(items.IdCentroCosto,items.IdCodigoPais, 0, 0);
+                 /*Se obteine data  acerta del apartado presentacion programa de la ficha de la agenda*/
+                 CargarInformacionProgramaAutomaticoRespuestaDTO PresentacionPrograma = serviceInformacionPrograma.CargarInformacionProgramaAutomaticoSpeech(items.IdCentroCosto,  items.IdCodigoPais, 0, 0);
+                 /*Se obteine data  acerta de Motivaciones del Programa*/
+                 IEnumerable<ProgramaGeneralMotivacionDetalleAgendaDTO> MotivacionPrograma=serviceMotivacionesPrograma.ObtenerMotivacionesDetalleParaAgendaPorIdOportunidad (items.IdOportunidad);
+                 /*Informacion de solicitudes de informacion previas a la actual*/
+                 OportunidadInformacionDTO HistoricoSolicitudInformacion = serviceInformacionOportunidad.ObtenerOportunidadInformacion   (items.IdAlumno,items.IdClasificacionPersona);
+                 /*Se obteine data  acerta de Objetivo programa*/
+                 IEnumerable<PGeneralPublicoObjetivoParaAgendaDTO> PublicoObjetivoPrograma = servicePGeneral.ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3(items.IdCentroCosto,  items.IdOportunidad);
+                 /*Se obteine data  acerta de lso problemas reportados para el cliente*/
+                 IEnumerable<ProgramaGeneralProblemaDetalleAgendaDTO> ObjecionesCliente =serviceObjeciones.ObtenerProgramaGeneralProblemaDetalleParaAgendaPorIdOportunidad(items.IdOportunidad);
+
+                 // Crear brochure
+                 var brochure = new
+                 {
+                     InformacionPrograma = InformacionPrograma,
+                     PresentacionPrograma = PresentacionPrograma,
+                     MotivacionPrograma = MotivacionPrograma,
+                     HistoricoSolicitudInformacion = HistoricoSolicitudInformacion,
+                     PublicoObjetivoPrograma = PublicoObjetivoPrograma,
+                     ObjecionesCliente = ObjecionesCliente
+                 };
+                 var payload = new
+                 {
+                     idPersonal = items.IdPersonal_Asignado,
+                     contacto = "Generico",
+                     userName = "System-auto",
+                     idCodigoPais = items.IdCodigoPais.ToString(),
+                     transcription = transcripcionesHistoricas,
+                     lineamientos,
+                     brochure
+                 };
+
+
+                 Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(
+                     payload,
+                     new System.Text.Json.JsonSerializerOptions
+                     {
+                         WriteIndented = true,
+                         PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+                         DictionaryKeyPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                     }
+                 ));
+
+                var json = JsonSerializer.Serialize(
+                                                    payload,
+                                                    new JsonSerializerOptions
+                                                    {
+                                                        WriteIndented = true,
+                                                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                                                        DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+                                                        Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+                                                    }
+                                                );
+
+
+                return json;
+             }
+             catch (Exception ex)
+             {
+                 //_logger.LogError(ex, $"Error al calificar llamada {item.IdLlamada}");
+                 return ex.Message;
+             }
+
         }
         /// Autor: Lolo Zaa.
         /// Fecha: 25/09/2025

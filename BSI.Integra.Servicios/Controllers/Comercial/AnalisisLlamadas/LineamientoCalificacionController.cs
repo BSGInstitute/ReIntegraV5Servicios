@@ -1277,6 +1277,33 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
         }
 
 
+
+
+
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]/{idLlamada}")]
+        [HttpGet]
+        public async Task<IActionResult> GenerarCuerpoCalificacion(int idLlamada)
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = await lineamientoCalificacionService.GenerarCuerpoCalificacion(idLlamada);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 
 }

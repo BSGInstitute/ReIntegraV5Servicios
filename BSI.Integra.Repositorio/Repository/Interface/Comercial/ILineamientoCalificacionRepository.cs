@@ -56,6 +56,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
 
         IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosConfiguracionTranscripcionAuto();
         IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosConfiguracionCalificacionAuto();
+        LlamadaProcesoAutoDTO ObtenerDatosConfiguracionCalificacionPorIdLlamada(int idLlamada);
+
         IEnumerable<LlamadaProcesoAutoDTO> ObtenerHistoricoLlamadaCompletoPorIdOportunidad(int idOportunidad);
 
 
