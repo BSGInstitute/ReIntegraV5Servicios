@@ -309,12 +309,16 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             var idPGeneral = data != null ? data.IdProgramaGeneral : 0;
             var informacionProgramaAutomatico = new CargarInformacionProgramaAutomaticoRespuestaDTO();
             List<PresentacionProgramadto> secciones = _unitOfWork.ProgramaGeneralPresentacionArgumentoRepository.ObtenerProgramaGeneralPresentacionArgumento(idPGeneral);
+            List<RegistroListaSeccionesDocumentoDTO>  seccionV1 = _unitOfWork.DocumentoSeccionPwRepository.ObtenerDatosComplementariosProgramaGeneralV2(idPGeneral);
             List<PresentacionProgramadto> refuerzoConfianza = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Refuerzo de la confianza", StringComparison.OrdinalIgnoreCase)).ToList();
             List<PresentacionProgramadto> limitaciones = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Limitaciones", StringComparison.OrdinalIgnoreCase)).ToList();
             List<PresentacionProgramadto> demostracióndevalor = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Demostración de valor", StringComparison.OrdinalIgnoreCase)).ToList();
             List<PresentacionProgramadto> aspectosdiferenciadores = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Aspectos diferenciadores", StringComparison.OrdinalIgnoreCase)).ToList();
             List<PresentacionProgramadto> garantiadeprograma = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Garantia de programa", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<RegistroListaSeccionesDocumentoDTO> objetivos = _unitOfWork.DocumentoSeccionPwRepository.ObtenerDatosComplementariosProgramaGeneralV2Objetivos(idPGeneral);
+            ObtenerMontos2RespuestaDTO montosBeneficios = ObtenerMontoPresentacionPrograma(idPGeneral, codigoPais);
             List<PEspecificoPorIdPGeneral> modalidad = servicioPEspecifico.ObtenerFechaInicioProgramaTodos(idPGeneral);
+            List<RegistroListaSeccionesDocumentoDTO> horario = seccionV1.Where(s => string.Equals(s.Titulo?.Trim(), "Duración y Horarios", StringComparison.OrdinalIgnoreCase)).ToList();
             List<ProgramaGeneralSeccionDocumentoDTO> listaadicionales = sericioDocumentoAgendaService.ObtenerListaSeccionDocumentoProgramaGeneralSpeech(idPGeneral);
 
             //string newcontenido = ObtenerContenidoHorarios(modalidades, contenido, idPGeneral);
@@ -326,6 +330,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 Aspectosdiferenciadores = aspectosdiferenciadores,
                 Garantiadeprograma = garantiadeprograma,
                 Modalidad = modalidad,
+                Objetivos = objetivos,
+                Montos = montosBeneficios,
+                DuracionHorario = horario,
                 DatosAdicionales = listaadicionales
             };
 
@@ -1881,6 +1888,34 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             };
         }
 
+
+
+
+        private ObtenerMontos2RespuestaDTO ObtenerMontoPresentacionPrograma(int idPGeneral, int codigoPais)
+        {
+            var servicioMontoPago = new MontoPagoService(_unitOfWork);
+            var servicioBeneficioPrograma = new ConfiguracionBeneficioProgramaGeneralService(_unitOfWork);
+
+            var montos = servicioMontoPago.ObtenerMontosPorId(idPGeneral);
+            var montosPorPais = montos.Where(s => s.Pais.Equals(codigoPais)).OrderBy(x => x.Paquete).ToList();
+
+            var listaBeneficios = new List<BeneficioDTO>();
+
+            if (montosPorPais.Count() == 0)
+            {
+                montosPorPais = montos.Where(s => s.Pais.Equals(0)).OrderBy(x => x.Paquete).ToList();
+                var beneficio = servicioBeneficioPrograma.ObtenerBeneficiosPGeneralTipo1V2Internacional(idPGeneral);
+                
+                listaBeneficios = beneficio;
+            }
+            else
+            {
+                var beneficios = servicioBeneficioPrograma.ObtenerBeneficiosPGeneralTipo1V2(idPGeneral, codigoPais);
+                
+                listaBeneficios = beneficios;
+            }
+            return new ObtenerMontos2RespuestaDTO() { MontosPorPais = montosPorPais, ListaBeneficios = listaBeneficios };
+        }
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 10/08/2022
         /// Version: 1.0
