@@ -1,4 +1,5 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -47,5 +48,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         DocumentoSeccionPw? ObtenerIdSeccionIdDocumentoContenido(int idSeccionPw, int idDocumentoPw, string contenido);
         DocumentoSeccionPw? ObtenerPorIdSeccionIdDocumento(int idSeccionPw, int idDocumentoPw);
         List<DocumentoSeccionPw> ObtenerPorIdDocumento(int idDocumentoPw);
+        Task<List<Aplicacion.DTO.SCode.Modelos.IntegraDB.CursoHijoDTO>> ObtenerCursosHijosPorIdPGeneralAsync(int idPGeneral);
+        Task<List<RegistroSeccionContenidoDTO>> ObtenerEstructuraCurricularPorIdHijoAsync(int idHijo);
+        Task<string> ObtenerNotaEstructuraCurricularAsync(int idPGeneral);
     }
 }

@@ -1590,24 +1590,36 @@ namespace BSI.Integra.Servicios.Controllers
         /// </summary>
         /// <param name="idPGeneral">Id de Programa General</param>
         /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
-        [HttpGet("detalle-programa-curso/{idPGeneral}")]
-        public async Task<IActionResult> GetDetalleProgramaOCurso(int idPGeneral)
-        {
-            try
-            {
-                if (idPGeneral <= 0)
-                {
-                    return BadRequest(new { Error = "El parámetro idPGeneral debe ser mayor a 0" });
-                }
+        [HttpGet("detalle-programa-curso-v2/{idPGeneral}")]
 
-                var result = await _servicioPrincipal.GetDetalleProgramaOCursoAsync(idPGeneral);
-                return Ok(result);
-            }
-            catch (Exception ex)
+        public async Task<IActionResult> GetDetalleProgramaOCursoAsync(int idPGeneral)
+
+        {
+
+            if (idPGeneral <= 0)
+
+                return BadRequest(new { Error = "IdPGeneral debe ser mayor a 0" });
+
+            try
+
             {
-                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+
+                var result = await _servicioPrincipal.ObtenerSilaboPorIdAsync(idPGeneral);
+
+                return Ok(result);
+
             }
+
+            catch (Exception ex)
+
+            {
+
+                return StatusCode(500, new { Error = ex.Message, IdPGeneral = idPGeneral });
+
+            }
+
         }
+
 
         /// Tipo Función: POST
         /// Autor: Erick Marcelo Quispe.

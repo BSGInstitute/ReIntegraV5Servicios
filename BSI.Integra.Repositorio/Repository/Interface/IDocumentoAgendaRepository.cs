@@ -23,7 +23,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         Task<List<ResumenPrograma2DTO>> ObtenerResumenProgramaPorIdPGeneralAsync(int idPGeneral);
         Task<string> ObtenerPrerrequisitosPorIdPGeneralAsync(int idPGeneral);
         Task<List<EstructuraCurricularDTO>> ObtenerContenidoEstructuraCurricularAsync(int idPGeneral);
-        //Task<List<Aplicacion.DTO.Modelos.IntegraDB.ResumenProgramaDTO>> ObtenerResumenProgramaPorIdPGeneral(int idPGeneral, int idCentroCosto);
         string ObtenerPresentacionPorIdPGeneral(int idPGeneral);
         Task<string> ObtenerPresentacionPorIdPGeneralAsync(int idPGeneral);
         string ObtenerPublicoObjetivoPorIdPGeneral(int idPGeneral);
@@ -51,7 +50,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         Task<MetodologiaRawDTO> GetMetodologiaRawAsync(int idPGeneral);
         Task<PautasComplementariasRawDTO> GetPautasComplementariasRawAsync(int idPGeneral);
         Task<PerfilProfesionalClienteDTO> ObtenerPerfilProfesionalClienteAsync(int idAlumno);
-        Task<List<SeccionProgramaRawDTO>> GetSeccionesProgramaRawAsync(int idPGeneral);
         Task<int> ObtenerIdPGeneralPorIdCentroCostoAsync(int idCentroCosto);
+        List<SeccionDocumentov2DTO> ObtenerDocumentoSeccion(int idPgeneral);
+        PgeneralDocumentoSeccionv2DTO ObtenerPgeneralDocumentoPorId(int id);
+        List<PgeneralHijov2DTO> ObtenerPGeneralHijos(int idPgeneral);
     }
 }

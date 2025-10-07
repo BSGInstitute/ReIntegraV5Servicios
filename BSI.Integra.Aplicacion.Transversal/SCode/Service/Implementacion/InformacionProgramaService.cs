@@ -172,6 +172,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         PublicoObjetivo = publicoObjetivo.PublicoObjetivo ?? new List<string>(),
                         Prerrequisitos = prerrequisitos.Prerrequisitos ?? new List<string>(),
                         EstructuraCurricular = estructuraCurso,
+                        Nota = estructuraCurricular.Nota,
                         DuracionHorarios = duracionHorarios.DuracionHorarios ?? new List<DuracionHorarioItemDTO>(),
                         Certificacion = certificacion.Certificacion ?? new List<string>(),
                         Metodologia = metodologia.Metodologia,
@@ -198,6 +199,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         PublicoObjetivo = publicoObjetivo.PublicoObjetivo ?? new List<string>(),
                         Prerrequisitos = prerrequisitos.Prerrequisitos ?? new List<string>(),
                         EstructuraCurricular = estructuraPrograma,
+                        Nota = estructuraCurricular.Nota,
                         Modalidades = modalidades,
                         DuracionHorarios = duracionHorarios.DuracionHorarios ?? new List<DuracionHorarioItemDTO>(),
                         Inversion = inversion.Inversion ?? new List<InversionVersionDTO>(),
@@ -318,6 +320,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         Error = "IdPGeneral no válido"
                     };
                 }
+
                 var tareaResumen = _unitOfWork.DocumentoAgendaRepository.ObtenerResumenProgramaPorIdPGeneralAsync(idPGeneral);
                 var tareaPresentacion = _unitOfWork.DocumentoAgendaRepository.ObtenerPresentacionPorIdPGeneralAsync(idPGeneral);
 
@@ -346,17 +349,23 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             {
                                 if (!string.IsNullOrWhiteSpace(item.Contenido))
                                 {
-                                    string texto = item.Contenido;
-                                    texto = System.Net.WebUtility.HtmlDecode(texto);
-                                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"</?p[^>]*>", "\n");
-                                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<br\s*/?>", "\n");
-                                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<[^>]+>", "");
-                                    var lineas = texto
-                                        .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                                        .Select(l => l.Trim())
-                                        .Where(l => !string.IsNullOrEmpty(l));
+                                    string texto = System.Net.WebUtility.HtmlDecode(item.Contenido);
 
-                                    parrafos.AddRange(lineas);
+                                    texto = texto.Replace("\r", " ").Replace("\n", " ");
+                                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"</?p[^>]*>", "\n", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<br\s*/?>", "\n", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<[^>]+>", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"\n+", "\n");
+                                    texto = texto.Trim('\n', '\r', ' ');
+
+                                    if (!string.IsNullOrEmpty(texto))
+                                    {
+                                        var lineas = texto.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                                                          .Select(l => l.Trim())
+                                                          .Where(l => !string.IsNullOrEmpty(l))
+                                                          .ToList();
+                                        parrafos.AddRange(lineas);
+                                    }
                                 }
                             }
                         }
@@ -364,14 +373,20 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     catch (JsonException)
                     {
                         string texto = System.Net.WebUtility.HtmlDecode(jsonContenido);
-                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"</?p[^>]*>", "\n");
-                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<br\s*/?>", "\n");
-                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<[^>]+>", "");
-                        parrafos = texto
-                            .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                            .Select(l => l.Trim())
-                            .Where(l => !string.IsNullOrEmpty(l))
-                            .ToList();
+                        texto = texto.Replace("\r", " ").Replace("\n", " ");
+                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"</?p[^>]*>", "\n", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<br\s*/?>", "\n", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<[^>]+>", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"\n+", "\n");
+                        texto = texto.Trim('\n', '\r', ' ');
+
+                        if (!string.IsNullOrEmpty(texto))
+                        {
+                            parrafos = texto.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                                            .Select(l => l.Trim())
+                                            .Where(l => !string.IsNullOrEmpty(l))
+                                            .ToList();
+                        }
                     }
                 }
 
@@ -504,6 +519,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             {
                 if (idPGeneral == 0)
                     return new CargarInformacionProgramaDuracionHorariosRespuestaDTO { Error = "IdPGeneral no válido" };
+
                 var tareaResumen = _unitOfWork.DocumentoAgendaRepository.ObtenerResumenProgramaPorIdPGeneralAsync(idPGeneral);
                 var tareaContenido = _unitOfWork.DocumentoAgendaRepository.ObtenerDuracionHorariosPorIdPGeneralAsync(idPGeneral);
 
@@ -514,8 +530,38 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                 string tipo = resumen?.Any() == true && resumen.First().EsProgramaOCurso == "Curso" ? "Curso" : "Programa";
 
-                var parrafos = new List<string>();
-                var modalidad = "Modalidad no especificada";
+                string NormalizarTexto(string input)
+                {
+                    if (string.IsNullOrEmpty(input)) return input;
+                    var normalized = input.Normalize(NormalizationForm.FormD);
+                    var sb = new System.Text.StringBuilder();
+                    foreach (char c in normalized)
+                    {
+                        if (System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.NonSpacingMark)
+                        {
+                            sb.Append(c);
+                        }
+                    }
+                    return sb.ToString().ToLowerInvariant();
+                }
+
+                List<string> ProcesarTextoHtml(string html)
+                {
+                    if (string.IsNullOrWhiteSpace(html))
+                        return new List<string>();
+
+                    string texto = System.Text.RegularExpressions.Regex.Replace(html, @"</?p[^>]*>", "\n", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<br\s*/?>", "\n", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<[^>]+>", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+                    return texto
+                        .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(l => l.Trim())
+                        .Where(l => !string.IsNullOrEmpty(l))
+                        .ToList();
+                }
+
+                var duracionHorarios = new List<DuracionHorarioItemDTO>();
 
                 if (!string.IsNullOrWhiteSpace(jsonContenido))
                 {
@@ -524,28 +570,69 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         var items = JsonConvert.DeserializeObject<List<DetalleSeccionContenidoDTO>>(jsonContenido);
                         if (items?.Any() == true)
                         {
-                            foreach (var item in items)
+                            string htmlCompleto = string.Join(" ", items.Where(i => !string.IsNullOrWhiteSpace(i.Contenido))
+                                                                        .Select(i => i.Contenido));
+
+                            string decodedHtml = System.Net.WebUtility.HtmlDecode(htmlCompleto);
+
+                            // Buscar todas las etiquetas <strong> o <b> que contengan "online" + "sincrónica/asincrónica"
+                            var strongRegex = new System.Text.RegularExpressions.Regex(
+                                @"<(?:strong|b)[^>]*>(.+?)</(?:strong|b)>",
+                                System.Text.RegularExpressions.RegexOptions.IgnoreCase
+                            );
+
+                            var allStrongMatches = strongRegex.Matches(decodedHtml).Cast<System.Text.RegularExpressions.Match>().ToList();
+                            var modalidadMatches = new List<System.Text.RegularExpressions.Match>();
+
+                            foreach (var match in allStrongMatches)
                             {
-                                if (!string.IsNullOrWhiteSpace(item.Contenido))
+                                string textoDentro = match.Groups[1].Value;
+                                string normalizado = NormalizarTexto(textoDentro);
+
+                                bool esModalidadValida =
+                                    (normalizado.Contains("online") &&
+                                     (normalizado.Contains("sincronica") || normalizado.Contains("asincronica"))) ||
+                                    normalizado.Contains("presencial");
+
+                                if (esModalidadValida)
                                 {
-                                    string texto = System.Net.WebUtility.HtmlDecode(item.Contenido);
-                                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"</?p[^>]*>", "\n");
-                                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<br\s*/?>", "\n");
-                                    texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<[^>]+>", "");
+                                    modalidadMatches.Add(match);
+                                }
+                            }
 
-                                    var lineas = texto
-                                        .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                                        .Select(l => l.Trim())
-                                        .Where(l => !string.IsNullOrEmpty(l))
-                                        .ToList();
+                            if (!modalidadMatches.Any())
+                            {
+                                var lineas = ProcesarTextoHtml(decodedHtml);
+                                string modalidad = "Modalidad no especificada";
+                                if (lineas.Any() && NormalizarTexto(lineas[0]).Contains("modalidad"))
+                                {
+                                    modalidad = lineas[0];
+                                    lineas.RemoveAt(0);
+                                }
+                                duracionHorarios.Add(new DuracionHorarioItemDTO
+                                {
+                                    Modalidad = modalidad,
+                                    Horario = lineas
+                                });
+                            }
+                            else
+                            {
+                                for (int i = 0; i < modalidadMatches.Count; i++)
+                                {
+                                    int start = modalidadMatches[i].Index;
+                                    int end = (i + 1 < modalidadMatches.Count) ? modalidadMatches[i + 1].Index : decodedHtml.Length;
 
-                                    if (lineas.Any() && lineas[0].ToLower().Contains("modalidad"))
+                                    string seccion = decodedHtml.Substring(start, end - start);
+                                    string tituloCrudo = modalidadMatches[i].Groups[1].Value.Trim();
+                                    string titulo = System.Text.RegularExpressions.Regex.Replace(tituloCrudo, @"<[^>]*>", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Trim();
+                                    string contenidoSinTitulo = strongRegex.Replace(seccion, "", 1);
+
+                                    var lineas = ProcesarTextoHtml(contenidoSinTitulo);
+                                    duracionHorarios.Add(new DuracionHorarioItemDTO
                                     {
-                                        modalidad = lineas[0];
-                                        lineas.RemoveAt(0);
-                                    }
-
-                                    parrafos.AddRange(lineas);
+                                        Modalidad = titulo,
+                                        Horario = lineas
+                                    });
                                 }
                             }
                         }
@@ -553,9 +640,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     catch
                     {
                         string texto = System.Net.WebUtility.HtmlDecode(jsonContenido);
-                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"</?p[^>]*>", "\n");
-                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<br\s*/?>", "\n");
-                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<[^>]+>", "");
+                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"</?p[^>]*>", "\n", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<br\s*/?>", "\n", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                        texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<[^>]+>", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
                         var lineas = texto
                             .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
@@ -563,23 +650,28 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             .Where(l => !string.IsNullOrEmpty(l))
                             .ToList();
 
-                        if (lineas.Any() && lineas[0].ToLower().Contains("modalidad"))
+                        string modalidad = "Modalidad no especificada";
+                        if (lineas.Any() && NormalizarTexto(lineas[0]).Contains("modalidad"))
                         {
                             modalidad = lineas[0];
-                            lineas.RemoveAt(0); 
+                            lineas.RemoveAt(0);
                         }
 
-                        parrafos = lineas;
+                        duracionHorarios.Add(new DuracionHorarioItemDTO
+                        {
+                            Modalidad = modalidad,
+                            Horario = lineas
+                        });
                     }
                 }
-                var duracionHorarios = new List<DuracionHorarioItemDTO>
-        {
-            new DuracionHorarioItemDTO
-            {
-                Modalidad = modalidad,
-                Horario = parrafos
-            }
-        };
+                else
+                {
+                    duracionHorarios.Add(new DuracionHorarioItemDTO
+                    {
+                        Modalidad = "Modalidad no especificada",
+                        Horario = new List<string>()
+                    });
+                }
 
                 return new CargarInformacionProgramaDuracionHorariosRespuestaDTO
                 {
@@ -1373,8 +1465,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             };
 
         }
-        /// Autor: [Tu Nombre]
-        /// Fecha: [Fecha Actual]
+        /// Autor: Jose Vega
+        /// Fecha: 06/10/2025
         /// Version: 1.0
         /// <summary>
         /// Obtiene la estructura curricular formateada según el tipo (Programa o Curso)
@@ -1383,169 +1475,82 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         /// <returns>ObtenerEstructuraCurricularResponseDTO</returns>
         public async Task<CargarInformacionProgramaEstructuraCurricularRespuestaDTO> CargarInformacionProgramaEstructuraCurricularAsync(int idPGeneral)
         {
+            if (idPGeneral == 0)
+                return new CargarInformacionProgramaEstructuraCurricularRespuestaDTO { Error = "IdPGeneral no válido" };
+
             try
             {
-                if (idPGeneral == 0)
-                   return new CargarInformacionProgramaEstructuraCurricularRespuestaDTO { Error = "IdPGeneral no válido" };
-                var resumen = await _unitOfWork.DocumentoAgendaRepository.ObtenerResumenProgramaPorIdPGeneralAsync(idPGeneral);
+                // Lanzar todas las tareas iniciales en paralelo
+                var tareaResumen = _unitOfWork.DocumentoAgendaRepository.ObtenerResumenProgramaPorIdPGeneralAsync(idPGeneral);
+                var tareaNota = _unitOfWork.DocumentoSeccionPwRepository.ObtenerNotaEstructuraCurricularAsync(idPGeneral);
+
+                await Task.WhenAll(tareaResumen, tareaNota);
+
+                var resumen = await tareaResumen;
                 string tipo = resumen?.Any() == true && resumen.First().EsProgramaOCurso == "Curso" ? "Curso" : "Programa";
+
+                // Limpiar la nota una sola vez
+                string notaLimpia = LimpiarHtmlNota(await tareaNota);
 
                 if (tipo == "Curso")
                 {
                     var capitulos = await new DocumentoAgendaService(_unitOfWork).ObtenerContenidoEstructuraCurricularTransformadoAsync(idPGeneral);
-
                     return new CargarInformacionProgramaEstructuraCurricularRespuestaDTO
                     {
                         IdPGeneral = idPGeneral,
                         EsProgramaOCurso = tipo,
                         EstructuraCurricular = capitulos,
+                        Nota = notaLimpia,
                         Error = null
                     };
                 }
-                else
+
+                // Para programa: obtener cursos hijos (ya tenemos la nota)
+                var cursosHijos = await _unitOfWork.DocumentoSeccionPwRepository.ObtenerCursosHijosPorIdPGeneralAsync(idPGeneral);
+
+                if (cursosHijos == null || !cursosHijos.Any())
                 {
-                    var lista = await new DocumentoAgendaService(_unitOfWork).ObtenerInformacionProgramaGeneralEstructuraCurricularAsync(idPGeneral);
-
-                    var estructuraSeccion = lista?.FirstOrDefault(x => LimpiarCadena(x.Seccion).ToLower() == "estructura curricular");
-
-                    if (estructuraSeccion == null || !estructuraSeccion.DetalleSeccion?.Any() == true)
-                    {
-                        var tareasVerificacion = new[]
-                        {
-                    _unitOfWork.PGeneralRepository.ProgramaGeneralEsTecnicoAsync(idPGeneral),
-                    _unitOfWork.PGeneralRepository.ProgramaGeneralPadreAsync(idPGeneral)
-                };
-
-                        await Task.WhenAll(tareasVerificacion);
-                        var programaTecnico = await tareasVerificacion[0];
-                        var programaPadre = await tareasVerificacion[1];
-
-                        if (programaTecnico && programaPadre)
-                        {
-                            var listaCursosHijo = await _unitOfWork.PGeneralRepository.ListaCursosHijoPorIdPGeneralAsync(idPGeneral);
-
-                            if (listaCursosHijo?.Any() == true)
-                            {
-                                var tareasCurso = listaCursosHijo.Select(async curso =>
-                                {
-                                    var contenidoCurso = await _unitOfWork.PGeneralRepository.ContenidoEstructuraHijoPadreAsync(curso.IdHijo);
-
-                                    var capitulos = contenidoCurso?
-                                        .GroupBy(x => x.Contenido)
-                                        .Select(x => x.First().Contenido)
-                                        .Where(c => !string.IsNullOrWhiteSpace(c))
-                                        .ToList() ?? new List<string>();
-
-                                    return new CursoEstructuraDTO
-                                    {
-                                        NombreCurso = curso.Curso,
-                                        Capitulos = capitulos
-                                    };
-                                });
-
-                                var cursos = (await Task.WhenAll(tareasCurso)).ToList();
-
-                                return new CargarInformacionProgramaEstructuraCurricularRespuestaDTO
-                                {
-                                    IdPGeneral = idPGeneral,
-                                    EsProgramaOCurso = tipo,
-                                    EstructuraCurricular = cursos,
-                                    Error = null
-                                };
-                            }
-                        }
-
-                        return new CargarInformacionProgramaEstructuraCurricularRespuestaDTO
-                        {
-                            IdPGeneral = idPGeneral,
-                            EsProgramaOCurso = tipo,
-                            EstructuraCurricular = new List<CursoEstructuraDTO>(),
-                            Error = null
-                        };
-                    }
-
-                    var cursosList = estructuraSeccion.DetalleSeccion
-                        .Where(detalle => !string.IsNullOrWhiteSpace(detalle.Titulo) && detalle.DetalleContenido?.Any() == true)
-                        .Select(detalle => new CursoEstructuraDTO
-                        {
-                            NombreCurso = detalle.Titulo,
-                            Capitulos = detalle.DetalleContenido
-                        })
-                        .ToList();
-
-                    if (cursosList.Count == 1 && cursosList[0].NombreCurso.ToLower().Contains("estructura curricular"))
-                    {
-                        var contenidoHTML = cursosList[0].Capitulos.FirstOrDefault();
-                        if (!string.IsNullOrEmpty(contenidoHTML))
-                        {
-                            var cursosProcesados = new List<CursoEstructuraDTO>();
-
-                            try
-                            {
-                                var htmlDecodificado = System.Net.WebUtility.HtmlDecode(contenidoHTML);
-
-                                var patronCurso = @"<p>\s*<strong>\s*([^<]+?)\s*</strong>\s*(?:<strong>\s*([^<]+?)\s*</strong>)?\s*</p>\s*<ul>(.*?)</ul>";
-                                var regexCurso = new System.Text.RegularExpressions.Regex(patronCurso, System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-
-                                var coincidencias = regexCurso.Matches(htmlDecodificado);
-
-                                foreach (System.Text.RegularExpressions.Match coincidencia in coincidencias)
-                                {
-                                    var nombreCurso = coincidencia.Groups[1].Value.Trim();
-                                    var horasCurso = coincidencia.Groups[2].Success ? coincidencia.Groups[2].Value.Trim() : "";
-                                    var contenidoLista = coincidencia.Groups[3].Value;
-
-                                    string nombreCompleto = !string.IsNullOrEmpty(horasCurso) ? $"{nombreCurso} {horasCurso}" : nombreCurso;
-
-                                    var patronCapitulo = new System.Text.RegularExpressions.Regex(@"<li>\s*([^<]+?)\s*</li>", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                                    var coincidenciasCapitulos = patronCapitulo.Matches(contenidoLista);
-
-                                    var capitulos = new List<string>();
-                                    foreach (System.Text.RegularExpressions.Match capitulo in coincidenciasCapitulos)
-                                    {
-                                        var textoCapitulo = System.Net.WebUtility.HtmlDecode(capitulo.Groups[1].Value.Trim());
-                                        if (!string.IsNullOrEmpty(textoCapitulo))
-                                        {
-                                            capitulos.Add(textoCapitulo);
-                                        }
-                                    }
-
-                                    if (capitulos.Any())
-                                    {
-                                        cursosProcesados.Add(new CursoEstructuraDTO
-                                        {
-                                            NombreCurso = nombreCompleto,
-                                            Capitulos = capitulos
-                                        });
-                                    }
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                cursosProcesados = new List<CursoEstructuraDTO>();
-                            }
-
-                            if (cursosProcesados.Any())
-                            {
-                                return new CargarInformacionProgramaEstructuraCurricularRespuestaDTO
-                                {
-                                    IdPGeneral = idPGeneral,
-                                    EsProgramaOCurso = tipo,
-                                    EstructuraCurricular = cursosProcesados,
-                                    Error = null
-                                };
-                            }
-                        }
-                    }
-
                     return new CargarInformacionProgramaEstructuraCurricularRespuestaDTO
                     {
                         IdPGeneral = idPGeneral,
                         EsProgramaOCurso = tipo,
-                        EstructuraCurricular = cursosList,
+                        EstructuraCurricular = new List<CursoEstructuraDTO>(),
+                        Nota = notaLimpia,
                         Error = null
                     };
                 }
+
+                // Procesar todos los cursos en paralelo
+                var estructuraCurricular = await Task.WhenAll(cursosHijos.Select(async cursoHijo =>
+                {
+                    try
+                    {
+                        var registros = await _unitOfWork.DocumentoSeccionPwRepository.ObtenerEstructuraCurricularPorIdHijoAsync(cursoHijo.Id);
+                        if (registros?.Any() != true)
+                            return new CursoEstructuraDTO { NombreCurso = cursoHijo.Nombre, Capitulos = new List<string>() };
+
+                        var capitulos = registros
+                            .Where(r => r.NombreTitulo == "Capitulo" && !string.IsNullOrWhiteSpace(r.Contenido))
+                            .Select(r => r.Contenido.Trim())
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToList();
+
+                        return new CursoEstructuraDTO { NombreCurso = cursoHijo.Nombre, Capitulos = capitulos };
+                    }
+                    catch
+                    {
+                        return new CursoEstructuraDTO { NombreCurso = cursoHijo.Nombre, Capitulos = new List<string>() };
+                    }
+                }));
+
+                return new CargarInformacionProgramaEstructuraCurricularRespuestaDTO
+                {
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = tipo,
+                    EstructuraCurricular = estructuraCurricular.ToList(),
+                    Nota = notaLimpia,
+                    Error = null
+                };
             }
             catch (Exception ex)
             {
@@ -1554,10 +1559,21 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     IdPGeneral = idPGeneral,
                     EsProgramaOCurso = "",
                     EstructuraCurricular = null,
+                    Nota = null,
                     Error = $"Error al cargar estructura curricular: {ex.Message}"
                 };
             }
+
+            // Función local (más eficiente al final)
+            static string LimpiarHtmlNota(string html)
+            {
+                if (string.IsNullOrWhiteSpace(html)) return null;
+                string decodificado = System.Net.WebUtility.HtmlDecode(html);
+                string limpio = System.Text.RegularExpressions.Regex.Replace(decodificado, @"<[^>]+>", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                return string.IsNullOrEmpty(limpio = limpio.Trim()) ? null : limpio;
+            }
         }
+
 
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 10/08/2022

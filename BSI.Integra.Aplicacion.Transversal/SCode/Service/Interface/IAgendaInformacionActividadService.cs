@@ -19,6 +19,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         Task<MetodologiaProgramaResponseDTO> GetMetodologiaProgramaAsync(int idPGeneral);
         Task<PautasComplementariasProgramaResponseDTO> GetPautasComplementariasProgramaAsync(int idPGeneral);
         Task<PerfilProfesionalClienteResponseDTO> GetPerfilProfesionalClienteAsync(int idAlumno);
-        Task<object> GetDetalleProgramaOCursoAsync(int idPGeneral);
+        Task<object> ObtenerSilaboPorIdAsync(int idPgeneral);
     }
 }

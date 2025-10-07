@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Infrastructure;
@@ -645,6 +646,113 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 05/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la lista de cursos hijos asociados a un programa general activo.
+        /// </summary>
+        /// <param name="idPGeneral">Id del Programa General padre</param>
+        /// <returns>List<Aplicacion.DTO.SCode.Modelos.IntegraDB.CursoHijoDTO></returns>
+        public async Task<List<Aplicacion.DTO.SCode.Modelos.IntegraDB.CursoHijoDTO>> ObtenerCursosHijosPorIdPGeneralAsync(int idPGeneral)
+        {
+            var query = @"
+                SELECT Id, IdPgeneral, Nombre, Pg_titulo, pw_duracion, Orden
+                FROM pla.V_TPgeneral_ObtenerHijos
+                WHERE Estado = 1 AND IdPGeneral_Padre = @idPGeneral
+                ORDER BY Orden ASC";
+
+            var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
+
+            if (string.IsNullOrWhiteSpace(resultado) || resultado == "[]")
+                return new List<Aplicacion.DTO.SCode.Modelos.IntegraDB.CursoHijoDTO>();
+
+            try
+            {
+                return JsonConvert.DeserializeObject<List<Aplicacion.DTO.SCode.Modelos.IntegraDB.CursoHijoDTO>>(resultado) ?? new List<Aplicacion.DTO.SCode.Modelos.IntegraDB.CursoHijoDTO>();
+            }
+            catch
+            {
+                return new List<Aplicacion.DTO.SCode.Modelos.IntegraDB.CursoHijoDTO>();
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 05/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene los registros de estructura curricular de un curso hijo específico.
+        /// </summary>
+        /// <param name="idHijo">Id del curso hijo (IdPGeneral del curso)</param>
+        /// <returns>List<RegistroSeccionContenidoDTO></returns>
+        public async Task<List<RegistroSeccionContenidoDTO>> ObtenerEstructuraCurricularPorIdHijoAsync(int idHijo)
+        {
+            var query = @"
+        SELECT Id, Titulo, Contenido, IdPGeneral, Orden, NumeroFila, NombreTitulo
+        FROM pla.V_ListaSeccionesPorIdPrograma_Silabos 
+        WHERE IdPGeneral = @idHijo
+          AND Estado = 1
+          AND Titulo LIKE '%Estructura Curricular%'
+        ORDER BY NumeroFila ASC";
+
+            var resultado = await _dapperRepository.QueryDapperAsync(query, new { idHijo });
+
+            if (string.IsNullOrWhiteSpace(resultado) || resultado == "[]")
+                return new List<RegistroSeccionContenidoDTO>();
+
+            try
+            {
+                return JsonConvert.DeserializeObject<List<RegistroSeccionContenidoDTO>>(resultado) ?? new List<RegistroSeccionContenidoDTO>();
+            }
+            catch
+            {
+                return new List<RegistroSeccionContenidoDTO>();
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 05/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la nota adicional de la estructura curricular (si existe) asociada a un programa o curso.
+        /// </summary>
+        /// <param name="idPGeneral">Id del Programa General o Curso</param>
+        /// <returns>string (contenido de la nota) o null si no existe</returns>
+        public async Task<string> ObtenerNotaEstructuraCurricularAsync(int idPGeneral)
+        {
+            var query = @"
+        SELECT TOP 1 dcs.Contenido
+        FROM pla.T_PGeneralDocumento_PW pdc WITH (NOLOCK)
+        INNER JOIN pla.T_Documento_PW dc WITH (NOLOCK) ON pdc.IdDocumento = dc.Id
+        INNER JOIN pla.T_DocumentoSeccion_PW dcs WITH (NOLOCK) ON dcs.IdDocumentoPW = dc.Id
+        WHERE 
+            pdc.IdPGeneral = @idPGeneral
+            AND pdc.Estado = 1
+            AND dc.Estado = 1
+            AND dcs.Estado = 1
+            AND dc.IdPlantillaPW IN (10, 11)
+            AND dcs.Titulo = 'Descripción Estructura'
+        ORDER BY dcs.NumeroFila ASC;";
+
+            var resultado = await _dapperRepository.FirstOrDefaultAsync(query, new { idPGeneral });
+
+            if (string.IsNullOrEmpty(resultado) || resultado == "[]" || resultado == "null")
+                return null;
+
+            try
+            {
+                var obj = JsonConvert.DeserializeObject<dynamic>(resultado);
+                var contenido = obj?.Contenido?.ToString();
+
+                return string.IsNullOrWhiteSpace(contenido) ? null : contenido;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 10/08/2022
         /// Version: 1.0

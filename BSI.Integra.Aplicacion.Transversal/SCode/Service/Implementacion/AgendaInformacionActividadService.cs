@@ -458,132 +458,192 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         /// </summary>
         /// <param name="idPGeneral">Id de Programa General</param>
         /// <returns>object</returns> 
-        public async Task<object> GetDetalleProgramaOCursoAsync(int idPGeneral)
+        public async Task<object> ObtenerSilaboPorIdAsync(int idPgeneral)
         {
-            var data = await _unitOfWork.DocumentoAgendaRepository.GetSeccionesProgramaRawAsync(idPGeneral);
+            var programa = _unitOfWork.DocumentoAgendaRepository.ObtenerPgeneralDocumentoPorId(idPgeneral);
+            if (programa == null)
+                return new { Error = "No se encontró el programa general" };
 
-            if (data == null || !data.Any())
-                return new { Error = "No se encontró información" };
 
-            var tipo = data.First().EsProgramaOCurso?.Trim().ToLower();
+            var hijos = _unitOfWork.DocumentoAgendaRepository.ObtenerPGeneralHijos(idPgeneral);
 
-            // Utilidades Regex
-            string ObtenerTextoPlano(string html)
+
+            if (hijos != null && hijos.Any())
             {
-                if (string.IsNullOrEmpty(html)) return "";
-                return Regex.Replace(System.Net.WebUtility.HtmlDecode(html), "<.*?>", "").Trim();
-            }
-
-            List<string> ExtraerListaHtml(string html)
-            {
-                if (string.IsNullOrEmpty(html)) return new List<string>();
-                var matches = Regex.Matches(html, @"<li[^>]*>(.*?)<\/li>", RegexOptions.Singleline | RegexOptions.IgnoreCase);
-                return matches.Cast<Match>()
-                    .Select(m => System.Net.WebUtility.HtmlDecode(Regex.Replace(m.Groups[1].Value, "<.*?>", "").Trim()))
-                    .Where(x => !string.IsNullOrWhiteSpace(x))
-                    .ToList();
-            }
-
-            // Extraer secciones por nombre
-            string GetContenido(string nombre) =>
-                data.FirstOrDefault(x => x.Titulo.Equals(nombre, StringComparison.OrdinalIgnoreCase))?.Contenido ?? "";
-
-            // Estructura Curricular: puede haber varios capítulos/cursos
-            var estructuraCurricularHtml = data.Where(x => x.Titulo.Contains("Estructura Curricular", StringComparison.OrdinalIgnoreCase)).ToList();
-            var estructuraCurricular = new List<EstructuraCurricularDTO>();
-            int ordenCap = 1;
-            foreach (var cap in estructuraCurricularHtml)
-            {
-                // Buscar todos los <strong> como capítulos
-                var strongMatches = Regex.Matches(cap.Contenido ?? "", @"<strong[^>]*>(.*?)<\/strong>", RegexOptions.Singleline | RegexOptions.IgnoreCase);
-                var ulMatches = Regex.Matches(cap.Contenido ?? "", @"<ul[^>]*>(.*?)<\/ul>", RegexOptions.Singleline | RegexOptions.IgnoreCase);
-
-                // Si hay strongs, cada uno es un capítulo
-                if (strongMatches.Count > 0)
+                var cursos = new List<SilaboCursov2DTO>();
+                foreach (var hijo in hijos.OrderBy(x => x.Orden))
                 {
-                    for (int i = 0; i < strongMatches.Count; i++)
-                    {
-                        var capitulo = ObtenerTextoPlano(strongMatches[i].Groups[1].Value);
-                        // Buscar el <ul> más cercano después del <strong>
-                        string sesionesHtml = "";
-                        if (ulMatches.Count > i)
-                            sesionesHtml = ulMatches[i].Groups[1].Value;
-                        else if (ulMatches.Count > 0)
-                            sesionesHtml = ulMatches[ulMatches.Count - 1].Groups[1].Value;
-
-                        var sesiones = ExtraerListaHtml("<ul>" + sesionesHtml + "</ul>");
-                        estructuraCurricular.Add(new EstructuraCurricularDTO
-                        {
-                            Orden = ordenCap++,
-                            Capitulo = capitulo,
-                            Sesiones = sesiones
-                        });
-                    }
+                    var secciones = _unitOfWork.DocumentoAgendaRepository.ObtenerDocumentoSeccion(hijo.Id);
+                    cursos.Add(MapearCursoDesdeSeccionesV2(hijo.Nombre, hijo.pw_duracion, secciones, hijo.Orden));
                 }
-                else if (ulMatches.Count > 0)
+
+                return new SilaboProgramav2DTO
                 {
-                    // Si no hay strong, pero sí <ul>, lo tratamos como un solo capítulo
-                    var sesiones = ExtraerListaHtml("<ul>" + ulMatches[0].Groups[1].Value + "</ul>");
-                    estructuraCurricular.Add(new EstructuraCurricularDTO
-                    {
-                        Orden = ordenCap++,
-                        Capitulo = "Estructura Curricular",
-                        Sesiones = sesiones
-                    });
-                }
-            }
-
-            // Objetivos y Público Objetivo
-            var objetivos = ExtraerListaHtml(GetContenido("Objetivos"));
-            var publicoObjetivo = ExtraerListaHtml(GetContenido("Público Objetivo"));
-
-            // Material y Bibliografía
-            var materialCurso = ExtraerListaHtml(GetContenido("Material Curso"));
-            var bibliografia = ExtraerListaHtml(GetContenido("Bibliografia"));
-
-            // Presentación y Duración
-            var presentacion = ObtenerTextoPlano(GetContenido("Presentación"));
-            var duracion = ObtenerTextoPlano(GetContenido("Duración y Horarios"));
-
-            if (tipo == "programas" || tipo == "programa")
-            {
-                // Para programas, cada capítulo es un curso
-                var cursos = estructuraCurricular.Select(ec => new CursoDetalleDTO
-                {
-                    Orden = ec.Orden,
-                    NombreCurso = ec.Capitulo,
-                    Duracion = duracion,
-                    Presentacion = presentacion,
-                    Objetivos = objetivos,
-                    PublicoObjetivo = publicoObjetivo,
-                    EstructuraCurricular = new List<EstructuraCurricularDTO> { ec },
-                    MaterialCurso = materialCurso,
-                    Bibliografia = bibliografia
-                }).ToList();
-
-                return new ProgramaDetalleResponseDTO
-                {
-                    NombrePrograma = presentacion,
-                    Duracion = duracion,
+                    NombrePrograma = programa.Nombre,
+                    Duracion = programa.pw_duracion,
                     Cursos = cursos,
                     Error = null
                 };
             }
-            else // Curso
+            else
             {
-                return new CursoDetalleResponseDTO
+                var secciones = _unitOfWork.DocumentoAgendaRepository.ObtenerDocumentoSeccion(idPgeneral);
+                var curso = MapearCursoDesdeSeccionesV2(programa.Nombre, programa.pw_duracion, secciones, 1);
+
+
+                return new CursoDetalleResponsev2DTO
                 {
-                    NombreCurso = presentacion,
-                    Duracion = duracion,
-                    Presentacion = presentacion,
-                    Objetivos = objetivos,
-                    PublicoObjetivo = publicoObjetivo,
-                    EstructuraCurricular = estructuraCurricular,
-                    MaterialCurso = materialCurso,
-                    Bibliografia = bibliografia,
+                    NombreCurso = curso.NombreCurso,
+                    Duracion = curso.Duracion,
+                    Presentacion = curso.Presentacion,
+                    Objetivos = curso.Objetivos,
+                    PublicoObjetivo = curso.PublicoObjetivo,
+                    EstructuraCurricular = curso.EstructuraCurricular,
+                    MaterialCurso = curso.MaterialCurso,
+                    Bibliografia = curso.Bibliografia,
                     Error = null
                 };
             }
+        }
+
+        private static SilaboCursov2DTO MapearCursoDesdeSeccionesV2(string nombre, string duracion, List<SeccionDocumentov2DTO> secciones, int orden)
+        {
+            string presentacion = ExtraerTextoPlanoV2(secciones, "Presentación");
+            List<string> objetivos = ExtraerListaV2(secciones, "Objetivos");
+            List<string> publicoObjetivo = ExtraerListaV2(secciones, "Público Objetivo");
+            List<EstructuraCurricularv2DTO> estructuraCurricularv2 = ExtraerEstructuraCurricularV2(secciones);
+            List<string> materialCurso = ExtraerListaV2(secciones, "Material del Curso");
+            List<string> bibliografia = ExtraerListaV2(secciones, "Bibliografía");
+
+            return new SilaboCursov2DTO
+            {
+                Orden = orden,
+                NombreCurso = nombre,
+                Duracion = duracion,
+                Presentacion = presentacion,
+                Objetivos = objetivos,
+                PublicoObjetivo = publicoObjetivo,
+                EstructuraCurricular = estructuraCurricularv2,
+                MaterialCurso = materialCurso,
+                Bibliografia = bibliografia
+                // ⭐ NO asignar Error aquí
+            };
+        }
+
+        private static string ExtraerTextoPlanoV2(List<SeccionDocumentov2DTO> secciones, string titulo)
+        {
+            var sec = secciones.FirstOrDefault(s => s.Titulo != null && s.Titulo.Trim().Equals(titulo, System.StringComparison.OrdinalIgnoreCase));
+            if (sec == null || string.IsNullOrWhiteSpace(sec.Contenido)) return "";
+            return Regex.Replace(System.Net.WebUtility.HtmlDecode(sec.Contenido), "<.*?>", "").Trim();
+        }
+
+        private static List<string> ExtraerListaV2(List<SeccionDocumentov2DTO> secciones, string titulo)
+        {
+            var sec = secciones.FirstOrDefault(s => s.Titulo != null && s.Titulo.Trim().Equals(titulo, System.StringComparison.OrdinalIgnoreCase));
+            if (sec == null || string.IsNullOrWhiteSpace(sec.Contenido)) return new List<string>();
+            var matches = Regex.Matches(sec.Contenido, @"<li[^>]*>(.*?)<\/li>", RegexOptions.Singleline | RegexOptions.IgnoreCase);
+            return matches.Cast<Match>()
+                .Select(m => System.Net.WebUtility.HtmlDecode(Regex.Replace(m.Groups[1].Value, "<.*?>", "").Trim()))
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .ToList();
+        }
+
+        private static List<EstructuraCurricularv2DTO> ExtraerEstructuraCurricularV2(List<SeccionDocumentov2DTO> secciones)
+        {
+            var estructura = new List<EstructuraCurricularv2DTO>();
+
+            var seccionesEstructura = secciones
+                .Where(s => s.Titulo != null &&
+                            s.Titulo.Trim().Equals("Estructura Curricular", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (!seccionesEstructura.Any())
+                return estructura;
+            if (seccionesEstructura.Count == 1 && seccionesEstructura[0].Contenido?.StartsWith("[") == true)
+            {
+                var sec = seccionesEstructura[0];
+                List<EstructuraCurricularFlatDTO> registros = null;
+                try
+                {
+                    registros = Newtonsoft.Json.JsonConvert.DeserializeObject<List<EstructuraCurricularFlatDTO>>(sec.Contenido);
+                }
+                catch
+                {
+                    return estructura;
+                }
+
+                if (registros == null || !registros.Any())
+                    return estructura;
+
+                var capitulosPorFila = registros
+                    .Where(r => r.NombreTitulo == "Capitulo" && !string.IsNullOrWhiteSpace(r.Contenido))
+                    .GroupBy(r => r.Contenido)
+                    .ToList();
+
+                int orden = 1;
+                foreach (var capituloGroup in capitulosPorFila)
+                {
+                    var capituloNombre = capituloGroup.Key;
+                    var filas = capituloGroup.Select(c => c.NumeroFila).Distinct();
+                    var sesiones = registros
+                        .Where(r => r.NombreTitulo == "Sesion" && filas.Contains(r.NumeroFila) && !string.IsNullOrWhiteSpace(r.Contenido))
+                        .Select(r => r.Contenido)
+                        .Distinct()
+                        .ToList();
+
+                    if (sesiones.Any())
+                    {
+                        estructura.Add(new EstructuraCurricularv2DTO
+                        {
+                            Orden = orden++,
+                            Capitulo = capituloNombre,
+                            Sesiones = sesiones
+                        });
+                    }
+                }
+            }
+
+            else
+            {
+
+                var capitulos = seccionesEstructura
+                    .Where(s => s.NombreTitulo == "Capitulo" && !string.IsNullOrWhiteSpace(s.Contenido))
+                    .GroupBy(s => s.Contenido)
+                    .OrderBy(g => g.Min(x => x.NumeroFila ?? 0));
+
+                int orden = 1;
+                foreach (var capituloGroup in capitulos)
+                {
+                    var capituloNombre = capituloGroup.Key;
+
+                    var filasDelCapitulo = capituloGroup
+                        .Select(c => c.NumeroFila ?? 0)
+                        .Distinct()
+                        .ToList();
+
+                    var sesiones = seccionesEstructura
+                        .Where(s => s.NombreTitulo == "Sesion" &&
+                                   s.NumeroFila.HasValue &&
+                                   filasDelCapitulo.Contains(s.NumeroFila.Value) &&
+                                   !string.IsNullOrWhiteSpace(s.Contenido))
+                        .OrderBy(s => s.NumeroFila)
+                        .Select(s => s.Contenido)
+                        .Distinct()
+                        .ToList();
+
+                    if (sesiones.Any())
+                    {
+                        estructura.Add(new EstructuraCurricularv2DTO
+                        {
+                            Orden = orden++,
+                            Capitulo = capituloNombre,
+                            Sesiones = sesiones
+                        });
+                    }
+                }
+            }
+
+            return estructura;
         }
 
 

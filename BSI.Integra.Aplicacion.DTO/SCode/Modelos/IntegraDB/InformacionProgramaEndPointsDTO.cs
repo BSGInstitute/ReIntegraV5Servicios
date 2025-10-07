@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
 {
-
-
     public class CargarInformacionProgramaInversionRespuestaDTO
     {
         public int IdPGeneral { get; set; }
@@ -25,14 +25,14 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
     {
         public int IdPGeneral { get; set; }
         public string EsProgramaOCurso { get; set; }
-        public List<string> Presentacion { get; set; } // array de párrafos
+        public List<string> Presentacion { get; set; }
         public string Error { get; set; }
     }
     public class CargarInformacionProgramaPublicoObjetivoRespuestaDTO
     {
         public int IdPGeneral { get; set; }
         public string EsProgramaOCurso { get; set; }
-        public List<string> PublicoObjetivo { get; set; } // array de párrafos
+        public List<string> PublicoObjetivo { get; set; }
         public string Error { get; set; }
     }
 
@@ -71,33 +71,13 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public string nombre { get; set; }
         public List<string> descripcion { get; set; }
     }
-
-    //public class CapituloEstructuraDTO
-    //{
-    //    public string Capitulo { get; set; }
-    //    public List<string> Sesiones { get; set; }
-    //}
-
-    //public class CursoEstructuraDTO
-    //{
-    //    public string NombreCurso { get; set; }
-    //    public List<string> Capitulos { get; set; }
-    //}
-
-    //public class CargarInformacionProgramaEstructuraCurricularRespuestaDTO
-    //{
-    //    public int IdPGeneral { get; set; }
-    //    public string EsProgramaOCurso { get; set; }
-    //    public List<CapituloEstructuraDTO> Capitulos { get; set; }
-    //    public List<CursoEstructuraDTO> Cursos { get; set; }
-    //    public string Error { get; set; }
-    //}
-
     public class CargarInformacionProgramaEstructuraCurricularRespuestaDTO
     {
         public int IdPGeneral { get; set; }
         public string EsProgramaOCurso { get; set; }
-        public object EstructuraCurricular { get; set; } // Será una lista de CursoEstructuraDTO o CapituloEstructuraDTO
+        public object EstructuraCurricular { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string Nota { get; set; }
         public string Error { get; set; }
     }
 
@@ -122,10 +102,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
     public class CapituloEstructuraDTO
     {
         public string Capitulo { get; set; }
-        public List<string> Sesiones { get; set; }
+        public List<string> Sesiones { get; set; } 
     }
-
-    //lolo
 
     public class ResumenProgramaDTO
     {
@@ -282,46 +260,6 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public List<string> Bibliografia { get; set; }
     }
 
-    public class ProgramaDetalleResponseV2DTO
-    {
-        public string NombrePrograma { get; set; }
-        public string Duracion { get; set; }
-        public List<CursoDetalleDTO> Cursos { get; set; }
-        public string Error { get; set; }
-    }
-
-    public class CursoDetalleResponseV2DTO
-    {
-        public string NombreCurso { get; set; }
-        public string Duracion { get; set; }
-        public string Presentacion { get; set; }
-        public List<string> Objetivos { get; set; }
-        public List<string> PublicoObjetivo { get; set; }
-        public List<EstructuraCurricularDTO> EstructuraCurricular { get; set; }
-        public List<string> MaterialCurso { get; set; }
-        public List<string> Bibliografia { get; set; }
-        public string Error { get; set; }
-    }
-
-    public class CursoDetalleV2DTO
-    {
-        public int Orden { get; set; }
-        public string NombreCurso { get; set; }
-        public string Duracion { get; set; }
-        public string Presentacion { get; set; }
-        public List<string> Objetivos { get; set; }
-        public List<string> PublicoObjetivo { get; set; }
-        public List<EstructuraCurricularDTO> EstructuraCurricular { get; set; }
-        public List<string> MaterialCurso { get; set; }
-        public List<string> Bibliografia { get; set; }
-    }
-
-    public class EstructuraCurricularV2DTO
-    {
-        public int Orden { get; set; }
-        public string Capitulo { get; set; }
-        public List<string> Sesiones { get; set; }
-    }
     public class SeccionProgramaRawDTO
     {
         public int IdPGeneral { get; set; }
@@ -332,19 +270,11 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public int OrdenWeb { get; set; }
     }
 
-    // *********************************************************************
-    // * DTO Principal de Respuesta para CargarInformacionProgramaTodoAsync *
-    // *********************************************************************
-
     public class CargarInformacionProgramaTodoRequestDTO
     {
         public int idCentroCosto { get; set; }
         public string codigoPais { get; set; }
     }
-
-    // *******************************************************
-    // * DTOs PARA LA SALIDA DEL ENDPOINT (RESPONSE OBJECT)  *
-    // *******************************************************
 
     public class CargarInformacionProgramaTodoRespuestaDTO
     {
@@ -361,6 +291,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public List<string> PublicoObjetivo { get; set; }
         public List<string> Prerrequisitos { get; set; }
         public List<CursoEstructuraDTO> EstructuraCurricular { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string Nota { get; set; }
         public List<ModalidadDTO> Modalidades { get; set; }
         public List<DuracionHorarioItemDTO> DuracionHorarios { get; set; }
         public List<InversionVersionDTO> Inversion { get; set; }
@@ -380,6 +312,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public List<string> PublicoObjetivo { get; set; }
         public List<string> Prerrequisitos { get; set; }
         public List<CapituloEstructuraDTO> EstructuraCurricular { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string Nota { get; set; }
         public List<DuracionHorarioItemDTO> DuracionHorarios { get; set; }
         public List<string> Certificacion { get; set; }
         public MetodologiaDTO Metodologia { get; set; }
@@ -392,5 +326,133 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public string Tipo { get; set; }
         public string CentroCosto { get; set; }
         public string FechaInicio { get; set; }
+    }
+
+    public class CursoHijoDTO
+    {
+        public int Id { get; set; }
+        public int IdPgeneral { get; set; }
+        public string Nombre { get; set; }
+        public string Pg_titulo { get; set; }
+        public string pw_duracion { get; set; }
+        public int Orden { get; set; }
+    }
+
+    public class RegistroSeccionContenidoDTO
+    {
+        public int Id { get; set; }
+        public string Titulo { get; set; }
+        public string Contenido { get; set; }
+        public int IdPGeneral { get; set; }
+        public int Orden { get; set; }
+        public int NumeroFila { get; set; }
+        public string NombreTitulo { get; set; } // "Capitulo", "Sesion", "SubSeccion", "Descripcion"
+    }
+    public class EstructuraCurricularv2DTO
+    {
+        public int Orden { get; set; }
+        public string Capitulo { get; set; }
+        public List<string> Sesiones { get; set; }
+    }
+
+    public class CursoDetallev2DTO
+    {
+        public int Orden { get; set; }
+        public string NombreCurso { get; set; }
+        public string Duracion { get; set; }
+        public string Presentacion { get; set; }
+        public List<string> Objetivos { get; set; }
+        public List<string> PublicoObjetivo { get; set; }
+        public List<EstructuraCurricularv2DTO> EstructuraCurricular { get; set; }
+        public List<string> MaterialCurso { get; set; }
+        public List<string> Bibliografia { get; set; }
+    }
+
+    public class ProgramaDetalleResponsev2DTO
+    {
+        public string NombrePrograma { get; set; }
+        public string Duracion { get; set; }
+        public List<CursoDetallev2DTO> Cursos { get; set; }
+        public string Error { get; set; }
+    }
+
+    public class CursoDetalleResponsev2DTO
+    {
+        public string NombreCurso { get; set; }
+        public string Duracion { get; set; }
+        public string Presentacion { get; set; }
+        public List<string> Objetivos { get; set; }
+        public List<string> PublicoObjetivo { get; set; }
+        public List<EstructuraCurricularv2DTO> EstructuraCurricular { get; set; }
+        public List<string> MaterialCurso { get; set; }
+        public List<string> Bibliografia { get; set; }
+        public string Error { get; set; }
+    }
+    public class SilaboProgramav2DTO
+    {
+        public string NombrePrograma { get; set; }
+        public string Duracion { get; set; }
+        public List<SilaboCursov2DTO> Cursos { get; set; }
+        public string Error { get; set; }
+    }
+
+    public class SilaboCursov2DTO
+    {
+        public int Orden { get; set; }
+        public string NombreCurso { get; set; }
+        public string Duracion { get; set; }
+        public string Presentacion { get; set; }
+        public List<string> Objetivos { get; set; }
+        public List<string> PublicoObjetivo { get; set; }
+        public List<EstructuraCurricularv2DTO> EstructuraCurricular { get; set; }
+        public List<string> MaterialCurso { get; set; }
+        public List<string> Bibliografia { get; set; }
+        //public string Error { get; set; }
+    }
+    public class PgeneralDocumentoSeccionv2DTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public string pw_duracion { get; set; }
+        public List<SeccionDocumentov2DTO> ListaSeccion { get; set; }
+        public List<ProgramaGeneralSeccionAnexosHTMLv2DTO> ListaSeccionV2 { get; set; }
+    }
+
+    public class PgeneralHijov2DTO
+    {
+        public int Id { get; set; }
+        public int? IdPgeneral { get; set; }
+        public string Nombre { get; set; }
+        public string Pg_titulo { get; set; }
+        public string pw_duracion { get; set; }
+        public int Orden { get; set; }
+        public List<SeccionDocumentov2DTO> ListaSeccion { get; set; } = new List<SeccionDocumentov2DTO>();
+    }
+
+    public class SeccionDocumentov2DTO
+    {
+        public int Id { get; set; }
+        public string Titulo { get; set; }
+        public string Contenido { get; set; }
+        public int? IdPGeneral { get; set; }
+        public int? OrdenWeb { get; set; }
+        public int Orden { get; set; }
+        public int? NumeroFila { get; set; }
+        public string NombreTitulo { get; set; }
+    }
+    public class EstructuraCurricularFlatDTO
+    {
+        public int Id { get; set; }
+        public string Titulo { get; set; }
+        public string Contenido { get; set; }
+        public int IdPGeneral { get; set; }
+        public int Orden { get; set; }
+        public int NumeroFila { get; set; }
+        public string NombreTitulo { get; set; }
+    }
+    public class ProgramaGeneralSeccionAnexosHTMLv2DTO
+    {
+        public string? Seccion { get; set; }
+        public string? Contenido { get; set; }
     }
 }
