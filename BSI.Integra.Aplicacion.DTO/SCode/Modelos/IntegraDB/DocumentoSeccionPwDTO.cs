@@ -182,4 +182,13 @@
         public string Valor { get; set; }
         public int? NumeroFila { get; set; }
     }
+
+
+    public class PresentacionProgramadto
+    {
+        public int IdPGeneral { get; set; }
+        public string Titulo { get; set; }
+        public string Cabecera { get; set; }
+        public string Solucion { get; set; }
+    }
 }

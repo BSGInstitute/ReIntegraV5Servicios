@@ -21,7 +21,6 @@ namespace BSI.Integra.Servicios.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [EnableCors("CorsVista")]
-    [Authorize]
     public class AreaTrabajoController : Controller
     {
         private IAreaTrabajoService _areaTrabajoService;
