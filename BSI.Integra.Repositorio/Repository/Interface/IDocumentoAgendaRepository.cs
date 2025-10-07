@@ -3,6 +3,7 @@ using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
+using ResumenProgramaDTO = BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.ResumenProgramaDTO;
 
 namespace BSI.Integra.Repositorio.Repository.Interface
 {
@@ -44,7 +45,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         bool AgregarPEspecificoSesionEncuestaAlumno(AgregarPEspecificoSesionEncuestaAlumnoDTO data);
         bool AgregarComentarioEncuesta(EncuestaComentarioDTO Encuesta);
         Task<ObjetivosRawDTO> GetObjetivosRawAsync(int idPGeneral);
-        Task<List<Aplicacion.DTO.SCode.Modelos.IntegraDB.ResumenProgramaDTO>> ObtenerResumenProgramaPorIdPGeneral(int idPGeneral, int idCentroCosto);
+        Task<List<ResumenProgramaDTO>> ObtenerResumenProgramaPorIdPGeneral(int idPGeneral, int idCentroCosto);
         Task<List<BeneficioRawDTO>> GetBeneficiosRawAsync(int idPGeneral);
         Task<List<CertificacionRawDTO>> GetCertificacionesRawAsync(int idPGeneral);
         Task<MetodologiaRawDTO> GetMetodologiaRawAsync(int idPGeneral);
