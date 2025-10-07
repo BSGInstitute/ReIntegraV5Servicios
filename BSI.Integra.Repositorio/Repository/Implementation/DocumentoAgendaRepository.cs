@@ -748,42 +748,141 @@ ORDER BY id DESC;
         /// <param name="idPGeneral">Id de Programa General</param>
         /// <param name="idCentroCosto">Id de Centro de Costo</param>
         /// <returns>List<ResumenProgramaDTO></returns> 
-        public async Task<List<ResumenProgramaV3DTO>> ObtenerResumenProgramaPorIdPGeneral(int idPGeneral, int idCentroCosto)
+        public async Task<List<PEspecificoPorIdPGeneralV2DTO>> ObtenerPorIdPGeneralAsync(int idPGeneral)
         {
-            var query = @"
-        SELECT 
-            PG.IdPGeneral AS IdProgramaGeneral, 
-            CP.Categoria AS Categoria, 
-            MC.Nombre AS Tipo, 
-            CC.Id AS IdCentroCosto,
-            CC.Nombre AS NombreCentroCosto,
-            PG.Nombre AS NombrePrograma,
-            PG.FechaInicioAsincronico
-        FROM pla.T_PGeneral AS PG
-        INNER JOIN pla.T_CategoriaPrograma AS CP 
-            ON CP.Id = PG.IdCategoria
-        INNER JOIN pla.T_PGeneralModalidad AS PGM
-            ON PGM.IdPGeneral = PG.IdPGeneral
-        INNER JOIN pla.T_ModalidadCurso AS MC
-            ON MC.Id = PGM.IdModalidadCurso
-        INNER JOIN pla.T_PEspecifico AS PE
-            ON PE.IdProgramaGeneral = PG.IdPGeneral
-        INNER JOIN pla.T_CentroCosto AS CC
-            ON PE.IdCentroCosto = CC.Id
-        WHERE PG.IdPGeneral = @idPGeneral
-          AND CC.Id = @idCentroCosto
-          AND PGM.Estado = 1
-          AND MC.Estado = 1
-          AND CC.Estado = 1;";
+            string query = @"SELECT 
+                     Id,
+                     Nombre,
+                     Ciudad,
+                     Tipo,
+                     Duracion,
+                     EstadoPId,
+                     v2.FechaHoraInicio,
+                     IdCategoria,
+                     CentroCosto
+                  FROM pla.V_ListaProgramaEspecificoPorIdPrograma AS v1
+					 INNER JOIN pla.V_ListaFechaInicioPEspecificoPadrePEspecificoHijoPorIdPadre AS v2 ON v2.IdPEspecifico =v1.Id 
+                  WHERE IdPGeneral = @idPGeneral";
 
-            var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral, idCentroCosto });
-            if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-            {
-                return JsonConvert.DeserializeObject<List<ResumenProgramaV3DTO>>(resultado);
-            }
-            return new List<ResumenProgramaV3DTO>();
+            string resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
+
+            return string.IsNullOrEmpty(resultado) || resultado.Contains("[]")
+                ? new List<PEspecificoPorIdPGeneralV2DTO>()
+                : JsonConvert.DeserializeObject<List<PEspecificoPorIdPGeneralV2DTO>>(resultado)!;
         }
 
+
+        public async Task<PGeneralAtributosPrincipalesv2DTO> ObtenerPGeneralAtributosPrincipalesPorIdAsync(int idPGeneral)
+        {
+            string query = @"SELECT 
+                     Id,
+                     Nombre,
+                     Pw_duracion AS PwDuracion,
+                     (SELECT Categoria FROM pla.T_CategoriaPrograma WHERE Id = pg.IdCategoria) AS EsProgramaOCurso
+                  FROM pla.T_PGeneral pg
+                  WHERE Estado = 1 AND Id = @idPGeneral";
+
+            string resultado = await _dapperRepository.FirstOrDefaultAsync(query, new { idPGeneral });
+
+            return string.IsNullOrEmpty(resultado) || resultado.Contains("[]")
+                ? new PGeneralAtributosPrincipalesv2DTO()
+                : JsonConvert.DeserializeObject<PGeneralAtributosPrincipalesv2DTO>(resultado)!;
+        }
+        public List<PEspecificoSesionFechaHoraInicioDTO> ObtenerFechaHoraInicioPorIdsPEspecificoPadre(List<int> idsPEspecificoPadre)
+        {
+            try
+            {
+                List<PEspecificoSesionFechaHoraInicioDTO> objeto = new();
+                string query = @"SELECT
+                     IdPEspecifico,
+                     FechaHoraInicio
+                 FROM pla.V_ListaFechaInicioPEspecificoPadrePEspecificoHijoPorIdPadre
+                 WHERE PEspecificoPadreId IN @idsPEspecificoPadre";
+                string repuesta = _dapperRepository.QueryDapper(query, new { idsPEspecificoPadre });
+                if (!string.IsNullOrEmpty(repuesta) && !repuesta.Contains("[]"))
+                {
+                    objeto = JsonConvert.DeserializeObject<List<PEspecificoSesionFechaHoraInicioDTO>>(repuesta);
+                }
+                return objeto;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public List<PEspecificoSesionFechaHoraInicioDTO> ObtenerFechaHoraInicioPorIdsPEspecifico(List<int> idsPEspecifico)
+        {
+            try
+            {
+                List<PEspecificoSesionFechaHoraInicioDTO> objeto = new();
+                string query = @"SELECT
+                     IdPEspecifico,
+                     FechaHoraInicio
+                 FROM pla.V_ListaFechaInicioPEspecificoSesionPorIdPEspecifico
+                 WHERE IdPEspecifico IN @idsPEspecifico";
+                string repuesta = _dapperRepository.QueryDapper(query, new { idsPEspecifico });
+                if (!string.IsNullOrEmpty(repuesta) && !repuesta.Contains("[]"))
+                {
+                    objeto = JsonConvert.DeserializeObject<List<PEspecificoSesionFechaHoraInicioDTO>>(repuesta);
+                }
+                return objeto;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public List<PEspecificoSesionFechaHoraInicioDTO> ObtenerFechaHoraInicioSinSesionPorIdsPEspecifico(List<int> idsPEspecifico)
+        {
+            try
+            {
+                List<PEspecificoSesionFechaHoraInicioDTO> objeto = new();
+                string query = @"SELECT
+                     IdPEspecifico,
+                     FechaHoraInicio
+                 FROM pla.V_ListaFechaInicioPEspecificoSesionSinInicioPorIdPEspecifico
+                 WHERE Orden=1 AND IdPEspecifico IN @idsPEspecifico";
+                string repuesta = _dapperRepository.QueryDapper(query, new { idsPEspecifico });
+                if (!string.IsNullOrEmpty(repuesta) && !repuesta.Contains("[]"))
+                {
+                    objeto = JsonConvert.DeserializeObject<List<PEspecificoSesionFechaHoraInicioDTO>>(repuesta)!;
+                }
+                return objeto;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public List<PEspecificoPorIdPGeneralV2DTO> ObtenerPorIdPGeneral(int idPGeneral)
+        {
+            try
+            {
+                List<PEspecificoPorIdPGeneralV2DTO> rpta = new();
+                string query = @"SELECT 
+      	                    Id,
+                     Nombre,
+                     Ciudad,
+                     Tipo,
+                     Duracion,
+                     EstadoPId,
+                     FechaCreacion,
+                     IdCategoria,
+                     CentroCosto
+                 FROM pla.V_ListaProgramaEspecificoPorIdPrograma
+                 WHERE IdPGeneral = @idPGeneral";
+                string resultado = _dapperRepository.QueryDapper(query, new { idPGeneral });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<PEspecificoPorIdPGeneralV2DTO>>(resultado)!;
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error en ObtenerPorIdPGeneral()", ex);
+            }
+        }
 
         /// Autor: Lolo Zaa
         /// Fecha: 02/10/2025

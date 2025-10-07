@@ -3,6 +3,7 @@ using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.Servicios.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
+using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using System.Collections.Concurrent;
@@ -62,35 +63,263 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         /// <param name="idPGeneral">Id de Programa General</param>
         /// <param name="idCentroCosto">Id de Centro de Costo</param>
         /// <returns>object</returns> 
-        public async Task<object> ObtenerResumenPrograma(int idPGeneral, int idCentroCosto)
+        public async Task<ModalidadesProgramaResponseDTO> ObtenerModalidadesPorPrograma(int idPGeneral)
         {
-            var lista = await _unitOfWork.DocumentoAgendaRepository.ObtenerResumenProgramaPorIdPGeneral(idPGeneral, idCentroCosto);
+            try
+            {
+                // 1. Obtener información básica del programa
+                var programaGeneral = await _unitOfWork.DocumentoAgendaRepository.ObtenerPGeneralAtributosPrincipalesPorIdAsync(idPGeneral);
 
-            if (lista == null || !lista.Any())
-                return new
+                if (programaGeneral == null || programaGeneral.Id == 0)
+                {
+                    return new ModalidadesProgramaResponseDTO
+                    {
+                        IdPGeneral = idPGeneral,
+                        EsProgramaOCurso = "No encontrado",
+                        Modalidades = new List<ModalidadDTO>(),
+                        Error = "Programa no encontrado"
+                    };
+                }
+
+                // 2. Usar directamente la propiedad EsProgramaOCurso que ya viene del query
+                string tipoPrograma = programaGeneral.EsProgramaOCurso ?? "Programa";
+
+                // 3. Obtener modalidades usando la lógica V2
+                var modalidades = await ObtenerModalidadesV2(idPGeneral);
+
+                return new ModalidadesProgramaResponseDTO
                 {
                     IdPGeneral = idPGeneral,
-                    IdCentroCosto = idCentroCosto,
-                    EsProgramaOCurso = (string?)null,
-                    Modalidades = new object[0],
-                    Error = "No se encontraron datos"
+                    EsProgramaOCurso = tipoPrograma,
+                    Modalidades = modalidades,
+                    Error = null
                 };
-
-            var primer = lista.First();
-            return new
+            }
+            catch (Exception ex)
             {
-                IdPGeneral = primer.IdProgramaGeneral,
-                IdCentroCosto = primer.IdCentroCosto,
-                EsProgramaOCurso = primer.Categoria,
-                Modalidades = lista.Select(x => new
+                return new ModalidadesProgramaResponseDTO
                 {
-                    Tipo = x.Tipo,
-                    CentroCosto = x.NombreCentroCosto,
-                    FechaInicio = x.FechaCreacion.ToString("MMM. yyyy", new CultureInfo("es-ES"))
-                }).ToList(),
-                Error = (string?)null
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = "Error",
+                    Modalidades = new List<ModalidadDTO>(),
+                    Error = $"Error al cargar modalidades: {ex.Message}"
+                };
+            }
+        }
+
+        private async Task<List<ModalidadDTO>> ObtenerModalidadesV2(int idPGeneral)
+        {
+            var modalidades = new List<ModalidadDTO>();
+
+            var pEspecificos = await ObtenerFechaInicioProgramaTodos(idPGeneral);
+
+            if (pEspecificos == null || !pEspecificos.Any())
+                return modalidades;
+
+            // Clasificar por tipo de modalidad
+            var modalidadAsincronica = pEspecificos.Where(s => LimpiarCadena(s.Tipo).Equals("online asincronica") && LimpiarCadena(s.Ciudad).Equals("lima")).ToList();
+            if (modalidadAsincronica.Count == 0)
+            {
+                modalidadAsincronica = pEspecificos.Where(s => LimpiarCadena(s.Tipo).Equals("online asincronica")).ToList();
+            }
+
+            var modalidadSincronica = pEspecificos.Where(s => LimpiarCadena(s.Tipo).Equals("online sincronica")).ToList();
+            var modalidadPresencial = pEspecificos.Where(s => LimpiarCadena(s.Tipo).Equals("presencial")).ToList();
+
+            // DEBUG: Verificar qué modalidades se están encontrando
+            Console.WriteLine($"Online Asincrónica: {modalidadAsincronica.Count}");
+            Console.WriteLine($"Online Sincrónica: {modalidadSincronica.Count}");
+            Console.WriteLine($"Presencial: {modalidadPresencial.Count}");
+
+            // Ordenar según la prioridad
+            var modalidadesOrdenadas = new List<PEspecificoPorIdPGeneralV2DTO>();
+            modalidadesOrdenadas.AddRange(modalidadAsincronica);
+            modalidadesOrdenadas.AddRange(modalidadSincronica);
+            modalidadesOrdenadas.AddRange(modalidadPresencial);
+
+            // Convertir al formato de respuesta
+            foreach (var modalidad in modalidadesOrdenadas)
+            {
+                var modalidadDTO = new ModalidadDTO
+                {
+                    Tipo = modalidad.Tipo,
+                    CentroCosto = modalidad.CentroCosto,
+                    FechaInicio = modalidad.FechaInicioTexto
+                };
+                modalidades.Add(modalidadDTO);
+            }
+
+            return modalidades;
+        }
+
+        private async Task<List<PEspecificoPorIdPGeneralV2DTO>> ObtenerFechaInicioProgramaTodos(int idPGeneral)
+        {
+            var pEspecificos = _unitOfWork.DocumentoAgendaRepository.ObtenerPorIdPGeneral(idPGeneral);
+            if (pEspecificos == null || !pEspecificos.Any())
+                return null;
+
+            // OBTENER LA CATEGORÍA DEL PROGRAMA GENERAL para la lógica de fechas
+            var programaGeneral = await _unitOfWork.DocumentoAgendaRepository.ObtenerPGeneralAtributosPrincipalesPorIdAsync(idPGeneral);
+
+            // Necesitamos determinar la categoría numérica para la lógica de fechas
+            // Como no tenemos IdCategoria, podemos inferirlo del texto EsProgramaOCurso
+            int idCategoria = DeterminarIdCategoriaPorTexto(programaGeneral?.EsProgramaOCurso);
+
+            Console.WriteLine($"Texto categoría: {programaGeneral?.EsProgramaOCurso}, IdCategoria inferido: {idCategoria}");
+
+            List<int> idsPEspecificos = pEspecificos.Select(x => x.Id).ToList();
+            List<PEspecificoSesionFechaHoraInicioDTO> fechasHoraInicioSesion = new();
+
+            // Obtener fechas según la categoría inferida
+            if (idCategoria == CategoriaPrograma.CURSOS
+                || idCategoria == CategoriaPrograma.BOOTCAMP
+                || idCategoria == CategoriaPrograma.CARRERA_PROFESIONAL)
+            {
+                fechasHoraInicioSesion = await ObtenerFechaHoraInicioSesionPorIdPEspecifico(idsPEspecificos, 2);
+            }
+            else if (idCategoria == CategoriaPrograma.PROGRAMAS)
+            {
+                fechasHoraInicioSesion = await ObtenerFechaHoraInicioSesionPorIdPEspecifico(idsPEspecificos, 1);
+            }
+
+            // Procesar cada programa específico
+            List<PEspecificoPorIdPGeneralV2DTO> listaPrevioPEspecifico = new();
+            foreach (var item in pEspecificos)
+            {
+                if (LimpiarCadena(item.Tipo) == "online asincronica")
+                {
+                    DateTime fechaAOnline = (DateTime.Now.Day < 25) ? DateTime.Now : DateTime.Now.AddDays(8);
+                    item.FechaInicio = fechaAOnline;
+                    item.FechaInicioTexto = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(fechaAOnline.ToString("MMMM yyyy"));
+                }
+                else
+                {
+                    if (item.FechaInicio == null)
+                    {
+                        DateTime? fechaHoraInicio = fechasHoraInicioSesion?
+                            .Where(x => x.IdPEspecifico == item.Id && x.FechaHoraInicio.Value > DateTime.Now)
+                            .OrderBy(x => x.FechaHoraInicio)
+                            .Select(x => x.FechaHoraInicio)
+                            .FirstOrDefault();
+
+                        if (fechaHoraInicio != null)
+                        {
+                            item.FechaInicio = fechaHoraInicio.Value;
+                            item.FechaInicioTexto = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(item.FechaInicio.Value.ToString("dd MMMM yyyy"));
+                        }
+                        else
+                        {
+                            item.FechaInicioTexto = "Por definir";
+                        }
+                    }
+                    else
+                    {
+                        item.FechaInicioTexto = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(item.FechaInicio.Value.ToString("dd MMMM yyyy"));
+                    }
+                }
+                listaPrevioPEspecifico.Add(item);
+            }
+
+            // Aplicar filtros y selección por ciudad/tipo
+            var listaCiudades = listaPrevioPEspecifico
+                .GroupBy(x => new { x.Tipo, x.Ciudad })
+                .Select(g => new { g.Key.Tipo, g.Key.Ciudad })
+                .ToList();
+
+            List<PEspecificoPorIdPGeneralV2DTO> listaPEspecifico = new();
+
+            foreach (var item in listaCiudades)
+            {
+                // PRIMERO: Buscar programas en lanzamiento o ejecución
+                var pEspecificoLanzamientoPorEjecucion = listaPrevioPEspecifico
+                    .Where(x => (x.EstadoPId == EstadoPespecifico.LANZAMIENTO || x.EstadoPId == EstadoPespecifico.POR_EJECUCION)
+                             && x.Tipo == item.Tipo
+                             && x.Ciudad == item.Ciudad
+                             && x.IdCategoria != CategoriaPrograma.SUBCRIPCIONES
+                             && x.FechaInicio != null)
+                    .OrderBy(x => x.FechaInicio)
+                    .Take(3)
+                    .ToList();
+
+                if (pEspecificoLanzamientoPorEjecucion.Any())
+                {
+                    listaPEspecifico.AddRange(pEspecificoLanzamientoPorEjecucion);
+                }
+                else
+                {
+                    // SEGUNDO: Si no hay lanzamientos/ejecuciones, incluir CUALQUIER programa del mismo tipo/ciudad
+                    var pEspecificoCiudad = listaPrevioPEspecifico
+                        .Where(x => x.Tipo == item.Tipo
+                                 && x.Ciudad == item.Ciudad
+                                 && x.IdCategoria != CategoriaPrograma.SUBCRIPCIONES)
+                        .OrderBy(x => x.FechaCreacion)
+                        .FirstOrDefault();
+
+                    if (pEspecificoCiudad != null)
+                        listaPEspecifico.Add(pEspecificoCiudad);
+                }
+            }
+
+            // Agregar suscripciones
+            listaPEspecifico.AddRange(listaPrevioPEspecifico.Where(x => x.IdCategoria == CategoriaPrograma.SUBCRIPCIONES));
+
+            // Solo validar estados finales para programas que realmente no tienen fecha
+            listaPEspecifico = listaPEspecifico.Select(c =>
+            {
+                if (c.FechaInicioTexto == "Por definir" || c.FechaInicio == null)
+                {
+                    c.FechaInicioTexto = "Por definir";
+                }
+                return c;
+            }).OrderBy(x => x.FechaInicio).ToList();
+
+            return listaPEspecifico;
+        }
+
+        // Método auxiliar para inferir IdCategoria desde el texto
+        private int DeterminarIdCategoriaPorTexto(string esProgramaOCurso)
+        {
+            if (string.IsNullOrEmpty(esProgramaOCurso))
+                return CategoriaPrograma.PROGRAMAS; // Default
+
+            return esProgramaOCurso.ToLower() switch
+            {
+                "curso" => CategoriaPrograma.CURSOS,
+                "bootcamp" => CategoriaPrograma.BOOTCAMP,
+                "carrera" => CategoriaPrograma.CARRERA_PROFESIONAL,
+                "programa" => CategoriaPrograma.PROGRAMAS,
+                "suscripción" or "suscripcion" => CategoriaPrograma.SUBCRIPCIONES,
+                _ => CategoriaPrograma.PROGRAMAS
             };
         }
+
+        private async Task<List<PEspecificoSesionFechaHoraInicioDTO>> ObtenerFechaHoraInicioSesionPorIdPEspecifico(List<int> idPEspecifico, int tipo)
+        {
+            await Task.CompletedTask;
+
+            List<PEspecificoSesionFechaHoraInicioDTO> fechasHoraInicio = new();
+
+            if (tipo == 1)
+                fechasHoraInicio = _unitOfWork.DocumentoAgendaRepository.ObtenerFechaHoraInicioPorIdsPEspecificoPadre(idPEspecifico);
+            else if (tipo == 2)
+                fechasHoraInicio = _unitOfWork.DocumentoAgendaRepository.ObtenerFechaHoraInicioPorIdsPEspecifico(idPEspecifico);
+            else
+                fechasHoraInicio = _unitOfWork.DocumentoAgendaRepository.ObtenerFechaHoraInicioSinSesionPorIdsPEspecifico(idPEspecifico);
+
+            if (fechasHoraInicio.Any())
+                return fechasHoraInicio;
+            else if (tipo == 2)
+                return _unitOfWork.DocumentoAgendaRepository.ObtenerFechaHoraInicioSinSesionPorIdsPEspecifico(idPEspecifico);
+            else
+                return fechasHoraInicio;
+        }
+
+        private string LimpiarCadena(string cadena)
+        {
+            if (string.IsNullOrEmpty(cadena)) return cadena;
+            return cadena.Trim().ToLower();
+        }
+
 
 
         private static readonly ConcurrentDictionary<int, (ObjetivosResponseDTO Data, DateTime Expiry)> _cache =

@@ -44,7 +44,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         bool AgregarPEspecificoSesionEncuestaAlumno(AgregarPEspecificoSesionEncuestaAlumnoDTO data);
         bool AgregarComentarioEncuesta(EncuestaComentarioDTO Encuesta);
         Task<ObjetivosRawDTO> GetObjetivosRawAsync(int idPGeneral);
-        Task<List<ResumenProgramaV3DTO>> ObtenerResumenProgramaPorIdPGeneral(int idPGeneral, int idCentroCosto);
         Task<List<BeneficioRawDTO>> GetBeneficiosRawAsync(int idPGeneral);
         Task<List<CertificacionRawDTO>> GetCertificacionesRawAsync(int idPGeneral);
         Task<MetodologiaRawDTO> GetMetodologiaRawAsync(int idPGeneral);
@@ -54,5 +53,11 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         List<SeccionDocumentov2DTO> ObtenerDocumentoSeccion(int idPgeneral);
         PgeneralDocumentoSeccionv2DTO ObtenerPgeneralDocumentoPorId(int id);
         List<PgeneralHijov2DTO> ObtenerPGeneralHijos(int idPgeneral);
+        Task<List<PEspecificoPorIdPGeneralV2DTO>> ObtenerPorIdPGeneralAsync(int idPGeneral);
+        Task<PGeneralAtributosPrincipalesv2DTO> ObtenerPGeneralAtributosPrincipalesPorIdAsync(int idPGeneral);
+        List<PEspecificoSesionFechaHoraInicioDTO> ObtenerFechaHoraInicioPorIdsPEspecificoPadre(List<int> idsPEspecificoPadre);
+        List<PEspecificoSesionFechaHoraInicioDTO> ObtenerFechaHoraInicioPorIdsPEspecifico(List<int> idsPEspecifico);
+        List<PEspecificoSesionFechaHoraInicioDTO> ObtenerFechaHoraInicioSinSesionPorIdsPEspecifico(List<int> idsPEspecifico);
+        List<PEspecificoPorIdPGeneralV2DTO> ObtenerPorIdPGeneral(int idPGeneral);
     }
 }

@@ -1385,22 +1385,31 @@ namespace BSI.Integra.Servicios.Controllers
         /// <param name="idPGeneral">Id de Programa General</param>
         /// <param name="idCentroCosto">Id de Centro de Costo</param>
         /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
-        [HttpGet("ObtenerResumenProgramaModalidades/{idPGeneral}/{idCentroCosto}")]
-        public async Task<IActionResult> ObtenerResumenPrograma(int idPGeneral, int idCentroCosto)
+        [HttpGet]
+        [Route("ObtenerModalidades/{idPGeneral}")]
+        public async Task<ActionResult<ModalidadesProgramaResponseDTO>> ObtenerModalidades(int idPGeneral)
         {
             try
             {
-                if (idPGeneral <= 0 || idCentroCosto <= 0)
+                var resultado = await _servicioPrincipal.ObtenerModalidadesPorPrograma(idPGeneral);
+
+                if (!string.IsNullOrEmpty(resultado.Error))
                 {
-                    return BadRequest(new { Error = "Los parámetros idPGeneral y idCentroCosto deben ser mayores a 0" });
+                    return BadRequest(new { Error = "El parámetro idPGeneral no es el correcto" });
                 }
 
-                var resultado = await _servicioPrincipal.ObtenerResumenPrograma(idPGeneral, idCentroCosto);
                 return Ok(resultado);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+
+                return Ok(new ModalidadesProgramaResponseDTO
+                {
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = "Error",
+                    Modalidades = new List<ModalidadDTO>(),
+                    Error = $"Error interno del servidor: {ex.Message}"
+                });
             }
         }
 
