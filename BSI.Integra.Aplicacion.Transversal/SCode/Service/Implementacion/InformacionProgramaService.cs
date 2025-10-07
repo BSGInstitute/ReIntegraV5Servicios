@@ -319,9 +319,10 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             ObtenerMontos2RespuestaDTO montosBeneficios = ObtenerMontoPresentacionPrograma(idPGeneral, codigoPais);
             List<PEspecificoPorIdPGeneral> modalidad = servicioPEspecifico.ObtenerFechaInicioProgramaTodos(idPGeneral);
             List<RegistroListaSeccionesDocumentoDTO> horario = seccionV1.Where(s => string.Equals(s.Titulo?.Trim(), "Duración y Horarios", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<RegistroListaSeccionesDocumentoDTO> publicoObjetivo = seccionV1.Where(s => string.Equals(s.Titulo?.Trim(), "Público Objetivo", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<RegistroListaSeccionesDocumentoDTO> metodologias = seccionV1.Where(s => string.Equals(s.Titulo?.Trim(), "Metodología Online De Este programa", StringComparison.OrdinalIgnoreCase)).ToList();
             List<ProgramaGeneralSeccionDocumentoDTO> listaadicionales = sericioDocumentoAgendaService.ObtenerListaSeccionDocumentoProgramaGeneralSpeech(idPGeneral);
-
-            //string newcontenido = ObtenerContenidoHorarios(modalidades, contenido, idPGeneral);
+            List<ProgramaExpositoresDTO> expositores = _unitOfWork.DocumentoSeccionPwRepository.ObtenerExpositoresPorIdGeneral(idPGeneral);
             InformacionProgramaSpeechDTO resultado = new InformacionProgramaSpeechDTO
             {
                 RefuerzodeConfianza = refuerzoConfianza,
@@ -333,7 +334,11 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 Objetivos = objetivos,
                 Montos = montosBeneficios,
                 DuracionHorario = horario,
+                PublicoObjetivo = publicoObjetivo,
+                Metodologia = metodologias,
+                Expositores = expositores,
                 DatosAdicionales = listaadicionales
+                
             };
 
             return resultado;

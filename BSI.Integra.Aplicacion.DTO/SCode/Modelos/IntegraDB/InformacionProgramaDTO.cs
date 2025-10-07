@@ -169,7 +169,10 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public ObtenerMontos2RespuestaDTO Montos { get; set; }
         public List<ProgramaGeneralSeccionDocumentoDTO> DatosAdicionales { get; set; }
         public List<RegistroListaSeccionesDocumentoDTO> DuracionHorario { get; set; }
+        public List<RegistroListaSeccionesDocumentoDTO> PublicoObjetivo { get; set; }
 
+        public List<RegistroListaSeccionesDocumentoDTO> Metodologia { get; set; }
+        public List<ProgramaExpositoresDTO> Expositores { get; set; }
     }
     
 
