@@ -44,7 +44,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         bool AgregarPEspecificoSesionEncuestaAlumno(AgregarPEspecificoSesionEncuestaAlumnoDTO data);
         bool AgregarComentarioEncuesta(EncuestaComentarioDTO Encuesta);
         Task<ObjetivosRawDTO> GetObjetivosRawAsync(int idPGeneral);
-        Task<List<Aplicacion.DTO.SCode.Modelos.IntegraDB.ResumenProgramaDTO>> ObtenerResumenProgramaPorIdPGeneral(int idPGeneral, int idCentroCosto);
+        Task<List<ResumenProgramaV3DTO>> ObtenerResumenProgramaPorIdPGeneral(int idPGeneral, int idCentroCosto);
         Task<List<BeneficioRawDTO>> GetBeneficiosRawAsync(int idPGeneral);
         Task<List<CertificacionRawDTO>> GetCertificacionesRawAsync(int idPGeneral);
         Task<MetodologiaRawDTO> GetMetodologiaRawAsync(int idPGeneral);

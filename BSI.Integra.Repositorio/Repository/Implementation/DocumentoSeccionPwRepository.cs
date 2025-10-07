@@ -654,8 +654,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// Obtiene la lista de cursos hijos asociados a un programa general activo.
         /// </summary>
         /// <param name="idPGeneral">Id del Programa General padre</param>
-        /// <returns>List<Aplicacion.DTO.SCode.Modelos.IntegraDB.CursoHijoDTO></returns>
-        public async Task<List<Aplicacion.DTO.SCode.Modelos.IntegraDB.CursoHijoDTO>> ObtenerCursosHijosPorIdPGeneralAsync(int idPGeneral)
+        /// <returns>List<CursoHijoV2DTO></returns>
+        public async Task<List<CursoHijoV2DTO>> ObtenerCursosHijosPorIdPGeneralAsync(int idPGeneral)
         {
             var query = @"
                 SELECT Id, IdPgeneral, Nombre, Pg_titulo, pw_duracion, Orden
@@ -666,15 +666,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
 
             if (string.IsNullOrWhiteSpace(resultado) || resultado == "[]")
-                return new List<Aplicacion.DTO.SCode.Modelos.IntegraDB.CursoHijoDTO>();
+                return new List<CursoHijoV2DTO>();
 
             try
             {
-                return JsonConvert.DeserializeObject<List<Aplicacion.DTO.SCode.Modelos.IntegraDB.CursoHijoDTO>>(resultado) ?? new List<Aplicacion.DTO.SCode.Modelos.IntegraDB.CursoHijoDTO>();
+                return JsonConvert.DeserializeObject<List<CursoHijoV2DTO>>(resultado) ?? new List<CursoHijoV2DTO>();
             }
             catch
             {
-                return new List<Aplicacion.DTO.SCode.Modelos.IntegraDB.CursoHijoDTO>();
+                return new List<CursoHijoV2DTO>();
             }
         }
 

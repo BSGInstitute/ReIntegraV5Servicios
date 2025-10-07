@@ -748,7 +748,7 @@ ORDER BY id DESC;
         /// <param name="idPGeneral">Id de Programa General</param>
         /// <param name="idCentroCosto">Id de Centro de Costo</param>
         /// <returns>List<ResumenProgramaDTO></returns> 
-        public async Task<List<Aplicacion.DTO.SCode.Modelos.IntegraDB.ResumenProgramaDTO>> ObtenerResumenProgramaPorIdPGeneral(int idPGeneral, int idCentroCosto)
+        public async Task<List<ResumenProgramaV3DTO>> ObtenerResumenProgramaPorIdPGeneral(int idPGeneral, int idCentroCosto)
         {
             var query = @"
         SELECT 
@@ -779,9 +779,9 @@ ORDER BY id DESC;
             var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral, idCentroCosto });
             if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
             {
-                return JsonConvert.DeserializeObject<List<Aplicacion.DTO.SCode.Modelos.IntegraDB.ResumenProgramaDTO>>(resultado);
+                return JsonConvert.DeserializeObject<List<ResumenProgramaV3DTO>>(resultado);
             }
-            return new List<Aplicacion.DTO.SCode.Modelos.IntegraDB.ResumenProgramaDTO>();
+            return new List<ResumenProgramaV3DTO>();
         }
 
 

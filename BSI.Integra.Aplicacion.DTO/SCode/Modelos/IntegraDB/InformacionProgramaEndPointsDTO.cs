@@ -105,7 +105,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public List<string> Sesiones { get; set; } 
     }
 
-    public class ResumenProgramaDTO
+    public class ResumenProgramaV3DTO
     {
         public int IdProgramaGeneral { get; set; }
         public string Categoria { get; set; }
@@ -328,7 +328,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public string FechaInicio { get; set; }
     }
 
-    public class CursoHijoDTO
+    public class CursoHijoV2DTO
     {
         public int Id { get; set; }
         public int IdPgeneral { get; set; }
