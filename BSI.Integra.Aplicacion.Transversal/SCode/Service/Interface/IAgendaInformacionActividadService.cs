@@ -10,7 +10,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         List<EncuestaAsignadoMatriculaDTO> ObtenerEncuestaAlumnoMatriculaCurso(int idMatricula);
         bool AgregarPEspecificoSesionEncuestaAlumno(AgregarPEspecificoSesionEncuestaAlumnoDTO data);
         bool AgregarComentarioEncuesta(EncuestaComentarioDTO Encuesta);
-        Task<object> ObtenerResumenPrograma(int idPGeneral, int idCentroCosto);
         Task<ObjetivosResponseDTO> GetObjetivosAsync(int idPGeneral);
         void InvalidarCache(int idPGeneral);
         void LimpiarTodoCache();
@@ -20,5 +19,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         Task<PautasComplementariasProgramaResponseDTO> GetPautasComplementariasProgramaAsync(int idPGeneral);
         Task<PerfilProfesionalClienteResponseDTO> GetPerfilProfesionalClienteAsync(int idAlumno);
         Task<object> ObtenerSilaboPorIdAsync(int idPgeneral);
+        Task<ModalidadesProgramaResponseDTO> ObtenerModalidadesPorPrograma(int idPGeneral);
     }
 }

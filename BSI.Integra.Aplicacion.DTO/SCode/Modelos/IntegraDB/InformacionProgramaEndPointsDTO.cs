@@ -455,4 +455,62 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public string? Seccion { get; set; }
         public string? Contenido { get; set; }
     }
+
+    public class ModalidadProgramaSimpleDTO
+    {
+        public string Tipo { get; set; }
+        public string CentroCosto { get; set; }
+        public string FechaHoraInicio { get; set; }
+    }
+
+    public class ModalidadesResponseDTO
+    {
+        public int IdPGeneral { get; set; }
+        public string EsProgramaOCurso { get; set; }
+        public List<ModalidadProgramaSimpleDTO> Modalidades { get; set; }
+        public string? Error { get; set; }
+    }
+    public class PGeneralAtributosPrincipalesv2DTO
+    {
+        public int Id { get; set; }
+        public int IdPGeneral { get; set; }
+        public string Nombre { get; set; }
+        public string PwImgPortada { get; set; }
+        public string PwDuracion { get; set; }
+        public int IdCategoria { get; set; }
+
+        // 🔹 NUEVA propiedad:
+        public string EsProgramaOCurso { get; set; }
+    }
+    public class PEspecificoPorIdPGeneralV2DTO
+    {
+        public int Id { get; set; }
+        public int IdCentroCosto { get; set; }
+        public string Nombre { get; set; }
+        public string CentroCosto { get; set; }
+        public string Ciudad { get; set; }
+        public string Tipo { get; set; }
+        public string Duracion { get; set; }
+        public int? EstadoPId { get; set; }
+        public DateTime FechaCreacion { get; set; }
+        public DateTime? FechaInicio { get; set; }
+        public string FechaInicioTexto { get; set; }
+        public string Frecuencia { get; set; }
+        public int IdCategoria { get; set; }
+        public string CodigoBanco { get; set; }
+    }
+    public class ModalidadesProgramaResponseDTO
+    {
+        public int IdPGeneral { get; set; }
+        public string EsProgramaOCurso { get; set; }
+        public List<ModalidadDTO> Modalidades { get; set; }
+        public string Error { get; set; }
+    }
+
+    public class Modalidadv2DTO
+    {
+        public string Tipo { get; set; }
+        public string CentroCosto { get; set; }
+        public string FechaInicio { get; set; }
+    }
 }

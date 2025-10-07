@@ -118,7 +118,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 Task.Run(async () => (object)await new AgendaInformacionActividadService(_unitOfWork).GetMetodologiaProgramaAsync(idPGeneral)),
                 Task.Run(async () => (object)await new InformacionProgramaService(_unitOfWork).CargarInformacionProgramaExpositoresAsync(idPGeneral)),
                 Task.Run(async () => (object)await new InformacionProgramaService(_unitOfWork).CargarInformacionProgramaEstructuraCurricularAsync(idPGeneral)),
-                Task.Run(async () => (object)await new AgendaInformacionActividadService(_unitOfWork).ObtenerResumenPrograma(idPGeneral, idCentroCosto))
+                Task.Run(async () => (object)await new AgendaInformacionActividadService(_unitOfWork).ObtenerModalidadesPorPrograma(idPGeneral))
             };
 
                 await Task.WhenAll(tareas);
