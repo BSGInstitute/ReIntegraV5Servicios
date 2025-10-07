@@ -1015,6 +1015,24 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             }
 
         }
+        public LlamadaProcesoAutoDTO ObtenerDatosConfiguracionCalificacionPorIdLlamada(int idLlamada)
+        {
+            try
+            {
+                LlamadaProcesoAutoDTO configuracion = new LlamadaProcesoAutoDTO();
+                var resultado = _dapperRepository.QuerySPFirstOrDefault("[com].[SP_ObtenerInformacionCalificacionLlamada]", new { IdLlamadaWebphoneCruceCentralTresCx=idLlamada });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                {
+                    configuracion = JsonConvert.DeserializeObject<LlamadaProcesoAutoDTO>(resultado);
+                }
+                return configuracion;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
         public IEnumerable<LlamadaProcesoAutoDTO> ObtenerHistoricoLlamadaCompletoPorIdOportunidad(int IdOportunidad)
         {
             try
@@ -1096,6 +1114,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                           req.IdCentroCosto,
                           req.IdFaseI,
                           req.IdFaseD,
+                          req.EstadoActividadCabecera,
                           req.Pagina,
                           req.TamanioPagina
                       }
@@ -1200,7 +1219,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                         : null,
                     request.IdCentroCosto,
                     request.IdFaseI,
-                    request.IdFaseD
+                    request.IdFaseD,
+                    request.EstadoActividadCabecera
                 }
             );
 

@@ -510,6 +510,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int? IdCentroCosto { get; set; }
         public int? IdFaseI { get; set; }
         public int? IdFaseD { get; set; }
+        public int? EstadoActividadCabecera { get; set; }
         public int Pagina { get; set; } = 1;
         public int TamanioPagina { get; set; } = 10;
     }
@@ -641,6 +642,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int? IdFaseI { get; set; }
 
         public int? IdFaseD { get; set; }
+        public int? EstadoActividadCabecera { get; set; }
     }
     public class ReporteCalificacionGlobalResponse
     {
