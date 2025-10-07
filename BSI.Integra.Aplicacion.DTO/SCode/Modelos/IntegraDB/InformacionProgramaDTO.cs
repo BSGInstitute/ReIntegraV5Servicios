@@ -172,6 +172,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public List<RegistroListaSeccionesDocumentoDTO> PublicoObjetivo { get; set; }
 
         public List<RegistroListaSeccionesDocumentoDTO> Metodologia { get; set; }
+        public List<RegistroListaSeccionesDocumentoDTO> Presentacion { get; set; }
         public List<ProgramaExpositoresDTO> Expositores { get; set; }
     }
     
