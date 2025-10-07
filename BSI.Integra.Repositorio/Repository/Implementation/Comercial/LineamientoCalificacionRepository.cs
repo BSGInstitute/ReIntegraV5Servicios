@@ -1457,7 +1457,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 		                                IdPersonal,
 		                                PuntoCritico,
 		                                ResumenLlamada FROM [com].[V_PuntosCriticosLlamadaDia]
-                                WHERE CAST(FechaReal AS DATE)=CAST(GETDATE()-1 AS DATE)";
+                                WHERE CAST(FechaReal AS DATE)=CAST(GETDATE()-1 AS DATE) order by IdPersonal desc";
                 var resultado = _dapperRepository.QueryDapper(query, new { });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
                 {

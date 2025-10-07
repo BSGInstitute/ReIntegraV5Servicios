@@ -864,7 +864,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                                     .Select(g => new
                                                     {
                                                         IdOportunidad = g.Key,
-                                                        Llamadas = g.OrderBy(x => x.IdActividadDetalle).ToList()
+                                                        Llamadas = g.OrderBy(x => x.IdActividadDetalle).ThenBy(x => x.FechaLlamada).ToList()
                                                     })
                                                     .ToList();
 
@@ -916,9 +916,9 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                                         .ObtenerHistoricoLlamadaCompletoPorIdOportunidad(oportunidad.IdOportunidad);
 
                        var llamadasHistoricas = todasLasLlamadas
-                            .Where(x => x.IdActividadDetalle <= item.IdActividadDetalle)
+                            .Where(x => x.IdActividadDetalle <= item.IdActividadDetalle && x.EsLlamadaTranscrita==true)
                             .OrderByDescending(x => x.IdActividadDetalle)
-                            .ThenByDescending(x => x.IdLlamada)
+                            .ThenByDescending(x => x.FechaLlamada)
                             .Select(x => x.IdLlamada)
                             .ToList();
 
@@ -977,13 +977,30 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         ));
 
                         // Prevalidacion de estado de calificacion
-                       var llamadaActualizada = _unitOfWork.LineamientoCalificacionRepository
+                        var llamadaActualizada = _unitOfWork.LineamientoCalificacionRepository
                             .ObtenerDatosConfiguracionCalificacionPorIdLlamada(item.IdLlamada);
 
                         if (llamadaActualizada?.EsLlamadaCalificada == true)
                         {
                             Console.WriteLine($"[SKIP] Llamada {item.IdLlamada} ya fue calificada por otro proceso");
                             return false;
+                        }
+                        // VALIDACIÓN: Verificar que la llamada actual esté en la primera posición
+                        if (transcripcionesHistoricas.Any())
+                        {
+                            var primeraTranscripcion = transcripcionesHistoricas.First();
+
+                            // Verificar si la primera transcripción corresponde a la llamada actual
+                            if (primeraTranscripcion.IdLlamada != item.IdLlamada.ToString())
+                            {
+                                Console.WriteLine($"[SKIP] La llamada actual {item.IdLlamada} no está en la primera posición del array. Primera posición: {primeraTranscripcion.IdLlamada}");
+                                return false; // No procesar esta llamada
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"[SKIP] No hay transcripciones disponibles para la llamada {item.IdLlamada}");
+                            return false; // No procesar si no hay transcripciones
                         }
 
                         //var response = await httpClient.PostAsJsonAsync("grading/queue/batch", payload);
@@ -1184,7 +1201,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             if (!todasLasLlamadas.Any())
                 return new List<LlamadaProcesoAutoDTO>();
 
-            // Ordenar por fechaLlamada (orden cronológico real)
+            // Ordenar por fechaLlamada
             var llamadasOrdenadas = todasLasLlamadas
                 .OrderBy(x => x.IdActividadDetalle) // Primero por ID (más antiguo)
                 .ThenBy(x => x.FechaLlamada).ToList();        // Luego por fecha (más antigua)
