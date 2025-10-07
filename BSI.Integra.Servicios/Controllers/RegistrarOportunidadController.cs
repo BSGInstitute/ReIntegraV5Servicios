@@ -1,4 +1,5 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.Marketing.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
@@ -59,6 +60,7 @@ namespace BSI.Integra.Servicios.Controllers
                 AreaTrabajoService servicioAreaTrabajo = new AreaTrabajoService(_unitOfWork);
                 IndustriaService servicioIndustria = new IndustriaService(_unitOfWork);
                 PersonalService servicioPersonal = new PersonalService(_unitOfWork);
+                WhatsAppMensajeEnviadoService servicioWhatsapp = new WhatsAppMensajeEnviadoService(_unitOfWork);
 
                 var area = servicioPersonal.ObtenerPersonalPorId(idPersonal);
                 string variable = "";
@@ -66,7 +68,9 @@ namespace BSI.Integra.Servicios.Controllers
                 {
                     variable = area.AreaAbrev.ToString();
                 }
-                if (idPersonal == 5447 || idPersonal == 6114 || idPersonal == 259 || idPersonal == 4094 || idPersonal == 5891 || idPersonal == 5268 || idPersonal == 6089 || idPersonal == 5305)//5447:Maria Idme,6114_Karyme Muniz,259:Edita Alcalde,4094:Jackeline Villodas,5891:Giovani Montejo,5268:Demnisse Santillan,6089:Jessica Ochoa,5305:Jhoselin davila
+
+                bool esValido = servicioWhatsapp.EsAsesorVentasValido(idPersonal);
+                if (esValido || idPersonal == 5447 || idPersonal == 4094 || idPersonal == 5891)
                 {
                     variable = "MKT";
                 }
