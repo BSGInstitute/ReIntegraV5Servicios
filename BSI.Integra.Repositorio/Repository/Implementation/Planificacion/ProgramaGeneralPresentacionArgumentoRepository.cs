@@ -366,5 +366,24 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
+
+        public List<PresentacionProgramadto> ObtenerProgramaGeneralPresentacionArgumento(int idPGeneral)
+        {
+            try
+            {
+                List<PresentacionProgramadto> presentacionArgumento = new List<PresentacionProgramadto>();
+                var resultadoStoreProcedure = _dapperRepository.QueryDapper("SELECT IdPGeneral,Titulo,IdPGeneral,Cabecera ,Solucion FROM com.V_ObtenerPresentacionPrograma WHERE IdPGeneral=@IdPGeneral", new { IdPGeneral = idPGeneral });
+                if (!string.IsNullOrEmpty(resultadoStoreProcedure) && !resultadoStoreProcedure.Contains("[]"))
+                {
+                    presentacionArgumento = JsonConvert.DeserializeObject<List<PresentacionProgramadto>>(resultadoStoreProcedure);
+                }
+                return presentacionArgumento;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }

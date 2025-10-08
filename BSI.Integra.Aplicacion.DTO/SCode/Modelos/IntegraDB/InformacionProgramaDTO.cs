@@ -28,7 +28,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int CodigoPais { get; set; }
         public string CodigoISOPais { get; set; }
         public string SimboloMoneda { get; set; }
-	    public string CodigoMoneda { get; set; }
+        public string CodigoMoneda { get; set; }
     }
 
     public class CargarInformacionProgramaRespuestaOperacionesAtcDTO
@@ -119,7 +119,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     public class CargarInformacionProgramaEndpointsDTO
     {
         // Configuración de beneficios
-        public List<PgeneralConfiguracionBeneficioDTO> ConfiguracionBeneficios { get; set; } 
+        public List<PgeneralConfiguracionBeneficioDTO> ConfiguracionBeneficios { get; set; }
         public IEnumerable<DocumentoPwVersionesPGeneralDTO> IntroduccionesBeneficio { get; set; }
 
         // Inversión
@@ -156,5 +156,25 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         // Beneficios filtrados por país
         public List<PgeneralConfiguracionBeneficioDTO> ConfiguracionBeneficiosFiltradosPorPais { get; set; } = new();
     }
+
+    public class InformacionProgramaSpeechDTO
+    {
+        public List<PresentacionProgramadto> RefuerzodeConfianza { get; set; }
+        public List<PresentacionProgramadto> Limitaciones { get; set; }
+        public List<PresentacionProgramadto> Demostracióndevalor { get; set; }
+        public List<PresentacionProgramadto> Aspectosdiferenciadores { get; set; }
+        public List<PresentacionProgramadto> Garantiadeprograma { get; set; }
+        public List<PEspecificoPorIdPGeneral> Modalidad { get; set; }
+        public List<RegistroListaSeccionesDocumentoDTO> Objetivos { get; set; }
+        public ObtenerMontos2RespuestaDTO Montos { get; set; }
+        public List<ProgramaGeneralSeccionDocumentoDTO> DatosAdicionales { get; set; }
+        public List<RegistroListaSeccionesDocumentoDTO> DuracionHorario { get; set; }
+        public List<RegistroListaSeccionesDocumentoDTO> PublicoObjetivo { get; set; }
+
+        public List<RegistroListaSeccionesDocumentoDTO> Metodologia { get; set; }
+        public List<RegistroListaSeccionesDocumentoDTO> Presentacion { get; set; }
+        public List<ProgramaExpositoresDTO> Expositores { get; set; }
+    }
+    
 
 }

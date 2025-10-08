@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BSI.Integra.Aplicacion.Base.Classes;
 using BSI.Integra.Aplicacion.Base.Enums;
 using BSI.Integra.Aplicacion.Base.Exceptions;
 using BSI.Integra.Aplicacion.DTO;
@@ -5652,7 +5653,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             try
             {
                 var asignacionAutomaticaRepositorio = _unitOfWork.AsignacionAutomaticaRepository;
-
                 var _repOportunidadLog = _unitOfWork.OportunidadLogRepository;
                 var rpta = CrearOportunidadPortalWeb(IdAsignacionAutomatica);
                 var IdOportunidad = asignacionAutomaticaRepositorio.FirstById(IdAsignacionAutomatica).IdOportunidad;
@@ -5685,7 +5685,16 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         var _repLog = _unitOfWork.LogRepository;
                         _repLog.Insert(new TLog { Ip = "-", Usuario = "-", Maquina = "-", Ruta = "CrearOportunidadWebHookFacebook", Parametros = $"IdAsignacionAutomatica={IdAsignacionAutomatica}", Mensaje = $"Excedio el numero de intentos de validacion ({nroIntentos} intentos) posterior a la creacion", Excepcion = $"Excedio el numero de intentos de validacion ({nroIntentos} intentos) posterior a la creacion", Tipo = "VALIDATE", IdPadre = 0, UsuarioCreacion = string.Empty, UsuarioModificacion = string.Empty, FechaCreacion = DateTime.Now, FechaModificacion = DateTime.Now, Estado = true });
                     }
-
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await EvaluarConversionFacebook((int)IdOportunidad);
+                        }
+                        catch (Exception ex)
+                        {
+                        }
+                    });
                     return (int)IdOportunidad;
                 }
                 return (int)IdOportunidad;
@@ -6776,7 +6785,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 try
                 {
                     var nuevaProbabilidad =ObtenerProbabilidadModeloPredictivo(Oportunidad.Id);
-
+                    
                 }
                 catch (Exception e)
                 {
@@ -6807,5 +6816,37 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw new Exception(e.Message);
             }
         }
+        public async Task EvaluarConversionFacebook(int oportunidadId)
+        {
+            try
+            {
+                var _repOportunidad = _unitOfWork.OportunidadRepository;
+
+                var conversionFb = await _repOportunidad.ObtenerInformacionOportunidadConversionAsync(oportunidadId);
+                if (conversionFb != null)
+                {
+                    var informacionOportunidad = await _unitOfWork.OportunidadRepository
+                        .ObtenerInformacionOportunidadProbabilidadAsync(oportunidadId);
+
+                    HelperConversionFacebook helperConversionFacebook = new HelperConversionFacebook();
+
+                    await helperConversionFacebook.SendToFacebookConversionsApiAsync(
+                        conversionFb.LeadId,
+                        conversionFb.Email,
+                        conversionFb.Telefono,
+                        informacionOportunidad.ClasificacionProbabilidad,
+                        informacionOportunidad.IdFaseOportunidadAnterior,
+                        informacionOportunidad.IdFaseOportunidadActual
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en EvaluarConversionFacebook: {ex.Message}");
+            }
+        }
+
+
     }
 }
+    
