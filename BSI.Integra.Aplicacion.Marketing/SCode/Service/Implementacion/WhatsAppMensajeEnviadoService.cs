@@ -1598,8 +1598,8 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
         /// <returns>Resultado del servicio externo</returns>
         public async Task<DesactivarInteraccionResponseDTO> DesactivarInteraccionAutomaticaWhatsapp(string celularAlumno, string idCampania)
         {
-            string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/testing/api/interaccion_whatsapp/forzar_derivacion/?num_whatsapp={celularAlumno}&id_campania={idCampania}";
-            //string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/api/interaccion_whatsapp/forzar_derivacion/?num_whatsapp={celularAlumno}&id_campania={idCampania}";
+            //string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/testing/api/interaccion_whatsapp/forzar_derivacion/?num_whatsapp={celularAlumno}&id_campania={idCampania}";
+            string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/api/interaccion_whatsapp/forzar_derivacion/?num_whatsapp={celularAlumno}&id_campania={idCampania}";
 
             using (var client = new HttpClient())
             {
@@ -1629,8 +1629,8 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
         /// <returns>Resultado del servicio externo</returns>
         public async Task<DatosInteraccionAutomaticaResponseDTO> ObtenerDatosExtraidosInteraccionAutomatica(string celularAlumno)
         {
-            string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/testing/api/interaccion_whatsapp/consulta_datos_extraidos/?num_whatsapp={celularAlumno}";
-            //string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/api/interaccion_whatsapp/consulta_datos_extraidos/?num_whatsapp={celularAlumno}";
+            //string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/testing/api/interaccion_whatsapp/consulta_datos_extraidos/?num_whatsapp={celularAlumno}";
+            string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/api/interaccion_whatsapp/consulta_datos_extraidos/?num_whatsapp={celularAlumno}";
 
             using (var client = new HttpClient())
             {
@@ -1660,8 +1660,8 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
         /// <returns>Resultado del servicio externo</returns>
         public async Task<DesactivarInteraccionResponseDTO> ValidarGuardadoDatosInteraccionAutomatica(string celularAlumno)
         {
-            string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/testing/api/interaccion_whatsapp/validacion/?num_whatsapp={celularAlumno}";
-            //string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/api/interaccion_whatsapp/validacion/?num_whatsapp={celularAlumno}";
+            //string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/testing/api/interaccion_whatsapp/validacion/?num_whatsapp={celularAlumno}";
+            string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/api/interaccion_whatsapp/validacion/?num_whatsapp={celularAlumno}";
 
             using (var client = new HttpClient())
             {
