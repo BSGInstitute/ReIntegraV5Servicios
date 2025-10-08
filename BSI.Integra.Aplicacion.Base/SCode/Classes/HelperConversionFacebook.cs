@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using BSI.Integra.Aplicacion.DTOs;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace BSI.Integra.Aplicacion.Base.Classes
 {
     public class HelperConversionFacebook
@@ -49,10 +49,10 @@ namespace BSI.Integra.Aplicacion.Base.Classes
         public class UserDataDTO
         {
             [JsonProperty("em")]
-            public string[] Em { get; set; }
+            public string Em { get; set; }
 
             [JsonProperty("ph")]
-            public string[] Ph { get; set; }
+            public string Ph { get; set; }
 
             [JsonProperty("lead_id")]
             public string LeadId { get; set; }
@@ -66,7 +66,7 @@ namespace BSI.Integra.Aplicacion.Base.Classes
             [JsonProperty("lead_event_source")]
             public string LeadEventSource { get; set; } = "CRM Integra";
         }
-        public async Task<bool> SendToFacebookConversionsApiAsync(string leadId, string email, string telefono, string Probabilidad, int idFaseAnterior, int idFaseOportunidadActual)
+        public async Task<bool> EnviarApiConversionesFacebookAsincronica(int IdFacebookFormularioLeadgenm, string leadId, string email, string telefono, string Probabilidad, int idFaseAnterior, int idFaseOportunidadActual)
         {
             var Eventos = ValidarFasesProbabilidadEvento(Probabilidad, idFaseAnterior, idFaseOportunidadActual);
             if (Eventos.Count == 0)
@@ -74,32 +74,50 @@ namespace BSI.Integra.Aplicacion.Base.Classes
             try
             {
                 bool exito = true;
+                bool tieneEmailValido = !string.IsNullOrEmpty(email);
+                bool tieneTelefonoValido = !string.IsNullOrEmpty(telefono);
+
+                if (!tieneEmailValido && !tieneTelefonoValido)
+                {
+                    return false;
+                }
+
                 foreach (var eventos in Eventos)
                 {
                     var eventName = GetEventNameForFase(eventos);
                     var eventTime = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
 
+                    var userData = new UserDataDTO
+                    {
+                        LeadId = leadId
+                    };
+
+                    if (tieneEmailValido)
+                    {
+                        userData.Em = Sha256Hash(email);
+                    }
+
+                    if (tieneTelefonoValido)
+                    {
+                        userData.Ph = Sha256Hash(telefono);
+                    }
+
                     var facebookEvent = new FacebookLeadEventDTO
                     {
                         EventName = eventName,
                         EventTime = eventTime,
-                        UserData = new UserDataDTO
-                        {
-                            LeadId = leadId,
-                            Em = !string.IsNullOrEmpty(email) ? new[] { Sha256Hash(email) } : null,
-                            Ph = !string.IsNullOrEmpty(telefono) ? new[] { Sha256Hash(telefono) } : null
-                        },
+                        UserData = userData,
                         CustomData = new CustomDataDTO()
                     };
 
                     var resultado = await SendLeadEventAsync(facebookEvent);
                     if (!resultado) exito = false;
                 }
+
                 return exito;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error enviando a Facebook Conversions API: {ex.Message}");
                 return false;
             }
         }
@@ -149,36 +167,61 @@ namespace BSI.Integra.Aplicacion.Base.Classes
         }
         private async Task<bool> SendLeadEventAsync(FacebookLeadEventDTO leadEvent)
         {
-            using (var client = new HttpClient())
+            try
             {
-                var url = $"https://graph.facebook.com/v23.0/{_pixelId}/events";
-
-                var requestData = new
+                using (var client = new HttpClient())
                 {
-                    access_token = _accessToken,
-                    data = new[] { leadEvent },
-                    //test_event_code = _testMode ? _testEventCode : null
-                };
+                    client.Timeout = TimeSpan.FromSeconds(30);
 
-                var json = JsonConvert.SerializeObject(requestData, new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore
-                });
+                    var url = $"https://graph.facebook.com/v23.0/{_pixelId}/events";
 
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    var requestData = new
+                    {
+                        access_token = _accessToken,
+                        data = new[] { leadEvent },
+                        //test_event_code = _testMode ? _testEventCode : null
+                    };
 
-                var response = await client.PostAsync(url, content);
-                var responseContent = await response.Content.ReadAsStringAsync();
+                    var json = JsonConvert.SerializeObject(requestData, new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore
+                    });
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    Console.WriteLine($"Error Facebook API: {response.StatusCode} - {responseContent}");
-                    return false;
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    var response = await client.PostAsync(url, content);
+                    var responseContent = await response.Content.ReadAsStringAsync();
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        string errorMessage = $"Error Facebook API -Status: { response.StatusCode}-{responseContent}";
+                        //SendErrorEmail(errorMessage);
+                        return false;
+                    }
+
+                    Console.WriteLine($"Success Facebook API: {responseContent}");
+                    return true;
                 }
-                Console.WriteLine($"Success Facebook API: {responseContent}");
-                return true;
             }
-        }
+            catch (TaskCanceledException)
+            {
+                string errorMessage = "Timeout en la conexión con Facebook API (30 segundos)";
+                //SendErrorEmail(errorMessage);
+                return false;
+            }
+            catch (HttpRequestException ex)
+            {
+                string errorMessage = $"Error de conexión con Facebook: {ex.Message}";
+                //SendErrorEmail(errorMessage, ex.ToString());
+                return false;
+            }
+            catch (Exception ex)
+            {
+                string errorMessage = $"Error inesperado al enviar a Facebook: {ex.Message}";
+                //SendErrorEmail(errorMessage,ex.ToString());
+                return false;
+            }
+        }        
 
         private static string Sha256Hash(string input)
         {
@@ -192,5 +235,33 @@ namespace BSI.Integra.Aplicacion.Base.Classes
                 return BitConverter.ToString(bytes).Replace("-", "").ToLower();
             }
         }
+        //private void SendErrorEmail(string error, string fullError = null)
+        //{
+        //    try
+        //    {
+        //        List<string> correos = new List<string>();
+        //        correos.Add("mmantilla@bsginstitute.com");
+        //        var Mailservice = new TMK_MailService();
+        //        var mailData = new TMKMailDataDTO();
+        //        mailData.Sender = "jcayo@bsginstitute.com";
+        //        mailData.Recipient = string.Join(",", correos);
+        //        mailData.Subject = "Error Envío Facebook Lead Event";
+        //        mailData.Message =
+        //            $"Error: {error}<br/>" +
+        //            $"{(fullError != null ? $"Detalles completos:<br/>{fullError}" : "")}";
+        //        mailData.Cc = "";
+        //        mailData.Bcc = "";
+        //        mailData.AttachedFiles = null;
+
+        //        Mailservice.SetData(mailData);
+        //        Mailservice.SendMessageTask();
+
+        //        Console.WriteLine("Correo de error enviado exitosamente");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"Error al enviar correo de notificación: {ex.Message}");
+        //    }
+        //}
     }
 }

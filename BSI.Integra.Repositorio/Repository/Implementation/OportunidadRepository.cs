@@ -4370,12 +4370,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception("Error al obtener oportunidades masivas", ex);
             }
         }
-        public async Task<OportunidadConversionesDTO> ObtenerInformacionOportunidadConversionAsync(int idOportunidad)
+        public async Task<OportunidadConversionesDTO> ObtenerInformacionOportunidadConversionAsincronica(int idOportunidad)
         {
             try
             {
                 OportunidadConversionesDTO informacionConversion = new OportunidadConversionesDTO();
                 var query = @"SELECT 
+                            FFL.Id AS IdFacebookFormularioLeadgen,
                             FFL.IdLeadgenFacebook AS LeadId,
                             AA.IdOportunidad,
                             FFL.Email,
@@ -4400,7 +4401,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 return null;
             }
         }
-        public async Task<OportunidadDetalleProbabilidadDTO> ObtenerInformacionOportunidadProbabilidadAsync(int idOportunidad)
+        public async Task<OportunidadDetalleProbabilidadDTO> ObtenerInformacionOportunidadProbabilidadAsincronica(int idOportunidad)
         {
             try
             {

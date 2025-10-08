@@ -6822,22 +6822,53 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             {
                 var _repOportunidad = _unitOfWork.OportunidadRepository;
 
-                var conversionFb = await _repOportunidad.ObtenerInformacionOportunidadConversionAsync(oportunidadId);
+                var conversionFb = await _repOportunidad.ObtenerInformacionOportunidadConversionAsincronica(oportunidadId);
                 if (conversionFb != null)
                 {
-                    var informacionOportunidad = await _unitOfWork.OportunidadRepository
-                        .ObtenerInformacionOportunidadProbabilidadAsync(oportunidadId);
+                    var informacionOportunidad = await _unitOfWork.OportunidadRepository.ObtenerInformacionOportunidadProbabilidadAsincronica(oportunidadId);
 
-                    HelperConversionFacebook helperConversionFacebook = new HelperConversionFacebook();
+                    if (informacionOportunidad != null)
+                    {
+                        HelperConversionFacebook helperConversionFacebook = new HelperConversionFacebook();
+                        try
+                        {
+                            await helperConversionFacebook.EnviarApiConversionesFacebookAsincronica(
+                                conversionFb.IdFacebookFormularioLeadgen,
+                                conversionFb.LeadId,
+                                conversionFb.Email,
+                                conversionFb.Telefono,
+                                informacionOportunidad.ClasificacionProbabilidad,
+                                informacionOportunidad.IdFaseOportunidadAnterior,
+                                informacionOportunidad.IdFaseOportunidadActual
+                            );
+                        }
+                        catch (Exception ex)
+                        {
+                            List<string> correos = new List<string>();
+                            correos.Add("mmantilla@bsginstitute.com");
+                            var Mailservice = new TMK_MailService();
+                            var mailData = new TMKMailDataDTO();
+                            mailData.Sender = "jcayo@bsginstitute.com";
+                            mailData.Recipient = string.Join(",", correos);
+                            mailData.Subject = "Error FinalizarYProgramarActividad Transaction";
+                            mailData.Message =
+                                $"IdOportunidad: {oportunidadId}<br/>" +
+                                $"IdFacebookFormularioLeadgen: {conversionFb.IdFacebookFormularioLeadgen}<br/>" +
+                                $"LeadId: {conversionFb.LeadId}<br/>" +
+                                $"Email: {conversionFb.Email}<br/>" +
+                                $"Telefono: {conversionFb.Telefono}<br/>" +
+                                $"ClasificacionProbabilidad: {informacionOportunidad.ClasificacionProbabilidad}<br/>" +
+                                $"IdFaseOportunidadAnterior: {informacionOportunidad.IdFaseOportunidadAnterior}<br/>" +
+                                $"IdFaseOportunidadActual: {informacionOportunidad.IdFaseOportunidadActual}<br/>" +
+                                $"Error: {ex.Message}<br/>Mensaje toString:<br/>{ex.ToString()}";
+                            mailData.Cc = "";
+                            mailData.Bcc = "";
+                            mailData.AttachedFiles = null;
 
-                    await helperConversionFacebook.SendToFacebookConversionsApiAsync(
-                        conversionFb.LeadId,
-                        conversionFb.Email,
-                        conversionFb.Telefono,
-                        informacionOportunidad.ClasificacionProbabilidad,
-                        informacionOportunidad.IdFaseOportunidadAnterior,
-                        informacionOportunidad.IdFaseOportunidadActual
-                    );
+                            Mailservice.SetData(mailData);
+                            Mailservice.SendMessageTask();
+                        }
+                    }
                 }
             }
             catch (Exception ex)
