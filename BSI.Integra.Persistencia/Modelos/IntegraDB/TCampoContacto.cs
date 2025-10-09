@@ -58,6 +58,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Id de la tabla Original al migrar
         /// </summary>
         public Guid? IdMigracion { get; set; }
+        /// <summary>
+        /// Informacion sobre el nombre proporcionado por el usuario
+        /// </summary>
+        public string? NombreLabel { get; set; }
 
         public virtual ICollection<TAccionFormularioPorCampoContacto> TAccionFormularioPorCampoContactos { get; set; }
     }

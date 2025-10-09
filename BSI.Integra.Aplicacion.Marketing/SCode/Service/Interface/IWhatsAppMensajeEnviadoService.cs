@@ -65,6 +65,8 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Interface
         public List<ChatWhatsAppMarketingDTO> ObtenerChatWhatsAppFacebookMarketing(int Tab, int Dia, int IdAsesor);
         public bool EsAsesorVentasValido(int idAsesor);
         Task<DatosExtraccionRegistrosResponseDTO> CapturarRegistrosModeloIA(DatosExtraccionRegistrosDTO datosExtraccionRegistros);
-
+        Task<DesactivarInteraccionResponseDTO> DesactivarInteraccionAutomaticaWhatsapp(string celularAlumno, string idCampania);
+        Task<DatosInteraccionAutomaticaResponseDTO> ObtenerDatosExtraidosInteraccionAutomatica(string celularAlumno);
+        Task<DesactivarInteraccionResponseDTO> ValidarGuardadoDatosInteraccionAutomatica(string celularAlumno);
     }
 }
