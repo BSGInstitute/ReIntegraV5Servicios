@@ -5929,6 +5929,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsUnicode(false)
                     .HasComment("Nombre del campo");
 
+                entity.Property(e => e.NombreLabel)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Informacion sobre el nombre proporcionado por el usuario");
+
                 entity.Property(e => e.Procedimiento)
                     .HasMaxLength(100)
                     .IsUnicode(false)
