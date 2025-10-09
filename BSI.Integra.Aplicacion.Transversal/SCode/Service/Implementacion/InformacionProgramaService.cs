@@ -318,6 +318,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             List<RegistroListaSeccionesDocumentoDTO> objetivos = _unitOfWork.DocumentoSeccionPwRepository.ObtenerDatosComplementariosProgramaGeneralV2Objetivos(idPGeneral);
             ObtenerMontos2RespuestaDTO montosBeneficios = ObtenerMontoPresentacionPrograma(idPGeneral, codigoPais);
             List<PEspecificoPorIdPGeneral> modalidad = servicioPEspecifico.ObtenerFechaInicioProgramaTodos(idPGeneral);
+            List<RegistroListaSeccionesDocumentoDTO> prerrequisitosLista = _unitOfWork.DocumentoSeccionPwRepository.ObtenerSeccionDocumento(idPGeneral);
+            List<RegistroListaSeccionesDocumentoDTO> prerrequisitos = prerrequisitosLista.Where(x => string.Equals(x.Titulo?.Trim(), "Prerrequisitos", StringComparison.OrdinalIgnoreCase)).ToList();
             List<RegistroListaSeccionesDocumentoDTO>  horario = seccionV1.Where(s => {
                 var t = (s.Titulo ?? "").Trim();
                 return t.Equals("Duración y Horarios", StringComparison.OrdinalIgnoreCase)
@@ -349,6 +351,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 Metodologia = metodologias,
                 Expositores = expositores,
                 Presentacion= presentacion,
+                Prerrequisitos = prerrequisitos,
                 DatosAdicionales = listaadicionales
                 
             };
