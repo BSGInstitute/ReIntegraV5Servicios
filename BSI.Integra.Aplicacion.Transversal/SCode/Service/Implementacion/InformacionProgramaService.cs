@@ -91,7 +91,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
             if (idPGeneral != 0)
             {
-                informacionPrograma = CargarInformacionProgramaSinHTML(idPGeneral,codigoPais,idMatriculaCabecera,idOportunidad);
+     informacionPrograma = CargarInformacionProgramaSinHTML(idPGeneral,codigoPais,idMatriculaCabecera,idOportunidad);
             }
             return informacionPrograma;
         }

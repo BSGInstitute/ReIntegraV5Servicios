@@ -370,9 +370,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 List<BeneficioDTO> rpta = new List<BeneficioDTO>();
                 var query = @"
-                    SELECT Paquete, Titulo, OrdenBeneficio
-                    FROM pla.V_BeneficiosProgramaTipo1V2
-                    WHERE Id = @idPGeneral And CodigoPais = @codigoPais";
+                    SELECT VP.Nombre AS NombrePaquete ,MAT.Paquete, MAT.Titulo, MAT.OrdenBeneficio
+                    FROM pla.V_BeneficiosProgramaTipo1V2 MAT
+                    JOIN pla.T_VersionPrograma VP
+				    ON VP.Id = MAT.Paquete 
+                    WHERE MAT.Id = @idPGeneral And MAT.CodigoPais = @codigoPais";
                 var resultado = _dapperRepository.QueryDapper(query, new { idPGeneral, codigoPais });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
