@@ -318,6 +318,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             List<RegistroListaSeccionesDocumentoDTO> objetivos = _unitOfWork.DocumentoSeccionPwRepository.ObtenerDatosComplementariosProgramaGeneralV2Objetivos(idPGeneral);
             ObtenerMontos2RespuestaDTO montosBeneficios = ObtenerMontoPresentacionPrograma(idPGeneral, codigoPais);
             List<PEspecificoPorIdPGeneral> modalidad = servicioPEspecifico.ObtenerFechaInicioProgramaTodos(idPGeneral);
+            List<RegistroListaSeccionesDocumentoDTO> prerrequisitosLista = _unitOfWork.DocumentoSeccionPwRepository.ObtenerSeccionDocumento(idPGeneral);
+            List<RegistroListaSeccionesDocumentoDTO> prerrequisitos = prerrequisitosLista.Where(x => string.Equals(x.Titulo?.Trim(), "Prerrequisitos", StringComparison.OrdinalIgnoreCase)).ToList();
             List<RegistroListaSeccionesDocumentoDTO>  horario = seccionV1.Where(s => {
                 var t = (s.Titulo ?? "").Trim();
                 return t.Equals("Duración y Horarios", StringComparison.OrdinalIgnoreCase)
@@ -325,7 +327,12 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             })
                .ToList();
             List<RegistroListaSeccionesDocumentoDTO> publicoObjetivo = seccionV1.Where(s => string.Equals(s.Titulo?.Trim(), "Público Objetivo", StringComparison.OrdinalIgnoreCase)).ToList();
-            List<RegistroListaSeccionesDocumentoDTO> metodologias = seccionV1.Where(s => string.Equals(s.Titulo?.Trim(), "Metodología Online De Este programa", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<RegistroListaSeccionesDocumentoDTO> metodologias = seccionV1.Where(s => {
+                var t = (s.Titulo ?? "").Trim();
+                return t.Equals("Metodología Online De Este programa", StringComparison.OrdinalIgnoreCase)
+                    || t.Equals("Metodolog&#237;a Online De Este programa", StringComparison.OrdinalIgnoreCase);
+            })
+               .ToList();
             List<RegistroListaSeccionesDocumentoDTO> presentacion = seccionV1.Where(s => string.Equals(s.Titulo?.Trim(), "Presentación", StringComparison.OrdinalIgnoreCase)).ToList();
             List<ProgramaGeneralSeccionDocumentoDTO> listaadicionales = sericioDocumentoAgendaService.ObtenerListaSeccionDocumentoProgramaGeneralSpeech(idPGeneral);
             List<ProgramaExpositoresDTO> expositores = _unitOfWork.DocumentoSeccionPwRepository.ObtenerExpositoresPorIdGeneral(idPGeneral);
@@ -344,6 +351,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 Metodologia = metodologias,
                 Expositores = expositores,
                 Presentacion= presentacion,
+                Prerrequisitos = prerrequisitos,
                 DatosAdicionales = listaadicionales
                 
             };
