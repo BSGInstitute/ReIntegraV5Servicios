@@ -63,10 +63,10 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
     {
         public int IdPGeneral { get; set; }
         public string EsProgramaOCurso { get; set; }
-        public List<ExpositorDTO> Expositores { get; set; }
+        public List<Expositor2DTO> Expositores { get; set; }
         public string Error { get; set; }
     }
-    public class ExpositorDTO
+    public class Expositor2DTO
     {
         public string nombre { get; set; }
         public List<string> descripcion { get; set; }
@@ -280,11 +280,11 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
     {
         public int IdPGeneral { get; set; }
         public string EsProgramaOCurso { get; set; }
-        public object Informacion { get; set; } // Será InformacionProgramaDTO o InformacionCursoDTO
+        public object Informacion { get; set; }
         public string Error { get; set; }
     }
 
-    public class InformacionProgramaDTO
+    public class InformacionPrograma2DTO
     {
         public List<string> Presentacion { get; set; }
         public List<string> Objetivos { get; set; }
@@ -299,7 +299,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public List<BeneficioVersionDTO> Beneficios { get; set; }
         public List<string> Certificacion { get; set; }
         public MetodologiaDTO Metodologia { get; set; }
-        public List<ExpositorDTO> Expositores { get; set; }
+        public List<Expositor2DTO> Expositores { get; set; }
     }
 
     public class InformacionCursoDTO
@@ -317,7 +317,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public List<DuracionHorarioItemDTO> DuracionHorarios { get; set; }
         public List<string> Certificacion { get; set; }
         public MetodologiaDTO Metodologia { get; set; }
-        public List<ExpositorDTO> Expositores { get; set; }
+        public List<Expositor2DTO> Expositores { get; set; }
         public List<string> PautasComplementarias { get; set; }
     }
 
@@ -407,7 +407,6 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public List<EstructuraCurricularv2DTO> EstructuraCurricular { get; set; }
         public List<string> MaterialCurso { get; set; }
         public List<string> Bibliografia { get; set; }
-        //public string Error { get; set; }
     }
     public class PgeneralDocumentoSeccionv2DTO
     {
@@ -423,10 +422,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public int Id { get; set; }
         public int? IdPgeneral { get; set; }
         public string Nombre { get; set; }
-        public string Pg_titulo { get; set; }
         public string pw_duracion { get; set; }
         public int Orden { get; set; }
-        public List<SeccionDocumentov2DTO> ListaSeccion { get; set; } = new List<SeccionDocumentov2DTO>();
     }
 
     public class SeccionDocumentov2DTO
@@ -478,8 +475,6 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public string PwImgPortada { get; set; }
         public string PwDuracion { get; set; }
         public int IdCategoria { get; set; }
-
-        // 🔹 NUEVA propiedad:
         public string EsProgramaOCurso { get; set; }
     }
     public class PEspecificoPorIdPGeneralV2DTO
