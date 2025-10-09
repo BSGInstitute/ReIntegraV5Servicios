@@ -721,19 +721,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <returns>string (contenido de la nota) o null si no existe</returns>
         public async Task<string> ObtenerNotaEstructuraCurricularAsync(int idPGeneral)
         {
-            var query = @"
-        SELECT TOP 1 dcs.Contenido
-        FROM pla.T_PGeneralDocumento_PW pdc WITH (NOLOCK)
-        INNER JOIN pla.T_Documento_PW dc WITH (NOLOCK) ON pdc.IdDocumento = dc.Id
-        INNER JOIN pla.T_DocumentoSeccion_PW dcs WITH (NOLOCK) ON dcs.IdDocumentoPW = dc.Id
-        WHERE 
-            pdc.IdPGeneral = @idPGeneral
-            AND pdc.Estado = 1
-            AND dc.Estado = 1
-            AND dcs.Estado = 1
-            AND dc.IdPlantillaPW IN (10, 11)
-            AND dcs.Titulo = 'Descripción Estructura'
-        ORDER BY dcs.NumeroFila ASC;";
+            var query = @"SELECT Contenido
+                            FROM pla.V_TPGeneralDocumentoPW_DescripcionEstructura
+                            WHERE IdPGeneral = @idPGeneral AND Rn = 1;";
 
             var resultado = await _dapperRepository.FirstOrDefaultAsync(query, new { idPGeneral });
 
