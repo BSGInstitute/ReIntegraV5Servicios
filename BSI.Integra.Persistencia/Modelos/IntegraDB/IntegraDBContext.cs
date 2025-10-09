@@ -341,6 +341,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TFacebookAudiencium> TFacebookAudiencia { get; set; } = null!;
         public virtual DbSet<TFacebookCuentaPublicitarium> TFacebookCuentaPublicitaria { get; set; } = null!;
         public virtual DbSet<TFacebookFormularioLeadgen> TFacebookFormularioLeadgens { get; set; } = null!;
+        public virtual DbSet<TFacebookFormularioLeadgenLog> TFacebookFormularioLeadgenLogs { get; set; } = null!;
         public virtual DbSet<TFaseByPlantilla> TFaseByPlantillas { get; set; } = null!;
         public virtual DbSet<TFaseCalificacion> TFaseCalificacions { get; set; } = null!;
         public virtual DbSet<TFaseOportunidad> TFaseOportunidads { get; set; } = null!;
@@ -424,6 +425,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TLinkedInForm> TLinkedInForms { get; set; } = null!;
         public virtual DbSet<TLinkedInGroupCampaign> TLinkedInGroupCampaigns { get; set; } = null!;
         public virtual DbSet<TLinkedInLead> TLinkedInLeads { get; set; } = null!;
+        public virtual DbSet<TLinkedInLeadLog> TLinkedInLeadLogs { get; set; } = null!;
         public virtual DbSet<TLinkedInToken> TLinkedInTokens { get; set; } = null!;
         public virtual DbSet<TListaNegraMensaje> TListaNegraMensajes { get; set; } = null!;
         public virtual DbSet<TLlamadaActividad> TLlamadaActividads { get; set; } = null!;
@@ -20239,6 +20241,54 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Sistema Automatico Usuario de modificacion");
             });
 
+            modelBuilder.Entity<TFacebookFormularioLeadgenLog>(entity =>
+            {
+                entity.ToTable("T_FacebookFormularioLeadgenLog", "mkt");
+
+                entity.HasComment("Esta tabla almacena el detalle de los campos enviados del CRM a Facebook ");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.EsError).HasComment("Indicador booleano que señala si hubo error en el envío a Facebook (1=Error, 0=Éxito)");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha modificacion del registro");
+
+                entity.Property(e => e.IdFacebookFormularioLeadgen).HasComment("Es fk T_FacebookFormularioLeadgen");
+
+                entity.Property(e => e.JsonApiFacebook).HasComment("Datos JSON del formulario leadgen obtenidos de Facebook Graph API enviados desce CRM");
+
+                entity.Property(e => e.RespuestaApiFacebook).HasComment("Respuesta completa de la API de Facebook al enviar/registrar el leadgen");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario creacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario modificacion del registro");
+
+                entity.HasOne(d => d.IdFacebookFormularioLeadgenNavigation)
+                    .WithMany(p => p.TFacebookFormularioLeadgenLogs)
+                    .HasForeignKey(d => d.IdFacebookFormularioLeadgen)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_FacebookFormularioLeadgenLog_T_FacebookFormularioLeadgen");
+            });
+
             modelBuilder.Entity<TFaseByPlantilla>(entity =>
             {
                 entity.ToTable("T_FaseByPlantilla", "mkt");
@@ -25538,6 +25588,54 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario Modificacion del Lead");
+            });
+
+            modelBuilder.Entity<TLinkedInLeadLog>(entity =>
+            {
+                entity.ToTable("T_LinkedInLeadLog", "mkt");
+
+                entity.HasComment("Esta tabla almacena el detalle de los campos enviados del CRM a Linkedin ");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.EsError).HasComment("Indicador booleano que señala si hubo error en el envío a Linkedin (1=Error, 0=Éxito)");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha modificacion del registro");
+
+                entity.Property(e => e.IdLinkedInLead).HasComment("Es fk T_LinkedInLead");
+
+                entity.Property(e => e.JsonApiLinkedin).HasComment("Datos JSON enviados a LinkedIn con la información del lead.");
+
+                entity.Property(e => e.RespuestaApiLinkedin).HasComment("Respuesta JSON recibida de LinkedIn con el resultado del envío.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario creacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario modificacion del registro");
+
+                entity.HasOne(d => d.IdLinkedInLeadNavigation)
+                    .WithMany(p => p.TLinkedInLeadLogs)
+                    .HasForeignKey(d => d.IdLinkedInLead)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_LinkedInLeadLog_T_LinkedInLead");
             });
 
             modelBuilder.Entity<TLinkedInToken>(entity =>
