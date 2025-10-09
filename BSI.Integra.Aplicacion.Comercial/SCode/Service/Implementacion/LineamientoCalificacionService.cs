@@ -1566,7 +1566,10 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                 DurationInTicks = g.First().DurationInTicksFraseReconocida,
                                 DurationMilliseconds = g.First().DurationMillisecondsFraseReconocida,
                                 OffsetMilliseconds = g.First().OffsetMilliseconds,
-                                NBest = g.Select(x => new NBestDto
+                                NBest = g
+                                       .Where(x => x.DetalleFraseReconocidaId != null)
+                                       .DistinctBy(x => x.DetalleFraseReconocidaId)
+                                       .Select(x => new NBestDto
                                 {
                                     Confidence = x.Confidence,
                                     Lexical = x.DFR_Lexical,
