@@ -8,6 +8,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     /// </summary>
     public partial class TLinkedInLead
     {
+        public TLinkedInLead()
+        {
+            TLinkedInLeadLogs = new HashSet<TLinkedInLeadLog>();
+        }
+
         /// <summary>
         /// Es primary key
         /// </summary>
@@ -68,5 +73,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Campo de sistema automatico que guarda la version del registro
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
+
+        public virtual ICollection<TLinkedInLeadLog> TLinkedInLeadLogs { get; set; }
     }
 }
