@@ -941,7 +941,30 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(e.Message);
             }
         }
+        [HttpPost("ObtenerInformacionProgramav1SinHtml")]
+        public IActionResult ObtenerInformacionProgramav1SinHtml([FromBody] Dictionary<string, string> filtro)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var informacionProgramaService = new InformacionProgramaService(_unitOfWork);
 
+                var idCentroCosto = Convert.ToInt32(filtro["idCentroCosto"]);
+                var codigoPais = Convert.ToInt32(filtro["codigoPais"]);
+                var idMatriculaCabecera = Convert.ToInt32(filtro["idMatriculaCabecera"]);
+                var idOportunidad = Convert.ToInt32(filtro["idOportunidad"]);
+
+                var respuesta = informacionProgramaService.ObtenerInformacionPrograma(idCentroCosto, codigoPais, idMatriculaCabecera, idOportunidad);
+                return Ok(new { respuesta });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
         /// Tipo Función: POST
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 11/08/2022
@@ -2099,7 +2122,7 @@ namespace BSI.Integra.Servicios.Controllers
         /// <returns> Objeto DTO : SpeechBienvenidaDespedidaDTO </returns>
         [Route("[action]/{idActividadDetalle}")]
         [HttpGet]
-        public ActionResult ObtenerIdSpeechBienvenidaDespedida(int idActividadDetalle)
+        public ActionResult ObtenerIdSpeechBienvenidaDespedida(int idActividadDetalle )
         {
             if (!ModelState.IsValid)
             {
@@ -2203,7 +2226,125 @@ namespace BSI.Integra.Servicios.Controllers
                 var idSpeechDespedida = plantillaBaseService.ObtenerIdPorNombre("Speech Despedida");
                 speechBienvenidaDespedidaDTO.IdPlantillaDespedida = plantillaBaseService.ObtenerIdPlantillaSpeechDespedida(idActividadDetalle, idSpeechDespedida.Id).IdPlantillaDespedida;
 
+
                 return Ok(new { data = speechBienvenidaDespedidaDTO });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+
+
+        [Route("[action]/{idActividadDetalle}/{idFaseOportunidad}")]
+        [HttpGet]
+        public ActionResult ObtenerIdSpeechBienvenidaDespedidaV2(int idActividadDetalle, int idFaseOportunidad)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var speechBienvenidaDespedidaDTO = new SpeechBienvenidaDespedidaDTO();
+                var plantillaBaseService = new PlantillaBaseService(_unitOfWork);
+                var alumnoService = new AlumnoService(_unitOfWork);
+
+
+                var alumno = alumnoService.ObtenerPorIdActividadDetalle(idActividadDetalle);
+
+                //Por defecto PERU:
+                speechBienvenidaDespedidaDTO.IdPlantillaBienvenida = 1675;//para todos los casos se muestra el convenio de grabacion de contrato
+
+
+                //si son nulos
+                if (alumno.IdCodigoPais == null || alumno.IdCodigoPais == 0)
+                {
+                    alumno.IdCodigoPais = 51;
+                }
+                if (alumno.Modalidad == null || alumno.Modalidad == "")
+                {
+                    alumno.Modalidad = "Online Asincronica";
+                }
+
+                //PERU
+                //PRESENCIAL//1448
+                //ONLINE SINCRONICA//1671
+                //ONLINE ASINCRONICA//1675
+                if (alumno.IdCodigoPais == 51 && alumno.Modalidad == "Presencial")
+                {
+                    speechBienvenidaDespedidaDTO.IdPlantillaBienvenida = 1448;
+                }
+                else if (alumno.IdCodigoPais == 51 && alumno.Modalidad == "Online Sincronica")
+                {
+                    speechBienvenidaDespedidaDTO.IdPlantillaBienvenida = 1671;
+                }
+                else if (alumno.IdCodigoPais == 51 && alumno.Modalidad == "Online Asincronica")
+                {
+                    speechBienvenidaDespedidaDTO.IdPlantillaBienvenida = 1675;
+                }
+
+
+                //COLOMBIA
+                //PRESENCIAL//1449
+                //ONLINE SINCRONICA//1672
+                //ONLINE ASINCRONICA//1676
+                if (alumno.IdCodigoPais == 57 && alumno.Modalidad == "Presencial")
+                {
+                    speechBienvenidaDespedidaDTO.IdPlantillaBienvenida = 1449;
+                }
+                else if (alumno.IdCodigoPais == 57 && alumno.Modalidad == "Online Sincronica")
+                {
+                    speechBienvenidaDespedidaDTO.IdPlantillaBienvenida = 1672;
+                }
+                else if (alumno.IdCodigoPais == 57 && alumno.Modalidad == "Online Asincronica")
+                {
+                    speechBienvenidaDespedidaDTO.IdPlantillaBienvenida = 1676;
+                }
+
+                //MEXICO
+                //PRESENCIAL//1451
+                //ONLINE SINCRONICA//1673
+                //ONLINE ASINCRONICA//1677
+                if (alumno.IdCodigoPais == 52 && alumno.Modalidad == "Presencial")
+                {
+                    speechBienvenidaDespedidaDTO.IdPlantillaBienvenida = 1451;
+                }
+                else if (alumno.IdCodigoPais == 52 && alumno.Modalidad == "Online Sincronica")
+                {
+                    speechBienvenidaDespedidaDTO.IdPlantillaBienvenida = 1673;
+                }
+                else if (alumno.IdCodigoPais == 52 && alumno.Modalidad == "Online Asincronica")
+                {
+                    speechBienvenidaDespedidaDTO.IdPlantillaBienvenida = 1677;
+                }
+
+                //CHILE
+                //PRESENCIAL//1518
+                //ONLINE SINCRONICA//1674
+                //ONLINE ASINCRONICA//1678
+                if (alumno.IdCodigoPais == 56 && alumno.Modalidad == "Presencial")
+                {
+                    speechBienvenidaDespedidaDTO.IdPlantillaBienvenida = 1518;
+                }
+                else if (alumno.IdCodigoPais == 56 && alumno.Modalidad == "Online Sincronica")
+                {
+                    speechBienvenidaDespedidaDTO.IdPlantillaBienvenida = 1674;
+                }
+                else if (alumno.IdCodigoPais == 56 && alumno.Modalidad == "Online Asincronica")
+                {
+                    speechBienvenidaDespedidaDTO.IdPlantillaBienvenida = 1678;
+                }
+
+
+                var idSpeechDespedida = plantillaBaseService.ObtenerIdPorNombre("Speech Despedida");
+                speechBienvenidaDespedidaDTO.IdPlantillaDespedida = plantillaBaseService.ObtenerIdPlantillaSpeechDespedida(idActividadDetalle, idSpeechDespedida.Id).IdPlantillaDespedida;
+
+                IEnumerable<PlantillaClaveValorAreaEtiquetaDTO> plantillas = _unitOfWork.PlantillaClaveValorRepository.ObtenerPlantillasPorIdFaseOportunidad(idFaseOportunidad);
+                var match = plantillas.FirstOrDefault(p => p.IdPlantilla == speechBienvenidaDespedidaDTO.IdPlantillaBienvenida);
+                if (match is null) return NotFound();
+                return Ok(new { data = match });
             }
             catch (Exception e)
             {
@@ -4214,6 +4355,30 @@ namespace BSI.Integra.Servicios.Controllers
                 var idOportunidad = Convert.ToInt32(filtro["idOportunidad"]);
 
                 var respuesta = informacionProgramaService.CargarInformacionProgramaAutomaticoSpeech(idCentroCosto, codigoPais, idMatriculaCabecera, idOportunidad);
+                return Ok(new { respuesta });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        [HttpPost("ObtenerInformacionProgramaSpeechV2")]
+        public IActionResult ObtenerInformacionProgramaSpeechV2([FromBody] Dictionary<string, string> filtro)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var informacionProgramaService = new InformacionProgramaService(_unitOfWork);
+
+                var idCentroCosto = Convert.ToInt32(filtro["idCentroCosto"]);
+                var codigoPais = Convert.ToInt32(filtro["codigoPais"]);
+                var idMatriculaCabecera = Convert.ToInt32(filtro["idMatriculaCabecera"]);
+                var idOportunidad = Convert.ToInt32(filtro["idOportunidad"]);
+
+                var respuesta = informacionProgramaService.CargarInformacionProgramaAutomaticoSpeechV2(idCentroCosto, codigoPais, idMatriculaCabecera, idOportunidad);
                 return Ok(new { respuesta });
             }
             catch (Exception e)

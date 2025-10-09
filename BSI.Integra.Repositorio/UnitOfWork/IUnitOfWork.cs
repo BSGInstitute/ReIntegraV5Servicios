@@ -889,6 +889,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IMotivoCeseRepository MotivoCeseRepository { get; }
         IEntidadSeguroSaludRepository EntidadSeguroSaludRepository { get; }
         INivelIdiomaRepository NivelIdiomaRepository { get; }
+        IWavixRepository WavixRepository { get; }
         IParentescoPersonalRepository ParentescoPersonalRepository { get; }
         ITipoPagoRemuneracionRepository TipoPagoRemuneracionRepository { get; }
         IMotivoInactividadRepository MotivoInactividadRepository { get; }

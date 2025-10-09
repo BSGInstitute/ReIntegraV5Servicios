@@ -26,7 +26,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public int InsertarItemFactura(FacturamaItemDTO item, int idFactura, string usuario);
 
         public FacturamaFacturaClienteDTO ObtenerDatosFacturaClientePorId(int idFactura);
-        public void ActualizarFacturaComoEnviada(int idFactura, string uuid, string cfdiId, DateTime fechaEnvio, string usuario);
+        public void ActualizarFacturaComoEnviada(int idFactura, string uuid, string cfdiId, DateTime? fechaEnvio, string usuario);
         public FacturamaFacturaClienteCronogrmaDTO ObtenerFacturaClientePorCodigoMatricula(string codigoMatricula);
         public int ObtenerIdFacturaPorCodigoMatricula(string codigoMatricula);
         public List<FacturamaFacturaMasivoDTO> ObtenerFacturasPendientesEnvio();
@@ -35,7 +35,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public int ObtenerIdAlumnoPorIdCronograma(int idCronograma);
         public void InsertarActualizarFacturamaAlumno(int idAlumno, FacturamaClienteDTO cliente, FacturamaFacturaDTO factura, string usuario);
         public bool ExisteFacturaConfigurada(int idCronogramaPagoDetalleFinal);
-        
+        public bool EliminarFacturasPendientesFacturama(List<int> idsFacturas, string usuario);
 
     }
 }

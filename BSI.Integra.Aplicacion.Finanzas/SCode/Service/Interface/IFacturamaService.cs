@@ -32,9 +32,8 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Interface
         Task EnviarFacturasMasivasDesdeBaseDeDatos(EnvioMasivoLoteDTO datos);
         Task<int> GuardarFacturaClienteCompleta(FacturamaFacturaClienteDTO dto, string codigoMatricula, int idCronogramaPagoDetalleFinal, string usuario);
         public bool ExisteFacturaConfigurada(int idCronogramaPagoDetalleFinal);
+        public bool EliminarFacturasPendientesFacturama(List<int> idsFacturas, string usuario);
 
 
-
-
-   }
+    }
 }
