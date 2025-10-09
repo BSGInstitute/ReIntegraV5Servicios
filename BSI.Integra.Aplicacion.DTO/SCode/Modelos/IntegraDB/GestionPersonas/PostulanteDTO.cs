@@ -102,7 +102,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.GestionPersonas
 
     public class PostulanteProcesoFormatDTO
     {
-        public int IdEvaluacion { get; set; }
+        public int? IdEvaluacion { get; set; }
         public string NombreEvaluacion { get; set; }
         public List<PostulanteProcesoExamenesDTO> ListaExamenes { get; set; }
     }
