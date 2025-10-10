@@ -713,16 +713,16 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.Commit();
 
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
-                            _ = Task.Run(async () =>
-                            {
-                                try
-                                {
-                                    await oportunidadService.EvaluarConversionFacebook((int)asig.IdOportunidad);
-                                }
-                                catch (Exception ex)
-                                {
-                                }
-                            });
+                            //_ = Task.Run(async () =>
+                            //{
+                            //    try
+                            //    {
+                            //        await oportunidadService.EvaluarConversionFacebook((int)asig.IdOportunidad);
+                            //    }
+                            //    catch (Exception ex)
+                            //    {
+                            //    }
+                            //});
                             // (Conservamos el envío de correo como estaba en manual)
                             IAgendaService agendaService = new AgendaService(_unitOfWork);
                             agendaService.EnviarCorreoOportunidadAutomatico(oportunidadService._asignacionManual.OportunidadNueva.Id, 1967, "Automatico1967");
@@ -1143,16 +1143,16 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.Commit();
 
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
-                            _ = Task.Run(async () =>
-                            {
-                                try
-                                {
-                                    await oportunidadService.EvaluarConversionFacebook((int)asig.IdOportunidad);
-                                }
-                                catch (Exception ex)
-                                {
-                                }
-                            });
+                            //_ = Task.Run(async () =>
+                            //{
+                            //    try
+                            //    {
+                            //        await oportunidadService.EvaluarConversionFacebook((int)asig.IdOportunidad);
+                            //    }
+                            //    catch (Exception ex)
+                            //    {
+                            //    }
+                            //});
                             var agendaService = new AgendaService(_unitOfWork);
                             agendaService.EnviarCorreoOportunidadAutomatico(
                                 oportunidadService._asignacionManual.OportunidadNueva.Id, 1967, "Automatico1967");
@@ -1569,16 +1569,16 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.OportunidadLogRepository.Add(oportunidadService._asignacionManual.OportunidadLogNueva);
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
-                            _ = Task.Run(async () =>
-                            {
-                                try
-                                {
-                                    await oportunidadService.EvaluarConversionFacebook(oportunidadNueva.Id);
-                                }
-                                catch (Exception ex)
-                                {
-                                }
-                            });
+                            //_ = Task.Run(async () =>
+                            //{
+                            //    try
+                            //    {
+                            //        await oportunidadService.EvaluarConversionFacebook(oportunidadNueva.Id);
+                            //    }
+                            //    catch (Exception ex)
+                            //    {
+                            //    }
+                            //});
                             //_repOportunidad.Update(portu);
                             //_unitOfWork.Commit();
 
@@ -1752,16 +1752,16 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.OportunidadLogRepository.Add(oportunidadService._asignacionManual.OportunidadLogNueva);
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
-                            _ = Task.Run(async () =>
-                            {
-                                try
-                                {
-                                    await oportunidadService.EvaluarConversionFacebook(oportunidadNueva.Id);
-                                }
-                                catch (Exception ex)
-                                {
-                                }
-                            });
+                            //_ = Task.Run(async () =>
+                            //{
+                            //    try
+                            //    {
+                            //        await oportunidadService.EvaluarConversionFacebook(oportunidadNueva.Id);
+                            //    }
+                            //    catch (Exception ex)
+                            //    {
+                            //    }
+                            //});
                             //_repOportunidad.Update(portu);
                             //_unitOfWork.Commit();
 
@@ -1943,16 +1943,16 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.OportunidadLogRepository.Add(oportunidadService._asignacionManual.OportunidadLogNueva);
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
-                            _ = Task.Run(async () =>
-                            {
-                                try
-                                {
-                                    await oportunidadService.EvaluarConversionFacebook(oportunidadNueva.Id);
-                                }
-                                catch (Exception ex)
-                                {
-                                }
-                            });
+                            //_ = Task.Run(async () =>
+                            //{
+                            //    try
+                            //    {
+                            //        await oportunidadService.EvaluarConversionFacebook(oportunidadNueva.Id);
+                            //    }
+                            //    catch (Exception ex)
+                            //    {
+                            //    }
+                            //});
                             //_repOportunidad.Update(portu);
                             //_unitOfWork.Commit();
 
@@ -2133,16 +2133,16 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.OportunidadLogRepository.Add(oportunidadService._asignacionManual.OportunidadLogNueva);
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
-                            _ = Task.Run(async () =>
-                            {
-                                try
-                                {
-                                    await oportunidadService.EvaluarConversionFacebook(oportunidadNueva.Id);
-                                }
-                                catch (Exception ex)
-                                {
-                                }
-                            });
+                            //_ = Task.Run(async () =>
+                            //{
+                            //    try
+                            //    {
+                            //        await oportunidadService.EvaluarConversionFacebook(oportunidadNueva.Id);
+                            //    }
+                            //    catch (Exception ex)
+                            //    {
+                            //    }
+                            //});
                             //_repOportunidad.Update(portu);
                             //_unitOfWork.Commit();
 
@@ -2271,16 +2271,16 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.OportunidadLogRepository.Add(oportunidadService._asignacionManual.OportunidadLogNueva);
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
-                            _ = Task.Run(async () =>
-                            {
-                                try
-                                {
-                                    await oportunidadService.EvaluarConversionFacebook(idOportunidad);
-                                }
-                                catch (Exception ex)
-                                {
-                                }
-                            });
+                            //_ = Task.Run(async () =>
+                            //{
+                            //    try
+                            //    {
+                            //        await oportunidadService.EvaluarConversionFacebook(idOportunidad);
+                            //    }
+                            //    catch (Exception ex)
+                            //    {
+                            //    }
+                            //});
                             //oportunidadDTO.FasesActivas = Oportunidad.fasesac;
 
 
@@ -2463,16 +2463,16 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.OportunidadLogRepository.Add(oportunidadService._asignacionManual.OportunidadLogNueva);
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
-                            _ = Task.Run(async () =>
-                            {
-                                try
-                                {
-                                    await oportunidadService.EvaluarConversionFacebook(oportunidadNueva.Id);
-                                }
-                                catch (Exception ex)
-                                {
-                                }
-                            });
+                            //_ = Task.Run(async () =>
+                            //{
+                            //    try
+                            //    {
+                            //        await oportunidadService.EvaluarConversionFacebook(oportunidadNueva.Id);
+                            //    }
+                            //    catch (Exception ex)
+                            //    {
+                            //    }
+                            //});
 
 
 
@@ -2657,16 +2657,16 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.OportunidadLogRepository.Add(oportunidadService._asignacionManual.OportunidadLogNueva);
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
-                            _ = Task.Run(async () =>
-                            {
-                                try
-                                {
-                                    await oportunidadService.EvaluarConversionFacebook(oportunidadAntigua.Id);
-                                }
-                                catch (Exception ex)
-                                {
-                                }
-                            });
+                            //_ = Task.Run(async () =>
+                            //{
+                            //    try
+                            //    {
+                            //        await oportunidadService.EvaluarConversionFacebook(oportunidadAntigua.Id);
+                            //    }
+                            //    catch (Exception ex)
+                            //    {
+                            //    }
+                            //});
                             //_repOportunidad.Update(portu);
                             //_unitOfWork.Commit();
 
@@ -3794,16 +3794,16 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         _unitOfWork.OportunidadLogRepository.Add(oportunidadService._asignacionManual.OportunidadLogNueva);
                         _unitOfWork.Commit();
                         oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
-                        _ = Task.Run(async () =>
-                        {
-                            try
-                            {
-                                await oportunidadService.EvaluarConversionFacebook((int)asig.IdOportunidad);
-                            }
-                            catch (Exception ex)
-                            {
-                            }
-                        });
+                        //_ = Task.Run(async () =>
+                        //{
+                        //    try
+                        //    {
+                        //        await oportunidadService.EvaluarConversionFacebook((int)asig.IdOportunidad);
+                        //    }
+                        //    catch (Exception ex)
+                        //    {
+                        //    }
+                        //});
                         try
                         {
                             OportunidadWhatsappEnvioDTO item = new OportunidadWhatsappEnvioDTO();
