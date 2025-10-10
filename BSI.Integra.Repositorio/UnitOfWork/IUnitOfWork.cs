@@ -399,6 +399,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
 
         IAdwordsApiVolumenBusquedumRepository AdwordsApiVolumenBusquedumRepository { get; }
         IFacebookFormularioLeadgenRepository FacebookFormularioLeadgenRepository { get; }
+        IFacebookFormularioLeadgenLogRepository FacebookFormularioLeadgenLogRepository { get; }
         IAsignacionAutomaticaTempRepository AsignacionAutomaticaTempRepository { get; }
         IAsignacionAutomaticaConfiguracionRepository AsignacionAutomaticaConfiguracionRepository { get; }
         IBloqueHorarioProcesaOportunidadRepository BloqueHorarioProcesaOportunidadRepository { get; }
