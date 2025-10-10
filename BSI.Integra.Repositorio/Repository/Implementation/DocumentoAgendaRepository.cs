@@ -304,16 +304,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                var query = @"
-                            SELECT 
-                                CASE 
-                                    WHEN CP.Categoria = 'Cursos' THEN 'Curso'
-                                    ELSE 'Programa'
-                                END AS EsProgramaOCurso
-                            FROM pla.T_PGeneral AS PG
-                            INNER JOIN pla.T_CategoriaPrograma AS CP WITH (NOLOCK)
-                                ON CP.Id = PG.IdCategoria
-                            WHERE PG.IdPGeneral = @idPGeneral AND PG.Estado = 1;";
+                var query = @"SELECT EsProgramaOCurso
+                                FROM pla.V_TPGeneral_TipoPrograma
+                                WHERE IdPGeneral = @idPGeneral;";
 
                 var resultadoJson = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
 
@@ -335,22 +328,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <returns>string</returns> 
         public async Task<string> ObtenerPrerrequisitosPorIdPGeneralAsync(int idPGeneral)
         {
-            var query = @"
-			SELECT MAX(dcs.Id) as id, s.Nombre, dcs.Contenido, pdc.Estado, dcs.Estado, s.Estado
-FROM pla.T_PGeneralDocumento_PW pdc
-INNER JOIN pla.T_Documento_PW dc ON pdc.IdDocumento = dc.Id
-INNER JOIN pla.T_DocumentoSeccion_PW dcs ON dcs.IdDocumentoPW = dc.Id
-INNER JOIN pla.T_Seccion_PW s ON dcs.IdSeccionPW = s.Id
-WHERE pdc.IdPGeneral = @idPGeneral
-
-    AND pdc.Estado = 1
-	AND dcs.Estado =1
-    AND dc.Estado = 1
-    AND dc.IdPlantillaPW IN (10, 11)
-    AND s.Nombre LIKE '%Prerrequisitos%'
-GROUP BY s.Nombre, dcs.Contenido,pdc.Estado, dcs.Estado, s.Estado
-ORDER BY id DESC;
-    ";
+            var query = @"SELECT id, Nombre, Contenido
+                            FROM pla.V_TPGeneralDocumentoPW_Prerrequisitos
+                            WHERE IdPGeneral = @idPGeneral
+                            ORDER BY id DESC;";
 
             var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
 
@@ -378,17 +359,17 @@ ORDER BY id DESC;
         public async Task<List<EstructuraCurricularDTO>> ObtenerContenidoEstructuraCurricularAsync(int idPGeneral)
         {
             var query = @"
-        SELECT 
-            Titulo,
-            Contenido,
-            IdSeccionTipoDetalle_PW,
-            NumeroFila,
-            OrdenWeb
-        FROM pla.V_ListaSeccionesPorIdPrograma_Documento
-        WHERE Titulo = 'Estructura Curricular'
-            AND IdSeccionTipoDetalle_PW NOT IN (14, 15, 118, 119)
-            AND IdPGeneral = @idPGeneral 
-        ORDER BY NumeroFila ASC";
+                        SELECT 
+                            Titulo,
+                            Contenido,
+                            IdSeccionTipoDetalle_PW,
+                            NumeroFila,
+                            OrdenWeb
+                        FROM pla.V_ListaSeccionesPorIdPrograma_Documento
+                        WHERE Titulo = 'Estructura Curricular'
+                            AND IdSeccionTipoDetalle_PW NOT IN (14, 15, 118, 119)
+                            AND IdPGeneral = @idPGeneral 
+                        ORDER BY NumeroFila ASC";
 
             var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
 
@@ -455,26 +436,8 @@ ORDER BY id DESC;
         public async Task<string> ObtenerPresentacionPorIdPGeneralAsync(int idPGeneral)
         {
             var query = @"SELECT Id, Contenido, OrdenWeb
-                            FROM (
-                                SELECT 
-                                    pdc.Id,
-                                    dcs.Contenido,
-                                    dcs.OrdenWeb,
-                            ROW_NUMBER() OVER (PARTITION BY pdc.Id ORDER BY dcs.OrdenWeb ASC) AS rn
-                                FROM pla.T_PGeneralDocumento_PW pdc
-                                INNER JOIN pla.T_Documento_PW dc ON pdc.IdDocumento = dc.Id
-                                INNER JOIN pla.T_DocumentoSeccion_PW dcs ON dcs.IdDocumentoPW = dc.Id
-                                WHERE 
-                                    pdc.IdPGeneral = @idPGeneral
-                                    AND pdc.Estado = 1
-                                    AND dcs.Estado = 1
-                                    AND dc.Estado = 1
-                                    AND dc.IdPlantillaPW IN (10, 11, 33, 36)
-                                    AND (
-                                        dcs.Titulo LIKE '%Presentación%'
-                                    )
-                            ) t
-                            WHERE t.rn = 1
+                            FROM pla.V_TPGeneralDocumentoPW_Presentacion
+                            WHERE rn = 1 AND IdPGeneral = @idPGeneral
                             ORDER BY Id, OrdenWeb;";
 
             var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
@@ -540,19 +503,10 @@ ORDER BY id DESC;
         /// <returns>string</returns> 
         public async Task<string> ObtenerPublicoObjetivoPorIdPGeneralAsync(int idPGeneral)
         {
-            var query = @"SELECT dcs.Contenido
-                    FROM pla.T_PGeneralDocumento_PW pdc
-                    INNER JOIN pla.T_Documento_PW dc ON pdc.IdDocumento = dc.Id
-                    INNER JOIN pla.T_DocumentoSeccion_PW dcs ON dcs.IdDocumentoPW = dc.Id
-                    WHERE 
-                        pdc.IdPGeneral = @idPGeneral
-                        AND pdc.Estado = 1
-                        AND dcs.Estado = 1
-                        AND dc.IdPlantillaPW IN (10, 11, 33, 36)
-                        AND (
-                            dcs.Titulo LIKE '%Público Objetivo%'
-                        )
-                    ORDER BY dcs.OrdenWeb;";
+            var query = @"SELECT Contenido
+                            FROM pla.V_TPGeneralDocumentoPW_PublicoObjetivo
+                            WHERE IdPGeneral = @idPGeneral
+                            ORDER BY OrdenWeb;";
 
             var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
 
@@ -618,22 +572,9 @@ ORDER BY id DESC;
         /// <returns>string</returns> 
         public async Task<string> ObtenerDuracionHorariosPorIdPGeneralAsync(int idPGeneral)
         {
-            var query = @"SELECT MAX(dcs.Id) as id, dcs.Contenido
-                            FROM pla.T_PGeneralDocumento_PW pdc
-                            INNER JOIN pla.T_Documento_PW dc ON pdc.IdDocumento = dc.Id
-                            INNER JOIN pla.T_DocumentoSeccion_PW dcs ON dcs.IdDocumentoPW = dc.Id
-                            INNER JOIN pla.T_Seccion_PW s ON dcs.IdSeccionPW = s.Id
-                            WHERE 
-                                pdc.IdPGeneral = @idPGeneral
-                                AND pdc.Estado = 1
-                                AND dc.Estado = 1
-	                            AND dcs.Estado =1
-                                AND dc.IdPlantillaPW IN (10, 11, 33, 36)
-                                AND (
-                                    dcs.Titulo LIKE '%Duración y Horarios%'
-									OR dcs.Titulo LIKE '%Duracion y Horarios%'
-                                )
-                            GROUP BY dcs.Contenido
+            var query = @"SELECT id, Contenido
+                            FROM pla.V_TPGeneralDocumentoPW_DuracionHorarios
+                            WHERE IdPGeneral = @idPGeneral
                             ORDER BY id ASC;";
 
             var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });

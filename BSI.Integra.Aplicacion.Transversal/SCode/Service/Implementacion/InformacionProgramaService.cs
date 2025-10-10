@@ -118,7 +118,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 Task.Run(async () => (object)await new AgendaInformacionActividadService(_unitOfWork).GetMetodologiaProgramaAsync(idPGeneral)),
                 Task.Run(async () => (object)await new InformacionProgramaService(_unitOfWork).CargarInformacionProgramaExpositoresAsync(idPGeneral)),
                 Task.Run(async () => (object)await new InformacionProgramaService(_unitOfWork).CargarInformacionProgramaEstructuraCurricularAsync(idPGeneral)),
-                Task.Run(async () => (object)await new AgendaInformacionActividadService(_unitOfWork).ObtenerModalidadesPorPrograma(idPGeneral))
+                Task.Run(async () => (object)await new AgendaInformacionActividadService(_unitOfWork).ObtenerModalidadesPorPrograma(idPGeneral)),
+                Task.Run(async () => (object)await new AgendaInformacionActividadService(_unitOfWork).GetPautasComplementariasProgramaAsync(idPGeneral))
             };
 
                 await Task.WhenAll(tareas);
@@ -135,6 +136,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 var expositores = (CargarInformacionProgramaExpositoresRespuestaDTO)tareas[9].Result;
                 var estructuraCurricular = (CargarInformacionProgramaEstructuraCurricularRespuestaDTO)tareas[10].Result;
                 var modalidadesData = (dynamic)tareas[11].Result;
+                var pautascomplementarias = (PautasComplementariasProgramaResponseDTO)tareas[12].Result;
+
 
                 List<ModalidadDTO> modalidades = new List<ModalidadDTO>();
                 if (modalidadesData != null)
@@ -176,8 +179,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         DuracionHorarios = duracionHorarios.DuracionHorarios ?? new List<DuracionHorarioItemDTO>(),
                         Certificacion = certificacion.Certificacion ?? new List<string>(),
                         Metodologia = metodologia.Metodologia,
-                        Expositores = expositores.Expositores ?? new List<DTO.SCode.Modelos.IntegraDB.ExpositorDTO>(),
-                        PautasComplementarias = new List<string>()
+                        Expositores = expositores.Expositores ?? new List<Expositor2DTO>(),
+                        PautasComplementarias = pautascomplementarias.PautasComplementarias ?? new List<string>()
                     };
 
                     return new CargarInformacionProgramaTodoRespuestaDTO
@@ -192,7 +195,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 {
                     List<CursoEstructuraDTO> estructuraPrograma = estructuraCurricular.EstructuraCurricular as List<CursoEstructuraDTO> ?? new List<CursoEstructuraDTO>();
 
-                    var informacionPrograma = new DTO.SCode.Modelos.IntegraDB.InformacionProgramaDTO
+                    var informacionPrograma = new InformacionPrograma2DTO
                     {
                         Presentacion = presentacion.Presentacion ?? new List<string>(),
                         Objetivos = objetivos.Objetivos ?? new List<string>(),
@@ -206,7 +209,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         Beneficios = beneficios.Beneficios ?? new List<BeneficioVersionDTO>(),
                         Certificacion = certificacion.Certificacion ?? new List<string>(),
                         Metodologia = metodologia.Metodologia,
-                        Expositores = expositores.Expositores ?? new List<DTO.SCode.Modelos.IntegraDB.ExpositorDTO>()
+                        Expositores = expositores.Expositores ?? new List<Expositor2DTO>(),
                     };
 
                     return new CargarInformacionProgramaTodoRespuestaDTO
@@ -799,7 +802,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                 string tipo = resumen?.Any() == true && resumen.First().EsProgramaOCurso == "Curso" ? "Curso" : "Programa";
 
-                var expositores = new List<DTO.SCode.Modelos.IntegraDB.ExpositorDTO>();
+                var expositores = new List<Expositor2DTO>();
 
                 if (expositoresRaw?.Any() == true)
                 {
@@ -827,7 +830,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             descripcionProcesada = string.Empty;
                         }
 
-                        expositores.Add(new DTO.SCode.Modelos.IntegraDB.ExpositorDTO
+                        expositores.Add(new Expositor2DTO
                         {
                             nombre = nombreConPais,
                             descripcion = new List<string> { descripcionProcesada }
@@ -849,7 +852,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 {
                     IdPGeneral = idPGeneral,
                     EsProgramaOCurso = "",
-                    Expositores = new List<DTO.SCode.Modelos.IntegraDB.ExpositorDTO>(),
+                    Expositores = new List<Expositor2DTO>(),
                     Error = $"Error al cargar expositores: {ex.Message}"
                 };
             }
