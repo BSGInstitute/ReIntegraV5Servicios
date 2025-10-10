@@ -215,7 +215,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                 if (informacionOportunidad == null) return;
 
-                await EjecutarConManejoErroresAsync(async () =>
+                try
                 {
                     await EnviarApiConversionesFacebookAsincronica(
                         conversionFb.IdFacebookFormularioLeadgen,
@@ -226,7 +226,20 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         informacionOportunidad.IdFaseOportunidadAnterior,
                         informacionOportunidad.IdFaseOportunidadActual
                     );
-                }, conversionFb, informacionOportunidad, oportunidadId);
+                }
+                catch (Exception ex)
+                {
+                    await EnviarCorreoError($"Error en EnviarApiConversionesFacebookAsincronica",
+                        $@"IdOportunidad: {oportunidadId}<br/>
+                           IdFacebookFormularioLeadgen: {conversionFb?.IdFacebookFormularioLeadgen}<br/>
+                           LeadId: {conversionFb?.LeadId}<br/>
+                           Email: {conversionFb?.Email}<br/>
+                           Telefono: {conversionFb?.Telefono}<br/>
+                           ClasificacionProbabilidad: {informacionOportunidad?.ClasificacionProbabilidad}<br/>
+                           IdFaseOportunidadAnterior: {informacionOportunidad?.IdFaseOportunidadAnterior}<br/>
+                           IdFaseOportunidadActual: {informacionOportunidad?.IdFaseOportunidadActual}<br/>",
+                        ex.ToString());
+                }
             }
             catch (Exception ex)
             {
@@ -362,45 +375,43 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                     if (!response.IsSuccessStatusCode)
                     {
-                        await EnviarCorreoError($"Error Facebook API - Status: {response.StatusCode} - {responseContent}");
+                        await EnviarCorreoError($"Facebook API Error",$"IdFacebookFormularioLeadgen: {idFacebookFormularioLeadgen} - Error Facebook API - Status: {response.StatusCode} - {responseContent}");
                         return false;
                     }
 
-                    Console.WriteLine($"Success Facebook API: {responseContent}");
+                    Console.WriteLine($"", $"Success Facebook API: {responseContent}");
                     return true;
                 }
                 catch (TaskCanceledException ex)
                 {
                     respuestaApi = "Timeout: " + ex.Message;
                     esError = true;
-                    await EnviarCorreoError("Timeout en la conexión con Facebook API (30 segundos)");
+                    await EnviarCorreoError($"Facebook API Timeout", "IdFacebookFormularioLeadgen: {idFacebookFormularioLeadgen} - Timeout en la conexión con Facebook API (30 segundos)");
                     return false;
                 }
                 catch (HttpRequestException ex)
                 {
                     respuestaApi = "HttpRequestException: " + ex.Message;
                     esError = true;
-                    await EnviarCorreoError($"Error de conexión con Facebook: {ex.Message}", ex.ToString());
+                    await EnviarCorreoError($"Facebook API HttpRequestException", $"IdFacebookFormularioLeadgen: {idFacebookFormularioLeadgen} - Error de conexión con Facebook: {ex.Message}", ex.ToString());
                     return false;
                 }
                 catch (Exception ex)
                 {
                     respuestaApi = "Exception: " + ex.Message;
                     esError = true;
-                    await EnviarCorreoError($"Error inesperado al enviar a Facebook: {ex.Message}", ex.ToString());
+                    await EnviarCorreoError($"Facebook API Exception ", $"IdFacebookFormularioLeadgen: {idFacebookFormularioLeadgen} - Error inesperado al enviar a Facebook: {ex.Message}", ex.ToString());
                     return false;
                 }
                 finally
                 {
-                    // Registrar el resultado (éxito o error) en la base de datos
                     await RegistrarLogFacebook(idFacebookFormularioLeadgen, jsonEnvio, respuestaApi, esError);
                 }
             }
             catch (Exception ex)
             {
-                // Registrar error crítico en el proceso principal
+                await EnviarCorreoError($"Facebook API Error crítico", $"IdFacebookFormularioLeadgen: {idFacebookFormularioLeadgen} - Error crítico en EnviarEventoLeadAsync: {ex.Message}", ex.ToString());
                 await RegistrarLogFacebook(idFacebookFormularioLeadgen, "Error en proceso principal", "Exception: " + ex.Message, true);
-                await EnviarCorreoError($"Error crítico en EnviarEventoLeadAsync: {ex.Message}", ex.ToString());
                 return false;
             }
         }
@@ -434,8 +445,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             catch (Exception ex)
             {
                 Console.WriteLine($"Error crítico registrando log: {ex.Message}");
-                // Enviar correo por error crítico en registro
-                await EnviarCorreoError($"Error crítico registrando log Facebook: {ex.Message}", ex.ToString());
+                await EnviarCorreoError($"Facebook API Error crítico registrando", $"IdFacebookFormularioLeadgen: {idFacebookFormularioLeadgen} - Error crítico registrando log Facebook: {ex.Message}", ex.ToString());
             }
         }
 
@@ -451,34 +461,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         #endregion
 
         #region Métodos de Soporte - Optimizados
-        private async Task EjecutarConManejoErroresAsync(
-            Func<Task> accion,
-            dynamic datosConversion,
-            dynamic informacionOportunidad,
-            int oportunidadId)
-        {
-            try
-            {
-                await accion();
-            }
-            catch (Exception ex)
-            {
-                await EnviarCorreoError(
-                    $"Error FinalizarYProgramarActividad Transaction - OportunidadID: {oportunidadId}",
-                    $@"IdOportunidad: {oportunidadId}<br/>
-                       IdFacebookFormularioLeadgen: {datosConversion?.IdFacebookFormularioLeadgen}<br/>
-                       LeadId: {datosConversion?.LeadId}<br/>
-                       Email: {datosConversion?.Email}<br/>
-                       Telefono: {datosConversion?.Telefono}<br/>
-                       ClasificacionProbabilidad: {informacionOportunidad?.ClasificacionProbabilidad}<br/>
-                       IdFaseOportunidadAnterior: {informacionOportunidad?.IdFaseOportunidadAnterior}<br/>
-                       IdFaseOportunidadActual: {informacionOportunidad?.IdFaseOportunidadActual}<br/>
-                       Error: {ex.Message}<br/>
-                       StackTrace: {ex.StackTrace}",
-                    ex.ToString());
-            }
-        }
-
         private async Task EnviarCorreoError(string asunto, string mensaje = null, string errorCompleto = null)
         {
             try
