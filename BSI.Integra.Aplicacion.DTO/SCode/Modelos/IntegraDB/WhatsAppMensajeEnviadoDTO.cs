@@ -1,4 +1,5 @@
-﻿using static System.Net.Mime.MediaTypeNames;
+﻿using Newtonsoft.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 {
@@ -314,6 +315,10 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int ? IdPersonalVentanas { get; set; }
         public int? IdOportunidad { get; set; }
         public string? Rango { get; set; }
+        public string? EstadoInteraccion { get; set; }
+        public bool? RequiereDerivacion { get; set; }
+        public string? MensajeParaAsesor { get; set; }
+        public string? TipoMensajeDetectado { get; set; }
     }
     public class ObtenerChatWhatsAppMarketingPorCelularDTO
     {
@@ -727,6 +732,31 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int Id { get; set; }
         public string Valor { get; set; }
     }
+
+    public class DesactivarInteraccionResponseDTO
+    {
+        public string status { get; set; }
+        public string? descripcion { get; set; }
+        public string? advertencia { get; set; }
+    }
+
+    public class DatosInteraccionAutomaticaResponseDTO
+    {
+        public string Status { get; set; }
+        public DatosExtraidosInteraccionAutomatica Datos_extraidos { get; set; }
+    }
+    public class DatosExtraidosInteraccionAutomatica
+    {
+        public string NumeroWhatsApp { get; set; }
+        public string Nombre { get; set; }
+        public string Apellido { get; set; }
+        public int IdAFormacion { get; set; }
+        public int IdCargo { get; set; }
+        public int IdATrabajo { get; set; }
+        public int IdIndustria { get; set; }
+    }
+
+
 }
 
 

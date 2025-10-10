@@ -293,10 +293,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     FROM pla.V_ListaSeccionesPorIdPrograma_Documento LSPD
                     LEFT JOIN pla.V_ListaSeccionesPorIdPrograma_DocumentoDescripcion LSPDD on LSPD.Titulo=LSPDD.Enlace and LSPD.IdPGeneral=LSPDD.IdPGeneral
                     WHERE LSPD.Titulo != 'Estructura Curricular'
-	                    AND LSPD.IdSeccionTipoDetalle_PW != 14
-	                    AND LSPD.IdSeccionTipoDetalle_PW != 15
-                        AND LSPD.IdSeccionTipoDetalle_PW != 25
-	                    AND LSPD.IdPGeneral = @idPgeneral";
+	                    AND LSPD.IdPGeneral = @idPgeneral
+                        AND LSPD.IdSeccionTipoDetalle_PW != 118";
                 var querySeccion = _dapperRepository.QueryDapper(_querySeccion, new { idPgeneral });
                 if (!string.IsNullOrEmpty(querySeccion) && !querySeccion.Contains("[]"))
                 {
@@ -557,7 +555,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 List<RegistroListaSeccionesDocumentoDTO> lista = new List<RegistroListaSeccionesDocumentoDTO>();
-                var query = "SELECT Titulo, Contenido, IdSeccionTipoDetalle_PW, NumeroFila, Cabecera, PiePagina, OrdenWeb FROM pla.V_ListaSeccionesPorIdPrograma_Documento WHERE Titulo != 'Estructura Curricular' AND Titulo != 'Beneficios' AND  Titulo != 'Certificacion' AND Titulo != 'Prerrequisitos' AND  IdPGeneral = @IdPGeneral";
+                var query = "SELECT Titulo,IdPGeneral, Contenido, IdSeccionTipoDetalle_PW, NumeroFila, Cabecera, PiePagina, OrdenWeb FROM pla.V_ListaSeccionesPorIdPrograma_Documento WHERE Titulo != 'Estructura Curricular' AND Titulo != 'Beneficios' AND  Titulo != 'Certificacion' AND Titulo != 'Prerrequisitos' AND  IdPGeneral = @IdPGeneral";
                 var res = _dapperRepository.QueryDapper(query, new { IdPGeneral = idPGeneral });
                 if (!string.IsNullOrEmpty(res) && !res.Contains("[]"))
                 {
