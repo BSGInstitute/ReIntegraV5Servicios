@@ -370,6 +370,28 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 List<BeneficioDTO> rpta = new List<BeneficioDTO>();
                 var query = @"
+                    SELECT Paquete, Titulo, OrdenBeneficio
+                    FROM pla.V_BeneficiosProgramaTipo1V2
+                    WHERE Id = @idPGeneral And CodigoPais = @codigoPais";
+                var resultado = _dapperRepository.QueryDapper(query, new { idPGeneral, codigoPais });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<BeneficioDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<BeneficioDTO> ObtenerBeneficiosPGeneralTipo1V3(int idPGeneral, int codigoPais)
+        {
+            try
+            {
+                List<BeneficioDTO> rpta = new List<BeneficioDTO>();
+                var query = @"
                     SELECT VP.Nombre AS NombrePaquete ,MAT.Paquete, MAT.Titulo, MAT.OrdenBeneficio
                     FROM pla.V_BeneficiosProgramaTipo1V2 MAT
                     JOIN pla.T_VersionPrograma VP
@@ -387,6 +409,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+
+
+
+
+
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 10/08/2022
         /// Version: 1.0

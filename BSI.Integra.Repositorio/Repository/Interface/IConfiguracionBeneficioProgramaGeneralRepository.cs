@@ -21,6 +21,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         List<PgeneralConfiguracionBeneficioDTO> ObtenerPGeneralConfiguracionBeneficios(int idPgeneral);
         Task<List<BeneficiosConfiguradosProgramaGeneralDTO>> ObtenerBeneficiosConfiguradosProgramaGeneralAsync(int idPgeneral, int idCodigoPais);
         List<BeneficioDTO> ObtenerBeneficiosPGeneralTipo1V2Internacional(int idPGeneral);
+        List<BeneficioDTO> ObtenerBeneficiosPGeneralTipo1V3(int idPGeneral, int codigoPais);
+
         List<BeneficioDTO> ObtenerBeneficiosPGeneralTipo1V2(int idPGeneral, int codigoPais);
         List<BeneficioDTO> ObtenerBeneficiosPGeneralTipo1(int idPGeneral, int codigoPais);
         BeneficioDTO ObtenerBeneficiosPGeneralTipo2(int idPGeneral);

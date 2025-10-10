@@ -1930,7 +1930,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             }
             else
             {
-                var beneficios = servicioBeneficioPrograma.ObtenerBeneficiosPGeneralTipo1V2(idPGeneral, codigoPais);
+                var beneficios = servicioBeneficioPrograma.ObtenerBeneficiosPGeneralTipo1V3(idPGeneral, codigoPais);
                 
                 listaBeneficios = beneficios;
             }
