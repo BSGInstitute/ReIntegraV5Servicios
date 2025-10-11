@@ -2642,7 +2642,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.What
                 }
                 else//el cliente nunca ha enviado un mensaje al asesor
                 {
-                    respuestaFinal = _unitOfWork.WhatsAppMensajeEnviadoRepository.ValidarPlantillasEnviadasApiComercial(plantilla, numero);
+                    respuestaFinal = _unitOfWork.WhatsAppMensajeEnviadoRepository.ValidarPlantillasEnviadasApiComercialPersonal(plantilla, numero, IdPersonal);
                 }
 
                 return (respuestaFinal);
