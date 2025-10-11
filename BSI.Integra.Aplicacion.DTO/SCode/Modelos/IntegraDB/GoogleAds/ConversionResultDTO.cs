@@ -2,7 +2,7 @@
 {
     /// <summary>
     /// DTO: Resultado del proceso de envío de conversiones
-    /// Autor: Sistema
+    /// Autor: Miguel
     /// Fecha: 2025-10-04
     /// </summary>
     public class ConversionResultDTO

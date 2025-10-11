@@ -6,7 +6,7 @@ namespace BSI.Integra.Servicios.Controllers
 {
     /// <summary>
     /// Controlador: AdwordsConversionController
-    /// Autor: Sistema
+    /// Autor: Miguel
     /// Fecha: 2025-10-04
     /// Descripción: API para gestionar conversiones offline de Google Ads
     /// </summary>

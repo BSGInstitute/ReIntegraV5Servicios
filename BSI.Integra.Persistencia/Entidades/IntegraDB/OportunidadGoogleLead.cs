@@ -6,7 +6,7 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
     /// <summary>
     /// Entidad: Vinculación explícita entre oportunidades y formularios de Google
     /// Tabla: mkt.T_OportunidadGoogleLead
-    /// Autor: Sistema
+    /// Autor: Miguel
     /// Fecha: 2025-10-04
     /// </summary>
     [Table("T_OportunidadGoogleLead", Schema = "mkt")]

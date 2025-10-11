@@ -4,7 +4,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
 {
     /// <summary>
     /// Interfaz: Servicio de Conversiones Offline de Google Ads
-    /// Autor: Sistema
+    /// Autor: Miguel
     /// Fecha: 2025-10-04
     /// </summary>
     public interface IAdwordsConversionService

@@ -4,7 +4,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
 {
     /// <summary>
     /// Interfaz: Repositorio de Conversiones de Google Ads
-    /// Autor: Sistema
+    /// Autor: Miguel
     /// Fecha: 2025-10-04
     /// </summary>
     public interface IAdwordsConversionRepository

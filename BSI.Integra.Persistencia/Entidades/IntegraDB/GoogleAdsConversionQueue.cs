@@ -6,7 +6,7 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
     /// <summary>
     /// Entidad: Cola de conversiones offline pendientes de envío a Google Ads
     /// Tabla: mkt.T_GoogleAdsConversionQueue
-    /// Autor: Sistema
+    /// Autor: Miguel
     /// Fecha: 2025-10-04
     /// </summary>
     [Table("T_GoogleAdsConversionQueue", Schema = "mkt")]

@@ -2,7 +2,7 @@
 {
     /// <summary>
     /// DTO: Estado de conversiones por tipo
-    /// Autor: Sistema
+    /// Autor: Miguel
     /// Fecha: 2025-10-04
     /// </summary>
     public class ConversionEstadoDTO

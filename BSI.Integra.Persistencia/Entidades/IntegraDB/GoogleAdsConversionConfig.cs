@@ -6,7 +6,7 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
     /// <summary>
     /// Entidad: Configuración de acciones de conversión de Google Ads
     /// Tabla: mkt.T_GoogleAdsConversionConfig
-    /// Autor: Sistema
+    /// Autor: Miguel
     /// Fecha: 2025-10-04
     /// </summary>
     [Table("T_GoogleAdsConversionConfiguracion", Schema = "mkt")]

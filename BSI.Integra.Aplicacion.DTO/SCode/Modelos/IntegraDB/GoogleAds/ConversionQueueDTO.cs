@@ -2,7 +2,7 @@
 {
     /// <summary>
     /// DTO: Datos de conversión en cola
-    /// Autor: Sistema
+    /// Autor: Miguel
     /// Fecha: 2025-10-04
     /// </summary>
     public class ConversionQueueDTO
