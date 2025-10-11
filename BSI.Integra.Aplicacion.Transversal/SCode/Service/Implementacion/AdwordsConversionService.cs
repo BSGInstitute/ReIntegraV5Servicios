@@ -6,6 +6,13 @@ using System.Text;
 
 namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
 {
+    // Clase auxiliar para el resultado del envío
+    public class EnvioLoteResultado
+    {
+        public int Exitosas { get; set; }
+        public int Errores { get; set; }
+    }
+
     /// <summary>
     /// Servicio: AdwordsConversionService
     /// Autor: Miguel Valdivia
@@ -125,11 +132,11 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             {
                 var content = new FormUrlEncodedContent(new[]
                 {
-                    new KeyValuePair<string, string>("client_id", credenciales.ClientId),
-                    new KeyValuePair<string, string>("client_secret", credenciales.ClientSecret),
-                    new KeyValuePair<string, string>("refresh_token", credenciales.RefreshToken),
-                    new KeyValuePair<string, string>("grant_type", "refresh_token")
-                });
+                      new KeyValuePair<string, string>("client_id", credenciales.ClientId),
+                      new KeyValuePair<string, string>("client_secret", credenciales.ClientSecret),
+                      new KeyValuePair<string, string>("refresh_token", credenciales.RefreshToken),
+                      new KeyValuePair<string, string>("grant_type", "refresh_token")
+                  });
 
                 var response = await httpClient.PostAsync("https://oauth2.googleapis.com/token", content);
 
@@ -151,7 +158,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
         }
 
-        private async Task<(int Exitosas, int Errores)> EnviarLoteAGoogleAds(
+        private async Task<EnvioLoteResultado> EnviarLoteAGoogleAds(
             List<ConversionQueueDTO> conversiones,
             string accessToken,
             AdwordsCredencialesDTO credenciales)
@@ -211,14 +218,21 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             {
                 httpClient.Timeout = TimeSpan.FromMinutes(5);
 
-                // URL correcta para Google Ads API v17
+                // URL con el Customer ID de la sub-cuenta donde están las conversiones
                 var customerId = credenciales.CustomerId.Replace("-", "");
-                var url = $"https://googleads.googleapis.com/{credenciales.ApiVersion}/customers/{customerId}/conversionUploads:uploadClickConversions";
+                var url = $"https://googleads.googleapis.com/{credenciales.ApiVersion}/customers/{customerId}:uploadClickConversions";
 
                 var request = new HttpRequestMessage(HttpMethod.Post, url);
                 request.Headers.Add("Authorization", $"Bearer {accessToken}");
                 request.Headers.Add("developer-token", credenciales.DeveloperToken);
-                request.Headers.Add("login-customer-id", customerId);
+
+                // Si hay Manager Account, usar login-customer-id (requerido para sub-cuentas)
+                if (!string.IsNullOrEmpty(credenciales.ManagerAccountId))
+                {
+                    var managerAccountId = credenciales.ManagerAccountId.Replace("-", "");
+                    request.Headers.Add("login-customer-id", managerAccountId);
+                }
+
                 request.Content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
                 var response = await httpClient.SendAsync(request);
@@ -247,7 +261,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                     }
                 }
 
-                return (exitosas, errores);
+                return new EnvioLoteResultado { Exitosas = exitosas, Errores = errores };
             }
         }
     }

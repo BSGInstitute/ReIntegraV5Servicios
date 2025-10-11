@@ -42,7 +42,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         ConversionActionIdIPPF,
                         ConversionActionIdICISM,
                         ProcesoConversionesActivo,
-                        ISNULL(ApiVersion, 'v17') AS ApiVersion
+                        ISNULL(ApiVersion, 'v20') AS ApiVersion, 
+                        ManagerAccountId
                     FROM mkt.T_AdworkCredencialApi
                     WHERE Estado = 1
                     ORDER BY FechaCreacion DESC
@@ -63,7 +64,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                             ConversionActionIdIPPF = reader.IsDBNull(6) ? null : reader.GetString(6),
                             ConversionActionIdICISM = reader.IsDBNull(7) ? null : reader.GetString(7),
                             ProcesoActivo = reader.GetBoolean(8),
-                            ApiVersion = reader.GetString(9)
+                            ApiVersion = reader.GetString(9),
+                            ManagerAccountId = reader.IsDBNull(10) ? null : reader.GetString(10)
                         };
                     }
                 }

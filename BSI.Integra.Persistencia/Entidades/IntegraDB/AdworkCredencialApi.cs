@@ -14,6 +14,8 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
 
         public string Oauth2RefreshToken { get; set; } = null!;
 
+        // ID de la cuenta Manager (MCC) para acceso API a sub-cuentas
+        public string? ManagerAccountId { get; set; }
 
         // Conversiones Offline - IDs de acciones de conversión
         public string? ConversionActionIdIT { get; set; }

@@ -2,13 +2,14 @@
 {
     /// <summary>
     /// DTO: Credenciales de Google Ads API
-    /// Autor: Sistema
+    /// Autor: Miguel Valdivia
     /// Fecha: 2025-10-04
     /// </summary>
     public class AdwordsCredencialesDTO
     {
         public string DeveloperToken { get; set; } = null!;
         public string CustomerId { get; set; } = null!;
+        public string? ManagerAccountId { get; set; }
         public string ClientId { get; set; } = null!;
         public string ClientSecret { get; set; } = null!;
         public string RefreshToken { get; set; } = null!;
