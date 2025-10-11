@@ -13,6 +13,8 @@ using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using Nancy.Json;
 using OfficeOpenXml;
 using System.Globalization;
@@ -1504,6 +1506,41 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     _oportunidadBo.PreCalculadaCambioFase.UsuarioCreacion = _oportunidadBo.Usuario;
                     _oportunidadBo.PreCalculadaCambioFase.UsuarioModificacion = _oportunidadBo.Usuario;
                     _oportunidadBo.PreCalculadaCambioFase.Estado = true;
+
+
+
+                    try
+                    {
+                        var repo = _unitOfWork.OportunidadRepository as dynamic;
+                        using (var conn = (SqlConnection)repo._connectionFactory.GetConnection)
+                        {
+                            conn.Open();
+                            using (var cmd = new SqlCommand("[mkt].[sp_RegistrarCambioFaseGoogleAds]", conn))
+                            {
+                                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                                cmd.Parameters.AddWithValue("@IdOportunidad", _oportunidadBo.Id);
+                                cmd.Parameters.AddWithValue("@IdFaseOportunidadAnterior", _oportunidadBo.OportunidadLogNueva.IdFaseOportunidadAnt ?? (object)DBNull.Value);
+                                cmd.Parameters.AddWithValue("@IdFaseOportunidadNueva", _oportunidadBo.OportunidadLogNueva.IdFaseOportunidad);
+                                cmd.Parameters.AddWithValue("@FechaHoraConversion", DateTime.Now);
+                                cmd.Parameters.AddWithValue("@Usuario", _oportunidadBo.Usuario);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // SOLO LOG - NO LANZAR EXCEPCIÓN
+                        // El flujo del CRM debe continuar sin importar si esto falla
+                        System.Diagnostics.Debug.WriteLine($"Google Ads Conversion: {ex.Message}");
+                    }
+
+
+
+
+
+
+
+
 
                 }
                 if (_oportunidadBo.OportunidadCompetidor != null && _oportunidadBo.OportunidadCompetidor.Id != 0)

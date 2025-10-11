@@ -13,5 +13,18 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
         public string Oauth2ClientSecret { get; set; } = null!;
 
         public string Oauth2RefreshToken { get; set; } = null!;
+
+
+        // Conversiones Offline - IDs de acciones de conversión
+        public string? ConversionActionIdIT { get; set; }
+
+        public string? ConversionActionIdIPPF { get; set; }
+
+        public string? ConversionActionIdICISM { get; set; }
+
+        // Control del proceso
+        public bool ProcesoConversionesActivo { get; set; } = true;
+
+        public string ApiVersion { get; set; } = "v20";
     }
 }
