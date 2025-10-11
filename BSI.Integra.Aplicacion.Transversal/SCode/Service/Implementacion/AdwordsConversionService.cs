@@ -8,7 +8,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
 {
     /// <summary>
     /// Servicio: AdwordsConversionService
-    /// Autor: Sistema
+    /// Autor: Miguel Valdivia
     /// Fecha: 2025-10-04
     /// Descripción: Lógica de negocio para el envío de conversiones offline a Google Ads
     /// </summary>
@@ -211,11 +211,14 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             {
                 httpClient.Timeout = TimeSpan.FromMinutes(5);
 
-                var url = $"https://googleads.googleapis.com/{credenciales.ApiVersion}/customers/{credenciales.CustomerId}:uploadClickConversions";
+                // URL correcta para Google Ads API v17
+                var customerId = credenciales.CustomerId.Replace("-", "");
+                var url = $"https://googleads.googleapis.com/{credenciales.ApiVersion}/customers/{customerId}/conversionUploads:uploadClickConversions";
 
                 var request = new HttpRequestMessage(HttpMethod.Post, url);
                 request.Headers.Add("Authorization", $"Bearer {accessToken}");
                 request.Headers.Add("developer-token", credenciales.DeveloperToken);
+                request.Headers.Add("login-customer-id", customerId);
                 request.Content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
                 var response = await httpClient.SendAsync(request);

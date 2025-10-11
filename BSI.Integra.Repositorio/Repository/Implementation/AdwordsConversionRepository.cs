@@ -9,7 +9,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 {
     /// <summary>
     /// Repositorio: AdwordsConversionRepository
-    /// Autor: Sistema
+    /// Autor: Miguel Valdivia
     /// Fecha: 2025-10-04
     /// Descripción: Gestión de conversiones offline de Google Ads
     /// </summary>
@@ -28,7 +28,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             using (var conn = (SqlConnection)_connectionFactory.GetConnection)
             {
-                await conn.OpenAsync();
+                if (conn.State != System.Data.ConnectionState.Open)
+                    await conn.OpenAsync();
 
                 var cmd = new SqlCommand(@"
                     SELECT TOP 1
@@ -81,7 +82,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
             using (var conn = (SqlConnection)_connectionFactory.GetConnection)
             {
-                await conn.OpenAsync();
+                if (conn.State != System.Data.ConnectionState.Open)
+                    await conn.OpenAsync();
 
                 var cmd = new SqlCommand(@"
                     SELECT TOP (@Limite)
@@ -140,7 +142,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             using (var conn = (SqlConnection)_connectionFactory.GetConnection)
             {
-                await conn.OpenAsync();
+                if (conn.State != System.Data.ConnectionState.Open)
+                    await conn.OpenAsync();
 
                 var cmd = new SqlCommand(@"
                     UPDATE mkt.T_GoogleAdsConversionQueue
@@ -167,7 +170,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             using (var conn = (SqlConnection)_connectionFactory.GetConnection)
             {
-                await conn.OpenAsync();
+                if (conn.State != System.Data.ConnectionState.Open)
+                    await conn.OpenAsync();
 
                 var cmd = new SqlCommand(@"
                     INSERT INTO mkt.T_AdwordsLog
@@ -189,7 +193,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
             using (var conn = (SqlConnection)_connectionFactory.GetConnection)
             {
-                await conn.OpenAsync();
+                if (conn.State != System.Data.ConnectionState.Open)
+                    await conn.OpenAsync();
 
                 var cmd = new SqlCommand(@"
                     SELECT

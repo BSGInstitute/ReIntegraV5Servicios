@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using BSI.Integra.Aplicacion.Base.Classes;
 using BSI.Integra.Aplicacion.Base.Enums;
 using BSI.Integra.Aplicacion.Base.Exceptions;
 using BSI.Integra.Aplicacion.DTO;
@@ -35,7 +34,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
     /// </summary>
     public class OportunidadService : IOportunidadService
     {
-        //operaciones 
+        //operaciones
         private IUnitOfWork _unitOfWork;
         private Mapper _mapper;
         public Mapper _maperOportunidad;
@@ -1508,7 +1507,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     _oportunidadBo.PreCalculadaCambioFase.Estado = true;
 
 
-
                     try
                     {
                         var repo = _unitOfWork.OportunidadRepository as dynamic;
@@ -1529,18 +1527,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     }
                     catch (Exception ex)
                     {
-                        // SOLO LOG - NO LANZAR EXCEPCIÓN
-                        // El flujo del CRM debe continuar sin importar si esto falla
+
                         System.Diagnostics.Debug.WriteLine($"Google Ads Conversion: {ex.Message}");
                     }
-
-
-
-
-
-
-
-
 
                 }
                 if (_oportunidadBo.OportunidadCompetidor != null && _oportunidadBo.OportunidadCompetidor.Id != 0)
@@ -1587,7 +1576,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     resultado = _unitOfWork.OportunidadRepository.ObtenerPorFiltroRegistrarOportunidad(obj, paginador, null);
                 }
 
-                foreach (var item in resultado.data) 
+                foreach (var item in resultado.data)
                 {
 
                     if (!string.IsNullOrWhiteSpace(item.Email1))
@@ -4797,7 +4786,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             {
                 var _alumnoService = new AlumnoService(_unitOfWork);
                 ResultadoFiltroAsignacionOportunidadDTO resultado = new ResultadoFiltroAsignacionOportunidadDTO();
-                resultado= _unitOfWork.OportunidadRepository.ObtenerPorFiltroPaginaManualOperaciones(paginador, filtro, filterGrid, listaCodigoMatricula);
+                resultado = _unitOfWork.OportunidadRepository.ObtenerPorFiltroPaginaManualOperaciones(paginador, filtro, filterGrid, listaCodigoMatricula);
 
 
                 foreach (var item in resultado.Lista)
@@ -5690,6 +5679,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             try
             {
                 var asignacionAutomaticaRepositorio = _unitOfWork.AsignacionAutomaticaRepository;
+
                 var _repOportunidadLog = _unitOfWork.OportunidadLogRepository;
                 var rpta = CrearOportunidadPortalWeb(IdAsignacionAutomatica);
                 var IdOportunidad = asignacionAutomaticaRepositorio.FirstById(IdAsignacionAutomatica).IdOportunidad;
@@ -5722,14 +5712,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         var _repLog = _unitOfWork.LogRepository;
                         _repLog.Insert(new TLog { Ip = "-", Usuario = "-", Maquina = "-", Ruta = "CrearOportunidadWebHookFacebook", Parametros = $"IdAsignacionAutomatica={IdAsignacionAutomatica}", Mensaje = $"Excedio el numero de intentos de validacion ({nroIntentos} intentos) posterior a la creacion", Excepcion = $"Excedio el numero de intentos de validacion ({nroIntentos} intentos) posterior a la creacion", Tipo = "VALIDATE", IdPadre = 0, UsuarioCreacion = string.Empty, UsuarioModificacion = string.Empty, FechaCreacion = DateTime.Now, FechaModificacion = DateTime.Now, Estado = true });
                     }
-                    var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
-                    try
-                    {
-                        FacebookFormularioLeadingLog.EvaluarConversionFacebook((int)IdOportunidad);
-                    }
-                    catch (Exception ex)
-                    {
-                    }
+
                     return (int)IdOportunidad;
                 }
                 return (int)IdOportunidad;
@@ -6250,27 +6233,27 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         datos.TipoDato = worksheet.Cells[row, 13].Value?.ToString();
                         datos.FaseOportunidad = worksheet.Cells[row, 14].Value?.ToString();
 
-                     
+
                         var celdaFecha = worksheet.Cells[row, 15].Value;
 
                         if (celdaFecha is double excelDate)
                         {
-                           
+
                             datos.FechaRegistroCampania = DateTime.FromOADate(excelDate);
                         }
                         else if (celdaFecha is DateTime fechaDirecta)
                         {
-                            
+
                             datos.FechaRegistroCampania = fechaDirecta;
                         }
                         else if (DateTime.TryParse(celdaFecha?.ToString(), out DateTime fechaString))
                         {
-                            
+
                             datos.FechaRegistroCampania = fechaString;
                         }
                         else
                         {
-                            
+
                             datos.FechaRegistroCampania = DateTime.Now;
                         }
 
@@ -6725,12 +6708,12 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                 Usuario = usuario
                             };
                             ActualizarAlumnoCrearOportunidadVentas(dto);
-                     
+
                         }
                         var guidLinkedin = new StringDTO()
                         {
                             Valor = opo.GuidLinkedInLead,
-                           
+
                         };
                         _unitOfWork.LinkedInApiRepository.ActualizarOportunidadLead(guidLinkedin);
                         datosCorrectos.Add(opo);
@@ -6819,8 +6802,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 // Carlos Crispin Riquelme
                 try
                 {
-                    var nuevaProbabilidad =ObtenerProbabilidadModeloPredictivo(Oportunidad.Id);
-                    
+                    var nuevaProbabilidad = ObtenerProbabilidadModeloPredictivo(Oportunidad.Id);
+
                 }
                 catch (Exception e)
                 {
@@ -6850,7 +6833,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             {
                 throw new Exception(e.Message);
             }
-        }       
+        }
     }
 }
-    
