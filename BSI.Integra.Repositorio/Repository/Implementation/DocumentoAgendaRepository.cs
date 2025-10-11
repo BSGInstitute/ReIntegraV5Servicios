@@ -687,25 +687,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// Obtener resumen programa por id PGeneral
         /// </summary>
         /// <param name="idPGeneral">Id de Programa General</param>
-        /// <param name="idCentroCosto">Id de Centro de Costo</param>
         /// <returns>List<ResumenProgramaDTO></returns> 
         public async Task<List<PEspecificoPorIdPGeneralV2DTO>> ObtenerPorIdPGeneralAsync(int idPGeneral)
         {
-            string query = @"SELECT 
-                     Id,
-                     Nombre,
-                     Ciudad,
-                     Tipo,
-                     Duracion,
-                     EstadoPId,
-                     v2.FechaHoraInicio,
-                     IdCategoria,
-                     CentroCosto
-                  FROM pla.V_ListaProgramaEspecificoPorIdPrograma AS v1
-					 INNER JOIN pla.V_ListaFechaInicioPEspecificoPadrePEspecificoHijoPorIdPadre AS v2 ON v2.IdPEspecifico =v1.Id 
-                  WHERE IdPGeneral = @idPGeneral";
-
-            string resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
+            string storedProcedure = "pla.SP_ProgramaEspecifico_ObtenerPorIdProgramaGeneral";
+           string resultado = await _dapperRepository.QuerySPDapperAsync(storedProcedure, new { IdPGeneral = idPGeneral });
 
             return string.IsNullOrEmpty(resultado) || resultado.Contains("[]")
                 ? new List<PEspecificoPorIdPGeneralV2DTO>()
@@ -837,36 +823,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                // SQL optimizado - moviendo condiciones al WHERE y usando TOP 1
-                var sql = @"SELECT 
-                                PG.IdPGeneral,
-                                CP.Categoria AS EsProgramaOCurso,
-                                DS.Contenido AS ObjetivosHtml
-                            FROM pla.T_PGeneral AS PG WITH (NOLOCK)
-                            INNER JOIN pla.T_CategoriaPrograma AS CP 
-                                ON CP.Id = PG.IdCategoria
-                            INNER JOIN pla.T_PGeneralDocumento_PW AS PGD 
-                                ON PGD.IdPGeneral = PG.IdPGeneral
-                                AND PGD.Estado = 1
-                            INNER JOIN pla.T_Documento_PW AS D 
-                                ON D.Id = PGD.IdDocumento
-                                AND D.Estado = 1
-                                AND D.IdPlantillaPW IN (10, 11, 33, 36) -- Silabo V2, Perfil Programa V2, Perfil Módulo Ocupacional, Silabo Módulo Ocupacional
-                            INNER JOIN pla.T_DocumentoSeccion_PW AS DS 
-                                ON DS.IdDocumentoPW = D.Id
-                                AND DS.Estado = 1
-                            INNER JOIN pla.T_SilaboSeccion AS SS
-                                ON LTRIM(RTRIM(SS.Nombre)) LIKE LTRIM(RTRIM(CONCAT('%', ISNULL(DS.TituloComparar, DS.Titulo), '%'))) COLLATE Latin1_General_CI_AI
-                                AND SS.Estado = 1
-                            WHERE PG.IdPGeneral = @idPGeneral
-                              AND SS.Nombre = 'Objetivos';";
-
+                const string storedProcedure="pla.SP_ProgramaGeneral_ObtenerObjetivosPorId"; 
                 // Timeout más agresivo para forzar optimización
-                var resultado = await _dapperRepository.FirstOrDefaultAsync(sql, new { idPGeneral });
+                var resultado = await _dapperRepository.QuerySPDapperAsync(storedProcedure, new { IdPGeneral = idPGeneral });
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
-                    return JsonConvert.DeserializeObject<ObjetivosRawDTO>(resultado);
+                    var lista = JsonConvert.DeserializeObject<List<ObjetivosRawDTO>>(resultado);
+                    return lista.FirstOrDefault();
                 }
                 return null;
             }
@@ -888,54 +852,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                var sql = @"SELECT
-                                IdPGeneral,
-                                EsProgramaOCurso,
-                                IdVersion,
-                                Version,
-                                Beneficio,
-                                Nota
-                            FROM (
-                                SELECT
-                                    CP.Categoria AS EsProgramaOCurso,
-                                    VP.Nombre AS Version,
-                                    pd.IdPGeneral AS IdPGeneral,
-                                    ds.Contenido AS Beneficio,
-                                    CBPV.IdVersionPrograma AS IdVersion,
-                                    ds.PiePagina AS Nota,
-                                    ROW_NUMBER() OVER (
-                                        PARTITION BY cb.IdPGeneral, cb.OrdenBeneficio 
-                                        ORDER BY  
-                                            cb.Id DESC
-                                    ) AS rn
-                                FROM pla.T_PGeneralDocumento_PW pd
-                                INNER JOIN pla.T_Documento_PW doc 
-                                    ON pd.IdDocumento = doc.Id AND doc.Estado = 1
-                                INNER JOIN pla.T_DocumentoSeccion_PW ds 
-                                    ON doc.Id = ds.IdDocumentoPw AND ds.Estado = 1
-                                INNER JOIN pla.T_Plantilla_PW pla 
-                                    ON pla.Id = ds.IdPlantillaPw
-                                LEFT JOIN pla.T_ConfiguracionBeneficioProgramaGeneral cb 
-                                    ON pd.IdPGeneral = cb.IdPGeneral
-                                    AND cb.Tipo = 2
-                                    AND cb.IdBeneficio = ds.Id
-                                    AND cb.Estado = 1
-                                INNER JOIN pla.T_ConfiguracionBeneficioProgramaGeneralVersion CBPV 
-                                    ON CBPV.IdConfiguracionBeneficioPGneral = cb.Id
-                                INNER JOIN pla.T_PGeneral PG 
-                                    ON PG.Id = cb.IdPGeneral
-                                INNER JOIN pla.T_CategoriaPrograma CP 
-                                    ON CP.Id = PG.IdCategoria
-                                INNER JOIN pla.T_VersionPrograma VP 
-                                    ON VP.Id = CBPV.IdVersionPrograma
-                                WHERE pla.Nombre LIKE '%v2'
-                                  AND ds.Titulo = 'Beneficios'
-                                  AND pd.Estado = 1
-                                  AND CBPV.Estado = 1
-                                  AND pd.IdPGeneral = @idPGeneral
-                            ) t
-                            WHERE rn = 1;";
-                var resultado = await _dapperRepository.QueryDapperAsync(sql, new { idPGeneral });
+                const string storedProcedure = "pla.SP_ProgramaGeneral_ObtenerBeneficiosPorId";
+                var resultado = await _dapperRepository.QuerySPDapperAsync(storedProcedure, new { IdPGeneral = idPGeneral });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
                     return JsonConvert.DeserializeObject<List<BeneficioRawDTO>>(resultado);
@@ -960,29 +878,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                var sql = @"
-            SELECT 
-                PG.Id AS IdPGeneral,
-                CP.Categoria AS EsProgramaOCurso,
-                DCS.id AS idDocumento,
-                DCS.Contenido AS Beneficio,
-                DCS.Cabecera AS Cabecera,
-                DCS.PiePagina AS Nota
-            FROM pla.T_PGeneral PG WITH (NOLOCK)
-            INNER JOIN pla.T_CategoriaPrograma CP WITH (NOLOCK)
-                ON CP.Id = PG.IdCategoria
-            INNER JOIN pla.T_PGeneralDocumento_PW PDC WITH (NOLOCK)
-                ON PDC.IdPGeneral = PG.Id AND PDC.Estado = 1
-            INNER JOIN pla.T_Documento_PW DC WITH (NOLOCK)
-                ON PDC.IdDocumento = DC.Id AND DC.IdPlantillaPW IN (10, 11, 33, 36)
-            INNER JOIN pla.T_DocumentoSeccion_PW DCS WITH (NOLOCK)
-                ON DCS.IdDocumentoPW = DC.Id 
-                AND DCS.Titulo IN ('Certificación','Certificaci&#243;n')
-                AND DCS.Estado = 1
-            WHERE PG.Id = @idPGeneral;
-        ";
+                const string storedProcedure = "pla.SP_ProgramaGeneral_ObtenerCertificacionPorId";
 
-                var resultado = await _dapperRepository.QueryDapperAsync(sql, new { idPGeneral });
+                var resultado = await _dapperRepository.QuerySPDapperAsync(storedProcedure, new {IdPGeneral = idPGeneral });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
                     return JsonConvert.DeserializeObject<List<CertificacionRawDTO>>(resultado);
@@ -1005,28 +903,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <returns>MetodologiaRawDTO</returns> 
         public async Task<MetodologiaRawDTO> GetMetodologiaRawAsync(int idPGeneral)
         {
-            var sql = @"
-        SELECT 
-            PG.Id AS IdPGeneral,
-            CP.Categoria AS EsProgramaOCurso,
-            DCS.id AS idDocumento,
-            DCS.Titulo AS Titulo,
-            DCS.Contenido AS ContenidoMetodologia
-        FROM pla.T_PGeneral PG WITH (NOLOCK)
-        INNER JOIN pla.T_CategoriaPrograma CP WITH (NOLOCK)
-            ON CP.Id = PG.IdCategoria
-        INNER JOIN pla.T_PGeneralDocumento_PW PDC WITH (NOLOCK)
-            ON PDC.IdPGeneral = PG.Id AND PDC.Estado = 1
-        INNER JOIN pla.T_Documento_PW DC WITH (NOLOCK)
-            ON PDC.IdDocumento = DC.Id AND DC.IdPlantillaPW IN (10, 11, 33, 36)
-        INNER JOIN pla.T_DocumentoSeccion_PW DCS WITH (NOLOCK)
-            ON DCS.IdDocumentoPW = DC.Id 
-            AND DCS.Titulo IN ('Metodología Online De Este programa')
-            AND DCS.Estado = 1
-        WHERE PG.Id = @idPGeneral
-    ";
+            const string storedProcedure = "pla.SP_ProgramaGeneral_ObtenerMetodologiaPorId";
 
-            var resultado = await _dapperRepository.FirstOrDefaultAsync(sql, new { idPGeneral });
+            var resultado = await _dapperRepository.QuerySPDapperAsync(storedProcedure, new { idPGeneral });
             if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
             {
                 return JsonConvert.DeserializeObject<MetodologiaRawDTO>(resultado);
@@ -1044,31 +923,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <returns>PautasComplementariasRawDTO</returns> 
         public async Task<PautasComplementariasRawDTO> GetPautasComplementariasRawAsync(int idPGeneral)
         {
-            var sql = @"
-        SELECT 
-            PG.Id AS IdPGeneral,
-            CP.Categoria AS EsProgramaOCurso,
-            DCS.id AS idDocumento,
-            DCS.Titulo AS Titulo,
-            DCS.Contenido AS ContenidoMetodologia
-        FROM pla.T_PGeneral PG WITH (NOLOCK)
-        INNER JOIN pla.T_CategoriaPrograma CP WITH (NOLOCK)
-            ON CP.Id = PG.IdCategoria
-        INNER JOIN pla.T_PGeneralDocumento_PW PDC WITH (NOLOCK)
-            ON PDC.IdPGeneral = PG.Id AND PDC.Estado = 1
-        INNER JOIN pla.T_Documento_PW DC WITH (NOLOCK)
-            ON PDC.IdDocumento = DC.Id AND DC.IdPlantillaPW IN (10, 11, 33, 36)
-        INNER JOIN pla.T_DocumentoSeccion_PW DCS WITH (NOLOCK)
-            ON DCS.IdDocumentoPW = DC.Id 
-            AND DCS.Titulo IN ('Pautas Complementarias')
-            AND DCS.Estado = 1
-        WHERE PG.Id = @idPGeneral
-    ";
+            const string storedProcedure = "pla.SP_ProgramaGeneral_ObtenerPautasComplementariasPorId";
 
-            var resultado = await _dapperRepository.FirstOrDefaultAsync(sql, new { idPGeneral });
+            var resultado = await _dapperRepository.QuerySPDapperAsync(storedProcedure, new { IdPGeneral = idPGeneral });
             if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
             {
-                return JsonConvert.DeserializeObject<PautasComplementariasRawDTO>(resultado);
+                var lista =JsonConvert.DeserializeObject<List<PautasComplementariasRawDTO>>(resultado);
+                return lista.FirstOrDefault();
             }
             return null;
         }
@@ -1083,30 +944,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <returns>PerfilProfesionalClienteDTO</returns> 
         public async Task<PerfilProfesionalClienteDTO> ObtenerPerfilProfesionalClienteAsync(int idAlumno)
         {
-            var sql = @"
-                        SELECT  
-                            AF.Nombre AS AreaFormacion,
-                            CA.Nombre AS Cargo,
-                            A.PrincipalResponsabilidadProfesional,
-                            ISNULL(TE.Nombre, 'Sin Experiencia Registrada') AS AniosExperienciaProfesional,
-                            I.Nombre AS Industria,
-                            ATR.Nombre AS AreaTrabajo,
-                            EMP.Nombre AS Empresa,
-                            ISNULL(TEA.Nombre, 'Sin Tamaño de Empresa Registrado') AS TamanioEmpresa
-                        FROM mkt.T_Alumno A WITH (NOLOCK)
-                        LEFT JOIN pla.T_AreaFormacion AF WITH (NOLOCK) ON AF.Id = A.IdAFormacion
-                        LEFT JOIN pla.T_Cargo CA WITH (NOLOCK) ON CA.Id = A.IdCargo
-                        LEFT JOIN pla.T_AreaTrabajo ATR WITH (NOLOCK) ON ATR.Id = A.IdATrabajo
-                        LEFT JOIN pla.T_Industria I WITH (NOLOCK) ON I.Id = A.IdIndustria
-                        LEFT JOIN pla.T_Empresa EMP WITH (NOLOCK) ON EMP.Id = A.IdEmpresa
-                        LEFT JOIN pla.T_TiempoExperiencia TE WITH (NOLOCK) ON TE.Id = A.IdExperiencia
-                        LEFT JOIN pla.T_TamanioEmpresaAgenda TEA WITH (NOLOCK) ON TEA.Id = A.IdTamanioEmpresaAgenda
-                        WHERE A.Id = @idAlumno;";
+            const string storedProcedure = "pla.SP_Alumno_ObtenerInformacionProfesionalPorId";
 
-            var resultado = await _dapperRepository.FirstOrDefaultAsync(sql, new { idAlumno });
+            var resultado = await _dapperRepository.QuerySPDapperAsync(storedProcedure, new { IdAlumno = idAlumno });
             if (!string.IsNullOrEmpty(resultado) && resultado != "null")
             {
-                return JsonConvert.DeserializeObject<PerfilProfesionalClienteDTO>(resultado);
+                var lista = JsonConvert.DeserializeObject<List<PerfilProfesionalClienteDTO>>(resultado);
+                return lista.FirstOrDefault();
             }
             return null;
         }
