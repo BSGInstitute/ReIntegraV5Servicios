@@ -152,6 +152,13 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad
             public string Status { get; set; }
             public TranscriptionDto Transcription { get; set; }
         }
+        public class TranscripcionCompletaResponseDisplayDTO
+        {
+            public string IdLlamada { get; set; }
+            public string? IdActividadDetalle { get; set; }
+            public string Status { get; set; }
+            public TranscriptionDisplayDto Transcription { get; set; }
+        }
         public class TranscriptionDto
         {
             public string Source { get; set; }
@@ -169,12 +176,34 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad
             public List<RecognizedPhraseDto> RecognizedPhrases { get; set; }
             public List<string> Recomendaciones { get; set; }
         }
+        public class TranscriptionDisplayDto
+        {
+            public string Source { get; set; }
+            public DateTime Timestamp { get; set; }
+            public long DurationInTicks { get; set; }
+            public int DurationMilliseconds { get; set; }
+            public string Duration { get; set; }
+            public string Summary { get; set; }
+            public string Ocurrencia_Consistente { get; set; } // "si" o "no"
+            public string ComentarioConsistenciaOcurrencia { get; set; }
+            public string? CambioFaseConsistente { get; set; }
+            public string? ComentarioConsistenciaCambioFase { get; set; }
+
+            public List<CombinedRecognizedPhraseDisplayDto> CombinedRecognizedPhrases { get; set; }
+            public List<RecognizedPhraseDisplayDto> RecognizedPhrases { get; set; }
+            public List<string> Recomendaciones { get; set; }
+        }
         public class CombinedRecognizedPhraseDto
         {
             public int? Channel { get; set; }
             public string Lexical { get; set; }
             public string Itn { get; set; }
             public string MaskedITN { get; set; }
+            public string Display { get; set; }
+        }
+        public class CombinedRecognizedPhraseDisplayDto
+        {
+            public int? Channel { get; set; }
             public string Display { get; set; }
         }
         public class RecognizedPhraseDto
@@ -190,12 +219,31 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad
             public int? OffsetMilliseconds { get; set; }
             public List<NBestDto> NBest { get; set; }
         }
+        public class RecognizedPhraseDisplayDto
+        {
+            public string RecognitionStatus { get; set; }
+            public int? Channel { get; set; }
+            public string Speaker { get; set; }
+            public string Offset { get; set; }
+            public string Duration { get; set; }
+            public long? OffsetInTicks { get; set; }
+            public long? DurationInTicks { get; set; }
+            public int? DurationMilliseconds { get; set; }
+            public int? OffsetMilliseconds { get; set; }
+            public List<NBestDisplayDto> NBest { get; set; }
+        }
         public class NBestDto
         {
             public decimal? Confidence { get; set; }
             public string Lexical { get; set; }
             public string Itn { get; set; }
             public string MaskedITN { get; set; }
+            public string Display { get; set; }
+            public string Sentiment { get; set; }
+        }
+        public class NBestDisplayDto
+        {
+            public decimal? Confidence { get; set; }
             public string Display { get; set; }
             public string Sentiment { get; set; }
         }

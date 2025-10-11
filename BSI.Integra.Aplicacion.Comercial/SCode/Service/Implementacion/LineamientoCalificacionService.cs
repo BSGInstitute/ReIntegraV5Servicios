@@ -922,10 +922,10 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             .Select(x => x.IdLlamada)
                             .ToList();
 
-                        var transcripcionesHistoricas = new List<TranscripcionCompletaResponseDTO>();
+                        var transcripcionesHistoricas = new List<TranscripcionCompletaResponseDisplayDTO>();
                         foreach (var idLlamadaHistorica in llamadasHistoricas)
                         {
-                            var transcripcionHistorica = await ObtenerTranscripcion(idLlamadaHistorica);
+                            var transcripcionHistorica = await ObtenerDisplayTranscripcion(idLlamadaHistorica);
                             if (transcripcionHistorica != null)
                                 transcripcionesHistoricas.Add(transcripcionHistorica);
                         }
@@ -1078,10 +1078,10 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                       .Select(x => x.IdLlamada)
                       .ToList();
 
-                 var transcripcionesHistoricas = new List<TranscripcionCompletaResponseDTO>();
+                 var transcripcionesHistoricas = new List<TranscripcionCompletaResponseDisplayDTO>();
                  foreach (var idLlamadaHistorica in llamadasHistoricas)
                  {
-                     var transcripcionHistorica = await ObtenerTranscripcion(idLlamadaHistorica);
+                     var transcripcionHistorica = await ObtenerDisplayTranscripcion(idLlamadaHistorica);
                      if (transcripcionHistorica != null)
                          transcripcionesHistoricas.Add(transcripcionHistorica);
                  }
@@ -1294,7 +1294,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         private string GetCriticidadNombre(int criticidadId, ConfiguracionLineamientoDTO dto)
         {
             return dto.CriticidadCalificacion
-                .FirstOrDefault(c => c.Id == criticidadId)?.NombreCriticidad ?? string.Empty;
+                .FirstOrDefault(c => c.Id == criticidadId)?.Nombre ?? string.Empty;
         }
 
 
@@ -1578,6 +1578,87 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                     Display = x.DFR_Display,
                                     Sentiment = x.DFR_Sentiment
                                 }).ToList()
+                            }).ToList(),
+
+                        Recomendaciones = data
+                            .Where(x => x.RecomendacionId != null)
+                            .Select(x => x.Recomendacion.ToString())
+                            .Distinct()
+                            .ToList()
+                    }
+                };
+
+                return dto;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        /// Autor:Joseph Llanque
+        /// Fecha: 25/12/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary> 
+        /// <returns> IEnumerable<TranscripcionCompletaResponseDto> </returns>
+        public async Task<TranscripcionCompletaResponseDisplayDTO> ObtenerDisplayTranscripcion(int idLlamada)
+        {
+            try
+            {
+                var data = (await _unitOfWork.TranscripcionLlamadaRepository.ObtenerTranscripcion(idLlamada)).ToList();
+                if (!data.Any()) return null;
+
+                var transcripcion = data.First();
+
+                var dto = new TranscripcionCompletaResponseDisplayDTO
+                {
+                    IdLlamada = transcripcion.IdLlamadaWebphoneCruceCentralTresCx.ToString(),
+                    IdActividadDetalle = null,
+                    Status = "success",
+                    Transcription = new TranscriptionDisplayDto
+                    {
+                        Source = transcripcion.Source,
+                        Timestamp = transcripcion.Timestamp,
+                        DurationInTicks = transcripcion.DurationInTicks ?? 0,
+                        DurationMilliseconds = transcripcion.DurationMilliseconds ?? 0,
+                        Duration = transcripcion.Duration,
+                        Summary = transcripcion.Summary,
+                        Ocurrencia_Consistente = transcripcion.OcurrenciaConsistente.HasValue && transcripcion.OcurrenciaConsistente.Value ? "si" : "no",
+
+                        CombinedRecognizedPhrases = data
+                            .Where(x => x.FraseCombinadaId != null)
+                            .GroupBy(x => x.FraseCombinadaId)
+                            .Select(g => new CombinedRecognizedPhraseDisplayDto
+                            {
+                                Channel = g.First().FC_Channel,
+                                Display = g.First().FC_Display
+                            }).ToList(),
+
+                        RecognizedPhrases = data
+                            .Where(x => x.FraseReconocidaId != null)
+                            .GroupBy(x => x.FraseReconocidaId)
+                            .Select(g => new RecognizedPhraseDisplayDto
+                            {
+                                RecognitionStatus = g.First().RecognitionStatus,
+                                Channel = g.First().FR_Channel,
+                                Speaker = g.First().Speaker,
+                                Offset = g.First().Offset,
+                                Duration = g.First().FR_Duration,
+                                OffsetInTicks = g.First().OffsetInTicks,
+                                DurationInTicks = g.First().DurationInTicksFraseReconocida,
+                                DurationMilliseconds = g.First().DurationMillisecondsFraseReconocida,
+                                OffsetMilliseconds = g.First().OffsetMilliseconds,
+                                NBest = g
+                                       .Where(x => x.DetalleFraseReconocidaId != null)
+                                       .DistinctBy(x => x.DetalleFraseReconocidaId)
+                                       .Select(x => new NBestDisplayDto
+                                       {
+                                           Confidence = x.Confidence,
+                                           Display = x.DFR_Display,
+                                           Sentiment = x.DFR_Sentiment
+                                       }).ToList()
                             }).ToList(),
 
                         Recomendaciones = data

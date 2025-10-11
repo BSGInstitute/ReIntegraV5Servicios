@@ -353,7 +353,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
     public class CriticidadDTO
     {
         public int Id { get; set; }
-        public string NombreCriticidad { get; set; }
+        public string Nombre { get; set; }
     }
 
     public class PuntoGeneralDTO
