@@ -47,7 +47,7 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 var facebookFormularioLeadgenLog = new FacebookFormularioLeadgenLogService(unitOfWork);
 
-                await facebookFormularioLeadgenLog.EvaluarConversionFacebook(IdOportunidad);
+                facebookFormularioLeadgenLog.EvaluarConversionFacebook(IdOportunidad);
 
                 return Ok(true);
             }

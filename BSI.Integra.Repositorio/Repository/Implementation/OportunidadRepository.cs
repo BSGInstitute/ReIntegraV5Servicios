@@ -4370,7 +4370,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception("Error al obtener oportunidades masivas", ex);
             }
         }
-        public async Task<OportunidadConversionesDTO> ObtenerInformacionOportunidadConversionAsincronica(int idOportunidad)
+        public OportunidadConversionesDTO ObtenerInformacionOportunidadConversion(int idOportunidad)
         {
             try
             {
@@ -4401,7 +4401,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 return null;
             }
         }
-        public async Task<OportunidadDetalleProbabilidadDTO> ObtenerInformacionOportunidadProbabilidadAsincronica(int idOportunidad)
+        public OportunidadDetalleProbabilidadDTO ObtenerInformacionOportunidadProbabilidad(int idOportunidad)
         {
             try
             {

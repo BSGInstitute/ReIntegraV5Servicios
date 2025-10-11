@@ -18,6 +18,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         List<FacebookFormularioLeadgenLog> Update(List<FacebookFormularioLeadgenLog> listadoEntidad);
         bool Delete(List<int> listadoIds, string usuario);
         #endregion
-        public Task EvaluarConversionFacebook(int idOportunidad);
+        public void EvaluarConversionFacebook(int idOportunidad);
     }
 }

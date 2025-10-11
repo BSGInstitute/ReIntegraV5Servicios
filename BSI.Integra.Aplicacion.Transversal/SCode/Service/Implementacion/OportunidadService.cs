@@ -5685,17 +5685,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         var _repLog = _unitOfWork.LogRepository;
                         _repLog.Insert(new TLog { Ip = "-", Usuario = "-", Maquina = "-", Ruta = "CrearOportunidadWebHookFacebook", Parametros = $"IdAsignacionAutomatica={IdAsignacionAutomatica}", Mensaje = $"Excedio el numero de intentos de validacion ({nroIntentos} intentos) posterior a la creacion", Excepcion = $"Excedio el numero de intentos de validacion ({nroIntentos} intentos) posterior a la creacion", Tipo = "VALIDATE", IdPadre = 0, UsuarioCreacion = string.Empty, UsuarioModificacion = string.Empty, FechaCreacion = DateTime.Now, FechaModificacion = DateTime.Now, Estado = true });
                     }
-                    _ = Task.Run(async () =>
+                    var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                    try
                     {
-                        var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
-                        try
-                        {
-                            await FacebookFormularioLeadingLog.EvaluarConversionFacebook((int)IdOportunidad);
-                        }
-                        catch (Exception ex)
-                        {
-                        }
-                    });
+                        FacebookFormularioLeadingLog.EvaluarConversionFacebook((int)IdOportunidad);
+                    }
+                    catch (Exception ex)
+                    {
+                    }
                     return (int)IdOportunidad;
                 }
                 return (int)IdOportunidad;
