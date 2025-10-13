@@ -34,7 +34,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         private static readonly bool _testMode;
         private static readonly string _testEventCode;
         private static readonly HttpClient _httpClient;
-        private static readonly HashSet<int> _fasesConversion = new() { 1, 4, 14, 11, 36 };
         private static readonly HashSet<int> _fasesMaximas = new() { 12, 5, 23 };
         private static readonly HashSet<string> _probabilidadesValidas = new() { "Media", "Alta", "Muy Alta" };
 
@@ -303,8 +302,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         {
             var resultados = new List<int>();
 
-            // Evento 1: Fases específicas con probabilidades válidas
-            if (_fasesConversion.Contains(idFaseOportunidadActual) && _probabilidadesValidas.Contains(probabilidad))
+            // Evento 1: Fases con probabilidades válidas
+            if (_probabilidadesValidas.Contains(probabilidad))
                 resultados.Add(1);
 
             // Evento 2: Probabilidad Muy Alta
