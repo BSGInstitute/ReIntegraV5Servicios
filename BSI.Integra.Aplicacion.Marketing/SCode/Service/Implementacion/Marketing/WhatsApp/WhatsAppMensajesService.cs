@@ -2890,8 +2890,8 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.What
             try
             {
 
-                //var url2 = "https://integrav4-signalrcore.bsginstitute.com/";
-                var url2 = "https://localhost:7120/";
+                var url2 = "https://integrav4-signalrcore.bsginstitute.com/";
+                //var url2 = "https://localhost:7120/";
 
                 var connection = new HubConnectionBuilder()
                 .WithUrl(url2 + "hubChatWhatsapp_Peru?idUsuario=WebHook&&usuarioNombre=WebHook&&rooms=''")
