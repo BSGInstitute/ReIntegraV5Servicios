@@ -1,6 +1,6 @@
 ﻿using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.GoogleAds;
 
-namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
+namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
 {
     /// <summary>
     /// Interfaz: Servicio de Conversiones Offline de Google Ads

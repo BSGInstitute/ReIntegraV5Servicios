@@ -1,4 +1,4 @@
-﻿using BSI.Integra.Aplicacion.Comercial.Service.Interface;
+﻿using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 

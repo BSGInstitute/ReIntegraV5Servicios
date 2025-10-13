@@ -1,10 +1,10 @@
-﻿using BSI.Integra.Aplicacion.Comercial.Service.Interface;
+﻿using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.GoogleAds;
 using BSI.Integra.Repositorio.Repository.Interface;
 using Newtonsoft.Json;
 using System.Text;
 
-namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
+namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 {
     // Clase auxiliar para el resultado del envío
     public class EnvioLoteResultado
