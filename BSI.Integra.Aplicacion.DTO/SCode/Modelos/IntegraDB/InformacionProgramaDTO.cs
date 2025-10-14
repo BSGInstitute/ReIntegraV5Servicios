@@ -61,6 +61,15 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string Inversion { get; set; }
         public string Certificacion { get; set; }
     }
+    public class ResumenProgramaV3DTO
+    {
+        public int? IdArea { get; set; }
+        public int? IdSubArea { get; set; }
+        public string NombrePrograma { get; set; }
+        public string Duracion { get; set; }
+        public List<object> Inversion { get; set; }
+        public object Certificacion { get; set; }
+    }
     public class CargarInformacionProgramaAutomaticoRespuestaDTO
     {
         public int IdPGeneral { get; set; }

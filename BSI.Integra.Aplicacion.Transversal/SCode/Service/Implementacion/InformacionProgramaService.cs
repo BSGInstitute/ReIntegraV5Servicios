@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.Transversal.SCode.Helper;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
@@ -2737,6 +2738,68 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw new Exception(e.Message);
             }
         }
+        public List<ResumenProgramaV3DTO> CargarResumenProgramasV3(Dictionary<string, string> filtros)
+        {
+            try
+            {
+                var servicioPGeneral = new PGeneralService(_unitOfWork);
+                var servicioDocumentoAgenda = new DocumentoAgendaService(_unitOfWork);
+
+                var listaResumenPrograma = servicioPGeneral.ObtenerResumenProgramaV2(filtros);
+                int idPais = Convert.ToInt32(filtros["codigoPais"]);
+                var listaResumenProgramatemporal = listaResumenPrograma.Where(x => x.IdPais == idPais).ToList();
+                if (listaResumenProgramatemporal.Count == 0)
+                {
+                    listaResumenPrograma = listaResumenPrograma.Where(x => x.IdPais == 0).ToList(); //Internacional
+                }
+                else
+                {
+                    listaResumenPrograma = listaResumenProgramatemporal;
+                }
+                var listaResumenProgramaAgrupado = listaResumenPrograma.GroupBy(x => new { x.IdPrograma, x.NombrePrograma, x.DuracionPrograma, x.IdArea, x.IdSubArea }).Select(x => new MontoProgramaAgrupadoDTO
+                {
+                    IdPrograma = x.Key.IdPrograma,
+                    IdArea = x.Key.IdArea,
+                    IdSubArea = x.Key.IdSubArea,
+                    NombrePrograma = x.Key.NombrePrograma,
+                    Duracion = x.Key.DuracionPrograma,
+                    MontoDetalle = x.GroupBy(y => y.Descripcion).Select(y => new MontoProgramaDetalleDTO
+                    {
+                        Version = y.Key,
+                        VersionDetalle = y.Select(z => new MontoProgramaVersionDetalle
+                        {
+                            IdTipoPago = z.IdTipoPago,
+                            TipoPago = z.TipoPago,
+                            SimboloMoneda = z.SimboloMoneda,
+                            Matricula = z.Matricula,
+                            Cuotas = z.Cuotas,
+                            NroCuotas = z.NroCuotas
+                        }).OrderByDescending(a => a.TipoPago).ToList()
+                    }).ToList()
+                }).ToList();
+
+                foreach (var item in listaResumenProgramaAgrupado)
+                {
+                    var certificacionV2 = servicioDocumentoAgenda.ObtenerListaSeccionDocumentoProgramaGeneral(item.IdPrograma);
+                    if (certificacionV2 == null || certificacionV2.Count == 0 || !certificacionV2.Any(a => a.Seccion.Contains("Certificacion")))
+                    {
+                        var certificacionV1 = _unitOfWork.DocumentoSeccionPwRepository.ObtenerSecciones(item.IdPrograma);
+                        if (certificacionV1 != null && certificacionV1.Count > 0)
+                            item.SeccionCertificadoV1 = certificacionV1.Where(x => x.Titulo.Contains("Certificación")).FirstOrDefault();
+                    }
+                    else
+                    {
+                        item.SeccionCertificadoV2 = certificacionV2.Where(a => a.Seccion.Contains("Certificacion")).FirstOrDefault();
+                    }
+                }
+                var resumenProgramasV2 = ObtenerResumenProgramaHTMLV2(listaResumenProgramaAgrupado);
+                return resumenProgramasV2;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
         private List<ResumenProgramaV2DTO> ObtenerResumenProgramaHTML(List<MontoProgramaAgrupadoDTO> lista)
         {
             try
@@ -2796,6 +2859,103 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             certificacion += item.SeccionCertificadoV1.Contenido;
                         }
 
+                    }
+                    obj.Certificacion = certificacion;
+                    listaNueva.Add(obj);
+                }
+                return listaNueva;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+        private List<ResumenProgramaV3DTO> ObtenerResumenProgramaHTMLV2(List<MontoProgramaAgrupadoDTO> lista)
+        {
+            try
+            {
+                List<ResumenProgramaV3DTO> listaNueva = new List<ResumenProgramaV3DTO>();
+                foreach (var item in lista)
+                {
+                    ResumenProgramaV3DTO obj = new ResumenProgramaV3DTO();
+                    obj.IdArea = item.IdArea;
+                    obj.IdSubArea = item.IdSubArea;
+                    obj.NombrePrograma = item.NombrePrograma;
+                    obj.Duracion = item.Duracion;
+                    var inversion = new List<object>();
+                    foreach (var inv in item.MontoDetalle)
+                    {
+                        var versionObj = new
+                        {
+                            inv.Version,
+                            Detalles = new List<object>()
+                        };
+                        foreach (var det in inv.VersionDetalle)
+                        {
+                            var detalle = new Dictionary<string, object?>
+                            {
+                                ["TipoPago"] = det.TipoPago,
+                                ["Descripcion"] = det.TipoPago switch
+                                {
+                                    "Contado" => $"{det.SimboloMoneda} {det.Matricula}.",
+                                    "Crédito" when det.NroCuotas != null && det.Cuotas != null =>
+                                        $"1 Cuota inicial de {det.SimboloMoneda} {det.Matricula} y {det.NroCuotas} cuotas mensuales desde {det.SimboloMoneda} {det.Cuotas}.",
+                                    _ => null
+                                }
+                            };
+                            versionObj.Detalles.Add(detalle);
+                        }
+                         inversion.Add(versionObj);
+                    }
+                    obj.Inversion = inversion;
+
+                    var certificacion = new List<object>();
+                    if (item.SeccionCertificadoV2 != null)
+                    {
+                        foreach (var contenido in item.SeccionCertificadoV2.DetalleSeccion)
+                        {
+                            if (!string.IsNullOrEmpty(contenido.Titulo))
+                            {
+                                certificacion.Add(new { 
+                                    Type = "title",
+                                    Text = contenido.Titulo
+                                });
+                            }
+                            if (!string.IsNullOrEmpty(contenido.Cabecera))
+                            {
+                                certificacion.Add(new {
+                                    Type = "paragraph",
+                                    Text = contenido.Cabecera
+                                });
+                            }
+                            if (contenido.DetalleContenido.Any())
+                            {
+                                var objItems = new
+                                {
+                                    Type = "items",
+                                    Items = new List<string>()
+                                };
+                                foreach (var contenidoSeccion in contenido.DetalleContenido)
+                                {
+                                    objItems.Items.Add(contenidoSeccion);
+                                }
+                                certificacion.Add(objItems);
+                            }
+                            if (!string.IsNullOrEmpty(contenido.PiePagina))
+                            {
+                                certificacion.Add(new
+                                {
+                                    Type = "paragraph",
+                                    Text = contenido.PiePagina
+                                });
+                            }
+                        }
+                    } else
+                    {
+                        if (item.SeccionCertificadoV1 != null)
+                        {
+                            certificacion = HtmlToJsonHelper.ConvertHtmlToJson(item.SeccionCertificadoV1.Contenido);
+                        }
                     }
                     obj.Certificacion = certificacion;
                     listaNueva.Add(obj);

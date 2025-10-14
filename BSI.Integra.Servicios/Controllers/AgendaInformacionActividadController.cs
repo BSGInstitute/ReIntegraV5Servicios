@@ -1963,6 +1963,25 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [Route("[Action]")]
+        [HttpPost]
+        public ActionResult ObtenerResumenProgramasV3([FromBody] Dictionary<string, string> filtros)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var informacionProgramaService = new InformacionProgramaService(_unitOfWork);
+                return Ok(informacionProgramaService.CargarResumenProgramasV3(filtros));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
         /// TipoFuncion: GET
         /// Autor: Gilmer Quispe.
         /// Fecha: 01/09/2022
