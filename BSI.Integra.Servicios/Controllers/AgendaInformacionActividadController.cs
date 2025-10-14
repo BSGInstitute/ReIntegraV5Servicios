@@ -657,6 +657,23 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("ObtenerDocumentosPorIdActividadDetalleV2/{idActividadDetalle}")]
+        public IActionResult ObtenerDocumentosPorIdActividadDetalleV2(int idActividadDetalle)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new DocumentoAgendaService(_unitOfWork);
+                return Ok(servicio.ObtenerDocumentoAgendaDetallePorIdActividadDetalleV2(idActividadDetalle));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 05/08/2022

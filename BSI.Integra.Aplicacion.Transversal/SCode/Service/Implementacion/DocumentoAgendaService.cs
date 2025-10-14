@@ -139,6 +139,39 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw ex;
             }
         }
+        public DocumentoAgendaDetalleDTO ObtenerDocumentoAgendaDetallePorIdActividadDetalleV2(int idActividadDetalle)
+        {
+            try
+            {
+                IOportunidadService oportunidadService = new OportunidadService(_unitOfWork);
+                IPEspecificoService pEspecificoService = new PEspecificoService(_unitOfWork);
+                IPGeneralService pGeneralService = new PGeneralService(_unitOfWork);
+
+                var oportunidad = oportunidadService.ObtenerOportunidadCompuestoPorIdActividadDetalle(idActividadDetalle);
+                var programaEspecifico = _unitOfWork.PEspecificoRepository.ObtenerPorIdCentroCosto(oportunidad.IdCentroCosto!.Value);
+                var programaGeneral = pGeneralService.ObtenerPGeneralAtributosPrincipalesPorId(programaEspecifico.IdProgramaGeneral!.Value);
+
+                var documentosDescarga = _mapper.Map<List<DocumentoAgendaDescargaDTO>>(ObtenerDocumentoAgendaSinAuditoria());
+                documentosDescarga = documentosDescarga.Select(d =>
+                {
+                    var doc = d.Generado
+                        ? ObtenerBytesDocumentoAgenda(d, programaEspecifico, programaGeneral, oportunidad)
+                        : ObtenerUrlDocumentoAgenda(d, programaEspecifico, programaGeneral);
+                    doc.MensajeDetalle = HtmlToJsonHelper.ConvertHtmlToPlainText(doc.MensajeDetalle);
+                    return doc;
+                }).ToList();
+                return new DocumentoAgendaDetalleDTO
+                {
+                    Oportunidad = oportunidad,
+                    ProgramaEspecifico = programaEspecifico,
+                    Documentos = documentosDescarga
+                };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 03/08/2022
         /// Version: 1.0

@@ -1,5 +1,6 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using HtmlAgilityPack;
+using System.Text.RegularExpressions;
 
 namespace BSI.Integra.Aplicacion.Transversal.SCode.Helper
 {
@@ -78,6 +79,15 @@ namespace BSI.Integra.Aplicacion.Transversal.SCode.Helper
             }
 
             return contentList;
+        }
+        public static string ConvertHtmlToPlainText(string html)
+        {
+            if (string.IsNullOrEmpty(html))
+                return html;
+
+            html = Regex.Replace(html, "<.*?>", string.Empty);
+            html = html.Trim();
+            return html;
         }
     }
 }
