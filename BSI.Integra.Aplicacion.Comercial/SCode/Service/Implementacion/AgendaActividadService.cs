@@ -536,6 +536,31 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 throw;
             }
         }
+        public (List<PreguntaFrecuenteSeccionesV2DTO> Data, List<ProgramaGeneralModeloCertificadoDTO> ModeloCertificado) ObtenerPreguntasFrecuentesCambioV2(int idCentroCosto, int idPrograma, int idOportunidad)
+        {
+            try
+            {
+                var pGeneralAreaSubArea = _unitOfWork.PGeneralRepository.ObtenerAreaSubAreaPorIdPGeneral(idPrograma);
+                if (pGeneralAreaSubArea == null)
+                    throw new Exception("No existe el programa");
+
+                var pEspecificoIdTipoDTO = _unitOfWork.PEspecificoRepository.ObtenerTipoIdPorIdCentroCosto(idCentroCosto);
+                if (pEspecificoIdTipoDTO == null)
+                    throw new Exception("No existe el centro costo");
+
+                var preguntaFrecuentePGeneralDTO2s = _unitOfWork.PreguntaFrecuentePGeneralRepository.ObtenerPreguntaFrecuenteCambio(idPrograma, pGeneralAreaSubArea.IdArea, pGeneralAreaSubArea.IdSubArea, pEspecificoIdTipoDTO.TipoId);
+
+                IInformacionProgramaService informacionProgramaService = new InformacionProgramaService(_unitOfWork);
+                var preguntaFrecuenteSeccionesDTOs = informacionProgramaService.CargarInformacionProgramaV2(preguntaFrecuentePGeneralDTO2s);
+                var programaGeneralModeloCertificadoDTOs = _unitOfWork.ProgramaGeneralModeloCertificadoRepository.ObtenerModeloCertificadoProgramaPorIdOportunidad(idOportunidad);
+
+                return (preguntaFrecuenteSeccionesDTOs, programaGeneralModeloCertificadoDTOs);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
         /// Autor: Jonathan Caipo
         /// Fecha: 15/12/2022
         /// Version: 1.0
