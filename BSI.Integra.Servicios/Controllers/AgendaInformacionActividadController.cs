@@ -965,6 +965,31 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpPost("ObtenerInformacionProgramav1SinHtmlV2")]
+        public IActionResult ObtenerInformacionProgramav1SinHtmlV2([FromBody] Dictionary<string, string> filtro)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var informacionProgramaService = new InformacionProgramaService(_unitOfWork);
+
+                var idCentroCosto = Convert.ToInt32(filtro["idCentroCosto"]);
+                var codigoPais = Convert.ToInt32(filtro["codigoPais"]);
+                var idMatriculaCabecera = Convert.ToInt32(filtro["idMatriculaCabecera"]);
+                var idOportunidad = Convert.ToInt32(filtro["idOportunidad"]);
+
+                var respuesta = informacionProgramaService.ObtenerInformacionProgramaV2(idCentroCosto, codigoPais, idMatriculaCabecera, idOportunidad);
+                return Ok(new { respuesta });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
         /// Tipo Función: POST
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 11/08/2022

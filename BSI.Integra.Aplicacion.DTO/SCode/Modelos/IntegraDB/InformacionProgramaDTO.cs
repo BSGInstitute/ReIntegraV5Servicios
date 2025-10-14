@@ -8,6 +8,11 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public List<MontoPagoModalidadDTO> MontosPorPais { get; set; }
         public List<BeneficioDTO> ListaBeneficios { get; set; }
     }
+    public class ObtenerMontos2RespuestaV2DTO
+    {
+        public List<MontoPagoModalidadV2DTO> MontosPorPais { get; set; }
+        public List<BeneficioDTO> ListaBeneficios { get; set; }
+    }
     public class CargarInformacionProgramaRespuestaDTO
     {
         public string EtiquetaFormasPago { get; set; }
@@ -156,7 +161,46 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         // Beneficios filtrados por país
         public List<PgeneralConfiguracionBeneficioDTO> ConfiguracionBeneficiosFiltradosPorPais { get; set; } = new();
     }
+    public class CargarInformacionProgramaEndpointsV2DTO
+    {
+        // Configuración de beneficios
+        public List<PgeneralConfiguracionBeneficioDTO> ConfiguracionBeneficios { get; set; }
+        public IEnumerable<DocumentoPwVersionesPGeneralDTO> IntroduccionesBeneficio { get; set; }
 
+        // Inversión
+        public IEnumerable<MontoPagoModalidadV2DTO> Inversion { get; set; }
+
+        //Modalidades 
+
+        public IEnumerable<ModalidadProgramaDTO> Modalidades { get; set; }
+
+        // Flags
+        public bool EsProgramaPadre { get; set; }
+        public bool EsProgramaTecnico { get; set; }
+
+        // Estructura técnica por hijo
+        public List<ListaCursosPorProgramaDTO> CursosHijo { get; set; } = new();                                   // PGeneralRepository.ListaCursosHijoPorIdPGeneral
+        public Dictionary<int, object> DuracionCursoHijoPorId { get; set; } = new();                                // PGeneralRepository.ObtenerDuracionCursoHijo(IdHijo) (si conoces el tipo, reemplaza object por int/string/DTO)
+        public Dictionary<int, List<ContenidoHijoDTO>> ContenidoEstructuraPorHijoId { get; set; } = new();          // PGeneralRepository.ContenidoEstructuraHijoPadre(IdHijo)
+
+        // Secciones de agenda (raw)
+        public List<ProgramaGeneralSeccionDocumentoV2DTO> SeccionesPrograma { get; set; } = new();                    // DocumentoAgendaService.ObtenerInformacionProgramaGeneral
+
+        // PEspecífico / PGeneral
+        public List<PEspecificoPorIdPGeneral> FechasInicioPrograma { get; set; } = new();                           // PEspecificoService.ObtenerFechaInicioProgramaTodos
+        public PGeneralAtributosPrincipalesDTO ProgramaGeneral { get; set; }                                         // PGeneralService.ObtenerPGeneralAtributosPrincipalesPorId
+
+        // Área
+        public PGeneralAreaSubAreaDTO AreaSubArea { get; set; }                                                      // PGeneralRepository.ObtenerAreaSubAreaPorIdPGeneral
+        public AreaCapacitacion AreaCapacitacion { get; set; }                                                       // AreaCapacitacionRepository.ObtenerPorId
+
+        // Pagos y tarifarios
+        public List<MontoPagadoDTO> MontoPagado { get; set; } = new();                                               // MontoPagoCronogramaRepository.ObtenerMontoPagado
+        public List<TarifarioDetalleAgendaDTO> Tarifarios { get; set; } = new();                                     // OrigenService.ObtenerTarifariosDetallesAgenda
+
+        // Beneficios filtrados por país
+        public List<PgeneralConfiguracionBeneficioDTO> ConfiguracionBeneficiosFiltradosPorPais { get; set; } = new();
+    }
     public class InformacionProgramaSpeechDTO
     {
         public List<PresentacionProgramadto> RefuerzodeConfianza { get; set; }
