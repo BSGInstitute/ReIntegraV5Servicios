@@ -119,10 +119,22 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string Nombre { get; set; }
         public List<PreguntaFrecuenteRespuestasDTO> Contenido { get; set; }
     }
+    public class PreguntaFrecuenteSeccionesV2DTO
+    {
+        public int IdPrograma { get; set; }
+        public int IdSeccion { get; set; }
+        public string Nombre { get; set; }
+        public List<PreguntaFrecuenteRespuestasV2DTO> Contenido { get; set; }
+    }
     public class PreguntaFrecuenteRespuestasDTO
     {
         public string Pregunta { get; set; }
         public string Respuesta { get; set; }
+    }
+    public class PreguntaFrecuenteRespuestasV2DTO
+    {
+        public string Pregunta { get; set; }
+        public object Respuesta { get; set; }
     }
     public class listaBeneficiosDTO
     {

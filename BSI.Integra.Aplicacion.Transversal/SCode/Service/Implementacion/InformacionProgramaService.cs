@@ -3029,6 +3029,33 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             }
             return preguntasFrecuente;
         }
+        public List<PreguntaFrecuenteSeccionesV2DTO> CargarInformacionProgramaV2(List<PreguntaFrecuentePGeneralRespuestaDTO> repositorioPreguntaFrecuente)
+        {
+            List<PreguntaFrecuenteSeccionesV2DTO> preguntasFrecuente = new();
+            if (repositorioPreguntaFrecuente != null)
+            {
+                preguntasFrecuente = (from p in repositorioPreguntaFrecuente
+                                      group p by new
+                                      {
+                                          p.IdPrograma,
+                                          p.IdSeccion,
+                                          p.Nombre
+                                      } into g
+                                      select new PreguntaFrecuenteSeccionesV2DTO
+                                      {
+                                          IdPrograma = g.Key.IdPrograma.GetValueOrDefault(),
+                                          IdSeccion = g.Key.IdSeccion.GetValueOrDefault(),
+                                          Nombre = g.Key.Nombre,
+                                          Contenido = g.Select(o => new PreguntaFrecuenteRespuestasV2DTO
+                                          {
+                                              Pregunta = o.Pregunta,
+                                              Respuesta = HtmlToJsonHelper.ConvertHtmlToJson(o.Respuesta)
+                                          }).ToList()
+                                      }).ToList();
+
+            }
+            return preguntasFrecuente;
+        }
 
 
         public CargarInformacionProgramaRespuestaDTO CargarInformacionProgramaSpeech(int idPGeneral, int codigoPais, int idMatriculaCabecera, int idOportunidad)

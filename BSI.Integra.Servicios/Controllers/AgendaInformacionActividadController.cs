@@ -498,6 +498,41 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [Route("[Action]/{idCentroCosto}/{idOportunidad}")]
+        [HttpGet]
+        public IActionResult ObtenerPreguntasFrecuentesV2(int idCentroCosto, int idOportunidad)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                InformacionProgramaService objeto = new InformacionProgramaService(_unitOfWork);
+                PGeneralService pGeneralService = new PGeneralService(_unitOfWork);
+                PreguntaFrecuentePGeneralService servicioPreguntaFrecuentePGeneral = new PreguntaFrecuentePGeneralService(_unitOfWork);
+
+                var repositorioGeneral = pGeneralService.ObtenerDatosPFrecuentes(idCentroCosto);
+                if (repositorioGeneral.IdPGeneral != null)
+                {
+                    var preguntaFrecuente = servicioPreguntaFrecuentePGeneral.ObtenerPreguntaFrecuente(repositorioGeneral);
+                    var data = objeto.CargarInformacionProgramaV2(preguntaFrecuente);
+
+                    ProgramaGeneralModeloCertificadoService servicioModelo = new ProgramaGeneralModeloCertificadoService(_unitOfWork);
+                    var modeloCertificado = servicioModelo.ObtenerModeloCertificadoPrograma(idOportunidad);
+                    return Ok(new { data, modeloCertificado });
+                }
+                else
+                {
+                    return BadRequest("El Id del Centro Costo no exite!");
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 02/08/2022
