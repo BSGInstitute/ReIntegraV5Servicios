@@ -1028,6 +1028,182 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             }
             return resultados.ToList();
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 14/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Cargar información de motivaciones
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>CargarInformacionMotivacionesRespuestaDTO</returns> 
+        public async Task<CargarInformacionMotivacionesRespuestaDTO> CargarInformacionMotivacionesAsync(int idPGeneral)
+        {
+            try
+            {
+                if (idPGeneral == 0)
+                    return new CargarInformacionMotivacionesRespuestaDTO { Error = "IdPGeneral no válido" };
+
+                var tareaResumen = _unitOfWork.DocumentoAgendaRepository.ObtenerResumenProgramaPorIdPGeneralAsync(idPGeneral);
+                var tareaMotivaciones = _unitOfWork.LineamientoCalificacionRepository.ObtenerMotivacionesPorIdPGeneralAsync(idPGeneral);
+
+                await Task.WhenAll(tareaResumen, tareaMotivaciones);
+
+                var resumen = await tareaResumen;
+                var motivacionesRaw = await tareaMotivaciones;
+
+                string tipo = resumen?.Any() == true && resumen.First().EsProgramaOCurso == "Curso" ? "Curso" : "Programa";
+
+                var motivaciones = new List<MotivacionDTO>();
+
+                if (motivacionesRaw?.Any() == true)
+                {
+                    foreach (var motivacionRaw in motivacionesRaw)
+                    {
+                        var contenidoProcesado = string.Empty;
+
+                        if (!string.IsNullOrEmpty(motivacionRaw.ContenidoArgumento))
+                        {
+                            var texto = System.Net.WebUtility.HtmlDecode(motivacionRaw.ContenidoArgumento);
+
+                            texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<[^>]+>", "");
+                            texto = System.Text.RegularExpressions.Regex.Replace(texto, @"\s+", " ");
+                            contenidoProcesado = texto.Trim();
+                        }
+                        else
+                        {
+                            contenidoProcesado = string.Empty;
+                        }
+
+                        var motivacionExistente = motivaciones.FirstOrDefault(m => m.NombreMotivacion == motivacionRaw.NombreMotivacion);
+
+                        if (motivacionExistente != null)
+                        {
+                            motivacionExistente.Argumentos.Add(contenidoProcesado);
+                        }
+                        else
+                        {
+                            motivaciones.Add(new MotivacionDTO
+                            {
+                                NombreMotivacion = motivacionRaw.NombreMotivacion,
+                                Argumentos = new List<string> { contenidoProcesado }
+                            });
+                        }
+                    }
+                }
+
+                return new CargarInformacionMotivacionesRespuestaDTO
+                {
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = tipo,
+                    Motivaciones = motivaciones,
+                    Error = null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new CargarInformacionMotivacionesRespuestaDTO
+                {
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = "",
+                    Motivaciones = new List<MotivacionDTO>(),
+                    Error = $"Error al cargar motivaciones: {ex.Message}"
+                };
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 14/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Cargar información de objeciones de clientes
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>CargarInformacionObjecionesClientesRespuestaDTO</returns> 
+        public async Task<CargarInformacionObjecionesClientesRespuestaV2DTO> CargarInformacionObjecionesClientesAsync(int idPGeneral)
+        {
+            try
+            {
+                if (idPGeneral == 0)
+                    return new CargarInformacionObjecionesClientesRespuestaV2DTO { Error = "IdPGeneral no válido" };
+
+                var tareaResumen = _unitOfWork.DocumentoAgendaRepository.ObtenerResumenProgramaPorIdPGeneralAsync(idPGeneral);
+                var tareaObjeciones = _unitOfWork.LineamientoCalificacionRepository.ObtenerObjecionesClientesPorIdPGeneralAsync(idPGeneral);
+
+                await Task.WhenAll(tareaResumen, tareaObjeciones);
+
+                var resumen = await tareaResumen;
+                var objecionesRaw = await tareaObjeciones;
+
+                string tipo = resumen?.Any() == true && resumen.First().EsProgramaOCurso == "Curso" ? "Curso" : "Programa";
+
+                var objeciones = new List<ObjecionClienteDTO>();
+
+                if (objecionesRaw?.Any() == true)
+                {
+                    var orderedObjecionesRaw = objecionesRaw.OrderBy(o => o.Id).ThenBy(o => o.IdDetalleSolucion).Distinct().ToList();
+                    var groupedByObjecion = orderedObjecionesRaw.GroupBy(o => new { o.Id, o.NombreObjecion });
+
+                    foreach (var group in groupedByObjecion)
+                    {
+                        var objecion = new ObjecionClienteDTO
+                        {
+                            Id = group.Key.Id,
+                            NombreObjecion = group.Key.NombreObjecion,
+                            DetallesYSoluciones = new List<DetalleSolucionPair>()
+                        };
+
+                        foreach (var objecionRaw in group)
+                        {
+                            var detalleProcesado = string.Empty;
+                            var solucionProcesada = string.Empty;
+
+                            if (!string.IsNullOrEmpty(objecionRaw.Detalle))
+                            {
+                                var textoDetalle = System.Net.WebUtility.HtmlDecode(objecionRaw.Detalle);
+                                textoDetalle = System.Text.RegularExpressions.Regex.Replace(textoDetalle, @"<[^>]+>", "");
+                                textoDetalle = System.Text.RegularExpressions.Regex.Replace(textoDetalle, @"\s+", " ");
+                                detalleProcesado = textoDetalle.Trim();
+                            }
+
+                            if (!string.IsNullOrEmpty(objecionRaw.Solucion))
+                            {
+                                var textoSolucion = System.Net.WebUtility.HtmlDecode(objecionRaw.Solucion);
+                                textoSolucion = System.Text.RegularExpressions.Regex.Replace(textoSolucion, @"<[^>]+>", "");
+                                textoSolucion = System.Text.RegularExpressions.Regex.Replace(textoSolucion, @"\s+", " ");
+                                solucionProcesada = textoSolucion.Trim();
+                            }
+                            objecion.DetallesYSoluciones.Add(new DetalleSolucionPair
+                            {
+                                Detalle = detalleProcesado,
+                                Solucion = solucionProcesada
+                            });
+                        }
+
+                        objeciones.Add(objecion);
+                    }
+                }
+
+                return new CargarInformacionObjecionesClientesRespuestaV2DTO
+                {
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = tipo,
+                    Objecciones = objeciones,
+                    Error = null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new CargarInformacionObjecionesClientesRespuestaV2DTO
+                {
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = "",
+                    Objecciones = new List<ObjecionClienteDTO>(),
+                    Error = $"Error al cargar objeciones de clientes: {ex.Message}"
+                };
+            }
+        }
+
         public async Task<string?> GenerarCuerpoCalificacion(int idLlamada)
         {
 
