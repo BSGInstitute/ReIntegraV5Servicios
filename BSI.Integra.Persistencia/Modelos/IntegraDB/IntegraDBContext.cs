@@ -95,6 +95,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TCampaniaMailingValorTipo> TCampaniaMailingValorTipos { get; set; } = null!;
         public virtual DbSet<TCampoContacto> TCampoContactos { get; set; } = null!;
         public virtual DbSet<TCampoFormulario> TCampoFormularios { get; set; } = null!;
+        public virtual DbSet<TCampoFormularioOpcion> TCampoFormularioOpcions { get; set; } = null!;
         public virtual DbSet<TCargo> TCargos { get; set; } = null!;
         public virtual DbSet<TCargoLinkedIn> TCargoLinkedIns { get; set; } = null!;
         public virtual DbSet<TCarreraPreRequisitoPespecifico> TCarreraPreRequisitoPespecificos { get; set; } = null!;
@@ -6054,6 +6055,55 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TCampoFormularioOpcion>(entity =>
+            {
+                entity.ToTable("T_CampoFormularioOpcion", "mkt");
+
+                entity.HasComment("Tabla que almacena las opciones asociadas a un Campo Formulario");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Descripcion de la opcion añadida");
+
+                entity.Property(e => e.Estado).HasComment("Estado lógico del registro (1 = Activo, 0 = Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de última modificación del registro");
+
+                entity.Property(e => e.IdCampoFormulario).HasComment("Identificador del campo formulario asociado a la opcion");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo utilizado para control de concurrencia (rowversion)");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro por última vez");
+
+                entity.Property(e => e.Valor).HasComment("Valor asociado a la opcion añadida");
+
+                entity.HasOne(d => d.IdCampoFormularioNavigation)
+                    .WithMany(p => p.TCampoFormularioOpcions)
+                    .HasForeignKey(d => d.IdCampoFormulario)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_CampoFormularioOpcion_CampoFormulario_IdCampoFormulario");
             });
 
             modelBuilder.Entity<TCargo>(entity =>
