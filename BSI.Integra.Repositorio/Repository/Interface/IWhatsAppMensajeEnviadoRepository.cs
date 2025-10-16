@@ -28,6 +28,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         List<WhatsAppHistorialMensajesDTO> ListaHistorialMensajeChatControlMensaje(int idPersonal, string numero, string area);
         bool ValidarPlantillasEnviadas(string plantilla, string numero);
         bool ValidarPlantillasEnviadasApiComercial(string plantilla, string numero);
+        bool ValidarPlantillasEnviadasApiComercialPersonal(string plantilla, string numero, int idPersonal);
         bool ValidarPlantillasEnviadasApiComercial(string plantilla, string numero, DateTime fechaUltimoMensajeRecibido);
         bool ValidarPlantillasEnviadasNuevoWebHook(string plantilla, string numero);
         bool ValidarMesajeRecibidosApiComercial(string numero);

@@ -95,6 +95,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TCampaniaMailingValorTipo> TCampaniaMailingValorTipos { get; set; } = null!;
         public virtual DbSet<TCampoContacto> TCampoContactos { get; set; } = null!;
         public virtual DbSet<TCampoFormulario> TCampoFormularios { get; set; } = null!;
+        public virtual DbSet<TCampoFormularioOpcion> TCampoFormularioOpcions { get; set; } = null!;
         public virtual DbSet<TCargo> TCargos { get; set; } = null!;
         public virtual DbSet<TCargoLinkedIn> TCargoLinkedIns { get; set; } = null!;
         public virtual DbSet<TCarreraPreRequisitoPespecifico> TCarreraPreRequisitoPespecificos { get; set; } = null!;
@@ -396,6 +397,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TGmailCliente> TGmailClientes { get; set; } = null!;
         public virtual DbSet<TGmailCorreo> TGmailCorreos { get; set; } = null!;
         public virtual DbSet<TGmailCorreoArchivoAdjunto> TGmailCorreoArchivoAdjuntos { get; set; } = null!;
+        public virtual DbSet<TGoogleAdsConversionConfiguracion> TGoogleAdsConversionConfiguracions { get; set; } = null!;
+        public virtual DbSet<TGoogleAdsConversionQueue> TGoogleAdsConversionQueues { get; set; } = null!;
+        public virtual DbSet<TGoogleFormularioLeadgen> TGoogleFormularioLeadgens { get; set; } = null!;
         public virtual DbSet<TGradoEstudio> TGradoEstudios { get; set; } = null!;
         public virtual DbSet<TGrupoComparacionProcesoSeleccion> TGrupoComparacionProcesoSeleccions { get; set; } = null!;
         public virtual DbSet<TGrupoComponenteEvaluacion> TGrupoComponenteEvaluacions { get; set; } = null!;
@@ -525,6 +529,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TOportunidadCompetidor> TOportunidadCompetidors { get; set; } = null!;
         public virtual DbSet<TOportunidadConfigurado> TOportunidadConfigurados { get; set; } = null!;
         public virtual DbSet<TOportunidadErrado> TOportunidadErrados { get; set; } = null!;
+        public virtual DbSet<TOportunidadGoogleLead> TOportunidadGoogleLeads { get; set; } = null!;
         public virtual DbSet<TOportunidadIsVerificadum> TOportunidadIsVerificada { get; set; } = null!;
         public virtual DbSet<TOportunidadLog> TOportunidadLogs { get; set; } = null!;
         public virtual DbSet<TOportunidadMaximaPorCategorium> TOportunidadMaximaPorCategoria { get; set; } = null!;
@@ -1586,10 +1591,34 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.Id).HasComment("Pk de la tabla");
 
+                entity.Property(e => e.ApiVersion)
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('v17')")
+                    .HasComment("Versión del API de Google Ads utilizada");
+
                 entity.Property(e => e.ClientCustomerId)
                     .HasMaxLength(150)
                     .IsUnicode(false)
                     .HasComment("Id ClientCustomer");
+
+                entity.Property(e => e.ConversionActionIdIcism)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasColumnName("ConversionActionIdICISM")
+                    .HasComment("Id de la acción de conversión para transición entre Inscrito - IS (Fase 5) y Matriculado - M (Fase 23)");
+
+                entity.Property(e => e.ConversionActionIdIppf)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasColumnName("ConversionActionIdIPPF")
+                    .HasComment("Id de la acción de conversión para Inscripción Proceso Pago Final relacionado con Promesa de Ficha - PF (Fase 22)");
+
+                entity.Property(e => e.ConversionActionIdIt)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasColumnName("ConversionActionIdIT")
+                    .HasComment("Id de la acción de conversión para Interesado por Trabajar - IT (Fase 13)");
 
                 entity.Property(e => e.DeveloperToken)
                     .HasMaxLength(150)
@@ -1608,6 +1637,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.IdMigracion).HasComment("Id de la tabla Original al migrar");
 
+                entity.Property(e => e.ManagerAccountId)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasComment("Identificador de la cuenta administradora (MCC - My Client Center) de Google Ads");
+
                 entity.Property(e => e.Oauth2ClientId)
                     .HasMaxLength(150)
                     .IsUnicode(false)
@@ -1625,6 +1659,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsUnicode(false)
                     .HasColumnName("OAuth2RefreshToken")
                     .HasComment("Token OAuth2Refresh");
+
+                entity.Property(e => e.ProcesoConversionesActivo)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Indica si el proceso de envío de conversiones está activo");
 
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
@@ -6016,6 +6055,55 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TCampoFormularioOpcion>(entity =>
+            {
+                entity.ToTable("T_CampoFormularioOpcion", "mkt");
+
+                entity.HasComment("Tabla que almacena las opciones asociadas a un Campo Formulario");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Descripcion de la opcion añadida");
+
+                entity.Property(e => e.Estado).HasComment("Estado lógico del registro (1 = Activo, 0 = Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de última modificación del registro");
+
+                entity.Property(e => e.IdCampoFormulario).HasComment("Identificador del campo formulario asociado a la opcion");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo utilizado para control de concurrencia (rowversion)");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro por última vez");
+
+                entity.Property(e => e.Valor).HasComment("Valor asociado a la opcion añadida");
+
+                entity.HasOne(d => d.IdCampoFormularioNavigation)
+                    .WithMany(p => p.TCampoFormularioOpcions)
+                    .HasForeignKey(d => d.IdCampoFormulario)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_CampoFormularioOpcion_CampoFormulario_IdCampoFormulario");
             });
 
             modelBuilder.Entity<TCargo>(entity =>
@@ -23917,6 +24005,393 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasConstraintName("FK_T_GmailCorreoArchivoAdjunto_T_GmailCorreo");
             });
 
+            modelBuilder.Entity<TGoogleAdsConversionConfiguracion>(entity =>
+            {
+                entity.ToTable("T_GoogleAdsConversionConfiguracion", "mkt");
+
+                entity.HasComment("Esta tabla almacena las configuraciones maestras de las acciones de conversión de Google Ads. Define los parámetros de cada tipo de conversión (nombre, ID de acción, valor base) y controla qué conversiones están activas para ser procesadas y enviadas a Google Ads API");
+
+                entity.Property(e => e.Id).HasComment("Id del registro");
+
+                entity.Property(e => e.Activo)
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Indica si la configuración está activa");
+
+                entity.Property(e => e.ConversionActionId)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Es id de la acción de conversión en Google Ads");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Descripción detallada de la conversión");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Estado del registro (activo o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.NombreConversion)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre descriptivo de la conversión");
+
+                entity.Property(e => e.ProcesoActivo)
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Indica si el proceso de conversión está activo");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de auditoria - RowVersion");
+
+                entity.Property(e => e.TipoConversion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Tipo de conversión registrada");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('SYSTEM')")
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('SYSTEM')")
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.Property(e => e.ValorConversionBase)
+                    .HasColumnType("decimal(10, 2)")
+                    .HasComment("Valor base monetario de la conversión");
+            });
+
+            modelBuilder.Entity<TGoogleAdsConversionQueue>(entity =>
+            {
+                entity.ToTable("T_GoogleAdsConversionQueue", "mkt");
+
+                entity.HasComment("Esta tabla funciona como registro maestro para identificar oportunidades elegibles para el envío de conversiones offline a través de la Google Ads API, capturando información clave como GCLID, campaña, formulario y grupo de anuncios");
+
+                entity.HasIndex(e => new { e.EstadoEnvio, e.IntentosEnvio }, "INC_T_GoogleAdsConversionQueue_EstadoEnvio_IntentosEnvio");
+
+                entity.HasIndex(e => e.IdOportunidad, "INC_T_GoogleAdsConversionQueue_IdOportunidad");
+
+                entity.Property(e => e.Id).HasComment("Id del registro");
+
+                entity.Property(e => e.CampaniaGoogle)
+                    .IsUnicode(false)
+                    .HasComment("Id de la campaña de Google Ads, se compone de caracteres");
+
+                entity.Property(e => e.Celular)
+                    .IsUnicode(false)
+                    .HasComment("Celular del contacto en texto plano");
+
+                entity.Property(e => e.CelularHasheado)
+                    .IsUnicode(false)
+                    .HasComment("Celular del contacto hasheado con SHA-256");
+
+                entity.Property(e => e.ConversionActionId)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Id de la acción de conversión en Google Ads");
+
+                entity.Property(e => e.ConversionActionName)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Nombre de la acción de conversión en Google Ads");
+
+                entity.Property(e => e.Email)
+                    .IsUnicode(false)
+                    .HasComment("Email del contacto en texto plano");
+
+                entity.Property(e => e.EmailHasheado)
+                    .IsUnicode(false)
+                    .HasComment("Email del contacto hasheado con SHA-256");
+
+                entity.Property(e => e.EsOrigenGoogle).HasComment("Indica si el origen de la oportunidad es Google");
+
+                entity.Property(e => e.EsValidoParaEnvio).HasComment("Indica si el registro cumple con todos los requisitos para envío");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Estado del registro (activo o eliminado)");
+
+                entity.Property(e => e.EstadoEnvio)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('Pendiente')")
+                    .HasComment("Estado del envío a Google Ads (Pendiente, Enviado, Error)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaEnvio)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora del último envío a Google Ads");
+
+                entity.Property(e => e.FechaHoraConversion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en que ocurrió la conversión");
+
+                entity.Property(e => e.FechaHoraConversionFormatoGoogle)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Fecha y hora de conversión en formato requerido por Google Ads");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.FormularioGoogle)
+                    .IsUnicode(false)
+                    .HasComment("Id del formulario de Google, se compone de caracteres");
+
+                entity.Property(e => e.Gclid)
+                    .IsUnicode(false)
+                    .HasComment("Google Click Identifier de adwords");
+
+                entity.Property(e => e.GrupoAds)
+                    .IsUnicode(false)
+                    .HasComment("Id del grupo de ads, se compone de caracteres");
+
+                entity.Property(e => e.IdAlumno).HasComment("Id del alumno asociado");
+
+                entity.Property(e => e.IdCategoriaOrigen).HasComment("Id de la categoría de origen de la oportunidad");
+
+                entity.Property(e => e.IdFaseOportunidadActual)
+                    .HasColumnName("IdFaseOportunidad_Actual")
+                    .HasComment("Id de la fase actual de la oportunidad");
+
+                entity.Property(e => e.IdFaseOportunidadAnterior)
+                    .HasColumnName("IdFaseOportunidad_Anterior")
+                    .HasComment("Id de la fase anterior de la oportunidad");
+
+                entity.Property(e => e.IdGoogleFormularioLeadgen).HasComment("Id del formulario de Google del que proviene el lead");
+
+                entity.Property(e => e.IdOportunidad).HasComment("Id de la oportunidad asociada");
+
+                entity.Property(e => e.IdOrigen).HasComment("Id del origen de la oportunidad");
+
+                entity.Property(e => e.IntentosEnvio)
+                    .HasDefaultValueSql("((0))")
+                    .HasComment("Número de intentos de envío realizados");
+
+                entity.Property(e => e.MensajeError)
+                    .IsUnicode(false)
+                    .HasComment("Mensaje de error en caso de fallo en el envío");
+
+                entity.Property(e => e.MotivoDescarte)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Motivo por el cual el registro fue descartado para envío");
+
+                entity.Property(e => e.NombreFaseActual)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Nombre de la fase actual de la oportunidad");
+
+                entity.Property(e => e.NombreFaseAnterior)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Nombre de la fase anterior de la oportunidad");
+
+                entity.Property(e => e.RespuestaGoogleAds)
+                    .IsUnicode(false)
+                    .HasComment("Respuesta recibida de Google Ads API");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de auditoria RowVersion");
+
+                entity.Property(e => e.TieneCelular).HasComment("Indica si el registro tiene celular");
+
+                entity.Property(e => e.TieneEmail).HasComment("Indica si el registro tiene email");
+
+                entity.Property(e => e.TieneGclid).HasComment("Indica si el registro tiene Gclid");
+
+                entity.Property(e => e.TipoConversion)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Tipo de conversión registrada");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.Property(e => e.ValorConversion)
+                    .HasColumnType("decimal(10, 2)")
+                    .HasComment("Valor monetario de la conversión");
+
+                entity.HasOne(d => d.IdAlumnoNavigation)
+                    .WithMany(p => p.TGoogleAdsConversionQueues)
+                    .HasForeignKey(d => d.IdAlumno)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GoogleAdsConversionQueue_Alumno_IdAlumno");
+
+                entity.HasOne(d => d.IdCategoriaOrigenNavigation)
+                    .WithMany(p => p.TGoogleAdsConversionQueues)
+                    .HasForeignKey(d => d.IdCategoriaOrigen)
+                    .HasConstraintName("FK_T_GoogleAdsConversionQueue_CategoriaOrigen_IdCategoriaOrigen");
+
+                entity.HasOne(d => d.IdFaseOportunidadActualNavigation)
+                    .WithMany(p => p.TGoogleAdsConversionQueueIdFaseOportunidadActualNavigations)
+                    .HasForeignKey(d => d.IdFaseOportunidadActual)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GoogleAdsConversionQueue_FaseOportunidad_IdFaseOportunidad_Actual");
+
+                entity.HasOne(d => d.IdFaseOportunidadAnteriorNavigation)
+                    .WithMany(p => p.TGoogleAdsConversionQueueIdFaseOportunidadAnteriorNavigations)
+                    .HasForeignKey(d => d.IdFaseOportunidadAnterior)
+                    .HasConstraintName("FK_T_GoogleAdsConversionQueue_FaseOportunidad_IdFaseOportunidad_Anterior");
+
+                entity.HasOne(d => d.IdGoogleFormularioLeadgenNavigation)
+                    .WithMany(p => p.TGoogleAdsConversionQueues)
+                    .HasForeignKey(d => d.IdGoogleFormularioLeadgen)
+                    .HasConstraintName("FK_T_GoogleAdsConversionQueue_GoogleFormularioLeadgen_IdGoogleFormularioLeadgen");
+
+                entity.HasOne(d => d.IdOportunidadNavigation)
+                    .WithMany(p => p.TGoogleAdsConversionQueues)
+                    .HasForeignKey(d => d.IdOportunidad)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GoogleAdsConversionQueue_Oportunidad_IdOportunidad");
+
+                entity.HasOne(d => d.IdOrigenNavigation)
+                    .WithMany(p => p.TGoogleAdsConversionQueues)
+                    .HasForeignKey(d => d.IdOrigen)
+                    .HasConstraintName("FK_T_GoogleAdsConversionQueue_Origen_IdOrigen");
+            });
+
+            modelBuilder.Entity<TGoogleFormularioLeadgen>(entity =>
+            {
+                entity.ToTable("T_GoogleFormularioLeadgen", "mkt");
+
+                entity.HasComment("Esta tabla registra los leads generados por formularios de Google");
+
+                entity.Property(e => e.Id).HasComment("Id del registro");
+
+                entity.Property(e => e.Apellidos)
+                    .IsUnicode(false)
+                    .HasComment("Apellidos de la persona");
+
+                entity.Property(e => e.AreaFormacion)
+                    .IsUnicode(false)
+                    .HasComment("Informacion sobre el area de formacion del usuario registrada");
+
+                entity.Property(e => e.AreaTrabajo)
+                    .IsUnicode(false)
+                    .HasComment("Area de Trabajo de la persona");
+
+                entity.Property(e => e.CampaniaGoogle)
+                    .IsUnicode(false)
+                    .HasComment("Id de la campaña de donde proviene el lead");
+
+                entity.Property(e => e.Cargo)
+                    .IsUnicode(false)
+                    .HasComment("Cargo de la persona");
+
+                entity.Property(e => e.Celular)
+                    .IsUnicode(false)
+                    .HasComment("Celular de la persona");
+
+                entity.Property(e => e.CreativoAds)
+                    .IsUnicode(false)
+                    .HasComment("Id de ads creativo");
+
+                entity.Property(e => e.Email)
+                    .IsUnicode(false)
+                    .HasComment("Email de la persona");
+
+                entity.Property(e => e.EsTest).HasComment("Registra si el usuario realizo la prueba de conocimientos");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.FormularioGoogle)
+                    .IsUnicode(false)
+                    .HasComment("Id del formulario del que proviene el lead");
+
+                entity.Property(e => e.Gcl)
+                    .IsUnicode(false)
+                    .HasComment("Gcl de adwprds");
+
+                entity.Property(e => e.GrupoAds)
+                    .IsUnicode(false)
+                    .HasComment("Id del grupo de ads");
+
+                entity.Property(e => e.IdMigracion).HasComment("Id de la tabla Original al migrar");
+
+                entity.Property(e => e.Industria)
+                    .IsUnicode(false)
+                    .HasComment("Industria de la persona");
+
+                entity.Property(e => e.KeyGoogle)
+                    .IsUnicode(false)
+                    .HasColumnName("keyGoogle")
+                    .HasComment("Clave del hook por formulario");
+
+                entity.Property(e => e.Lead)
+                    .IsUnicode(false)
+                    .HasComment("Id del lead de google");
+
+                entity.Property(e => e.Nombre)
+                    .IsUnicode(false)
+                    .HasComment("Nombre de la persona");
+
+                entity.Property(e => e.Pais)
+                    .IsUnicode(false)
+                    .HasComment("Pais de donde proviene el registro");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Campo de auditoria Usuario Creacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro");
+
+                entity.Property(e => e.VersionApi)
+                    .IsUnicode(false)
+                    .HasColumnName("versionApi")
+                    .HasComment("Version del api actual de google");
+            });
+
             modelBuilder.Entity<TGradoEstudio>(entity =>
             {
                 entity.ToTable("T_GradoEstudio", "gp");
@@ -31612,6 +32087,80 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("usuario modificacion del sector");
+            });
+
+            modelBuilder.Entity<TOportunidadGoogleLead>(entity =>
+            {
+                entity.ToTable("T_OportunidadGoogleLead", "mkt");
+
+                entity.HasComment("Esta tabla almacena la vinculación entre oportunidades activas y formularios de Google Lead Generation, permitiendo rastrear qué oportunidades comerciales provienen de campañas de Google Ads");
+
+                entity.HasIndex(e => e.IdOportunidad, "INC_T_OportunidadGoogleLead_IdOportunidad")
+                    .IsUnique()
+                    .HasFilter("([Estado]=(1))");
+
+                entity.Property(e => e.Id).HasComment("Id del registro");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Estado del registro (activo o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.FechaVinculacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha en que se realizó la vinculación entre oportunidad y formulario");
+
+                entity.Property(e => e.IdAlumno).HasComment("Id del alumno asociado");
+
+                entity.Property(e => e.IdGoogleFormularioLeadgen).HasComment("Id del formulario de Google del que proviene el lead");
+
+                entity.Property(e => e.IdOportunidad).HasComment("Id de la oportunidad asociada");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de auditoria Rowversion");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('SYSTEM')")
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('SYSTEM')")
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdAlumnoNavigation)
+                    .WithMany(p => p.TOportunidadGoogleLeads)
+                    .HasForeignKey(d => d.IdAlumno)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_OportunidadGoogleLead_Alumno_IdAlumno");
+
+                entity.HasOne(d => d.IdGoogleFormularioLeadgenNavigation)
+                    .WithMany(p => p.TOportunidadGoogleLeads)
+                    .HasForeignKey(d => d.IdGoogleFormularioLeadgen)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_OportunidadGoogleLead_GoogleFormularioLeadgen_IdGoogleFormularioLeadgen");
+
+                entity.HasOne(d => d.IdOportunidadNavigation)
+                    .WithOne(p => p.TOportunidadGoogleLead)
+                    .HasForeignKey<TOportunidadGoogleLead>(d => d.IdOportunidad)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_OportunidadGoogleLead_Oportunidad_IdOportunidad");
             });
 
             modelBuilder.Entity<TOportunidadIsVerificadum>(entity =>
