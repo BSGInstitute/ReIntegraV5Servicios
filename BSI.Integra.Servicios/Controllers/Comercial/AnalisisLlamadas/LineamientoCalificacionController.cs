@@ -1,5 +1,7 @@
 ﻿using BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion;
+using BSI.Integra.Aplicacion.Comercial.SCode.Service.Interface;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
+using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Comercial;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
@@ -468,6 +470,77 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
                 return BadRequest(ex.Message);
             }
         }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 14/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información de motivaciones
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionMotivaciones")]
+        public async Task<IActionResult> ObtenerInformacionMotivaciones([FromBody] Dictionary<string, string> filtro)
+        {
+            try
+            {
+                if (filtro == null || !filtro.TryGetValue("idPGeneral", out var idPGeneralStr))
+                {
+                    return BadRequest(new { Error = "El campo 'idPGeneral' es requerido." });
+                }
+
+                if (!int.TryParse(idPGeneralStr, out int idPGeneral))
+                {
+                    return BadRequest(new { Error = "El valor de 'idPGeneral' debe ser un número entero válido." });
+                }
+
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var respuesta = await lineamientoCalificacionService.CargarInformacionMotivacionesAsync(idPGeneral);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 14/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información de objeciones de clientes
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionObjecionesClientes")]
+        public async Task<IActionResult> ObtenerInformacionObjecionesClientes([FromBody] Dictionary<string, string> filtro)
+        {
+            try
+            {
+                if (filtro == null || !filtro.TryGetValue("idPGeneral", out var idPGeneralStr))
+                {
+                    return BadRequest(new { Error = "El campo 'idPGeneral' es requerido." });
+                }
+
+                if (!int.TryParse(idPGeneralStr, out int idPGeneral))
+                {
+                    return BadRequest(new { Error = "El valor de 'idPGeneral' debe ser un número entero válido." });
+                }
+
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var respuesta = await lineamientoCalificacionService.CargarInformacionObjecionesClientesAsync(idPGeneral);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
         /// Autor: Joseph Llanque
         /// Fecha: 11/03/2025
         /// Versión: 1.0
