@@ -30,6 +30,7 @@
         public bool? Siempre { get; set; }
         public bool? Inteligente { get; set; }
         public bool? Probabilidad { get; set; }
+        public string? ListaOpcion { get; set; } 
     }
 
     public class CampoFormularioSeleccionadoDTO
