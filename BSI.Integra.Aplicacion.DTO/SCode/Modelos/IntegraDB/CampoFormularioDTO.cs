@@ -45,6 +45,7 @@
         public bool? Siempre { get; set; }
         public bool? Inteligente { get; set; }
         public bool? Probabilidad { get; set; }
+        public string? ValorOpciones { get; set; }
     }
 
 }

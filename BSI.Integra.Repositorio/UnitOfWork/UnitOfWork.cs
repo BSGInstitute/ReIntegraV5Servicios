@@ -2217,6 +2217,16 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
 
         }
+
+        private ICampoFormularioOpcionRepository campoFormularioOpcionRepository;
+        ICampoFormularioOpcionRepository IUnitOfWork.CampoFormularioOpcionRepository
+        {
+            get
+            {
+                return campoFormularioOpcionRepository ?? new CampoFormularioOpcionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
         private ICajaPorRendirRepository cajaPorRendirRepository;
         ICajaPorRendirRepository IUnitOfWork.CajaPorRendirRepository
         {
