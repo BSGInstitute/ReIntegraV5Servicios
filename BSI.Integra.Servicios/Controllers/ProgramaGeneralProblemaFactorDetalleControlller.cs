@@ -23,10 +23,10 @@ namespace BSI.Integra.Servicios.Controllers
     public class ProgramaGeneralProblemaFactorDetalleController : ControllerBase
     {
         private ITokenManager _tokenManager;
-        private IProgramaGeneralProblemaFactorDetalleService _programaGeneralProblemaFactorService;
+        private IProgramaGeneralProblemaFactorDetalleService _programaGeneralProblemaFactorDetalleService;
         public ProgramaGeneralProblemaFactorDetalleController(IUnitOfWork unitOfWork, ITokenManager tokenManager)
         {
-            _programaGeneralProblemaFactorPwService = new ProgramaGeneralProblemaFactorDetalleService(unitOfWork);
+            _programaGeneralProblemaFactorDetalleService = new ProgramaGeneralProblemaFactorDetalleService(unitOfWork);
             _tokenManager = tokenManager;
         }
         /// Tipo Función: POST
@@ -47,7 +47,7 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var respuesta = _programaGeneralProblemaFactorService.Insertar(dto, _tokenManager.UserName);
+            var respuesta = _programaGeneralProblemaFactorDetalleService.Insertar(dto, _tokenManager.UserName);
             return Ok(respuesta);
         }
         /// Tipo Función: PUT
@@ -68,7 +68,7 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var respuesta = _programaGeneralProblemaFactorService.Actualizar(dto, _tokenManager.UserName);
+            var respuesta = _programaGeneralProblemaFactorDetalleService.Actualizar(dto, _tokenManager.UserName);
             return Ok(respuesta);
         }
         /// Tipo Función: DELETE
@@ -86,7 +86,7 @@ namespace BSI.Integra.Servicios.Controllers
         [HttpDelete("[action]/{idProgramaGeneralProblemaFactorDetalle}")]
         public IActionResult Eliminar(int idProgramaGeneralProblemaFactorDetalle)
         {
-            var respuesta = _programaGeneralProblemaFactorService.Eliminar(idProgramaGeneralProblemaFactorDetalle, _tokenManager.UserName);
+            var respuesta = _programaGeneralProblemaFactorDetalleService.Eliminar(idProgramaGeneralProblemaFactorDetalle, _tokenManager.UserName);
             return Ok(respuesta);
         }
 
@@ -101,7 +101,7 @@ namespace BSI.Integra.Servicios.Controllers
         [HttpGet("[action]")]
         public IActionResult Obtener()
         {
-            var resultado = _programaGenera_programaGeneralProblemaFactorServicelProblemaFactorPwService.Obtener();
+            var resultado = _programaGeneralProblemaFactorDetalleService.Obtener();
             return Ok(resultado);
         }
     }

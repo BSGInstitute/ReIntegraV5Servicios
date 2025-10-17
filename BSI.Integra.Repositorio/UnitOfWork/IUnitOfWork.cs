@@ -935,5 +935,6 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IProcesoSeleccionPuntajeCalificacionRepository ProcesoSeleccionPuntajeCalificacionRepository { get; }
         IProgramaGeneralProblemaFactorRepository ProgramaGeneralProblemaFactorRepository { get; }
         IProgramaGeneralProblemaFactorDetalleRepository ProgramaGeneralProblemaFactorDetalleRepository { get; }
+        IProgramaGeneralProblemaFactorSolucionRepository ProgramaGeneralProblemaFactorSolucionRepository { get; }
     }
 }
