@@ -237,7 +237,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         /// Inserta  los registros de T_FormularioSolicitud
         /// </summary>
         /// <returns> List<FormularioSolicitudDTO> </returns>
-
         public FormularioSolicitud InsertarFormularioSolicitud(InsertarFormularioSolicitudCampoDTO obj)
         {
             try
@@ -296,7 +295,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     camposNuevosInsertados.Add(campoInsertado);
                 }
 
-                // procesamiento de opciones para cada campo usando la lista con Ids generados
                 List<CampoFormularioOpcion> opcionesInsertar = new List<CampoFormularioOpcion>();
 
                 for (int i = 0; i < camposNuevosInsertados.Count; i++)
@@ -404,15 +402,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw ex;
             }
         }
-        // Autor: Margiory Ramirez Neyra.
+
+        /// Autor: Margiory Ramirez Neyra.
         /// Fecha: 12/09/2022
         /// Version: 1.0
         /// <summary>
         /// Actulizar]  los registros   de COnjunto de  Anuncio de T_FormularioSolicitud
         /// </summary>
         /// <returns> List<FormularioSolicitudDTO> </returns>
-
-
         public FormularioSolicitud ActualizarFormularioSolicitud(InsertarFormularioSolicitudCampoDTO obj)
         {
             try
@@ -491,15 +488,12 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     camposNuevosInsertados.Add(campoInsertado);
                 }
 
-
-                //_repCampoFormulario2.Add(camposnuevos);
-                
                 // Insertar nuevas opciones
                 List<CampoFormularioOpcion> opcionesInsertar = new List<CampoFormularioOpcion>();
 
                 for (int i = 0; i < camposNuevosInsertados.Count; i++)
                 {
-                    var campoInsertado = camposNuevosInsertados[i]; // <-- aquí, el correcto con Id asignado
+                    var campoInsertado = camposNuevosInsertados[i];
                     var listaOpcionesStr = obj.Campo[i].ListaOpcion;
 
                     if (!string.IsNullOrEmpty(listaOpcionesStr))
@@ -532,7 +526,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             {
                                 opcionesInsertar.Add(new CampoFormularioOpcion()
                                 {
-                                    IdCampoFormulario = campoInsertado.Id, // <-- Id válido
+                                    IdCampoFormulario = campoInsertado.Id,
                                     Valor = opcion,
                                     Estado = true,
                                     FechaCreacion = DateTime.Now,
