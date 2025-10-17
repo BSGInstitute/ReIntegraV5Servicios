@@ -936,5 +936,6 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IProgramaGeneralProblemaFactorRepository ProgramaGeneralProblemaFactorRepository { get; }
         IProgramaGeneralProblemaFactorDetalleRepository ProgramaGeneralProblemaFactorDetalleRepository { get; }
         IProgramaGeneralProblemaFactorSolucionRepository ProgramaGeneralProblemaFactorSolucionRepository { get; }
+        IProgramaGeneralProblemaFactorSubSolucionRepository ProgramaGeneralProblemaFactorSubSolucionRepository { get; }
     }
 }

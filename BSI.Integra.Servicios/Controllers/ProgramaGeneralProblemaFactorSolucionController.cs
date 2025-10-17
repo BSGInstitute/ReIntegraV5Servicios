@@ -14,7 +14,7 @@ namespace BSI.Integra.Servicios.Controllers
 {
     /// Controlador: ProgramaGeneralProblemaFactorSolucionController
     /// Autor: Marco Jose Villanueva
-    /// Fecha: 17|0/2025
+    /// Fecha: 17/10/2025
     /// <summary>
     /// Gestión de Problemas
     /// </summary>
@@ -32,7 +32,7 @@ namespace BSI.Integra.Servicios.Controllers
         }
         /// Tipo Función: POST
         /// Autor: Marco Jose Villanueva
-        /// Fecha: 17|0/2025
+        /// Fecha: 17/10/2025
         /// Versión: 1.0
         /// <summary>
         /// Realiza una insercion basica a la tabla
@@ -53,7 +53,7 @@ namespace BSI.Integra.Servicios.Controllers
         }
         /// Tipo Función: PUT
         /// Autor: Marco Jose Villanueva
-        /// Fecha: 17|0/2025
+        /// Fecha: 17/10/2025
         /// Versión: 1.0
         /// <summary>
         /// Realiza una actualizacion basica a la tabla
@@ -74,7 +74,7 @@ namespace BSI.Integra.Servicios.Controllers
         }
         /// Tipo Función: DELETE
         /// Autor: Marco Jose Villanueva
-        /// Fecha: 17|0/2025
+        /// Fecha: 17/10/2025
         /// Versión: 1.0
         /// <summary>
         /// Realiza una eliminacion logica basica a la tabla
@@ -93,7 +93,7 @@ namespace BSI.Integra.Servicios.Controllers
 
         /// Tipo Función: GET
         /// Autor: Marco Jose Villanueva
-        /// Fecha: 17|0/2025
+        /// Fecha: 17/10/2025
         /// Versión: 1.0
         /// <summary>
         /// Obtiene el detalle de beneficios y contactos por id ProgramaGeneralProblemaFactorSolucion

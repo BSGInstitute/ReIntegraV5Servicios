@@ -16,27 +16,27 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation
 {
-    public class ProgramaGeneralProblemaFactorSolucionRepository : GenericRepository<TProgramaGeneralProblemaFactorSolucion>, IProgramaGeneralProblemaFactorSolucionRepository
+    public class ProgramaGeneralProblemaFactorSubSolucionRepository : GenericRepository<TProgramaGeneralProblemaFactorSubSolucion>, IProgramaGeneralProblemaFactorSubSolucionRepository
     {
         private Mapper _mapper;
 
-        public ProgramaGeneralProblemaFactorSolucionRepository(IntegraDBContext context, IConnectionFactory connectionFactory, IDapperRepository dapperRepository) : base(context, connectionFactory, dapperRepository)
+        public ProgramaGeneralProblemaFactorSubSolucionRepository(IntegraDBContext context, IConnectionFactory connectionFactory, IDapperRepository dapperRepository) : base(context, connectionFactory, dapperRepository)
         {
             var config = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<TProgramaGeneralProblemaFactorSolucion, ProgramaGeneralProblemaFactorSolucion>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TProgramaGeneralProblemaFactorSubSolucion, ProgramaGeneralProblemaFactorSubSolucion>(MemberList.None).ReverseMap();
                 //cfg.CreateMap<THijo, Hijo>(MemberList.None).ReverseMap();
             });
             _mapper = new Mapper(config);
         }
 
         #region Metodos Base
-        private TProgramaGeneralProblemaFactorSolucion MapeoEntidad(ProgramaGeneralProblemaFactorSolucion entidad)
+        private TProgramaGeneralProblemaFactorSubSolucion MapeoEntidad(ProgramaGeneralProblemaFactorSubSolucion entidad)
         {
             try
             {
                 //crea la entidad padre
-                TProgramaGeneralProblemaFactorSolucion modelo = _mapper.Map<TProgramaGeneralProblemaFactorSolucion>(entidad);
+                TProgramaGeneralProblemaFactorSubSolucion modelo = _mapper.Map<TProgramaGeneralProblemaFactorSubSolucion>(entidad);
 
                 //mapea los hijos
                 //if (entidad.ListadoHijoNivel1 != null && entidad.ListadoHijoNivel1.Count > 0)
@@ -56,13 +56,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public TProgramaGeneralProblemaFactorSolucion Add(ProgramaGeneralProblemaFactorSolucion entidad)
+        public TProgramaGeneralProblemaFactorSubSolucion Add(ProgramaGeneralProblemaFactorSubSolucion entidad)
         {
             try
             {
-                var ProgramaGeneralProblemaFactorSolucion = MapeoEntidad(entidad);
-                base.Insert(ProgramaGeneralProblemaFactorSolucion);
-                return ProgramaGeneralProblemaFactorSolucion;
+                var ProgramaGeneralProblemaFactorSubSolucion = MapeoEntidad(entidad);
+                base.Insert(ProgramaGeneralProblemaFactorSubSolucion);
+                return ProgramaGeneralProblemaFactorSubSolucion;
             }
             catch (Exception ex)
             {
@@ -70,16 +70,16 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public TProgramaGeneralProblemaFactorSolucion Update(ProgramaGeneralProblemaFactorSolucion entidad)
+        public TProgramaGeneralProblemaFactorSubSolucion Update(ProgramaGeneralProblemaFactorSubSolucion entidad)
         {
             try
             {
-                var ProgramaGeneralProblemaFactorSolucion = MapeoEntidad(entidad);
+                var ProgramaGeneralProblemaFactorSubSolucion = MapeoEntidad(entidad);
                 var entidadExistente = base.FirstBy(w => w.Id == entidad.Id, s => new { s.RowVersion });
-                ProgramaGeneralProblemaFactorSolucion.RowVersion = entidadExistente.RowVersion;
+                ProgramaGeneralProblemaFactorSubSolucion.RowVersion = entidadExistente.RowVersion;
 
-                base.Update(ProgramaGeneralProblemaFactorSolucion);
-                return ProgramaGeneralProblemaFactorSolucion;
+                base.Update(ProgramaGeneralProblemaFactorSubSolucion);
+                return ProgramaGeneralProblemaFactorSubSolucion;
             }
             catch (Exception ex)
             {
@@ -101,11 +101,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         }
 
 
-        public IEnumerable<TProgramaGeneralProblemaFactorSolucion> Add(IEnumerable<ProgramaGeneralProblemaFactorSolucion> listadoEntidad)
+        public IEnumerable<TProgramaGeneralProblemaFactorSubSolucion> Add(IEnumerable<ProgramaGeneralProblemaFactorSubSolucion> listadoEntidad)
         {
             try
             {
-                List<TProgramaGeneralProblemaFactorSolucion> listado = new List<TProgramaGeneralProblemaFactorSolucion>();
+                List<TProgramaGeneralProblemaFactorSubSolucion> listado = new List<TProgramaGeneralProblemaFactorSubSolucion>();
                 foreach (var entidad in listadoEntidad)
                 {
                     listado.Add(MapeoEntidad(entidad));
@@ -119,14 +119,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public IEnumerable<TProgramaGeneralProblemaFactorSolucion> Update(IEnumerable<ProgramaGeneralProblemaFactorSolucion> listadoEntidad)
+        public IEnumerable<TProgramaGeneralProblemaFactorSubSolucion> Update(IEnumerable<ProgramaGeneralProblemaFactorSubSolucion> listadoEntidad)
         {
             try
             {
                 if (listadoEntidad == null)
                     throw new ArgumentNullException("El listado es nulo");
 
-                List<TProgramaGeneralProblemaFactorSolucion> listado = new List<TProgramaGeneralProblemaFactorSolucion>();
+                List<TProgramaGeneralProblemaFactorSubSolucion> listado = new List<TProgramaGeneralProblemaFactorSubSolucion>();
                 foreach (var entidad in listadoEntidad)
                 {
                     listado.Add(MapeoEntidad(entidad));
@@ -161,26 +161,29 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         #endregion
 
         /// Autor:  Marco Jose Villanueva Torres.
-        /// Fecha: 17/10/2025
+        /// Fecha: 15/04/2024
         /// Version: 1.0
         /// <summary>
-        /// Obtiene todos los registros de ProgramaGeneralProblemaFactorSolucion.
+        /// Obtiene todos los registros de T_TipoFormacion.
         /// </summary>
         /// <returns> List<TipoFormacionDTO> </returns>
-        public IEnumerable<ProgramaGeneralProblemaFactorSolucionDTO> Obtener()
+        public IEnumerable<ProgramaGeneralProblemaFactorSubSolucionDTO> Obtener()
         {
             try
             {
-                List<ProgramaGeneralProblemaFactorSolucionDTO> rpta = new List<ProgramaGeneralProblemaFactorSolucionDTO>();
+                List<ProgramaGeneralProblemaFactorSubSolucionDTO> rpta = new List<ProgramaGeneralProblemaFactorSubSolucionDTO>();
                 var query = @"
                     SELECT
-	                    Id,Nombre
-                    FROM pla.T_ProgramaGeneralProblemaFactorSolucion
+	                    Id, IdProgramaGeneralProblemaFactorSolucion,
+                        Solucion,
+                        Orden,
+                        Nivel,
+                    FROM pla.T_ProgramaGeneralProblemaFactorSubSolucion
                     WHERE Estado = 1 ORDER BY Id DESC";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
-                    rpta = JsonConvert.DeserializeObject<List<ProgramaGeneralProblemaFactorSolucionDTO>>(resultado);
+                    rpta = JsonConvert.DeserializeObject<List<ProgramaGeneralProblemaFactorSubSolucionDTO>>(resultado);
 
                 }
                 return rpta;
@@ -191,20 +194,23 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
         /// Autor: Marco Jose Villanueva Torres.
-        ///  Fecha: 17/10/2025
+        /// Fecha: 15/04/2024
         /// <param name="id"> (PK) </param> 
         /// <summary>
         /// Obtiene el registro por el Primary Key
         /// </summary>
         /// <returns >TipoFormacion || null</returns>
-        public ProgramaGeneralProblemaFactorSolucion? ObtenerPorId(int id)
+        public ProgramaGeneralProblemaFactorSubSolucion? ObtenerPorId(int id)
         {
             try
             {
                 var query = @"
                     SELECT
 	                    Id,
-	                    Nombre,
+	                    IdProgramaGeneralProblemaFactorSolucion,
+                        Solucion,
+                        Orden,
+                        Nivel,
 	                    Estado,
 	                    UsuarioCreacion,
 	                    UsuarioModificacion,
@@ -212,12 +218,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    FechaModificacion,
 	                    RowVersion,
 	                    IdMigracion
-                    FROM pla.T_ProgramaGeneralProblemaFactorSolucion
+                    FROM pla.T_ProgramaGeneralProblemaFactorSubSolucion
                     WHERE Id=@id AND estado=1";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { id });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
-                    return JsonConvert.DeserializeObject<ProgramaGeneralProblemaFactorSolucion>(resultado)!;
+                    return JsonConvert.DeserializeObject<ProgramaGeneralProblemaFactorSubSolucion>(resultado)!;
                 }
                 return null;
             }
