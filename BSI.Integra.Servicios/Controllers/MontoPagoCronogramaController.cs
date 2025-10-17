@@ -340,7 +340,6 @@ namespace BSI.Integra.Servicios.Controllers
                 }
 
 
-                var a=0;
                 //Impide que el asesor pueda exceder las 2 cuotas adicionales a la la duracion del curso o programa
                 //online valida basado en la fecha fin de su ultima sesion
                 //aonline basado en la duracion en meses del programa
