@@ -7878,5 +7878,16 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _programaGeneralProblemaFactorRepository ?? new ProgramaGeneralProblemaFactorRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+
+
+        private IProgramaGeneralProblemaFactorDetalleRepository _programaGeneralProblemaFactorDetalleRepository;
+
+        IProgramaGeneralProblemaFactorDetalleRepository IUnitOfWork.ProgramaGeneralProblemaFactorDetalleRepository
+        {
+            get
+            {
+                return _programaGeneralProblemaFactorDetalleRepository ?? new ProgramaGeneralProblemaFactorDetalleRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
     }
 }
