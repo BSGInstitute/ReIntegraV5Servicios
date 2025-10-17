@@ -7868,5 +7868,15 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _procesoSeleccionPuntajeCalificacionRepository ?? new ProcesoSeleccionPuntajeCalificacionRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+
+        private IProgramaGeneralProblemaFactorRepository _programaGeneralProblemaFactorRepository;
+
+        IProgramaGeneralProblemaFactorRepository IUnitOfWork.ProgramaGeneralProblemaFactorRepository
+        {
+            get
+            {
+                return _programaGeneralProblemaFactorRepository ?? new ProgramaGeneralProblemaFactorRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
     }
 }
