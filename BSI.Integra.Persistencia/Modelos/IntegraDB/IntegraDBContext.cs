@@ -95,6 +95,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TCampaniaMailingValorTipo> TCampaniaMailingValorTipos { get; set; } = null!;
         public virtual DbSet<TCampoContacto> TCampoContactos { get; set; } = null!;
         public virtual DbSet<TCampoFormulario> TCampoFormularios { get; set; } = null!;
+        public virtual DbSet<TCampoFormularioOpcion> TCampoFormularioOpcions { get; set; } = null!;
         public virtual DbSet<TCargo> TCargos { get; set; } = null!;
         public virtual DbSet<TCargoLinkedIn> TCargoLinkedIns { get; set; } = null!;
         public virtual DbSet<TCarreraPreRequisitoPespecifico> TCarreraPreRequisitoPespecificos { get; set; } = null!;
@@ -745,6 +746,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TProgramaGeneralProblema> TProgramaGeneralProblemas { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralProblemaDetalleSolucion> TProgramaGeneralProblemaDetalleSolucions { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralProblemaDetalleSolucionRespuestum> TProgramaGeneralProblemaDetalleSolucionRespuesta { get; set; } = null!;
+        public virtual DbSet<TProgramaGeneralProblemaFactor> TProgramaGeneralProblemaFactors { get; set; } = null!;
+        public virtual DbSet<TProgramaGeneralProblemaFactorDetalle> TProgramaGeneralProblemaFactorDetalles { get; set; } = null!;
+        public virtual DbSet<TProgramaGeneralProblemaFactorSolucion> TProgramaGeneralProblemaFactorSolucions { get; set; } = null!;
+        public virtual DbSet<TProgramaGeneralProblemaFactorSubSolucion> TProgramaGeneralProblemaFactorSubSolucions { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralProblemaModalidad> TProgramaGeneralProblemaModalidads { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralPuntoCorte> TProgramaGeneralPuntoCortes { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralPuntoCorteConfiguracion> TProgramaGeneralPuntoCorteConfiguracions { get; set; } = null!;
@@ -6054,6 +6059,55 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TCampoFormularioOpcion>(entity =>
+            {
+                entity.ToTable("T_CampoFormularioOpcion", "mkt");
+
+                entity.HasComment("Tabla que almacena las opciones asociadas a un Campo Formulario");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Descripcion de la opcion añadida");
+
+                entity.Property(e => e.Estado).HasComment("Estado lógico del registro (1 = Activo, 0 = Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de última modificación del registro");
+
+                entity.Property(e => e.IdCampoFormulario).HasComment("Identificador del campo formulario asociado a la opcion");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo utilizado para control de concurrencia (rowversion)");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro por última vez");
+
+                entity.Property(e => e.Valor).HasComment("Valor asociado a la opcion añadida");
+
+                entity.HasOne(d => d.IdCampoFormularioNavigation)
+                    .WithMany(p => p.TCampoFormularioOpcions)
+                    .HasForeignKey(d => d.IdCampoFormulario)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_CampoFormularioOpcion_CampoFormulario_IdCampoFormulario");
             });
 
             modelBuilder.Entity<TCargo>(entity =>
@@ -44141,6 +44195,187 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario de modificacion del registro");
+            });
+
+            modelBuilder.Entity<TProgramaGeneralProblemaFactor>(entity =>
+            {
+                entity.ToTable("T_ProgramaGeneralProblemaFactor", "pla");
+
+                entity.HasComment("Esta tabla registra problemas de los clientes de la empresa");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre problema del cliente");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de creacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro");
+            });
+
+            modelBuilder.Entity<TProgramaGeneralProblemaFactorDetalle>(entity =>
+            {
+                entity.ToTable("T_ProgramaGeneralProblemaFactorDetalle", "pla");
+
+                entity.HasComment("Esta tabla registra detalle del problema de los clientes de la empresa");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre detalle problema del cliente");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.Titulo)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Titulo del Detalle del problema del cliente");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de creacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro");
+            });
+
+            modelBuilder.Entity<TProgramaGeneralProblemaFactorSolucion>(entity =>
+            {
+                entity.ToTable("T_ProgramaGeneralProblemaFactorSolucion", "pla");
+
+                entity.HasComment("Esta tabla registra Solucion de los problemas de los clientes de la empresa");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Nombre Solucion del Problea del cliente");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.SubTitulo)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("SubTitulo Solucion del problema del cliente");
+
+                entity.Property(e => e.Titulo)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Titulo Solucion del problema del cliente");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de creacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro");
+            });
+
+            modelBuilder.Entity<TProgramaGeneralProblemaFactorSubSolucion>(entity =>
+            {
+                entity.ToTable("T_ProgramaGeneralProblemaFactorSubSolucion", "pla");
+
+                entity.HasComment("Esta tabla registra Soluciones asociadas a una solucion de los problemas de los clientes de la empresa");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.IdProgramaGeneralProblemaFactorSolucion).HasComment("Es foreign key que referencia a la tabla T_ProgramaGeneralProblemaFactorSolucion");
+
+                entity.Property(e => e.Nivel).HasComment("Nivel al que ira la Solucion");
+
+                entity.Property(e => e.Orden).HasComment("Orden de las soluciones presentadas");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.Solucion)
+                    .IsUnicode(false)
+                    .HasComment("Nombre Solucion asignada a una solucion especifica del cliente");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de creacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro");
+
+                entity.HasOne(d => d.IdProgramaGeneralProblemaFactorSolucionNavigation)
+                    .WithMany(p => p.TProgramaGeneralProblemaFactorSubSolucions)
+                    .HasForeignKey(d => d.IdProgramaGeneralProblemaFactorSolucion)
+                    .HasConstraintName("FK_T_ProgramaGeneralProblemaFactorSubSolucion_ProgramaGeneralProblemaFactorSolucion_IdProgramaGeneralProblemaFactorSolucion");
             });
 
             modelBuilder.Entity<TProgramaGeneralProblemaModalidad>(entity =>
