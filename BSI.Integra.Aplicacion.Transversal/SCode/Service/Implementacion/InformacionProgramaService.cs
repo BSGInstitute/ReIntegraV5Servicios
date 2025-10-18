@@ -529,6 +529,67 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             return resultado;
         }
 
+        public InformacionProgramaSpeechDTO CargarInformacionProgramaByIdPGeneral(int idPGeneral, int codigoPais)
+        {
+            var servicioPGeneral = new PGeneralService(_unitOfWork);
+            var sericioDocumentoAgendaService = new DocumentoAgendaService(_unitOfWork);
+            IPEspecificoService servicioPEspecifico = new PEspecificoService(_unitOfWork);
+            //var data = servicioPGeneral.ObtenerPGeneralPEspecificoPorCentroCosto(idCentroCosto);
+            CargarInformacionProgramaRespuestaDTO informacionPrograma = null;
+            List<ResumenProgramaV2DTO> resumenProgramasV2 = null;
+            //var idPGeneral = data != null ? data.IdProgramaGeneral : 0;
+            var informacionProgramaAutomatico = new CargarInformacionProgramaAutomaticoRespuestaDTO();
+            List<PresentacionProgramadto> secciones = _unitOfWork.ProgramaGeneralPresentacionArgumentoRepository.ObtenerProgramaGeneralPresentacionArgumento(idPGeneral);
+            List<RegistroListaSeccionesDocumentoDTO> seccionV1 = _unitOfWork.DocumentoSeccionPwRepository.ObtenerDatosComplementariosProgramaGeneralV2(idPGeneral);
+            List<PresentacionProgramadto> refuerzoConfianza = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Refuerzo de la confianza", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<PresentacionProgramadto> limitaciones = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Limitaciones", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<PresentacionProgramadto> demostracióndevalor = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Demostración de valor", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<PresentacionProgramadto> aspectosdiferenciadores = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Aspectos diferenciadores", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<PresentacionProgramadto> garantiadeprograma = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Garantia de programa", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<RegistroListaSeccionesDocumentoDTO> objetivos = _unitOfWork.DocumentoSeccionPwRepository.ObtenerDatosComplementariosProgramaGeneralV2Objetivos(idPGeneral);
+            ObtenerMontos2RespuestaDTO montosBeneficios = ObtenerMontoPresentacionPrograma(idPGeneral, codigoPais);
+            List<PEspecificoPorIdPGeneral> modalidad = servicioPEspecifico.ObtenerFechaInicioProgramaTodos(idPGeneral);
+            List<RegistroListaSeccionesDocumentoDTO> prerrequisitosLista = _unitOfWork.DocumentoSeccionPwRepository.ObtenerSeccionDocumento(idPGeneral);
+            List<RegistroListaSeccionesDocumentoDTO> prerrequisitos = prerrequisitosLista.Where(x => string.Equals(x.Titulo?.Trim(), "Prerrequisitos", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<RegistroListaSeccionesDocumentoDTO> horario = seccionV1.Where(s => {
+                var t = (s.Titulo ?? "").Trim();
+                return t.Equals("Duración y Horarios", StringComparison.OrdinalIgnoreCase)
+                    || t.Equals("Duracion y Horarios", StringComparison.OrdinalIgnoreCase);
+            })
+               .ToList();
+            List<RegistroListaSeccionesDocumentoDTO> publicoObjetivo = seccionV1.Where(s => string.Equals(s.Titulo?.Trim(), "Público Objetivo", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<RegistroListaSeccionesDocumentoDTO> metodologias = seccionV1.Where(s => {
+                var t = (s.Titulo ?? "").Trim();
+                return t.Equals("Metodología Online De Este programa", StringComparison.OrdinalIgnoreCase)
+                    || t.Equals("Metodolog&#237;a Online De Este programa", StringComparison.OrdinalIgnoreCase);
+            })
+               .ToList();
+            List<RegistroListaSeccionesDocumentoDTO> presentacion = seccionV1.Where(s => string.Equals(s.Titulo?.Trim(), "Presentación", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<ProgramaGeneralSeccionDocumentoDTO> listaadicionales = sericioDocumentoAgendaService.ObtenerListaSeccionDocumentoProgramaGeneralSpeech(idPGeneral);
+            List<ProgramaExpositoresDTO> expositores = _unitOfWork.DocumentoSeccionPwRepository.ObtenerExpositoresPorIdGeneral(idPGeneral);
+            InformacionProgramaSpeechDTO resultado = new InformacionProgramaSpeechDTO
+            {
+                RefuerzodeConfianza = refuerzoConfianza,
+                Limitaciones = limitaciones,
+                Demostracióndevalor = demostracióndevalor,
+                Aspectosdiferenciadores = aspectosdiferenciadores,
+                Garantiadeprograma = garantiadeprograma,
+                Modalidad = modalidad,
+                Objetivos = objetivos,
+                Montos = montosBeneficios,
+                DuracionHorario = horario,
+                PublicoObjetivo = publicoObjetivo,
+                Metodologia = metodologias,
+                Expositores = expositores,
+                Presentacion = presentacion,
+                Prerrequisitos = prerrequisitos,
+                DatosAdicionales = listaadicionales
+
+            };
+
+            return resultado;
+        }
+
         /// Autor: Juan Diego Huanaco Quispe.
         /// Fecha: 24/05/2024
         /// Version: 1.0

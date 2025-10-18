@@ -4483,6 +4483,29 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
+        [HttpPost("ObtenerInformacionProgramaByIdPGeneral")]
+        public IActionResult ObtenerInformacionProgramaByIdPGeneral([FromBody] Dictionary<string, string> filtro)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var informacionProgramaService = new InformacionProgramaService(_unitOfWork);
+
+                var codigoPais = Convert.ToInt32(filtro["codigoPais"]);
+                var idPGeneral = Convert.ToInt32(filtro["idPGeneral"]);
+
+                var respuesta = informacionProgramaService.CargarInformacionProgramaByIdPGeneral(idPGeneral, codigoPais);
+                return Ok(new { respuesta });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         /// Tipo Función: GET
         /// Autor: Jorge Gamero
         /// Fecha: 16/10/2024
