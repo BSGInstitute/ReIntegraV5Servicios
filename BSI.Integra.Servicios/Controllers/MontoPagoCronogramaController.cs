@@ -339,6 +339,7 @@ namespace BSI.Integra.Servicios.Controllers
                     return BadRequest("No se puede matricular en un curso que no esta en Lanzamiento o Por Ejecucion.");
                 }
 
+
                 //Impide que el asesor pueda exceder las 2 cuotas adicionales a la la duracion del curso o programa
                 //online valida basado en la fecha fin de su ultima sesion
                 //aonline basado en la duracion en meses del programa
