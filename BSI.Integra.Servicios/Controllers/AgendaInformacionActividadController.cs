@@ -4483,6 +4483,8 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
+
+        //Christopher
         [HttpPost("ObtenerInformacionProgramaByIdPGeneral")]
         public IActionResult ObtenerInformacionProgramaByIdPGeneral([FromBody] Dictionary<string, string> filtro)
         {
