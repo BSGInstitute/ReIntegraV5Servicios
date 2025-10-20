@@ -57,5 +57,29 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Id de la tabla Original al migrar
         /// </summary>
         public int? IdMigracion { get; set; }
+        /// <summary>
+        /// Id de la acción de conversión para Interesado por Trabajar - IT (Fase 13)
+        /// </summary>
+        public string? ConversionActionIdIt { get; set; }
+        /// <summary>
+        /// Id de la acción de conversión para Inscripción Proceso Pago Final relacionado con Promesa de Ficha - PF (Fase 22)
+        /// </summary>
+        public string? ConversionActionIdIppf { get; set; }
+        /// <summary>
+        /// Id de la acción de conversión para transición entre Inscrito - IS (Fase 5) y Matriculado - M (Fase 23)
+        /// </summary>
+        public string? ConversionActionIdIcism { get; set; }
+        /// <summary>
+        /// Indica si el proceso de envío de conversiones está activo
+        /// </summary>
+        public bool? ProcesoConversionesActivo { get; set; }
+        /// <summary>
+        /// Versión del API de Google Ads utilizada
+        /// </summary>
+        public string? ApiVersion { get; set; }
+        /// <summary>
+        /// Identificador de la cuenta administradora (MCC - My Client Center) de Google Ads
+        /// </summary>
+        public string? ManagerAccountId { get; set; }
     }
 }

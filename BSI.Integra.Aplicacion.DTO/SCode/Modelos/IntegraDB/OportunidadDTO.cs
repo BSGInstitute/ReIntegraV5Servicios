@@ -717,6 +717,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     }
     public class OportunidadConversionesDTO
     {
+        public int IdFacebookFormularioLeadgen { get; set; }
         public string LeadId { get; set; }
         public int IdOportunidad { get; set; }
         public string Email { get; set; }

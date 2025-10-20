@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.Transversal.SCode.Helper;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
@@ -91,12 +92,26 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
             if (idPGeneral != 0)
             {
-                informacionPrograma = CargarInformacionProgramaSinHTML(idPGeneral,codigoPais,idMatriculaCabecera,idOportunidad);
+     informacionPrograma = CargarInformacionProgramaSinHTML(idPGeneral,codigoPais,idMatriculaCabecera,idOportunidad);
             }
             return informacionPrograma;
         }
+        public CargarInformacionProgramaEndpointsV2DTO ObtenerInformacionProgramaV2(int idCentroCosto, int codigoPais, int idMatriculaCabecera, int idOportunidad)
+        {
+            var servicioPGeneral = new PGeneralService(_unitOfWork);
+            var data = servicioPGeneral.ObtenerPGeneralPEspecificoPorCentroCosto(idCentroCosto);
+            CargarInformacionProgramaEndpointsV2DTO informacionPrograma = null;
+            List<ResumenProgramaV2DTO> resumenProgramasV2 = null;
 
+            var idPGeneral = data != null ? data.IdProgramaGeneral : 0;
+            var informacionProgramaAutomatico = new CargarInformacionProgramaAutomaticoRespuestaDTO();
 
+            if (idPGeneral != 0)
+            {
+                informacionPrograma = CargarInformacionProgramaSinHTMLV2(idPGeneral, codigoPais, idMatriculaCabecera, idOportunidad);
+            }
+            return informacionPrograma;
+        }
 
         public CargarInformacionProgramaEndpointsDTO CargarInformacionProgramaSinHTML(int idPGeneral,int codigoPais,int idMatriculaCabecera, int idOportunidad)
         {
@@ -255,7 +270,162 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             return dto;
         }
 
+        public CargarInformacionProgramaEndpointsV2DTO CargarInformacionProgramaSinHTMLV2(int idPGeneral, int codigoPais, int idMatriculaCabecera, int idOportunidad)
+        {
+            // Servicios
+            var servicioConfiguracionBeneficio = new ConfiguracionBeneficioProgramaGeneralService(_unitOfWork);
+            var servicioDocumentoAgenda = new DocumentoAgendaService(_unitOfWork);
+            IPEspecificoService servicioPEspecifico = new PEspecificoService(_unitOfWork);
+            var servicioPGeneral = new PGeneralService(_unitOfWork);
+            var servicioOrigen = new OrigenService(_unitOfWork);
 
+            // 1) Configuración de beneficios / introducciones
+            var beneficiosV2 = _unitOfWork.ConfiguracionBeneficioProgramaGeneralRepository
+                .ObtenerPGeneralConfiguracionBeneficios(idPGeneral)
+                ?? new List<PgeneralConfiguracionBeneficioDTO>();
+
+            var inversion = ObtenerMontos2V2(idPGeneral, codigoPais);
+
+            var introducciones = _unitOfWork.ConfiguracionBeneficioProgramaGeneralRepository
+                .ObtenerIntroduccionBeneficio(idPGeneral);
+
+
+            // 2) Flags de programa (padre/técnico)
+            bool esPadre = _unitOfWork.PGeneralRepository.ProgramaGeneralPadre(idPGeneral);
+            bool esTecnico = _unitOfWork.PGeneralRepository.ProgramaGeneralEsTecnico(idPGeneral);
+
+            // 3) Estructura técnica (raw por hijo)
+            var cursosHijo = _unitOfWork.PGeneralRepository
+                .ListaCursosHijoPorIdPGeneral(idPGeneral)
+                ?? new List<ListaCursosPorProgramaDTO>();
+
+            var duracionPorHijo = new Dictionary<int, object>();
+            var contenidosPorHijo = new Dictionary<int, List<ContenidoHijoDTO>>();
+
+            foreach (var item in cursosHijo)
+            {
+                var idHijo = item.IdHijo;
+                var dur = _unitOfWork.PGeneralRepository.ObtenerDuracionCursoHijo(idHijo); // si conoces el tipo exacto, typarlo
+                duracionPorHijo[idHijo] = dur;
+
+                var cont = _unitOfWork.PGeneralRepository.ContenidoEstructuraHijoPadre(idHijo)
+                    ?? new List<ContenidoHijoDTO>();
+                contenidosPorHijo[idHijo] = cont;
+            }
+
+            // 4) Secciones de programa (raw, sin HTML)
+            var seccionesPrograma = servicioDocumentoAgenda.ObtenerInformacionProgramaGeneralV2(idPGeneral)
+                ?? new List<ProgramaGeneralSeccionDocumentoV2DTO>();
+
+            // 5) PEspecífico (fechas/modalidades) y atributos del PGeneral (raw)
+            var fechasInicioPrograma = servicioPEspecifico.ObtenerFechaInicioProgramaTodos(idPGeneral)
+                ?? new List<PEspecificoPorIdPGeneral>();
+
+            List<ModalidadProgramaDTO> modalidadGeneral = new List<ModalidadProgramaDTO>();
+
+
+            var programaGeneral = servicioPGeneral.ObtenerPGeneralAtributosPrincipalesPorId(idPGeneral);
+            var modalidadGeneralPortal = servicioPEspecifico.ObtenerFechaInicioProgramaTodos(idPGeneral);
+            if (modalidadGeneralPortal == null)
+            {
+                modalidadGeneralPortal = new List<PEspecificoPorIdPGeneral>();
+            }
+            ModalidadProgramaDTO cambiarModelo;
+
+            //Obtencion de Modalidades V2
+            if (modalidadGeneralPortal != null)
+            {
+                foreach (var modalidadPortal in modalidadGeneralPortal)
+                {
+                    cambiarModelo = new ModalidadProgramaDTO()
+                    {
+                        Tipo = modalidadPortal.Tipo,
+                        Ciudad = modalidadPortal.Ciudad,
+                        TipoCiudad = "",
+                        FechaHoraInicio = modalidadPortal.FechaInicioTexto,
+                        NombrePG = programaGeneral.Nombre,
+                        IdPEspecifico = modalidadPortal.Id,
+                        NombreESP = modalidadPortal.Nombre,
+                        NombreCentroCosto = modalidadPortal.CentroCosto,
+                        Duracion = modalidadPortal.Duracion,
+                        Pw_duracion = programaGeneral.PwDuracion,
+                        FechaReal = modalidadPortal.FechaInicio
+                    };
+                    modalidadGeneral.Add(cambiarModelo);
+                }
+            }
+
+            var modalidadAsincronica = modalidadGeneral.Where(s => s.Tipo.Equals("Online Asincronica") && s.Ciudad.Equals("LIMA")).ToList();
+            if (modalidadAsincronica.Count() == 0)
+            {
+                modalidadAsincronica = modalidadGeneral.Where(s => LimpiarCadena(s.Tipo).Equals("Online Asincronica")).ToList();
+            }
+            var modalidadSincronica = modalidadGeneral.Where(s => s.Tipo.Equals("Online Sincronica")).ToList();
+            var modalidadPresencial = modalidadGeneral.Where(s => LimpiarCadena(s.Tipo).Equals("Presencial")).ToList();
+            List<ModalidadProgramaDTO> PruebaModalidad = new List<ModalidadProgramaDTO>();
+            PruebaModalidad.AddRange(modalidadAsincronica);
+            PruebaModalidad.AddRange(modalidadSincronica);
+            PruebaModalidad.AddRange(modalidadPresencial);
+
+            var modalidades = new List<ModalidadProgramaDTO>();
+            modalidades.AddRange(PruebaModalidad);
+
+
+
+            // 6) Área/Subárea y Área capacitación (raw)
+            var areaSubArea = _unitOfWork.PGeneralRepository.ObtenerAreaSubAreaPorIdPGeneral(idPGeneral);
+            AreaCapacitacion areaCapacitacion = null;
+            if (areaSubArea != null)
+            {
+                var idArea = areaSubArea.IdArea; // ya tipado en PGeneralAreaSubAreaDTO
+                areaCapacitacion = _unitOfWork.AreaCapacitacionRepository.ObtenerPorId(idArea);
+            }
+
+            // 7) Monto pagado (raw)
+            var montosPagados = _unitOfWork.MontoPagoCronogramaRepository
+                .ObtenerMontoPagado(idMatriculaCabecera, idOportunidad)
+                ?? new List<MontoPagadoDTO>();
+
+            // 8) Tarifarios (raw)
+            var tarifarios = servicioOrigen.ObtenerTarifariosDetallesAgenda(idMatriculaCabecera)
+                ?? new List<TarifarioDetalleAgendaDTO>();
+
+            // 9) Beneficios filtrados por país
+            var beneficiosFiltradosPorPais = beneficiosV2
+                .Where(b => b.Paises != null && b.Paises.Contains(codigoPais))
+                .ToList();
+
+            // Ensamblar DTO agregado (SIN HTML)
+            var dto = new CargarInformacionProgramaEndpointsV2DTO
+            {
+                ConfiguracionBeneficios = beneficiosV2,
+                IntroduccionesBeneficio = introducciones,
+                Inversion = inversion.MontosPorPais,
+                Modalidades = modalidades,
+
+                EsProgramaPadre = esPadre,
+                EsProgramaTecnico = esTecnico,
+
+                CursosHijo = cursosHijo,
+                DuracionCursoHijoPorId = duracionPorHijo,
+                ContenidoEstructuraPorHijoId = contenidosPorHijo,
+
+                SeccionesPrograma = seccionesPrograma,
+
+                FechasInicioPrograma = fechasInicioPrograma,
+                ProgramaGeneral = programaGeneral, // PGeneralAtributosPrincipalesDTO
+
+                AreaSubArea = areaSubArea,
+                AreaCapacitacion = areaCapacitacion,
+
+                MontoPagado = montosPagados,
+                Tarifarios = tarifarios,
+
+                ConfiguracionBeneficiosFiltradosPorPais = beneficiosFiltradosPorPais
+            };
+
+            return dto;
+        }
         public CargarInformacionProgramaAutomaticoRespuestaDTO CargarInformacionProgramaAutomaticoSpeech(int idCentroCosto, int codigoPais, int idMatriculaCabecera, int idOportunidad)
         {
             var servicioPGeneral = new PGeneralService(_unitOfWork);
@@ -318,6 +488,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             List<RegistroListaSeccionesDocumentoDTO> objetivos = _unitOfWork.DocumentoSeccionPwRepository.ObtenerDatosComplementariosProgramaGeneralV2Objetivos(idPGeneral);
             ObtenerMontos2RespuestaDTO montosBeneficios = ObtenerMontoPresentacionPrograma(idPGeneral, codigoPais);
             List<PEspecificoPorIdPGeneral> modalidad = servicioPEspecifico.ObtenerFechaInicioProgramaTodos(idPGeneral);
+            List<RegistroListaSeccionesDocumentoDTO> prerrequisitosLista = _unitOfWork.DocumentoSeccionPwRepository.ObtenerSeccionDocumento(idPGeneral);
+            List<RegistroListaSeccionesDocumentoDTO> prerrequisitos = prerrequisitosLista.Where(x => string.Equals(x.Titulo?.Trim(), "Prerrequisitos", StringComparison.OrdinalIgnoreCase)).ToList();
             List<RegistroListaSeccionesDocumentoDTO>  horario = seccionV1.Where(s => {
                 var t = (s.Titulo ?? "").Trim();
                 return t.Equals("Duración y Horarios", StringComparison.OrdinalIgnoreCase)
@@ -325,7 +497,12 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             })
                .ToList();
             List<RegistroListaSeccionesDocumentoDTO> publicoObjetivo = seccionV1.Where(s => string.Equals(s.Titulo?.Trim(), "Público Objetivo", StringComparison.OrdinalIgnoreCase)).ToList();
-            List<RegistroListaSeccionesDocumentoDTO> metodologias = seccionV1.Where(s => string.Equals(s.Titulo?.Trim(), "Metodología Online De Este programa", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<RegistroListaSeccionesDocumentoDTO> metodologias = seccionV1.Where(s => {
+                var t = (s.Titulo ?? "").Trim();
+                return t.Equals("Metodología Online De Este programa", StringComparison.OrdinalIgnoreCase)
+                    || t.Equals("Metodolog&#237;a Online De Este programa", StringComparison.OrdinalIgnoreCase);
+            })
+               .ToList();
             List<RegistroListaSeccionesDocumentoDTO> presentacion = seccionV1.Where(s => string.Equals(s.Titulo?.Trim(), "Presentación", StringComparison.OrdinalIgnoreCase)).ToList();
             List<ProgramaGeneralSeccionDocumentoDTO> listaadicionales = sericioDocumentoAgendaService.ObtenerListaSeccionDocumentoProgramaGeneralSpeech(idPGeneral);
             List<ProgramaExpositoresDTO> expositores = _unitOfWork.DocumentoSeccionPwRepository.ObtenerExpositoresPorIdGeneral(idPGeneral);
@@ -344,8 +521,70 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 Metodologia = metodologias,
                 Expositores = expositores,
                 Presentacion= presentacion,
+                Prerrequisitos = prerrequisitos,
                 DatosAdicionales = listaadicionales
                 
+            };
+
+            return resultado;
+        }
+
+        public InformacionProgramaSpeechDTO CargarInformacionProgramaByIdPGeneral(int idPGeneral, int codigoPais)
+        {
+            var servicioPGeneral = new PGeneralService(_unitOfWork);
+            var sericioDocumentoAgendaService = new DocumentoAgendaService(_unitOfWork);
+            IPEspecificoService servicioPEspecifico = new PEspecificoService(_unitOfWork);
+            //var data = servicioPGeneral.ObtenerPGeneralPEspecificoPorCentroCosto(idCentroCosto);
+            CargarInformacionProgramaRespuestaDTO informacionPrograma = null;
+            List<ResumenProgramaV2DTO> resumenProgramasV2 = null;
+            //var idPGeneral = data != null ? data.IdProgramaGeneral : 0;
+            var informacionProgramaAutomatico = new CargarInformacionProgramaAutomaticoRespuestaDTO();
+            List<PresentacionProgramadto> secciones = _unitOfWork.ProgramaGeneralPresentacionArgumentoRepository.ObtenerProgramaGeneralPresentacionArgumento(idPGeneral);
+            List<RegistroListaSeccionesDocumentoDTO> seccionV1 = _unitOfWork.DocumentoSeccionPwRepository.ObtenerDatosComplementariosProgramaGeneralV2(idPGeneral);
+            List<PresentacionProgramadto> refuerzoConfianza = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Refuerzo de la confianza", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<PresentacionProgramadto> limitaciones = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Limitaciones", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<PresentacionProgramadto> demostracióndevalor = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Demostración de valor", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<PresentacionProgramadto> aspectosdiferenciadores = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Aspectos diferenciadores", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<PresentacionProgramadto> garantiadeprograma = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Garantia de programa", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<RegistroListaSeccionesDocumentoDTO> objetivos = _unitOfWork.DocumentoSeccionPwRepository.ObtenerDatosComplementariosProgramaGeneralV2Objetivos(idPGeneral);
+            ObtenerMontos2RespuestaDTO montosBeneficios = ObtenerMontoPresentacionPrograma(idPGeneral, codigoPais);
+            List<PEspecificoPorIdPGeneral> modalidad = servicioPEspecifico.ObtenerFechaInicioProgramaTodos(idPGeneral);
+            List<RegistroListaSeccionesDocumentoDTO> prerrequisitosLista = _unitOfWork.DocumentoSeccionPwRepository.ObtenerSeccionDocumento(idPGeneral);
+            List<RegistroListaSeccionesDocumentoDTO> prerrequisitos = prerrequisitosLista.Where(x => string.Equals(x.Titulo?.Trim(), "Prerrequisitos", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<RegistroListaSeccionesDocumentoDTO> horario = seccionV1.Where(s => {
+                var t = (s.Titulo ?? "").Trim();
+                return t.Equals("Duración y Horarios", StringComparison.OrdinalIgnoreCase)
+                    || t.Equals("Duracion y Horarios", StringComparison.OrdinalIgnoreCase);
+            })
+               .ToList();
+            List<RegistroListaSeccionesDocumentoDTO> publicoObjetivo = seccionV1.Where(s => string.Equals(s.Titulo?.Trim(), "Público Objetivo", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<RegistroListaSeccionesDocumentoDTO> metodologias = seccionV1.Where(s => {
+                var t = (s.Titulo ?? "").Trim();
+                return t.Equals("Metodología Online De Este programa", StringComparison.OrdinalIgnoreCase)
+                    || t.Equals("Metodolog&#237;a Online De Este programa", StringComparison.OrdinalIgnoreCase);
+            })
+               .ToList();
+            List<RegistroListaSeccionesDocumentoDTO> presentacion = seccionV1.Where(s => string.Equals(s.Titulo?.Trim(), "Presentación", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<ProgramaGeneralSeccionDocumentoDTO> listaadicionales = sericioDocumentoAgendaService.ObtenerListaSeccionDocumentoProgramaGeneralSpeech(idPGeneral);
+            List<ProgramaExpositoresDTO> expositores = _unitOfWork.DocumentoSeccionPwRepository.ObtenerExpositoresPorIdGeneral(idPGeneral);
+            InformacionProgramaSpeechDTO resultado = new InformacionProgramaSpeechDTO
+            {
+                RefuerzodeConfianza = refuerzoConfianza,
+                Limitaciones = limitaciones,
+                Demostracióndevalor = demostracióndevalor,
+                Aspectosdiferenciadores = aspectosdiferenciadores,
+                Garantiadeprograma = garantiadeprograma,
+                Modalidad = modalidad,
+                Objetivos = objetivos,
+                Montos = montosBeneficios,
+                DuracionHorario = horario,
+                PublicoObjetivo = publicoObjetivo,
+                Metodologia = metodologias,
+                Expositores = expositores,
+                Presentacion = presentacion,
+                Prerrequisitos = prerrequisitos,
+                DatosAdicionales = listaadicionales
+
             };
 
             return resultado;
@@ -1810,6 +2049,61 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             }
             return new ObtenerMontos2RespuestaDTO() { MontosPorPais = montosPorPais, ListaBeneficios = listaBeneficios };
         }
+
+        private ObtenerMontos2RespuestaV2DTO ObtenerMontos2V2(int idPGeneral, int codigoPais)
+        {
+            var servicioMontoPago = new MontoPagoService(_unitOfWork);
+            var servicioBeneficioPrograma = new ConfiguracionBeneficioProgramaGeneralService(_unitOfWork);
+
+            var transform = servicioMontoPago.ObtenerMontosPorId(idPGeneral);
+            var montos = transform
+                .Select(x => new MontoPagoModalidadV2DTO
+                {
+                    IdPGeneral = x.IdPGeneral,
+                    Paquete = x.Paquete,
+                    NombrePaquete = x.NombrePaquete,
+                    InversionContado = x.InversionContado,
+                    InversionCredito = x.InversionCredito,
+                    ContadoByDolares = x.ContadoByDolares,
+                    Pais = x.Pais,
+                    Beneficios = []
+                })
+                .ToList();
+            var montosPorPais = montos.Where(s => s.Pais.Equals(codigoPais)).OrderBy(x => x.Paquete).ToList();
+
+            var listaBeneficios = new List<BeneficioDTO>();
+
+            if (montosPorPais.Count() == 0)
+            {
+                montosPorPais = montos.Where(s => s.Pais.Equals(0)).OrderBy(x => x.Paquete).ToList();
+                var beneficio = servicioBeneficioPrograma.ObtenerBeneficiosPGeneralTipo1V2Internacional(idPGeneral);
+                if (beneficio.Count() > 0)
+                {
+                    foreach (var item in montosPorPais)
+                    {
+                        item.Beneficios = beneficio.Where(w => w.Paquete == item.Paquete).OrderBy(w => w.Titulo).Select(w => w.Titulo).ToList();
+                    }
+                }
+                listaBeneficios = beneficio;
+            }
+            else
+            {
+                var beneficios = servicioBeneficioPrograma.ObtenerBeneficiosPGeneralTipo1V2(idPGeneral, codigoPais);
+                if (beneficios.Count() > 0)
+                {
+                    foreach (var item in montosPorPais)
+                    {
+                        var items = beneficios.Where(w => w.Paquete == item.Paquete).OrderBy(w => w.OrdenBeneficio).Select(w => w.Titulo).ToList();
+                        if (items.Count() > 0)
+                        {
+                            item.Beneficios = items;
+                        }
+                    }
+                }
+                listaBeneficios = beneficios;
+            }
+            return new ObtenerMontos2RespuestaV2DTO() { MontosPorPais = montosPorPais, ListaBeneficios = listaBeneficios };
+        }
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 10/08/2022
         /// Version: 1.0
@@ -1922,7 +2216,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             }
             else
             {
-                var beneficios = servicioBeneficioPrograma.ObtenerBeneficiosPGeneralTipo1V2(idPGeneral, codigoPais);
+                var beneficios = servicioBeneficioPrograma.ObtenerBeneficiosPGeneralTipo1V3(idPGeneral, codigoPais);
                 
                 listaBeneficios = beneficios;
             }
@@ -2505,6 +2799,68 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw new Exception(e.Message);
             }
         }
+        public List<ResumenProgramaV3DTO> CargarResumenProgramasV3(Dictionary<string, string> filtros)
+        {
+            try
+            {
+                var servicioPGeneral = new PGeneralService(_unitOfWork);
+                var servicioDocumentoAgenda = new DocumentoAgendaService(_unitOfWork);
+
+                var listaResumenPrograma = servicioPGeneral.ObtenerResumenProgramaV2(filtros);
+                int idPais = Convert.ToInt32(filtros["codigoPais"]);
+                var listaResumenProgramatemporal = listaResumenPrograma.Where(x => x.IdPais == idPais).ToList();
+                if (listaResumenProgramatemporal.Count == 0)
+                {
+                    listaResumenPrograma = listaResumenPrograma.Where(x => x.IdPais == 0).ToList(); //Internacional
+                }
+                else
+                {
+                    listaResumenPrograma = listaResumenProgramatemporal;
+                }
+                var listaResumenProgramaAgrupado = listaResumenPrograma.GroupBy(x => new { x.IdPrograma, x.NombrePrograma, x.DuracionPrograma, x.IdArea, x.IdSubArea }).Select(x => new MontoProgramaAgrupadoDTO
+                {
+                    IdPrograma = x.Key.IdPrograma,
+                    IdArea = x.Key.IdArea,
+                    IdSubArea = x.Key.IdSubArea,
+                    NombrePrograma = x.Key.NombrePrograma,
+                    Duracion = x.Key.DuracionPrograma,
+                    MontoDetalle = x.GroupBy(y => y.Descripcion).Select(y => new MontoProgramaDetalleDTO
+                    {
+                        Version = y.Key,
+                        VersionDetalle = y.Select(z => new MontoProgramaVersionDetalle
+                        {
+                            IdTipoPago = z.IdTipoPago,
+                            TipoPago = z.TipoPago,
+                            SimboloMoneda = z.SimboloMoneda,
+                            Matricula = z.Matricula,
+                            Cuotas = z.Cuotas,
+                            NroCuotas = z.NroCuotas
+                        }).OrderByDescending(a => a.TipoPago).ToList()
+                    }).ToList()
+                }).ToList();
+
+                foreach (var item in listaResumenProgramaAgrupado)
+                {
+                    var certificacionV2 = servicioDocumentoAgenda.ObtenerListaSeccionDocumentoProgramaGeneral(item.IdPrograma);
+                    if (certificacionV2 == null || certificacionV2.Count == 0 || !certificacionV2.Any(a => a.Seccion.Contains("Certificacion")))
+                    {
+                        var certificacionV1 = _unitOfWork.DocumentoSeccionPwRepository.ObtenerSecciones(item.IdPrograma);
+                        if (certificacionV1 != null && certificacionV1.Count > 0)
+                            item.SeccionCertificadoV1 = certificacionV1.Where(x => x.Titulo.Contains("Certificación")).FirstOrDefault();
+                    }
+                    else
+                    {
+                        item.SeccionCertificadoV2 = certificacionV2.Where(a => a.Seccion.Contains("Certificacion")).FirstOrDefault();
+                    }
+                }
+                var resumenProgramasV2 = ObtenerResumenProgramaHTMLV2(listaResumenProgramaAgrupado);
+                return resumenProgramasV2;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
         private List<ResumenProgramaV2DTO> ObtenerResumenProgramaHTML(List<MontoProgramaAgrupadoDTO> lista)
         {
             try
@@ -2575,6 +2931,103 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw new Exception(e.Message);
             }
         }
+        private List<ResumenProgramaV3DTO> ObtenerResumenProgramaHTMLV2(List<MontoProgramaAgrupadoDTO> lista)
+        {
+            try
+            {
+                List<ResumenProgramaV3DTO> listaNueva = new List<ResumenProgramaV3DTO>();
+                foreach (var item in lista)
+                {
+                    ResumenProgramaV3DTO obj = new ResumenProgramaV3DTO();
+                    obj.IdArea = item.IdArea;
+                    obj.IdSubArea = item.IdSubArea;
+                    obj.NombrePrograma = item.NombrePrograma;
+                    obj.Duracion = item.Duracion;
+                    var inversion = new List<object>();
+                    foreach (var inv in item.MontoDetalle)
+                    {
+                        var versionObj = new
+                        {
+                            inv.Version,
+                            Detalles = new List<object>()
+                        };
+                        foreach (var det in inv.VersionDetalle)
+                        {
+                            var detalle = new Dictionary<string, object?>
+                            {
+                                ["TipoPago"] = det.TipoPago,
+                                ["Descripcion"] = det.TipoPago switch
+                                {
+                                    "Contado" => $"{det.SimboloMoneda} {det.Matricula}.",
+                                    "Crédito" when det.NroCuotas != null && det.Cuotas != null =>
+                                        $"1 Cuota inicial de {det.SimboloMoneda} {det.Matricula} y {det.NroCuotas} cuotas mensuales desde {det.SimboloMoneda} {det.Cuotas}.",
+                                    _ => null
+                                }
+                            };
+                            versionObj.Detalles.Add(detalle);
+                        }
+                         inversion.Add(versionObj);
+                    }
+                    obj.Inversion = inversion;
+
+                    var certificacion = new List<object>();
+                    if (item.SeccionCertificadoV2 != null)
+                    {
+                        foreach (var contenido in item.SeccionCertificadoV2.DetalleSeccion)
+                        {
+                            if (!string.IsNullOrEmpty(contenido.Titulo))
+                            {
+                                certificacion.Add(new { 
+                                    Type = "title",
+                                    Text = contenido.Titulo
+                                });
+                            }
+                            if (!string.IsNullOrEmpty(contenido.Cabecera))
+                            {
+                                certificacion.Add(new {
+                                    Type = "paragraph",
+                                    Text = contenido.Cabecera
+                                });
+                            }
+                            if (contenido.DetalleContenido.Any())
+                            {
+                                var objItems = new
+                                {
+                                    Type = "items",
+                                    Items = new List<string>()
+                                };
+                                foreach (var contenidoSeccion in contenido.DetalleContenido)
+                                {
+                                    objItems.Items.Add(contenidoSeccion);
+                                }
+                                certificacion.Add(objItems);
+                            }
+                            if (!string.IsNullOrEmpty(contenido.PiePagina))
+                            {
+                                certificacion.Add(new
+                                {
+                                    Type = "paragraph",
+                                    Text = contenido.PiePagina
+                                });
+                            }
+                        }
+                    } else
+                    {
+                        if (item.SeccionCertificadoV1 != null)
+                        {
+                            certificacion = HtmlToJsonHelper.ConvertHtmlToJson(item.SeccionCertificadoV1.Contenido);
+                        }
+                    }
+                    obj.Certificacion = certificacion;
+                    listaNueva.Add(obj);
+                }
+                return listaNueva;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
         /// Autor: Gilmer Quispe.
         /// Fecha: 19/09/2022
         /// Version: 1.0
@@ -2631,6 +3084,33 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                           {
                                               Pregunta = o.Pregunta,
                                               Respuesta = o.Respuesta
+                                          }).ToList()
+                                      }).ToList();
+
+            }
+            return preguntasFrecuente;
+        }
+        public List<PreguntaFrecuenteSeccionesV2DTO> CargarInformacionProgramaV2(List<PreguntaFrecuentePGeneralRespuestaDTO> repositorioPreguntaFrecuente)
+        {
+            List<PreguntaFrecuenteSeccionesV2DTO> preguntasFrecuente = new();
+            if (repositorioPreguntaFrecuente != null)
+            {
+                preguntasFrecuente = (from p in repositorioPreguntaFrecuente
+                                      group p by new
+                                      {
+                                          p.IdPrograma,
+                                          p.IdSeccion,
+                                          p.Nombre
+                                      } into g
+                                      select new PreguntaFrecuenteSeccionesV2DTO
+                                      {
+                                          IdPrograma = g.Key.IdPrograma.GetValueOrDefault(),
+                                          IdSeccion = g.Key.IdSeccion.GetValueOrDefault(),
+                                          Nombre = g.Key.Nombre,
+                                          Contenido = g.Select(o => new PreguntaFrecuenteRespuestasV2DTO
+                                          {
+                                              Pregunta = o.Pregunta,
+                                              Respuesta = HtmlToJsonHelper.ConvertHtmlToJson(o.Respuesta)
                                           }).ToList()
                                       }).ToList();
 

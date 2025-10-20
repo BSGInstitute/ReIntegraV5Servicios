@@ -7,6 +7,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TOrigen()
         {
+            TGoogleAdsConversionQueues = new HashSet<TGoogleAdsConversionQueue>();
             TReclamos = new HashSet<TReclamo>();
         }
 
@@ -63,6 +64,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public Guid? IdMigracion { get; set; }
 
+        public virtual ICollection<TGoogleAdsConversionQueue> TGoogleAdsConversionQueues { get; set; }
         public virtual ICollection<TReclamo> TReclamos { get; set; }
     }
 }

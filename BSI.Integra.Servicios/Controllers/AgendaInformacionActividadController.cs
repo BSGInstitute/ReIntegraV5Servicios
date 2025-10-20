@@ -498,6 +498,41 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [Route("[Action]/{idCentroCosto}/{idOportunidad}")]
+        [HttpGet]
+        public IActionResult ObtenerPreguntasFrecuentesV2(int idCentroCosto, int idOportunidad)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                InformacionProgramaService objeto = new InformacionProgramaService(_unitOfWork);
+                PGeneralService pGeneralService = new PGeneralService(_unitOfWork);
+                PreguntaFrecuentePGeneralService servicioPreguntaFrecuentePGeneral = new PreguntaFrecuentePGeneralService(_unitOfWork);
+
+                var repositorioGeneral = pGeneralService.ObtenerDatosPFrecuentes(idCentroCosto);
+                if (repositorioGeneral.IdPGeneral != null)
+                {
+                    var preguntaFrecuente = servicioPreguntaFrecuentePGeneral.ObtenerPreguntaFrecuente(repositorioGeneral);
+                    var data = objeto.CargarInformacionProgramaV2(preguntaFrecuente);
+
+                    ProgramaGeneralModeloCertificadoService servicioModelo = new ProgramaGeneralModeloCertificadoService(_unitOfWork);
+                    var modeloCertificado = servicioModelo.ObtenerModeloCertificadoPrograma(idOportunidad);
+                    return Ok(new { data, modeloCertificado });
+                }
+                else
+                {
+                    return BadRequest("El Id del Centro Costo no exite!");
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 02/08/2022
@@ -651,6 +686,23 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 var servicio = new DocumentoAgendaService(_unitOfWork);
                 return Ok(servicio.ObtenerDocumentoAgendaDetallePorIdActividadDetalle(idActividadDetalle));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("ObtenerDocumentosPorIdActividadDetalleV2/{idActividadDetalle}")]
+        public IActionResult ObtenerDocumentosPorIdActividadDetalleV2(int idActividadDetalle)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new DocumentoAgendaService(_unitOfWork);
+                return Ok(servicio.ObtenerDocumentoAgendaDetallePorIdActividadDetalleV2(idActividadDetalle));
             }
             catch (Exception ex)
             {
@@ -958,6 +1010,31 @@ namespace BSI.Integra.Servicios.Controllers
                 var idOportunidad = Convert.ToInt32(filtro["idOportunidad"]);
 
                 var respuesta = informacionProgramaService.ObtenerInformacionPrograma(idCentroCosto, codigoPais, idMatriculaCabecera, idOportunidad);
+                return Ok(new { respuesta });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("ObtenerInformacionProgramav1SinHtmlV2")]
+        public IActionResult ObtenerInformacionProgramav1SinHtmlV2([FromBody] Dictionary<string, string> filtro)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var informacionProgramaService = new InformacionProgramaService(_unitOfWork);
+
+                var idCentroCosto = Convert.ToInt32(filtro["idCentroCosto"]);
+                var codigoPais = Convert.ToInt32(filtro["codigoPais"]);
+                var idMatriculaCabecera = Convert.ToInt32(filtro["idMatriculaCabecera"]);
+                var idOportunidad = Convert.ToInt32(filtro["idOportunidad"]);
+
+                var respuesta = informacionProgramaService.ObtenerInformacionProgramaV2(idCentroCosto, codigoPais, idMatriculaCabecera, idOportunidad);
                 return Ok(new { respuesta });
             }
             catch (Exception e)
@@ -1932,6 +2009,25 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 var informacionProgramaService = new InformacionProgramaService(_unitOfWork);
                 return Ok(informacionProgramaService.CargarResumenProgramasV2(filtros));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [Route("[Action]")]
+        [HttpPost]
+        public ActionResult ObtenerResumenProgramasV3([FromBody] Dictionary<string, string> filtros)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var informacionProgramaService = new InformacionProgramaService(_unitOfWork);
+                return Ok(informacionProgramaService.CargarResumenProgramasV3(filtros));
             }
             catch (Exception e)
             {
@@ -4379,6 +4475,29 @@ namespace BSI.Integra.Servicios.Controllers
                 var idOportunidad = Convert.ToInt32(filtro["idOportunidad"]);
 
                 var respuesta = informacionProgramaService.CargarInformacionProgramaAutomaticoSpeechV2(idCentroCosto, codigoPais, idMatriculaCabecera, idOportunidad);
+                return Ok(new { respuesta });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("ObtenerInformacionProgramaByIdPGeneral")]
+        public IActionResult ObtenerInformacionProgramaByIdPGeneral([FromBody] Dictionary<string, string> filtro)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var informacionProgramaService = new InformacionProgramaService(_unitOfWork);
+
+                var codigoPais = Convert.ToInt32(filtro["codigoPais"]);
+                var idPGeneral = Convert.ToInt32(filtro["idPGeneral"]);
+
+                var respuesta = informacionProgramaService.CargarInformacionProgramaByIdPGeneral(idPGeneral, codigoPais);
                 return Ok(new { respuesta });
             }
             catch (Exception e)
