@@ -1,7 +1,6 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
-using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Configurations;
