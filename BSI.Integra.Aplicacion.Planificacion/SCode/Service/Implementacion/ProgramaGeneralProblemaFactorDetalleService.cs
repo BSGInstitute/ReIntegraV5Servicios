@@ -86,6 +86,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     ProgramaGeneralProblemaFactorDetalle entidad = new()
                     {
                         Nombre = dto.Nombre,
+                        Titulo = dto.Titulo,
                         Estado = true,
                         UsuarioCreacion = usuario,
                         UsuarioModificacion = usuario,
@@ -130,6 +131,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                         if (entidad != null && entidad.Id != 0)
                         {
                             entidad.Nombre = dto.Nombre;
+                            entidad.Titulo = dto.Titulo;
                             entidad.UsuarioModificacion = usuario;
                             entidad.FechaModificacion = DateTime.Now;
                             var respuesta = _unitOfWork.ProgramaGeneralProblemaFactorDetalleRepository.Update(entidad);

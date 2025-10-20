@@ -210,8 +210,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    UsuarioModificacion,
 	                    FechaCreacion,
 	                    FechaModificacion,
-	                    RowVersion,
-	                    IdMigracion
+	                    RowVersion
                     FROM pla.T_ProgramaGeneralProblemaFactorDetalle 
                     WHERE Id=@id AND estado=1";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { id });
