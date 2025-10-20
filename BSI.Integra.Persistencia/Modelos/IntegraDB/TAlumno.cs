@@ -7,6 +7,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TAlumno()
         {
+            TChatbotPortalHiloChats = new HashSet<TChatbotPortalHiloChat>();
             TGoogleAdsConversionQueues = new HashSet<TGoogleAdsConversionQueue>();
             TModeloDataMinings = new HashSet<TModeloDataMining>();
             TOportunidadGoogleLeads = new HashSet<TOportunidadGoogleLead>();
@@ -443,6 +444,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public int? IdTamanioEmpresaAgenda { get; set; }
 
         public virtual TAlumnoCuponRegistro TAlumnoCuponRegistro { get; set; } = null!;
+        public virtual ICollection<TChatbotPortalHiloChat> TChatbotPortalHiloChats { get; set; }
         public virtual ICollection<TGoogleAdsConversionQueue> TGoogleAdsConversionQueues { get; set; }
         public virtual ICollection<TModeloDataMining> TModeloDataMinings { get; set; }
         public virtual ICollection<TOportunidadGoogleLead> TOportunidadGoogleLeads { get; set; }

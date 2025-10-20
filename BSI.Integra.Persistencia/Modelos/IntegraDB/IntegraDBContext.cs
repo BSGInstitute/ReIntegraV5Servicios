@@ -123,6 +123,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TChatIntegraHistorialAsesor> TChatIntegraHistorialAsesors { get; set; } = null!;
         public virtual DbSet<TChatbotConfiguracionFlujo> TChatbotConfiguracionFlujos { get; set; } = null!;
         public virtual DbSet<TChatbotFlujoPreguntaPredefinidum> TChatbotFlujoPreguntaPredefinida { get; set; } = null!;
+        public virtual DbSet<TChatbotPortalHiloChat> TChatbotPortalHiloChats { get; set; } = null!;
         public virtual DbSet<TChatbotUsuarioContacto> TChatbotUsuarioContactos { get; set; } = null!;
         public virtual DbSet<TChatbotUsuarioRespuestum> TChatbotUsuarioRespuesta { get; set; } = null!;
         public virtual DbSet<TCiclo> TCiclos { get; set; } = null!;
@@ -370,6 +371,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TFormaCalificacionEvaluacion> TFormaCalificacionEvaluacions { get; set; } = null!;
         public virtual DbSet<TFormaPago> TFormaPagos { get; set; } = null!;
         public virtual DbSet<TFormulaTipoDescuento> TFormulaTipoDescuentos { get; set; } = null!;
+        public virtual DbSet<TFormularioAplicadoChatbot> TFormularioAplicadoChatbots { get; set; } = null!;
         public virtual DbSet<TFormularioLandingPage> TFormularioLandingPages { get; set; } = null!;
         public virtual DbSet<TFormularioPlantilla> TFormularioPlantillas { get; set; } = null!;
         public virtual DbSet<TFormularioProgresivo> TFormularioProgresivos { get; set; } = null!;
@@ -677,6 +679,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TPreguntaEncuestaTipo> TPreguntaEncuestaTipos { get; set; } = null!;
         public virtual DbSet<TPreguntaEncuestum> TPreguntaEncuesta { get; set; } = null!;
         public virtual DbSet<TPreguntaEscalaValor> TPreguntaEscalaValors { get; set; } = null!;
+        public virtual DbSet<TPreguntaEvaluacionChatbot> TPreguntaEvaluacionChatbots { get; set; } = null!;
         public virtual DbSet<TPreguntaEvaluacionTrabajo> TPreguntaEvaluacionTrabajos { get; set; } = null!;
         public virtual DbSet<TPreguntaFrecuente> TPreguntaFrecuentes { get; set; } = null!;
         public virtual DbSet<TPreguntaFrecuenteArea> TPreguntaFrecuenteAreas { get; set; } = null!;
@@ -692,6 +695,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TPrioridadMailChimpListaCorreo> TPrioridadMailChimpListaCorreos { get; set; } = null!;
         public virtual DbSet<TPrioridadMailChimpListum> TPrioridadMailChimpLista { get; set; } = null!;
         public virtual DbSet<TProbabilidadRegistroPw> TProbabilidadRegistroPws { get; set; } = null!;
+        public virtual DbSet<TProblemaIdentificadoChatbot> TProblemaIdentificadoChatbots { get; set; } = null!;
         public virtual DbSet<TProcedenciaFormulario> TProcedenciaFormularios { get; set; } = null!;
         public virtual DbSet<TProcedenciaFormularioDetalle> TProcedenciaFormularioDetalles { get; set; } = null!;
         public virtual DbSet<TProcedenciaVentaCruzadum> TProcedenciaVentaCruzada { get; set; } = null!;
@@ -801,6 +805,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TReporteTipoDeCambioFinancieroMensual> TReporteTipoDeCambioFinancieroMensuals { get; set; } = null!;
         public virtual DbSet<TReprogramacionCabecera> TReprogramacionCabeceras { get; set; } = null!;
         public virtual DbSet<TReprogramacionCabeceraPersonal> TReprogramacionCabeceraPersonals { get; set; } = null!;
+        public virtual DbSet<TRespuestaClienteChatbot> TRespuestaClienteChatbots { get; set; } = null!;
+        public virtual DbSet<TRespuestaClienteTextoChatbot> TRespuestaClienteTextoChatbots { get; set; } = null!;
+        public virtual DbSet<TRespuestaEvaluacionChatbot> TRespuestaEvaluacionChatbots { get; set; } = null!;
         public virtual DbSet<TRespuestaPreguntaProgramaCapacitacion> TRespuestaPreguntaProgramaCapacitacions { get; set; } = null!;
         public virtual DbSet<TRespuestaPreguntum> TRespuestaPregunta { get; set; } = null!;
         public virtual DbSet<TResumenGrabacionOnline> TResumenGrabacionOnlines { get; set; } = null!;
@@ -914,6 +921,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TTipoDocumentoAlumnoSubEstadoMatricula> TTipoDocumentoAlumnoSubEstadoMatriculas { get; set; } = null!;
         public virtual DbSet<TTipoDocumentoPersonal> TTipoDocumentoPersonals { get; set; } = null!;
         public virtual DbSet<TTipoEncuestum> TTipoEncuesta { get; set; } = null!;
+        public virtual DbSet<TTipoEntradaEvaluacionChatbot> TTipoEntradaEvaluacionChatbots { get; set; } = null!;
         public virtual DbSet<TTipoEnvioAutomatico> TTipoEnvioAutomaticos { get; set; } = null!;
         public virtual DbSet<TTipoEstudio> TTipoEstudios { get; set; } = null!;
         public virtual DbSet<TTipoEvaluacionTrabajo> TTipoEvaluacionTrabajos { get; set; } = null!;
@@ -949,6 +957,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TUrlContenedorPermiso> TUrlContenedorPermisos { get; set; } = null!;
         public virtual DbSet<TUrlSubContenedor> TUrlSubContenedors { get; set; } = null!;
         public virtual DbSet<TUsuario> TUsuarios { get; set; } = null!;
+        public virtual DbSet<TVersionFormularioEvaluacionChatbot> TVersionFormularioEvaluacionChatbots { get; set; } = null!;
         public virtual DbSet<TVersionPrograma> TVersionProgramas { get; set; } = null!;
         public virtual DbSet<TVisualizacionBsPlay> TVisualizacionBsPlays { get; set; } = null!;
         public virtual DbSet<TWhatsAppConfiguracion> TWhatsAppConfiguracions { get; set; } = null!;
@@ -7606,6 +7615,81 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasForeignKey(d => d.IdChatbotConfiguracionFlujo)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_ChatbotConfiguracionFlujo");
+            });
+
+            modelBuilder.Entity<TChatbotPortalHiloChat>(entity =>
+            {
+                entity.ToTable("T_ChatbotPortalHiloChat", "ia");
+
+                entity.HasComment("Tabla que almacena informacion de un chat con el alumno.");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico, es Primary Key.");
+
+                entity.Property(e => e.Cerrado).HasComment("Indica si el chat esta cerrado (1 = cerrado, 0 = abierto).");
+
+                entity.Property(e => e.CodigoAreaDerivacion).HasComment("Identificador del área de derivación.");
+
+                entity.Property(e => e.DerivacionCerrado).HasComment("Indica si el chat ha sido derivado y está cerrado.");
+
+                entity.Property(e => e.Derivado).HasComment("Indica si el chat ha sido derivado (1 = derivado, 0 = no derivado).");
+
+                entity.Property(e => e.DireccionIpv4)
+                    .HasMaxLength(15)
+                    .IsUnicode(false)
+                    .HasColumnName("DireccionIPv4")
+                    .HasComment("Direccion IPv4 del usuario.");
+
+                entity.Property(e => e.DireccionIpv6)
+                    .HasMaxLength(39)
+                    .IsUnicode(false)
+                    .HasColumnName("DireccionIPv6")
+                    .HasComment("Dirección IPv6 del usuario.");
+
+                entity.Property(e => e.Estado).HasComment("Indica el estado creado/eliminado del registro.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en que se creo el registro.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la ultima modificacion del registro.");
+
+                entity.Property(e => e.IdAlumno).HasComment("Identificador del alumno asociado.");
+
+                entity.Property(e => e.IdContactoPortalSegmento)
+                    .HasMaxLength(100)
+                    .HasComment("Identificador del contacto portal segmento.");
+
+                entity.Property(e => e.IdMigracion).HasComment("Identificador para migraciones.");
+
+                entity.Property(e => e.Navegador)
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del navegador utilizado por el usuario.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Numero que indica la version del registro.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del usuario que creo el registro.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del usuario que modifico el registro por ultima vez.");
+
+                entity.Property(e => e.Valoracion).HasComment("Valoración del chatbot del portal web");
+
+                entity.HasOne(d => d.IdAlumnoNavigation)
+                    .WithMany(p => p.TChatbotPortalHiloChats)
+                    .HasForeignKey(d => d.IdAlumno)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK_T_ChatbotPortalHiloChat_Alumno_IdAlumno");
             });
 
             modelBuilder.Entity<TChatbotUsuarioContacto>(entity =>
@@ -22103,6 +22187,56 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TFormularioAplicadoChatbot>(entity =>
+            {
+                entity.ToTable("T_FormularioAplicadoChatbot", "ia");
+
+                entity.HasComment("Relaciona chats con formularios de evaluación aplicados");
+
+                entity.Property(e => e.Id).HasComment("Clave primaria (ID) de la tabla");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (Activo = 1 / Inactivo = 0)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación");
+
+                entity.Property(e => e.IdChatbotPortalHiloChat).HasComment("Identificador del chat del portal asociado");
+
+                entity.Property(e => e.IdVersionFormularioEvaluacionChatbot).HasComment("Identificador de la versión del formulario aplicado");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para concurrencia optimista");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdChatbotPortalHiloChatNavigation)
+                    .WithMany(p => p.TFormularioAplicadoChatbots)
+                    .HasForeignKey(d => d.IdChatbotPortalHiloChat)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_FormularioAplicadoChatbot_ChatbotPortalHiloChat_IdChatbotPortalHiloChat");
+
+                entity.HasOne(d => d.IdVersionFormularioEvaluacionChatbotNavigation)
+                    .WithMany(p => p.TFormularioAplicadoChatbots)
+                    .HasForeignKey(d => d.IdVersionFormularioEvaluacionChatbot)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_FormularioAplicadoChatbot_VersionFormularioEvaluacionChatbot_IdVersionFormularioEvaluacionChatbot");
             });
 
             modelBuilder.Entity<TFormularioLandingPage>(entity =>
@@ -40571,6 +40705,63 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Sistema Automatico Usuario de modificacion");
             });
 
+            modelBuilder.Entity<TPreguntaEvaluacionChatbot>(entity =>
+            {
+                entity.ToTable("T_PreguntaEvaluacionChatbot", "ia");
+
+                entity.HasComment("Almacena las preguntas de evaluación asociadas a formularios específicos");
+
+                entity.Property(e => e.Id).HasComment("Clave primaria (ID) de la tabla");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (Activo = 1 / Inactivo = 0)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación");
+
+                entity.Property(e => e.IdTipoEntradaEvaluacionChatbot).HasComment("Identificador del tipo de entrada para la respuesta");
+
+                entity.Property(e => e.IdVersionFormularioEvaluacionChatbot).HasComment("Identificador de la versión del formulario asociado");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasComment("Texto completo de la pregunta de evaluación");
+
+                entity.Property(e => e.Orden).HasComment("Orden de visualización de la pregunta en el formulario");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para concurrencia optimista");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdTipoEntradaEvaluacionChatbotNavigation)
+                    .WithMany(p => p.TPreguntaEvaluacionChatbots)
+                    .HasForeignKey(d => d.IdTipoEntradaEvaluacionChatbot)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_PreguntaEvaluacionChatbot_TipoEntradaEvaluacionChatbot_IdTipoEntradaEvaluacionChatbot");
+
+                entity.HasOne(d => d.IdVersionFormularioEvaluacionChatbotNavigation)
+                    .WithMany(p => p.TPreguntaEvaluacionChatbots)
+                    .HasForeignKey(d => d.IdVersionFormularioEvaluacionChatbot)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_PreguntaEvaluacionChatbot_VersionFormularioEvaluacionChatbot_IdVersionFormularioEvaluacionChatbot");
+            });
+
             modelBuilder.Entity<TPreguntaEvaluacionTrabajo>(entity =>
             {
                 entity.ToTable("T_PreguntaEvaluacionTrabajo", "pla");
@@ -41485,6 +41676,56 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TProblemaIdentificadoChatbot>(entity =>
+            {
+                entity.ToTable("T_ProblemaIdentificadoChatbot", "ia");
+
+                entity.HasComment("Almacena múltiples problemas identificados por clientes en evaluaciones");
+
+                entity.Property(e => e.Id).HasComment("Clave primaria (ID) de la tabla");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (Activo = 1 / Inactivo = 0)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación");
+
+                entity.Property(e => e.IdFormularioAplicadoChatbot).HasComment("Identificador del formulario aplicado al chat");
+
+                entity.Property(e => e.IdRespuestaEvaluacionChatbot).HasComment("Identificador de la respuesta de evaluación que representa el problema");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para concurrencia optimista");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdFormularioAplicadoChatbotNavigation)
+                    .WithMany(p => p.TProblemaIdentificadoChatbots)
+                    .HasForeignKey(d => d.IdFormularioAplicadoChatbot)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_ProblemasIdentificadosChatbot_FormularioAplicadoChatbot_IdFormularioAplicadoChatbot");
+
+                entity.HasOne(d => d.IdRespuestaEvaluacionChatbotNavigation)
+                    .WithMany(p => p.TProblemaIdentificadoChatbots)
+                    .HasForeignKey(d => d.IdRespuestaEvaluacionChatbot)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_ProblemasIdentificadosChatbot_RespuestaEvaluacionChatbot_IdRespuestaEvaluacionChatbot");
             });
 
             modelBuilder.Entity<TProcedenciaFormulario>(entity =>
@@ -47209,6 +47450,168 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TRespuestaClienteChatbot>(entity =>
+            {
+                entity.ToTable("T_RespuestaClienteChatbot", "ia");
+
+                entity.HasComment("Almacena respuestas individuales de clientes cuando seleccionan una opción predefinida");
+
+                entity.Property(e => e.Id).HasComment("Clave primaria (ID) de la tabla");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (Activo = 1 / Inactivo = 0)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación");
+
+                entity.Property(e => e.IdFormularioAplicadoChatbot).HasComment("Identificador del formulario aplicado al chat");
+
+                entity.Property(e => e.IdRespuestaEvaluacionChatbot).HasComment("Identificador de la respuesta predefinida seleccionada");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para concurrencia optimista");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdFormularioAplicadoChatbotNavigation)
+                    .WithMany(p => p.TRespuestaClienteChatbots)
+                    .HasForeignKey(d => d.IdFormularioAplicadoChatbot)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_RespuestaClienteChatbot_FormularioAplicadoChatbot_IdFormularioAplicadoChatbot");
+
+                entity.HasOne(d => d.IdRespuestaEvaluacionChatbotNavigation)
+                    .WithMany(p => p.TRespuestaClienteChatbots)
+                    .HasForeignKey(d => d.IdRespuestaEvaluacionChatbot)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_RespuestaClienteChatbot_RespuestaEvaluacionChatbot_IdRespuestaEvaluacionChatbot");
+            });
+
+            modelBuilder.Entity<TRespuestaClienteTextoChatbot>(entity =>
+            {
+                entity.ToTable("T_RespuestaClienteTextoChatbot", "ia");
+
+                entity.HasComment("Almacena respuestas de texto libre ingresadas por clientes");
+
+                entity.Property(e => e.Id).HasComment("Clave primaria (ID) de la tabla");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (Activo = 1 / Inactivo = 0)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación");
+
+                entity.Property(e => e.IdFormularioAplicadoChatbot).HasComment("Identificador del formulario aplicado al chat");
+
+                entity.Property(e => e.IdPreguntaEvaluacionChatbot).HasComment("Identificador de la pregunta asociada");
+
+                entity.Property(e => e.RespuestaTexto)
+                    .HasMaxLength(400)
+                    .IsUnicode(false)
+                    .HasComment("Texto libre ingresado por el cliente");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para concurrencia optimista");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdFormularioAplicadoChatbotNavigation)
+                    .WithMany(p => p.TRespuestaClienteTextoChatbots)
+                    .HasForeignKey(d => d.IdFormularioAplicadoChatbot)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_RespuestaClienteTextoChatbot_FormularioAplicadoChatbot_IdFormularioAplicadoChatbot");
+
+                entity.HasOne(d => d.IdPreguntaEvaluacionChatbotNavigation)
+                    .WithMany(p => p.TRespuestaClienteTextoChatbots)
+                    .HasForeignKey(d => d.IdPreguntaEvaluacionChatbot)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_RespuestaClienteTextoChatbot_PreguntaEvaluacionChatbot_IdPreguntaEvaluacionChatbot");
+            });
+
+            modelBuilder.Entity<TRespuestaEvaluacionChatbot>(entity =>
+            {
+                entity.ToTable("T_RespuestaEvaluacionChatbot", "ia");
+
+                entity.HasComment("Almacena las respuestas predefinidas para las preguntas de evaluación");
+
+                entity.Property(e => e.Id).HasComment("Clave primaria (ID) de la tabla");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (Activo = 1 / Inactivo = 0)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación");
+
+                entity.Property(e => e.IdPreguntaEvaluacionChatbot).HasComment("Identificador de la pregunta de evaluación asociada");
+
+                entity.Property(e => e.IdTipoEntradaEvaluacionChatbot).HasComment("Identificador del tipo de entrada de la respuesta");
+
+                entity.Property(e => e.Orden).HasComment("Orden de visualización de la respuesta en la lista");
+
+                entity.Property(e => e.Respuesta)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Valor de la respuesta predefinida");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para concurrencia optimista");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdPreguntaEvaluacionChatbotNavigation)
+                    .WithMany(p => p.TRespuestaEvaluacionChatbots)
+                    .HasForeignKey(d => d.IdPreguntaEvaluacionChatbot)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_RespuestaEvaluacionChatbot_PreguntaEvaluacionChatbot_IdPreguntaEvaluacionChatbot");
+
+                entity.HasOne(d => d.IdTipoEntradaEvaluacionChatbotNavigation)
+                    .WithMany(p => p.TRespuestaEvaluacionChatbots)
+                    .HasForeignKey(d => d.IdTipoEntradaEvaluacionChatbot)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_RespuestaEvaluacionChatbot_TipoEntradaEvaluacionChatbot_IdTipoEntradaEvaluacionChatbot");
             });
 
             modelBuilder.Entity<TRespuestaPreguntaProgramaCapacitacion>(entity =>
@@ -53622,6 +54025,50 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Usuario modificacion de registro");
             });
 
+            modelBuilder.Entity<TTipoEntradaEvaluacionChatbot>(entity =>
+            {
+                entity.ToTable("T_TipoEntradaEvaluacionChatbot", "ia");
+
+                entity.HasComment("Almacena los tipos de entrada disponibles para las respuestas de evaluación");
+
+                entity.Property(e => e.Id).HasComment("Clave primaria (ID) de la tabla");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Descripción detallada del tipo de entrada");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (Activo = 1 / Inactivo = 0)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del tipo de entrada (Ej: Selección Múltiple, Texto Libre, Rating)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para concurrencia optimista");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+            });
+
             modelBuilder.Entity<TTipoEnvioAutomatico>(entity =>
             {
                 entity.ToTable("T_TipoEnvioAutomatico", "mkt");
@@ -55216,6 +55663,57 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TVersionFormularioEvaluacionChatbot>(entity =>
+            {
+                entity.ToTable("T_VersionFormularioEvaluacionChatbot", "ia");
+
+                entity.HasComment("Almacena las versiones de formularios de evaluación para diferentes plataformas");
+
+                entity.Property(e => e.Id).HasComment("Clave primaria (ID) de la tabla");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasComment("Descripción detallada del formulario y su propósito");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (Activo = 1 / Inactivo = 0)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Nombre descriptivo de la versión del formulario");
+
+                entity.Property(e => e.Origen)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Origen o plataforma del formulario (Portal, WhatsApp, etc.)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para concurrencia optimista");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.Property(e => e.Version).HasComment("Número de versión actual del formulario");
             });
 
             modelBuilder.Entity<TVersionPrograma>(entity =>
