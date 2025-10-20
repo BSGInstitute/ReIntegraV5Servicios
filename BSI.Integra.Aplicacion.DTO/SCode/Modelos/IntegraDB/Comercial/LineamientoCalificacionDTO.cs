@@ -353,7 +353,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
     public class CriticidadDTO
     {
         public int Id { get; set; }
-        public string NombreCriticidad { get; set; }
+        public string Nombre { get; set; }
     }
 
     public class PuntoGeneralDTO
@@ -987,5 +987,46 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int IdEvaluacion { get; set; }
         public string Estado { get; set; }
         public string Mensaje { get; set; }
+    }
+    public class EvaluacionLlamadaDetalleDTO
+        {
+    /// <summary>
+    /// ID de la llamada (IdLlamadaWebphoneCruceCentralTresCx)
+    /// </summary>
+    public int IdLlamadaWebphoneCruceCentralTresCx { get; set; }
+        /// <summary>
+        /// Estado de la evaluación (1 = Activo, 0 = Inactivo)
+        /// </summary>
+    public int IdCriterioCalificacionLlamada { get; set; }
+
+    /// <summary>
+    /// Nota obtenida en el criterio
+    /// </summary>
+    public decimal Nota { get; set; }
+
+    /// <summary>
+    /// Comentario de la evaluación para el criterio
+    /// </summary>
+    public string? Comentario { get; set; }
+ 
+    /// <summary>
+    /// Brechas identificadas en el criterio
+    /// </summary>
+    public string? Brecha { get; set; }
+      } 
+    public class EvaluacionPuntoGeneralDetalleDTO
+{
+    public int IdLlamadaWebphoneCruceCentralTresCx { get; set; }
+    public int IdCalificacionPuntoGeneral { get; set; }
+    public decimal Nota { get; set; }
+    public string? Comentario { get; set; }
+    public string? Brecha { get; set; }
+}
+    public class ConfiguracionEsquemaCalificacionPorLlamdaDTO
+    {
+        public int IdEvaluacionLlamada { get; set; }
+        public int IdVersionConfiguracionCalificacionLlamada { get; set; }
+        public string ConfiguracionJSON { get; set; }
+        
     }
 }

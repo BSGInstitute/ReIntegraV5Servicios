@@ -254,5 +254,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad
             public DateTime? RT_FechaCreacion { get; set; }
             public DateTime? RT_FechaModificacion { get; set; }
         }
+
+
+        
     }
 }

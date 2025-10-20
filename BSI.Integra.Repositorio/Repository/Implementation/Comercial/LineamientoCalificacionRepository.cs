@@ -1537,9 +1537,104 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             }
         }
 
+        /// Autor: Lolo Zaa
+        /// Fecha: 17/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene extras de criterios por IdLlamada
+        /// </summary> 
+        /// <returns> IEnumerable<ComboDTO> </returns>
 
+        public IEnumerable<EvaluacionLlamadaDetalleDTO> ObtenerDetallesEvaluacionPorLlamada(int idLlamada)
+{
+    try
+    {
+        var detalleLlamada = new List<EvaluacionLlamadaDetalleDTO>();
+        var query = "com.SP_EvaluacionLlamada_ObtenerDetalleAutomatica";
 
+        var resultado = _dapperRepository.QuerySPDapper(query, new 
+        {
+            IdLlamadaWebphoneCruceCentralTresCx = idLlamada
+        });
 
+        if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+        {
+            detalleLlamada = JsonConvert.DeserializeObject<List<EvaluacionLlamadaDetalleDTO>>(resultado);
+        }
+
+        return detalleLlamada;
     }
+    catch (Exception ex)
+    {
+        throw;
+    }
+}
+        /// Autor: Lolo Zaa
+        /// Fecha: 17/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene extra de puntos generales por IdLlamada
+        /// </summary> 
+        /// <returns> IEnumerable<ComboDTO> </returns>
+        public IEnumerable<EvaluacionPuntoGeneralDetalleDTO> ObtenerDetallesEvaluacionPuntosGeneralesPorLlamada(int idLlamada)
+{
+    try
+    {
+        var detalleLlamada = new List<EvaluacionPuntoGeneralDetalleDTO>();
+        var query = "com.SP_EvaluacionLlamada_ObtenerPuntoGeneralDetalle";
+
+        var resultado = _dapperRepository.QuerySPDapper(query, new
+        {
+            IdLlamadaWebphoneCruceCentralTresCx = idLlamada
+        });
+
+        if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+        {
+            detalleLlamada = JsonConvert.DeserializeObject<List<EvaluacionPuntoGeneralDetalleDTO>>(resultado);
+        }
+
+        return detalleLlamada;
+    }
+    catch (Exception ex)
+    {
+        throw;
+    }
+}
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 17/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la version de configuracion por IdLlamada
+        /// </summary> 
+        /// <returns> IEnumerable<ComboDTO> </returns>
+        public IEnumerable<ConfiguracionEsquemaCalificacionPorLlamdaDTO> HistorialVersionCalificacionPorLlamada(int idLlamada)
+{
+    try
+    {
+        var historial = new List<ConfiguracionEsquemaCalificacionPorLlamdaDTO>();
+        var query = "com.SP_EvaluacionLlamada_ObtenerConfiguracionLineamiento";
+
+        var resultado = _dapperRepository.QuerySPDapper(query, new
+        {
+            IdLlamadaWebphoneCruceCentralTresCx = idLlamada
+        });
+
+        if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+        {
+            historial = JsonConvert.DeserializeObject<List<ConfiguracionEsquemaCalificacionPorLlamdaDTO>>(resultado);
+        }
+
+        return historial;
+    }
+    catch (Exception)
+    {
+        throw;
+    }
+}
+
+        
+    }
+
 
 }

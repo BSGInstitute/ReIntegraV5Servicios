@@ -80,22 +80,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
         IEnumerable<PuntosCriticosLlamadaDiaDto> ObtenerPuntosCriticosPorDia();
         bool InsertarCongelamientoPuntoCritico(int idPersonal, DateTime fechaGeneracion, string resultadoPuntoCritico);
         IEnumerable<PuntoCriticoResumenDiarioDTO> ObtenerPuntoCriticoDiario(int IdPersonal,DateTime fechaGeneracion);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        IEnumerable<EvaluacionLlamadaDetalleDTO> ObtenerDetallesEvaluacionPorLlamada(int idLlamada);
+        IEnumerable<EvaluacionPuntoGeneralDetalleDTO> ObtenerDetallesEvaluacionPuntosGeneralesPorLlamada(int idLlamada);
+        IEnumerable<ConfiguracionEsquemaCalificacionPorLlamdaDTO> HistorialVersionCalificacionPorLlamada(int idLlamada);
     }
 }
