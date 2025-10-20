@@ -20,5 +20,6 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Interface
         #endregion
         LineamientoCalificacion ObtenerPorId(int id);
         IEnumerable<ComboDTO> ObtenerCombo();
+        Task<string?> GenerarCuerpoCalificacionv2(int idLlamada);
     }
 }

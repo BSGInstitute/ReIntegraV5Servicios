@@ -1000,7 +1000,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
         /// </summary>
         /// <returns> List<ComboDTO> </returns>
         [Route("[action]")]
-        [HttpGet]
+        [HttpGet]   
         public async Task<ActionResult<List<bool>>> CalificacionAuto()
         {
             try
@@ -1368,7 +1368,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
             try
             {
                 var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
-                var resultado = await lineamientoCalificacionService.GenerarCuerpoCalificacion(idLlamada);
+                var resultado = await lineamientoCalificacionService.GenerarCuerpoCalificacionv2(idLlamada);
                 return Ok(resultado);
             }
             catch (Exception ex)

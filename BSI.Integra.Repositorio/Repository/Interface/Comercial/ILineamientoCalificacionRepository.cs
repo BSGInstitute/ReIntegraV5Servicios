@@ -83,5 +83,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
         IEnumerable<PuntoCriticoResumenDiarioDTO> ObtenerPuntoCriticoDiario(int IdPersonal,DateTime fechaGeneracion);
         Task<List<MotivacionRawDTO>> ObtenerMotivacionesPorIdPGeneralAsync(int idPGeneral);
         Task<List<ObjeccionClienteRawDTO>> ObtenerObjecionesClientesPorIdPGeneralAsync(int idPGeneral);
+        IEnumerable<EvaluacionLlamadaDetalleDTO> ObtenerDetallesEvaluacionPorLlamada(int idLlamada);
+        IEnumerable<EvaluacionPuntoGeneralDetalleDTO> ObtenerDetallesEvaluacionPuntosGeneralesPorLlamada(int idLlamada);
+        IEnumerable<ConfiguracionEsquemaCalificacionPorLlamdaDTO> HistorialVersionCalificacionPorLlamada(int idLlamada);
     }
 }
