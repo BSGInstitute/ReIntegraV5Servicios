@@ -599,7 +599,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
             InformacionProgramaSpeechV2DTO resultado = new InformacionProgramaSpeechV2DTO
             {
-                //RefuerzodeConfianza = refuerzoConfianza,
+                RefuerzodeConfianza = refuerzoConfianza,
                 Limitaciones = limitaciones,
                 Demostracióndevalor = demostraciondevalor,
                 Aspectosdiferenciadores = aspectosdiferenciadores,
