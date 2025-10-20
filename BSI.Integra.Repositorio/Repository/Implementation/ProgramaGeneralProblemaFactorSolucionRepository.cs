@@ -174,7 +174,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 List<ProgramaGeneralProblemaFactorSolucionDTO> rpta = new List<ProgramaGeneralProblemaFactorSolucionDTO>();
                 var query = @"
                     SELECT
-	                    Id,Nombre
+	                    Id,Descripcion,Titulo,SubTitulo
                     FROM pla.T_ProgramaGeneralProblemaFactorSolucion
                     WHERE Estado = 1 ORDER BY Id DESC";
                 var resultado = _dapperRepository.QueryDapper(query, null);
@@ -204,7 +204,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var query = @"
                     SELECT
 	                    Id,
-	                    Nombre,
+	                    Descripcion,
+                        Titulo,
+                        SubTitulo,
 	                    Estado,
 	                    UsuarioCreacion,
 	                    UsuarioModificacion,
