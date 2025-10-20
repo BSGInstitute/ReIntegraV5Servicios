@@ -172,6 +172,89 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 throw ex;
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 14/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Cargar información de competidores
+        /// </summary>
+        /// <param name="idOportunidad">Id de Oportunidad</param>
+        /// <returns>CargarInformacionCompetidoresRespuestaDTO</returns> 
+        public async Task<CargarInformacionCompetidoresRespuestaDTO> CargarInformacionCompetidoresAsync(int idOportunidad)
+        {
+            try
+            {
+                if (idOportunidad == 0)
+                    return new CargarInformacionCompetidoresRespuestaDTO { Error = "IdOportunidad no válido" };
+
+                var tareaCompetidores = _unitOfWork.CompetidorRepository.ObtenerCompetidoresPorIdOportunidadAsync(idOportunidad);
+
+                var competidoresRaw = await tareaCompetidores;
+
+                var competidores = new List<Competidorv2DTO>();
+
+                if (competidoresRaw?.Any() == true)
+                {
+                    var groupedByCompetidor = competidoresRaw.GroupBy(c => c.Id);
+
+                    foreach (var group in groupedByCompetidor)
+                    {
+                        var firstItem = group.First();
+
+                        var contenidoCompetidorProcesado = new List<string>();
+
+                        foreach (var item in group)
+                        {
+                            if (!string.IsNullOrEmpty(item.ContenidoCompetidorVentajaDesventaja))
+                            {
+                                var texto = System.Net.WebUtility.HtmlDecode(item.ContenidoCompetidorVentajaDesventaja);
+                                texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<[^>]+>", "");
+                                texto = System.Text.RegularExpressions.Regex.Replace(texto, @"\s+", " ");
+                                var contenidoProcesado = texto.Trim();
+
+                                if (!string.IsNullOrEmpty(contenidoProcesado))
+                                {
+                                    contenidoCompetidorProcesado.Add(contenidoProcesado);
+                                }
+                            }
+                        }
+
+                        competidores.Add(new Competidorv2DTO
+                        {
+                            Id = firstItem.Id,
+                            IdOportunidad = firstItem.IdOportunidad,
+                            Nombre = firstItem.Nombre,
+                            DuracionCronologica = firstItem.DuracionCronologica,
+                            CostoNeto = firstItem.CostoNeto,
+                            Precio = firstItem.Precio,
+                            Categoria = firstItem.Categoria,
+                            Empresa = firstItem.Empresa,
+                            RegionCiudad = firstItem.RegionCiudad,
+                            Moneda = firstItem.Moneda,
+                            ContenidosCompetidor = contenidoCompetidorProcesado
+                        });
+                    }
+                }
+
+                return new CargarInformacionCompetidoresRespuestaDTO
+                {
+                    IdOportunidad = idOportunidad,
+                    Competidores = competidores,
+                    Error = null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new CargarInformacionCompetidoresRespuestaDTO
+                {
+                    IdOportunidad = idOportunidad,
+                    Competidores = new List<Competidorv2DTO>(),
+                    Error = $"Error al cargar competidores: {ex.Message}"
+                };
+            }
+        }
+
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 25/07/2022
         /// Version: 1.0

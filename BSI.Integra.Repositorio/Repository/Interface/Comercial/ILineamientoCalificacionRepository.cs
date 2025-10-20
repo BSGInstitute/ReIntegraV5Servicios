@@ -1,4 +1,5 @@
 ﻿using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Comercial;
@@ -80,6 +81,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
         IEnumerable<PuntosCriticosLlamadaDiaDto> ObtenerPuntosCriticosPorDia();
         bool InsertarCongelamientoPuntoCritico(int idPersonal, DateTime fechaGeneracion, string resultadoPuntoCritico);
         IEnumerable<PuntoCriticoResumenDiarioDTO> ObtenerPuntoCriticoDiario(int IdPersonal,DateTime fechaGeneracion);
+        Task<List<MotivacionRawDTO>> ObtenerMotivacionesPorIdPGeneralAsync(int idPGeneral);
+        Task<List<ObjeccionClienteRawDTO>> ObtenerObjecionesClientesPorIdPGeneralAsync(int idPGeneral);
         IEnumerable<EvaluacionLlamadaDetalleDTO> ObtenerDetallesEvaluacionPorLlamada(int idLlamada);
         IEnumerable<EvaluacionPuntoGeneralDetalleDTO> ObtenerDetallesEvaluacionPuntosGeneralesPorLlamada(int idLlamada);
         IEnumerable<ConfiguracionEsquemaCalificacionPorLlamdaDTO> HistorialVersionCalificacionPorLlamada(int idLlamada);

@@ -2,6 +2,7 @@
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
+using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -276,6 +277,41 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 14/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información de competidores
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionCompetidores")]
+        public async Task<IActionResult> ObtenerInformacionCompetidores([FromBody] Dictionary<string, string> filtro)
+        {
+            try
+            {
+                if (filtro == null || !filtro.TryGetValue("idOportunidad", out var idOportunidadStr))
+                {
+                    return BadRequest(new { Error = "El campo 'idOportunidad' es requerido." });
+                }
+
+                if (!int.TryParse(idOportunidadStr, out int idOportunidad))
+                {
+                    return BadRequest(new { Error = "El valor de 'idOportunidad' debe ser un número entero válido." });
+                }
+
+                var servicio = new AgendaActividadService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionCompetidoresAsync(idOportunidad);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
             }
         }
 

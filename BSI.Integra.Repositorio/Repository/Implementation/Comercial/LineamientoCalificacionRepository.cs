@@ -207,6 +207,74 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 throw ex;
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 14/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener motivaciones por id PGeneral
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>List<MotivacionRawDTO></returns> 
+        public async Task<List<MotivacionRawDTO>> ObtenerMotivacionesPorIdPGeneralAsync(int idPGeneral)
+        {
+            var query = @"SELECT 
+                    IdMotivacion,
+                    NombreMotivacion,
+                    IdArgumento,
+                    ContenidoArgumento
+                FROM pla.V_TProgramaGeneralMotivacion_MotivacionCliente
+                WHERE IdPGeneral = @idPGeneral";
+
+            var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
+
+            if (string.IsNullOrEmpty(resultado) || resultado == "[]")
+                return new List<MotivacionRawDTO>();
+
+            try
+            {
+                return JsonConvert.DeserializeObject<List<MotivacionRawDTO>>(resultado) ?? new List<MotivacionRawDTO>();
+            }
+            catch
+            {
+                return new List<MotivacionRawDTO>();
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 14/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener objeciones de clientes por id PGeneral
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>List<ObjeccionClienteRawDTO></returns> 
+        public async Task<List<ObjeccionClienteRawDTO>> ObtenerObjecionesClientesPorIdPGeneralAsync(int idPGeneral)
+        {
+            var query = @"SELECT
+                                Id,
+                                NombreObjecion,
+                                IdDetalleSolucion,
+                                Detalle,
+                                Solucion
+                            FROM pla.V_TProgramaGeneralProblema_ObjecionCliente
+                            WHERE IdPGeneral = @idPGeneral AND VisibleAgenda = 1 AND Estado = 1";
+
+            var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
+
+            if (string.IsNullOrEmpty(resultado) || resultado == "[]")
+                return new List<ObjeccionClienteRawDTO>();
+
+            try
+            {
+                return JsonConvert.DeserializeObject<List<ObjeccionClienteRawDTO>>(resultado) ?? new List<ObjeccionClienteRawDTO>();
+            }
+            catch
+            {
+                return new List<ObjeccionClienteRawDTO>();
+            }
+        }
+
         /// Autor: Joseph Llanque
         /// Fecha: 07/03/2025
         /// Version: 1.0
