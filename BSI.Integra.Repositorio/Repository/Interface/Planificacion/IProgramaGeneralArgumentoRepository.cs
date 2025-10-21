@@ -14,7 +14,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
     {
         #region Metodos Base
         TProgramaGeneralArgumento Add(ProgramaGeneralArgumento entidad);
-        TProgramaGeneralArgumento Update(PartnerPw entidad);
+        TProgramaGeneralArgumento Update(ProgramaGeneralArgumento entidad);
         bool Delete(int id, string usuario);
 
         IEnumerable<TProgramaGeneralArgumento> Add(IEnumerable<ProgramaGeneralArgumento> listadoEntidad);

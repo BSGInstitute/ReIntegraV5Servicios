@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 {
-    public class ProgramaGeneralArgumentoRepository : GenericRepository<TPartnerPw>, IProgramaGeneralArgumentoRepository
+    public class ProgramaGeneralArgumentoRepository : GenericRepository<TProgramaGeneralArgumento>, IProgramaGeneralArgumentoRepository
     {
         private Mapper _mapper;
 
@@ -21,19 +21,19 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             var config = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<TProgramaGeneralArgumento, ProgramaGeneralArgumentoDTO>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TProgramaGeneralArgumento, ProgramaGeneralArgumento>(MemberList.None).ReverseMap();
                 //cfg.CreateMap<THijo, Hijo>(MemberList.None).ReverseMap();
             });
             _mapper = new Mapper(config);
         }
 
         #region Metodos Base
-        private TPartnerPw MapeoEntidad(PartnerPw entidad)
+        private TProgramaGeneralArgumento MapeoEntidad(ProgramaGeneralArgumento entidad)
         {
             try
             {
                 //crea la entidad padre
-                TPartnerPw modelo = _mapper.Map<TPartnerPw>(entidad);
+                TProgramaGeneralArgumento modelo = _mapper.Map<TProgramaGeneralArgumento>(entidad);
 
                 //mapea los hijos
                 //if (entidad.ListadoHijoNivel1 != null && entidad.ListadoHijoNivel1.Count > 0)
@@ -53,13 +53,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
-        public TPartnerPw Add(PartnerPw entidad)
+        public TProgramaGeneralArgumento Add(ProgramaGeneralArgumento entidad)
         {
             try
             {
-                var PartnerPw = MapeoEntidad(entidad);
-                base.Insert(PartnerPw);
-                return PartnerPw;
+                var ProgramaGeneralArgumento = MapeoEntidad(entidad);
+                base.Insert(ProgramaGeneralArgumento);
+                return ProgramaGeneralArgumento;
             }
             catch (Exception ex)
             {
@@ -67,16 +67,16 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
-        public TPartnerPw Update(PartnerPw entidad)
+        public TProgramaGeneralArgumento Update(ProgramaGeneralArgumento entidad)
         {
             try
             {
-                var PartnerPw = MapeoEntidad(entidad);
+                var ProgramaGeneralArgumento = MapeoEntidad(entidad);
                 var entidadExistente = base.FirstBy(w => w.Id == entidad.Id, s => new { s.RowVersion });
-                PartnerPw.RowVersion = entidadExistente.RowVersion;
+                ProgramaGeneralArgumento.RowVersion = entidadExistente.RowVersion;
 
-                base.Update(PartnerPw);
-                return PartnerPw;
+                base.Update(ProgramaGeneralArgumento);
+                return ProgramaGeneralArgumento;
             }
             catch (Exception ex)
             {
@@ -98,11 +98,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         }
 
 
-        public IEnumerable<TPartnerPw> Add(IEnumerable<PartnerPw> listadoEntidad)
+        public IEnumerable<TProgramaGeneralArgumento> Add(IEnumerable<ProgramaGeneralArgumento> listadoEntidad)
         {
             try
             {
-                List<TPartnerPw> listado = new List<TPartnerPw>();
+                List<TProgramaGeneralArgumento> listado = new List<TProgramaGeneralArgumento>();
                 foreach (var entidad in listadoEntidad)
                 {
                     listado.Add(MapeoEntidad(entidad));
@@ -116,14 +116,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
-        public IEnumerable<TPartnerPw> Update(IEnumerable<PartnerPw> listadoEntidad)
+        public IEnumerable<TProgramaGeneralArgumento> Update(IEnumerable<ProgramaGeneralArgumento> listadoEntidad)
         {
             try
             {
                 if (listadoEntidad == null)
                     throw new ArgumentNullException("El listado es nulo");
 
-                List<TPartnerPw> listado = new List<TPartnerPw>();
+                List<TProgramaGeneralArgumento> listado = new List<TProgramaGeneralArgumento>();
                 foreach (var entidad in listadoEntidad)
                 {
                     listado.Add(MapeoEntidad(entidad));
