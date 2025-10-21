@@ -898,7 +898,6 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IMotivoInactividadRepository MotivoInactividadRepository { get; }
         ISistemaPensionarioRepository SistemaPensionarioRepository { get; }
         IMelissaRepository MelissaRepository { get; }
-        IWavixRepository WavixRepository { get; }
 
         IFacturamaRepository FacturamaRepository { get; }
         IPersonalRemuneracionRepository PersonalRemuneracionRepository { get; }

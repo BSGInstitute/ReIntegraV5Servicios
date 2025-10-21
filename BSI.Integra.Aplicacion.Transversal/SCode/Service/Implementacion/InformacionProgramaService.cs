@@ -15,6 +15,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using ResumenProgramaV3DTO = BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.ResumenProgramaV3DTO;
 
 
 namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
