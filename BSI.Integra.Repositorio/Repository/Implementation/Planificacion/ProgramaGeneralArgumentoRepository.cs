@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
+using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
@@ -201,6 +202,36 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
+        public ProgramaGeneralArgumentoDTO? ObtenerPorId(int id)
+        {
+            try
+            {
+                var query = @"
+                    SELECT
+	                    Id,
+                        IdPGeneral,
+	                    Nombre,
+                        Descripcion,
+	                    EsVisibleAgenda,
+	                    Estado,
+	                    UsuarioCreacion,
+	                    UsuarioModificacion,
+	                    FechaCreacion,
+	                    FechaModificacion,RowVersion
+                    FROM pla.T_ProgramaGeneralPresentacionArgumento
+                    WHERE Id=@id";
+                var resultado = _dapperRepository.FirstOrDefault(query, new { id });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<ProgramaGeneralArgumentoDTO>(resultado)!;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#FR-OPI-001@Error en ObtenerPorId(), {ex.Message}");
+            }
+        }
 
 
     }

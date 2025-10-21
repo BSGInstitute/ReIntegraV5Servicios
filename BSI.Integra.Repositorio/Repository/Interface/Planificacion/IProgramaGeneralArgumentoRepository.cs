@@ -23,6 +23,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         #endregion
 
         IEnumerable<ProgramaGeneralArgumentoDTO> Obtener();
-        bool ObtenerPorId(int id);
+        ProgramaGeneralArgumentoDTO? ObtenerPorId(int id);
     }
 }
