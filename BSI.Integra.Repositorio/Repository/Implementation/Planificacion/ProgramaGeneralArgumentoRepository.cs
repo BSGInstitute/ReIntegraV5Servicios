@@ -158,18 +158,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
         #endregion
-        public bool ObtenerPorId(int id)
-        {
-            try
-            {
-                //var respuesta = _unitOfWork.CourierRepository.ObtenerCourier();
-                return true; // _mapper.Map<List<CourierDTO>>(respuesta);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
 
         public IEnumerable<ProgramaGeneralArgumentoDTO> Obtener()
         {
@@ -218,7 +206,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 	                    UsuarioModificacion,
 	                    FechaCreacion,
 	                    FechaModificacion,RowVersion
-                    FROM pla.T_ProgramaGeneralPresentacionArgumento
+                    FROM pla.T_ProgramaGeneralArgumento
                     WHERE Id=@id";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { id });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
