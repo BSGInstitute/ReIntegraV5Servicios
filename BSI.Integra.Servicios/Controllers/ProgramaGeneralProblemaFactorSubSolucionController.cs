@@ -42,13 +42,13 @@ namespace BSI.Integra.Servicios.Controllers
         [Authorize]
         [JwtExpirationValidation]
         [HttpPost("[action]")]
-        public IActionResult Insertar([FromBody] ProgramaGeneralProblemaFactorSubSolucionDTO dto)
+        public IActionResult Insertar([FromBody] List<ProgramaGeneralProblemaFactorSubSolucionDTO> dtos)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var respuesta = _programaGeneralProblemaFactorDetalleService.Insertar(dto, _tokenManager.UserName);
+            var respuesta = _programaGeneralProblemaFactorDetalleService.Insertar(dtos, _tokenManager.UserName);
             return Ok(respuesta);
         }
         /// Tipo Función: PUT
@@ -63,14 +63,15 @@ namespace BSI.Integra.Servicios.Controllers
         [Authorize]
         [JwtExpirationValidation]
         [HttpPut("[action]")]
-        public IActionResult Actualizar([FromBody] ProgramaGeneralProblemaFactorSubSolucionDTO dto)
+        public IActionResult Actualizar([FromBody] List<ProgramaGeneralProblemaFactorSubSolucionDTO> dtos)
         {
+            if (dtos == null || dtos.Count == 0)
+                return BadRequest("La lista está vacía.");
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
-            var respuesta = _programaGeneralProblemaFactorDetalleService.Actualizar(dto, _tokenManager.UserName);
-            return Ok(respuesta);
+
+            var rpta = _programaGeneralProblemaFactorDetalleService.Actualizar(dtos, _tokenManager.UserName);
+            return Ok(rpta); 
         }
         /// Tipo Función: DELETE
         /// Autor: Marco Jose Villanueva
@@ -87,8 +88,8 @@ namespace BSI.Integra.Servicios.Controllers
         [HttpDelete("[action]/{idProgramaGeneralProblemaFactorSubSolucion}")]
         public IActionResult Eliminar(int idProgramaGeneralProblemaFactorSubSolucion)
         {
-            var respuesta = _programaGeneralProblemaFactorDetalleService.Eliminar(idProgramaGeneralProblemaFactorSubSolucion, _tokenManager.UserName);
-            return Ok(respuesta);
+            var ok = _programaGeneralProblemaFactorDetalleService.Eliminar(idProgramaGeneralProblemaFactorSubSolucion, _tokenManager.UserName);
+            return Ok(ok);
         }
 
         /// Tipo Función: GET
@@ -103,6 +104,14 @@ namespace BSI.Integra.Servicios.Controllers
         public IActionResult Obtener()
         {
             var resultado = _programaGeneralProblemaFactorDetalleService.Obtener();
+            return Ok(resultado);
+        }
+
+
+        [HttpGet("[action]/{idProgramaGeneralProblemaFactorSolucion}")]
+        public IActionResult ObtenerPorIdProgramaGeneralProblemaFactorSolucion(int idProgramaGeneralProblemaFactorSolucion)
+        {
+            var resultado = _programaGeneralProblemaFactorDetalleService.ObtenerPorIdProgramaGeneralProblemaFactorSolucion(idProgramaGeneralProblemaFactorSolucion);
             return Ok(resultado);
         }
     }

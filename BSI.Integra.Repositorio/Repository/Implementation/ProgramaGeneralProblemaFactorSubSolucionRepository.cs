@@ -177,7 +177,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    Id, IdProgramaGeneralProblemaFactorSolucion,
                         Solucion,
                         Orden,
-                        Nivel,
+                        Nivel
                     FROM pla.T_ProgramaGeneralProblemaFactorSubSolucion
                     WHERE Estado = 1 ORDER BY Id DESC";
                 var resultado = _dapperRepository.QueryDapper(query, null);
@@ -231,5 +231,40 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception($"#FR-OPI-001@Error en ObtenerPorId(), {ex.Message}");
             }
         }
+        public IEnumerable<ProgramaGeneralProblemaFactorSubSolucionDTO> ObtenerPorIdProgramaGeneralProblemaFactorSolucion(int idProgramaGeneralProblemaFactorSolucion)
+        {
+            try
+            {
+                List<ProgramaGeneralProblemaFactorSubSolucionDTO> rpta = new List<ProgramaGeneralProblemaFactorSubSolucionDTO>();
+                var query = @"
+                    SELECT
+	                    Id,
+	                    IdProgramaGeneralProblemaFactorSolucion,
+                        Solucion,
+                        Orden,
+                        Nivel,
+	                    Estado,
+	                    UsuarioCreacion,
+	                    UsuarioModificacion,
+	                    FechaCreacion,
+	                    FechaModificacion,
+	                    RowVersion
+                    FROM pla.T_ProgramaGeneralProblemaFactorSubSolucion
+                    WHERE IdProgramaGeneralProblemaFactorSolucion=@idProgramaGeneralProblemaFactorSolucion AND estado=1";
+                var resultado = _dapperRepository.QueryDapper(query, new { IdProgramaGeneralProblemaFactorSolucion = idProgramaGeneralProblemaFactorSolucion });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ProgramaGeneralProblemaFactorSubSolucionDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#FR-OPI-001@Error en ObtenerPorId(), {ex.Message}");
+            }
+        }
+
+
+       
     }
 }

@@ -44,31 +44,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         {
             return _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionRepository.Obtener();
         }
-        /// Autor: Marco Jose Villanueva Torres
-        /// Fecha: 17/10/2025
-        /// Version: 1.0
-        /// <summary>
-        /// Obtiene el detalle de beneficios y contactos por id Partner
-        /// </summary>
-        /// <param name="idPartner">Id Partner</param>
-        /// <returns> Lista PartnerBeneficioPwDTO, Lista Contactos </returns>
-        public (IEnumerable<PartnerBeneficioPwDTO> Beneficios, IEnumerable<PartnerContactoPwDTO> Contactos) ObtenerBeneficioContactoPorId(int idPartner)
+        public IEnumerable<ProgramaGeneralProblemaFactorSubSolucionDTO> ObtenerPorIdProgramaGeneralProblemaFactorSolucion(int idProgramaGeneralProblemaFactorSolucion)
         {
-            try
-            {
-                if (idPartner == 0)
-                {
-                    throw new BadRequestException("Id 0 no valido");
-                }
-                var beneficios = _unitOfWork.PartnerBeneficioPwRepository.ObtenerPorIdPartner(idPartner);
-                var contactos = _unitOfWork.PartnerContactoPwRepository.ObtenerPorIdPartner(idPartner);
-                return (_mapper.Map<IEnumerable<PartnerBeneficioPwDTO>>(beneficios), _mapper.Map<IEnumerable<PartnerContactoPwDTO>>(contactos));
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            return _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionRepository.ObtenerPorIdProgramaGeneralProblemaFactorSolucion(idProgramaGeneralProblemaFactorSolucion);
         }
+
         /// Autor: Marco Jose Villanueva Torres
         /// Fecha: 17/10/2025
         /// Version: 1.0
@@ -78,38 +58,49 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// <param name="dto">ProgramaGeneralProblemaFactorSubSolucion</param>
         /// <param name="usuario">Usuario Registro</param>
         /// <returns>ProgramaGeneralProblemaFactorSubSolucionDTO</returns>
-        public ProgramaGeneralProblemaFactorSubSolucionDTO Insertar(ProgramaGeneralProblemaFactorSubSolucionDTO dto, string usuario)
+        public IEnumerable<ProgramaGeneralProblemaFactorSubSolucionDTO> Insertar(List<ProgramaGeneralProblemaFactorSubSolucionDTO> dtos,
+     string usuario)
         {
+            if (dtos == null || dtos.Count == 0)
+                throw new BadRequestException("La lista de sub soluciones está vacía.");
+
             try
             {
-                if (dto != null)
+                var ahora = DateTime.Now;
+                var entidades = dtos.Select(dto => new ProgramaGeneralProblemaFactorSubSolucion
                 {
-                    ProgramaGeneralProblemaFactorSubSolucion entidad = new()
-                    {
-                        IdProgramaGeneralProblemaFactorSolucion = dto.IdProgramaGeneralProblemaFactorSolucion,
-                        Solucion = dto.Solucion,
-                        Orden = dto.Orden,
-                        Nivel = dto.Nivel,
-                        Estado = true,
-                        UsuarioCreacion = usuario,
-                        UsuarioModificacion = usuario,
-                        FechaCreacion = DateTime.Now,
-                        FechaModificacion = DateTime.Now,
-                    };
-                    var respuesta = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionRepository.Add(entidad);
-                    _unitOfWork.Commit();
-                    entidad.Id = respuesta.Id;
-                    var resultado = _mapper.Map<ProgramaGeneralProblemaFactorSubSolucionDTO>(respuesta);
+                    IdProgramaGeneralProblemaFactorSolucion = dto.IdProgramaGeneralProblemaFactorSolucion,
+                    Solucion = dto.Solucion?.Trim(),
+                    Orden = dto.Orden,
+                    Nivel = dto.Nivel,
+                    Estado = true,
+                    UsuarioCreacion = usuario,
+                    UsuarioModificacion = usuario,
+                    FechaCreacion = ahora,
+                    FechaModificacion = ahora,
+                }).ToList();
 
+             
+                foreach (var e in entidades)
+                    _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionRepository.Add(e);
 
-                    return resultado;
-                }
-                else
-                    throw new BadRequestException("Entidad Nula");
+                _unitOfWork.Commit(); 
+
+            
+                var result = entidades.Select(e => new ProgramaGeneralProblemaFactorSubSolucionDTO
+                {
+                    Id = e.Id,
+                    IdProgramaGeneralProblemaFactorSolucion = e.IdProgramaGeneralProblemaFactorSolucion,
+                    Solucion = e.Solucion,
+                    Orden = e.Orden,
+                    Nivel = e.Nivel
+                }).ToList();
+
+                return result;
             }
             catch (Exception)
             {
-                throw;
+                throw; 
             }
         }
         /// Autor: Marco Jose Villanueva Torres
@@ -121,44 +112,45 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// <param name="dto">ProgramaGeneralProblemaFactorSubSolucion</param>
         /// <param name="usuario">Usuario Modificacion</param>
         /// <returns>ProgramaGeneralProblemaFactorSubSolucionDTO</returns>
-        public ProgramaGeneralProblemaFactorSubSolucionDTO Actualizar(ProgramaGeneralProblemaFactorSubSolucionDTO dto, string usuario)
+        public IEnumerable<ProgramaGeneralProblemaFactorSubSolucionDTO> Actualizar(List<ProgramaGeneralProblemaFactorSubSolucionDTO> dtos, string usuario)
         {
-            try
+            if (dtos == null || dtos.Count == 0)
+                throw new BadRequestException("La lista está vacía.");
+
+            var ahora = DateTime.Now;
+            var resultado = new List<ProgramaGeneralProblemaFactorSubSolucionDTO>();
+
+            foreach (var dto in dtos)
             {
-                ProgramaGeneralProblemaFactorSubSolucion? entidad = new();
-                if (dto != null)
+                var entidad = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionRepository
+                                 .FirstById(dto.Id);
+
+                if (entidad == null)
+                    throw new BadRequestException($"No existe Id={dto.Id}");
+
+                entidad.IdProgramaGeneralProblemaFactorSolucion = dto.IdProgramaGeneralProblemaFactorSolucion;
+                entidad.Solucion = dto.Solucion?.Trim();
+                entidad.Orden = dto.Orden;
+                entidad.Nivel = dto.Nivel;
+                entidad.UsuarioModificacion = usuario;
+                entidad.FechaModificacion = ahora;
+
+                _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionRepository.Update(entidad);
+
+                resultado.Add(new ProgramaGeneralProblemaFactorSubSolucionDTO
                 {
-                    if (dto.Id != 0)
-                    {
-                        entidad = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionRepository.ObtenerPorId(dto.Id);
-                        if (entidad != null && entidad.Id != 0)
-                        {
-                            entidad.IdProgramaGeneralProblemaFactorSolucion = dto.IdProgramaGeneralProblemaFactorSolucion;
-                            entidad.Solucion = dto.Solucion;
-                            entidad.Orden = dto.Orden;
-                            entidad.Nivel = dto.Nivel;
-                            entidad.UsuarioModificacion = usuario;
-                            entidad.FechaModificacion = DateTime.Now;
-                            var respuesta = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionRepository.Update(entidad);
-                            _unitOfWork.Commit();
-
-
-                            return dto;
-                        }
-                        else
-                            throw new BadRequestException("Entidad no encontrada");
-                    }
-                    else
-                        throw new BadRequestException("Id Entidad 0");
-                }
-                else
-                    throw new BadRequestException("Entidad Nula");
+                    Id = entidad.Id,
+                    IdProgramaGeneralProblemaFactorSolucion = entidad.IdProgramaGeneralProblemaFactorSolucion,
+                    Solucion = entidad.Solucion,
+                    Orden = entidad.Orden,
+                    Nivel = entidad.Nivel
+                });
             }
-            catch (Exception)
-            {
-                throw;
-            }
+
+            _unitOfWork.Commit();
+            return resultado;
         }
+
         /// Autor: Marco Jose Villanueva Torres
         /// Fecha: 17/10/2025
         /// Version: 1.0
@@ -171,22 +163,25 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         {
             try
             {
-                if (id == 0)
-                {
-                    throw new BadRequestException($"Id 0 no valido");
-                }
-                var entidad = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionRepository.ObtenerPorId(id);
-                if (entidad != null && entidad.Id != 0)
-                {
-                    var respuesta = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionRepository.Delete(id, usuario);
+                if (id <= 0) throw new BadRequestException("Id inválido");
 
-                    _unitOfWork.Commit();
-                    return respuesta;
-                }
-                else
-                {
-                    throw new BadRequestException($"No se encontro la entidad con el id {id}");
-                }
+                var repo = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionRepository;
+
+                var padre = repo.ObtenerPorId(id);
+                if (padre == null || padre.Id == 0)
+                    throw new BadRequestException($"No se encontró el id {id}");
+
+                // Traer todos los del mismo grupo (padre + hijos)
+                var grupo = repo.GetBy(x =>
+                    x.IdProgramaGeneralProblemaFactorSolucion == padre.IdProgramaGeneralProblemaFactorSolucion &&
+                    x.Orden == padre.Orden
+                ).ToList();
+
+                foreach (var item in grupo)
+                    repo.Delete(item.Id, usuario);
+
+                _unitOfWork.Commit();
+                return true;
             }
             catch (Exception)
             {

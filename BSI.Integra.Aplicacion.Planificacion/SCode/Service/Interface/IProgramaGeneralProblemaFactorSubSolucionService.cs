@@ -13,8 +13,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
     public interface IProgramaGeneralProblemaFactorSubSolucionService
     {
         IEnumerable<ProgramaGeneralProblemaFactorSubSolucionDTO> Obtener();
-        ProgramaGeneralProblemaFactorSubSolucionDTO Insertar(ProgramaGeneralProblemaFactorSubSolucionDTO dto, string usuario);
-        ProgramaGeneralProblemaFactorSubSolucionDTO Actualizar(ProgramaGeneralProblemaFactorSubSolucionDTO dto, string usuario);
+        IEnumerable<ProgramaGeneralProblemaFactorSubSolucionDTO> ObtenerPorIdProgramaGeneralProblemaFactorSolucion(int idProgramaGeneralProblemaFactorSolucion);
+        IEnumerable<ProgramaGeneralProblemaFactorSubSolucionDTO> Insertar(List<ProgramaGeneralProblemaFactorSubSolucionDTO> dto, string usuario);
+        IEnumerable<ProgramaGeneralProblemaFactorSubSolucionDTO> Actualizar(List<ProgramaGeneralProblemaFactorSubSolucionDTO> dto, string usuario);
         bool Eliminar(int id, string usuario);
 
     }

@@ -23,6 +23,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         bool Delete(IEnumerable<int> listadoIds, string usuario);
         #endregion
         IEnumerable<ProgramaGeneralProblemaFactorSubSolucionDTO> Obtener();
+        IEnumerable<ProgramaGeneralProblemaFactorSubSolucionDTO> ObtenerPorIdProgramaGeneralProblemaFactorSolucion(int idProgramaGeneralProblemaFactorSolucion);
         ProgramaGeneralProblemaFactorSubSolucion? ObtenerPorId(int id);
 
     }
