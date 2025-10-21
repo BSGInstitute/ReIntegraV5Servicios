@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BSI.Integra.Aplicacion.Base.Exceptions;
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
@@ -135,6 +136,245 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
 
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene preguntas ordenadas por versión de formulario
+        /// </summary>
+        /// <param name="idVersionFormulario">ID de la versión del formulario</param>
+        /// <returns>Lista de preguntas ordenadas</returns>
+        public IEnumerable<PreguntaEvaluacion2DTO> ObtenerPreguntasPorVersionFormulario(int idVersionFormulario)
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerPreguntasPorVersionFormulario(idVersionFormulario);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene respuestas ordenadas por pregunta
+        /// </summary>
+        /// <param name="idPregunta">ID de la pregunta</param>
+        /// <returns>Lista de respuestas ordenadas</returns>
+        public IEnumerable<RespuestaEvaluacionDTO> ObtenerRespuestasPorPregunta(int idPregunta)
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerRespuestasPorPregunta(idPregunta);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene respuestas ordenadas por versión de formulario
+        /// </summary>
+        /// <param name="idVersionFormulario">ID de la versión del formulario</param>
+        /// <returns>Lista de respuestas ordenadas</returns>
+        public IEnumerable<RespuestaEvaluacionDTO> ObtenerRespuestasPorVersionFormulario(int idVersionFormulario)
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerRespuestasPorVersionFormulario(idVersionFormulario);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene preguntas con sus respuestas incluidas por versión de formulario
+        /// </summary>
+        /// <param name="idVersionFormulario">ID de la versión del formulario</param>
+        /// <returns>Lista de preguntas con respuestas ordenadas</returns>
+        public IEnumerable<PreguntaEvaluacion2DTO> ObtenerPreguntasConRespuestas(int idVersionFormulario)
+        {
+            try
+            {
+                // Primero obtenemos las preguntas
+                var preguntas = _unitOfWork.ChatDetalleIntegraRepository.ObtenerPreguntasPorVersionFormulario(idVersionFormulario).ToList();
+
+                if (!preguntas.Any())
+                    return preguntas;
+
+                // Obtenemos todas las respuestas para esta versión de formulario
+                var todasLasRespuestas = _unitOfWork.ChatDetalleIntegraRepository.ObtenerRespuestasPorVersionFormulario(idVersionFormulario)
+                    .GroupBy(r => r.IdPreguntaEvaluacionChatbot)
+                    .ToDictionary(g => g.Key, g => g.OrderBy(r => r.Orden).ToList());
+
+                // Asignamos las respuestas a cada pregunta
+                foreach (var pregunta in preguntas)
+                {
+                    if (todasLasRespuestas.TryGetValue(pregunta.Id, out var respuestas))
+                    {
+                        pregunta.Respuestas = respuestas;
+                    }
+                    else
+                    {
+                        pregunta.Respuestas = new List<RespuestaEvaluacionDTO>();
+                    }
+                }
+
+                return preguntas.OrderBy(p => p.Orden);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene versiones de formulario activas
+        /// </summary>
+        /// <returns>Lista de versiones de formulario activas</returns>
+        public IEnumerable<VersionFormularioDTO> ObtenerVersionesFormularioActivas()
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerVersionesFormularioActivas();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene tipos de entrada activos
+        /// </summary>
+        /// <returns>Lista de tipos de entrada activos</returns>
+        public IEnumerable<TipoEntradaDTO> ObtenerTiposEntradaActivos()
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerTiposEntradaActivos();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el chat entre chatbot y cliente por IdAlumno
+        /// </summary>
+        /// <param name="idAlumno">ID del alumno</param>
+        /// <returns>Lista de mensajes del chat</returns>
+        public IEnumerable<ChatbotMensajeDTO> ObtenerChatPorAlumno(int idAlumno)
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerChatPorAlumno(idAlumno);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 20/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el chat entre chatbot y cliente por IdAlumno
+        /// </summary>
+        /// <param name="idAlumno">ID del alumno</param>
+        /// <returns>Lista de mensajes del chat</returns>
+        public IEnumerable<ChatbotMensajeDTO> ObtenerChatPorPortalSegmento(string IdContactoPortalSegmento)
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerChatPorPortalSegmento(IdContactoPortalSegmento);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 20/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Inserta las respuestas del cliente ingresadas en el formulario
+        /// </summary>
+        /// <param name="usuario">usuario</param>
+        public InsertarRespuestaEvaluacionCompletaResponseDTO InsertarRespuestaEvaluacionCompleta(InsertarRespuestaEvaluacionCompletaRequestDTO request, string usuario)
+        {
+            try
+            {
+                if (request == null)
+                    throw new BadRequestException("Entidad Nula");
+
+                if (request.IdChatbotPortalHiloChat <= 0)
+                    throw new BadRequestException("IdChatbotPortalHiloChat debe ser mayor a 0");
+
+                if (request.IdVersionFormulario <= 0)
+                    throw new BadRequestException("IdVersionFormulario debe ser mayor a 0");
+
+                string respuestasSeleccionadasJson = request.RespuestasSeleccionadas != null && request.RespuestasSeleccionadas.Any()
+                    ? JsonConvert.SerializeObject(request.RespuestasSeleccionadas)
+                    : null;
+
+                string respuestasTextoJson = request.RespuestasTexto != null && request.RespuestasTexto.Any()
+                    ? JsonConvert.SerializeObject(request.RespuestasTexto)
+                    : null;
+
+                string problemasIdentificadosJson = request.ProblemasIdentificados != null && request.ProblemasIdentificados.Any()
+                    ? JsonConvert.SerializeObject(request.ProblemasIdentificados)
+                    : null;
+
+                var resultado = _unitOfWork.ChatDetalleIntegraRepository.InsertarRespuestaEvaluacionCompleta(
+                    request.IdChatbotPortalHiloChat,
+                    request.IdVersionFormulario,
+                    usuario,
+                    respuestasSeleccionadasJson,
+                    respuestasTextoJson,
+                    problemasIdentificadosJson
+                );
+
+                return new InsertarRespuestaEvaluacionCompletaResponseDTO
+                {
+                    Success = resultado.Success == 1,
+                    Message = resultado.Success == 1 ? "Evaluación guardada exitosamente" : "Error al guardar la evaluación",
+                    IdFormularioAplicado = resultado.IdFormularioAplicado,
+                    TotalRespuestasInsertadas = resultado.TotalRespuestasInsertadas,
+                    TotalProblemasIdentificados = resultado.TotalProblemasIdentificados
+                };
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 18/07/2022
         /// Version: 1.0

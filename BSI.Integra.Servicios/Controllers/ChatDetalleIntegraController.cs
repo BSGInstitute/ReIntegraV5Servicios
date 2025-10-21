@@ -376,6 +376,224 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Versión: 1.0
+        /// <returns>Preguntas de evaluación ordenadas por versión de formulario</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerPreguntasPorVersionFormulario([FromBody] ObtenerPreguntasRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerPreguntasPorVersionFormulario(dto.IdVersionFormulario);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Versión: 1.0
+        /// <returns>Respuestas de evaluación ordenadas por pregunta</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerRespuestasPorPregunta([FromBody] ObtenerRespuestasRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerRespuestasPorPregunta(dto.IdPregunta);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Versión: 1.0
+        /// <returns>Respuestas de evaluación ordenadas por versión de formulario</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerRespuestasPorVersionFormulario([FromBody] ObtenerPreguntasRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerRespuestasPorVersionFormulario(dto.IdVersionFormulario);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Versión: 1.0
+        /// <returns>Preguntas con respuestas incluidas ordenadas por versión de formulario</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerPreguntasConRespuestas([FromBody] ObtenerPreguntasRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerPreguntasConRespuestas(dto.IdVersionFormulario);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Versión: 1.0
+        /// <returns>Versiones de formulario activas</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerVersionesFormularioActivas()
+        {
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerVersionesFormularioActivas();
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Versión: 1.0
+        /// <returns>Tipos de entrada activos</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerTiposEntradaActivos()
+        {
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerTiposEntradaActivos();
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Versión: 1.0
+        /// <returns>Chat entre chatbot y cliente por IdAlumno</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerChatBotPorAlumno([FromBody] ObtenerChatRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerChatPorAlumno(dto.IdAlumno);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Versión: 1.0
+        /// <returns>Chat entre chatbot y cliente por IdAlumno</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerChatBotPorPortalSegmento([FromBody] ObtenerChatRequest2DTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerChatPorPortalSegmento(dto.IdContactoPortalSegmento);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Versión: 1.0
+        /// <returns>Resultado de la inserción completa de la evaluación</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult InsertarRespuestaEvaluacionCompleta([FromBody] InsertarRespuestaEvaluacionCompletaRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var usuario = User.Identity.Name ?? "Sistema";
+                var resultado = servicio.InsertarRespuestaEvaluacionCompleta(dto, usuario);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         /// TipoFuncion: GET
         /// Autor: Joseph Llanque
         /// Fecha: 05/12/2024
