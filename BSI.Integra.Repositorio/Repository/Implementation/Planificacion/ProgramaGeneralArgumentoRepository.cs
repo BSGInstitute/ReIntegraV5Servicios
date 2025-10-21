@@ -156,12 +156,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
         #endregion
-        public object ObtenerPorId(int id)
+        public bool ObtenerPorId(int id)
         {
             try
             {
                 //var respuesta = _unitOfWork.CourierRepository.ObtenerCourier();
-                return null; // _mapper.Map<List<CourierDTO>>(respuesta);
+                return true; // _mapper.Map<List<CourierDTO>>(respuesta);
             }
             catch (Exception ex)
             {
