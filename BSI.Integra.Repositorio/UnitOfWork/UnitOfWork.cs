@@ -7907,5 +7907,16 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _programaGeneralProblemaFactorSubSolucionRepository ?? new ProgramaGeneralProblemaFactorSubSolucionRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+
+
+        private IProgramaGeneralArgumentoRepository _programaGeneralArgumentoRepository;
+
+        IProgramaGeneralArgumentoRepository IUnitOfWork.ProgramaGeneralArgumentoRepository
+        {
+            get
+            {
+                return _programaGeneralArgumentoRepository ?? new ProgramaGeneralArgumentoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
     }
 }

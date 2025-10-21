@@ -5,6 +5,7 @@ using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
 using BSI.Integra.Repositorio.Repository.Interface.Planificacion;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -168,5 +169,39 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 throw ex;
             }
         }
+
+        public IEnumerable<ProgramaGeneralArgumentoDTO> Obtener()
+        {
+            try
+            {
+                List<ProgramaGeneralArgumentoDTO> rpta = new List<ProgramaGeneralArgumentoDTO>();
+                var query = @"
+                    SELECT
+	                    Id,
+	                    IdPGeneral,
+	                    Nombre,
+                        Descripcion,
+	                    EsVisibleAgenda,
+                        UsuarioCreacion,
+                        UsuarioModificacion,
+                        FechaCreacion,
+                        FechaModificacion,RowVersion
+                    FROM pla.T_ProgramaGeneralArgumento
+                    WHERE Estado = 1";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ProgramaGeneralArgumentoDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
     }
 }
