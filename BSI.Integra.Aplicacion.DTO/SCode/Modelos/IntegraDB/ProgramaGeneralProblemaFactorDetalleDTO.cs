@@ -9,7 +9,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     public class ProgramaGeneralProblemaFactorDetalleDTO
     {
         public int Id { get; set; }
-        public string Nombre { get; set; }
+        public string? Nombre { get; set; }
         public string Titulo { get; set; }
 
     }
