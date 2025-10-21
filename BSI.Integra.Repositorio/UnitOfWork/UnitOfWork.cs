@@ -7868,5 +7868,44 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _procesoSeleccionPuntajeCalificacionRepository ?? new ProcesoSeleccionPuntajeCalificacionRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+
+        private IProgramaGeneralProblemaFactorRepository _programaGeneralProblemaFactorRepository;
+
+        IProgramaGeneralProblemaFactorRepository IUnitOfWork.ProgramaGeneralProblemaFactorRepository
+        {
+            get
+            {
+                return _programaGeneralProblemaFactorRepository ?? new ProgramaGeneralProblemaFactorRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+
+        private IProgramaGeneralProblemaFactorDetalleRepository _programaGeneralProblemaFactorDetalleRepository;
+
+        IProgramaGeneralProblemaFactorDetalleRepository IUnitOfWork.ProgramaGeneralProblemaFactorDetalleRepository
+        {
+            get
+            {
+                return _programaGeneralProblemaFactorDetalleRepository ?? new ProgramaGeneralProblemaFactorDetalleRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IProgramaGeneralProblemaFactorSolucionRepository _programaGeneralProblemaFactorSolucionRepository;
+
+        IProgramaGeneralProblemaFactorSolucionRepository IUnitOfWork.ProgramaGeneralProblemaFactorSolucionRepository
+        {
+            get
+            {
+                return _programaGeneralProblemaFactorSolucionRepository ?? new ProgramaGeneralProblemaFactorSolucionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IProgramaGeneralProblemaFactorSubSolucionRepository _programaGeneralProblemaFactorSubSolucionRepository;
+
+        IProgramaGeneralProblemaFactorSubSolucionRepository IUnitOfWork.ProgramaGeneralProblemaFactorSubSolucionRepository
+        {
+            get
+            {
+                return _programaGeneralProblemaFactorSubSolucionRepository ?? new ProgramaGeneralProblemaFactorSubSolucionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
     }
 }
