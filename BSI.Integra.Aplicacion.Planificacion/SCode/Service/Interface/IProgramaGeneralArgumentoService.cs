@@ -1,4 +1,5 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +11,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
     public interface IProgramaGeneralArgumentoService
     {
         IEnumerable<ProgramaGeneralArgumentoDTO> Obtener();
+        ProgramaGeneralArgumentoDTO Insertar(ProgramaGeneralArgumentoDTO entidad, string usuario);
+        ProgramaGeneralArgumentoDTO Actualizar(ProgramaGeneralArgumentoDTO entidad, string usuario);
     }
 }

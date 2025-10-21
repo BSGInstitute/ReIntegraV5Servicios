@@ -3,7 +3,7 @@
     public class ProgramaGeneralArgumentoDTO
     {
         public int Id { get; set; }
-        public int IdProgramaGeneral { get; set; }
+        public int IdPgeneral { get; set; }
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
         public bool EsVisibleAgenda { get; set; }

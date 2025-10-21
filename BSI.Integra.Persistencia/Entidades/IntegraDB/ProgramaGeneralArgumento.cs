@@ -13,5 +13,10 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
         public string? Nombre { get; set; }
         public string? Descripcion { get; set; }
         public bool EsVisibleAgenda { get; set; }
+        public bool? Estado { get; set; }
+        public DateTime? FechaCreacion { get; set; }
+        public DateTime? FechaModificacion { get; set; }
+        public string? UsuarioCreacion { get; set; }
+        public string? UsuarioModificacion { get; set; }
     }
 }

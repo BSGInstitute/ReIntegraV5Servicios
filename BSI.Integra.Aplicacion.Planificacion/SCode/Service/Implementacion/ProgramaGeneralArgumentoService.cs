@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BSI.Integra.Aplicacion.Base.Exceptions;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
@@ -26,7 +27,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 cfg.CreateMap<TProgramaGeneralArgumento, ProgramaGeneralArgumento>(MemberList.None).ReverseMap();
                 cfg.CreateMap<ProgramaGeneralArgumentoDTO, ProgramaGeneralArgumento>(MemberList.None).ReverseMap();
                 cfg.CreateMap<TProgramaGeneralArgumento, ProgramaGeneralArgumentoDTO>(MemberList.None).ReverseMap();
-               
+
             });
             _mapper = new Mapper(config);
         }
@@ -43,6 +44,75 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw ex;
             }
 
+        }
+        public ProgramaGeneralArgumentoDTO Insertar(ProgramaGeneralArgumentoDTO entidad, string usuario)
+        {
+            try
+            {
+                if (entidad != null)
+                {
+                    ProgramaGeneralArgumento entity = new()
+                    {
+                        IdPgeneral = entidad.IdPgeneral,
+                        Nombre = entidad.Nombre,
+                        Descripcion = entidad.Descripcion,
+                        Estado = true,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now,
+                        UsuarioCreacion = usuario,
+                        UsuarioModificacion = usuario,
+                    };
+                    var respuesta = _unitOfWork.ProgramaGeneralArgumentoRepository.Add(entity);
+                    _unitOfWork.Commit();
+                    return _mapper.Map<ProgramaGeneralArgumentoDTO>(respuesta);
+                }
+                else
+                {
+                    throw new ArgumentNullException("El objeto entidad no puede ser nulo");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public ProgramaGeneralArgumentoDTO Actualizar(ProgramaGeneralArgumentoDTO dto, string usuario)
+        {
+            try
+            {
+                ProgramaGeneralArgumento entidad = new();
+                if (dto != null)
+                {
+                    if (dto.Id != 0)
+                    {
+                        ProgramaGeneralArgumentoDTO? rto = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerPorId(dto.Id);
+                        if (rto != null && rto.Id != 0)
+                        {
+                            entidad.IdPgeneral = dto.IdPgeneral;
+                            entidad.Nombre = dto.Nombre;
+                            entidad.Descripcion = dto.Descripcion;
+                            entidad.FechaModificacion = DateTime.Now;
+                            entidad.UsuarioModificacion = usuario;
+                        }
+                        else
+                            throw new ArgumentNullException("No se encontro el registro a actualizar");
+                    }
+                    else
+                        throw new BadRequestException("Id Entidad 0");
+                }
+                else
+                {
+                    throw new ArgumentNullException("El objeto entidad no puede ser nulo");
+                }
+                var respuest = _unitOfWork.ProgramaGeneralArgumentoRepository.Update(entidad);
+                _unitOfWork.Commit();
+                return _mapper.Map<ProgramaGeneralArgumentoDTO>(respuest);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Helpers;
@@ -40,6 +41,33 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             try
             {
                 return Ok("post obtener programa general argumento by id");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("Insertar")]
+        public IActionResult Insertar([FromBody] ProgramaGeneralArgumentoDTO dto)
+        {
+            try
+            {
+                var resultado = _programaGeneralArgumentoService.Insertar(dto, "ctumir-sos");
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost("Actualizar")]
+        public IActionResult Actualizar([FromBody] ProgramaGeneralArgumentoDTO dto)
+        {
+            try
+            {
+                var resultado = _programaGeneralArgumentoService.Actualizar(dto, "ctumir-sos");
+                return Ok(resultado);
             }
             catch (Exception ex)
             {
