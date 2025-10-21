@@ -1227,6 +1227,21 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// </summary>
         /// <param name="plantilla"> Tipo de plantilla </param>
         /// <param name="numero"> Numero de WhatsApp </param>
+        /// <param name="idPersonal"> id Personal </param>
+        /// <returns> Bool </returns>
+        public bool ValidarPlantillasEnviadasApiComercialPersonal(string plantilla, string numero, int idPersonal)
+        {
+            string _query = "SELECT TOP 1 Id FROM com.T_WhatsAppMensajeEnviadoCom WHERE WaType='hsm' AND WaBody=@Plantilla AND WaTo=@Numero AND IdPersonal=@IdPersonal";
+            var queryAsesor = _dapperRepository.FirstOrDefault(_query, new { plantilla, numero, idPersonal });
+            return (queryAsesor == "null" || queryAsesor == "") ? false : true; //false->envia , true->no envia 
+        }
+        /// Autor: Christian Quispe
+        /// Fecha: 23/10/2023
+        /// <summary>
+        /// Valida plantillas de mensajes enviados.
+        /// </summary>
+        /// <param name="plantilla"> Tipo de plantilla </param>
+        /// <param name="numero"> Numero de WhatsApp </param>
         /// <returns> Bool </returns>
         public bool ValidarPlantillasEnviadasApiComercial(string plantilla, string numero, DateTime fechaUltimoMensajeRecibido)
         {

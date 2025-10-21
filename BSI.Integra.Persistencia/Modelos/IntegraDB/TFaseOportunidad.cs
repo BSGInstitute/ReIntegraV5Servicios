@@ -7,6 +7,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TFaseOportunidad()
         {
+            TGoogleAdsConversionQueueIdFaseOportunidadActualNavigations = new HashSet<TGoogleAdsConversionQueue>();
+            TGoogleAdsConversionQueueIdFaseOportunidadAnteriorNavigations = new HashSet<TGoogleAdsConversionQueue>();
             TTransicionFaseOportunidadIdFaseOportunidadDestinoNavigations = new HashSet<TTransicionFaseOportunidad>();
             TTransicionFaseOportunidadIdFaseOportunidadOrigenNavigations = new HashSet<TTransicionFaseOportunidad>();
         }
@@ -67,6 +69,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public bool? VisibleEnReporte { get; set; }
 
+        public virtual ICollection<TGoogleAdsConversionQueue> TGoogleAdsConversionQueueIdFaseOportunidadActualNavigations { get; set; }
+        public virtual ICollection<TGoogleAdsConversionQueue> TGoogleAdsConversionQueueIdFaseOportunidadAnteriorNavigations { get; set; }
         public virtual ICollection<TTransicionFaseOportunidad> TTransicionFaseOportunidadIdFaseOportunidadDestinoNavigations { get; set; }
         public virtual ICollection<TTransicionFaseOportunidad> TTransicionFaseOportunidadIdFaseOportunidadOrigenNavigations { get; set; }
     }

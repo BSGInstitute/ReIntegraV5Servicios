@@ -2643,7 +2643,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.What
                 }
                 else//el cliente nunca ha enviado un mensaje al asesor
                 {
-                    respuestaFinal = _unitOfWork.WhatsAppMensajeEnviadoRepository.ValidarPlantillasEnviadasApiComercial(plantilla, numero);
+                    respuestaFinal = _unitOfWork.WhatsAppMensajeEnviadoRepository.ValidarPlantillasEnviadasApiComercialPersonal(plantilla, numero, IdPersonal);
                 }
 
                 return (respuestaFinal);
@@ -2884,6 +2884,34 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.What
 
             }
         }
+
+        public async void WavixNotificacionesMensaje(int idPersonal, EstadoLlamadaDTO envioString)
+        {
+            string respuesta = "OK";
+            try
+            {
+
+                var url2 = "https://integrav4-signalrcore.bsginstitute.com/";
+                //var url2 = "https://localhost:7120/";
+
+                var connection = new HubConnectionBuilder()
+                .WithUrl(url2 + "hubChatWhatsapp_Peru?idUsuario=WebHook&&usuarioNombre=WebHook&&rooms=''")
+                .Build();
+
+                await connection.StartAsync();
+
+                await connection.InvokeAsync("NotificarWavixEstadoLlamada", idPersonal, envioString);
+
+                //await connection.StopAsync();
+
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+        }
+
         public async void ActualizarEstadoMarcador(MarcadorAsesorDTO item)
         {
             try

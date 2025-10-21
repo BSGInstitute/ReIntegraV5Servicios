@@ -78,7 +78,7 @@ namespace BSI.Integra.Servicios.Controllers.Wavix
         /// <returns> List<WavixPersonalDTO> </returns>
         [Route("[action]/{idPersonal}/{idOportunidad}/{idActividadDetalle}/{idAlumno}/{nroIntentoLlamada}")]
         [HttpGet]
-        public ActionResult ObtenerEstadoLlamadaWavix(int idPersonal, int idOportunidad, int idActividadDetalle, int idAlumno, int nroIntentoLlamada) 
+        public ActionResult ObtenerEstadoLlamadaWavix(int idPersonal, int idOportunidad, int idActividadDetalle, int idAlumno, int nroIntentoLlamada)
         {
             try
             {

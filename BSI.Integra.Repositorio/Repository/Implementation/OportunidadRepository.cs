@@ -4370,8 +4370,73 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception("Error al obtener oportunidades masivas", ex);
             }
         }
+        public OportunidadConversionesDTO ObtenerInformacionOportunidadConversion(int idOportunidad)
+        {
+            try
+            {
+                OportunidadConversionesDTO informacionConversion = new OportunidadConversionesDTO();
+                var query = @"SELECT 
+                            FFL.Id AS IdFacebookFormularioLeadgen,
+                            FFL.IdLeadgenFacebook AS LeadId,
+                            AA.IdOportunidad,
+                            FFL.Email,
+                            FFL.Telefono,
+                            FFL.NombreCompleto,
+                            FFL.Ciudad 
+                        FROM mkt.T_AsignacionAutomatica AS AA
+                        INNER JOIN mkt.T_AsignacionAutomatica_Temp AS AAT ON AAT.ID=AA.IdAsignacionAutomaticaTemp
+                        INNER JOIN mkt.T_FacebookFormularioLeadgen AS FFL ON FFL.Id=AAT.IdFacebookFormularioLeadgen
+                        WHERE AA.IdOportunidad=@idOportunidad";
 
+                var resultado = _dapperRepository.FirstOrDefault(query, new {idOportunidad});
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    informacionConversion = JsonConvert.DeserializeObject<OportunidadConversionesDTO>(resultado);
+                    return informacionConversion;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public OportunidadDetalleProbabilidadDTO ObtenerInformacionOportunidadProbabilidad(int idOportunidad)
+        {
+            try
+            {
+                OportunidadDetalleProbabilidadDTO informacionOportunidad = new OportunidadDetalleProbabilidadDTO();
+                var query = @"SELECT
+                                PRpw.Nombre AS ClasificacionProbabilidad,
+                                OLH.IdOportunidad,
+                                        OLH.IdFaseOportunidad_Ant AS IdFaseOportunidadAnterior,
+                                        OLH.IdFaseOportunidad AS IdFaseOportunidadActual
+                            FROM
+                                mkt.V_ModeloPredictivoProbabilidadIdProbabilidadRegistro MPPPR
+                                LEFT JOIN mkt.T_ProbabilidadRegistro_PW PRpw ON PRpw.Id = MPPPR.IdProbabilidadRegistroPW 
+                                OUTER APPLY (
+                                    SELECT TOP 1 
+                                        IdOportunidad,
+                                        IdFaseOportunidad_Ant,
+                                        IdFaseOportunidad
+                                    FROM com.V_OportunidadLogHistorico WITH (NOLOCK)  
+                                    WHERE IdOportunidad = MPPPR.IdOportunidad
+                                    ORDER BY FechaCreacion DESC, id DESC
+                                ) AS OLH
+                            WHERE MPPPR.IdOportunidad = @idOportunidad";
 
-
+                var resultado = _dapperRepository.FirstOrDefault(query, new { idOportunidad });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    informacionOportunidad = JsonConvert.DeserializeObject<OportunidadDetalleProbabilidadDTO>(resultado);
+                    return informacionOportunidad;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
     }
 }

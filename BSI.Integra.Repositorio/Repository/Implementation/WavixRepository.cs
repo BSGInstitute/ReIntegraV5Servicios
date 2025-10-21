@@ -1,6 +1,9 @@
-﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+﻿using AutoMapper;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.Wolkbox;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.Wavix;
+using BSI.Integra.Persistencia.Infrastructure;
+using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
 using Newtonsoft.Json;
 using System;
@@ -157,7 +160,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
 
 
-           
+
         }
     }
 }

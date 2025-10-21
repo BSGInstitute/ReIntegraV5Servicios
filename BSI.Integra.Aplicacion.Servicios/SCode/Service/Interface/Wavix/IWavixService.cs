@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 namespace BSI.Integra.Aplicacion.Servicios.SCode.Service.Interface.Wolkbox
 {
 
-        public interface IWavixService
-        {
-           
-            WavixPersonalDTO GetUserAccess(int idPersonal);
-        }
+    public interface IWavixService
+    {
+
+        WavixPersonalDTO GetUserAccess(int idPersonal);
+    }
 }

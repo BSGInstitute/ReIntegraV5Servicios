@@ -50,6 +50,11 @@
         public string Seccion { get; set; }
         public List<ProgramaGeneralSeccionDocumentoDetalleDTO> DetalleSeccion { get; set; }
     }
+    public class ProgramaGeneralSeccionDocumentoV2DTO
+    {
+        public string Seccion { get; set; }
+        public List<ProgramaGeneralSeccionDocumentoDetalleV2DTO> DetalleSeccion { get; set; }
+    }
     public class ProgramaGeneralSeccionDocumentoDetalleDTO
     {
         public string Titulo { get; set; }
@@ -57,10 +62,29 @@
         public string PiePagina { get; set; }
         public List<string> DetalleContenido { get; set; }
     }
+    public class ProgramaGeneralSeccionDocumentoDetalleV2DTO
+    {
+        public string Titulo { get; set; }
+        public string Cabecera { get; set; }
+        public string PiePagina { get; set; }
+        public object DetalleContenido { get; set; }
+    }
+    public class ScaffoldHtmlDTO
+    {
+        public string? Type { get; set; }
+        public string? Text { get; set; }
+        public List<string>? Items { get; set; }
+    }
     public class ProgramaGeneralDoumentoDTO
     {
         public virtual List<RegistroListaSeccionesDocumentoDTO> ListaSeccionesContenidosDocumento { get; set; }
         public virtual List<RegistroListaSeccionesDocumentoDTO> ListaSeccionesContenidosDocumentoEstructura { get; set; }
+        public bool EsProgramaPadre { get; set; }
+    }
+    public class ProgramaGeneralDocumentoV2DTO
+    {
+        public virtual List<RegistroListaSeccionesDocumentoV2DTO> ListaSeccionesContenidosDocumento { get; set; }
+        public virtual List<RegistroListaSeccionesDocumentoV2DTO> ListaSeccionesContenidosDocumentoEstructura { get; set; }
         public bool EsProgramaPadre { get; set; }
     }
     public class RegistroListaSeccionesDocumentoDTO
@@ -75,15 +99,39 @@
         public int? OrdenWeb { get; set; }
         public string NombreCurso { get; set; }
     }
+    public class RegistroListaSeccionesDocumentoV2DTO
+    {
+        public int IdPGeneral { get; set; }
+        public string Titulo { get; set; }
+        public List<object> Contenido { get; set; }
+        public int? IdSeccionTipoDetalle_PW { get; set; }
+        public int? NumeroFila { get; set; }
+        public string Cabecera { get; set; }
+        public string PiePagina { get; set; }
+        public int? OrdenWeb { get; set; }
+        public string NombreCurso { get; set; }
+    }
     public class ProgramaGeneralEstructuraAgrupadoDTO
     {
         public string Seccion { get; set; }
         public string Titulo { get; set; }
         public List<ProgramaGeneralEstructuraDetalleDTO> DetalleContenido { get; set; }
     }
+    public class ProgramaGeneralEstructuraAgrupadoV2DTO
+    {
+        public string Seccion { get; set; }
+        public string Titulo { get; set; }
+        public List<ProgramaGeneralEstructuraDetalleV2DTO> DetalleContenido { get; set; }
+    }
     public class ProgramaGeneralEstructuraDetalleDTO
     {
         public string Contenido { get; set; }
+        public string Cabecera { get; set; }
+        public string PiePagina { get; set; }
+    }
+    public class ProgramaGeneralEstructuraDetalleV2DTO
+    {
+        public object Contenido { get; set; }
         public string Cabecera { get; set; }
         public string PiePagina { get; set; }
     }
@@ -106,6 +154,7 @@
         public string ApellidoMaterno { get; set; }
         public string NombrePais { get; set; }
         public string HojaVidaResumidaPerfil { get; set; }
+        public string? HojaVidaResumidaLimpia { get; set; }
         public int? IdPGeneral { get; set; }
     }
     public class SesionSubSesionPreguntaInteractivaDTO
@@ -181,5 +230,14 @@
         public string Clave { get; set; }
         public string Valor { get; set; }
         public int? NumeroFila { get; set; }
+    }
+
+
+    public class PresentacionProgramadto
+    {
+        public int IdPGeneral { get; set; }
+        public string Titulo { get; set; }
+        public string Cabecera { get; set; }
+        public string Solucion { get; set; }
     }
 }

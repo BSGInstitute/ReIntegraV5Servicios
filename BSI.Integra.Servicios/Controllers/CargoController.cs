@@ -19,7 +19,6 @@ namespace BSI.Integra.Servicios.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [EnableCors("CorsVista")]
-    [Authorize]
     public class CargoController : Controller
     {
         private IUnitOfWork unitOfWork;

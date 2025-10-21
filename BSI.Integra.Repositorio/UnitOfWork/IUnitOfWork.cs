@@ -401,6 +401,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
 
         IAdwordsApiVolumenBusquedumRepository AdwordsApiVolumenBusquedumRepository { get; }
         IFacebookFormularioLeadgenRepository FacebookFormularioLeadgenRepository { get; }
+        IFacebookFormularioLeadgenLogRepository FacebookFormularioLeadgenLogRepository { get; }
         IAsignacionAutomaticaTempRepository AsignacionAutomaticaTempRepository { get; }
         IAsignacionAutomaticaConfiguracionRepository AsignacionAutomaticaConfiguracionRepository { get; }
         IBloqueHorarioProcesaOportunidadRepository BloqueHorarioProcesaOportunidadRepository { get; }
@@ -891,6 +892,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IMotivoCeseRepository MotivoCeseRepository { get; }
         IEntidadSeguroSaludRepository EntidadSeguroSaludRepository { get; }
         INivelIdiomaRepository NivelIdiomaRepository { get; }
+        IWavixRepository WavixRepository { get; }
         IParentescoPersonalRepository ParentescoPersonalRepository { get; }
         ITipoPagoRemuneracionRepository TipoPagoRemuneracionRepository { get; }
         IMotivoInactividadRepository MotivoInactividadRepository { get; }

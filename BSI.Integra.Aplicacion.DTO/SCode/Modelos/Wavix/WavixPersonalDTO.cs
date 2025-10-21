@@ -13,15 +13,15 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.Wavix
         public int IdPersonal { get; set; }
         public string IdSipTrunk { get; set; }
         public string UrlServer { get; set; }
-  
+
     }
     public class NumeroAsesorWavixDTO
     {
         public string IdPersonal { get; set; }
-        public string NombreAsesor { get; set; } 
-        public string IdSipTrunk { get; set; }   
-        public string UrlServer { get; set; }    
-        public int IdPais { get; set; }          
+        public string NombreAsesor { get; set; }
+        public string IdSipTrunk { get; set; }
+        public string UrlServer { get; set; }
+        public int IdPais { get; set; }
         public string Numero { get; set; }
         public bool Predeterminado { get; set; }
     }
@@ -29,7 +29,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.Wavix
 
     public class EstadoLlamadaDTO
     {
-        public string uuid { get; set; } 
+        public string uuid { get; set; }
         public int idOportunidad { get; set; }
         public int idActividadDetalle { get; set; }
         public string disposition { get; set; }

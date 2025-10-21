@@ -3305,6 +3305,15 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private IFacebookFormularioLeadgenLogRepository _facebookFormularioLeadgenLogRepository;
+        IFacebookFormularioLeadgenLogRepository IUnitOfWork.FacebookFormularioLeadgenLogRepository
+        {
+            get
+            {
+                return _facebookFormularioLeadgenLogRepository ?? new FacebookFormularioLeadgenLogRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
         private IAsignacionAutomaticaTempRepository _asignacionAutomaticaTempRepository;
         IAsignacionAutomaticaTempRepository IUnitOfWork.AsignacionAutomaticaTempRepository
         {

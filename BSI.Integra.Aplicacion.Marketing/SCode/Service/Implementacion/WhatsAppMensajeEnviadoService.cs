@@ -1574,7 +1574,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
             };
 
             // 2. Envio de chats al modelo IA
-            string url = $"http://api-asistente-marketing-whatsapp.bsginstitute.com/api/extractor_texto/consulta/";
+            string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/api/extractor_texto/consulta/";
 
             var Serializer = new JavaScriptSerializer();
             var serializedResult = Serializer.Serialize(datosExtraccionRegistrosRequest);
@@ -1585,6 +1585,100 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                 throw new Exception("La respuesta de la API externa fue nula o falló.");
 
             return resultado;
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 30/09/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Desactiva la interacción automática del asistente WhatsApp para un cliente y campania específicos
+        /// </summary>
+        /// <param name="celularAlumno">número de WhatsApp del alumno</param>
+        /// <param name="idCampania">ID de campaña a desactivar</param>
+        /// <returns>Resultado del servicio externo</returns>
+        public async Task<DesactivarInteraccionResponseDTO> DesactivarInteraccionAutomaticaWhatsapp(string celularAlumno, string idCampania)
+        {
+            //string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/testing/api/interaccion_whatsapp/forzar_derivacion/?num_whatsapp={celularAlumno}&id_campania={idCampania}";
+            string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/api/interaccion_whatsapp/forzar_derivacion/?num_whatsapp={celularAlumno}&id_campania={idCampania}";
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.PostAsync(url, null);
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"Error al llamar al API externa: {responseContent}");
+
+                var resultado = JsonConvert.DeserializeObject<DesactivarInteraccionResponseDTO>(responseContent);
+
+                if (resultado == null)
+                    throw new Exception("La respuesta de la API externa fue nula o inválida.");
+
+                return resultado;
+            }
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 01/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener datos extraidos mediante la interaccion automatica de un telefono
+        /// </summary>
+        /// <param name="celularAlumno">número de WhatsApp del alumno</param>
+        /// <returns>Resultado del servicio externo</returns>
+        public async Task<DatosInteraccionAutomaticaResponseDTO> ObtenerDatosExtraidosInteraccionAutomatica(string celularAlumno)
+        {
+            //string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/testing/api/interaccion_whatsapp/consulta_datos_extraidos/?num_whatsapp={celularAlumno}";
+            string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/api/interaccion_whatsapp/consulta_datos_extraidos/?num_whatsapp={celularAlumno}";
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.PostAsync(url, null);
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"Error al llamar al API externa: {responseContent}");
+
+                var resultado = JsonConvert.DeserializeObject<DatosInteraccionAutomaticaResponseDTO>(responseContent);
+
+                if (resultado == null)
+                    throw new Exception("La respuesta de la API externa fue nula o inválida.");
+
+                return resultado;
+            }
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 01/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Valida el guardado de los datos extraidos por la interaccion automatica de un telefono
+        /// </summary>
+        /// <param name="celularAlumno">número de WhatsApp del alumno</param>
+        /// <returns>Resultado del servicio externo</returns>
+        public async Task<DesactivarInteraccionResponseDTO> ValidarGuardadoDatosInteraccionAutomatica(string celularAlumno)
+        {
+            //string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/testing/api/interaccion_whatsapp/validacion/?num_whatsapp={celularAlumno}";
+            string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/api/interaccion_whatsapp/validacion/?num_whatsapp={celularAlumno}";
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.PostAsync(url, null);
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"Error al llamar al API externa: {responseContent}");
+
+                var resultado = JsonConvert.DeserializeObject<DesactivarInteraccionResponseDTO>(responseContent);
+
+                if (resultado == null)
+                    throw new Exception("La respuesta de la API externa fue nula o inválida.");
+
+                return resultado;
+            }
         }
 
         private async Task<T> PostJsonAsync<T>(string url, string jsonString)

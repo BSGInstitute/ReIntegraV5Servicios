@@ -12,8 +12,7 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketin
     {
         private readonly HttpClient _httpClient;
 
-        // 🔐 IMPORTANTE: Token hardcodeado solo para desarrollo.
-        // Reemplazar esto por configuración segura en producción.
+
         private const string FacebookAccessToken = "EAB7E1KH121kBOzQctQKIdoU3YhPHHA1EScQfuyGCLnCkliE8zXfq6ZCPvVZBiJV5BK4SZAxKAxosROF7d6SXoR1ZCIuZBgqGa5AGI8oZBdeSZCHlAMmvWIcH2QE9vnHdZBE7HHn5Ha42xKN4QTHNi1PnooMKbttHwbWECVrOfPjQ5Pha9f2ZADRMSZCNGikEtf1Tgs";
         public FacebookLeadsRecuperacionDatosService(HttpClient httpClient)
         {
@@ -32,11 +31,15 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketin
             };
 
             // Obtener datos del lead
-            var leadUrl = $"https://graph.facebook.com/v19.0/{idLead}?fields=id,created_time,field_data,ad_id,adset_id,campaign_id,form_id&access_token={FacebookAccessToken}";
+            var leadUrl = $"https://graph.facebook.com/v23.0/{idLead}?fields=id,created_time,field_data,ad_id,adset_id,campaign_id,form_id&access_token={FacebookAccessToken}";
             var leadResponse = await _httpClient.GetStringAsync(leadUrl);
             var leadJson = JObject.Parse(leadResponse);
 
-            dto.FechaRegistro = DateTime.Parse(leadJson.Value<string>("created_time"));
+            //dto.FechaRegistro = DateTime.Parse(leadJson.Value<string>("created_time"));
+            dto.FechaRegistro = leadJson.Value<DateTime?>("created_time");
+
+
+
 
             // ✅ Manejo correcto del campo "field_data"
             if (leadJson.TryGetValue("field_data", out var fieldToken) && fieldToken is JArray fieldDataArray)
@@ -66,7 +69,7 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketin
             var campaignId = leadJson.Value<string>("campaign_id") ?? "";
             if (!string.IsNullOrEmpty(campaignId))
             {
-                var campUrl = $"https://graph.facebook.com/v18.0/{campaignId}?fields=name,status,objective,created_time&access_token={FacebookAccessToken}";
+                var campUrl = $"https://graph.facebook.com/v23.0/{campaignId}?fields=name,status,objective,created_time&access_token={FacebookAccessToken}";
                 var campJson = JObject.Parse(await _httpClient.GetStringAsync(campUrl));
                 dto.Campania.Nombre = campJson.Value<string>("name") ?? "";
                 dto.Campania.Estado = campJson.Value<string>("status") ?? "";
@@ -77,7 +80,7 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketin
             var adsetId = leadJson.Value<string>("adset_id") ?? "";
             if (!string.IsNullOrEmpty(adsetId))
             {
-                var adsetUrl = $"https://graph.facebook.com/v18.0/{adsetId}?fields=name,status&access_token={FacebookAccessToken}";
+                var adsetUrl = $"https://graph.facebook.com/v23.0/{adsetId}?fields=name,status&access_token={FacebookAccessToken}";
                 var adsetJson = JObject.Parse(await _httpClient.GetStringAsync(adsetUrl));
                 dto.ConjuntoAnuncio.Nombre = adsetJson.Value<string>("name") ?? "";
                 dto.ConjuntoAnuncio.Estado = adsetJson.Value<string>("status") ?? "";
@@ -87,7 +90,7 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketin
             var adId = leadJson.Value<string>("ad_id") ?? "";
             if (!string.IsNullOrEmpty(adId))
             {
-                var adUrl = $"https://graph.facebook.com/v18.0/{adId}?fields=name,status&access_token={FacebookAccessToken}";
+                var adUrl = $"https://graph.facebook.com/v23.0/{adId}?fields=name,status&access_token={FacebookAccessToken}";
                 var adJson = JObject.Parse(await _httpClient.GetStringAsync(adUrl));
                 dto.Anuncio.Nombre = adJson.Value<string>("name") ?? "";
                 dto.Anuncio.Estado = adJson.Value<string>("status") ?? "";

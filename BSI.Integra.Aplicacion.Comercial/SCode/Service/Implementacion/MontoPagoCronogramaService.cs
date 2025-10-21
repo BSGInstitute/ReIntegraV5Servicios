@@ -922,12 +922,10 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                     string mensaje = servicioCorreo.ObtenerMensajeCorreoFinanzas(alumno, cronograma.ListaDetalleCuotas.ToList(), _codigousuario + " - " + _nrocuenta, cronograma.SimboloMoneda, CentroCostos);
                     mensaje += "<br><br>" + firma;
 
-
                     List<CorreoNotificacionDTO> correoNotificacions = _unitOfWork.OportunidadRepository.ObtenerCorreoNotificacion().Where(x => x.IdCorreoNotificacionTipo == (int)CorreoNotificacionTipo.ArchivoCrep).ToList();
-
                     List<string> correos = new List<string>();
-                    correos = correoNotificacions.Where(x => x.IdPais == null && x.Principal != true).ToList().Select(y => y.Email).ToList();
-                    string destinatarioPrincipal = correoNotificacions.Where(x => x.Principal == true).ToList().Select(y => y.Email).ToList().FirstOrDefault();
+                    correos = correoNotificacions.Where(x => x.IdPais == 51 && x.Principal != true).ToList().Select(y => y.Email).ToList();
+                    string destinatarioPrincipal = correoNotificacions.Where(x => x.IdPais == 51 && x.Principal == true).ToList().Select(y => y.Email).ToList().FirstOrDefault();
                     destinatarioPrincipal = string.IsNullOrWhiteSpace(destinatarioPrincipal) ? "dpacheco@bsginstitute.com" : destinatarioPrincipal;
 
                     servicioCorreo.EnvioEmailBlobAdjunto(destinatarioPrincipal, "Archivo CREP " + estadoCrep + " - Ventas", estadoCrep + " Archivo CREP " + pEspecifico.Nombre.ToString(), mensaje, nombreArchivoCrep + "-" + estadoCrep + ".txt", registroCrepByte, correos);
@@ -945,22 +943,16 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                         cronograma.SimboloMoneda = "BS $";
                     }
 
-                    List<string> listaCorreos = new List<string>();
-                    //listaCorreos.Add("yhuillcapaco@bsginstitute.com");
-                    listaCorreos.Add("bamontoya@bsginstitute.com");
-                    //listaCorreos.Add("rchauca@bsginstitute.com");
-                    //listaCorreos.Add("mzegarraj@bsginstitute.com");
-                    listaCorreos.Add("dpacheco@bsginstitute.com");
-                    listaCorreos.Add("ccrispin@bsginstitute.com");
-                    listaCorreos.Add("mcabanan@bsginstitute.com");
-                    listaCorreos.Add("aportillavi@bsginstitute.com");
-                    listaCorreos.Add("jcacerest@bsginstitute.com");
-
+                    List<CorreoNotificacionDTO> correoNotificacions = _unitOfWork.OportunidadRepository.ObtenerCorreoNotificacion().Where(x => x.IdCorreoNotificacionTipo == (int)CorreoNotificacionTipo.ArchivoCrep).ToList();
+                    List<string> correos = new List<string>();
+                    correos = correoNotificacions.Where(x => x.IdPais == 591 && x.Principal != true).ToList().Select(y => y.Email).ToList();
+                    string destinatarioPrincipal = correoNotificacions.Where(x => x.IdPais == 591 && x.Principal == true).ToList().Select(y => y.Email).ToList().FirstOrDefault();
+                    destinatarioPrincipal = string.IsNullOrWhiteSpace(destinatarioPrincipal) ? "dpacheco@bsginstitute.com" : destinatarioPrincipal;
 
                     string mensaje = servicioCorreo.ObtenerMensajeCorreoFinanzas(alumno, cronograma.ListaDetalleCuotas.ToList(), cronograma.CodigoMatricula + " " + _Banco, cronograma.SimboloMoneda, CentroCostos);
                     mensaje += "<br><br>" + firma;
                     //helpCorreo.envio_email("ccrispin@bsginstitute.com", "Peticion Bolivia [" + EstadoCrep + "] (" + this.CodigoMatricula + ")", "Código de Pago " + this.PEspecificoInformacion.Nombre.ToString(), mensaje, listaCorreos);
-                    servicioCorreo.EnvioEmail("aportillavi@bsginstitute.com", "Peticion Bolivia [" + estadoCrep + "] (" + cronograma.CodigoMatricula + ")", "Código de Pago " + pEspecifico.Nombre.ToString(), mensaje, listaCorreos);
+                    servicioCorreo.EnvioEmail(destinatarioPrincipal, "Peticion Bolivia [" + estadoCrep + "] (" + cronograma.CodigoMatricula + ")", "Código de Pago " + pEspecifico.Nombre.ToString(), mensaje, correos);
 
                 }
                 else if (alumno.IdCodigoPais.Value == 52)
@@ -975,21 +967,16 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                         cronograma.SimboloMoneda = "MXN $";
                     }
 
-                    List<string> listaCorreos = new List<string>();
-                    //listaCorreos.Add("yhuillcapaco@bsginstitute.com");
-                    listaCorreos.Add("bamontoya@bsginstitute.com");
-                    //listaCorreos.Add("rchauca@bsginstitute.com");
-                    //listaCorreos.Add("mzegarraj@bsginstitute.com");
-                    listaCorreos.Add("dpacheco@bsginstitute.com");
-                    listaCorreos.Add("ccrispin@bsginstitute.com");
-                    listaCorreos.Add("mcabanan@bsginstitute.com");
-                    listaCorreos.Add("aportillavi@bsginstitute.com");
-                    listaCorreos.Add("jcacerest@bsginstitute.com");
+                    List<CorreoNotificacionDTO> correoNotificacions = _unitOfWork.OportunidadRepository.ObtenerCorreoNotificacion().Where(x => x.IdCorreoNotificacionTipo == (int)CorreoNotificacionTipo.ArchivoCrep).ToList();
+                    List<string> correos = new List<string>();
+                    correos = correoNotificacions.Where(x => x.IdPais == 52 && x.Principal != true).ToList().Select(y => y.Email).ToList();
+                    string destinatarioPrincipal = correoNotificacions.Where(x => x.IdPais == 52 && x.Principal == true).ToList().Select(y => y.Email).ToList().FirstOrDefault();
+                    destinatarioPrincipal = string.IsNullOrWhiteSpace(destinatarioPrincipal) ? "dpacheco@bsginstitute.com" : destinatarioPrincipal;
 
                     string mensaje = servicioCorreo.ObtenerMensajeCorreoFinanzas(alumno, cronograma.ListaDetalleCuotas.ToList(), cronograma.CodigoMatricula + " " + _Banco, cronograma.SimboloMoneda, CentroCostos);
                     mensaje += "<br><br>" + firma;
                     //helpCorreo.envio_email("ccrispin@bsginstitute.com", "Peticion Bolivia [" + EstadoCrep + "] (" + this.CodigoMatricula + ")", "Código de Pago " + this.PEspecificoInformacion.Nombre.ToString(), mensaje, listaCorreos);
-                    servicioCorreo.EnvioEmail("aportillavi@bsginstitute.com", "Peticion Mexico [" + estadoCrep + "] (" + cronograma.CodigoMatricula + ")", "Código de Pago " + pEspecifico.Nombre.ToString(), mensaje, listaCorreos);
+                    servicioCorreo.EnvioEmail(destinatarioPrincipal, "Peticion Mexico [" + estadoCrep + "] (" + cronograma.CodigoMatricula + ")", "Código de Pago " + pEspecifico.Nombre.ToString(), mensaje, correos);
 
                 }
                 else if (alumno.IdCodigoPais.Value == 56)
@@ -1003,22 +990,16 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                     {
                         cronograma.SimboloMoneda = "CLP $";
                     }
-
-                    List<string> listaCorreos = new List<string>();
-                    //listaCorreos.Add("yhuillcapaco@bsginstitute.com");
-                    listaCorreos.Add("bamontoya@bsginstitute.com");
-                    //listaCorreos.Add("rchauca@bsginstitute.com");
-                    //listaCorreos.Add("mzegarraj@bsginstitute.com");
-                    listaCorreos.Add("dpacheco@bsginstitute.com");
-                    listaCorreos.Add("ccrispin@bsginstitute.com");
-                    listaCorreos.Add("mcabanan@bsginstitute.com");
-                    listaCorreos.Add("aportillavi@bsginstitute.com");
-                    listaCorreos.Add("jcacerest@bsginstitute.com");
+                    List<CorreoNotificacionDTO> correoNotificacions = _unitOfWork.OportunidadRepository.ObtenerCorreoNotificacion().Where(x => x.IdCorreoNotificacionTipo == (int)CorreoNotificacionTipo.ArchivoCrep).ToList();
+                    List<string> correos = new List<string>();
+                    correos = correoNotificacions.Where(x => x.IdPais == 56 && x.Principal != true).ToList().Select(y => y.Email).ToList();
+                    string destinatarioPrincipal = correoNotificacions.Where(x => x.IdPais == 56 && x.Principal == true).ToList().Select(y => y.Email).ToList().FirstOrDefault();
+                    destinatarioPrincipal = string.IsNullOrWhiteSpace(destinatarioPrincipal) ? "dpacheco@bsginstitute.com" : destinatarioPrincipal;
 
                     string mensaje = servicioCorreo.ObtenerMensajeCorreoFinanzas(alumno, cronograma.ListaDetalleCuotas.ToList(), cronograma.CodigoMatricula + " " + _Banco, cronograma.SimboloMoneda, CentroCostos);
                     mensaje += "<br><br>" + firma;
                     //helpCorreo.envio_email("ccrispin@bsginstitute.com", "Peticion Bolivia [" + EstadoCrep + "] (" + this.CodigoMatricula + ")", "Código de Pago " + this.PEspecificoInformacion.Nombre.ToString(), mensaje, listaCorreos);
-                    servicioCorreo.EnvioEmail("aportillavi@bsginstitute.com", "Peticion Chile [" + estadoCrep + "] (" + cronograma.CodigoMatricula + ")", "Código de Pago " + pEspecifico.Nombre.ToString(), mensaje, listaCorreos);
+                    servicioCorreo.EnvioEmail(destinatarioPrincipal, "Peticion Chile [" + estadoCrep + "] (" + cronograma.CodigoMatricula + ")", "Código de Pago " + pEspecifico.Nombre.ToString(), mensaje, correos);
 
                 }
                 else if (alumno.IdCodigoPais.Value == 57)
@@ -1033,21 +1014,17 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
 
                     cronograma.CodigoBancario = "56470";//Nro Conv. Bancolombia: 56470 (lo que identifica nuestra cuenta)
 
-                    List<string> listaCorreos = new List<string>();
-                    //listaCorreos.Add("yhuillcapaco@bsginstitute.com");
-                    listaCorreos.Add("bamontoya@bsginstitute.com");
-                    //listaCorreos.Add("rchauca@bsginstitute.com");
-                    //listaCorreos.Add("mzegarraj@bsginstitute.com");
-                    listaCorreos.Add("dpacheco@bsginstitute.com");
-                    listaCorreos.Add("ccrispin@bsginstitute.com");
-                    listaCorreos.Add("mcabanan@bsginstitute.com");
-                    listaCorreos.Add("aportillavi@bsginstitute.com");
-                    listaCorreos.Add("jcacerest@bsginstitute.com");
+
+                    List<CorreoNotificacionDTO> correoNotificacions = _unitOfWork.OportunidadRepository.ObtenerCorreoNotificacion().Where(x => x.IdCorreoNotificacionTipo == (int)CorreoNotificacionTipo.ArchivoCrep).ToList();
+                    List<string> correos = new List<string>();
+                    correos = correoNotificacions.Where(x => x.IdPais == 57 && x.Principal != true).ToList().Select(y => y.Email).ToList();
+                    string destinatarioPrincipal = correoNotificacions.Where(x => x.IdPais == 57 && x.Principal == true).ToList().Select(y => y.Email).ToList().FirstOrDefault();
+                    destinatarioPrincipal = string.IsNullOrWhiteSpace(destinatarioPrincipal) ? "dpacheco@bsginstitute.com" : destinatarioPrincipal;
 
                     string mensaje = servicioCorreo.ObtenerMensajeCorreoFinanzas(alumno, cronograma.ListaDetalleCuotas.ToList(), _codigousuario.ToUpper() + " " + _Banco, cronograma.SimboloMoneda, CentroCostos);
                     mensaje += "<br><br>" + firma;
                     //helpCorreo.envio_email("ccrispin@bsginstitute.com", "Peticion Bancolombia", "Código de Pago " + this.PEspecificoInformacion.Nombre.ToString(), mensaje, listaCorreos);
-                    servicioCorreo.EnvioEmail("aportillavi@bsginstitute.com", "Peticion Bancolombia", "Código de Pago " + pEspecifico.Nombre.ToString(), mensaje, listaCorreos);
+                    servicioCorreo.EnvioEmail(destinatarioPrincipal, "Peticion Bancolombia", "Código de Pago " + pEspecifico.Nombre.ToString(), mensaje, correos);
 
                 }
                 else
@@ -1060,21 +1037,15 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
 
                     cronograma.CodigoMatricula = _codigousuario;
 
-                    List<string> listaCorreos = new List<string>();
-                    //listaCorreos.Add("yhuillcapaco@bsginstitute.com");
-                    listaCorreos.Add("bamontoya@bsginstitute.com");
-                    //listaCorreos.Add("rchauca@bsginstitute.com");
-                    //listaCorreos.Add("mzegarraj@bsginstitute.com");
-                    listaCorreos.Add("dpacheco@bsginstitute.com");
-                    listaCorreos.Add("ccrispin@bsginstitute.com");
-                    listaCorreos.Add("mcabanan@bsginstitute.com");
-                    listaCorreos.Add("aportillavi@bsginstitute.com");
-                    listaCorreos.Add("jcacerest@bsginstitute.com");
-
+                    List<CorreoNotificacionDTO> correoNotificacions = _unitOfWork.OportunidadRepository.ObtenerCorreoNotificacion().Where(x => x.IdCorreoNotificacionTipo == (int)CorreoNotificacionTipo.ArchivoCrep).ToList();
+                    List<string> correos = new List<string>();
+                    correos = correoNotificacions.Where(x => x.IdPais == null && x.Principal != true).ToList().Select(y => y.Email).ToList();
+                    string destinatarioPrincipal = correoNotificacions.Where(x => x.IdPais == null && x.Principal == true).ToList().Select(y => y.Email).ToList().FirstOrDefault();
+                    destinatarioPrincipal = string.IsNullOrWhiteSpace(destinatarioPrincipal) ? "dpacheco@bsginstitute.com" : destinatarioPrincipal;
                     string mensaje = servicioCorreo.ObtenerMensajeCorreoFinanzas(alumno, cronograma.ListaDetalleCuotas.ToList(), _codigousuario.ToUpper() + " " + _Banco, cronograma.SimboloMoneda, CentroCostos);
                     mensaje += "<br><br>" + firma;
                     //helpCorreo.envio_email("ccrispin@bsginstitute.com", "Internacional", "Código de Pago " + this.PEspecificoInformacion.Nombre.ToString(), mensaje, listaCorreos);
-                    servicioCorreo.EnvioEmail("aportillavi@bsginstitute.com", "Peticion Bancolombia", "Código de Pago " + pEspecifico.Nombre.ToString(), mensaje, listaCorreos);
+                    servicioCorreo.EnvioEmail(destinatarioPrincipal, "Peticion Bancolombia", "Código de Pago " + pEspecifico.Nombre.ToString(), mensaje, correos);
                 }
             }
             return cronograma;

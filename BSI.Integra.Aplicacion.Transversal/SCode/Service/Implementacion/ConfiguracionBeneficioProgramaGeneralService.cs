@@ -218,6 +218,18 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw ex;
             }
         }
+
+        public List<BeneficioDTO> ObtenerBeneficiosPGeneralTipo1V3(int idPGeneral, int codigoPais = 0)
+        {
+            try
+            {
+                return _unitOfWork.ConfiguracionBeneficioProgramaGeneralRepository.ObtenerBeneficiosPGeneralTipo1V3(idPGeneral, codigoPais);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public async Task<List<BeneficioDTO>> ObtenerBeneficiosPGeneralTipo1V2Async(int idPGeneral, int codigoPais = 0)
         {
             try
@@ -240,6 +252,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw ex;
             }
         }
+
+
+
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 10/08/2022
         /// Version: 1.0
