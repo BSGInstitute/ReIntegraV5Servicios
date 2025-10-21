@@ -252,6 +252,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public List<PEspecificoPorIdPGeneral> Modalidad { get; set; }
         public List<RegistroListaSeccionesDocumentoDTO> Objetivos { get; set; }
         public ObtenerMontos2RespuestaDTO Montos { get; set; }
+        public PGeneralAlternoDTO General { get; set; }
         public List<ProgramaGeneralSeccionDocumentoDTO> DatosAdicionales { get; set; }
         public List<RegistroListaSeccionesDocumentoDTO> DuracionHorario { get; set; }
         public List<RegistroListaSeccionesDocumentoV2DTO> DuracionHorarioETL { get; set; }

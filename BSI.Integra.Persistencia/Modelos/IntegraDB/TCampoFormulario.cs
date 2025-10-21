@@ -5,6 +5,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     public partial class TCampoFormulario
     {
+        public TCampoFormulario()
+        {
+            TCampoFormularioOpcions = new HashSet<TCampoFormularioOpcion>();
+        }
+
         /// <summary>
         /// Clave Primaria de la Tabla
         /// </summary>
@@ -69,5 +74,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Id de la tabla Original al migrar
         /// </summary>
         public Guid? IdMigracion { get; set; }
+
+        public virtual ICollection<TCampoFormularioOpcion> TCampoFormularioOpcions { get; set; }
     }
 }

@@ -556,7 +556,10 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             
             List<RegistroListaSeccionesDocumentoDTO> objetivos = _unitOfWork.DocumentoSeccionPwRepository.ObtenerDatosComplementariosProgramaGeneralV2Objetivos(idPGeneral);
             ObtenerMontos2RespuestaDTO montosBeneficios = ObtenerMontoPresentacionPrograma(idPGeneral, codigoPais);
-            
+
+            PGeneralAlternoDTO general = _unitOfWork.PGeneralRepository.ObtenerPGeneralPorId(idPGeneral);
+
+
             IPEspecificoService servicioPEspecifico = new PEspecificoService(_unitOfWork);
             List<PEspecificoPorIdPGeneral> modalidad = servicioPEspecifico.ObtenerFechaInicioProgramaTodos(idPGeneral);
             
@@ -607,6 +610,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 Modalidad = modalidad,
                 Objetivos = objetivos,
                 Montos = montosBeneficios,
+                General = general,
                 DuracionHorarioETL = duracionHorarioETL,
                 DuracionHorario = horario,
                 PublicoObjetivo = publicoObjetivo,
