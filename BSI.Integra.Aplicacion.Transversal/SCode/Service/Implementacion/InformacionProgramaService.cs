@@ -487,6 +487,18 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             List<PresentacionProgramadto> garantiadeprograma = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Garantia de programa", StringComparison.OrdinalIgnoreCase)).ToList();
             List<RegistroListaSeccionesDocumentoDTO> objetivos = _unitOfWork.DocumentoSeccionPwRepository.ObtenerDatosComplementariosProgramaGeneralV2Objetivos(idPGeneral);
             ObtenerMontos2RespuestaDTO montosBeneficios = ObtenerMontoPresentacionPrograma(idPGeneral, codigoPais);
+            var general = _unitOfWork.PGeneralRepository.ObtenerPGeneralPorId(idPGeneral);
+            PGeneralAlternoV2DTO? generalETL = null;
+            if (general != null)
+            {
+                generalETL = new PGeneralAlternoV2DTO
+                {
+                    Id = general.Id,
+                    Nombre = general.Nombre,
+                    pw_duracion = general.pw_duracion
+                };
+            }
+
             List<PEspecificoPorIdPGeneral> modalidad = servicioPEspecifico.ObtenerFechaInicioProgramaTodos(idPGeneral);
             List<RegistroListaSeccionesDocumentoDTO> prerrequisitosLista = _unitOfWork.DocumentoSeccionPwRepository.ObtenerSeccionDocumento(idPGeneral);
             List<RegistroListaSeccionesDocumentoDTO> prerrequisitos = prerrequisitosLista.Where(x => string.Equals(x.Titulo?.Trim(), "Prerrequisitos", StringComparison.OrdinalIgnoreCase)).ToList();
@@ -530,6 +542,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 Modalidad = modalidad,
                 Objetivos = objetivos,
                 Montos = montosBeneficios,
+                General = generalETL,
                 DuracionHorarioETL = duracionHorarioETL,
                 DuracionHorario = horario,
                 PublicoObjetivo = publicoObjetivo,
@@ -557,9 +570,17 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             List<RegistroListaSeccionesDocumentoDTO> objetivos = _unitOfWork.DocumentoSeccionPwRepository.ObtenerDatosComplementariosProgramaGeneralV2Objetivos(idPGeneral);
             ObtenerMontos2RespuestaDTO montosBeneficios = ObtenerMontoPresentacionPrograma(idPGeneral, codigoPais);
 
-            PGeneralAlternoDTO general = _unitOfWork.PGeneralRepository.ObtenerPGeneralPorId(idPGeneral);
-
-
+            var general = _unitOfWork.PGeneralRepository.ObtenerPGeneralPorId(idPGeneral);
+            PGeneralAlternoV2DTO? generalETL = null;
+            if (general != null)
+            {
+                generalETL = new PGeneralAlternoV2DTO
+                {
+                    Id = general.Id,
+                    Nombre = general.Nombre,
+                    pw_duracion = general.pw_duracion
+                };
+            }
             IPEspecificoService servicioPEspecifico = new PEspecificoService(_unitOfWork);
             List<PEspecificoPorIdPGeneral> modalidad = servicioPEspecifico.ObtenerFechaInicioProgramaTodos(idPGeneral);
             
@@ -610,7 +631,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 Modalidad = modalidad,
                 Objetivos = objetivos,
                 Montos = montosBeneficios,
-                General = general,
+                General = generalETL,
                 DuracionHorarioETL = duracionHorarioETL,
                 DuracionHorario = horario,
                 PublicoObjetivo = publicoObjetivo,
