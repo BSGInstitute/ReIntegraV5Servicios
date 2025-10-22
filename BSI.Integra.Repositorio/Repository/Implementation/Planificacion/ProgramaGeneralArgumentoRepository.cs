@@ -164,6 +164,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
+                //crear vista en la bd
                 List<ProgramaGeneralArgumentoDTO> rpta = new List<ProgramaGeneralArgumentoDTO>();
                 var query = @"
                     SELECT
@@ -190,6 +191,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 throw ex;
             }
         }
+
+        //realizar obtener por id vista con modaliddes y detalles motivaciones
 
         public ProgramaGeneralArgumentoDTO? ObtenerPorId(int id)
         {

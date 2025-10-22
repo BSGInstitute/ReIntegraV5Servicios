@@ -66,6 +66,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     var respuesta = _unitOfWork.ProgramaGeneralArgumentoRepository.Add(PGArgumento);
                     _unitOfWork.Commit();
                     if (respuesta.Id == null) throw new BadRequestException("No se pudo registrar el argumento");
+                    List<ProgramaGeneralArgumentoModalidad> _modalidades = new();
                     if (respuesta != null && entidad.Modalidades.Count() != 0)
                     {
                         List<ProgramaGeneralArgumentoModalidad> listaModalidades = new();
@@ -84,9 +85,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                             };
                             listaModalidades.Add(modalidad);
                         }
-                        _unitOfWork.ProgramaGeneralArgumentoModalidadRepository.AddList(listaModalidades);
+                        var result = _unitOfWork.ProgramaGeneralArgumentoModalidadRepository.AddList(listaModalidades);
                         _unitOfWork.Commit();
+                        _modalidades.AddRange((IEnumerable<ProgramaGeneralArgumentoModalidad>)result.ToList());
                     }
+                    List<ProgramaGeneralArgumentoDetalleDTO> _argumentoDetalleList = new();
                     if (respuesta != null && entidad.ArgumentoDetalle.Count() != 0)
                     {
                         foreach (var m in entidad.ArgumentoDetalle)
@@ -108,8 +111,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                             ProgramaGeneralArgumentoDetalleMotivacion motivacion = new()
                             {
                                 IdProgramaGeneralArgumentoDetalle = _argumentoDetalle.Id,
-                                IdProgramaGeneralMotivacion = m.IdMotivacion,
-                                NombreMotivacion = m.NombreMotivacion,
+                                IdProgramaGeneralMotivacion = m.Motivacion.Id,
+                                NombreMotivacion = m.Motivacion.Nombre,
                                 Estado = true,
                                 FechaCreacion = DateTime.Now,
                                 FechaModificacion = DateTime.Now,
@@ -118,16 +121,29 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                             };
                             _unitOfWork.ProgramaGeneralArgumentoDetalleMotivacionRepository.Add(motivacion);
                             _unitOfWork.Commit();
+                            _argumentoDetalleList.Add(new ProgramaGeneralArgumentoDetalleDTO
+                            {
+                                Id = _argumentoDetalle.Id,
+                                Detalle = _argumentoDetalle.Detalle,
+                                InstruccionPieDetalle = _argumentoDetalle.InstruccionPieDetalle,
+                                Motivacion = new PGArgumentoDetalleMotivacionDTO
+                                {
+                                    Id = motivacion.Id,
+                                    Nombre = motivacion.NombreMotivacion
+                                }
+                            });
                         }
                     }
                     _unitOfWork.Commit();
-                    var respuestaFinal = new ProgramaGeneralArgumentoDTO
+                    var respuestaFinal = new
                     {
                         Id = respuesta.Id,
                         IdPGeneral = respuesta.IdPgeneral,
                         Nombre = respuesta.Nombre,
                         Descripcion = respuesta.Descripcion,
                         EsVisibleAgenda = respuesta.EsVisibleAgenda,
+                        Modalidades = _modalidades,
+                        ArgumentoDetalle = _argumentoDetalleList
                     };
                     return _mapper.Map<ProgramaGeneralArgumentoDTO>(respuesta);
                 }

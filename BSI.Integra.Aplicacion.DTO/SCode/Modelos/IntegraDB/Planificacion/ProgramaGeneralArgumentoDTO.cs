@@ -24,8 +24,13 @@
         public int Id { get; set; }
         public string Detalle { get; set; }
         public string? InstruccionPieDetalle { get; set; }
-        public int IdMotivacion { get; set; }
-        public string? NombreMotivacion { get; set; }
+        public PGArgumentoDetalleMotivacionDTO Motivacion { get; set; }
+    }
+
+    public class PGArgumentoDetalleMotivacionDTO
+    {
+        public int Id { get; set; }
+        public string? Nombre { get; set; }
     }
     public class ProgramaGeneralArgumentoDetalleMotivacionDTO
     {
