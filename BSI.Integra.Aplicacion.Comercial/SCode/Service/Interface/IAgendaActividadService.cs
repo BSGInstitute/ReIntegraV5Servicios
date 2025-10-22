@@ -24,6 +24,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         List<ReporteSeguimientoNWActividadAlternoDTO?> ObtenerHistorialInteraccionesPorIdOportunidad3cx(int idOportunidad);
         (List<PreguntaFrecuenteSeccionesDTO> Data, List<PGeneralModeloCertificadoDTO> ModeloCertificado) ObtenerPreguntasFrecuentes(int idCentroCosto, int idOportunidad);
         (List<PreguntaFrecuenteSeccionesDTO> Data, List<ProgramaGeneralModeloCertificadoDTO> ModeloCertificado) ObtenerPreguntasFrecuentesCambio(int idCentroCosto, int idPrograma, int idOportunidad);
+        (List<PreguntaFrecuenteSeccionesV2DTO> Data, List<ProgramaGeneralModeloCertificadoDTO> ModeloCertificado) ObtenerPreguntasFrecuentesCambioV2(int idCentroCosto, int idPrograma, int idOportunidad);
         List<ArbolOcurrenciaDTO> ObtenerArbolOcurrencias(int idActividadCabecera, int idOcurrenciaActividadPadre);
         IEnumerable<AlumnoLogAgendaFechaStringDTO> ObtenerHistorialModificacionAlumnoPorIdAlumno(int idAlumno);
         IEnumerable<DocumentoLegalV3DTO> ObtenerDocumentoLegal(int idAreaPersonal, string rol, int idAlumno);

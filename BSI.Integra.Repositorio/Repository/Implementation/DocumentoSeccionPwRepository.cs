@@ -678,7 +678,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 List<ProgramaExpositoresDTO> expositores = new List<ProgramaExpositoresDTO>();
                 string querySeccion = @"
-                    SELECT Id,PrimerNombre,SegundoNombre,ApellidoPaterno,ApellidoMaterno,NombrePais,HojaVidaResumidaPerfil,IdPGeneral
+                    SELECT Id,PrimerNombre,SegundoNombre,ApellidoPaterno,ApellidoMaterno,NombrePais,HojaVidaResumidaPerfil,HojaVidaResumidaLimpia,IdPGeneral
                     FROM pla.V_ObtenerExpositorPorIdPrograma
                     WHERE IdPGeneral = @idPGeneral";
                 var resultado = _dapperRepository.QueryDapper(querySeccion, new { idPGeneral });

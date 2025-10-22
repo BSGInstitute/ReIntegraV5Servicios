@@ -52,7 +52,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         {
             _unitOfWork = unitOfWork;
             _personaService = new PersonaService(unitOfWork);
-            
+
 
             var config = new MapperConfiguration(cfg =>
             {
@@ -503,7 +503,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             catch (Exception ex)
             {
                 throw ex;
-            };
+            }
+            ;
         }
 
         /// Autor: Jonathan Caipo
@@ -522,7 +523,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             catch (Exception ex)
             {
                 throw ex;
-            };
+            }
+            ;
         }
         /// Autor: Gilmer Quispe.
         /// Fecha: 03/10/2022
@@ -3040,7 +3042,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 if (dto.FechaInicio > dto.FechaFin)
                 {
                     throw new BadRequestException($"La fecha de fin del acceso temporal debe ser mayor o igual a la fecha de inicio");
-                }    
+                }
                 string emailPersonalSolicitado = string.Empty;
 
                 var personalSolicitado = _unitOfWork.PersonalRepository.FirstBy(x => x.Id == dto.IdPersonal);
@@ -3060,8 +3062,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 ReemplazoEtiquetaPlantillaDTO reemplazoEtiquetaPlantilla = new ReemplazoEtiquetaPlantillaDTO();
                 // Email del usuario que realiza la modificacion
                 string usuarioResponsable = _unitOfWork.IntegraAspNetUserRepository.ObtenerEmailPorNombreUsuario(usuario);
-                
-                bool resultadoActualizacion =  ActualizarAccesosTemporalesIntegra(dto , usuario);
+
+                bool resultadoActualizacion = ActualizarAccesosTemporalesIntegra(dto, usuario);
 
                 if (!resultadoActualizacion)
                     throw new BadRequestException($"Hubo un fallo en la actualizacion de los accesos temporales");
@@ -3083,7 +3085,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                     ReemplazarEtiquetasAlumnoSinOportunidad(parametrosEtiquetas, reemplazoEtiquetaPlantilla);
 
-                   
+
 
                     PlantillaEmailMandrillDTO emailFinalEnvio = reemplazoEtiquetaPlantilla.EmailReemplazado;
 
@@ -3134,7 +3136,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             UsuarioModificacion = "EnvioAutomaticoGP",
                             EsEnvioMasivo = false
                         };
-                            listaMandrilEnvioCorreoBO.Add(mandrilEnvioCorreoBO);
+                        listaMandrilEnvioCorreoBO.Add(mandrilEnvioCorreoBO);
                         _unitOfWork.Commit();
                     }
 
@@ -3184,8 +3186,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 if (Persona != null)
                 {
                     PersonaEntidad = Persona;
-                    tmpindicador= true;
-                   
+                    tmpindicador = true;
+
 
                 }
                 if (Persona == null)
@@ -3197,14 +3199,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     PersonaEntidad.FechaCreacion = DateTime.Now;
                     PersonaEntidad.FechaModificacion = DateTime.Now;
 
-                    PersonaEntidad = _mapper.Map<Persona>(_unitOfWork.PersonaRepository.Add(PersonaEntidad));  ;
+                    PersonaEntidad = _mapper.Map<Persona>(_unitOfWork.PersonaRepository.Add(PersonaEntidad)); ;
                     tmpindicador = false;
                     _unitOfWork.Commit();
-                   
+
                 }
-              
+
                 clasificacionPersonatmp = _unitOfWork.ClasificacionPersonaRepository.ObtenerPorPersonalYTipoPersona(PersonaEntidad.Id, 1);
-                
+
 
                 if (clasificacionPersonatmp == null)
                 {
@@ -3238,7 +3240,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         // Otra consulta por el cambio en el campo RowVersion
                         clasificacionPersonatmp = _unitOfWork.ClasificacionPersonaRepository.ObtenerPorId(resultClasificacion.Id);
 
-                        
+
                     }
                 }
 
@@ -3362,7 +3364,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     if (string.IsNullOrEmpty(IdPortalWeb))
                     {
                         var credencialesIntegra = _unitOfWork.IntegraAspNetUserRepository.ObtenerPorId(personal.Id);
-            
+
                         string claveIntegra = credencialesIntegra.UsClave;
                         string claveHash = string.Empty;
                         claveHash = CryptoService.HashPassword(claveIntegra);
@@ -3576,7 +3578,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     if (alumno == null)
                     {
                         throw new Exception("El alumno no existe");
-       
+
                     }
 
                     bool resultadoPortalWeb = _unitOfWork.PersonalAccesoTemporalAulaVirtualRepository.ActualizarAccesosTemporalesPortalWeb(AccesoTemporal.IdPersonal, idPortalWeb, alumno.Id);
@@ -3593,7 +3595,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                 listaAccesoTemporal = ObtenerListaAccesoTemporal(AccesoTemporal.IdPersonal);
 
-                if(listaAccesoTemporal!=null)
+                if (listaAccesoTemporal != null)
                 {
                     return true;
                 }
@@ -3601,7 +3603,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 {
                     return false;
                 }
-                
+
             }
             catch (Exception)
             {
@@ -3668,7 +3670,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         _unitOfWork.PersonalRepository.Update(personal);
                     }
                 }
-                if (resultado!=null)
+                if (resultado != null)
                 {
                     return true;
                 }
@@ -3974,7 +3976,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
         public List<PersonalAutocompleteDTO> CargarPersonalAutoCompleteContrato(string nombre)
         {
-             return _unitOfWork.PersonalRepository.CargarPersonalAutoCompleteContrato(nombre);
+            return _unitOfWork.PersonalRepository.CargarPersonalAutoCompleteContrato(nombre);
         }
         /// Autor: Eliot Arias F.
         /// Fecha: 10/12/2024
@@ -4401,7 +4403,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             throw new Exception("El correo electrónico ya se encuentra registrado en el sistema.");
 
                         }
-                        
+
                         if (idClasificacionPersona == null && Json != null)
                         {
                             throw new Exception("Error al insertar el Tipo Persona Clasificacion");
@@ -4598,7 +4600,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     var conincidenciasEmail = servicioPersonal.ObtenerListaPersonalPorEmail(Json.Email, (int)Json.Id);
                     var idPersonalEmailRepetido = servicioPersonal.ObtenerPersonalEliminadoEmailRepetido(Json.Email);
 
-                  
+
 
                     var rolAnterior = personal.Rol;
                     var tipoPersonalAnterior = personal.TipoPersonal == null ? "" : personal.TipoPersonal;
@@ -4638,48 +4640,52 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             {
                                 var personalLogUpdate = _unitOfWork.PersonalLogRepository.ObtenerPorIdPersonal(personal.Id).ToList().Where(x => x.IdPersonal == personal.Id && (x.EstadoRol == true || x.EstadoTipoPersonal == true) && x.FechaFin == null).FirstOrDefault();
                                 var personalCambioJefe = _unitOfWork.PersonalLogRepository.ObtenerPorIdPersonal(personal.Id).ToList().Where(x => x.IdPersonal == personal.Id && (x.EstadoIdJefe == true && x.EstadoRol == false && x.EstadoTipoPersonal == false) && x.FechaFin == null).OrderByDescending(x => x.Id).FirstOrDefault();
-                                estadoCambioRolJefe = personalLogUpdate.EstadoIdJefe == true && personalLogUpdate.EstadoRol == true && personalLogUpdate.EstadoTipoPersonal == true;
-                                if (estadoCambioRolJefe && personalCambioJefe == null)
+                                if (personalLogUpdate != null)
                                 {
-                                    PersonalLog personalLog = new PersonalLog();
-                                    personalLog.IdPersonal = personal.Id;
-                                    personalLog.Rol = personal.Rol;
-                                    personalLog.TipoPersonal = personal.TipoPersonal;
-                                    personalLog.IdJefe = idJefeAnterior;
-                                    personalLog.EstadoRol = false;
-                                    personalLog.EstadoTipoPersonal = false;
-                                    personalLog.EstadoIdJefe = true;
-                                    personalLog.FechaInicio = personalLogUpdate.FechaInicio;
-                                    personalLog.FechaFin = null;
-                                    personalLog.Estado = true;
-                                    personalLog.UsuarioModificacion = usuarioIntegra;
-                                    personalLog.UsuarioCreacion = usuarioIntegra;
-                                    personalLog.FechaCreacion = DateTime.Now;
-                                    personalLog.FechaModificacion = DateTime.Now;
-                                    _unitOfWork.PersonalLogRepository.Add(personalLog);
+                                    estadoCambioRolJefe = personalLogUpdate.EstadoIdJefe == true && personalLogUpdate.EstadoRol == true && personalLogUpdate.EstadoTipoPersonal == true;
+                                    if (estadoCambioRolJefe && personalCambioJefe == null)
+                                    {
+                                        PersonalLog personalLog = new PersonalLog();
+                                        personalLog.IdPersonal = personal.Id;
+                                        personalLog.Rol = personal.Rol;
+                                        personalLog.TipoPersonal = personal.TipoPersonal;
+                                        personalLog.IdJefe = idJefeAnterior;
+                                        personalLog.EstadoRol = false;
+                                        personalLog.EstadoTipoPersonal = false;
+                                        personalLog.EstadoIdJefe = true;
+                                        personalLog.FechaInicio = personalLogUpdate.FechaInicio;
+                                        personalLog.FechaFin = null;
+                                        personalLog.Estado = true;
+                                        personalLog.UsuarioModificacion = usuarioIntegra;
+                                        personalLog.UsuarioCreacion = usuarioIntegra;
+                                        personalLog.FechaCreacion = DateTime.Now;
+                                        personalLog.FechaModificacion = DateTime.Now;
+                                        _unitOfWork.PersonalLogRepository.Add(personalLog);
+                                    }
+                                    personalLogUpdate.FechaFin = new DateTime(DateTime.Now.AddDays(-1).Year, DateTime.Now.AddDays(-1).Month, DateTime.Now.AddDays(-1).Day, 23, 59, 59);
+                                    personalLogUpdate.UsuarioModificacion = usuarioIntegra;
+                                    personalLogUpdate.FechaModificacion = DateTime.Now;
+                                    _unitOfWork.PersonalLogRepository.Update(personalLogUpdate);
+
+                                    PersonalLog personalLogBO = new PersonalLog();
+                                    personalLogBO.IdPersonal = personal.Id;
+                                    personalLogBO.Rol = personal.Rol;
+                                    personalLogBO.TipoPersonal = personal.TipoPersonal;
+                                    personalLogBO.IdJefe = personal.IdJefe;
+                                    personalLogBO.EstadoRol = rolAnterior != personal.Rol;
+                                    personalLogBO.EstadoTipoPersonal = tipoPersonalAnterior != personal.TipoPersonal;
+                                    personalLogBO.EstadoIdJefe = false;
+                                    personalLogBO.FechaInicio = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0); ;
+                                    personalLogBO.FechaFin = null;
+                                    personalLogBO.Estado = true;
+                                    personalLogBO.UsuarioModificacion = usuarioIntegra;
+                                    personalLogBO.UsuarioCreacion = usuarioIntegra;
+                                    personalLogBO.FechaCreacion = DateTime.Now;
+                                    personalLogBO.FechaModificacion = DateTime.Now;
+
+                                    _unitOfWork.PersonalLogRepository.Add(personalLogBO);
                                 }
-                                personalLogUpdate.FechaFin = new DateTime(DateTime.Now.AddDays(-1).Year, DateTime.Now.AddDays(-1).Month, DateTime.Now.AddDays(-1).Day, 23, 59, 59);
-                                personalLogUpdate.UsuarioModificacion = usuarioIntegra;
-                                personalLogUpdate.FechaModificacion = DateTime.Now;
-                                _unitOfWork.PersonalLogRepository.Update(personalLogUpdate);
-
-                                PersonalLog personalLogBO = new PersonalLog();
-                                personalLogBO.IdPersonal = personal.Id;
-                                personalLogBO.Rol = personal.Rol;
-                                personalLogBO.TipoPersonal = personal.TipoPersonal;
-                                personalLogBO.IdJefe = personal.IdJefe;
-                                personalLogBO.EstadoRol = rolAnterior != personal.Rol;
-                                personalLogBO.EstadoTipoPersonal = tipoPersonalAnterior != personal.TipoPersonal;
-                                personalLogBO.EstadoIdJefe = false;
-                                personalLogBO.FechaInicio = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0); ;
-                                personalLogBO.FechaFin = null;
-                                personalLogBO.Estado = true;
-                                personalLogBO.UsuarioModificacion = usuarioIntegra;
-                                personalLogBO.UsuarioCreacion = usuarioIntegra;
-                                personalLogBO.FechaCreacion = DateTime.Now;
-                                personalLogBO.FechaModificacion = DateTime.Now;
-
-                                _unitOfWork.PersonalLogRepository.Add(personalLogBO);
+                               
                             }
                             if (idJefeAnterior != personal.IdJefe)
                             {
