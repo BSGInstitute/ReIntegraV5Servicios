@@ -14,5 +14,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         public ProgramaGeneralArgumentoDTO Insertar(ProgramaGeneralArgumentoInsertDTO entidad, string usuario);
 
         ProgramaGeneralArgumentoDTO Actualizar(ProgramaGeneralArgumentoDTO entidad, string usuario);
+
+
+        IEnumerable<ProgramaGeneralArgumentoMotivacionDTO> ObtenerMotivaciones(int IdPGeneral);
     }
 }

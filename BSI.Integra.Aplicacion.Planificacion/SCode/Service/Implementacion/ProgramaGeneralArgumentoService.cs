@@ -157,5 +157,17 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw ex;
             }
         }
+
+        public IEnumerable<ProgramaGeneralArgumentoMotivacionDTO> ObtenerMotivaciones(int IdPGeneral)
+        {
+            try
+            {
+                return _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerMotivaciones(IdPGeneral);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

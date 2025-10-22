@@ -1,4 +1,5 @@
-﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
@@ -74,5 +75,18 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("[action]/{IdPGeneral}")]
+        public IActionResult ObtenerMotivaciones(int  IdPGeneral)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var respuesta = _programaGeneralArgumentoService.ObtenerMotivaciones(IdPGeneral);
+            return Ok(respuesta);
+        }
+
+
     }
 }

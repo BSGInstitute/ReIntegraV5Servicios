@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 {
@@ -218,6 +219,31 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             catch (Exception ex)
             {
                 throw new Exception($"#FR-OPI-001@Error en ObtenerPorId(), {ex.Message}");
+            }
+        }
+
+        public IEnumerable<ProgramaGeneralArgumentoMotivacionDTO> ObtenerMotivaciones(int IdPGeneral)
+        {
+            try
+            {
+                List<ProgramaGeneralArgumentoMotivacionDTO> rpta = new List<ProgramaGeneralArgumentoMotivacionDTO>();
+                var query = @"
+                    SELECT
+	                    Id,
+	                    IdPGeneral,
+	                    Nombre
+                    FROM pla.T_ProgramaGeneralMotivacion
+                    WHERE Estado = 1 and  IdPGeneral=@IdPGeneral";
+                var resultado = _dapperRepository.QueryDapper(query, new { IdPGeneral = IdPGeneral });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ProgramaGeneralArgumentoMotivacionDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 

@@ -57,4 +57,13 @@
         public string NombreMotivacion { get; set; }
         public bool Estado { get; set; }
     }
+
+
+    public class ProgramaGeneralArgumentoMotivacionDTO
+    {
+        public int Id { get; set; }
+        public int IdPGeneral { get; set; }
+        public string Nombre { get; set; }
+       
+    }
 }
