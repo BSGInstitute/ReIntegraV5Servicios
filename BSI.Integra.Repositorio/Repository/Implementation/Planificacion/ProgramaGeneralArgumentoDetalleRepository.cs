@@ -11,36 +11,25 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 {
-    public class ProgramaGeneralArgumentoDetalleMotivacionRepository : GenericRepository<TProgramaGeneralArgumentoDetalleMotivacion>, IProgramaGeneralArgumentoDetalleMotivacionRepository
+    public class ProgramaGeneralArgumentoDetalleRepository : GenericRepository<TProgramaGeneralArgumentoDetalle>, IProgramaGeneralArgumentoDetalleRepository
     {
         private Mapper _mapper;
-        public ProgramaGeneralArgumentoDetalleMotivacionRepository(IntegraDBContext context, IConnectionFactory connectionFactory, IDapperRepository dapperRepository) : base(context, connectionFactory, dapperRepository)
+        public ProgramaGeneralArgumentoDetalleRepository(IntegraDBContext context, IConnectionFactory connectionFactory, IDapperRepository dapperRepository) : base(context, connectionFactory, dapperRepository)
         {
             var config = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<TProgramaGeneralArgumentoDetalleMotivacion, ProgramaGeneralArgumentoDetalleMotivacion>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TProgramaGeneralArgumentoDetalle, ProgramaGeneralArgumentoDetalle>(MemberList.None).ReverseMap();
                 //cfg.CreateMap<THijo, Hijo>(MemberList.None).ReverseMap();
             });
             _mapper = new Mapper(config);
         }
+
         #region Metodos Base
-        private TProgramaGeneralArgumentoDetalleMotivacion MapeoEntidad(ProgramaGeneralArgumentoDetalleMotivacion entidad)
+        private TProgramaGeneralArgumentoDetalle MapeoEntidad(ProgramaGeneralArgumentoDetalle entidad)
         {
             try
             {
-                //crea la entidad padre
-                TProgramaGeneralArgumentoDetalleMotivacion modelo = _mapper.Map<TProgramaGeneralArgumentoDetalleMotivacion>(entidad);
-
-                //mapea los hijos
-                //if (entidad.ListadoHijoNivel1 != null && entidad.ListadoHijoNivel1.Count > 0)
-                //{
-                //    var listadoHijoNivel1 = _mapper.Map<List<THijo>>(entidad.ListadoHijoNivel1);
-                //    foreach (var hijoNivel1 in listadoHijoNivel1)
-                //    {
-                //        modelo.THijo.Add(hijoNivel1);
-                //    }
-                //}
-
+                TProgramaGeneralArgumentoDetalle modelo = _mapper.Map<TProgramaGeneralArgumentoDetalle>(entidad);
                 return modelo;
             }
             catch (Exception ex)
@@ -49,13 +38,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
-        public TProgramaGeneralArgumentoDetalleMotivacion Add(ProgramaGeneralArgumentoDetalleMotivacion entidad)
+        public TProgramaGeneralArgumentoDetalle Add(ProgramaGeneralArgumentoDetalle entidad)
         {
             try
             {
-                var ProgramaGeneralArgumentoDetalleMotivacion = MapeoEntidad(entidad);
-                base.Insert(ProgramaGeneralArgumentoDetalleMotivacion);
-                return ProgramaGeneralArgumentoDetalleMotivacion;
+                var ProgramaGeneralArgumentoDetalle = MapeoEntidad(entidad);
+                base.Insert(ProgramaGeneralArgumentoDetalle);
+                return ProgramaGeneralArgumentoDetalle;
             }
             catch (Exception ex)
             {
@@ -63,16 +52,16 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
-        public TProgramaGeneralArgumentoDetalleMotivacion Update(ProgramaGeneralArgumentoDetalleMotivacion entidad)
+        public TProgramaGeneralArgumentoDetalle Update(ProgramaGeneralArgumentoDetalle entidad)
         {
             try
             {
-                var ProgramaGeneralArgumento = MapeoEntidad(entidad);
+                var ProgramaGeneralArgumentoDetalle = MapeoEntidad(entidad);
                 var entidadExistente = base.FirstBy(w => w.Id == entidad.Id, s => new { s.RowVersion });
-                ProgramaGeneralArgumento.RowVersion = entidadExistente.RowVersion;
+                ProgramaGeneralArgumentoDetalle.RowVersion = entidadExistente.RowVersion;
 
-                base.Update(ProgramaGeneralArgumento);
-                return ProgramaGeneralArgumento;
+                base.Update(ProgramaGeneralArgumentoDetalle);
+                return ProgramaGeneralArgumentoDetalle;
             }
             catch (Exception ex)
             {
@@ -93,12 +82,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
-
-        public IEnumerable<TProgramaGeneralArgumentoDetalleMotivacion> AddList(IEnumerable<ProgramaGeneralArgumentoDetalleMotivacion> listadoEntidad)
+        public IEnumerable<TProgramaGeneralArgumentoDetalle> AddList(IEnumerable<ProgramaGeneralArgumentoDetalle> listadoEntidad)
         {
             try
             {
-                List<TProgramaGeneralArgumentoDetalleMotivacion> listado = new List<TProgramaGeneralArgumentoDetalleMotivacion>();
+                List<TProgramaGeneralArgumentoDetalle> listado = new List<TProgramaGeneralArgumentoDetalle>();
                 foreach (var entidad in listadoEntidad)
                 {
                     listado.Add(MapeoEntidad(entidad));
@@ -112,14 +100,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
-        public IEnumerable<TProgramaGeneralArgumentoDetalleMotivacion> Update(IEnumerable<ProgramaGeneralArgumentoDetalleMotivacion> listadoEntidad)
+        public IEnumerable<TProgramaGeneralArgumentoDetalle> UpdateList(IEnumerable<ProgramaGeneralArgumentoDetalle> listadoEntidad)
         {
             try
             {
                 if (listadoEntidad == null)
                     throw new ArgumentNullException("El listado es nulo");
 
-                List<TProgramaGeneralArgumentoDetalleMotivacion> listado = new List<TProgramaGeneralArgumentoDetalleMotivacion>();
+                List<TProgramaGeneralArgumentoDetalle> listado = new List<TProgramaGeneralArgumentoDetalle>();
                 foreach (var entidad in listadoEntidad)
                 {
                     listado.Add(MapeoEntidad(entidad));
@@ -152,5 +140,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
         #endregion
+
     }
 }

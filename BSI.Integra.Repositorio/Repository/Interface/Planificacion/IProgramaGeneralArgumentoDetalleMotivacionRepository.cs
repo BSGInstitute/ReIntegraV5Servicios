@@ -15,7 +15,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         TProgramaGeneralArgumentoDetalleMotivacion Update(ProgramaGeneralArgumentoDetalleMotivacion entidad);
         bool Delete(int id, string usuario);
 
-        IEnumerable<TProgramaGeneralArgumentoDetalleMotivacion> Add(IEnumerable<ProgramaGeneralArgumentoDetalleMotivacion> listadoEntidad);
+        IEnumerable<TProgramaGeneralArgumentoDetalleMotivacion> AddList(IEnumerable<ProgramaGeneralArgumentoDetalleMotivacion> listadoEntidad);
         IEnumerable<TProgramaGeneralArgumentoDetalleMotivacion> Update(IEnumerable<ProgramaGeneralArgumentoDetalleMotivacion> listadoEntidad);
         bool Delete(IEnumerable<int> listadoIds, string usuario);
         #endregion

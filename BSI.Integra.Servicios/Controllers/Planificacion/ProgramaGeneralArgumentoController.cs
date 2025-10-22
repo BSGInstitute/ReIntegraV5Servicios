@@ -50,7 +50,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         }
 
         [HttpPost("Insertar")]
-        public IActionResult Insertar([FromBody] ProgramaGeneralArgumentoInsertDTO dto)
+        public IActionResult Insertar([FromBody] ProgramaGeneralArgumentoDTO dto)
         {
             try
             {
