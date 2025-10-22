@@ -14,6 +14,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
             TPgeneralConfiguracionPlantillaDetalles = new HashSet<TPgeneralConfiguracionPlantillaDetalle>();
             TPgeneralExpositors = new HashSet<TPgeneralExpositor>();
             TPgeneralModalidads = new HashSet<TPgeneralModalidad>();
+            TProgramaGeneralArgumentoModalidads = new HashSet<TProgramaGeneralArgumentoModalidad>();
         }
 
         /// <summary>
@@ -64,5 +65,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual ICollection<TPgeneralConfiguracionPlantillaDetalle> TPgeneralConfiguracionPlantillaDetalles { get; set; }
         public virtual ICollection<TPgeneralExpositor> TPgeneralExpositors { get; set; }
         public virtual ICollection<TPgeneralModalidad> TPgeneralModalidads { get; set; }
+        public virtual ICollection<TProgramaGeneralArgumentoModalidad> TProgramaGeneralArgumentoModalidads { get; set; }
     }
 }

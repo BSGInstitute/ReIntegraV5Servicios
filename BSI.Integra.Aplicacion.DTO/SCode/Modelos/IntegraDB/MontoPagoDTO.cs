@@ -199,6 +199,17 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int Pais { get; set; }
         public string Beneficios { get; set; }
     }
+    public class MontoPagoModalidadV2DTO
+    {
+        public int IdPGeneral { get; set; }
+        public int Paquete { get; set; }
+        public string NombrePaquete { get; set; }
+        public string InversionContado { get; set; }
+        public string InversionCredito { get; set; }
+        public double ContadoByDolares { get; set; }
+        public int Pais { get; set; }
+        public List<string> Beneficios { get; set; }
+    }
     public class MontoPagoProgramaDTO
     {
         public int Id { get; set; }

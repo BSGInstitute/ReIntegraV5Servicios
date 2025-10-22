@@ -4,6 +4,7 @@ using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Transversal.Clases;
+using BSI.Integra.Aplicacion.Transversal.SCode.Helper;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -126,6 +127,39 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         ObtenerUrlDocumentoAgenda(d, programaEspecifico, programaGeneral)
                 ).ToList();
 
+                return new DocumentoAgendaDetalleDTO
+                {
+                    Oportunidad = oportunidad,
+                    ProgramaEspecifico = programaEspecifico,
+                    Documentos = documentosDescarga
+                };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public DocumentoAgendaDetalleDTO ObtenerDocumentoAgendaDetallePorIdActividadDetalleV2(int idActividadDetalle)
+        {
+            try
+            {
+                IOportunidadService oportunidadService = new OportunidadService(_unitOfWork);
+                IPEspecificoService pEspecificoService = new PEspecificoService(_unitOfWork);
+                IPGeneralService pGeneralService = new PGeneralService(_unitOfWork);
+
+                var oportunidad = oportunidadService.ObtenerOportunidadCompuestoPorIdActividadDetalle(idActividadDetalle);
+                var programaEspecifico = _unitOfWork.PEspecificoRepository.ObtenerPorIdCentroCosto(oportunidad.IdCentroCosto!.Value);
+                var programaGeneral = pGeneralService.ObtenerPGeneralAtributosPrincipalesPorId(programaEspecifico.IdProgramaGeneral!.Value);
+
+                var documentosDescarga = _mapper.Map<List<DocumentoAgendaDescargaDTO>>(ObtenerDocumentoAgendaSinAuditoria());
+                documentosDescarga = documentosDescarga.Select(d =>
+                {
+                    var doc = d.Generado
+                        ? ObtenerBytesDocumentoAgenda(d, programaEspecifico, programaGeneral, oportunidad)
+                        : ObtenerUrlDocumentoAgenda(d, programaEspecifico, programaGeneral);
+                    doc.MensajeDetalle = HtmlToJsonHelper.ConvertHtmlToPlainText(doc.MensajeDetalle);
+                    return doc;
+                }).ToList();
                 return new DocumentoAgendaDetalleDTO
                 {
                     Oportunidad = oportunidad,
@@ -3006,6 +3040,181 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             }
         }
 
+        public List<ProgramaGeneralSeccionDocumentoV2DTO> ObtenerInformacionProgramaGeneralV2(int idPGeneral)
+        {
+            try
+            {
+                var listaPrimera = ObtenerListaSeccionDocumentoProgramaGeneral(idPGeneral);
+                var seccionesv2old = _unitOfWork.DocumentoSeccionPwRepository.ObtenerDatosComplementariosProgramaGeneralV2(idPGeneral);
+                var seccionesv2 = seccionesv2old.Select(x => new RegistroListaSeccionesDocumentoV2DTO
+                {
+                    IdPGeneral = x.IdPGeneral,
+                    Titulo = x.Titulo,
+                    Contenido = HtmlToJsonHelper.ConvertHtmlToJson(x.Contenido),
+                    IdSeccionTipoDetalle_PW = x.IdSeccionTipoDetalle_PW,
+                    NumeroFila = x.NumeroFila,
+                    Cabecera = x.Cabecera,
+                    PiePagina = x.PiePagina,
+                    OrdenWeb = x.OrdenWeb,
+                    NombreCurso = x.NombreCurso
+                }).ToList();
+                var seccionesv1old = _unitOfWork.DocumentoSeccionPwRepository.ObtenerDatosComplementariosProgramaGeneralV1(idPGeneral);
+                var seccionesv1 = seccionesv1old.Select(x => new RegistroListaSeccionesDocumentoV2DTO
+                {
+                    IdPGeneral = x.IdPGeneral,
+                    Titulo = x.Titulo,
+                    Contenido = HtmlToJsonHelper.ConvertHtmlToJson(x.Contenido),
+                    IdSeccionTipoDetalle_PW = x.IdSeccionTipoDetalle_PW,
+                    NumeroFila = x.NumeroFila,
+                    Cabecera = x.Cabecera,
+                    PiePagina = x.PiePagina,
+                    OrdenWeb = x.OrdenWeb,
+                    NombreCurso = x.NombreCurso
+                }).ToList();
+                ProgramaGeneralDocumentoV2DTO programa = new ProgramaGeneralDocumentoV2DTO();
+                ProgramaGeneralDocumentoV2DTO programav2 = new ProgramaGeneralDocumentoV2DTO();
+
+                List<RegistroListaSeccionesDocumentoV2DTO> seccionResultado = new List<RegistroListaSeccionesDocumentoV2DTO>();
+                string[] listaTituloV1 = { "estructura curricular", "beneficios", "pre-requisitos", "certificación", "duración y horarios", "evaluación", "bibliografía", "material del curso", "pautas complementarias", "descripci&#243;n certificacion", "descripci&#243;n estructura", "objetivos", "presentación", "público objetivo", "metodología online de este programa", "modalidad", "inversion", "perfil del egresado", "mercado laboral", "expositores", "metodologia del programa" };
+                string[] listaTituloV2 = { "estructura curricular", "beneficios", "prerrequisitos", "certificacion", "duracion y horarios", "evaluacion", "bibliografia", "material del curso", "pautas complementarias", "descripci&#243;n certificacion", "descripci&#243;n estructura", "objetivos", "presentacion", "publico objetivo", "metodolog&#237;a online de este programa", "Modalidad", "Inversion", "Perfil del egresado", "Mercado laboral", "Expositores", "Metodolog&#237;a del programa" };
+                for (var i = 0; i < listaTituloV2.Length; i++)
+                {
+                    var secEstructuraCurricularV2 = seccionesv2.Where(x => LimpiarCadena(x.Titulo).ToLower() == LimpiarCadena(listaTituloV2[i])).FirstOrDefault();
+                    if (secEstructuraCurricularV2 != null)
+                    {
+                        if (secEstructuraCurricularV2.Contenido == null || (secEstructuraCurricularV2.Contenido is List<object> list && !list.Any()))
+                        {
+                            var secEstructuraCurricularV1 = seccionesv1.Where(x => LimpiarCadena(x.Titulo).ToLower() == LimpiarCadena(listaTituloV1[i])).FirstOrDefault();
+                            if (secEstructuraCurricularV1 != null)
+                            {
+                                if (secEstructuraCurricularV1.Contenido != null && secEstructuraCurricularV1.Contenido.Any())
+                                {
+                                    seccionResultado.Add(secEstructuraCurricularV1);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            seccionResultado.Add(secEstructuraCurricularV2);
+                        }
+                    }
+                    else
+                    {
+                        var secEstructuraCurricularV1 = seccionesv1.Where(x => LimpiarCadena(x.Titulo).ToLower() == LimpiarCadena(listaTituloV1[i])).FirstOrDefault();
+                        if (secEstructuraCurricularV1 != null)
+                        {
+                            if (secEstructuraCurricularV1.Contenido != null && secEstructuraCurricularV1.Contenido.Any())
+                            {
+                                seccionResultado.Add(secEstructuraCurricularV1);
+                            }
+                        }
+                    }
+                }
+
+                if (listaPrimera != null && listaPrimera.Count > 0)
+                {
+                    foreach (var item in listaPrimera)
+                    {
+                        if (item.Seccion != null)
+                        {
+                            var temp = seccionResultado.Where(x => x.Titulo.ToLower().Equals(item.Seccion.ToLower())).FirstOrDefault();
+                            if (temp != null) { seccionResultado.Remove(temp); }
+                            if (LimpiarCadena(item.Seccion).ToLower() == "certificacion")
+                            {
+                                var temp2 = seccionResultado.Where(x => LimpiarCadena(x.Titulo).ToLower().Equals("certificacion")).FirstOrDefault();
+                                if (temp2 != null) { seccionResultado.Remove(temp2); }
+                            }
+                            if (LimpiarCadena(item.Seccion).ToLower() == "prerrequisitos")
+                            {
+                                var temp3 = seccionResultado.Where(x => LimpiarCadena(x.Titulo).ToLower().Equals("pre-requisitos")).FirstOrDefault();
+                                if (temp3 != null) { seccionResultado.Remove(temp3); }
+                            }
+                        }
+                    }
+                }
+
+                programav2.ListaSeccionesContenidosDocumento = seccionResultado;
+
+                List<ProgramaGeneralEstructuraAgrupadoV2DTO> Contenido = new List<ProgramaGeneralEstructuraAgrupadoV2DTO>();
+
+                var _expositores = _unitOfWork.DocumentoSeccionPwRepository.ObtenerExpositoresPorIdGeneral(idPGeneral);
+                foreach (var item in _expositores)
+                {
+                    ProgramaGeneralEstructuraAgrupadoV2DTO temp = new ProgramaGeneralEstructuraAgrupadoV2DTO();
+
+                    var nombreExpositor = item.PrimerNombre + " " + item.SegundoNombre + " " + item.ApellidoPaterno + " " + item.ApellidoMaterno + " - " + item.NombrePais;
+
+                    temp.Seccion = "Expositores";
+                    temp.Titulo = nombreExpositor;
+                    temp.DetalleContenido = new List<ProgramaGeneralEstructuraDetalleV2DTO>();
+
+                    ProgramaGeneralEstructuraDetalleV2DTO obj = new ProgramaGeneralEstructuraDetalleV2DTO()
+                    {
+                        Contenido = item.HojaVidaResumidaLimpia,
+                        Cabecera = null,
+                        PiePagina = null,
+                    };
+
+                    temp.DetalleContenido.Add(obj);
+
+                    Contenido.Add(temp);
+                }
+                
+                if (programav2.ListaSeccionesContenidosDocumento != null && programav2.ListaSeccionesContenidosDocumento.Count > 0)
+                {
+                    var _listaCursos2 = programav2.ListaSeccionesContenidosDocumento.GroupBy(x => new { x.Contenido, x.Titulo }).Select(x => new { x.Key.Contenido, x.Key.Titulo }).ToList();
+                    foreach (var itemCurso in _listaCursos2)
+                    {
+                        var _listaCapitulos = programav2.ListaSeccionesContenidosDocumento.Where(x => x.Contenido == itemCurso.Contenido).GroupBy(x => new { x.Contenido, x.Cabecera, x.PiePagina }).ToList();
+                        ProgramaGeneralEstructuraAgrupadoV2DTO obj = new ProgramaGeneralEstructuraAgrupadoV2DTO();
+                        obj.Seccion = itemCurso.Titulo;
+                        obj.Titulo = itemCurso.Titulo;
+                        obj.DetalleContenido = new List<ProgramaGeneralEstructuraDetalleV2DTO>();
+                        foreach (var itemSecion in _listaCapitulos)
+                        {
+                            ProgramaGeneralEstructuraDetalleV2DTO tmp = new ProgramaGeneralEstructuraDetalleV2DTO()
+                            {
+                                Contenido = itemSecion.Key.Contenido,
+                                Cabecera = itemSecion.Key.Cabecera,
+                                PiePagina = itemSecion.Key.PiePagina
+                            };
+                            obj.DetalleContenido.Add(tmp);
+
+                        }
+                        Contenido.Add(obj);
+                    }
+                }
+
+                var listaProgramaGeneralDocumentoSeccion = Contenido.GroupBy(x => x.Seccion).Select(x => new ProgramaGeneralSeccionDocumentoV2DTO
+                {
+                    Seccion = x.Key,
+                    DetalleSeccion = x.GroupBy(y => new { y.Titulo, y.DetalleContenido }).Select(y => new ProgramaGeneralSeccionDocumentoDetalleV2DTO
+                    {
+                        Titulo = y.Key.Titulo,
+                        Cabecera = y.Key.DetalleContenido.GroupBy(z => z.Cabecera).Select(z => z.Key).FirstOrDefault(),
+                        PiePagina = y.Key.DetalleContenido.GroupBy(z => z.PiePagina).Select(z => z.Key).FirstOrDefault(),
+                        DetalleContenido = y.Key.DetalleContenido.Select(z => z.Contenido).ToList()
+                    }).ToList()
+                }).ToList();
+                var listaPrimera2 = listaPrimera.Select(x => new ProgramaGeneralSeccionDocumentoV2DTO
+                {
+                    Seccion = x.Seccion,
+                    DetalleSeccion = x.DetalleSeccion.Select(d => new ProgramaGeneralSeccionDocumentoDetalleV2DTO
+                    {
+                        Titulo = d.Titulo,
+                        Cabecera = d.Cabecera,
+                        PiePagina = d.PiePagina,
+                        DetalleContenido = d.DetalleContenido
+                    }).ToList()
+                }).ToList();
+                listaProgramaGeneralDocumentoSeccion.AddRange(listaPrimera2);
+                return listaProgramaGeneralDocumentoSeccion;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
 
         public List<ProgramaGeneralSeccionDocumentoDTO> ObtenerInformacionProgramaGeneralJson(int idPGeneral)
         {
