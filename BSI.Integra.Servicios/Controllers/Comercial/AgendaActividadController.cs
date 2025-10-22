@@ -432,6 +432,25 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
                 throw;
             }
         }
+        [Route("[Action]/{idCentroCosto}/{idPrograma}/{idOportunidad}")]
+        [HttpGet]
+        public ActionResult ObtenerPreguntasFrecuentesCambioV2(int idCentroCosto, int idPrograma, int idOportunidad)
+        {
+            try
+            {
+                IAgendaActividadService agendaActividadService = new AgendaActividadService(_unitOfWork);
+                var resultado = agendaActividadService.ObtenerPreguntasFrecuentesCambioV2(idCentroCosto, idPrograma, idOportunidad);
+                return Ok(new
+                {
+                    resultado.Data,
+                    resultado.ModeloCertificado
+                });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 01/08/2022

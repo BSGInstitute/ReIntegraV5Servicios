@@ -934,6 +934,9 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IMatriculaFormularioProgresivoRepository MatriculaFormularioProgresivoRepository { get; }
 
         IProcesoSeleccionPuntajeCalificacionRepository ProcesoSeleccionPuntajeCalificacionRepository { get; }
-
+        IProgramaGeneralProblemaFactorRepository ProgramaGeneralProblemaFactorRepository { get; }
+        IProgramaGeneralProblemaFactorDetalleRepository ProgramaGeneralProblemaFactorDetalleRepository { get; }
+        IProgramaGeneralProblemaFactorSolucionRepository ProgramaGeneralProblemaFactorSolucionRepository { get; }
+        IProgramaGeneralProblemaFactorSubSolucionRepository ProgramaGeneralProblemaFactorSubSolucionRepository { get; }
     }
 }

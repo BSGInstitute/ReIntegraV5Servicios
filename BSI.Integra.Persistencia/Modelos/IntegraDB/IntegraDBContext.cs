@@ -703,6 +703,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TProducto> TProductos { get; set; } = null!;
         public virtual DbSet<TProductoPresentacion> TProductoPresentacions { get; set; } = null!;
         public virtual DbSet<TProgramaAreaRelacionadum> TProgramaAreaRelacionada { get; set; } = null!;
+        public virtual DbSet<TProgramaGeneralArgumento> TProgramaGeneralArgumentos { get; set; } = null!;
+        public virtual DbSet<TProgramaGeneralArgumentoDetalle> TProgramaGeneralArgumentoDetalles { get; set; } = null!;
+        public virtual DbSet<TProgramaGeneralArgumentoDetalleMotivacion> TProgramaGeneralArgumentoDetalleMotivacions { get; set; } = null!;
+        public virtual DbSet<TProgramaGeneralArgumentoModalidad> TProgramaGeneralArgumentoModalidads { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralBeneficio> TProgramaGeneralBeneficios { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralBeneficioArgumento> TProgramaGeneralBeneficioArgumentos { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralBeneficioModalidad> TProgramaGeneralBeneficioModalidads { get; set; } = null!;
@@ -746,6 +750,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TProgramaGeneralProblema> TProgramaGeneralProblemas { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralProblemaDetalleSolucion> TProgramaGeneralProblemaDetalleSolucions { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralProblemaDetalleSolucionRespuestum> TProgramaGeneralProblemaDetalleSolucionRespuesta { get; set; } = null!;
+        public virtual DbSet<TProgramaGeneralProblemaFactor> TProgramaGeneralProblemaFactors { get; set; } = null!;
+        public virtual DbSet<TProgramaGeneralProblemaFactorDetalle> TProgramaGeneralProblemaFactorDetalles { get; set; } = null!;
+        public virtual DbSet<TProgramaGeneralProblemaFactorSolucion> TProgramaGeneralProblemaFactorSolucions { get; set; } = null!;
+        public virtual DbSet<TProgramaGeneralProblemaFactorSubSolucion> TProgramaGeneralProblemaFactorSubSolucions { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralProblemaModalidad> TProgramaGeneralProblemaModalidads { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralPuntoCorte> TProgramaGeneralPuntoCortes { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralPuntoCorteConfiguracion> TProgramaGeneralPuntoCorteConfiguracions { get; set; } = null!;
@@ -42017,6 +42025,211 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasConstraintName("FK_T_ProgramaAreaRelacionada_T_PGeneral");
             });
 
+            modelBuilder.Entity<TProgramaGeneralArgumento>(entity =>
+            {
+                entity.ToTable("T_ProgramaGeneralArgumento", "pla");
+
+                entity.HasComment("Contiene los argumentos asociados a un programa general.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la tabla.");
+
+                entity.Property(e => e.Descripcion)
+                    .IsUnicode(false)
+                    .HasComment("Descripción detallada del argumento.");
+
+                entity.Property(e => e.EsVisibleAgenda).HasComment("Indica si el argumento es visible en la agenda.");
+
+                entity.Property(e => e.Estado).HasComment("Indica si el registro está activo o inactivo.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación.");
+
+                entity.Property(e => e.IdPgeneral)
+                    .HasColumnName("IdPGeneral")
+                    .HasComment("Identificador del programa general asociado.");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(255)
+                    .HasComment("Nombre del argumento.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo para control de concurrencia de registros.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro por última vez.");
+
+                entity.HasOne(d => d.IdPgeneralNavigation)
+                    .WithMany(p => p.TProgramaGeneralArgumentos)
+                    .HasForeignKey(d => d.IdPgeneral)
+                    .HasConstraintName("FK_T_ProgramaGeneralArgumento_PGeneral_IdPGeneral");
+            });
+
+            modelBuilder.Entity<TProgramaGeneralArgumentoDetalle>(entity =>
+            {
+                entity.ToTable("T_ProgramaGeneralArgumentoDetalle", "pla");
+
+                entity.HasComment("Detalles asociados a un argumento de programa general.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la tabla.");
+
+                entity.Property(e => e.Detalle).HasComment("Descripción detallada del argumento.");
+
+                entity.Property(e => e.Estado).HasComment("Indica si el registro está activo o inactivo.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación.");
+
+                entity.Property(e => e.IdProgramaGeneralArgumento).HasComment("Identificador del argumento de programa general asociado.");
+
+                entity.Property(e => e.InstruccionPieDetalle)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Texto adicional o pie de detalle para el argumento.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo para control de concurrencia de registros.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro por última vez.");
+
+                entity.HasOne(d => d.IdProgramaGeneralArgumentoNavigation)
+                    .WithMany(p => p.TProgramaGeneralArgumentoDetalles)
+                    .HasForeignKey(d => d.IdProgramaGeneralArgumento)
+                    .HasConstraintName("FK_T_ProgramaGeneralArgumentoDetalle_ProgramaGeneralArgumento_IdProgramaGeneralArgumento");
+            });
+
+            modelBuilder.Entity<TProgramaGeneralArgumentoDetalleMotivacion>(entity =>
+            {
+                entity.ToTable("T_ProgramaGeneralArgumentoDetalleMotivacion", "pla");
+
+                entity.HasComment("Relaciona detalles de argumentos de programa general con motivaciones.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la tabla.");
+
+                entity.Property(e => e.Estado).HasComment("Indica si el registro está activo o inactivo.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación.");
+
+                entity.Property(e => e.IdProgramaGeneralArgumentoDetalle).HasComment("Identificador del detalle de argumento de programa general asociado.");
+
+                entity.Property(e => e.IdProgramaGeneralMotivacion).HasComment("Identificador de la motivación de programa general asociada.");
+
+                entity.Property(e => e.NombreMotivacion)
+                    .IsUnicode(false)
+                    .HasComment("Nombre descriptivo de la motivación.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo para control de concurrencia de registros.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro por última vez.");
+
+                entity.HasOne(d => d.IdProgramaGeneralArgumentoDetalleNavigation)
+                    .WithMany(p => p.TProgramaGeneralArgumentoDetalleMotivacions)
+                    .HasForeignKey(d => d.IdProgramaGeneralArgumentoDetalle)
+                    .HasConstraintName("FK_T_ProgramaGeneralArgumentoDetalleMotivacion_ProgramaGeneralArgumentoDetalle_IdProgramaGeneralArgumentoDetalle");
+
+                entity.HasOne(d => d.IdProgramaGeneralMotivacionNavigation)
+                    .WithMany(p => p.TProgramaGeneralArgumentoDetalleMotivacions)
+                    .HasForeignKey(d => d.IdProgramaGeneralMotivacion)
+                    .HasConstraintName("FK_T_ProgramaGeneralArgumentoDetalleMotivacion_ProgramaGeneralMotivacion_IdProgramaGeneralMotivacion");
+            });
+
+            modelBuilder.Entity<TProgramaGeneralArgumentoModalidad>(entity =>
+            {
+                entity.ToTable("T_ProgramaGeneralArgumentoModalidad", "pla");
+
+                entity.HasComment("Relaciona argumentos de programa general con modalidades de curso.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la tabla.");
+
+                entity.Property(e => e.Estado).HasComment("Indica si el registro está activo o inactivo.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación.");
+
+                entity.Property(e => e.IdModalidadCurso).HasComment("Identificador de la modalidad de curso asociada.");
+
+                entity.Property(e => e.IdProgramaGeneralArgumento).HasComment("Identificador del argumento de programa general asociado.");
+
+                entity.Property(e => e.Nombre)
+                    .IsUnicode(false)
+                    .HasComment("Nombre descriptivo de la relación.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo para control de concurrencia de registros.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro por última vez.");
+
+                entity.HasOne(d => d.IdModalidadCursoNavigation)
+                    .WithMany(p => p.TProgramaGeneralArgumentoModalidads)
+                    .HasForeignKey(d => d.IdModalidadCurso)
+                    .HasConstraintName("FK_T_ProgramaGeneralArgumentoModalidad_ModalidadCurso_IdModalidadCurso");
+
+                entity.HasOne(d => d.IdProgramaGeneralArgumentoNavigation)
+                    .WithMany(p => p.TProgramaGeneralArgumentoModalidads)
+                    .HasForeignKey(d => d.IdProgramaGeneralArgumento)
+                    .HasConstraintName("FK_T_ProgramaGeneralArgumentoModalidad_ProgramaGeneralArgumento_IdProgramaGeneralArgumento");
+            });
+
             modelBuilder.Entity<TProgramaGeneralBeneficio>(entity =>
             {
                 entity.ToTable("T_ProgramaGeneralBeneficio", "pla");
@@ -44191,6 +44404,187 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario de modificacion del registro");
+            });
+
+            modelBuilder.Entity<TProgramaGeneralProblemaFactor>(entity =>
+            {
+                entity.ToTable("T_ProgramaGeneralProblemaFactor", "pla");
+
+                entity.HasComment("Esta tabla registra problemas de los clientes de la empresa");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre problema del cliente");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de creacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro");
+            });
+
+            modelBuilder.Entity<TProgramaGeneralProblemaFactorDetalle>(entity =>
+            {
+                entity.ToTable("T_ProgramaGeneralProblemaFactorDetalle", "pla");
+
+                entity.HasComment("Esta tabla registra detalle del problema de los clientes de la empresa");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre detalle problema del cliente");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.Titulo)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Titulo del Detalle del problema del cliente");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de creacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro");
+            });
+
+            modelBuilder.Entity<TProgramaGeneralProblemaFactorSolucion>(entity =>
+            {
+                entity.ToTable("T_ProgramaGeneralProblemaFactorSolucion", "pla");
+
+                entity.HasComment("Esta tabla registra Solucion de los problemas de los clientes de la empresa");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Nombre Solucion del Problea del cliente");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.SubTitulo)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("SubTitulo Solucion del problema del cliente");
+
+                entity.Property(e => e.Titulo)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Titulo Solucion del problema del cliente");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de creacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro");
+            });
+
+            modelBuilder.Entity<TProgramaGeneralProblemaFactorSubSolucion>(entity =>
+            {
+                entity.ToTable("T_ProgramaGeneralProblemaFactorSubSolucion", "pla");
+
+                entity.HasComment("Esta tabla registra Soluciones asociadas a una solucion de los problemas de los clientes de la empresa");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.IdProgramaGeneralProblemaFactorSolucion).HasComment("Es foreign key que referencia a la tabla T_ProgramaGeneralProblemaFactorSolucion");
+
+                entity.Property(e => e.Nivel).HasComment("Nivel al que ira la Solucion");
+
+                entity.Property(e => e.Orden).HasComment("Orden de las soluciones presentadas");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.Solucion)
+                    .IsUnicode(false)
+                    .HasComment("Nombre Solucion asignada a una solucion especifica del cliente");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de creacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro");
+
+                entity.HasOne(d => d.IdProgramaGeneralProblemaFactorSolucionNavigation)
+                    .WithMany(p => p.TProgramaGeneralProblemaFactorSubSolucions)
+                    .HasForeignKey(d => d.IdProgramaGeneralProblemaFactorSolucion)
+                    .HasConstraintName("FK_T_ProgramaGeneralProblemaFactorSubSolucion_ProgramaGeneralProblemaFactorSolucion_IdProgramaGeneralProblemaFactorSolucion");
             });
 
             modelBuilder.Entity<TProgramaGeneralProblemaModalidad>(entity =>
