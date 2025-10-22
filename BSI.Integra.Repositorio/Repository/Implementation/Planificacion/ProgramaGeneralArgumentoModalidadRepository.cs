@@ -18,7 +18,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             var config = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<TProgramaGeneralArgumento, ProgramaGeneralArgumento>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TProgramaGeneralArgumentoModalidad, ProgramaGeneralArgumentoModalidad>(MemberList.None).ReverseMap();
                 //cfg.CreateMap<THijo, Hijo>(MemberList.None).ReverseMap();
             });
             _mapper = new Mapper(config);
