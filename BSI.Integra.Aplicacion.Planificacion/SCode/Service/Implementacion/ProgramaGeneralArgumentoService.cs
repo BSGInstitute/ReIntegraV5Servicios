@@ -31,8 +31,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             });
             _mapper = new Mapper(config);
         }
-
-
         public IEnumerable<ProgramaGeneralArgumentoDTO> Obtener()
         {
             try
@@ -49,147 +47,159 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         {
             try
             {
-                if (entidad != null)
+                if (entidad == null)
+                    throw new ArgumentNullException(nameof(entidad), "El objeto entidad no puede ser nulo");
+
+                ProgramaGeneralArgumento PGArgumento = new()
                 {
-                    ProgramaGeneralArgumento PGArgumento = new()
+                    IdPgeneral = entidad.IdPGeneral,
+                    Nombre = entidad.Nombre,
+                    Descripcion = entidad.Descripcion,
+                    EsVisibleAgenda = entidad.EsVisibleAgenda,
+                    Estado = true,
+                    FechaCreacion = DateTime.Now,
+                    FechaModificacion = DateTime.Now,
+                    UsuarioCreacion = usuario,
+                    UsuarioModificacion = usuario,
+                };
+
+                var respuesta = _unitOfWork.ProgramaGeneralArgumentoRepository.Add(PGArgumento);
+                _unitOfWork.Commit();
+
+                if (respuesta == null || respuesta.Id <= 0)
+                    throw new BadRequestException("No se pudo registrar el argumento");
+                List<ProgramaGeneralArgumentoModalidad> modalidadesGuardadas = new();
+
+                if (entidad.Modalidades != null && entidad.Modalidades.Any())
+                {
+                    List<ProgramaGeneralArgumentoModalidad> listaModalidades = new();
+
+                    foreach (var m in entidad.Modalidades)
                     {
-                        IdPgeneral = entidad.IdPGeneral,
-                        Nombre = entidad.Nombre,
-                        Descripcion = entidad.Descripcion,
-                        EsVisibleAgenda = entidad.EsVisibleAgenda,
-                        Estado = true,
-                        FechaCreacion = DateTime.Now,
-                        FechaModificacion = DateTime.Now,
-                        UsuarioCreacion = usuario,
-                        UsuarioModificacion = usuario,
-                    };
-                    var respuesta = _unitOfWork.ProgramaGeneralArgumentoRepository.Add(PGArgumento);
-                    _unitOfWork.Commit();
-                    if (respuesta.Id == null) throw new BadRequestException("No se pudo registrar el argumento");
-                    List<ProgramaGeneralArgumentoModalidad> _modalidades = new();
-                    if (respuesta != null && entidad.Modalidades.Count() != 0)
-                    {
-                        List<ProgramaGeneralArgumentoModalidad> listaModalidades = new();
-                        foreach (var m in entidad.Modalidades)
+                        ProgramaGeneralArgumentoModalidad modalidad = new()
                         {
-                            ProgramaGeneralArgumentoModalidad modalidad = new()
-                            {
-                                IdProgramaGeneralArgumento = respuesta.Id,
-                                IdModalidadCurso = m.IdModalidad,
-                                Nombre = m.Nombre,
-                                Estado = true,
-                                FechaCreacion = DateTime.Now,
-                                FechaModificacion = DateTime.Now,
-                                UsuarioCreacion = usuario,
-                                UsuarioModificacion = usuario,
-                            };
-                            listaModalidades.Add(modalidad);
-                        }
-                        var result = _unitOfWork.ProgramaGeneralArgumentoModalidadRepository.AddList(listaModalidades);
+                            IdProgramaGeneralArgumento = respuesta.Id,
+                            IdModalidadCurso = m.IdModalidad,
+                            Nombre = m.Nombre,
+                            Estado = true,
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now,
+                            UsuarioCreacion = usuario,
+                            UsuarioModificacion = usuario,
+                        };
+                        listaModalidades.Add(modalidad);
+                    }
+
+                    var insertados = _unitOfWork.ProgramaGeneralArgumentoModalidadRepository.AddList(listaModalidades);
+                    _unitOfWork.Commit();
+
+                    modalidadesGuardadas.AddRange(
+                        insertados.Select(x => new ProgramaGeneralArgumentoModalidad
+                        {
+                            Id = x.Id,
+                            IdProgramaGeneralArgumento = x.IdProgramaGeneralArgumento,
+                            IdModalidadCurso = x.IdModalidadCurso,
+                            Nombre = x.Nombre,
+                            Estado = x.Estado,
+                            FechaCreacion = x.FechaCreacion,
+                            FechaModificacion = x.FechaModificacion,
+                            UsuarioCreacion = x.UsuarioCreacion,
+                            UsuarioModificacion = x.UsuarioModificacion
+                        })
+                        .ToList()
+                    );
+                }
+                List<ProgramaGeneralArgumentoDetalleDTO> argumentoDetalleDtoList = new();
+
+                if (entidad.ArgumentoDetalle != null && entidad.ArgumentoDetalle.Any())
+                {
+                    foreach (var m in entidad.ArgumentoDetalle)
+                    {
+                        if (m.Motivacion == null || m.Motivacion.Id <= 0)
+                            throw new BadRequestException("La motivación es requerida y debe tener un Id válido.");
+
+                        ProgramaGeneralArgumentoDetalle argumentoDetalle = new()
+                        {
+                            IdProgramaGeneralArgumento = respuesta.Id,
+                            Detalle = m.Detalle,
+                            InstruccionPieDetalle = m.InstruccionPieDetalle,
+                            Estado = true,
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now,
+                            UsuarioCreacion = usuario,
+                            UsuarioModificacion = usuario,
+                        };
+
+                        var detalleInsertado = _unitOfWork.ProgramaGeneralArgumentoDetalleRepository.Add(argumentoDetalle);
                         _unitOfWork.Commit();
-                        _modalidades.AddRange((IEnumerable<ProgramaGeneralArgumentoModalidad>)result.ToList());
-                    }
-                    List<ProgramaGeneralArgumentoDetalleDTO> _argumentoDetalleList = new();
-                    if (respuesta != null && entidad.ArgumentoDetalle.Count() != 0)
-                    {
-                        foreach (var m in entidad.ArgumentoDetalle)
+
+                        if (detalleInsertado == null || detalleInsertado.Id <= 0)
+                            throw new BadRequestException("No se pudo registrar el detalle del argumento");
+
+                        ProgramaGeneralArgumentoDetalleMotivacion motivacion = new()
                         {
-                            ProgramaGeneralArgumentoDetalle argumentoDetalle = new()
+                            IdProgramaGeneralArgumentoDetalle = detalleInsertado.Id,
+                            IdProgramaGeneralMotivacion = m.Motivacion.Id,
+                            NombreMotivacion = m.Motivacion.Nombre,
+                            Estado = true,
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now,
+                            UsuarioCreacion = usuario,
+                            UsuarioModificacion = usuario,
+                        };
+
+                        var motivacionInsertada = _unitOfWork.ProgramaGeneralArgumentoDetalleMotivacionRepository.Add(motivacion);
+                        _unitOfWork.Commit();
+
+                        argumentoDetalleDtoList.Add(new ProgramaGeneralArgumentoDetalleDTO
+                        {
+                            Id = detalleInsertado.Id,
+                            Detalle = detalleInsertado.Detalle,
+                            InstruccionPieDetalle = detalleInsertado.InstruccionPieDetalle,
+                            Motivacion = new PGArgumentoDetalleMotivacionDTO
                             {
-                                IdProgramaGeneralArgumento = respuesta.Id,
-                                Detalle = m.Detalle,
-                                InstruccionPieDetalle = m.InstruccionPieDetalle,
-                                Estado = true,
-                                FechaCreacion = DateTime.Now,
-                                FechaModificacion = DateTime.Now,
-                                UsuarioCreacion = usuario,
-                                UsuarioModificacion = usuario,
-                            };
-                            var _argumentoDetalle = _unitOfWork.ProgramaGeneralArgumentoDetalleRepository.Add(argumentoDetalle);
-                            _unitOfWork.Commit();
-                            if (_argumentoDetalle.Id == null) throw new BadRequestException("No se pudo registrar el detalle del argumento");
-                            ProgramaGeneralArgumentoDetalleMotivacion motivacion = new()
-                            {
-                                IdProgramaGeneralArgumentoDetalle = _argumentoDetalle.Id,
-                                IdProgramaGeneralMotivacion = m.Motivacion.Id,
-                                NombreMotivacion = m.Motivacion.Nombre,
-                                Estado = true,
-                                FechaCreacion = DateTime.Now,
-                                FechaModificacion = DateTime.Now,
-                                UsuarioCreacion = usuario,
-                                UsuarioModificacion = usuario,
-                            };
-                            _unitOfWork.ProgramaGeneralArgumentoDetalleMotivacionRepository.Add(motivacion);
-                            _unitOfWork.Commit();
-                            _argumentoDetalleList.Add(new ProgramaGeneralArgumentoDetalleDTO
-                            {
-                                Id = _argumentoDetalle.Id,
-                                Detalle = _argumentoDetalle.Detalle,
-                                InstruccionPieDetalle = _argumentoDetalle.InstruccionPieDetalle,
-                                Motivacion = new PGArgumentoDetalleMotivacionDTO
-                                {
-                                    Id = motivacion.Id,
-                                    Nombre = motivacion.NombreMotivacion
-                                }
-                            });
-                        }
+                                Id = motivacionInsertada.Id,
+                                Nombre = motivacionInsertada.NombreMotivacion
+                            }
+                        });
                     }
-                    _unitOfWork.Commit();
-                    var respuestaFinal = new
-                    {
-                        Id = respuesta.Id,
-                        IdPGeneral = respuesta.IdPgeneral,
-                        Nombre = respuesta.Nombre,
-                        Descripcion = respuesta.Descripcion,
-                        EsVisibleAgenda = respuesta.EsVisibleAgenda,
-                        Modalidades = _modalidades,
-                        ArgumentoDetalle = _argumentoDetalleList
-                    };
-                    return _mapper.Map<ProgramaGeneralArgumentoDTO>(respuesta);
                 }
-                else
+                _unitOfWork.Commit();
+                var dtoRespuesta = new ProgramaGeneralArgumentoDTO
                 {
-                    throw new ArgumentNullException("El objeto entidad no puede ser nulo");
-                }
+                    Id = respuesta.Id,
+                    IdPGeneral = respuesta.IdPgeneral,
+                    Nombre = respuesta.Nombre,
+                    Descripcion = respuesta.Descripcion,
+                    EsVisibleAgenda = respuesta.EsVisibleAgenda,
+                    Modalidades = modalidadesGuardadas.Select(mm => new ProgramaGeneralArgumentoModalidadDTO
+                    {
+                        Id = mm.Id,
+                        IdModalidad = mm.IdModalidadCurso,
+                        Nombre = mm.Nombre
+                    }).ToList(),
+                    ArgumentoDetalle = argumentoDetalleDtoList
+                };
+
+                return dtoRespuesta;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 _unitOfWork.Rollback();
-                throw ex;
+                throw;
             }
         }
 
-        public ProgramaGeneralArgumentoDTO Actualizar(ProgramaGeneralArgumentoDTO dto, string usuario)
+        public ProgramaGeneralArgumentoDTO Actualizar(ProgramaGeneralArgumentoDTO entidad, string usuario)
         {
             try
             {
-                ProgramaGeneralArgumento entidad = new();
-                if (dto != null)
-                {
-                    if (dto.Id != 0)
-                    {
-                        ProgramaGeneralArgumentoDTO? rto = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerPorId(dto.Id);
-                        if (rto != null && rto.Id != 0)
-                        {
-                            entidad.IdPgeneral = dto.IdPGeneral;
-                            entidad.Nombre = dto.Nombre;
-                            entidad.Descripcion = dto.Descripcion;
-                            entidad.FechaModificacion = DateTime.Now;
-                            entidad.UsuarioModificacion = usuario;
-                        }
-                        else
-                                throw new ArgumentNullException("No se encontro el registro a actualizar");
-                    }
-                    else
-                        throw new BadRequestException("Id Entidad 0");
-                }
-                else
-                {
+                if (entidad == null)
                     throw new ArgumentNullException("El objeto entidad no puede ser nulo");
-                }
-                var respuest = _unitOfWork.ProgramaGeneralArgumentoRepository.Update(entidad);
-                _unitOfWork.Commit();
-                return _mapper.Map<ProgramaGeneralArgumentoDTO>(respuest);
+                var argumentoExistente = _unitOfWork.ProgramaGeneralArgumentoRepository.FirstById(entidad.Id);
+                if (argumentoExistente == null)
+                    throw new BadRequestException($"No se encontró el argumento con Id {entidad.Id}");
+                return entidad;
             }
             catch (Exception ex)
             {
