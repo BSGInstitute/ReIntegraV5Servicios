@@ -392,7 +392,7 @@ namespace BSI.Integra.Servicios.Controllers
             try
             {
                 var servicio = new ChatDetalleIntegraService(unitOfWork);
-                var respuesta = servicio.ObtenerPreguntasPorVersionFormulario(dto.IdVersionFormulario);
+                var respuesta = servicio.ObtenerPreguntasPorVersionFormulario(dto.IdVersionFormularioEvaluacionChatbot);
                 return Ok(respuesta);
             }
             catch (Exception ex)
@@ -442,7 +442,7 @@ namespace BSI.Integra.Servicios.Controllers
             try
             {
                 var servicio = new ChatDetalleIntegraService(unitOfWork);
-                var respuesta = servicio.ObtenerRespuestasPorVersionFormulario(dto.IdVersionFormulario);
+                var respuesta = servicio.ObtenerRespuestasPorVersionFormulario(dto.IdVersionFormularioEvaluacionChatbot);
                 return Ok(respuesta);
             }
             catch (Exception ex)
@@ -467,7 +467,7 @@ namespace BSI.Integra.Servicios.Controllers
             try
             {
                 var servicio = new ChatDetalleIntegraService(unitOfWork);
-                var respuesta = servicio.ObtenerPreguntasConRespuestas(dto.IdVersionFormulario);
+                var respuesta = servicio.ObtenerPreguntasConRespuestas(dto.IdVersionFormularioEvaluacionChatbot);
                 return Ok(respuesta);
             }
             catch (Exception ex)

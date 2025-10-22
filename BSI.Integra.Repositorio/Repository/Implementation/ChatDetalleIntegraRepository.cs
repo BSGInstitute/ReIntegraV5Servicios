@@ -207,15 +207,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene todas las preguntas de evaluación activas por versión de formulario, ordenadas por el campo Orden.
         /// </summary>
-        /// <param name="idVersionFormulario">ID de la versión del formulario</param>
+        /// <param name="idVersionFormularioEvaluacionChatbot">ID de la versión del formulario</param>
         /// <returns>Lista de preguntas ordenadas</returns>
-        public IEnumerable<PreguntaEvaluacion2DTO> ObtenerPreguntasPorVersionFormulario(int idVersionFormulario)
+        public IEnumerable<PreguntaEvaluacion2DTO> ObtenerPreguntasPorVersionFormulario(int idVersionFormularioEvaluacionChatbot)
             {
                 try
                 {
                     var resultado = new List<PreguntaEvaluacion2DTO>();
                     var query = "ia.SP_TPreguntaEvaluacionChatbot_ObtenerPorVersionFormulario";
-                    var response = _dapperRepository.QuerySPDapper(query, new { idVersionFormulario });
+                    var response = _dapperRepository.QuerySPDapper(query, new { idVersionFormularioEvaluacionChatbot });
 
                     if (!string.IsNullOrEmpty(response))
                     {
@@ -237,13 +237,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// </summary>
         /// <param name="idVersionFormulario">ID de la versión del formulario</param>
         /// <returns>Lista de respuestas ordenadas</returns>
-        public IEnumerable<RespuestaEvaluacionDTO> ObtenerRespuestasPorVersionFormulario(int idVersionFormulario)
+        public IEnumerable<RespuestaEvaluacionDTO> ObtenerRespuestasPorVersionFormulario(int IdVersionFormularioEvaluacionChatbot)
             {
                 try
                 {
                     var resultado = new List<RespuestaEvaluacionDTO>();
                     var query = "ia.SP_TRespuestaEvaluacionChatbot_ObtenerPorVersionFormulario";
-                    var response = _dapperRepository.QuerySPDapper(query, new { idVersionFormulario });
+                    var response = _dapperRepository.QuerySPDapper(query, new { IdVersionFormularioEvaluacionChatbot });
 
                     if (!string.IsNullOrEmpty(response))
                     {
@@ -491,7 +491,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         // En tu repositorio correspondiente
         public InsertarRespuestaEvaluacionResultadoDTO InsertarRespuestaEvaluacionCompleta(
             int idChatbotPortalHiloChat,
-            int idVersionFormulario,
+            int idVersionFormularioEvaluacionChatbot,
             string usuarioCreacion,
             string respuestasSeleccionadasJson = null,
             string respuestasTextoJson = null,
@@ -505,7 +505,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var parametros = new
                 {
                     IdChatbotPortalHiloChat = idChatbotPortalHiloChat,
-                    IdVersionFormulario = idVersionFormulario,
+                    IdVersionFormularioEvaluacionChatbot = idVersionFormularioEvaluacionChatbot,
                     UsuarioCreacion = usuarioCreacion,
                     RespuestasSeleccionadas = respuestasSeleccionadasJson,
                     RespuestasTexto = respuestasTextoJson,

@@ -145,11 +145,11 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         /// </summary>
         /// <param name="idVersionFormulario">ID de la versión del formulario</param>
         /// <returns>Lista de preguntas ordenadas</returns>
-        public IEnumerable<PreguntaEvaluacion2DTO> ObtenerPreguntasPorVersionFormulario(int idVersionFormulario)
+        public IEnumerable<PreguntaEvaluacion2DTO> ObtenerPreguntasPorVersionFormulario(int IdVersionFormularioEvaluacionChatbot)
         {
             try
             {
-                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerPreguntasPorVersionFormulario(idVersionFormulario);
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerPreguntasPorVersionFormulario(IdVersionFormularioEvaluacionChatbot);
             }
             catch (Exception ex)
             {
@@ -185,11 +185,11 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         /// </summary>
         /// <param name="idVersionFormulario">ID de la versión del formulario</param>
         /// <returns>Lista de respuestas ordenadas</returns>
-        public IEnumerable<RespuestaEvaluacionDTO> ObtenerRespuestasPorVersionFormulario(int idVersionFormulario)
+        public IEnumerable<RespuestaEvaluacionDTO> ObtenerRespuestasPorVersionFormulario(int IdVersionFormularioEvaluacionChatbot)
         {
             try
             {
-                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerRespuestasPorVersionFormulario(idVersionFormulario);
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerRespuestasPorVersionFormulario(IdVersionFormularioEvaluacionChatbot);
             }
             catch (Exception ex)
             {
@@ -205,18 +205,18 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         /// </summary>
         /// <param name="idVersionFormulario">ID de la versión del formulario</param>
         /// <returns>Lista de preguntas con respuestas ordenadas</returns>
-        public IEnumerable<PreguntaEvaluacion2DTO> ObtenerPreguntasConRespuestas(int idVersionFormulario)
+        public IEnumerable<PreguntaEvaluacion2DTO> ObtenerPreguntasConRespuestas(int IdVersionFormularioEvaluacionChatbot)
         {
             try
             {
                 // Primero obtenemos las preguntas
-                var preguntas = _unitOfWork.ChatDetalleIntegraRepository.ObtenerPreguntasPorVersionFormulario(idVersionFormulario).ToList();
+                var preguntas = _unitOfWork.ChatDetalleIntegraRepository.ObtenerPreguntasPorVersionFormulario(IdVersionFormularioEvaluacionChatbot).ToList();
 
                 if (!preguntas.Any())
                     return preguntas;
 
                 // Obtenemos todas las respuestas para esta versión de formulario
-                var todasLasRespuestas = _unitOfWork.ChatDetalleIntegraRepository.ObtenerRespuestasPorVersionFormulario(idVersionFormulario)
+                var todasLasRespuestas = _unitOfWork.ChatDetalleIntegraRepository.ObtenerRespuestasPorVersionFormulario(IdVersionFormularioEvaluacionChatbot)
                     .GroupBy(r => r.IdPreguntaEvaluacionChatbot)
                     .ToDictionary(g => g.Key, g => g.OrderBy(r => r.Orden).ToList());
 
@@ -336,7 +336,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 if (request.IdChatbotPortalHiloChat <= 0)
                     throw new BadRequestException("IdChatbotPortalHiloChat debe ser mayor a 0");
 
-                if (request.IdVersionFormulario <= 0)
+                if (request.IdVersionFormularioEvaluacionChatbot <= 0)
                     throw new BadRequestException("IdVersionFormulario debe ser mayor a 0");
 
                 string respuestasSeleccionadasJson = request.RespuestasSeleccionadas != null && request.RespuestasSeleccionadas.Any()
@@ -353,7 +353,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
 
                 var resultado = _unitOfWork.ChatDetalleIntegraRepository.InsertarRespuestaEvaluacionCompleta(
                     request.IdChatbotPortalHiloChat,
-                    request.IdVersionFormulario,
+                    request.IdVersionFormularioEvaluacionChatbot,
                     usuario,
                     respuestasSeleccionadasJson,
                     respuestasTextoJson,

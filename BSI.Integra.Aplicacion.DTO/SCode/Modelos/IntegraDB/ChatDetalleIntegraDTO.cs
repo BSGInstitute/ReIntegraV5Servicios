@@ -160,7 +160,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 
     public class ObtenerPreguntasRequestDTO
     {
-        public int IdVersionFormulario { get; set; }
+        public int IdVersionFormularioEvaluacionChatbot { get; set; }
     }
 
     public class ObtenerRespuestasRequestDTO
@@ -193,7 +193,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdChatbotPortalHiloChat { get; set; }
 
         [Required]
-        public int IdVersionFormulario { get; set; }
+        public int IdVersionFormularioEvaluacionChatbot { get; set; }
 
         [Required]
         [MaxLength(50)]

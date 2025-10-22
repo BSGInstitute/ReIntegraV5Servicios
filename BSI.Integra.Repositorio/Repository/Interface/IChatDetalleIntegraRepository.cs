@@ -28,13 +28,13 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         List<DatosSesionChatComercialDTO> GetIdUltimaInteraccionComercial(int idAlumno);
         ChatDetalleIntegra ObtenerPorIntegraChatYRemintente(int idInteraccionChatIntegra, string idRemitente);
         List<HistorialChatDetalleIntegraDTO> ObtenerHistorialChatDetalleIntegra(int idMatriculaCabecera);
-        IEnumerable<PreguntaEvaluacion2DTO> ObtenerPreguntasPorVersionFormulario(int idVersionFormulario);
+        IEnumerable<PreguntaEvaluacion2DTO> ObtenerPreguntasPorVersionFormulario(int IdVersionFormularioEvaluacionChatbot);
         IEnumerable<RespuestaEvaluacionDTO> ObtenerRespuestasPorPregunta(int idPregunta);
-        IEnumerable<RespuestaEvaluacionDTO> ObtenerRespuestasPorVersionFormulario(int idVersionFormulario);
+        IEnumerable<RespuestaEvaluacionDTO> ObtenerRespuestasPorVersionFormulario(int IdVersionFormularioEvaluacionChatbot);
         IEnumerable<VersionFormularioDTO> ObtenerVersionesFormularioActivas();
         IEnumerable<TipoEntradaDTO> ObtenerTiposEntradaActivos();
         IEnumerable<ChatbotMensajeDTO> ObtenerChatPorAlumno(int idAlumno);
-        InsertarRespuestaEvaluacionResultadoDTO InsertarRespuestaEvaluacionCompleta(int idChatbotPortalHiloChat, int idVersionFormulario, string usuarioCreacion, string respuestasSeleccionadasJson = null, string respuestasTextoJson = null, string problemasIdentificadosJson = null);
+        InsertarRespuestaEvaluacionResultadoDTO InsertarRespuestaEvaluacionCompleta(int idChatbotPortalHiloChat, int idVersionFormularioEvaluacionChatbot, string usuarioCreacion, string respuestasSeleccionadasJson = null, string respuestasTextoJson = null, string problemasIdentificadosJson = null);
         IEnumerable<ChatbotMensajeDTO> ObtenerChatPorPortalSegmento(string IdContactoPortalSegmento);
     }
 }
