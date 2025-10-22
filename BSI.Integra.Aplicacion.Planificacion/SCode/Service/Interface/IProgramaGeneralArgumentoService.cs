@@ -11,7 +11,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
     public interface IProgramaGeneralArgumentoService
     {
         IEnumerable<ProgramaGeneralArgumentoDTO> Obtener();
-        ProgramaGeneralArgumentoDTO Insertar(ProgramaGeneralArgumentoDTO entidad, string usuario);
+        public ProgramaGeneralArgumentoDTO Insertar(ProgramaGeneralArgumentoInsertDTO entidad, string usuario);
+
         ProgramaGeneralArgumentoDTO Actualizar(ProgramaGeneralArgumentoDTO entidad, string usuario);
     }
 }

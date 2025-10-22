@@ -1,5 +1,29 @@
 ﻿namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
 {
+
+    public class ProgramaGeneralArgumentoInsertDTO
+    {
+        public int IdArgumento { get; set; }
+        public int IdPGeneral { get; set; }
+        public string NombreArgumento { get; set; }
+        public string? DescripcionArgumento { get; set; }
+        public bool EsVisibleAgenda { get; set; }
+        public List<ProgramaGeneralArgumentoModalidadInsertDTO> Modalidades { get; set; }
+        public List<ProgramaGeneralArgumentoDetalleMotivacionInsertDTO> ArgumentoDetalleMotivacion { get; set; }
+    }
+
+    public class ProgramaGeneralArgumentoModalidadInsertDTO
+    {
+        public int Id { get; set; } //nullable
+        public int IdModalidad { get; set; } //ModalidadCurso
+        public string Nombre { get; set; }
+    }
+    public class ProgramaGeneralArgumentoDetalleMotivacionInsertDTO
+    {
+        public int Id { get; set; }//ProgramaGeneralArgumentoDetalle
+        public string Detalle { get; set; }
+        public int IdMotivacion { get; set; }//ProgramaGeneralMotivacion
+    }
     public class ProgramaGeneralArgumentoDTO
     {
         public int Id { get; set; }

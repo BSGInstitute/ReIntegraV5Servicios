@@ -7928,5 +7928,14 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _programaGeneralArgumentoModalidadRepository ?? new ProgramaGeneralArgumentoModalidadRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+        private IProgramaGeneralArgumentoDetalleMotivacionRepository _programaGeneralArgumentoDetalleMotivacionRepository;
+
+        IProgramaGeneralArgumentoDetalleMotivacionRepository IUnitOfWork.ProgramaGeneralArgumentoDetalleMotivacionRepository
+        {
+            get
+            {
+                return _programaGeneralArgumentoDetalleMotivacionRepository ?? new ProgramaGeneralArgumentoDetalleMotivacionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
     }
 }

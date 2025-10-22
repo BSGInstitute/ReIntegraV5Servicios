@@ -45,24 +45,66 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             }
 
         }
-        public ProgramaGeneralArgumentoDTO Insertar(ProgramaGeneralArgumentoDTO entidad, string usuario)
+        public ProgramaGeneralArgumentoDTO Insertar(ProgramaGeneralArgumentoInsertDTO entidad, string usuario)
         {
             try
             {
                 if (entidad != null)
                 {
-                    ProgramaGeneralArgumento entity = new()
+                    ProgramaGeneralArgumento PGArgumento = new()
                     {
-                        IdPgeneral = entidad.IdPgeneral,
-                        Nombre = entidad.Nombre,
-                        Descripcion = entidad.Descripcion,
+                        IdPgeneral = entidad.IdPGeneral,
+                        Nombre = entidad.NombreArgumento,
+                        Descripcion = entidad.DescripcionArgumento,
+                        EsVisibleAgenda = entidad.EsVisibleAgenda,
                         Estado = true,
                         FechaCreacion = DateTime.Now,
                         FechaModificacion = DateTime.Now,
                         UsuarioCreacion = usuario,
                         UsuarioModificacion = usuario,
                     };
-                    var respuesta = _unitOfWork.ProgramaGeneralArgumentoRepository.Add(entity);
+                    var respuesta = _unitOfWork.ProgramaGeneralArgumentoRepository.Add(PGArgumento);
+                    if (respuesta.Id == null) throw new BadRequestException("No se pudo registrar el argumento");
+                    if (respuesta != null && entidad.Modalidades.Count() != 0)
+                    {
+                        List<ProgramaGeneralArgumentoModalidad> listaModalidades = new();
+                        foreach (var m in entidad.Modalidades)
+                        {
+                            ProgramaGeneralArgumentoModalidad modalidad = new()
+                            {
+                                IdProgramaGeneralArgumento = respuesta.Id,
+                                IdModalidadCurso = m.IdModalidad,
+                                Nombre = m.Nombre,
+                                Estado = true,
+                                FechaCreacion = DateTime.Now,
+                                FechaModificacion = DateTime.Now,
+                                UsuarioCreacion = usuario,
+                                UsuarioModificacion = usuario,
+                            };
+                            listaModalidades.Add(modalidad);
+                        }
+                        var _modalidades = _unitOfWork.ProgramaGeneralArgumentoModalidadRepository.AddList(listaModalidades);
+                    }
+                    if (respuesta != null && entidad.ArgumentoDetalleMotivacion.Count() != 0)
+                    {
+                        List<ProgramaGeneralArgumentoDetalleMotivacion> listaMotivacion = new();
+                        foreach (var m in entidad.ArgumentoDetalleMotivacion)
+                        {
+                            ProgramaGeneralArgumentoDetalleMotivacion motivacion = new()
+                            {
+                                IdProgramaGeneralArgumentoDetalle = respuesta.Id,
+                                IdProgramaGeneralMotivacion = m.IdMotivacion,
+                                NombreMotivacion = m.Detalle,
+                                Estado = true,
+                                FechaCreacion = DateTime.Now,
+                                FechaModificacion = DateTime.Now,
+                                UsuarioCreacion = usuario,
+                                UsuarioModificacion = usuario,
+                            };
+                            listaMotivacion.Add(motivacion);
+                        }
+                        var _motivaciones = _unitOfWork.ProgramaGeneralArgumentoDetalleMotivacionRepository.Add(listaMotivacion);
+                    }
                     _unitOfWork.Commit();
                     return _mapper.Map<ProgramaGeneralArgumentoDTO>(respuesta);
                 }
@@ -73,6 +115,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             }
             catch (Exception ex)
             {
+                _unitOfWork.Rollback();
                 throw ex;
             }
         }
