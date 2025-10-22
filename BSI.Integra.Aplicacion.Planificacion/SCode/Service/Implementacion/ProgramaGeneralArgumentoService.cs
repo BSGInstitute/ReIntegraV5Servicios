@@ -54,8 +54,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     ProgramaGeneralArgumento PGArgumento = new()
                     {
                         IdPgeneral = entidad.IdPGeneral,
-                        Nombre = entidad.NombreArgumento,
-                        Descripcion = entidad.DescripcionArgumento,
+                        Nombre = entidad.Nombre,
+                        Descripcion = entidad.Descripcion,
                         EsVisibleAgenda = entidad.EsVisibleAgenda,
                         Estado = true,
                         FechaCreacion = DateTime.Now,
@@ -125,8 +125,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     {
                         Id = respuesta.Id,
                         IdPGeneral = respuesta.IdPgeneral,
-                        NombreArgumento = respuesta.Nombre,
-                        DescripcionArgumento = respuesta.Descripcion,
+                        Nombre = respuesta.Nombre,
+                        Descripcion = respuesta.Descripcion,
                         EsVisibleAgenda = respuesta.EsVisibleAgenda,
                     };
                     return _mapper.Map<ProgramaGeneralArgumentoDTO>(respuesta);
@@ -156,13 +156,13 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         if (rto != null && rto.Id != 0)
                         {
                             entidad.IdPgeneral = dto.IdPGeneral;
-                            entidad.Nombre = dto.NombreArgumento;
-                            entidad.Descripcion = dto.DescripcionArgumento;
+                            entidad.Nombre = dto.Nombre;
+                            entidad.Descripcion = dto.Descripcion;
                             entidad.FechaModificacion = DateTime.Now;
                             entidad.UsuarioModificacion = usuario;
                         }
                         else
-                            throw new ArgumentNullException("No se encontro el registro a actualizar");
+                                throw new ArgumentNullException("No se encontro el registro a actualizar");
                     }
                     else
                         throw new BadRequestException("Id Entidad 0");

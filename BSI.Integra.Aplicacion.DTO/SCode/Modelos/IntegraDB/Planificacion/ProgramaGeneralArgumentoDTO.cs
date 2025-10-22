@@ -4,10 +4,10 @@
     public class ProgramaGeneralArgumentoDTO
     {
         public int Id { get; set; }
-        public int IdPresentacionArgumento { get; set; }
+        public int IdArgumento { get; set; }
         public int IdPGeneral { get; set; }
-        public string NombreArgumento { get; set; }
-        public string? DescripcionArgumento { get; set; }
+        public string Nombre { get; set; }
+        public string? Descripcion { get; set; }
         public bool EsVisibleAgenda { get; set; }
         public List<ProgramaGeneralArgumentoModalidadDTO> Modalidades { get; set; }
         public List<ProgramaGeneralArgumentoDetalleDTO> ArgumentoDetalle { get; set; }
