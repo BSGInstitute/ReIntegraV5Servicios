@@ -36,12 +36,13 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             return Ok(resultado);
 
         }
-        [HttpPost("ObtenerProgramaGeneralArgumentoById")]
-        public IActionResult ObtenerProgramaGeneralArgumentoById([FromBody] Dictionary<string, string> filtro)
+        [HttpGet("[Action]/{idProgramaGeneralArgumento}")]
+        public IActionResult ObtenerProgramaGeneralArgumentoById(int idProgramaGeneralArgumento)
         {
             try
             {
-                return Ok("post obtener programa general argumento by id");
+                var result = _programaGeneralArgumentoService.ObtenerInformacionProgramaGeneralArgumento(idProgramaGeneralArgumento);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -54,7 +55,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         {
             try
             {
-                var resultado = _programaGeneralArgumentoService.Insertar(dto, "ctumir-sos");
+                var resultado = _programaGeneralArgumentoService.Insertar(dto, _tokenManager.UserName);
                 return Ok(resultado);
             }
             catch (Exception ex)
@@ -67,7 +68,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         {
             try
             {
-                var resultado = _programaGeneralArgumentoService.Actualizar(dto, "ctumir-sos");
+                var resultado = _programaGeneralArgumentoService.Actualizar(dto, _tokenManager.UserName);
                 return Ok(resultado);
             }
             catch (Exception ex)

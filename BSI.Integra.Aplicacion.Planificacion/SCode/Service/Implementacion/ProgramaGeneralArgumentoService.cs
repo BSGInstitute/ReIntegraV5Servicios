@@ -31,6 +31,56 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             });
             _mapper = new Mapper(config);
         }
+        public ProgramaGeneralArgumentoDTO ObtenerInformacionProgramaGeneralArgumento(int idProgramaGeneralArgumento)
+        {
+            try
+            {
+                var programaGArgumento = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerPorId(idProgramaGeneralArgumento);
+                var modalidades = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoModalidad(idProgramaGeneralArgumento);
+                var argumentoDetalles = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalle(idProgramaGeneralArgumento);
+                var modalidadesDto = modalidades.Select(m => new ProgramaGeneralArgumentoModalidadDTO
+                {
+                    Id = m.Id,
+                    IdModalidad = m.IdModalidadCurso,
+                    Nombre = m.Nombre
+                }).ToList();
+
+                List<ProgramaGeneralArgumentoDetalleDTO> argumentoDetalleDtoList = new();
+                foreach (var item in argumentoDetalles)
+                {
+                    var argumentoDetalleMotivaciones = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacion(item.Id);
+                    var argumentoDetalleDto = new ProgramaGeneralArgumentoDetalleDTO
+                    {
+                        Id = item.Id,
+                        Detalle = item.Detalle,
+                        InstruccionPieDetalle = item.InstruccionPieDetalle,
+                        Motivacion = new PGArgumentoDetalleMotivacionDTO
+                        {
+                            Id = argumentoDetalleMotivaciones.IdProgramaGeneralMotivacion,
+                            Nombre = argumentoDetalleMotivaciones.NombreMotivacion
+                        }
+                    };
+                    argumentoDetalleDtoList.Add(argumentoDetalleDto);
+                }
+
+                return new ProgramaGeneralArgumentoDTO
+                {
+                    Id = programaGArgumento.Id,
+                    IdArgumento = programaGArgumento.Id,
+                    IdPGeneral = programaGArgumento.IdPGeneral,
+                    Nombre = programaGArgumento.Nombre,
+                    Descripcion = programaGArgumento.Descripcion,
+                    EsVisibleAgenda = programaGArgumento.EsVisibleAgenda,
+                    Modalidades = modalidadesDto,
+                    ArgumentoDetalle = argumentoDetalleDtoList
+                };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<ProgramaGeneralArgumentoDTO> Obtener()
         {
             try
@@ -194,11 +244,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         {
             try
             {
-                if (entidad == null)
-                    throw new ArgumentNullException("El objeto entidad no puede ser nulo");
-                var argumentoExistente = _unitOfWork.ProgramaGeneralArgumentoRepository.FirstById(entidad.Id);
-                if (argumentoExistente == null)
-                    throw new BadRequestException($"No se encontró el argumento con Id {entidad.Id}");
                 return entidad;
             }
             catch (Exception ex)

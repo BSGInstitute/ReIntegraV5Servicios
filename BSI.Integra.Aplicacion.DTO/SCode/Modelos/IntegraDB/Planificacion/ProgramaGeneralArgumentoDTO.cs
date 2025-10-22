@@ -26,6 +26,14 @@
         public string? InstruccionPieDetalle { get; set; }
         public PGArgumentoDetalleMotivacionDTO Motivacion { get; set; }
     }
+    public class ProgramaGeneralArgumentoDetalleModelDTO
+    {
+        public int Id { get; set; }
+        public int IdProgramaGeneralArgumento { get; set; }
+
+        public string Detalle { get; set; }
+        public string? InstruccionPieDetalle { get; set; }
+    }
 
     public class PGArgumentoDetalleMotivacionDTO
     {
@@ -34,9 +42,10 @@
     }
     public class ProgramaGeneralArgumentoDetalleMotivacionDTO
     {
-        public int Id { get; set; }//ProgramaGeneralArgumentoDetalle
-        public string Detalle { get; set; }
-        public int IdMotivacion { get; set; }//ProgramaGeneralMotivacion
+        public int Id { get; set; }
+        public int IdProgramaGeneralArgumentoDetalle { get; set; }
+        public int IdProgramaGeneralMotivacion { get; set; }
+        public string NombreMotivacion { get; set; }
     }
     //public class ProgramaGeneralArgumentoDTO
     //{
