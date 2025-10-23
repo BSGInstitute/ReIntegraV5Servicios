@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +11,15 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     {
         public int Id { get; set; }
         public string Nombre { get; set; } 
+    }
+
+
+
+    public class ProgramaGeneralProblemaFactorCompletoDTO
+    {
+        public IEnumerable<ProgramaGeneralProblemaFactorDTO> ProblemaFactor { get; set; }
+        public IEnumerable<ProgramaGeneralProblemaFactorDetalleDTO> ProblemaFactorDetalle { get; set; }
+        public IEnumerable<ProgramaGeneralProblemaFactorSolucionDTO> ProblemaFactorSolucion { get; set; }
+
     }
 }
