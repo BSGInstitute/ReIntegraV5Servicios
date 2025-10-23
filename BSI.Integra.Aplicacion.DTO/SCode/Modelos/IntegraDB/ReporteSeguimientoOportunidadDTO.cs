@@ -95,6 +95,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int ActReproManTotal { get; set; }
         public int ActReproManConsecutivasTotal { get; set; }
         public string Plataforma { get; set; }
+        public string IdCampania { get; set; }
+        public string CampaniaGoogle { get; set; }
 
 
     }

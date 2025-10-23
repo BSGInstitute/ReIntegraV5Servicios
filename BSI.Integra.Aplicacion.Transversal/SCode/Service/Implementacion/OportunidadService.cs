@@ -1517,8 +1517,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             {
                                 cmd.CommandType = System.Data.CommandType.StoredProcedure;
                                 cmd.Parameters.AddWithValue("@IdOportunidad", _oportunidadBo.Id);
-                                cmd.Parameters.AddWithValue("@IdFaseOportunidadAnterior", _oportunidadBo.OportunidadLogNueva.IdFaseOportunidadAnt ?? (object)DBNull.Value);
-                                cmd.Parameters.AddWithValue("@IdFaseOportunidadNueva", _oportunidadBo.OportunidadLogNueva.IdFaseOportunidad);
+                                cmd.Parameters.AddWithValue("@IdFaseOportunidad_Anterior", _oportunidadBo.OportunidadLogNueva.IdFaseOportunidadAnt ?? (object)DBNull.Value);
+                                cmd.Parameters.AddWithValue("@IdFaseOportunidad_Actual", _oportunidadBo.OportunidadLogNueva.IdFaseOportunidad);
                                 cmd.Parameters.AddWithValue("@FechaHoraConversion", DateTime.Now);
                                 cmd.Parameters.AddWithValue("@Usuario", _oportunidadBo.Usuario);
                                 cmd.ExecuteNonQuery();

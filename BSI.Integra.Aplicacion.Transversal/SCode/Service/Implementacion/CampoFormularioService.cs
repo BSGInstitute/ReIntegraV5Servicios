@@ -153,7 +153,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         {
             try
             {
-                return _unitOfWork.CampoFormularioRepository.ObtenerCampoFormularioPorIdFormularioSolicitud(idFormularioSolicitud);
+                var resultado = _unitOfWork.CampoFormularioRepository.ObtenerCampoFormularioPorIdFormularioSolicitud(idFormularioSolicitud);
+                return resultado.OrderBy(c => c.Id);
             }
             catch (Exception ex)
             {

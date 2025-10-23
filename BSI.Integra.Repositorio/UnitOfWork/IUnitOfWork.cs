@@ -271,6 +271,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         ICajaPorRendirCabeceraRepository CajaPorRendirCabeceraRepository { get; }
         IFurRepository FurRepository { get; }
         ICampoFormularioRepository CampoFormularioRepository { get; }
+        ICampoFormularioOpcionRepository CampoFormularioOpcionRepository { get; }
         IConjuntoAnuncioRepository ConjuntoAnuncioRepository { get; }
         IFuentesPortalWebRepository FuentesPortalWebRepository { get; }
         IEstilosCssRepository EstilosCssRepository { get; }
