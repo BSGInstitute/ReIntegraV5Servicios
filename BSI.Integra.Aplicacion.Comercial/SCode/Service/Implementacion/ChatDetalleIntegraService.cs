@@ -339,6 +339,25 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         }
 
         /// Autor: Jose Vega
+        /// Fecha: 22/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene hilos de chat sin alumno asociado
+        /// </summary>
+        /// <returns>Lista de hilos de chat por segmento</returns>
+        public IEnumerable<ChatbotHiloChatPorSegmentoDTO> ObtenerHilosChatPorSegmento()
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerHilosChatPorSegmento();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
         /// Fecha: 20/10/2025
         /// Versión: 1.0
         /// <summary>

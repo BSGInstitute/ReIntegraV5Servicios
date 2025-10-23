@@ -37,5 +37,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         InsertarRespuestaEvaluacionResultadoDTO InsertarRespuestaEvaluacionCompleta(int idChatbotPortalHiloChat, int idVersionFormularioEvaluacionChatbot, string usuarioCreacion, string respuestasSeleccionadasJson = null, string respuestasTextoJson = null, string problemasIdentificadosJson = null);
         IEnumerable<ChatbotMensajeDTO> ObtenerChatPorPortalSegmento(string IdContactoPortalSegmento);
         IEnumerable<ChatbotHiloChatPorAlumnoDTO> ObtenerHilosChatConAlumnos();
+        IEnumerable<ChatbotHiloChatPorSegmentoDTO> ObtenerHilosChatPorSegmento();
     }
 }
