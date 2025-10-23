@@ -167,7 +167,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             {
                 List<ProgramaGeneralArgumentoModalidad> rpta = new List<ProgramaGeneralArgumentoModalidad>();
                 var query = @"
-                    SELECT Id, IdProgramaGeneralArgumento, IdModalidadCurso, Nombre
+                    SELECT Id, IdProgramaGeneralArgumento, IdModalidadCurso, Nombre, Estado
                     FROM pla.T_ProgramaGeneralArgumentoModalidad
                     WHERE estado = 1 AND IdProgramaGeneralArgumento = @IdProgramaGeneralArgumento";
                 var resultado = _dapperRepository.QueryDapper(query, new {IdProgramaGeneralArgumento});

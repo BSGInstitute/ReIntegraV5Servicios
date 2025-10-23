@@ -9,8 +9,8 @@
         public string Nombre { get; set; }
         public string? Descripcion { get; set; }
         public bool EsVisibleAgenda { get; set; }
-        public List<ProgramaGeneralArgumentoModalidadDTO> Modalidades { get; set; }
-        public List<ProgramaGeneralArgumentoDetalleDTO> ArgumentoDetalle { get; set; }
+        public List<ProgramaGeneralArgumentoModalidadDTO> Modalidades { get; set; } = [];
+        public List<ProgramaGeneralArgumentoDetalleDTO> ArgumentoDetalle { get; set; } = [];
     }
 
     public class ProgramaGeneralArgumentoModalidadDTO
