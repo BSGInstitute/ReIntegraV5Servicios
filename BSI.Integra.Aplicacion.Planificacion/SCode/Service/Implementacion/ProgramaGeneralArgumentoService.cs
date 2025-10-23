@@ -66,8 +66,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 return new ProgramaGeneralArgumentoDTO
                 {
                     Id = programaGArgumento.Id,
-                    IdArgumento = programaGArgumento.IdArgumento,
-                    IdPGeneral = programaGArgumento.IdPGeneral,
+                    IdPGeneral = programaGArgumento.IdPgeneral,
                     Nombre = programaGArgumento.Nombre,
                     Descripcion = programaGArgumento.Descripcion,
                     EsVisibleAgenda = programaGArgumento.EsVisibleAgenda,
@@ -313,6 +312,44 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             }
             catch (Exception ex)
             {
+                throw ex;
+            }
+        }
+        public bool Eliminar(int id, string usuario)
+        {
+            try
+            {
+                var idProgramaGeneralArgumento = id;
+                var programaGArgumento = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerPorId(idProgramaGeneralArgumento);
+                if (programaGArgumento == null)
+                {
+                    throw new NotFoundException("El argumento no existe");
+                }
+                var modalidades = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoModalidad(idProgramaGeneralArgumento);
+                if (modalidades != null && modalidades.Any())
+                {
+                    foreach (var item in modalidades)
+                    {
+                        _unitOfWork.ProgramaGeneralArgumentoModalidadRepository.Delete(item.Id, usuario);
+                    }
+                }
+                var argumentoDetalles = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalle(idProgramaGeneralArgumento);
+                foreach (var item in argumentoDetalles)
+                {
+                    var argumentoDetalleMotivaciones = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacion(item.Id);
+                    if (argumentoDetalleMotivaciones != null)
+                    {
+                        _unitOfWork.ProgramaGeneralArgumentoDetalleMotivacionRepository.Delete(argumentoDetalleMotivaciones.Id, usuario);
+                    }
+                    _unitOfWork.ProgramaGeneralArgumentoDetalleRepository.Delete(item.Id, usuario);
+                }
+                _unitOfWork.ProgramaGeneralArgumentoRepository.Delete(id, usuario);
+                _unitOfWork.Commit();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.Rollback();
                 throw ex;
             }
         }

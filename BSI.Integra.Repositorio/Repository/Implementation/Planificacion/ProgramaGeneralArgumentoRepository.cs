@@ -263,7 +263,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
         //realizar obtener por id vista con modaliddes y detalles motivaciones
 
-        public ProgramaGeneralArgumentoDTO? ObtenerPorId(int id)
+        public ProgramaGeneralArgumento? ObtenerPorId(int id)
         {
             try
             {
@@ -284,7 +284,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 var resultado = _dapperRepository.FirstOrDefault(query, new { id });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
-                    return JsonConvert.DeserializeObject<ProgramaGeneralArgumentoDTO>(resultado)!;
+                    return JsonConvert.DeserializeObject<ProgramaGeneralArgumento>(resultado)!;
                 }
                 return null;
             }

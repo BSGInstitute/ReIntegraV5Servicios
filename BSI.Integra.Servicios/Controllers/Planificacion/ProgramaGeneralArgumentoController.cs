@@ -102,6 +102,11 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             return Ok(respuesta);
         }
 
-
+        [HttpDelete("[action]/{IdProgramaGeneralArgumento}")]
+        public IActionResult Eliminar(int IdProgramaGeneralArgumento)
+        {
+            var respuesta = _programaGeneralArgumentoService.Eliminar(IdProgramaGeneralArgumento, _tokenManager.UserName);
+            return Ok(respuesta);
+        }
     }
 }
