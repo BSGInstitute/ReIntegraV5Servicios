@@ -591,6 +591,27 @@ namespace BSI.Integra.Servicios.Controllers
 
         /// Tipo Función: POST
         /// Autor: Jose Vega
+        /// Fecha: 22/10/2025
+        /// Versión: 1.0
+        /// <returns>Hilos de chat por segmento</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerHilosChatPorSegmento()
+        {
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerHilosChatPorSegmento();
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
         /// Fecha: 18/10/2025
         /// Versión: 1.0
         /// <returns>Resultado de la inserción completa de la evaluación</returns>
