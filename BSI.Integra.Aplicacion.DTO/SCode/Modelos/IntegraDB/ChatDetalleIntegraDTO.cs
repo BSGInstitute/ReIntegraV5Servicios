@@ -252,6 +252,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public bool Derivado { get; set; }
         public bool? DerivacionCerrado { get; set; }
         public string SubEstadoMatricula { get; set; }
+        public DateTime FechaCreacion { get; set; }
+
     }
 
     public class ChatbotHiloChatPorSegmentoDTO

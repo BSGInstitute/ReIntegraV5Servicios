@@ -441,7 +441,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 List<ChatbotHiloChatPorSegmentoDTO> rpta = new List<ChatbotHiloChatPorSegmentoDTO>();
-                var query = @"EXEC ia.SP_ChatbotPortalHiloChat_ObtenerHilosSinAlumno";
+                var query = @"ia.SP_ChatbotPortalHiloChat_ObtenerHilosSinAlumno";
 
                 var resultado = _dapperRepository.QueryDapper(query, null);
 
@@ -469,7 +469,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 List<ChatbotHiloChatPorAlumnoDTO> rpta = new List<ChatbotHiloChatPorAlumnoDTO>();
-                var query = @"EXEC ia.SP_ChatbotPortalHiloChat_ObtenerHilosActivos";
+                var query = @"ia.SP_ChatbotPortalHiloChat_ObtenerHilosConAlumno";
 
                 var resultado = _dapperRepository.QueryDapper(query, null);
 

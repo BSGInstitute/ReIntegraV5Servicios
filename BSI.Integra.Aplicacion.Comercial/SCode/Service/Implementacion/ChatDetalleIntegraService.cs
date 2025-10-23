@@ -355,7 +355,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             {
                 throw ex;
             }
-        }
+        }  
 
         /// Autor: Jose Vega
         /// Fecha: 20/10/2025
