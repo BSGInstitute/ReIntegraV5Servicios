@@ -50,6 +50,20 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             }
         }
 
+        [HttpGet("[Action]")]
+        public IActionResult ObtenerProgramaGeneralArgumentoTodo()
+        {
+            try
+            {
+                var result = _programaGeneralArgumentoService.ObtenerInformacionProgramaGeneralArgumentoTodo();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPost("Insertar")]
         public IActionResult Insertar([FromBody] ProgramaGeneralArgumentoDTO dto)
         {

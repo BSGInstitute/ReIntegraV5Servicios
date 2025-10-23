@@ -294,6 +294,37 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
+        public List<ProgramaGeneralArgumentoDTO> ObtenerTodo()
+        {
+            try
+            {
+                List<ProgramaGeneralArgumentoDTO> rpta = new();
+                var query = @"
+                    SELECT
+	                    Id,
+                        IdPGeneral,
+	                    Nombre,
+                        Descripcion,
+	                    EsVisibleAgenda,
+	                    Estado,
+	                    UsuarioCreacion,
+	                    UsuarioModificacion,
+	                    FechaCreacion,
+	                    FechaModificacion,RowVersion
+                    FROM pla.T_ProgramaGeneralArgumento WHERE Estado = 1";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ProgramaGeneralArgumentoDTO>>(resultado)!;
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<ProgramaGeneralArgumentoMotivacionDTO> ObtenerMotivaciones(int IdPGeneral)
         {
             try

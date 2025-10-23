@@ -66,7 +66,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 return new ProgramaGeneralArgumentoDTO
                 {
                     Id = programaGArgumento.Id,
-                    IdArgumento = programaGArgumento.Id,
+                    IdArgumento = programaGArgumento.IdArgumento,
                     IdPGeneral = programaGArgumento.IdPGeneral,
                     Nombre = programaGArgumento.Nombre,
                     Descripcion = programaGArgumento.Descripcion,
@@ -74,6 +74,59 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     Modalidades = modalidadesDto,
                     ArgumentoDetalle = argumentoDetalleDtoList
                 };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public List<ProgramaGeneralArgumentoDTO> ObtenerInformacionProgramaGeneralArgumentoTodo()
+        {
+            try
+            {
+                var programaGArgumentos = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerTodo();
+                List<ProgramaGeneralArgumentoDTO> todo = new();
+                foreach (var item in programaGArgumentos)
+                {
+                    var _modalidades = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoModalidad(item.Id);
+                    var modalidadesDto = _modalidades.Select(m => new ProgramaGeneralArgumentoModalidadDTO
+                    {
+                        Id = m.Id,
+                        IdModalidad = m.IdModalidadCurso,
+                        Nombre = m.Nombre
+                    }).ToList();
+                    var argumentoDetalles = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalle(item.Id);
+                    List<ProgramaGeneralArgumentoDetalleDTO> argumentoDetalleDtoList = new();
+                    foreach (var ag in argumentoDetalles)
+                    {
+                        var argumentoDetalleMotivaciones = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacion(item.Id);
+                        var argumentoDetalleDto = new ProgramaGeneralArgumentoDetalleDTO
+                        {
+                            Id = ag.Id,
+                            Detalle = ag.Detalle,
+                            InstruccionPieDetalle = ag.InstruccionPieDetalle,
+                            Motivacion = new PGArgumentoDetalleMotivacionDTO
+                            {
+                                Id = argumentoDetalleMotivaciones.IdProgramaGeneralMotivacion,
+                                Nombre = argumentoDetalleMotivaciones.NombreMotivacion
+                            }
+                        };
+                        argumentoDetalleDtoList.Add(argumentoDetalleDto);
+                    }
+                    var obj = new ProgramaGeneralArgumentoDTO
+                    {
+                        Id = item.Id,
+                        IdArgumento = item.IdArgumento,
+                        IdPGeneral = item.IdPGeneral,
+                        Nombre = item.Nombre,
+                        Descripcion = item.Descripcion,
+                        EsVisibleAgenda = item.EsVisibleAgenda,
+                        Modalidades = modalidadesDto,
+                        ArgumentoDetalle = argumentoDetalleDtoList
+                    };
+                    todo.Add(obj);
+                }
+                return todo;
             }
             catch (Exception ex)
             {

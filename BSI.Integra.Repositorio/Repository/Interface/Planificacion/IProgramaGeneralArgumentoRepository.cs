@@ -26,6 +26,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         ProgramaGeneralArgumentoDetalleMotivacionDTO ObtenerProgramaGeneralArgumentoDetalleMotivacion(int IdProgramaGeneralArgumentoDetalle);
         IEnumerable<ProgramaGeneralArgumentoDTO> Obtener();
         ProgramaGeneralArgumentoDTO? ObtenerPorId(int id);
+        List<ProgramaGeneralArgumentoDTO>? ObtenerTodo();
         IEnumerable<ProgramaGeneralArgumentoMotivacionDTO> ObtenerMotivaciones(int IdPGeneral);
     }
 }
