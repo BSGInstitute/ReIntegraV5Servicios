@@ -294,53 +294,55 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
         public ProgramaGeneralArgumentoDTO Actualizar(ProgramaGeneralArgumentoDTO entidad, string usuario)
         {
+            if (entidad == null)
+                throw new ArgumentNullException(nameof(entidad), "El objeto entidad no puede ser nulo");
+
+     
+            var idArgumento = entidad.Id > 0
+                ? entidad.Id
+                : (entidad.IdArgumento > 0 ? entidad.IdArgumento : 0);
+
+            if (idArgumento <= 0)
+                throw new BadRequestException("El Id del argumento es requerido.");
+
             try
             {
-                if (entidad == null)
-                    throw new ArgumentNullException(nameof(entidad), "El objeto entidad no puede ser nulo");
-
-           
-                var idArgumento = entidad.Id > 0
-                    ? entidad.Id
-                    : (entidad.IdArgumento > 0 ? entidad.IdArgumento : entidad.IdArgumento);
-
-                if (idArgumento <= 0)
-                    throw new BadRequestException("El Id del argumento es requerido.");
-
-                var argumentoExistente = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerPorId(idArgumento);
-                if (argumentoExistente == null)
+               
+                var argumento = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerPorId(idArgumento);
+                if (argumento == null)
                     throw new NotFoundException("El argumento no existe en base de datos");
 
-                argumentoExistente.Nombre = entidad.Nombre;
-                argumentoExistente.Descripcion = entidad.Descripcion;
-                argumentoExistente.EsVisibleAgenda = entidad.EsVisibleAgenda;
-                argumentoExistente.FechaModificacion = DateTime.Now;
-                argumentoExistente.UsuarioModificacion = usuario;
+                argumento.Nombre = entidad.Nombre;
+                argumento.Descripcion = entidad.Descripcion;
+                argumento.EsVisibleAgenda = entidad.EsVisibleAgenda;
+                argumento.FechaModificacion = DateTime.Now;
+                argumento.UsuarioModificacion = usuario;
 
-                _unitOfWork.ProgramaGeneralArgumentoRepository.Update(argumentoExistente);
+                _unitOfWork.ProgramaGeneralArgumentoRepository.Update(argumento);
 
-                var modalidadesExistentes = _unitOfWork.ProgramaGeneralArgumentoRepository
-                    .ObtenerProgramaGeneralArgumentoModalidad(argumentoExistente.Id)
+                var actualesModalidades = _unitOfWork
+                    .ProgramaGeneralArgumentoRepository
+                    .ObtenerProgramaGeneralArgumentoModalidad(argumento.Id)
                     .ToList();
 
-                var nuevasModalidades = entidad.Modalidades ?? new List<ProgramaGeneralArgumentoModalidadDTO>();
+                var nuevasModalidades = (entidad.Modalidades ?? new List<ProgramaGeneralArgumentoModalidadDTO>()).ToList();
 
-                var modalidadesAEliminar = modalidadesExistentes
-                    .Where(x => !nuevasModalidades.Any(n => n.Id == x.Id))
+        
+                var idsModalidadesAEliminar = actualesModalidades
+                    .Where(act => !nuevasModalidades.Any(n => n.Id == act.Id))
                     .Select(x => x.Id)
                     .ToList();
 
-                if (modalidadesAEliminar.Any())
-                    _unitOfWork.ProgramaGeneralArgumentoModalidadRepository.Delete(modalidadesAEliminar, usuario);
+                if (idsModalidadesAEliminar.Any())
+                    _unitOfWork.ProgramaGeneralArgumentoModalidadRepository.Delete(idsModalidadesAEliminar, usuario);
 
-                // 2.b Insertar nuevas
                 var modalidadesAInsertar = nuevasModalidades
-                    .Where(x => x.Id == 0)
-                    .Select(m => new ProgramaGeneralArgumentoModalidad
+                    .Where(n => n.Id == 0)
+                    .Select(n => new ProgramaGeneralArgumentoModalidad
                     {
-                        IdProgramaGeneralArgumento = argumentoExistente.Id,
-                        IdModalidadCurso = m.IdModalidad,
-                        Nombre = m.Nombre,
+                        IdProgramaGeneralArgumento = argumento.Id,
+                        IdModalidadCurso = n.IdModalidad,
+                        Nombre = n.Nombre,
                         Estado = true,
                         FechaCreacion = DateTime.Now,
                         FechaModificacion = DateTime.Now,
@@ -352,13 +354,14 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 if (modalidadesAInsertar.Any())
                     _unitOfWork.ProgramaGeneralArgumentoModalidadRepository.AddList(modalidadesAInsertar);
 
+   
                 var modalidadesAActualizar = nuevasModalidades.Where(x => x.Id > 0).ToList();
                 if (modalidadesAActualizar.Any())
                 {
                     var entidadesActualizar = new List<ProgramaGeneralArgumentoModalidad>();
                     foreach (var m in modalidadesAActualizar)
                     {
-                        var existente = modalidadesExistentes.FirstOrDefault(e => e.Id == m.Id);
+                        var existente = actualesModalidades.FirstOrDefault(e => e.Id == m.Id);
                         if (existente != null)
                         {
                             existente.Nombre = m.Nombre;
@@ -372,19 +375,37 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         _unitOfWork.ProgramaGeneralArgumentoModalidadRepository.Update(entidadesActualizar);
                 }
 
-                var detallesExistentes = _unitOfWork.ProgramaGeneralArgumentoRepository
-                    .ObtenerProgramaGeneralArgumentoDetalle(argumentoExistente.Id)
+   
+                var actualesDetalles = _unitOfWork
+                    .ProgramaGeneralArgumentoRepository
+                    .ObtenerProgramaGeneralArgumentoDetalle(argumento.Id)
                     .ToList();
 
-                var nuevosDetalles = entidad.ArgumentoDetalle ?? new List<ProgramaGeneralArgumentoDetalleDTO>();
+                var nuevosDetalles = (entidad.ArgumentoDetalle ?? new List<ProgramaGeneralArgumentoDetalleDTO>()).ToList();
 
-                var detallesAEliminar = detallesExistentes
-                    .Where(x => !nuevosDetalles.Any(n => n.Id == x.Id))
+                var idsDetallesAEliminar = actualesDetalles
+                    .Where(act => !nuevosDetalles.Any(n => n.Id == act.Id))
                     .Select(x => x.Id)
                     .ToList();
 
-                foreach (var idDetEliminar in detallesAEliminar)
-                    _unitOfWork.ProgramaGeneralArgumentoDetalleRepository.Delete(idDetEliminar, usuario);
+                foreach (var idDet in idsDetallesAEliminar)
+                {
+          
+                    var motiv = _unitOfWork
+                        .ProgramaGeneralArgumentoRepository
+                        .ObtenerProgramaGeneralArgumentoDetalleMotivacion(idDet);
+
+                    if (motiv != null)
+                    {
+                   
+                        _unitOfWork.ProgramaGeneralArgumentoDetalleMotivacionRepository.Delete(motiv.Id, usuario);
+
+                 
+                    }
+
+                    _unitOfWork.ProgramaGeneralArgumentoDetalleRepository.Delete(idDet, usuario);
+                }
+
 
                 foreach (var nuevo in nuevosDetalles.Where(x => x.Id == 0))
                 {
@@ -393,9 +414,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
                     var det = new ProgramaGeneralArgumentoDetalle
                     {
-                        IdProgramaGeneralArgumento = argumentoExistente.Id,
+                        IdProgramaGeneralArgumento = argumento.Id,
                         Detalle = nuevo.Detalle,
-                        InstruccionPieDetalle = nuevo.InstruccionPieDetalle,
+                        InstruccionPieDetalle = nuevo.InstruccionPieDetalle, 
                         Estado = true,
                         FechaCreacion = DateTime.Now,
                         FechaModificacion = DateTime.Now,
@@ -403,11 +424,14 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         UsuarioModificacion = usuario
                     };
 
-                    var det1 = _unitOfWork.ProgramaGeneralArgumentoDetalleRepository.Add(det);
+                    var detInsertado = _unitOfWork.ProgramaGeneralArgumentoDetalleRepository.Add(det);
+
+            
+                    _unitOfWork.Commit();
 
                     var mot = new ProgramaGeneralArgumentoDetalleMotivacion
                     {
-                        IdProgramaGeneralArgumentoDetalle = det1.Id,
+                        IdProgramaGeneralArgumentoDetalle = detInsertado.Id, 
                         IdProgramaGeneralMotivacion = nuevo.Motivacion.Id,
                         NombreMotivacion = nuevo.Motivacion.Nombre,
                         Estado = true,
@@ -419,31 +443,32 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     _unitOfWork.ProgramaGeneralArgumentoDetalleMotivacionRepository.Add(mot);
                 }
 
-                foreach (var actualizar in nuevosDetalles.Where(x => x.Id > 0))
+                foreach (var dto in nuevosDetalles.Where(x => x.Id > 0))
                 {
-                    var existenteDet = detallesExistentes.FirstOrDefault(d => d.Id == actualizar.Id);
-                    if (existenteDet == null) continue;
+                    var det = actualesDetalles.FirstOrDefault(d => d.Id == dto.Id);
+                    if (det == null) continue;
 
-                    existenteDet.Detalle = actualizar.Detalle;
-                    existenteDet.InstruccionPieDetalle = actualizar.InstruccionPieDetalle;
-                    existenteDet.FechaModificacion = DateTime.Now;
-                    existenteDet.UsuarioModificacion = usuario;
+                    det.Detalle = dto.Detalle;
+                    det.InstruccionPieDetalle = dto.InstruccionPieDetalle;
+                    det.FechaModificacion = DateTime.Now;
+                    det.UsuarioModificacion = usuario;
 
-                    _unitOfWork.ProgramaGeneralArgumentoDetalleRepository.Update(existenteDet);
+                    _unitOfWork.ProgramaGeneralArgumentoDetalleRepository.Update(det);
 
-                    var motivacionExistente = _unitOfWork.ProgramaGeneralArgumentoRepository
-                        .ObtenerProgramaGeneralArgumentoDetalleMotivacion(existenteDet.Id);
-
-                    if (actualizar.Motivacion == null || actualizar.Motivacion.Id <= 0)
+                    if (dto.Motivacion == null || dto.Motivacion.Id <= 0)
                         throw new BadRequestException("La motivación es requerida para el detalle.");
 
-                    if (motivacionExistente == null)
+                    var motivExist = _unitOfWork
+                        .ProgramaGeneralArgumentoRepository
+                        .ObtenerProgramaGeneralArgumentoDetalleMotivacion(det.Id);
+
+                    if (motivExist == null)
                     {
                         var motNew = new ProgramaGeneralArgumentoDetalleMotivacion
                         {
-                            IdProgramaGeneralArgumentoDetalle = existenteDet.Id,
-                            IdProgramaGeneralMotivacion = actualizar.Motivacion.Id,
-                            NombreMotivacion = actualizar.Motivacion.Nombre,
+                            IdProgramaGeneralArgumentoDetalle = det.Id,
+                            IdProgramaGeneralMotivacion = dto.Motivacion.Id,
+                            NombreMotivacion = dto.Motivacion.Nombre,
                             Estado = true,
                             FechaCreacion = DateTime.Now,
                             FechaModificacion = DateTime.Now,
@@ -454,62 +479,71 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     }
                     else
                     {
-                        motivacionExistente.IdProgramaGeneralMotivacion = actualizar.Motivacion.Id;
-                        motivacionExistente.NombreMotivacion = actualizar.Motivacion.Nombre;
-                        motivacionExistente.FechaModificacion = DateTime.Now;
-                        motivacionExistente.UsuarioModificacion = usuario;
+                        motivExist.IdProgramaGeneralMotivacion = dto.Motivacion.Id;
+                        motivExist.NombreMotivacion = dto.Motivacion.Nombre;
+                        motivExist.FechaModificacion = DateTime.Now;
+                        motivExist.UsuarioModificacion = usuario;
 
-                        _unitOfWork.ProgramaGeneralArgumentoDetalleMotivacionRepository.Update(motivacionExistente);
+                        _unitOfWork.ProgramaGeneralArgumentoDetalleMotivacionRepository.Update(motivExist);
                     }
                 }
 
                 _unitOfWork.Commit();
 
-                var dtoRespuesta = new ProgramaGeneralArgumentoDTO
-                {
-                    Id = argumentoExistente.Id,
-                    IdPGeneral = argumentoExistente.IdPgeneral,
-                    Nombre = argumentoExistente.Nombre,
-                    Descripcion = argumentoExistente.Descripcion,
-                    EsVisibleAgenda = argumentoExistente.EsVisibleAgenda,
-                    Modalidades = _unitOfWork.ProgramaGeneralArgumentoRepository
-                        .ObtenerProgramaGeneralArgumentoModalidad(argumentoExistente.Id)
-                        .Select(mm => new ProgramaGeneralArgumentoModalidadDTO
-                        {
-                            Id = mm.Id,
-                            IdModalidad = mm.IdModalidadCurso,
-                            Nombre = mm.Nombre
-                        }).ToList(),
-                    ArgumentoDetalle = _unitOfWork.ProgramaGeneralArgumentoRepository
-                        .ObtenerProgramaGeneralArgumentoDetalle(argumentoExistente.Id)
-                        .Select(d =>
-                        {
-                            var motiv = _unitOfWork.ProgramaGeneralArgumentoRepository
-                                .ObtenerProgramaGeneralArgumentoDetalleMotivacion(d.Id);
-                            return new ProgramaGeneralArgumentoDetalleDTO
-                            {
-                                Id = d.Id,
-                                Detalle = d.Detalle,
-                                InstruccionPieDetalle = d.InstruccionPieDetalle,
-                                Motivacion = motiv == null
-                                    ? null
-                                    : new PGArgumentoDetalleMotivacionDTO
-                                    {
-                                        Id = motiv.IdProgramaGeneralMotivacion,
-                                        Nombre = motiv.NombreMotivacion
-                                    }
-                            };
-                        }).ToList()
-                };
+                var respModalidades = _unitOfWork
+                    .ProgramaGeneralArgumentoRepository
+                    .ObtenerProgramaGeneralArgumentoModalidad(argumento.Id)
+                    .Select(mm => new ProgramaGeneralArgumentoModalidadDTO
+                    {
+                        Id = mm.Id,
+                        IdModalidad = mm.IdModalidadCurso,
+                        Nombre = mm.Nombre
+                    })
+                    .ToList();
 
-                return dtoRespuesta;
+                var respDetalles = _unitOfWork
+                    .ProgramaGeneralArgumentoRepository
+                    .ObtenerProgramaGeneralArgumentoDetalle(argumento.Id)
+                    .Select(d =>
+                    {
+                        var motiv = _unitOfWork
+                            .ProgramaGeneralArgumentoRepository
+                            .ObtenerProgramaGeneralArgumentoDetalleMotivacion(d.Id);
+
+                        return new ProgramaGeneralArgumentoDetalleDTO
+                        {
+                            Id = d.Id,
+                            Detalle = d.Detalle,
+                            InstruccionPieDetalle = d.InstruccionPieDetalle,
+                            Motivacion = motiv == null
+                                ? null
+                                : new PGArgumentoDetalleMotivacionDTO
+                                {
+                                    Id = motiv.IdProgramaGeneralMotivacion,
+                                    Nombre = motiv.NombreMotivacion
+                                }
+                        };
+                    })
+                    .ToList();
+
+                return new ProgramaGeneralArgumentoDTO
+                {
+                    Id = argumento.Id,
+                    IdPGeneral = argumento.IdPgeneral,
+                    Nombre = argumento.Nombre,
+                    Descripcion = argumento.Descripcion,
+                    EsVisibleAgenda = argumento.EsVisibleAgenda,
+                    Modalidades = respModalidades,
+                    ArgumentoDetalle = respDetalles
+                };
             }
-            catch
+            catch (Exception)
             {
                 _unitOfWork.Rollback();
                 throw;
             }
         }
+
 
 
         public IEnumerable<ProgramaGeneralArgumentoMotivacionDTO> ObtenerMotivaciones(int IdPGeneral)
