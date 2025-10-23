@@ -320,6 +320,25 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         }
 
         /// Autor: Jose Vega
+        /// Fecha: 22/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene hilos de chat con información de alumnos y matrículas
+        /// </summary>
+        /// <returns>Lista de hilos de chat con datos de alumnos</returns>
+        public IEnumerable<ChatbotHiloChatPorAlumnoDTO> ObtenerHilosChatConAlumnos()
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerHilosChatConAlumnos();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
         /// Fecha: 20/10/2025
         /// Versión: 1.0
         /// <summary>

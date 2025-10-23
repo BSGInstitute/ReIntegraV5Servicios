@@ -429,6 +429,35 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 22/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene hilos de chat con información completa de alumnos y matrículas
+        /// </summary>
+        /// <returns>Lista de hilos de chat con datos de alumnos</returns>
+        public IEnumerable<ChatbotHiloChatPorAlumnoDTO> ObtenerHilosChatConAlumnos()
+        {
+            try
+            {
+                List<ChatbotHiloChatPorAlumnoDTO> rpta = new List<ChatbotHiloChatPorAlumnoDTO>();
+                var query = @"EXEC ia.SP_ChatbotPortalHiloChat_ObtenerHilosActivos";
+
+                var resultado = _dapperRepository.QueryDapper(query, null);
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ChatbotHiloChatPorAlumnoDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 18/07/2022
         /// Version: 1.0

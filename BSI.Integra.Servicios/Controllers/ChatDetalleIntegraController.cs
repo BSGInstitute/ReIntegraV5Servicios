@@ -570,6 +570,27 @@ namespace BSI.Integra.Servicios.Controllers
 
         /// Tipo Función: POST
         /// Autor: Jose Vega
+        /// Fecha: 22/10/2025
+        /// Versión: 1.0
+        /// <returns>Datos de hilos de chat con información de alumnos y matrículas</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerHilosChatConAlumnos()
+        {
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerHilosChatConAlumnos();
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
         /// Fecha: 18/10/2025
         /// Versión: 1.0
         /// <returns>Resultado de la inserción completa de la evaluación</returns>

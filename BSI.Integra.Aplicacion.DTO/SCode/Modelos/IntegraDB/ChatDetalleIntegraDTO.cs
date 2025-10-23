@@ -237,4 +237,21 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdRespuestaEvaluacionChatbot { get; set; }
     }
 
+    public class ChatbotHiloChatPorAlumnoDTO
+    {
+        public int IdChatbotPortalHiloChat { get; set; }
+        public int? IdAlumno { get; set; }
+        public string NombreAlumno { get; set; }
+        public int? IdMatriculaCabecera { get; set; }
+        public string CodigoMatricula { get; set; }
+        public int? IdEstado_matricula { get; set; }
+        public string EstadoMatricula { get; set; }
+        public int? IdSubEstadoMatricula { get; set; }
+        public int? CodigoAreaDerivacion { get; set; }
+        public bool Cerrado { get; set; }
+        public bool Derivado { get; set; }
+        public bool? DerivacionCerrado { get; set; }
+        public string SubEstadoMatricula { get; set; }
+    }
+
 }
