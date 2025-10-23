@@ -4,7 +4,6 @@
     public class ProgramaGeneralArgumentoDTO
     {
         public int Id { get; set; }
-        public int IdArgumento { get; set; }
         public int IdPGeneral { get; set; }
         public string Nombre { get; set; }
         public string? Descripcion { get; set; }

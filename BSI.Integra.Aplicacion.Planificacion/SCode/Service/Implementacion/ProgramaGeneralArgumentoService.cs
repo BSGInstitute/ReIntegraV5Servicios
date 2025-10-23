@@ -115,7 +115,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     var obj = new ProgramaGeneralArgumentoDTO
                     {
                         Id = item.Id,
-                        IdArgumento = item.IdArgumento,
                         IdPGeneral = item.IdPGeneral,
                         Nombre = item.Nombre,
                         Descripcion = item.Descripcion,
@@ -297,10 +296,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             if (entidad == null)
                 throw new ArgumentNullException(nameof(entidad), "El objeto entidad no puede ser nulo");
 
-     
+
             var idArgumento = entidad.Id > 0
-                ? entidad.Id
-                : (entidad.IdArgumento > 0 ? entidad.IdArgumento : 0);
+                ? entidad.Id : 0;
 
             if (idArgumento <= 0)
                 throw new BadRequestException("El Id del argumento es requerido.");
