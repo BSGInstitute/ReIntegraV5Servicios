@@ -101,5 +101,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<PEspecificoDetalleFechaByPGeneral> ObtenerFiltroV2PorIdPGeneral(int idPGeneral);
         PEspecificoDetalleFechaByPGeneral ObtenerFechaInicioCursoPorIdPEspeficico(int idPEspecifico);
 		IEnumerable<PEspecificoByPGeneral> ObtenerPEspecificoByProgramaGeneral(int idPGeneral);
-	}
+        public bool ActualizarConfiguracionPEspecificoAlumnoResumen(int idPEspecifico, string usuario);
+    }
 }

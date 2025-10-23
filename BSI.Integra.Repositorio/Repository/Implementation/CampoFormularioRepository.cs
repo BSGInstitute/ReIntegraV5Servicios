@@ -225,9 +225,24 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// 
         public IEnumerable<CampoFormularioSeleccionadoDTO> ObtenerCampoFormularioPorIdFormularioSolicitud(int idFormularioSolicitud)
         {
-            string _queryCampo = "Select Id,IdFormularioSolicitud,IdCampoContacto,NroVisitas,Codigo,Nombre,Siempre,Inteligente,Probabilidad From mkt.V_TCampoFormulario_ObtenerInformacion where Estado=1 and IdFormularioSolicitud=@IdFormularioSolicitud Order by NroVisitas";
-            string queryCampo = _dapperRepository.QueryDapper(_queryCampo, new { IdFormularioSolicitud = idFormularioSolicitud });
-            return JsonConvert.DeserializeObject<List<CampoFormularioSeleccionadoDTO>>(queryCampo);
+            try
+            {
+                string _SPName = "[mkt].[SP_TCampoFormulario_ObtenerDetalles]";
+                var jsonResult = _dapperRepository.QuerySPDapper(_SPName, new { IdFormularioSolicitud = idFormularioSolicitud });
+
+                if (string.IsNullOrEmpty(jsonResult))
+                {
+                    return new List<CampoFormularioSeleccionadoDTO>();
+                }
+
+                List<CampoFormularioSeleccionadoDTO> result = JsonConvert.DeserializeObject<List<CampoFormularioSeleccionadoDTO>>(jsonResult);
+
+                return result ?? new List<CampoFormularioSeleccionadoDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
     }

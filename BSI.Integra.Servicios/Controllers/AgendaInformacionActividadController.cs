@@ -1707,6 +1707,35 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
+
+        /// TipoFuncion: POST
+        /// Autor: Carlos Crispin.
+        /// Fecha: 21/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Enviar mensaje.
+        /// </summary>
+        /// <returns></returns>
+        [Route("[action]")]
+        [HttpPost]
+        public async Task<ActionResult> ActualizarPerfilProfesional([FromForm] PerfilProfesionalDTO informacionCorreo)
+        {
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+            var registroToken = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+
+            try
+            {
+                IAlumnoService alumnoService = new AlumnoService(_unitOfWork);
+                alumnoService.ActualizarPerfilProfesional(informacionCorreo, registroToken.RegistroClaimToken.UserName);
+                return Ok(new { rpta = true });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
         /// TipoFuncion: POST
         /// Autor: , Edgar S.
         /// Fecha: 10/02/2021

@@ -5,11 +5,9 @@
 
         public int Id { get; set; }
         public string Nombre { get; set; } = null!;
-
+        public string NombreLabel { get; set; }
         public string TipoControl { get; set; } = null!;
-
         public int ValoresPreEstablecidos { get; set; }
-
         public string? Procedimiento { get; set; }
 
         
