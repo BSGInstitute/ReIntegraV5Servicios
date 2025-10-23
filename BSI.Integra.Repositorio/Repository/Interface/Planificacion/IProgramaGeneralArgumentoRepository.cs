@@ -22,8 +22,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         bool Delete(IEnumerable<int> listadoIds, string usuario);
         #endregion
         List<ProgramaGeneralArgumentoModalidad> ObtenerProgramaGeneralArgumentoModalidad(int IdProgramaGeneralArgumento);
-        List<ProgramaGeneralArgumentoDetalleModelDTO> ObtenerProgramaGeneralArgumentoDetalle(int IdProgramaGeneralArgumento);
-        ProgramaGeneralArgumentoDetalleMotivacionDTO ObtenerProgramaGeneralArgumentoDetalleMotivacion(int IdProgramaGeneralArgumentoDetalle);
+        List<ProgramaGeneralArgumentoDetalle> ObtenerProgramaGeneralArgumentoDetalle(int IdProgramaGeneralArgumento);
+        ProgramaGeneralArgumentoDetalleMotivacion ObtenerProgramaGeneralArgumentoDetalleMotivacion(int IdProgramaGeneralArgumentoDetalle);
         IEnumerable<ProgramaGeneralArgumentoDTO> Obtener();
         ProgramaGeneralArgumento? ObtenerPorId(int id);
         List<ProgramaGeneralArgumentoDTO>? ObtenerTodo();

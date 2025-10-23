@@ -299,8 +299,15 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 if (entidad == null)
                     throw new ArgumentNullException(nameof(entidad), "El objeto entidad no puede ser nulo");
 
-                var argumentoExistente = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerPorId(entidad.Id);
+           
+                var idArgumento = entidad.Id > 0
+                    ? entidad.Id
+                    : (entidad.IdArgumento > 0 ? entidad.IdArgumento : entidad.IdArgumento);
 
+                if (idArgumento <= 0)
+                    throw new BadRequestException("El Id del argumento es requerido.");
+
+                var argumentoExistente = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerPorId(idArgumento);
                 if (argumentoExistente == null)
                     throw new NotFoundException("El argumento no existe en base de datos");
 
@@ -311,24 +318,22 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 argumentoExistente.UsuarioModificacion = usuario;
 
                 _unitOfWork.ProgramaGeneralArgumentoRepository.Update(argumentoExistente);
-                _unitOfWork.Commit();
 
-                #region === Modalidades ===
                 var modalidadesExistentes = _unitOfWork.ProgramaGeneralArgumentoRepository
-                    .ObtenerProgramaGeneralArgumentoModalidad(entidad.Id);
-                var modalidadesExistentesIds = modalidadesExistentes.Select(m => m.Id).ToList();
+                    .ObtenerProgramaGeneralArgumentoModalidad(argumentoExistente.Id)
+                    .ToList();
 
                 var nuevasModalidades = entidad.Modalidades ?? new List<ProgramaGeneralArgumentoModalidadDTO>();
 
                 var modalidadesAEliminar = modalidadesExistentes
                     .Where(x => !nuevasModalidades.Any(n => n.Id == x.Id))
+                    .Select(x => x.Id)
                     .ToList();
 
-                foreach (var eliminar in modalidadesAEliminar)
-                {
-                    _unitOfWork.ProgramaGeneralArgumentoModalidadRepository.Delete(eliminar.Id, usuario);
-                }
+                if (modalidadesAEliminar.Any())
+                    _unitOfWork.ProgramaGeneralArgumentoModalidadRepository.Delete(modalidadesAEliminar, usuario);
 
+                // 2.b Insertar nuevas
                 var modalidadesAInsertar = nuevasModalidades
                     .Where(x => x.Id == 0)
                     .Select(m => new ProgramaGeneralArgumentoModalidad
@@ -341,43 +346,52 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         FechaModificacion = DateTime.Now,
                         UsuarioCreacion = usuario,
                         UsuarioModificacion = usuario
-                    }).ToList();
+                    })
+                    .ToList();
 
                 if (modalidadesAInsertar.Any())
                     _unitOfWork.ProgramaGeneralArgumentoModalidadRepository.AddList(modalidadesAInsertar);
-                foreach (var m in nuevasModalidades.Where(x => x.Id > 0))
+
+                var modalidadesAActualizar = nuevasModalidades.Where(x => x.Id > 0).ToList();
+                if (modalidadesAActualizar.Any())
                 {
-                    var existente = modalidadesExistentes.FirstOrDefault(e => e.Id == m.Id);
-                    if (existente != null)
+                    var entidadesActualizar = new List<ProgramaGeneralArgumentoModalidad>();
+                    foreach (var m in modalidadesAActualizar)
                     {
-                        existente.Nombre = m.Nombre;
-                        existente.IdModalidadCurso = m.IdModalidad;
-                        existente.FechaModificacion = DateTime.Now;
-                        existente.UsuarioModificacion = usuario;
-                        _unitOfWork.ProgramaGeneralArgumentoModalidadRepository.Update(existente);
+                        var existente = modalidadesExistentes.FirstOrDefault(e => e.Id == m.Id);
+                        if (existente != null)
+                        {
+                            existente.Nombre = m.Nombre;
+                            existente.IdModalidadCurso = m.IdModalidad;
+                            existente.FechaModificacion = DateTime.Now;
+                            existente.UsuarioModificacion = usuario;
+                            entidadesActualizar.Add(existente);
+                        }
                     }
+                    if (entidadesActualizar.Any())
+                        _unitOfWork.ProgramaGeneralArgumentoModalidadRepository.Update(entidadesActualizar);
                 }
-                _unitOfWork.Commit();
-                #endregion
 
-                #region === ArgumentoDetalle ===
-                var detallesExistentes = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalle(entidad.Id);
-
-                var nuevosDetalles = entidad.ArgumentoDetalle ?? new List<ProgramaGeneralArgumentoDetalleDTO>();
-                var detallesAEliminar = detallesExistentes
-                    .Where(x => !nuevosDetalles.Any(n => n.Id == x.Id))
+                var detallesExistentes = _unitOfWork.ProgramaGeneralArgumentoRepository
+                    .ObtenerProgramaGeneralArgumentoDetalle(argumentoExistente.Id)
                     .ToList();
 
-                foreach (var eliminar in detallesAEliminar)
-                {
-                    _unitOfWork.ProgramaGeneralArgumentoDetalleRepository.Delete(eliminar.Id, usuario);
-                }
+                var nuevosDetalles = entidad.ArgumentoDetalle ?? new List<ProgramaGeneralArgumentoDetalleDTO>();
+
+                var detallesAEliminar = detallesExistentes
+                    .Where(x => !nuevosDetalles.Any(n => n.Id == x.Id))
+                    .Select(x => x.Id)
+                    .ToList();
+
+                foreach (var idDetEliminar in detallesAEliminar)
+                    _unitOfWork.ProgramaGeneralArgumentoDetalleRepository.Delete(idDetEliminar, usuario);
+
                 foreach (var nuevo in nuevosDetalles.Where(x => x.Id == 0))
                 {
                     if (nuevo.Motivacion == null || nuevo.Motivacion.Id <= 0)
                         throw new BadRequestException("La motivación es requerida y debe tener un Id válido.");
 
-                    ProgramaGeneralArgumentoDetalle detalle = new()
+                    var det = new ProgramaGeneralArgumentoDetalle
                     {
                         IdProgramaGeneralArgumento = argumentoExistente.Id,
                         Detalle = nuevo.Detalle,
@@ -389,12 +403,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         UsuarioModificacion = usuario
                     };
 
-                    var detalleInsertado = _unitOfWork.ProgramaGeneralArgumentoDetalleRepository.Add(detalle);
-                    _unitOfWork.Commit();
+                    var det1 = _unitOfWork.ProgramaGeneralArgumentoDetalleRepository.Add(det);
 
-                    ProgramaGeneralArgumentoDetalleMotivacion motivacion = new()
+                    var mot = new ProgramaGeneralArgumentoDetalleMotivacion
                     {
-                        IdProgramaGeneralArgumentoDetalle = detalleInsertado.Id,
+                        IdProgramaGeneralArgumentoDetalle = det1.Id,
                         IdProgramaGeneralMotivacion = nuevo.Motivacion.Id,
                         NombreMotivacion = nuevo.Motivacion.Nombre,
                         Estado = true,
@@ -403,40 +416,55 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         UsuarioCreacion = usuario,
                         UsuarioModificacion = usuario
                     };
-                    _unitOfWork.ProgramaGeneralArgumentoDetalleMotivacionRepository.Add(motivacion);
-                    _unitOfWork.Commit();
+                    _unitOfWork.ProgramaGeneralArgumentoDetalleMotivacionRepository.Add(mot);
                 }
 
-                //foreach (var actualizar in nuevosDetalles.Where(x => x.Id > 0))
-                //{
-                //    var existente = detallesExistentes.FirstOrDefault(d => d.Id == actualizar.Id);
-                //    if (existente != null)
-                //    {
-                //        existente.Detalle = actualizar.Detalle;
-                //        existente.InstruccionPieDetalle = actualizar.InstruccionPieDetalle;
-                //        //existente.FechaModificacion = DateTime.Now;
-                //        //existente.UsuarioModificacion = usuario;
+                foreach (var actualizar in nuevosDetalles.Where(x => x.Id > 0))
+                {
+                    var existenteDet = detallesExistentes.FirstOrDefault(d => d.Id == actualizar.Id);
+                    if (existenteDet == null) continue;
 
-                //        _unitOfWork.ProgramaGeneralArgumentoDetalleRepository.Update(existente);
+                    existenteDet.Detalle = actualizar.Detalle;
+                    existenteDet.InstruccionPieDetalle = actualizar.InstruccionPieDetalle;
+                    existenteDet.FechaModificacion = DateTime.Now;
+                    existenteDet.UsuarioModificacion = usuario;
 
-                //        var motivacionExistente = _unitOfWork.ProgramaGeneralArgumentoDetalleMotivacionRepository
-                //            .GetBy(x => x.IdProgramaGeneralArgumentoDetalle == existente.Id)
-                //            .FirstOrDefault();
+                    _unitOfWork.ProgramaGeneralArgumentoDetalleRepository.Update(existenteDet);
 
-                //        if (motivacionExistente != null && actualizar.Motivacion != null)
-                //        {
-                //            motivacionExistente.IdProgramaGeneralMotivacion = actualizar.Motivacion.Id;
-                //            motivacionExistente.NombreMotivacion = actualizar.Motivacion.Nombre;
-                //            motivacionExistente.FechaModificacion = DateTime.Now;
-                //            motivacionExistente.UsuarioModificacion = usuario;
+                    var motivacionExistente = _unitOfWork.ProgramaGeneralArgumentoRepository
+                        .ObtenerProgramaGeneralArgumentoDetalleMotivacion(existenteDet.Id);
 
-                //            _unitOfWork.ProgramaGeneralArgumentoDetalleMotivacionRepository.Update(motivacionExistente);
-                //        }
-                //    }
-                //}
+                    if (actualizar.Motivacion == null || actualizar.Motivacion.Id <= 0)
+                        throw new BadRequestException("La motivación es requerida para el detalle.");
+
+                    if (motivacionExistente == null)
+                    {
+                        var motNew = new ProgramaGeneralArgumentoDetalleMotivacion
+                        {
+                            IdProgramaGeneralArgumentoDetalle = existenteDet.Id,
+                            IdProgramaGeneralMotivacion = actualizar.Motivacion.Id,
+                            NombreMotivacion = actualizar.Motivacion.Nombre,
+                            Estado = true,
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now,
+                            UsuarioCreacion = usuario,
+                            UsuarioModificacion = usuario
+                        };
+                        _unitOfWork.ProgramaGeneralArgumentoDetalleMotivacionRepository.Add(motNew);
+                    }
+                    else
+                    {
+                        motivacionExistente.IdProgramaGeneralMotivacion = actualizar.Motivacion.Id;
+                        motivacionExistente.NombreMotivacion = actualizar.Motivacion.Nombre;
+                        motivacionExistente.FechaModificacion = DateTime.Now;
+                        motivacionExistente.UsuarioModificacion = usuario;
+
+                        _unitOfWork.ProgramaGeneralArgumentoDetalleMotivacionRepository.Update(motivacionExistente);
+                    }
+                }
 
                 _unitOfWork.Commit();
-                #endregion
+
                 var dtoRespuesta = new ProgramaGeneralArgumentoDTO
                 {
                     Id = argumentoExistente.Id,
@@ -456,25 +484,27 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         .ObtenerProgramaGeneralArgumentoDetalle(argumentoExistente.Id)
                         .Select(d =>
                         {
-                            var motivacion = _unitOfWork.ProgramaGeneralArgumentoRepository
+                            var motiv = _unitOfWork.ProgramaGeneralArgumentoRepository
                                 .ObtenerProgramaGeneralArgumentoDetalleMotivacion(d.Id);
                             return new ProgramaGeneralArgumentoDetalleDTO
                             {
                                 Id = d.Id,
                                 Detalle = d.Detalle,
                                 InstruccionPieDetalle = d.InstruccionPieDetalle,
-                                Motivacion = new PGArgumentoDetalleMotivacionDTO
-                                {
-                                    Id = motivacion.IdProgramaGeneralMotivacion,
-                                    Nombre = motivacion.NombreMotivacion
-                                }
+                                Motivacion = motiv == null
+                                    ? null
+                                    : new PGArgumentoDetalleMotivacionDTO
+                                    {
+                                        Id = motiv.IdProgramaGeneralMotivacion,
+                                        Nombre = motiv.NombreMotivacion
+                                    }
                             };
                         }).ToList()
                 };
 
                 return dtoRespuesta;
             }
-            catch (Exception)
+            catch
             {
                 _unitOfWork.Rollback();
                 throw;

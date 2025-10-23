@@ -182,20 +182,25 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 throw;
             }
         }
-        public List<ProgramaGeneralArgumentoDetalleModelDTO> ObtenerProgramaGeneralArgumentoDetalle(int IdProgramaGeneralArgumento)
+        public List<ProgramaGeneralArgumentoDetalle> ObtenerProgramaGeneralArgumentoDetalle(int IdProgramaGeneralArgumento)
         {
             try
             {
-                List<ProgramaGeneralArgumentoDetalleModelDTO> rpta = new List<ProgramaGeneralArgumentoDetalleModelDTO>();
+                List<ProgramaGeneralArgumentoDetalle> rpta = new List<ProgramaGeneralArgumentoDetalle>();
                 var query = @"
-                    SELECT Id, IdProgramaGeneralArgumento, Detalle, InstruccionPieDetalle
+                    SELECT Id, IdProgramaGeneralArgumento, Detalle, InstruccionPieDetalle ,   Estado,
+                               FechaCreacion,
+                               FechaModificacion,
+	                           UsuarioCreacion,
+                               UsuarioModificacion,
+                               RowVersion
                     FROM  pla.T_ProgramaGeneralArgumentoDetalle
                     WHERE Estado = 1 AND IdProgramaGeneralArgumento = @IdProgramaGeneralArgumento
                 ";
                 var resultado = _dapperRepository.QueryDapper(query, new {IdProgramaGeneralArgumento});
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
-                    rpta = JsonConvert.DeserializeObject<List<ProgramaGeneralArgumentoDetalleModelDTO>>(resultado);
+                    rpta = JsonConvert.DeserializeObject<List<ProgramaGeneralArgumentoDetalle>>(resultado);
                 }
                 return rpta;
             }
@@ -204,20 +209,25 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 throw;
             }
         }
-        public ProgramaGeneralArgumentoDetalleMotivacionDTO ObtenerProgramaGeneralArgumentoDetalleMotivacion(int IdProgramaGeneralArgumentoDetalle)
+        public ProgramaGeneralArgumentoDetalleMotivacion ObtenerProgramaGeneralArgumentoDetalleMotivacion(int IdProgramaGeneralArgumentoDetalle)
         {
             try
             {
-                ProgramaGeneralArgumentoDetalleMotivacionDTO rpta = new ProgramaGeneralArgumentoDetalleMotivacionDTO();
+                ProgramaGeneralArgumentoDetalleMotivacion rpta = new ProgramaGeneralArgumentoDetalleMotivacion();
                 var query = @"
-                    SELECT Id, IdProgramaGeneralArgumentoDetalle, IdProgramaGeneralMotivacion, NombreMotivacion
+                    SELECT Id, IdProgramaGeneralArgumentoDetalle, IdProgramaGeneralMotivacion, NombreMotivacion ,   Estado,
+                           FechaCreacion,
+                           FechaModificacion,
+	                       UsuarioCreacion,
+                           UsuarioModificacion,
+                           RowVersion
                     FROM pla.T_ProgramaGeneralArgumentoDetalleMotivacion
 	                WHERE Estado = 1 AND IdProgramaGeneralArgumentoDetalle = @IdProgramaGeneralArgumentoDetalle
                 ";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { IdProgramaGeneralArgumentoDetalle });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
-                    rpta = JsonConvert.DeserializeObject<ProgramaGeneralArgumentoDetalleMotivacionDTO>(resultado);
+                    rpta = JsonConvert.DeserializeObject<ProgramaGeneralArgumentoDetalleMotivacion>(resultado);
                 }
                 return rpta;
             }
