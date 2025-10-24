@@ -256,17 +256,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 
     }
 
-    public class ChatbotHiloChatPorSegmentoDTO
-    {
-        public int Id { get; set; }
-        public string IdContactoPortalSegmento { get; set; }
-        public int? CodigoAreaDerivacion { get; set; }
-        public bool Cerrado { get; set; }
-        public bool Derivado { get; set; }
-        public bool? DerivacionCerrado { get; set; }
-        public DateTime FechaCreacion { get; set; }
-    }
-
+ 
     public class ChatbotHiloChatPorSegmentoDTO
     {
         public int Id { get; set; }
