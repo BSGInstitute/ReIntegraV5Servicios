@@ -265,4 +265,24 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public DateTime FechaCreacion { get; set; }
     }
 
+    public class ObtenerRespuestasClienteRequestDTO
+    {
+        public int IdFormularioAplicadoChatbot { get; set; }
+    }
+
+    public class RespuestaClienteDTO
+    {
+        public int IdPregunta { get; set; }
+        public string NombrePregunta { get; set; }
+        public int OrdenPregunta { get; set; }
+        public string TipoEntradaNombre { get; set; }
+        public int? IdRespuestaEvaluacion { get; set; }
+        public string RespuestaPredefinida { get; set; }
+        public int? OrdenRespuesta { get; set; }
+        public string RespuestaCliente { get; set; }
+        public bool EsTextoLibre { get; set; }
+        public bool EsProblemaIdentificado { get; set; }
+        public DateTime FechaCreacion { get; set; }
+    }
+
 }

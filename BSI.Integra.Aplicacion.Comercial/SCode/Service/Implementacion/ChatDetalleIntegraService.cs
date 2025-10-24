@@ -357,6 +357,24 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 24/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todas las respuestas del cliente por formulario aplicado
+        /// </summary>
+        /// <param name="idFormularioAplicadoChatbot">ID del formulario aplicado</param>
+        public IEnumerable<RespuestaClienteDTO> ObtenerRespuestasUsuarioPorFormularioAplicado(int IdFormularioAplicadoChatbot)
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerRespuestasUsuarioPorFormularioAplicado(IdFormularioAplicadoChatbot);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en servicio al obtener respuestas del cliente: {ex.Message}", ex);
+            }
+        }
 
         /// Autor: Jose Vega
         /// Fecha: 20/10/2025
