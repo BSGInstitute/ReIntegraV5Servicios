@@ -129,6 +129,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdTipoEntradaEvaluacionChatbot { get; set; }
         public string TipoEntrada { get; set; }
         public List<RespuestaEvaluacionDTO> Respuestas { get; set; } = new List<RespuestaEvaluacionDTO>();
+        public bool EsRequerido { get; set; }
     }
 
     public class RespuestaEvaluacionDTO
@@ -223,6 +224,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 
     public class RespuestaSeleccionadaDTO
     {
+        public int IdPreguntaEvaluacionChatbot { get; set; }
         public int IdRespuestaEvaluacionChatbot { get; set; }
     }
 
