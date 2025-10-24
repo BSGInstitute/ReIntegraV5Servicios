@@ -157,7 +157,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         }
         #endregion
 
-        public IEnumerable<ProgramaGeneralProblemaFactorSubSolucionAsignada> ObtenerPorIdPartner(int idProblemaDetalle)
+        public IEnumerable<ProgramaGeneralProblemaFactorSubSolucionAsignada> ObtenerPorIdProblemaDetalle(int idProblemaDetalle)
         {
             try
             {
