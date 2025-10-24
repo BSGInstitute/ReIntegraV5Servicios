@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
+using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -154,6 +156,68 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
         #endregion
+
+        public IEnumerable<ProgramaGeneralProblemaFactorSubSolucionAsignada> ObtenerPorIdPartner(int idProblemaDetalle)
+        {
+            try
+            {
+                var query = @"
+                        SELECT 
+                           Id,
+                           IdProgramaGeneralProblemaDetalle,
+                           IdProgramaGeneralProblemaFactorSubSolucion,
+	                       Estado,
+                           FechaCreacion,
+                           FechaModificacion,
+                           UsuarioCreacion,
+                           UsuarioModificacion,
+	                       RowVersion
+                        FROM pla.T_ProgramaGeneralProblemaFactorSubSolucionAsignada
+                        WHERE Estado = 1 AND IdProgramaGeneralProblemaDetalle=@idProblemaDetalle";
+                var resultado = _dapperRepository.QueryDapper(query, new { idProblemaDetalle });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<IEnumerable<ProgramaGeneralProblemaFactorSubSolucionAsignada>>(resultado)!;
+                }
+                return new List<ProgramaGeneralProblemaFactorSubSolucionAsignada>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#PBPwR-OPIP-001@Error en ObtenerPorIdPartner(), {ex.Message}");
+            }
+        }
+
+        public ProgramaGeneralProblemaFactorSubSolucionAsignada? ObtenerPorId(int id)
+        {
+            try
+            {
+                ProgramaGeneralProblemaFactorSubSolucionAsignada rpta = new();
+                var query = @"
+                    SELECT
+	                       Id,
+                           IdProgramaGeneralProblemaDetalle,
+                           IdProgramaGeneralProblemaFactorSubSolucion,
+	                       Estado,
+                           FechaCreacion,
+                           FechaModificacion,
+                           UsuarioCreacion,
+                           UsuarioModificacion,
+	                       RowVersion
+                    FROM pla.T_ProgramaGeneralProblemaFactorSubSolucionAsignada
+                    WHERE Estado = 1 AND Id = @id";
+                var resultado = _dapperRepository.FirstOrDefault(query, new { id });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<ProgramaGeneralProblemaFactorSubSolucionAsignada>(resultado)!;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Se ha producido un error al ejecutar el método ObtenerPorId()", ex);
+            }
+        }
+
 
     }
 }

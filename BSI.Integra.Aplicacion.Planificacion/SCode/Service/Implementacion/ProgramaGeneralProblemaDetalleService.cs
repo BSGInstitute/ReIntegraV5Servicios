@@ -93,5 +93,96 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw;
             }
         }
+
+        public ProgramaGeneralProblemaDetalleInsertarDTO Actualizar(ProgramaGeneralProblemaDetalleInsertarDTO dto, string usuario)
+        {
+            try
+            {
+                ProgramaGeneralProblemaDetalle? entidad = new();
+                if (dto != null)
+                {
+                    if (dto.Id != 0)
+                    {
+                        entidad = _unitOfWork.ProgramaGeneralProblemaDetalleRepository.ObtenerPorId(dto.Id.Value);
+                        if (entidad != null && entidad.Id != 0)
+                        {
+                            entidad.IdPgeneral = dto.IdPGeneral;
+                            entidad.IdProgramaGeneralProblemaFactor = dto.IdProblema;
+                            entidad.IdProgramaGeneralProblemaFactorDetalle = dto.IdProblemaDetalle;
+                            entidad.AplicaNombreDetalle = dto.DetalleDescripcion;
+                            entidad.AplicaTituloDetalle = dto.DetalleTitulo;
+                            entidad.AplicaPieDePagina = dto.DetallePiePagina;
+                            entidad.AplicaDescripcionSolucion = dto.SolucionDescripcion;
+                            entidad.AplicaTituloSolucion = dto.SolucionTitulo;
+                            entidad.AplicaSubTituloSolucion = dto.SolucionSubTitulo;
+                            entidad.UsuarioModificacion = usuario;
+                            entidad.FechaModificacion = DateTime.Now;
+                            var respuesta = _unitOfWork.ProgramaGeneralProblemaDetalleRepository.Update(entidad);
+                            _unitOfWork.Commit();
+
+                            var listasoluciones = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.ObtenerPorIdProblemaDetalle(entidad.Id).ToList();
+                            if (listasoluciones != null && listasoluciones.Count() > 0)
+                            {
+                                if (dto.Soluciones != null && dto.Soluciones.Count() > 0)
+                                {
+                                    listasoluciones.RemoveAll(s => dto.Soluciones.Any(x => x.Id == s.Id));
+                                }
+                                if (listasoluciones.Count() > 0)
+                                {
+                                    _unitOfWork.PartnerBeneficioPwRepository.Delete(listasoluciones.Select(x => x.Id), usuario);
+                                    _unitOfWork.Commit();
+                                }
+                            }
+                           
+                            if (dto.Soluciones != null && dto.Soluciones.Count() > 0)
+                            {
+                                dto.Soluciones.ForEach(solucion =>
+                                {
+                                    ProgramaGeneralProblemaFactorSubSolucionAsignada subsolucion;
+                                    if (solucion.Id != 0 && _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.Exist(solucion.Id.Value))
+                                    {
+                                        subsolucion = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.ObtenerPorId(solucion.Id.Value)!;
+                                        subsolucion.IdProgramaGeneralProblemaFactorSubSolucion = solucion.IdProgramaGeneralProblemaFactorSubSolucion;
+                                        subsolucion.UsuarioModificacion = usuario;
+                                        subsolucion.FechaModificacion = DateTime.Now;
+                                        _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.Update(subsolucion);
+                                        _unitOfWork.Commit();
+                                    }
+                                    else
+                                    {
+                                        subsolucion = new ProgramaGeneralProblemaFactorSubSolucionAsignada()
+                                        {
+                                            IdProgramaGeneralProblemaDetalle = entidad.Id,
+                                            IdProgramaGeneralProblemaFactorSubSolucion = solucion.IdProgramaGeneralProblemaFactorSubSolucion,
+                                            Estado = true,
+                                            UsuarioCreacion = usuario,
+                                            UsuarioModificacion = usuario,
+                                            FechaCreacion = DateTime.Now,
+                                            FechaModificacion = DateTime.Now,
+                                        };
+                                        var resultado = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.Add(subsolucion);
+                                        _unitOfWork.Commit();
+                                        solucion.Id = resultado.Id;
+                                    }
+                                });
+                            }
+                            
+                            return dto;
+                        }
+                        else
+                            throw new BadRequestException("Entidad no encontrada");
+                    }
+                    else
+                        throw new BadRequestException("Id Entidad 0");
+                }
+                else
+                    throw new BadRequestException("Entidad Nula");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }

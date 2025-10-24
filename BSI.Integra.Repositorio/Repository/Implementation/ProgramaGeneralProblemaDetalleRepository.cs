@@ -3,6 +3,7 @@ using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -154,5 +155,46 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
         #endregion
+
+
+
+        public ProgramaGeneralProblemaDetalle? ObtenerPorId(int idProgramaGeneralProblemaDetalle)
+        {
+            try
+            {
+                ProgramaGeneralProblemaDetalle rpta = new();
+                var query = @"
+                    SELECT
+	                    Id,
+                        IdPGeneral,
+                        IdProgramaGeneralProblemaFactor,
+                        IdProgramaGeneralProblemaFactorDetalle,
+	                    AplicaDescripcionSolucion,
+                        AplicaNombreDetalle,
+                        AplicaPieDePagina,
+                        AplicaSubTituloSolucion,
+                        AplicaTituloDetalle,
+                        AplicaTituloSolucion,
+                        Estado,
+                        FechaCreacion,
+                        FechaModificacion,
+	                    UsuarioCreacion,
+                        UsuarioModificacion
+                        RowVersion
+                    FROM pla.T_ProgramaGeneralProblemaDetalle
+                    WHERE Estado = 1 AND Id = @idProgramaGeneralProblemaDetalle";
+                var resultado = _dapperRepository.FirstOrDefault(query, new { idProgramaGeneralProblemaDetalle });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<ProgramaGeneralProblemaDetalle>(resultado)!;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Se ha producido un error al ejecutar el método ObtenerPorId()", ex);
+            }
+        }
+
     }
 }

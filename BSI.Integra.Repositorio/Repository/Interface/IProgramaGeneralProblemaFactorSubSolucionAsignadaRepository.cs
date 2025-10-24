@@ -1,4 +1,5 @@
 ﻿using BSI.Integra.Persistencia.Entidades.IntegraDB;
+using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Repositorio.Repository.Interface
 {
-    public interface IProgramaGeneralProblemaFactorSubSolucionAsignadaRepository
+    public interface IProgramaGeneralProblemaFactorSubSolucionAsignadaRepository : IGenericRepository<TProgramaGeneralProblemaFactorSubSolucionAsignadum>
     {
         #region Metodos Base
         TProgramaGeneralProblemaFactorSubSolucionAsignadum Add(ProgramaGeneralProblemaFactorSubSolucionAsignada entidad);
@@ -19,5 +20,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<TProgramaGeneralProblemaFactorSubSolucionAsignadum> Update(IEnumerable<ProgramaGeneralProblemaFactorSubSolucionAsignada> listadoEntidad);
         bool Delete(IEnumerable<int> listadoIds, string usuario);
         #endregion
+
+        IEnumerable<ProgramaGeneralProblemaFactorSubSolucionAsignada> ObtenerPorIdProblemaDetalle(int idProblemaDetalle);
+        ProgramaGeneralProblemaFactorSubSolucionAsignada? ObtenerPorId(int id);
     }
 }

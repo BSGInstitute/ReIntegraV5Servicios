@@ -36,5 +36,18 @@ namespace BSI.Integra.Servicios.Controllers
             var respuesta = _programaGeneralProblemaDetalleService.Insertar(dto, _tokenManager.UserName);
             return Ok(respuesta);
         }
+
+        [Authorize]
+        [JwtExpirationValidation]
+        [HttpPut("[action]")]
+        public IActionResult Actualizar([FromBody] ProgramaGeneralProblemaDetalleInsertarDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var respuesta = _programaGeneralProblemaDetalleService.Actualizar(dto, _tokenManager.UserName);
+            return Ok(respuesta);
+        }
     }
 }

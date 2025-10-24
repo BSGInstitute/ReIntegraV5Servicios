@@ -11,7 +11,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public int Id { get; set; }
         public int IdPGeneral { get; set; }
         public int IdProgramaGeneralProblemaFactor { get; set; }
-        public int IdProgramaGeneralProblemaFactorDetalle { get; set; }
+        public int? IdProgramaGeneralProblemaFactorDetalle { get; set; }
         public bool AplicaTituloDetalle { get; set; }
         public bool AplicaNombreDetalle { get; set; }
         public bool AplicaPieDePagina { get; set; }

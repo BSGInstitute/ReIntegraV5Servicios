@@ -19,5 +19,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<TProgramaGeneralProblemaDetalle> Update(IEnumerable<ProgramaGeneralProblemaDetalle> listadoEntidad);
         bool Delete(IEnumerable<int> listadoIds, string usuario);
         #endregion
+
+        ProgramaGeneralProblemaDetalle? ObtenerPorId(int idProgramaGeneralProblemaDetalle);
+
     }
 }
