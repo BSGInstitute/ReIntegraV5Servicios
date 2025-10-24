@@ -1407,15 +1407,6 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
             LlamadaProcesoAutoDTO items = _unitOfWork.LineamientoCalificacionRepository
                 .ObtenerDatosConfiguracionCalificacionPorIdLlamada(idLlamada);
-            var mapaFases = new Dictionary<int, string>
-            {
-                {1, "BIC1"}, {2, "BNC"}, {3, "NI"}, {4, "BIC"}, {5, "IS"}, {6, "RN3"}, {7, "RN"},
-                {8, "IP"}, {9, "RN1"}, {10, "RN2-B"}, {11, "E"}, {12, "IC"}, {13, "IT"},
-                {14, "BIC2"}, {15, "BNC RN2"}, {16, "BNC-2"}, {17, "BNC-1"}, {22, "PF"},
-                {23, "M"}, {24, "BRM"}, {25, "D"}, {26, "RN4"}, {27, "RN5"}, {28, "BNC1"},
-                {29, "BRM1"}, {30, "R"}, {32, "OD"}, {33, "OM"}, {34, "RN8"}, {36, "NS"},
-                {40, "RN0"}, {41, "RN2-A"}, {42, "RN2-C"}
-            };
             /*Aqui obtengo la version vigente de lineamientos para calificar*/
             var lineamientoVigente = _unitOfWork.LineamientoCalificacionRepository
                 .HistorialVersionCalificacionLlamada()
@@ -1567,13 +1558,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     transcription = transcripcionesParaPayload,
                     lineamientos = lineamientos,
                     brochure,
-                    faseOrigen = mapaFases.ContainsKey(items.IdFaseOportunidad_Ant)
-                    ? mapaFases[items.IdFaseOportunidad_Ant]
-                    : items.IdFaseOportunidad_Ant.ToString(),
-
-                    faseDestino = mapaFases.ContainsKey(items.IdFaseOportunidad)
-                    ? mapaFases[items.IdFaseOportunidad]
-                    : items.IdFaseOportunidad.ToString()
+                    faseOrigen = items.FaseOportunidad_Ant,
+                    faseDestino = items.FaseOportunidad
 
 
                 };
@@ -1951,7 +1937,9 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     {
                         IdFase = idFase.Value,
                         JustificacionGeneral = fase.JustificacionGeneral,
-                        BrechaGeneral = fase.BrechaGeneral
+                        BrechaGeneral = fase.BrechaGeneral,
+                        PorcentajeAvance= fase.PorcentajeAvance,
+                        ComentarioAvance=fase.ComentarioAvance
                     });
                 }
 

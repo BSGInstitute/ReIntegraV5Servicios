@@ -155,6 +155,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int IdFase { get; set; }
         public string JustificacionGeneral { get; set; }
         public string BrechaGeneral { get; set; }
+        public string ComentarioAvance { get; set; }
+        public int PorcentajeAvance { get; set; }
     }
     public class DetalleCalificacionMualDTO
     {
@@ -426,6 +428,12 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
 
         [JsonPropertyName("brechageneral")]
         public string BrechaGeneral { get; set; }
+
+        [JsonPropertyName("comentario_avance_fase")]
+        public string ComentarioAvance { get; set; }
+
+        [JsonPropertyName("porcentaje_avance_fase")]
+        public int PorcentajeAvance { get; set; }
     }
 
     public class CriterioEvaluacion
