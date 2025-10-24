@@ -572,7 +572,19 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        // En tu repositorio correspondiente
+        /// Autor: Jose Vega
+        /// Fecha: 24/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Inserta una evaluación completa de un hilo de chat en la base de datos.
+        /// </summary>
+        /// <param name="idChatbotPortalHiloChat">ID del hilo de chat que está siendo evaluado.</param>
+        /// <param name="idVersionFormularioEvaluacionChatbot">ID de la versión del formulario que se aplicó.</param>
+        /// <param name="usuarioCreacion">Nombre del usuario que registra la evaluación.</param>
+        /// <param name="respuestasSeleccionadasJson">Cadena JSON con las respuestas de selección.</param>
+        /// <param name="respuestasTextoJson">Cadena JSON con las respuestas de texto.</param>
+        /// <param name="problemasIdentificadosJson">Cadena JSON con los problemas identificados en la evaluación.</param>
+        /// <returns>Un objeto con el resultado de la inserción.</returns>
         public InsertarRespuestaEvaluacionResultadoDTO InsertarRespuestaEvaluacionCompleta(
             int idChatbotPortalHiloChat,
             int idVersionFormularioEvaluacionChatbot,
@@ -607,6 +619,38 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception e)
             {
                 throw e;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 24/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los Ids de Pregunta únicos a partir de una lista de Ids de Respuestas (opciones).
+        /// </summary>
+        /// <param name="idsRespuesta">Lista de Ids de T_RespuestaEvaluacionChatbot</param>
+        /// <returns>Lista de Ids de T_PreguntaEvaluacionChatbot</returns>
+        public IEnumerable<int> ObtenerIdsPreguntaPorIdsRespuesta(IEnumerable<int> idsRespuesta)
+        {
+            try
+            {
+
+                var query = @"
+                            SELECT IdPreguntaEvaluacionChatbot 
+                            FROM ia.T_RespuestaEvaluacionChatbot
+                            WHERE Id IN @IdsRespuesta AND Estado = 1";
+                var resultadoJson = _dapperRepository.QueryDapper(query, new { IdsRespuesta = idsRespuesta });
+
+                if (!string.IsNullOrEmpty(resultadoJson) && !resultadoJson.Contains("[]"))
+                {
+                    var listaDeObjetos = JsonConvert.DeserializeObject<List<dynamic>>(resultadoJson);
+                    return listaDeObjetos.Select(o => (int)o.IdPreguntaEvaluacionChatbot);
+                }
+                return Enumerable.Empty<int>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error en Repositorio:ObtenerIdsPreguntaPorIdsRespuesta", ex);
             }
         }
 

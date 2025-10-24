@@ -396,8 +396,59 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 if (request.IdVersionFormularioEvaluacionChatbot <= 0)
                     throw new BadRequestException("IdVersionFormulario debe ser mayor a 0");
 
+                var todasLasPreguntas = _unitOfWork.ChatDetalleIntegraRepository.ObtenerPreguntasPorVersionFormulario(
+                    request.IdVersionFormularioEvaluacionChatbot
+                ).ToList();
+
+                if (!todasLasPreguntas.Any())
+                {
+                    throw new BadRequestException($"Validación fallida: No se encontraron preguntas para la versión de formulario {request.IdVersionFormularioEvaluacionChatbot}.");
+                }
+
+                var idsPreguntasRequeridas = todasLasPreguntas
+                    .Where(p => p.EsRequerido)
+                    .Select(p => p.Id)
+                    .ToHashSet();
+
+                if (idsPreguntasRequeridas.Any())
+                {
+
+                    var idsPreguntasTexto = request.RespuestasTexto?
+                        .Select(r => r.IdPreguntaEvaluacionChatbot)
+                        .Distinct() ?? Enumerable.Empty<int>();
+
+                    var idsOpcionesSeleccionadas = request.RespuestasSeleccionadas?
+                        .Select(r => r.IdRespuestaEvaluacionChatbot)
+                        .ToList() ?? new List<int>();
+                    var idsProblemasIdentificados = request.ProblemasIdentificados?
+                        .Select(p => p.IdRespuestaEvaluacionChatbot)
+                        .ToList() ?? new List<int>();
+
+                    var todosLosIdsOpciones = idsOpcionesSeleccionadas.Union(idsProblemasIdentificados).Distinct().ToList();
+                    IEnumerable<int> idsPreguntasDesdeOpciones = new List<int>();
+                    if (todosLosIdsOpciones.Any())
+                    {
+                        idsPreguntasDesdeOpciones = _unitOfWork.ChatDetalleIntegraRepository
+                            .ObtenerIdsPreguntaPorIdsRespuesta(todosLosIdsOpciones);
+                    }
+
+                    var idsRespuestasUnicasEnviadas = idsPreguntasTexto.Union(idsPreguntasDesdeOpciones).ToHashSet();
+
+                    var idsRequeridasFaltantes = idsPreguntasRequeridas
+                        .Where(idRequerido => !idsRespuestasUnicasEnviadas.Contains(idRequerido))
+                        .ToList();
+
+                    if (idsRequeridasFaltantes.Any())
+                    {
+                        string idsFaltantesStr = string.Join(", ", idsRequeridasFaltantes);
+                        throw new BadRequestException(
+                            $"Validación fallida: Faltan respuestas para {idsRequeridasFaltantes.Count} pregunta(s) requerida(s). IDs de pregunta faltantes: [{idsFaltantesStr}]."
+                        );
+                    }
+                }
+
                 string respuestasSeleccionadasJson = request.RespuestasSeleccionadas != null && request.RespuestasSeleccionadas.Any()
-                    ? JsonConvert.SerializeObject(request.RespuestasSeleccionadas)
+                    ? JsonConvert.SerializeObject(request.RespuestasSeleccionadas.Select(r => new { r.IdRespuestaEvaluacionChatbot }))
                     : null;
 
                 string respuestasTextoJson = request.RespuestasTexto != null && request.RespuestasTexto.Any()
