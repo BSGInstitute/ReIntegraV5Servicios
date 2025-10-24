@@ -30,13 +30,15 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 cfg.CreateMap<TProgramaGeneralProblemaDetalle, ProgramaGeneralProblemaDetalle>(MemberList.None).ReverseMap();
                 cfg.CreateMap<TProgramaGeneralProblemaDetalle, ProgramaGeneralProblemaDetalleDTO>(MemberList.None).ReverseMap();
                 cfg.CreateMap<ProgramaGeneralProblemaDetalle, ProgramaGeneralProblemaDetalleDTO>(MemberList.None).ReverseMap();
-     
-
+                cfg.CreateMap<TProgramaGeneralProblemaFactorSubSolucionAsignadum, ProgramaGeneralProblemaFactorSubSolucionAsignada>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TProgramaGeneralProblemaDetalle, ProgramaGeneralProblemaDetalle>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TProgramaGeneralProblemaFactorSubSolucionAsignadum, ProgramaGeneralProblemaFactorSubSolucionAsignadaDTO>(MemberList.None).ReverseMap();
+                cfg.CreateMap<ProgramaGeneralProblemaFactorSubSolucionAsignadaDTO, ProgramaGeneralProblemaFactorSubSolucionAsignada>(MemberList.None).ReverseMap();
             });
             _mapper = new Mapper(config);
         }
 
-        public ProgramaGeneralProblemaDetalleInsertarDTO Insertar(ProgramaGeneralProblemaDetalleInsertarDTO dto, string usuario)
+        public ProgramaGeneralProblemaDetalleDTO Insertar(ProgramaGeneralProblemaDetalleDTO dto, string usuario)
         {
             try
             {
@@ -45,14 +47,14 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     ProgramaGeneralProblemaDetalle entidad = new()
                     {
                         IdPgeneral = dto.IdPGeneral,
-                        IdProgramaGeneralProblemaFactor = dto.IdProblema,
-                        IdProgramaGeneralProblemaFactorDetalle= dto.IdProblemaDetalle,
-                        AplicaNombreDetalle = dto.DetalleDescripcion ,
-                        AplicaTituloDetalle = dto.DetalleTitulo ,
-                        AplicaPieDePagina = dto.DetallePiePagina ,
-                        AplicaDescripcionSolucion = dto.SolucionDescripcion,
-                        AplicaTituloSolucion = dto.SolucionTitulo,
-                        AplicaSubTituloSolucion = dto.SolucionSubTitulo,
+                        IdProgramaGeneralProblemaFactor = dto.IdProgramaGeneralProblemaFactor,
+                        IdProgramaGeneralProblemaFactorDetalle= dto.IdProgramaGeneralProblemaFactorDetalle,
+                        AplicaNombreDetalle = dto.AplicaNombreDetalle,
+                        AplicaTituloDetalle = dto.AplicaTituloDetalle,
+                        AplicaPieDePagina = dto.AplicaPieDePagina,
+                        AplicaDescripcionSolucion = dto.AplicaDescripcionSolucion,
+                        AplicaTituloSolucion = dto.AplicaTituloSolucion,
+                        AplicaSubTituloSolucion = dto.AplicaSubTituloSolucion,
                         Estado = true,
                         UsuarioCreacion = usuario,
                         UsuarioModificacion = usuario,
@@ -63,7 +65,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     _unitOfWork.Commit();
                     entidad.Id = respuesta.Id;
 
-                    var resultado = _mapper.Map<ProgramaGeneralProblemaDetalleInsertarDTO>(respuesta);
+                    var resultado = _mapper.Map<ProgramaGeneralProblemaDetalleDTO>(respuesta);
 
                     if (dto.Soluciones != null && dto.Soluciones.Count() > 0)
                     {
@@ -79,8 +81,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         });
                         var res = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.Add(soluciones);
                         _unitOfWork.Commit();
-                        resultado.Soluciones = _mapper.Map<List<ProgramaGeneralProblemaSubSolucionesInsertarDTO>>(res);
+                        resultado.Soluciones = _mapper.Map<List<ProgramaGeneralProblemaFactorSubSolucionAsignadaDTO>>(res);
                     }
+                    
                     
 
                     return resultado;
@@ -94,7 +97,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             }
         }
 
-        public ProgramaGeneralProblemaDetalleInsertarDTO Actualizar(ProgramaGeneralProblemaDetalleInsertarDTO dto, string usuario)
+        public ProgramaGeneralProblemaDetalleDTO Actualizar(ProgramaGeneralProblemaDetalleDTO dto, string usuario)
         {
             try
             {
@@ -103,18 +106,18 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 {
                     if (dto.Id != 0)
                     {
-                        entidad = _unitOfWork.ProgramaGeneralProblemaDetalleRepository.ObtenerPorId(dto.Id.Value);
+                        entidad = _unitOfWork.ProgramaGeneralProblemaDetalleRepository.ObtenerPorId(dto.Id);
                         if (entidad != null && entidad.Id != 0)
                         {
                             entidad.IdPgeneral = dto.IdPGeneral;
-                            entidad.IdProgramaGeneralProblemaFactor = dto.IdProblema;
-                            entidad.IdProgramaGeneralProblemaFactorDetalle = dto.IdProblemaDetalle;
-                            entidad.AplicaNombreDetalle = dto.DetalleDescripcion;
-                            entidad.AplicaTituloDetalle = dto.DetalleTitulo;
-                            entidad.AplicaPieDePagina = dto.DetallePiePagina;
-                            entidad.AplicaDescripcionSolucion = dto.SolucionDescripcion;
-                            entidad.AplicaTituloSolucion = dto.SolucionTitulo;
-                            entidad.AplicaSubTituloSolucion = dto.SolucionSubTitulo;
+                            entidad.IdProgramaGeneralProblemaFactor = dto.IdProgramaGeneralProblemaFactor;
+                            entidad.IdProgramaGeneralProblemaFactorDetalle = dto.IdProgramaGeneralProblemaFactorDetalle;
+                            entidad.AplicaNombreDetalle = dto.AplicaNombreDetalle;
+                            entidad.AplicaTituloDetalle = dto.AplicaTituloDetalle;
+                            entidad.AplicaPieDePagina = dto.AplicaPieDePagina;
+                            entidad.AplicaDescripcionSolucion = dto.AplicaDescripcionSolucion;
+                            entidad.AplicaTituloSolucion = dto.AplicaTituloSolucion;
+                            entidad.AplicaSubTituloSolucion = dto.AplicaSubTituloSolucion;
                             entidad.UsuarioModificacion = usuario;
                             entidad.FechaModificacion = DateTime.Now;
                             var respuesta = _unitOfWork.ProgramaGeneralProblemaDetalleRepository.Update(entidad);
@@ -139,9 +142,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                                 dto.Soluciones.ForEach(solucion =>
                                 {
                                     ProgramaGeneralProblemaFactorSubSolucionAsignada subsolucion;
-                                    if (solucion.Id != 0 && _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.Exist(solucion.Id.Value))
+                                    if (solucion.Id != 0 && _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.Exist(solucion.Id))
                                     {
-                                        subsolucion = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.ObtenerPorId(solucion.Id.Value)!;
+                                        subsolucion = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.ObtenerPorId(solucion.Id)!;
                                         subsolucion.IdProgramaGeneralProblemaFactorSubSolucion = solucion.IdProgramaGeneralProblemaFactorSubSolucion;
                                         subsolucion.UsuarioModificacion = usuario;
                                         subsolucion.FechaModificacion = DateTime.Now;

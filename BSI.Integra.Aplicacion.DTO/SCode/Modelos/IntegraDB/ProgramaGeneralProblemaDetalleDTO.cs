@@ -1,10 +1,13 @@
-﻿using System;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
+namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 {
     public class ProgramaGeneralProblemaDetalleDTO
     {
@@ -18,7 +21,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public bool AplicaDescripcionSolucion { get; set; }
         public bool AplicaTituloSolucion { get; set; }
         public bool AplicaSubTituloSolucion { get; set; }
-
+        public List<ProgramaGeneralProblemaFactorSubSolucionAsignadaDTO> Soluciones { get; set; }
+       
     }
     public class ProgramaGeneralProblemaDetalleInsertarDTO
     {
@@ -33,7 +37,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public bool SolucionTitulo { get; set; }
         public bool SolucionSubTitulo { get; set; }
 
-        public List<ProgramaGeneralProblemaSubSolucionesInsertarDTO> Soluciones { get; set; }
+        public List<ProgramaGeneralProblemaFactorSubSolucionAsignadaDTO> Soluciones { get; set; }
     }
 
     public class ProgramaGeneralProblemaSubSolucionesInsertarDTO

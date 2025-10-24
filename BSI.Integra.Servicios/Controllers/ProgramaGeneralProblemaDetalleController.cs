@@ -27,7 +27,7 @@ namespace BSI.Integra.Servicios.Controllers
         [Authorize]
         [JwtExpirationValidation]
         [HttpPost("[action]")]
-        public IActionResult Insertar([FromBody] ProgramaGeneralProblemaDetalleInsertarDTO dto)
+        public IActionResult Insertar([FromBody] ProgramaGeneralProblemaDetalleDTO dto)
         {
             if (!ModelState.IsValid)
             {
@@ -40,7 +40,7 @@ namespace BSI.Integra.Servicios.Controllers
         [Authorize]
         [JwtExpirationValidation]
         [HttpPut("[action]")]
-        public IActionResult Actualizar([FromBody] ProgramaGeneralProblemaDetalleInsertarDTO dto)
+        public IActionResult Actualizar([FromBody] ProgramaGeneralProblemaDetalleDTO dto)
         {
             if (!ModelState.IsValid)
             {
