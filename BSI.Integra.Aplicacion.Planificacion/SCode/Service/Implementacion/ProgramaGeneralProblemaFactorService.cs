@@ -27,7 +27,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 cfg.CreateMap<TProgramaGeneralProblemaFactor, ProgramaGeneralProblemaFactor>(MemberList.None).ReverseMap();
                 cfg.CreateMap<TProgramaGeneralProblemaFactor, ProgramaGeneralProblemaFactorDTO>(MemberList.None).ReverseMap();
                 cfg.CreateMap<ProgramaGeneralProblemaFactor, ProgramaGeneralProblemaFactorDTO>(MemberList.None).ReverseMap();
-                cfg.CreateMap<TPartnerBeneficioPw, PartnerBeneficioPw>(MemberList.None).ReverseMap();
+            
 
             });
             _mapper = new Mapper(config);
