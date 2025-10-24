@@ -26,19 +26,20 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public int IdPGeneral { get; set; }
         public int? IdProblema { get; set; }
         public int? IdProblemaDetalle { get; set; }
-        public bool? DetalleDescripcion { get; set; }
-        public bool? DetalleTitulo { get; set; }
-        public bool? SolucionDescripcion { get; set; }
-        public bool? SolucionTitulo { get; set; }
-        public bool? SolucionSubTitulo { get; set; }
+        public bool DetalleDescripcion { get; set; }
+        public bool DetalleTitulo { get; set; }
+        public bool DetallePiePagina { get; set; }
+        public bool SolucionDescripcion { get; set; }
+        public bool SolucionTitulo { get; set; }
+        public bool SolucionSubTitulo { get; set; }
 
-        public ProgramaGeneralProblemaSubSolucionesInsertarDTO Soluciones { get; set; }
+        public List<ProgramaGeneralProblemaSubSolucionesInsertarDTO> Soluciones { get; set; }
     }
 
     public class ProgramaGeneralProblemaSubSolucionesInsertarDTO
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
         public int? IdProgramaGeneralProblemaDetalle { get; set; }
-        public int? IdProgramaGeneralProblemaFactorSolucion { get; set; }
+        public int IdProgramaGeneralProblemaFactorSubSolucion { get; set; }
     }
 }

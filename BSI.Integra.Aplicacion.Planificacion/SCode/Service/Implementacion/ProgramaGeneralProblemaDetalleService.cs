@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.Base.Exceptions;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
+using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
+using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using System;
 using System.Collections.Generic;
@@ -39,20 +42,46 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             {
                 if (dto != null)
                 {
-                    ProgramaGeneralProblemaFactor entidad = new()
+                    ProgramaGeneralProblemaDetalle entidad = new()
                     {
-                        Nombre = dto.Nombre,
+                        IdPgeneral = dto.IdPGeneral,
+                        IdProgramaGeneralProblemaFactor = dto.IdProblema,
+                        IdProgramaGeneralProblemaFactorDetalle= dto.IdProblemaDetalle,
+                        AplicaNombreDetalle = dto.DetalleDescripcion ,
+                        AplicaTituloDetalle = dto.DetalleTitulo ,
+                        AplicaPieDePagina = dto.DetallePiePagina ,
+                        AplicaDescripcionSolucion = dto.SolucionDescripcion,
+                        AplicaTituloSolucion = dto.SolucionTitulo,
+                        AplicaSubTituloSolucion = dto.SolucionSubTitulo,
                         Estado = true,
                         UsuarioCreacion = usuario,
                         UsuarioModificacion = usuario,
                         FechaCreacion = DateTime.Now,
                         FechaModificacion = DateTime.Now,
                     };
-                    var respuesta = _unitOfWork.ProgramaGeneralProblemaFactorRepository.Add(entidad);
+                    var respuesta = _unitOfWork.ProgramaGeneralProblemaDetalleRepository.Add(entidad);
                     _unitOfWork.Commit();
                     entidad.Id = respuesta.Id;
-                    var resultado = _mapper.Map<ProgramaGeneralProblemaFactorDTO>(respuesta);
 
+                    var resultado = _mapper.Map<ProgramaGeneralProblemaDetalleInsertarDTO>(respuesta);
+
+                    if (dto.Soluciones != null && dto.Soluciones.Count() > 0)
+                    {
+                        var soluciones = dto.Soluciones.Select(x => new ProgramaGeneralProblemaFactorSubSolucionAsignada
+                        {
+                            IdProgramaGeneralProblemaDetalle = respuesta.Id,
+                            IdProgramaGeneralProblemaFactorSubSolucion = x.IdProgramaGeneralProblemaFactorSubSolucion,
+                            Estado = true,
+                            UsuarioCreacion = usuario,
+                            UsuarioModificacion = usuario,
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now,
+                        });
+                        var res = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.Add(soluciones);
+                        _unitOfWork.Commit();
+                        resultado.Soluciones = _mapper.Map<List<ProgramaGeneralProblemaSubSolucionesInsertarDTO>>(res);
+                    }
+                    
 
                     return resultado;
                 }
