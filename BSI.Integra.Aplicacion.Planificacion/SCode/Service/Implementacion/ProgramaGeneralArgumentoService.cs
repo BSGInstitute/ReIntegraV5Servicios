@@ -256,7 +256,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         {
                             Id = detalleInsertado.Id,
                             Detalle = detalleInsertado.Detalle,
-                            InstruccionPieDetalle = detalleInsertado.InstruccionPieDetalle,
                             Motivacion = new PGArgumentoDetalleMotivacionDTO
                             {
                                 Id = motivacionInsertada.Id,
@@ -265,6 +264,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         });
                     }
                 }
+
                 _unitOfWork.Commit();
                 var dtoRespuesta = new ProgramaGeneralArgumentoDTO
                 {

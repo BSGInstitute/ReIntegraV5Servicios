@@ -748,12 +748,14 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TProgramaGeneralPresentacionArgumentoDetalleSolucionRespuestum> TProgramaGeneralPresentacionArgumentoDetalleSolucionRespuesta { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralPresentacionArgumentoModalidad> TProgramaGeneralPresentacionArgumentoModalidads { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralProblema> TProgramaGeneralProblemas { get; set; } = null!;
+        public virtual DbSet<TProgramaGeneralProblemaDetalle> TProgramaGeneralProblemaDetalles { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralProblemaDetalleSolucion> TProgramaGeneralProblemaDetalleSolucions { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralProblemaDetalleSolucionRespuestum> TProgramaGeneralProblemaDetalleSolucionRespuesta { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralProblemaFactor> TProgramaGeneralProblemaFactors { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralProblemaFactorDetalle> TProgramaGeneralProblemaFactorDetalles { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralProblemaFactorSolucion> TProgramaGeneralProblemaFactorSolucions { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralProblemaFactorSubSolucion> TProgramaGeneralProblemaFactorSubSolucions { get; set; } = null!;
+        public virtual DbSet<TProgramaGeneralProblemaFactorSubSolucionAsignadum> TProgramaGeneralProblemaFactorSubSolucionAsignada { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralProblemaModalidad> TProgramaGeneralProblemaModalidads { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralPuntoCorte> TProgramaGeneralPuntoCortes { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralPuntoCorteConfiguracion> TProgramaGeneralPuntoCorteConfiguracions { get; set; } = null!;
@@ -42100,11 +42102,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.IdProgramaGeneralArgumento).HasComment("Identificador del argumento de programa general asociado.");
 
-                entity.Property(e => e.InstruccionPieDetalle)
-                    .HasMaxLength(200)
-                    .IsUnicode(false)
-                    .HasComment("Texto adicional o pie de detalle para el argumento.");
-
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
                     .IsConcurrencyToken()
@@ -44310,6 +44307,82 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Usuario de modificacion del registro");
             });
 
+            modelBuilder.Entity<TProgramaGeneralProblemaDetalle>(entity =>
+            {
+                entity.ToTable("T_ProgramaGeneralProblemaDetalle", "pla");
+
+                entity.HasComment("Detalle de los problemas generales en el programa.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la tabla.");
+
+                entity.Property(e => e.AplicaDescripcionSolucion).HasComment("Indica si aplica descripción en la solución.");
+
+                entity.Property(e => e.AplicaNombreDetalle).HasComment("Indica si aplica nombre en el detalle.");
+
+                entity.Property(e => e.AplicaPieDePagina).HasComment("Indica si aplica pie de página en el detalle.");
+
+                entity.Property(e => e.AplicaSubTituloSolucion).HasComment("Indica si aplica subtítulo en la solución.");
+
+                entity.Property(e => e.AplicaTituloDetalle).HasComment("Indica si aplica título en el detalle.");
+
+                entity.Property(e => e.AplicaTituloSolucion).HasComment("Indica si aplica título en la solución.");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Estado del registro.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de creación del registro.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de modificación del registro.");
+
+                entity.Property(e => e.IdPgeneral)
+                    .HasColumnName("IdPGeneral")
+                    .HasComment("Identificador general del problema.");
+
+                entity.Property(e => e.IdProgramaGeneralProblemaFactor).HasComment("Identificador del factor asociado al problema.");
+
+                entity.Property(e => e.IdProgramaGeneralProblemaFactorDetalle).HasComment("Identificador del detalle del factor del problema.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de la fila para control de concurrencia.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro.");
+
+                entity.HasOne(d => d.IdPgeneralNavigation)
+                    .WithMany(p => p.TProgramaGeneralProblemaDetalles)
+                    .HasForeignKey(d => d.IdPgeneral)
+                    .HasConstraintName("FK_T_ProgramaGeneralProblemaDetalle_PGeneral_IdPGeneral");
+
+                entity.HasOne(d => d.IdProgramaGeneralProblemaFactorNavigation)
+                    .WithMany(p => p.TProgramaGeneralProblemaDetalles)
+                    .HasForeignKey(d => d.IdProgramaGeneralProblemaFactor)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_T_ProgramaGeneralProblemaDetalle_ProgramaGeneralProblemaFactor_IdProgramaGeneralProblemaFactor");
+
+                entity.HasOne(d => d.IdProgramaGeneralProblemaFactorDetalleNavigation)
+                    .WithMany(p => p.TProgramaGeneralProblemaDetalles)
+                    .HasForeignKey(d => d.IdProgramaGeneralProblemaFactorDetalle)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_T_ProgramaGeneralProblemaDetalle_ProgramaGeneralProblemaFactorDetalle_IdProgramaGeneralProblemaFactorDetalle");
+            });
+
             modelBuilder.Entity<TProgramaGeneralProblemaDetalleSolucion>(entity =>
             {
                 entity.ToTable("T_ProgramaGeneralProblemaDetalleSolucion", "pla");
@@ -44463,6 +44536,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasColumnType("datetime")
                     .HasComment("Fecha de modificacion del registro");
 
+                entity.Property(e => e.InstruccionPieDetalle)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Instrucción para el pie de detalle del problema del cliente.");
+
                 entity.Property(e => e.Nombre)
                     .HasMaxLength(100)
                     .IsUnicode(false)
@@ -44585,6 +44663,63 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .WithMany(p => p.TProgramaGeneralProblemaFactorSubSolucions)
                     .HasForeignKey(d => d.IdProgramaGeneralProblemaFactorSolucion)
                     .HasConstraintName("FK_T_ProgramaGeneralProblemaFactorSubSolucion_ProgramaGeneralProblemaFactorSolucion_IdProgramaGeneralProblemaFactorSolucion");
+            });
+
+            modelBuilder.Entity<TProgramaGeneralProblemaFactorSubSolucionAsignadum>(entity =>
+            {
+                entity.ToTable("T_ProgramaGeneralProblemaFactorSubSolucionAsignada", "pla");
+
+                entity.HasComment("Tabla que asigna subsoluciones de factores a los detalles de problemas generales.");
+
+                entity.HasIndex(e => new { e.IdProgramaGeneralProblemaDetalle, e.IdProgramaGeneralProblemaFactorSubSolucion }, "UC_T_ProgramaGeneralProblemaFactorSubSolucionAsignada_PorDetalle_PorSubSolucion")
+                    .IsUnique();
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la asignación.");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Estado del registro.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de creación del registro.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de modificación del registro.");
+
+                entity.Property(e => e.IdProgramaGeneralProblemaDetalle).HasComment("Referencia al detalle del problema general.");
+
+                entity.Property(e => e.IdProgramaGeneralProblemaFactorSubSolucion).HasComment("Referencia a la subsolución del factor del problema.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de la fila para control de concurrencia.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro.");
+
+                entity.HasOne(d => d.IdProgramaGeneralProblemaDetalleNavigation)
+                    .WithMany(p => p.TProgramaGeneralProblemaFactorSubSolucionAsignada)
+                    .HasForeignKey(d => d.IdProgramaGeneralProblemaDetalle)
+                    .HasConstraintName("FK_T_ProgramaGeneralProblemaFactorSubSolucionAsignada_ProgramaGeneralProblemaDetalle_IdProgramaGeneralProblemaDetalle");
+
+                entity.HasOne(d => d.IdProgramaGeneralProblemaFactorSubSolucionNavigation)
+                    .WithMany(p => p.TProgramaGeneralProblemaFactorSubSolucionAsignada)
+                    .HasForeignKey(d => d.IdProgramaGeneralProblemaFactorSubSolucion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_ProgramaGeneralProblemaFactorSubSolucionAsignada_IdProgramaGeneralProblemaFactorSubSolucion");
             });
 
             modelBuilder.Entity<TProgramaGeneralProblemaModalidad>(entity =>
