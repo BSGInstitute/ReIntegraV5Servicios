@@ -344,7 +344,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         /// <summary>
         /// Obtiene hilos de chat sin alumno asociado
         /// </summary>
-        /// <returns>Lista de hilos de chat por segmento</returns>
+        /// <returns>Lista de hilos de chat sin alumno</returns>
         public IEnumerable<ChatbotHiloChatPorSegmentoDTO> ObtenerHilosChatPorSegmento()
         {
             try
@@ -355,7 +355,26 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             {
                 throw ex;
             }
-        }  
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 24/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todas las respuestas del cliente por formulario aplicado
+        /// </summary>
+        /// <param name="idFormularioAplicadoChatbot">ID del formulario aplicado</param>
+        public IEnumerable<RespuestaClienteDTO> ObtenerRespuestasUsuarioPorFormularioAplicado(int IdFormularioAplicadoChatbot)
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerRespuestasUsuarioPorFormularioAplicado(IdFormularioAplicadoChatbot);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en servicio al obtener respuestas del cliente: {ex.Message}", ex);
+            }
+        }
 
         /// Autor: Jose Vega
         /// Fecha: 20/10/2025

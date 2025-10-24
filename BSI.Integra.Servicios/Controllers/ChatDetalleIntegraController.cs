@@ -476,6 +476,35 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 24/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todas las respuestas del cliente por formulario aplicado
+        /// </summary>
+        /// <param name="dto">Objeto con el Id del formulario aplicado</param>
+        /// <returns>Lista de respuestas del cliente con detalles</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerRespuestasUsuarioPorFormularioAplicado([FromBody] ObtenerRespuestasClienteRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerRespuestasUsuarioPorFormularioAplicado(dto.IdFormularioAplicadoChatbot);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         /// Tipo Función: POST
         /// Autor: Jose Vega
         /// Fecha: 18/10/2025

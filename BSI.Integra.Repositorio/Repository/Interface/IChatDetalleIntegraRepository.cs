@@ -38,5 +38,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<ChatbotMensajeDTO> ObtenerChatPorPortalSegmento(string IdContactoPortalSegmento);
         IEnumerable<ChatbotHiloChatPorAlumnoDTO> ObtenerHilosChatConAlumnos();
         IEnumerable<ChatbotHiloChatPorSegmentoDTO> ObtenerHilosChatPorSegmento();
+        IEnumerable<RespuestaClienteDTO> ObtenerRespuestasUsuarioPorFormularioAplicado(int IdFormularioAplicadoChatbot);
     }
 }
