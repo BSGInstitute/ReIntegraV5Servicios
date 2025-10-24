@@ -58,6 +58,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Versión de fila para concurrencia optimista
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
+        /// <summary>
+        /// Indica si la pregunta es obligatoria (1 = requerida, 0 = opcional)
+        /// </summary>
+        public bool EsRequerido { get; set; }
 
         public virtual TTipoEntradaEvaluacionChatbot IdTipoEntradaEvaluacionChatbotNavigation { get; set; } = null!;
         public virtual TVersionFormularioEvaluacionChatbot IdVersionFormularioEvaluacionChatbotNavigation { get; set; } = null!;
