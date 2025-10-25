@@ -1,4 +1,5 @@
-﻿using BSI.Integra.Persistencia.Entidades.IntegraDB;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         #endregion
 
         ProgramaGeneralProblemaDetalle? ObtenerPorId(int idProgramaGeneralProblemaDetalle);
+        IEnumerable<ProgramaGeneralProblemaDetalleDTO> Obtener(int idPGeneral);
+
 
     }
 }

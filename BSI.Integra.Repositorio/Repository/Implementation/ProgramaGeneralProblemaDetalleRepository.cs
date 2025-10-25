@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -196,5 +197,37 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+
+        public IEnumerable<ProgramaGeneralProblemaDetalleDTO> Obtener(int idPGeneral)
+        {
+            try
+            {
+                List<ProgramaGeneralProblemaDetalleDTO> rpta = new List<ProgramaGeneralProblemaDetalleDTO>();
+                var query = @"
+                    SELECT AplicaDescripcionSolucion,
+                       AplicaNombreDetalle,
+                       AplicaPieDePagina,
+                       AplicaSubTituloSolucion,
+                       AplicaTituloDetalle,
+                       AplicaTituloSolucion,
+                       IdPGeneral,
+                       IdProgramaGeneralProblemaDetalle,
+                       IdProgramaGeneralProblemaFactor,
+                       IdProgramaGeneralProblemaFactorSolucion,
+                       IdProgramaGeneralProblemaFactorSubSolucion 
+                    FROM pla.V_ObtenerConfiguracionProblemaFactoByPGeneral where IdPGeneral=@idPGeneral ORDER BY Id DESC";
+                var resultado = _dapperRepository.QueryDapper(query, new { idPGeneral });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ProgramaGeneralProblemaDetalleDTO>>(resultado);
+
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

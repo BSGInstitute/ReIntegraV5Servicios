@@ -187,5 +187,10 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             }
         }
 
+
+        public IEnumerable<ProgramaGeneralProblemaDetalleDTO> Obtener(int idPGeneral)
+        {
+            return _unitOfWork.ProgramaGeneralProblemaDetalleRepository.Obtener(idPGeneral);
+        }
     }
 }

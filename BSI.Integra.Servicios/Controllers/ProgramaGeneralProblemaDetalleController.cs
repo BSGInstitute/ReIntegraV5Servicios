@@ -49,5 +49,13 @@ namespace BSI.Integra.Servicios.Controllers
             var respuesta = _programaGeneralProblemaDetalleService.Actualizar(dto, _tokenManager.UserName);
             return Ok(respuesta);
         }
+
+        [HttpGet("[action]/{idPGeneral}")]
+        public IActionResult Obtener(int idPGeneral)
+        {
+            var resultado = _programaGeneralProblemaDetalleService.Obtener(idPGeneral);
+            return Ok(resultado);
+        }
+
     }
 }
