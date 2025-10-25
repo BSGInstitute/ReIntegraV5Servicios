@@ -57,5 +57,22 @@ namespace BSI.Integra.Servicios.Controllers
             return Ok(resultado);
         }
 
+        [Authorize]
+        [JwtExpirationValidation]
+        [HttpPost("[action]")]
+        public IActionResult Eliminar([FromBody] Dictionary<string, int> data)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (!data.ContainsKey("id"))
+                return BadRequest("Falta el parámetro 'id'");
+
+            var id = data["id"];
+            var resultado = _programaGeneralProblemaDetalleService.Eliminar(id, _tokenManager.UserName);
+            return Ok(resultado);
+        }
+
     }
 }

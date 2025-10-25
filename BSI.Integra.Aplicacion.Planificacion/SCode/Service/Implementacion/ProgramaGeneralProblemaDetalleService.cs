@@ -251,7 +251,44 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         }
 
 
+        public bool Eliminar(int idPGeneralProblema, string usuario)
+        {
+            try
+            {
+                var entidad = _unitOfWork.ProgramaGeneralProblemaDetalleRepository.ObtenerPorId(idPGeneralProblema);
+                if (entidad != null && entidad.Id != 0)
+                {
+                    entidad.UsuarioModificacion = usuario;
+                    entidad.FechaModificacion = DateTime.Now;
+                    var respuesta = _unitOfWork.ProgramaGeneralProblemaDetalleRepository.Update(entidad);
+                    _unitOfWork.Commit();
 
+                    var listasoluciones = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.ObtenerPorIdProblemaDetalle(entidad.Id).ToList();
+                    if (listasoluciones != null && listasoluciones.Count() > 0)
+                    {
+                        listasoluciones.ForEach(solucion =>
+                        {
+                            ProgramaGeneralProblemaFactorSubSolucionAsignada subsolucion;
+                            if (solucion.Id != 0 && _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.Exist(solucion.Id))
+                            {
+                                subsolucion = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.ObtenerPorId(solucion.Id)!;
+                                subsolucion.UsuarioModificacion = usuario;
+                                subsolucion.FechaModificacion = DateTime.Now;
+                                _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.Update(subsolucion);
+                                _unitOfWork.Commit();
+                            }
+                        });
+                    }
+                    return true;
+                }
+                else
+                    throw new BadRequestException("Entidad no encontrada");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 
 }
