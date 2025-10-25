@@ -212,7 +212,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                        AplicaTituloSolucion,
                        IdPGeneral,
                        Id,
-                       IdProgramaGeneralProblemaDetalle,
+                       IdProgramaGeneralProblemaFactorDetalle,
                        IdProgramaGeneralProblemaFactor,
                        IdProgramaGeneralProblemaFactorSolucion,
                        IdProgramaGeneralProblemaFactorSubSolucion,
