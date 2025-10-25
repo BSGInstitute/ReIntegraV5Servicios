@@ -42100,10 +42100,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.IdProgramaGeneralArgumento).HasComment("Identificador del argumento de programa general asociado.");
 
-                entity.Property(e => e.InstruccionPieDetalle)
-                    .HasMaxLength(200)
-                    .IsUnicode(false)
-                    .HasComment("Texto adicional o pie de detalle para el argumento.");
+          
 
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()

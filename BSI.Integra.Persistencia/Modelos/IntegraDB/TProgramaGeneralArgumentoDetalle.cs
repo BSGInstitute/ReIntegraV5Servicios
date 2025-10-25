@@ -52,7 +52,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// <summary>
         /// Texto adicional o pie de detalle para el argumento.
         /// </summary>
-        public string? InstruccionPieDetalle { get; set; }
 
         public virtual TProgramaGeneralArgumento IdProgramaGeneralArgumentoNavigation { get; set; } = null!;
         public virtual ICollection<TProgramaGeneralArgumentoDetalleMotivacion> TProgramaGeneralArgumentoDetalleMotivacions { get; set; }
