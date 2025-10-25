@@ -103,7 +103,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         {
                             Id = ag.Id,
                             Detalle = ag.Detalle,
-                            InstruccionPieDetalle = ag.InstruccionPieDetalle,
                             Motivacion = new PGArgumentoDetalleMotivacionDTO
                             {
                                 Id = argumentoDetalleMotivaciones.IdProgramaGeneralMotivacion,
