@@ -53,7 +53,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     {
                         Id = item.Id,
                         Detalle = item.Detalle,
-                        InstruccionPieDetalle = item.InstruccionPieDetalle,
                         Motivacion = new PGArgumentoDetalleMotivacionDTO
                         {
                             Id = argumentoDetalleMotivaciones.IdProgramaGeneralMotivacion,
@@ -103,7 +102,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         {
                             Id = ag.Id,
                             Detalle = ag.Detalle,
-                            InstruccionPieDetalle = ag.InstruccionPieDetalle,
                             Motivacion = new PGArgumentoDetalleMotivacionDTO
                             {
                                 Id = argumentoDetalleMotivaciones.IdProgramaGeneralMotivacion,
@@ -223,7 +221,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         {
                             IdProgramaGeneralArgumento = respuesta.Id,
                             Detalle = m.Detalle,
-                            InstruccionPieDetalle = m.InstruccionPieDetalle,
                             Estado = true,
                             FechaCreacion = DateTime.Now,
                             FechaModificacion = DateTime.Now,
@@ -414,7 +411,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     {
                         IdProgramaGeneralArgumento = argumento.Id,
                         Detalle = nuevo.Detalle,
-                        InstruccionPieDetalle = nuevo.InstruccionPieDetalle, 
                         Estado = true,
                         FechaCreacion = DateTime.Now,
                         FechaModificacion = DateTime.Now,
@@ -447,7 +443,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     if (det == null) continue;
 
                     det.Detalle = dto.Detalle;
-                    det.InstruccionPieDetalle = dto.InstruccionPieDetalle;
                     det.FechaModificacion = DateTime.Now;
                     det.UsuarioModificacion = usuario;
 
@@ -512,7 +507,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         {
                             Id = d.Id,
                             Detalle = d.Detalle,
-                            InstruccionPieDetalle = d.InstruccionPieDetalle,
                             Motivacion = motiv == null
                                 ? null
                                 : new PGArgumentoDetalleMotivacionDTO
