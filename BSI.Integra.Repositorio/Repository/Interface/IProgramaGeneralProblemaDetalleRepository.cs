@@ -22,7 +22,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         #endregion
 
         ProgramaGeneralProblemaDetalle? ObtenerPorId(int idProgramaGeneralProblemaDetalle);
-        IEnumerable<ProgramaGeneralProblemaDetalleDTO> Obtener(int idPGeneral);
+        IEnumerable<ProblemaClienteByPGeneral> Obtener(int idPGeneral);
 
 
     }

@@ -12,7 +12,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
     {
         ProgramaGeneralProblemaDetalleDTO Insertar(ProgramaGeneralProblemaDetalleDTO dto, string usuario);
         ProgramaGeneralProblemaDetalleDTO Actualizar(ProgramaGeneralProblemaDetalleDTO dto, string usuario);
-        IEnumerable<ProgramaGeneralProblemaDetalleDTO> Obtener(int idPGeneral);
+        IEnumerable<ProgramaGeneralProblemaDetalleObtener> Obtener(int idPGeneral);
 
     }
 }

@@ -46,4 +46,40 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? IdProgramaGeneralProblemaDetalle { get; set; }
         public int IdProgramaGeneralProblemaFactorSubSolucion { get; set; }
     }
+
+
+    public class ProblemaClienteByPGeneral
+    {
+        public int Id { get; set; }
+        public int IdPGeneral { get; set; }
+        public int IdProgramaGeneralProblemaFactor { get; set; }
+        public int? IdProgramaGeneralProblemaFactorDetalle { get; set; }
+        public bool AplicaTituloDetalle { get; set; }
+        public bool AplicaNombreDetalle { get; set; }
+        public bool AplicaPieDePagina { get; set; }
+        public int? IdProgramaGeneralProblemaFactorSolucion { get; set; }
+        public bool AplicaDescripcionSolucion { get; set; }
+        public bool AplicaTituloSolucion { get; set; }
+        public bool AplicaSubTituloSolucion { get; set; }
+        public int? IdProgramaGeneralProblemaFactorSubSolucion { get; set; }
+
+    }
+
+
+    public class ProgramaGeneralProblemaDetalleObtener
+    {
+        public int Id { get; set; }
+        public int IdPGeneral { get; set; }
+        public int IdProgramaGeneralProblemaFactor { get; set; }
+        public int? IdProgramaGeneralProblemaFactorDetalle { get; set; }
+        public bool AplicaTituloDetalle { get; set; }
+        public bool AplicaNombreDetalle { get; set; }
+        public bool AplicaPieDePagina { get; set; }
+        public int? IdProgramaGeneralProblemaFactorSolucion { get; set; }
+        public bool AplicaDescripcionSolucion { get; set; }
+        public bool AplicaTituloSolucion { get; set; }
+        public bool AplicaSubTituloSolucion { get; set; }
+        public int? IdProgramaGeneralProblemaFactorSubSolucion { get; set; }
+        public List<ProgramaGeneralProblemaFactorSubSolucionAsignadaDTO> SubSoluciones { get; set; }
+    }
 }

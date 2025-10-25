@@ -198,11 +198,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         }
 
 
-        public IEnumerable<ProgramaGeneralProblemaDetalleDTO> Obtener(int idPGeneral)
+        public IEnumerable<ProblemaClienteByPGeneral> Obtener(int idPGeneral)
         {
             try
             {
-                List<ProgramaGeneralProblemaDetalleDTO> rpta = new List<ProgramaGeneralProblemaDetalleDTO>();
+                List<ProblemaClienteByPGeneral> rpta = new List<ProblemaClienteByPGeneral>();
                 var query = @"
                     SELECT AplicaDescripcionSolucion,
                        AplicaNombreDetalle,
@@ -219,7 +219,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var resultado = _dapperRepository.QueryDapper(query, new { idPGeneral });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
-                    rpta = JsonConvert.DeserializeObject<List<ProgramaGeneralProblemaDetalleDTO>>(resultado);
+                    rpta = JsonConvert.DeserializeObject<List<ProblemaClienteByPGeneral>>(resultado);
 
                 }
                 return rpta;

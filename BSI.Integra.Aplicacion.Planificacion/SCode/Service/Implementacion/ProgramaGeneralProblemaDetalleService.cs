@@ -188,9 +188,74 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         }
 
 
-        public IEnumerable<ProgramaGeneralProblemaDetalleDTO> Obtener(int idPGeneral)
+        public IEnumerable<ProgramaGeneralProblemaDetalleObtener> Obtener(int idPGeneral)
         {
-            return _unitOfWork.ProgramaGeneralProblemaDetalleRepository.Obtener(idPGeneral);
+
+            var filas = _unitOfWork
+                .ProgramaGeneralProblemaDetalleRepository
+                .Obtener(idPGeneral)
+                ?? Enumerable.Empty<ProblemaClienteByPGeneral>();
+
+      
+            var resultado = filas
+                .GroupBy(x => new
+                {
+                    x.IdPGeneral,
+                    x.IdProgramaGeneralProblemaFactor,
+                    x.IdProgramaGeneralProblemaFactorDetalle,
+                    x.AplicaTituloDetalle,
+                    x.AplicaNombreDetalle,
+                    x.AplicaPieDePagina,
+                    x.IdProgramaGeneralProblemaFactorSolucion,
+                    x.AplicaDescripcionSolucion,
+                    x.AplicaTituloSolucion,
+                    x.AplicaSubTituloSolucion
+         
+                })
+                .Select(g =>
+                {
+                    var first = g.First();
+
+                 
+                    var subsoluciones = g
+                        .Where(r => r.IdProgramaGeneralProblemaFactorSubSolucion.HasValue)
+                        .Select(r => r.IdProgramaGeneralProblemaFactorSubSolucion!.Value)
+                        .Distinct()
+                        .Select(idSub => new ProgramaGeneralProblemaFactorSubSolucionAsignadaDTO
+                        {
+                          
+                            Id = 0,
+                            IdProgramaGeneralProblemaDetalle = first.IdProgramaGeneralProblemaFactorDetalle ?? 0,
+                            IdProgramaGeneralProblemaFactorSubSolucion = idSub
+                        })
+                        .ToList();
+
+                    return new ProgramaGeneralProblemaDetalleObtener
+                    {
+                     
+                        Id = first.Id,
+                        IdPGeneral = g.Key.IdPGeneral,
+                        IdProgramaGeneralProblemaFactor = g.Key.IdProgramaGeneralProblemaFactor,
+                        IdProgramaGeneralProblemaFactorDetalle = g.Key.IdProgramaGeneralProblemaFactorDetalle,
+                        AplicaTituloDetalle = g.Key.AplicaTituloDetalle,
+                        AplicaNombreDetalle = g.Key.AplicaNombreDetalle,
+                        AplicaPieDePagina = g.Key.AplicaPieDePagina,
+                        IdProgramaGeneralProblemaFactorSolucion = g.Key.IdProgramaGeneralProblemaFactorSolucion,
+                        AplicaDescripcionSolucion = g.Key.AplicaDescripcionSolucion,
+                        AplicaTituloSolucion = g.Key.AplicaTituloSolucion,
+                        AplicaSubTituloSolucion = g.Key.AplicaSubTituloSolucion,
+                        SubSoluciones = subsoluciones
+                    };
+                })
+                .OrderBy(r => r.IdProgramaGeneralProblemaFactor)
+                .ThenBy(r => r.IdProgramaGeneralProblemaFactorDetalle ?? int.MaxValue)
+                .ToList();
+
+            return resultado;
         }
+
+
+
     }
+
 }
