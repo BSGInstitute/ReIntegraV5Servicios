@@ -132,7 +132,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                                 }
                                 if (listasoluciones.Count() > 0)
                                 {
-                                    _unitOfWork.PartnerBeneficioPwRepository.Delete(listasoluciones.Select(x => x.Id), usuario);
+                                    _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.Delete(listasoluciones.Select(x => x.Id), usuario);
                                     _unitOfWork.Commit();
                                 }
                             }
@@ -187,62 +187,59 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             }
         }
 
-
         public IEnumerable<ProgramaGeneralProblemaDetalleObtener> Obtener(int idPGeneral)
         {
-
             var filas = _unitOfWork
                 .ProgramaGeneralProblemaDetalleRepository
                 .Obtener(idPGeneral)
                 ?? Enumerable.Empty<ProblemaClienteByPGeneral>();
 
-      
+          
             var resultado = filas
-                .GroupBy(x => new
-                {
-                    x.IdPGeneral,
-                    x.IdProgramaGeneralProblemaFactor,
-                    x.IdProgramaGeneralProblemaFactorDetalle,
-                    x.AplicaTituloDetalle,
-                    x.AplicaNombreDetalle,
-                    x.AplicaPieDePagina,
-                    x.IdProgramaGeneralProblemaFactorSolucion,
-                    x.AplicaDescripcionSolucion,
-                    x.AplicaTituloSolucion,
-                    x.AplicaSubTituloSolucion,
-                })
+                .GroupBy(x => x.Id) 
                 .Select(g =>
                 {
                     var first = g.First();
 
-                 
+               
                     var subsoluciones = g
                         .Where(r => r.IdProgramaGeneralProblemaFactorSubSolucion.HasValue)
-                        .Select(r => r.IdProgramaGeneralProblemaFactorSubSolucion!.Value)
-                        .Distinct()
-                        .Select(idSub => new ProgramaGeneralProblemaFactorSubSolucionAsignadaDTO
+                        .GroupBy(r => r.IdProgramaGeneralProblemaFactorSubSolucion!.Value)
+                        .Select(sg => new ProgramaGeneralProblemaFactorSubSolucionAsignadaDTO
                         {
-                          
-                            Id = first.IdProgramaGeneralProblemaFactorSubSolucionAsignada ?? 0,
-                            IdProgramaGeneralProblemaDetalle = first.IdProgramaGeneralProblemaFactorDetalle ?? 0,
-                            IdProgramaGeneralProblemaFactorSubSolucion = first.IdProgramaGeneralProblemaFactorSubSolucion ?? 0
+                        
+                            Id = sg.Select(x => x.IdProgramaGeneralProblemaFactorSubSolucionAsignada)
+                                   .FirstOrDefault() ?? 0,
+
+                        
+                            IdProgramaGeneralProblemaDetalle = g.Key,
+
+                        
+                            IdProgramaGeneralProblemaFactorSubSolucion = sg.Key
                         })
                         .ToList();
 
                     return new ProgramaGeneralProblemaDetalleObtener
                     {
-                     
-                        Id = first.Id,
-                        IdPGeneral = g.Key.IdPGeneral,
-                        IdProgramaGeneralProblemaFactor = g.Key.IdProgramaGeneralProblemaFactor,
-                        IdProgramaGeneralProblemaFactorDetalle = g.Key.IdProgramaGeneralProblemaFactorDetalle,
-                        AplicaTituloDetalle = g.Key.AplicaTituloDetalle,
-                        AplicaNombreDetalle = g.Key.AplicaNombreDetalle,
-                        AplicaPieDePagina = g.Key.AplicaPieDePagina,
-                        IdProgramaGeneralProblemaFactorSolucion = g.Key.IdProgramaGeneralProblemaFactorSolucion,
-                        AplicaDescripcionSolucion = g.Key.AplicaDescripcionSolucion,
-                        AplicaTituloSolucion = g.Key.AplicaTituloSolucion,
-                        AplicaSubTituloSolucion = g.Key.AplicaSubTituloSolucion,
+                 
+                        Id = g.Key,
+
+                    
+                        IdPGeneral = first.IdPGeneral,
+                        IdProgramaGeneralProblemaFactor = first.IdProgramaGeneralProblemaFactor,
+
+                  
+                        IdProgramaGeneralProblemaFactorDetalle = first.IdProgramaGeneralProblemaFactorDetalle,
+
+                        AplicaTituloDetalle = first.AplicaTituloDetalle,
+                        AplicaNombreDetalle = first.AplicaNombreDetalle,
+                        AplicaPieDePagina = first.AplicaPieDePagina,
+
+                        IdProgramaGeneralProblemaFactorSolucion = first.IdProgramaGeneralProblemaFactorSolucion,
+                        AplicaDescripcionSolucion = first.AplicaDescripcionSolucion,
+                        AplicaTituloSolucion = first.AplicaTituloSolucion,
+                        AplicaSubTituloSolucion = first.AplicaSubTituloSolucion,
+
                         SubSoluciones = subsoluciones
                     };
                 })
