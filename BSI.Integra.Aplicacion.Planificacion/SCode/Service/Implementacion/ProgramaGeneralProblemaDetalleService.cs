@@ -209,8 +209,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     x.IdProgramaGeneralProblemaFactorSolucion,
                     x.AplicaDescripcionSolucion,
                     x.AplicaTituloSolucion,
-                    x.AplicaSubTituloSolucion
-         
+                    x.AplicaSubTituloSolucion,
                 })
                 .Select(g =>
                 {
@@ -224,9 +223,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         .Select(idSub => new ProgramaGeneralProblemaFactorSubSolucionAsignadaDTO
                         {
                           
-                            Id = 0,
+                            Id = first.IdProgramaGeneralProblemaFactorSubSolucionAsignada ?? 0,
                             IdProgramaGeneralProblemaDetalle = first.IdProgramaGeneralProblemaFactorDetalle ?? 0,
-                            IdProgramaGeneralProblemaFactorSubSolucion = idSub
+                            IdProgramaGeneralProblemaFactorSubSolucion = first.IdProgramaGeneralProblemaFactorSubSolucion ?? 0
                         })
                         .ToList();
 

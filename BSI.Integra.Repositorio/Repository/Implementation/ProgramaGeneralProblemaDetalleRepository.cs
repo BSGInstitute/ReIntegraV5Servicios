@@ -211,10 +211,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                        AplicaTituloDetalle,
                        AplicaTituloSolucion,
                        IdPGeneral,
+                       Id,
                        IdProgramaGeneralProblemaDetalle,
                        IdProgramaGeneralProblemaFactor,
                        IdProgramaGeneralProblemaFactorSolucion,
-                       IdProgramaGeneralProblemaFactorSubSolucion 
+                       IdProgramaGeneralProblemaFactorSubSolucion,
+                       IdProgramaGeneralProblemaFactorSubSolucionAsignada
                     FROM pla.V_ObtenerConfiguracionProblemaFactoByPGeneral where IdPGeneral=@idPGeneral ORDER BY Id DESC";
                 var resultado = _dapperRepository.QueryDapper(query, new { idPGeneral });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))

@@ -23,5 +23,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
 
         IEnumerable<ProgramaGeneralProblemaFactorSubSolucionAsignada> ObtenerPorIdProblemaDetalle(int idProblemaDetalle);
         ProgramaGeneralProblemaFactorSubSolucionAsignada? ObtenerPorId(int id);
+
     }
 }

@@ -62,6 +62,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public bool AplicaTituloSolucion { get; set; }
         public bool AplicaSubTituloSolucion { get; set; }
         public int? IdProgramaGeneralProblemaFactorSubSolucion { get; set; }
+        public int? IdProgramaGeneralProblemaFactorSubSolucionAsignada { get; set; }
 
     }
 

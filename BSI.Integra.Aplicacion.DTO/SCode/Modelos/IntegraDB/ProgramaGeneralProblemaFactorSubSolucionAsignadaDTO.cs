@@ -12,4 +12,10 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdProgramaGeneralProblemaDetalle { get; set; }
         public int IdProgramaGeneralProblemaFactorSubSolucion { get; set; } 
     }
+    public class ProgramaGeneralProblemaFactorSubSolucionAsignadaObtenerDTO
+    {
+        public int Id { get; set; }
+        public int IdProgramaGeneralProblemaDetalle { get; set; }
+        public int IdProgramaGeneralProblemaFactorSubSolucion { get; set; }
+    }
 }
