@@ -22,7 +22,6 @@
     {
         public int Id { get; set; }
         public string Detalle { get; set; }
-        public string? InstruccionPieDetalle { get; set; }
         public PGArgumentoDetalleMotivacionDTO Motivacion { get; set; }
     }
     public class ProgramaGeneralArgumentoDetalleModelDTO
@@ -31,7 +30,7 @@
         public int IdProgramaGeneralArgumento { get; set; }
 
         public string Detalle { get; set; }
-        public string? InstruccionPieDetalle { get; set; }
+   
     }
 
     public class PGArgumentoDetalleMotivacionDTO

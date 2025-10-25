@@ -188,7 +188,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             {
                 List<ProgramaGeneralArgumentoDetalle> rpta = new List<ProgramaGeneralArgumentoDetalle>();
                 var query = @"
-                    SELECT Id, IdProgramaGeneralArgumento, Detalle,Estado,
+                    SELECT Id, IdProgramaGeneralArgumento, Detalle , Estado,
                                FechaCreacion,
                                FechaModificacion,
 	                           UsuarioCreacion,
