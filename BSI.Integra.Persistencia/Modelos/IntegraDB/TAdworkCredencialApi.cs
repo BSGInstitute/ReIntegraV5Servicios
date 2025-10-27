@@ -5,6 +5,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     public partial class TAdworkCredencialApi
     {
+        public TAdworkCredencialApi()
+        {
+            TGoogleAdsSubcuenta = new HashSet<TGoogleAdsSubcuentum>();
+        }
+
         /// <summary>
         /// Pk de la tabla
         /// </summary>
@@ -81,5 +86,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Identificador de la cuenta administradora (MCC - My Client Center) de Google Ads
         /// </summary>
         public string? ManagerAccountId { get; set; }
+
+        public virtual ICollection<TGoogleAdsSubcuentum> TGoogleAdsSubcuenta { get; set; }
     }
 }

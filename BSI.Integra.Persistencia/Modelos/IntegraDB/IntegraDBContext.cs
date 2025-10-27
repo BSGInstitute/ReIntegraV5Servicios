@@ -401,6 +401,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TGmailCorreoArchivoAdjunto> TGmailCorreoArchivoAdjuntos { get; set; } = null!;
         public virtual DbSet<TGoogleAdsConversionConfiguracion> TGoogleAdsConversionConfiguracions { get; set; } = null!;
         public virtual DbSet<TGoogleAdsConversionQueue> TGoogleAdsConversionQueues { get; set; } = null!;
+        public virtual DbSet<TGoogleAdsSubcuentum> TGoogleAdsSubcuenta { get; set; } = null!;
         public virtual DbSet<TGoogleFormularioLeadgen> TGoogleFormularioLeadgens { get; set; } = null!;
         public virtual DbSet<TGradoEstudio> TGradoEstudios { get; set; } = null!;
         public virtual DbSet<TGrupoComparacionProcesoSeleccion> TGrupoComparacionProcesoSeleccions { get; set; } = null!;
@@ -24326,6 +24327,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasColumnName("IdFaseOportunidad_Anterior")
                     .HasComment("Id de la fase anterior de la oportunidad");
 
+                entity.Property(e => e.IdGoogleAdsSubcuenta).HasComment("Id de la subcuenta de Google Ads asociada a la oportunidad");
+
                 entity.Property(e => e.IdGoogleFormularioLeadgen).HasComment("Id del formulario de Google del que proviene el lead");
 
                 entity.Property(e => e.IdOportunidad).HasComment("Id de la oportunidad asociada");
@@ -24411,6 +24414,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasForeignKey(d => d.IdFaseOportunidadAnterior)
                     .HasConstraintName("FK_T_GoogleAdsConversionQueue_FaseOportunidad_IdFaseOportunidad_Anterior");
 
+                entity.HasOne(d => d.IdGoogleAdsSubcuentaNavigation)
+                    .WithMany(p => p.TGoogleAdsConversionQueues)
+                    .HasForeignKey(d => d.IdGoogleAdsSubcuenta)
+                    .HasConstraintName("FK_T_GoogleAdsConversionQueue_GoogleAdsSubcuenta_IdGoogleAdsSubcuenta");
+
                 entity.HasOne(d => d.IdGoogleFormularioLeadgenNavigation)
                     .WithMany(p => p.TGoogleAdsConversionQueues)
                     .HasForeignKey(d => d.IdGoogleFormularioLeadgen)
@@ -24426,6 +24434,99 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .WithMany(p => p.TGoogleAdsConversionQueues)
                     .HasForeignKey(d => d.IdOrigen)
                     .HasConstraintName("FK_T_GoogleAdsConversionQueue_Origen_IdOrigen");
+            });
+
+            modelBuilder.Entity<TGoogleAdsSubcuentum>(entity =>
+            {
+                entity.ToTable("T_GoogleAdsSubcuenta", "mkt");
+
+                entity.HasComment("Catálogo de subcuentas de Google Ads. Permite gestionar múltiples subcuentas (Búsqueda, Remarketing, Display, etc.) bajo un mismo Manager Account, cada una con sus propias acciones de conversión configuradas.");
+
+                entity.HasIndex(e => e.CustomerId, "INC_T_GoogleAdsSubcuenta_CustomerId")
+                    .HasFilter("([Estado]=(1) AND [Activo]=(1))");
+
+                entity.HasIndex(e => e.CustomerId, "UC_T_GoogleAdsSubcuenta_PorCustomerId")
+                    .IsUnique();
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la subcuenta");
+
+                entity.Property(e => e.Activo)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Indica si la subcuenta está activa para procesamiento de conversiones");
+
+                entity.Property(e => e.ConversionActionIdIcism)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasColumnName("ConversionActionIdICISM")
+                    .HasComment("ID de la acción de conversión para Inscrito/Matriculado - IC, IS y M (Fase 5, 12, 23). Formato: customers/{CustomerId}/conversionActions/{ActionId}");
+
+                entity.Property(e => e.ConversionActionIdIppf)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasColumnName("ConversionActionIdIPPF")
+                    .HasComment("ID de la acción de conversión para Inscripción Proceso Pago Final - IP, PF (Fase 8, 22). Formato: customers/{CustomerId}/conversionActions/{ActionId}");
+
+                entity.Property(e => e.ConversionActionIdIt)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasColumnName("ConversionActionIdIT")
+                    .HasComment("ID de la acción de conversión para Interesado por Trabajar - IT (Fase 13). Formato: customers/{CustomerId}/conversionActions/{ActionId}");
+
+                entity.Property(e => e.CustomerId)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasComment("Customer ID de Google Ads (sin guiones). Ejemplo: 5743207825 o 6421853601");
+
+                entity.Property(e => e.DescripcionSubcuenta)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Descripción detallada del propósito y uso de esta subcuenta");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Estado del registro (activo o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.IdAdworkCredencialApi).HasComment("Referencia a la credencial OAuth compartida en T_AdworkCredencialApi");
+
+                entity.Property(e => e.NombreSubcuenta)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre descriptivo de la subcuenta. Ejemplos: Búsqueda, Remarketing, Display");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de auditoría - RowVersion");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('SYSTEM')")
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('SYSTEM')")
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdAdworkCredencialApiNavigation)
+                    .WithMany(p => p.TGoogleAdsSubcuenta)
+                    .HasForeignKey(d => d.IdAdworkCredencialApi)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GoogleAdsSubcuenta_AdworkCredencialApi_IdAdworkCredencialApi");
             });
 
             modelBuilder.Entity<TGoogleFormularioLeadgen>(entity =>
@@ -24492,6 +24593,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsUnicode(false)
                     .HasComment("Id del grupo de ads");
 
+                entity.Property(e => e.IdGoogleAdsSubcuenta).HasComment("Id de la subcuenta de Google Ads asociada a la oportunidad");
+
                 entity.Property(e => e.IdMigracion).HasComment("Id de la tabla Original al migrar");
 
                 entity.Property(e => e.Industria)
@@ -24534,6 +24637,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsUnicode(false)
                     .HasColumnName("versionApi")
                     .HasComment("Version del api actual de google");
+
+                entity.HasOne(d => d.IdGoogleAdsSubcuentaNavigation)
+                    .WithMany(p => p.TGoogleFormularioLeadgens)
+                    .HasForeignKey(d => d.IdGoogleAdsSubcuenta)
+                    .HasConstraintName("FK_T_GoogleFormularioLeadgen_GoogleAdsSubcuenta_IdGoogleAdsSubcuenta");
             });
 
             modelBuilder.Entity<TGradoEstudio>(entity =>
@@ -42344,8 +42452,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Fecha y hora de la última modificación.");
 
                 entity.Property(e => e.IdProgramaGeneralArgumento).HasComment("Identificador del argumento de programa general asociado.");
-
-          
 
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
