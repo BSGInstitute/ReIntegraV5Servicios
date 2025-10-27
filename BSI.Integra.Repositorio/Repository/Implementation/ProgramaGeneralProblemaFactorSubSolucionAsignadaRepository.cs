@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
+using Google.Api.Ads.AdWords.v201809;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -218,6 +220,59 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        public bool EliminarReactivarProblemaFactorSubSolucionAsignada(int id, string usuario , int eliminar)
+        {
+            try
+            {
+                var query = "pla.SP_T_ProgramaGeneralProblemaFactorSubSolucionAsignada_ActualizarEstado";
+                var parametros = new
+                {
+                    Id= id,
+                    UsuarioModificacion = usuario,
+                    Operacion = eliminar
+                };
+
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(query, parametros);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ActualizarFormularioRegularizado() {ex.Message}", ex);
+            }
+
+        }
+
+
+        public ProgramaGeneralProblemaFactorSubSolucionAsignada? ObtenerPorIdProgramaGeneralProblemaDetalleAndIdProgramaGeneralProblemaFactorSubSolucion(int IdProgramaGeneralProblemaDetalle , int IdProgramaGeneralProblemaFactorSubSolucion)
+        {
+            try
+            {
+                ProgramaGeneralProblemaFactorSubSolucionAsignada rpta = new();
+                var query = @"
+                    SELECT
+	                       Id,
+                           IdProgramaGeneralProblemaDetalle,
+                           IdProgramaGeneralProblemaFactorSubSolucion,
+	                       Estado,
+                           FechaCreacion,
+                           FechaModificacion,
+                           UsuarioCreacion,
+                           UsuarioModificacion,
+	                       RowVersion
+                    FROM pla.T_ProgramaGeneralProblemaFactorSubSolucionAsignada
+                    WHERE IdProgramaGeneralProblemaDetalle = @IdProgramaGeneralProblemaDetalle AND IdProgramaGeneralProblemaFactorSubSolucion=@IdProgramaGeneralProblemaFactorSubSolucion";
+                var resultado = _dapperRepository.FirstOrDefault(query, new { IdProgramaGeneralProblemaDetalle= IdProgramaGeneralProblemaDetalle , IdProgramaGeneralProblemaFactorSubSolucion= IdProgramaGeneralProblemaFactorSubSolucion });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<ProgramaGeneralProblemaFactorSubSolucionAsignada>(resultado)!;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Se ha producido un error al ejecutar el método ObtenerPorId()", ex);
+            }
+        }
 
     }
 }

@@ -23,6 +23,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
 
         IEnumerable<ProgramaGeneralProblemaFactorSubSolucionAsignada> ObtenerPorIdProblemaDetalle(int idProblemaDetalle);
         ProgramaGeneralProblemaFactorSubSolucionAsignada? ObtenerPorId(int id);
+        bool EliminarReactivarProblemaFactorSubSolucionAsignada(int id, string usuario , int eliminar);
+        ProgramaGeneralProblemaFactorSubSolucionAsignada? ObtenerPorIdProgramaGeneralProblemaDetalleAndIdProgramaGeneralProblemaFactorSubSolucion(int IdProgramaGeneralProblemaDetalle, int IdProgramaGeneralProblemaFactorSubSolucion);
 
     }
 }
