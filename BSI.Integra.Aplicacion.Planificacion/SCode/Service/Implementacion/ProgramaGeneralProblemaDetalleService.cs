@@ -290,15 +290,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                             ProgramaGeneralProblemaFactorSubSolucionAsignada subsolucion;
                             if (solucion.Id != 0 && _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.Exist(solucion.Id))
                             {
-                                subsolucion = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.ObtenerPorId(solucion.Id)!;
-                                entidad.Estado = false;
-                                subsolucion.UsuarioModificacion = usuario;
-                                subsolucion.FechaModificacion = DateTime.Now;
-                                _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.Update(subsolucion);
-                                _unitOfWork.Commit();
+                                _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.EliminarReactivarProblemaFactorSubSolucionAsignada(solucion.Id, usuario, 1);
                             }
                         });
                     }
+
                     return true;
                 }
                 else
