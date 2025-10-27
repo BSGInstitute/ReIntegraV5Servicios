@@ -10,7 +10,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
 {
     public interface IProgramaGeneralArgumentoService
     {
-        List<ProgramaGeneralArgumentoDTO> ObtenerInformacionProgramaGeneralArgumentoTodo();
+        List<ProgramaGeneralArgumentoDTO> ObtenerInformacionProgramaGeneralArgumentoTodo(int IdPGeneral);
         ProgramaGeneralArgumentoDTO ObtenerInformacionProgramaGeneralArgumento(int idProgramaGeneralArgumento);
         IEnumerable<ProgramaGeneralArgumentoDTO> Obtener();
         public ProgramaGeneralArgumentoDTO Insertar(ProgramaGeneralArgumentoDTO entidad, string usuario);
