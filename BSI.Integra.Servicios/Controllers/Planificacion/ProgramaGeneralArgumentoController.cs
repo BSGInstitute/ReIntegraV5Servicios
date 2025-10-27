@@ -50,12 +50,12 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             }
         }
 
-        [HttpGet("[Action]")]
-        public IActionResult ObtenerProgramaGeneralArgumentoTodo()
+        [HttpGet("[action]/{idPGeneral}")]
+        public IActionResult ObtenerProgramaGeneralArgumentoTodo(int idPGeneral)
         {
             try
             {
-                var result = _programaGeneralArgumentoService.ObtenerInformacionProgramaGeneralArgumentoTodo();
+                var result = _programaGeneralArgumentoService.ObtenerInformacionProgramaGeneralArgumentoTodo(idPGeneral);
                 return Ok(result);
             }
             catch (Exception ex)

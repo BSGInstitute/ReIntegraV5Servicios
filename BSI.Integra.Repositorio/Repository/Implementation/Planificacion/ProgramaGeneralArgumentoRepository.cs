@@ -304,7 +304,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
-        public List<ProgramaGeneralArgumentoDTO> ObtenerTodo()
+        public List<ProgramaGeneralArgumentoDTO> ObtenerTodo(int IdPGeneral)
         {
             try
             {
@@ -321,8 +321,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 	                    UsuarioModificacion,
 	                    FechaCreacion,
 	                    FechaModificacion,RowVersion
-                    FROM pla.T_ProgramaGeneralArgumento WHERE Estado = 1";
-                var resultado = _dapperRepository.QueryDapper(query, null);
+                    FROM pla.T_ProgramaGeneralArgumento WHERE Estado = 1 AND IdPGeneral = @IdPGeneral";
+                var resultado = _dapperRepository.QueryDapper(query, new { IdPGeneral });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
                     rpta = JsonConvert.DeserializeObject<List<ProgramaGeneralArgumentoDTO>>(resultado)!;

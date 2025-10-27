@@ -78,11 +78,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw ex;
             }
         }
-        public List<ProgramaGeneralArgumentoDTO> ObtenerInformacionProgramaGeneralArgumentoTodo()
+        public List<ProgramaGeneralArgumentoDTO> ObtenerInformacionProgramaGeneralArgumentoTodo(int idPGeneral)
         {
             try
             {
-                var programaGArgumentos = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerTodo();
+                var programaGArgumentos = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerTodo(idPGeneral);
                 List<ProgramaGeneralArgumentoDTO> todo = new();
                 foreach (var item in programaGArgumentos)
                 {
