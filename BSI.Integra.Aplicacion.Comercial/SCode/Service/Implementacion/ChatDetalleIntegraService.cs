@@ -364,11 +364,11 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         /// Obtiene todas las respuestas del cliente por formulario aplicado
         /// </summary>
         /// <param name="idFormularioAplicadoChatbot">ID del formulario aplicado</param>
-        public IEnumerable<RespuestaClienteDTO> ObtenerRespuestasUsuarioPorFormularioAplicado(int IdFormularioAplicadoChatbot)
+        public IEnumerable<RespuestaClienteDTO> ObtenerRespuestasUsuarioPorFormularioAplicado(int IdChatbotPortalHiloChat)
         {
             try
             {
-                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerRespuestasUsuarioPorFormularioAplicado(IdFormularioAplicadoChatbot);
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerRespuestasUsuarioPorFormularioAplicado(IdChatbotPortalHiloChat);
             }
             catch (Exception ex)
             {
@@ -448,7 +448,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 }
 
                 string respuestasSeleccionadasJson = request.RespuestasSeleccionadas != null && request.RespuestasSeleccionadas.Any()
-                    ? JsonConvert.SerializeObject(request.RespuestasSeleccionadas.Select(r => new { r.IdRespuestaEvaluacionChatbot }))
+                    ? JsonConvert.SerializeObject(request.RespuestasSeleccionadas)
                     : null;
 
                 string respuestasTextoJson = request.RespuestasTexto != null && request.RespuestasTexto.Any()

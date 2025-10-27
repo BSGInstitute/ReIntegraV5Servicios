@@ -130,7 +130,6 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string TipoEntrada { get; set; }
         public bool EsRequerido { get; set; }
         public List<RespuestaEvaluacionDTO> Respuestas { get; set; } = new List<RespuestaEvaluacionDTO>();
-        public bool EsRequerido { get; set; }
     }
 
     public class RespuestaEvaluacionDTO
@@ -225,7 +224,6 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 
     public class RespuestaSeleccionadaDTO
     {
-        public int IdPreguntaEvaluacionChatbot { get; set; }
         public int IdRespuestaEvaluacionChatbot { get; set; }
     }
 
@@ -254,7 +252,10 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public bool Cerrado { get; set; }
         public bool Derivado { get; set; }
         public bool? DerivacionCerrado { get; set; }
+        public bool? EsCalificadoFormulario { get; set; }
         public string SubEstadoMatricula { get; set; }
+        public DateTime FechaCreacion { get; set; }
+
     }
 
     public class ChatbotHiloChatPorSegmentoDTO
@@ -265,12 +266,14 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public bool Cerrado { get; set; }
         public bool Derivado { get; set; }
         public bool? DerivacionCerrado { get; set; }
+
+        public bool? EsCalificadoFormulario { get; set; }
         public DateTime FechaCreacion { get; set; }
     }
 
     public class ObtenerRespuestasClienteRequestDTO
     {
-        public int IdFormularioAplicadoChatbot { get; set; }
+        public int IdChatbotPortalHiloChat { get; set; }
     }
 
     public class RespuestaClienteDTO

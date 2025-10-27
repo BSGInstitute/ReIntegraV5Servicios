@@ -441,7 +441,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 List<ChatbotHiloChatPorAlumnoDTO> rpta = new List<ChatbotHiloChatPorAlumnoDTO>();
-                var query = @"EXEC ia.SP_ChatbotPortalHiloChat_ObtenerHilosActivos";
+                var query = @"ia.SP_ChatbotPortalHiloChat_ObtenerHilosConAlumno";
 
                 var resultado = _dapperRepository.QueryDapper(query, null);
 
@@ -469,7 +469,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 List<ChatbotHiloChatPorSegmentoDTO> rpta = new List<ChatbotHiloChatPorSegmentoDTO>();
-                var query = @"EXEC ia.SP_ChatbotPortalHiloChat_ObtenerHilosSinAlumno";
+                var query = @"ia.SP_ChatbotPortalHiloChat_ObtenerHilosSinAlumno";
 
                 var resultado = _dapperRepository.QueryDapper(query, null);
 
@@ -493,13 +493,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// </summary>
         /// <param name="IdFormularioAplicadoChatbot">ID del formulario aplicado</param>
         /// <returns>Lista de respuestas del cliente con detalles de pregunta y respuesta predefinida</returns>
-        public IEnumerable<RespuestaClienteDTO> ObtenerRespuestasUsuarioPorFormularioAplicado(int IdFormularioAplicadoChatbot)
+        public IEnumerable<RespuestaClienteDTO> ObtenerRespuestasUsuarioPorFormularioAplicado(int IdChatbotPortalHiloChat)
         {
             try
             {
                 List<RespuestaClienteDTO> rpta = new List<RespuestaClienteDTO>();
-                var query = $@"EXEC ia.SP_TRespuestaClienteChatbot_ObtenerRespuestasUsuario @IdFormularioAplicadoChatbot = @IdFormularioAplicadoChatbot";
-                var resultado = _dapperRepository.QueryDapper(query, new { IdFormularioAplicadoChatbot });
+                var query = $@"ia.SP_TRespuestaClienteChatbot_ObtenerRespuestasUsuario";
+                var resultado = _dapperRepository.QuerySPDapper(query, new { IdChatbotPortalHiloChat = IdChatbotPortalHiloChat });
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
