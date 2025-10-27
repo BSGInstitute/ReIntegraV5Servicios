@@ -130,10 +130,19 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                                 {
                                     listasoluciones.RemoveAll(s => dto.Soluciones.Any(x => x.Id == s.Id));
                                 }
-                                if (listasoluciones.Count() > 0)
+                                if (listasoluciones != null && listasoluciones.Count > 0)
                                 {
-                                    _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.Delete(listasoluciones.Select(x => x.Id), usuario);
-                                    _unitOfWork.Commit();
+                                    var ids = listasoluciones
+                                        .Select(x => x.Id)
+                                        .Where(id => id > 0)
+                                        .Distinct()
+                                        .ToList();
+
+                                    foreach (var id in ids)
+                                    {
+                                        var itemEliminar = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.ObtenerPorId(id);
+                                        _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.EliminarReactivarProblemaFactorSubSolucionAsignada(id, usuario ,1);
+                                    }
                                 }
                             }
                            
@@ -142,6 +151,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                                 dto.Soluciones.ForEach(solucion =>
                                 {
                                     ProgramaGeneralProblemaFactorSubSolucionAsignada subsolucion;
+                                
                                     if (solucion.Id != 0 && _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.Exist(solucion.Id))
                                     {
                                         subsolucion = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.ObtenerPorId(solucion.Id)!;
@@ -153,19 +163,27 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                                     }
                                     else
                                     {
-                                        subsolucion = new ProgramaGeneralProblemaFactorSubSolucionAsignada()
+                                        ProgramaGeneralProblemaFactorSubSolucionAsignada revisardato = new ProgramaGeneralProblemaFactorSubSolucionAsignada();
+                                        revisardato =_unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.ObtenerPorIdProgramaGeneralProblemaDetalleAndIdProgramaGeneralProblemaFactorSubSolucion(dto.Id , solucion.IdProgramaGeneralProblemaFactorSubSolucion);
+                                        if (revisardato != null )
                                         {
-                                            IdProgramaGeneralProblemaDetalle = entidad.Id,
-                                            IdProgramaGeneralProblemaFactorSubSolucion = solucion.IdProgramaGeneralProblemaFactorSubSolucion,
-                                            Estado = true,
-                                            UsuarioCreacion = usuario,
-                                            UsuarioModificacion = usuario,
-                                            FechaCreacion = DateTime.Now,
-                                            FechaModificacion = DateTime.Now,
-                                        };
-                                        var resultado = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.Add(subsolucion);
-                                        _unitOfWork.Commit();
-                                        solucion.Id = resultado.Id;
+                                            _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.EliminarReactivarProblemaFactorSubSolucionAsignada(revisardato.Id, usuario, 0);
+                                        }
+                                        else
+                                        {
+                                            subsolucion = new ProgramaGeneralProblemaFactorSubSolucionAsignada()
+                                            {
+                                                IdProgramaGeneralProblemaDetalle = entidad.Id,
+                                                IdProgramaGeneralProblemaFactorSubSolucion = solucion.IdProgramaGeneralProblemaFactorSubSolucion,
+                                                Estado = true,
+                                                UsuarioCreacion = usuario,
+                                                UsuarioModificacion = usuario,
+                                                FechaCreacion = DateTime.Now,
+                                                FechaModificacion = DateTime.Now,
+                                            };
+                                            _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository.Add(subsolucion);
+                                            _unitOfWork.Commit();
+                                        }
                                     }
                                 });
                             }
