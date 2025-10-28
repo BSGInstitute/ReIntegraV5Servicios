@@ -130,6 +130,91 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             }
         }
 
+        public ArgumentoMotivacionProgramaGeneralDTO ObtenerArgumentoMotivacionByIdPGeneral(int idPGeneral)
+        {
+            try
+            {
+                var programaGArgumentos = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerTodo(idPGeneral);
+
+                List<ArgumentoMotivacionEstructuraDTO> estructuraCurricular = new();
+                List<ArgumentoMotivacionEstructuraDTO> garantiaDePrograma = new();
+                List<ArgumentoMotivacionEstructuraDTO> demostracionDeValor = new();
+                List<ArgumentoMotivacionEstructuraDTO> aspectosDiferenciadores = new();
+                List<ArgumentoMotivacionEstructuraDTO> argumentosDePerdidaPotencial = new();
+
+                ArgumentoMotivacionEstructuraDTO ConstruirArgumento(ProgramaGeneralArgumentoDTO item)
+                {
+                    var modalidades = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoModalidad(item.Id);
+                    var modalidadesDto = modalidades.Select(m => new ProgramaGeneralArgumentoModalidadDTO
+                    {
+                        Id = m.Id,
+                        IdModalidad = m.IdModalidadCurso,
+                        Nombre = m.Nombre
+                    }).ToList();
+
+                    var detalles = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalle(item.Id);
+                    var detalleDtoList = new List<ProgramaGeneralArgumentoDetalleDTO>();
+
+                    foreach (var ag in detalles)
+                    {
+                        var motivacion = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacion(ag.Id);
+                        detalleDtoList.Add(new ProgramaGeneralArgumentoDetalleDTO
+                        {
+                            Id = ag.Id,
+                            Detalle = ag.Detalle,
+                            Motivacion = new PGArgumentoDetalleMotivacionDTO
+                            {
+                                Id = motivacion.IdProgramaGeneralMotivacion,
+                                Nombre = motivacion.NombreMotivacion
+                            }
+                        });
+                    }
+
+                    return new ArgumentoMotivacionEstructuraDTO
+                    {
+                        Argumento = item,
+                        Modalidades = modalidadesDto,
+                        ArgumentoDetalle = detalleDtoList
+                    };
+                }
+
+                foreach (var item in programaGArgumentos)
+                {
+                    var nombre = item.Nombre.ToLower().Trim();
+
+                    switch (nombre)
+                    {
+                        case "estructura curricular":
+                            estructuraCurricular.Add(ConstruirArgumento(item));
+                            break;
+                        case "garantia de programa":
+                            garantiaDePrograma.Add(ConstruirArgumento(item));
+                            break;
+                        case "demostracion de valor":
+                            demostracionDeValor.Add(ConstruirArgumento(item));
+                            break;
+                        case "aspectos diferenciadores":
+                            aspectosDiferenciadores.Add(ConstruirArgumento(item));
+                            break;
+                        case "argumentos de perdida potencial":
+                            argumentosDePerdidaPotencial.Add(ConstruirArgumento(item));
+                            break;
+                    }
+                }
+                return new ArgumentoMotivacionProgramaGeneralDTO
+                {
+                    GarantiaDePrograma = garantiaDePrograma,
+                    EstruturaCurricular = estructuraCurricular,
+                    DemostracionDeValor = demostracionDeValor,
+                    AspectosDiferenciadores = aspectosDiferenciadores,
+                    ArgumentosDePerdidaPotencial = argumentosDePerdidaPotencial,
+                };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public IEnumerable<ProgramaGeneralArgumentoDTO> Obtener()
         {
             try

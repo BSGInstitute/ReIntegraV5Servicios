@@ -19,6 +19,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
             TOportunidadClasificacionOperaciones = new HashSet<TOportunidadClasificacionOperacione>();
             TOportunidadCompetidors = new HashSet<TOportunidadCompetidor>();
             TOportunidadLogs = new HashSet<TOportunidadLog>();
+            TProgramaGeneralProblemaFactorSolucionRespuesta = new HashSet<TProgramaGeneralProblemaFactorSolucionRespuestum>();
             TSolucionClienteByActividads = new HashSet<TSolucionClienteByActividad>();
         }
 
@@ -265,6 +266,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual ICollection<TOportunidadClasificacionOperacione> TOportunidadClasificacionOperaciones { get; set; }
         public virtual ICollection<TOportunidadCompetidor> TOportunidadCompetidors { get; set; }
         public virtual ICollection<TOportunidadLog> TOportunidadLogs { get; set; }
+        public virtual ICollection<TProgramaGeneralProblemaFactorSolucionRespuestum> TProgramaGeneralProblemaFactorSolucionRespuesta { get; set; }
         public virtual ICollection<TSolucionClienteByActividad> TSolucionClienteByActividads { get; set; }
     }
 }

@@ -10,6 +10,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TProgramaGeneralProblemaFactorSolucion()
         {
+            TProgramaGeneralProblemaFactorSolucionRespuesta = new HashSet<TProgramaGeneralProblemaFactorSolucionRespuestum>();
             TProgramaGeneralProblemaFactorSubSolucions = new HashSet<TProgramaGeneralProblemaFactorSubSolucion>();
         }
 
@@ -54,6 +55,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
 
+        public virtual ICollection<TProgramaGeneralProblemaFactorSolucionRespuestum> TProgramaGeneralProblemaFactorSolucionRespuesta { get; set; }
         public virtual ICollection<TProgramaGeneralProblemaFactorSubSolucion> TProgramaGeneralProblemaFactorSubSolucions { get; set; }
     }
 }

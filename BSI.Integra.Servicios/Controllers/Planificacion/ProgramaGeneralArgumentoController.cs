@@ -63,6 +63,19 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("[action]/{idPGeneral}")]
+        public IActionResult ObtenerProgramaGeneralArgumentoMotivacionByIdPGeneral(int idPGeneral)
+        {
+            try
+            {
+                var result = _programaGeneralArgumentoService.ObtenerArgumentoMotivacionByIdPGeneral(idPGeneral);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
         [HttpPost("Insertar")]
         public IActionResult Insertar([FromBody] ProgramaGeneralArgumentoDTO dto)
