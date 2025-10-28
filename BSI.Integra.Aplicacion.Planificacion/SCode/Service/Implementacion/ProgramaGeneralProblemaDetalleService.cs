@@ -48,7 +48,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     {
                         IdPgeneral = dto.IdPGeneral,
                         IdProgramaGeneralProblemaFactor = dto.IdProgramaGeneralProblemaFactor,
-                        IdProgramaGeneralProblemaFactorDetalle= dto.IdProgramaGeneralProblemaFactorDetalle,
+                        IdProgramaGeneralProblemaFactorDetalle = dto.IdProgramaGeneralProblemaFactorDetalle,
                         AplicaNombreDetalle = dto.AplicaNombreDetalle,
                         AplicaTituloDetalle = dto.AplicaTituloDetalle,
                         AplicaPieDePagina = dto.AplicaPieDePagina,
@@ -83,8 +83,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         _unitOfWork.Commit();
                         resultado.Soluciones = _mapper.Map<List<ProgramaGeneralProblemaFactorSubSolucionAsignadaDTO>>(res);
                     }
-                    
-                    
+
+
 
                     return resultado;
                 }
@@ -136,7 +136,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                                     _unitOfWork.Commit();
                                 }
                             }
-                           
+
                             if (dto.Soluciones != null && dto.Soluciones.Count() > 0)
                             {
                                 dto.Soluciones.ForEach(solucion =>
@@ -169,7 +169,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                                     }
                                 });
                             }
-                            
+
                             return dto;
                         }
                         else
@@ -194,41 +194,41 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 .Obtener(idPGeneral)
                 ?? Enumerable.Empty<ProblemaClienteByPGeneral>();
 
-          
+
             var resultado = filas
-                .GroupBy(x => x.Id) 
+                .GroupBy(x => x.Id)
                 .Select(g =>
                 {
                     var first = g.First();
 
-               
+
                     var subsoluciones = g
                         .Where(r => r.IdProgramaGeneralProblemaFactorSubSolucion.HasValue)
                         .GroupBy(r => r.IdProgramaGeneralProblemaFactorSubSolucion!.Value)
                         .Select(sg => new ProgramaGeneralProblemaFactorSubSolucionAsignadaDTO
                         {
-                        
+
                             Id = sg.Select(x => x.IdProgramaGeneralProblemaFactorSubSolucionAsignada)
                                    .FirstOrDefault() ?? 0,
 
-                        
+
                             IdProgramaGeneralProblemaDetalle = g.Key,
 
-                        
+
                             IdProgramaGeneralProblemaFactorSubSolucion = sg.Key
                         })
                         .ToList();
 
                     return new ProgramaGeneralProblemaDetalleObtener
                     {
-                 
+
                         Id = g.Key,
 
-                    
+
                         IdPGeneral = first.IdPGeneral,
                         IdProgramaGeneralProblemaFactor = first.IdProgramaGeneralProblemaFactor,
 
-                  
+
                         IdProgramaGeneralProblemaFactorDetalle = first.IdProgramaGeneralProblemaFactorDetalle,
 
                         AplicaTituloDetalle = first.AplicaTituloDetalle,
@@ -288,6 +288,85 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             {
                 throw;
             }
+        }
+
+
+        public IEnumerable<ProgramaGeneralProblemaDetalleObtenerAgenda> ObtenerProblemasClienteAgendaV6(int idPGeneral)
+        {
+            IEnumerable<ProblemaAgendaRow> rows =_unitOfWork.ProgramaGeneralProblemaDetalleRepository.ObtenerProblemasClienteAgendaV6(idPGeneral);
+
+            var resultado =
+                rows.GroupBy(r => new
+                {
+                    r.IdProgramaGeneralProblemaDetalle,
+                    r.IdPGeneral,
+                    r.IdProgramaGeneralProblemaFactor,
+                    r.ProblemaClienteNombre,
+                    r.IdProgramaGeneralProblemaFactorDetalle,
+                    r.ProblemaClienteDetalleTabs,
+                    r.ProblemaClienteDetalleTitulo,
+                    r.ProblemaClienteDetallePiePagina,
+                    r.AplicaTituloDetalle,
+                    r.AplicaNombreDetalle,
+                    r.AplicaPieDePagina,
+                    r.IdProgramaGeneralProblemaFactorSolucion,
+                    r.ProblemaClienteSolucionDescripcion,
+                    r.ProblemaClienteSolucionTitulo,
+                    r.ProblemaClienteSolucionSubTitulo,
+                    r.AplicaDescripcionSolucion,
+                    r.AplicaTituloSolucion,
+                    r.AplicaSubTituloSolucion
+                })
+                .Select(g => new ProgramaGeneralProblemaDetalleObtenerAgenda
+                {
+                    IdProgramaGeneralProblemaDetalle = g.Key.IdProgramaGeneralProblemaDetalle,
+                    IdPGeneral = g.Key.IdPGeneral,
+                    IdProgramaGeneralProblemaFactor = g.Key.IdProgramaGeneralProblemaFactor,
+                    ProblemaClienteNombre = g.Key.ProblemaClienteNombre,
+                    IdProgramaGeneralProblemaFactorDetalle = g.Key.IdProgramaGeneralProblemaFactorDetalle,
+                    ProblemaClienteDetalleTabs = g.Key.ProblemaClienteDetalleTabs,
+                    ProblemaClienteDetalleTitulo = g.Key.ProblemaClienteDetalleTitulo,
+                    ProblemaClienteDetallePiePagina = g.Key.ProblemaClienteDetallePiePagina,
+                    AplicaTituloDetalle = g.Key.AplicaTituloDetalle,
+                    AplicaNombreDetalle = g.Key.AplicaNombreDetalle,
+                    AplicaPieDePagina = g.Key.AplicaPieDePagina,
+                    IdProgramaGeneralProblemaFactorSolucion = g.Key.IdProgramaGeneralProblemaFactorSolucion,
+                    ProblemaClienteSolucionDescripcion = g.Key.ProblemaClienteSolucionDescripcion,
+                    ProblemaClienteSolucionTitulo = g.Key.ProblemaClienteSolucionTitulo,
+                    ProblemaClienteSolucionSubTitulo = g.Key.ProblemaClienteSolucionSubTitulo,
+                    AplicaDescripcionSolucion = g.Key.AplicaDescripcionSolucion,
+                    AplicaTituloSolucion = g.Key.AplicaTituloSolucion,
+                    AplicaSubTituloSolucion = g.Key.AplicaSubTituloSolucion,
+
+  
+                    SubSoluciones = g
+                        .GroupBy(x => new
+                        {
+                            x.IdProgramaGeneralProblemaFactorSubSolucionAsignada,
+                            x.IdProgramaGeneralProblemaFactorSubSolucion,
+                            x.SubSolucion,
+                            x.SubSolucionOrden,
+                            x.SubSolucionNivel
+                        })
+                        .Select(x => new ProgramaGeneralProblemaFactorSubSolucionAsignadaAgendaDTO
+                        {
+                            IdProgramaGeneralProblemaFactorSubSolucionAsignada = x.Key.IdProgramaGeneralProblemaFactorSubSolucionAsignada,
+                            IdProgramaGeneralProblemaDetalle = g.Key.IdProgramaGeneralProblemaDetalle,
+                            IdProgramaGeneralProblemaFactorSubSolucion = x.Key.IdProgramaGeneralProblemaFactorSubSolucion,
+                            SubSolucion = x.Key.SubSolucion,
+                            SubSolucionOrden = x.Key.SubSolucionOrden,
+                            SubSolucionNivel = x.Key.SubSolucionNivel
+                        })
+                        .OrderBy(x => x.SubSolucionOrden)
+                        .ToList()
+                })
+
+                .OrderBy(x => x.IdProgramaGeneralProblemaFactor)
+                .ThenBy(x => x.IdProgramaGeneralProblemaDetalle)
+                .ToList();
+
+            return resultado;
+
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -231,5 +232,31 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+
+        public IEnumerable<ProblemaAgendaRow> ObtenerProblemasClienteAgendaV6(int idPGeneral)
+        {
+            try
+            {
+                List<ProblemaAgendaRow> rpta = new List<ProblemaAgendaRow>();
+
+                var query = "pla.SP_TProgramaGeneralProblemaDetalle_ObtenerDetallePorIdPGeneral";
+                var parametros = new
+                {
+                   IdPGeneral = idPGeneral
+                };
+
+                var resultado = _dapperRepository.QuerySPDapper(query, parametros);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ProblemaAgendaRow>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        
     }
 }
