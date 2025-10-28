@@ -49,9 +49,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Campo para control de concurrencia de registros.
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
-        /// <summary>
-        /// Texto adicional o pie de detalle para el argumento.
-        /// </summary>
 
         public virtual TProgramaGeneralArgumento IdProgramaGeneralArgumentoNavigation { get; set; } = null!;
         public virtual ICollection<TProgramaGeneralArgumentoDetalleMotivacion> TProgramaGeneralArgumentoDetalleMotivacions { get; set; }
