@@ -759,6 +759,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TProgramaGeneralProblemaFactor> TProgramaGeneralProblemaFactors { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralProblemaFactorDetalle> TProgramaGeneralProblemaFactorDetalles { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralProblemaFactorSolucion> TProgramaGeneralProblemaFactorSolucions { get; set; } = null!;
+        public virtual DbSet<TProgramaGeneralProblemaFactorSolucionRespuestum> TProgramaGeneralProblemaFactorSolucionRespuesta { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralProblemaFactorSubSolucion> TProgramaGeneralProblemaFactorSubSolucions { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralProblemaFactorSubSolucionAsignadum> TProgramaGeneralProblemaFactorSubSolucionAsignada { get; set; } = null!;
         public virtual DbSet<TProgramaGeneralProblemaModalidad> TProgramaGeneralProblemaModalidads { get; set; } = null!;
@@ -44965,6 +44966,58 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario de modificacion del registro");
+            });
+
+            modelBuilder.Entity<TProgramaGeneralProblemaFactorSolucionRespuestum>(entity =>
+            {
+                entity.ToTable("T_ProgramaGeneralProblemaFactorSolucionRespuesta", "pla");
+
+                entity.HasComment("Esta tabla muestra el detalle de la solucion propuesta");
+
+                entity.Property(e => e.Id).HasComment("PK de la tabla");
+
+                entity.Property(e => e.EsSolucionado).HasComment("Indica si esta solucionado el problema");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.IdOportunidad).HasComment("FK de T_Oportunidad");
+
+                entity.Property(e => e.IdProgramaGeneralProblemaFactorSolucion).HasComment("FK de T_ProgramaGeneralProblemaFactorSolucion");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("RowVersion del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de creacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro");
+
+                entity.HasOne(d => d.IdOportunidadNavigation)
+                    .WithMany(p => p.TProgramaGeneralProblemaFactorSolucionRespuesta)
+                    .HasForeignKey(d => d.IdOportunidad)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_ProgramaGeneralProblemaFactorSolucionRespuesta_Oportunidad_IdOportunidad");
+
+                entity.HasOne(d => d.IdProgramaGeneralProblemaFactorSolucionNavigation)
+                    .WithMany(p => p.TProgramaGeneralProblemaFactorSolucionRespuesta)
+                    .HasForeignKey(d => d.IdProgramaGeneralProblemaFactorSolucion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_ProgramaGeneralProblemaFactorSolucionRespuesta_IdProgramaGeneralProblemaFactorSolucion");
             });
 
             modelBuilder.Entity<TProgramaGeneralProblemaFactorSubSolucion>(entity =>
