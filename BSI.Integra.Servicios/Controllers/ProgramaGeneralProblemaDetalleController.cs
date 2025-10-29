@@ -74,5 +74,12 @@ namespace BSI.Integra.Servicios.Controllers
             return Ok(resultado);
         }
 
+        [HttpGet("[action]/{idPGeneral}/{idOportunidad}")]
+        public IActionResult ObtenerProblemasClienteAgendaV6(int idPGeneral , int idOportunidad)
+        {
+            var resultado = _programaGeneralProblemaDetalleService.ObtenerProblemasClienteAgendaV6(idPGeneral, idOportunidad);
+            return Ok(resultado);
+        }
+
     }
 }

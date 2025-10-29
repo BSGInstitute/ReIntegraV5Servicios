@@ -83,4 +83,27 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? IdProgramaGeneralProblemaFactorSubSolucion { get; set; }
         public List<ProgramaGeneralProblemaFactorSubSolucionAsignadaDTO> SubSoluciones { get; set; }
     }
+    public class ProgramaGeneralProblemaDetalleObtenerAgenda
+    {
+        public int IdProgramaGeneralProblemaDetalle { get; set; }
+        public int IdPGeneral { get; set; }
+        public int IdProgramaGeneralProblemaFactor { get; set; }
+        public string ProblemaClienteNombre { get; set; }
+        public int? IdProgramaGeneralProblemaFactorDetalle { get; set; }
+        public string? ProblemaClienteDetalleTabs { get; set; }
+        public string? ProblemaClienteDetalleTitulo { get; set; }
+        public string? ProblemaClienteDetallePiePagina { get; set; }
+        public bool AplicaTituloDetalle { get; set; }
+        public bool AplicaNombreDetalle { get; set; }
+        public bool AplicaPieDePagina { get; set; }
+        public int? IdProgramaGeneralProblemaFactorSolucion { get; set; }
+        public bool EsSolucionado { get; set; }
+        public string? ProblemaClienteSolucionDescripcion { get; set; }
+        public string? ProblemaClienteSolucionTitulo { get; set; }
+        public string? ProblemaClienteSolucionSubTitulo { get; set; }
+        public bool AplicaDescripcionSolucion { get; set; }
+        public bool AplicaTituloSolucion { get; set; }
+        public bool AplicaSubTituloSolucion { get; set; }
+        public List<ProgramaGeneralProblemaFactorSubSolucionAsignadaAgendaDTO> SubSoluciones { get; set; }
+    }
 }

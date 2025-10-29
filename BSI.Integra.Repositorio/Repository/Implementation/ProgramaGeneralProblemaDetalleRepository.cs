@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -159,7 +160,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
 
 
-        public ProgramaGeneralProblemaDetalle? ObtenerPorId(int idProgramaGeneralProblemaDetalle)
+        public ProgramaGeneralProblemaDetalle? ObtenerPorId(int id)
         {
             try
             {
@@ -180,11 +181,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         FechaCreacion,
                         FechaModificacion,
 	                    UsuarioCreacion,
-                        UsuarioModificacion
+                        UsuarioModificacion,
                         RowVersion
                     FROM pla.T_ProgramaGeneralProblemaDetalle
-                    WHERE Estado = 1 AND Id = @idProgramaGeneralProblemaDetalle";
-                var resultado = _dapperRepository.FirstOrDefault(query, new { idProgramaGeneralProblemaDetalle });
+                    WHERE Estado = 1 AND Id = @id";
+                var resultado = _dapperRepository.FirstOrDefault(query, new { id });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
                     return JsonConvert.DeserializeObject<ProgramaGeneralProblemaDetalle>(resultado)!;
@@ -231,5 +232,32 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+
+        public IEnumerable<ProblemaAgendaRow> ObtenerProblemasClienteAgendaV6(int idPGeneral , int idOportundad)
+        {
+            try
+            {
+                List<ProblemaAgendaRow> rpta = new List<ProblemaAgendaRow>();
+
+                var query = "pla.SP_TProgramaGeneralProblemaDetalle_ObtenerPorIdPGeneralYOportunidad";
+                var parametros = new
+                {
+                   IdPGeneral = idPGeneral,
+                   IdOportunidad = idOportundad
+                };
+
+                var resultado = _dapperRepository.QuerySPDapper(query, parametros);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ProblemaAgendaRow>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        
     }
 }
