@@ -66,4 +66,18 @@
         public string Nombre { get; set; }
        
     }
+
+    public class ProgramaArgumentoMotivacionSeleccionDTO
+    {
+        public int IdOportunidad { get; set; }
+        public int IdPGeneral { get; set; }
+        public List<SeleccionMotivacionDTO> SeleccionMotivacion { get; set; } = [];
+    }
+
+    public class SeleccionMotivacionDTO
+    {
+        public int IdMotivacion { get; set; }
+        public string descripcionMotivacion { get; set; }
+        public bool seleccionado { get; set; }
+    }
 }
