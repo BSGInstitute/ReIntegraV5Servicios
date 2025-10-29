@@ -8,8 +8,10 @@ using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
@@ -180,23 +182,34 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
                 foreach (var item in programaGArgumentos)
                 {
-                    var nombre = item.Nombre.ToLower().Trim();
+                    var nombre = item.Nombre
+                    .ToLower()
+                    .Trim()
+                    .Normalize(NormalizationForm.FormD);
+                    nombre = new string(nombre
+                     .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                     .ToArray());
+
+                    nombre = Regex.Replace(nombre, @"[^a-z]", "");
 
                     switch (nombre)
                     {
-                        case "estructura curricular":
+                        case "estructuracurricular":
                             estructuraCurricular.Add(ConstruirArgumento(item));
                             break;
-                        case "garantia de programa":
+                        case "partetecnica":
+                            estructuraCurricular.Add(ConstruirArgumento(item));
+                            break;
+                        case "garantiaconfiabilidad":
                             garantiaDePrograma.Add(ConstruirArgumento(item));
                             break;
-                        case "demostracion de valor":
+                        case "demostraciondevalor":
                             demostracionDeValor.Add(ConstruirArgumento(item));
                             break;
-                        case "aspectos diferenciadores":
+                        case "aspectosdiferenciadores":
                             aspectosDiferenciadores.Add(ConstruirArgumento(item));
                             break;
-                        case "argumentos de perdida potencial":
+                        case "argumentosdeperdidapotencial":
                             argumentosDePerdidaPotencial.Add(ConstruirArgumento(item));
                             break;
                     }
@@ -665,6 +678,26 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 _unitOfWork.ProgramaGeneralArgumentoRepository.Delete(id, usuario);
                 _unitOfWork.Commit();
                 return true;
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.Rollback();
+                throw ex;
+            }
+        }
+        public object InsertarArgumentoMotivacionSeleccion(ProgramaArgumentoMotivacionSeleccionDTO data) 
+        {
+            try
+            {
+                //obtener todos las oportunidades de la tabla pla.T_OportunidadProgramaMotivacionSeleccion con el estado  = 1
+                //recorrer la lista seleccionmotivacion,  y solo obtener los que estan con selecionado en = true
+                //insertar los que 
+
+                foreach (var argumento in data.SeleccionMotivacion)
+                {
+                    // Lógica para insertar cada argumento en GarantiaDePrograma
+                }
+                return new { };
             }
             catch (Exception ex)
             {
