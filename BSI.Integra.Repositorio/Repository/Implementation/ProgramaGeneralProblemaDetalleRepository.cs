@@ -160,7 +160,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
 
 
-        public ProgramaGeneralProblemaDetalle? ObtenerPorId(int idProgramaGeneralProblemaDetalle)
+        public ProgramaGeneralProblemaDetalle? ObtenerPorId(int id)
         {
             try
             {
@@ -181,11 +181,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         FechaCreacion,
                         FechaModificacion,
 	                    UsuarioCreacion,
-                        UsuarioModificacion
+                        UsuarioModificacion,
                         RowVersion
                     FROM pla.T_ProgramaGeneralProblemaDetalle
-                    WHERE Estado = 1 AND Id = @idProgramaGeneralProblemaDetalle";
-                var resultado = _dapperRepository.FirstOrDefault(query, new { idProgramaGeneralProblemaDetalle });
+                    WHERE Estado = 1 AND Id = @id";
+                var resultado = _dapperRepository.FirstOrDefault(query, new { id });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
                     return JsonConvert.DeserializeObject<ProgramaGeneralProblemaDetalle>(resultado)!;
