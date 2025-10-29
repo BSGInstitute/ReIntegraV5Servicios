@@ -909,6 +909,13 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
                         if (!historicoOk || !actualOk)
                             return false;
+
+                        // Solo considerar el campo PuntoCritico de puntosCriticosAsesor
+                        var puntosCriticosAsesor = _unitOfWork.LineamientoCalificacionRepository
+                            .ObtenerPuntoCriticoDiario(item.IdPersonal_Asignado, DateTime.Now.Date.AddDays(-1))
+                            .Select(x => x.PuntoCritico)
+                            .ToList();
+
                         var todasLasLlamadas = _unitOfWork.LineamientoCalificacionRepository
                                                         .ObtenerHistoricoLlamadaCompletoPorIdOportunidad(oportunidad.IdOportunidad);
 
@@ -1022,8 +1029,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             lineamientos = lineamientos, 
                             brochure,
                             faseOrigen = item.FaseOportunidad_Ant,
-
-                            faseDestino = item.FaseOportunidad
+                            faseDestino = item.FaseOportunidad,
+                            puntosCriticosAsesor=puntosCriticosAsesor
                         };
 
 
