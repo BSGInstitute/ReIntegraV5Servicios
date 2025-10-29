@@ -23,7 +23,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
 
         ProgramaGeneralProblemaDetalle? ObtenerPorId(int idProgramaGeneralProblemaDetalle);
         IEnumerable<ProblemaClienteByPGeneral> Obtener(int idPGeneral);
-        IEnumerable<ProblemaAgendaRow> ObtenerProblemasClienteAgendaV6(int idPGeneral);
+        IEnumerable<ProblemaAgendaRow> ObtenerProblemasClienteAgendaV6(int idPGeneral, int idOportundad);
 
     }
 }

@@ -307,9 +307,10 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         }
 
 
-        public IEnumerable<ProgramaGeneralProblemaDetalleObtenerAgenda> ObtenerProblemasClienteAgendaV6(int idPGeneral)
+        public IEnumerable<ProgramaGeneralProblemaDetalleObtenerAgenda> ObtenerProblemasClienteAgendaV6(int idPGeneral, int idOportunidad)
         {
-            IEnumerable<ProblemaAgendaRow> rows =_unitOfWork.ProgramaGeneralProblemaDetalleRepository.ObtenerProblemasClienteAgendaV6(idPGeneral);
+            IEnumerable<ProblemaAgendaRow> rows =
+                _unitOfWork.ProgramaGeneralProblemaDetalleRepository.ObtenerProblemasClienteAgendaV6(idPGeneral, idOportunidad);
 
             var resultado =
                 rows.GroupBy(r => new
@@ -332,6 +333,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     r.AplicaDescripcionSolucion,
                     r.AplicaTituloSolucion,
                     r.AplicaSubTituloSolucion
+                    // OJO: NO incluir EsSolucionado en la clave
                 })
                 .Select(g => new ProgramaGeneralProblemaDetalleObtenerAgenda
                 {
@@ -354,7 +356,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     AplicaTituloSolucion = g.Key.AplicaTituloSolucion,
                     AplicaSubTituloSolucion = g.Key.AplicaSubTituloSolucion,
 
-  
+                    // NUEVO: si cualquier fila del grupo está solucionada => true
+                    EsSolucionado = g.Any(x => Convert.ToBoolean(x.EsSolucionado)),
+
                     SubSoluciones = g
                         .GroupBy(x => new
                         {
@@ -374,16 +378,16 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                             SubSolucionNivel = x.Key.SubSolucionNivel
                         })
                         .OrderBy(x => x.SubSolucionOrden)
+                        .ThenBy(x => x.SubSolucionNivel)
                         .ToList()
                 })
-
                 .OrderBy(x => x.IdProgramaGeneralProblemaFactor)
                 .ThenBy(x => x.IdProgramaGeneralProblemaDetalle)
                 .ToList();
 
             return resultado;
-
         }
+
     }
 
 }

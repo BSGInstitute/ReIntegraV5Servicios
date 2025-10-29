@@ -14,7 +14,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         ProgramaGeneralProblemaDetalleDTO Actualizar(ProgramaGeneralProblemaDetalleDTO dto, string usuario);
         IEnumerable<ProgramaGeneralProblemaDetalleObtener> Obtener(int idPGeneral);
         bool Eliminar(int idPGeneralProblema, string usuario);
-        IEnumerable<ProgramaGeneralProblemaDetalleObtenerAgenda> ObtenerProblemasClienteAgendaV6(int idPGeneral);
+        IEnumerable<ProgramaGeneralProblemaDetalleObtenerAgenda> ObtenerProblemasClienteAgendaV6(int idPGeneral, int idOportunidad);
 
     }
 }

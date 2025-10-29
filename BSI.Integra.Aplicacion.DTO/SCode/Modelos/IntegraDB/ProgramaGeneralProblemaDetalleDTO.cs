@@ -97,6 +97,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public bool AplicaNombreDetalle { get; set; }
         public bool AplicaPieDePagina { get; set; }
         public int? IdProgramaGeneralProblemaFactorSolucion { get; set; }
+        public bool EsSolucionado { get; set; }
         public string? ProblemaClienteSolucionDescripcion { get; set; }
         public string? ProblemaClienteSolucionTitulo { get; set; }
         public string? ProblemaClienteSolucionSubTitulo { get; set; }

@@ -233,16 +233,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public IEnumerable<ProblemaAgendaRow> ObtenerProblemasClienteAgendaV6(int idPGeneral)
+        public IEnumerable<ProblemaAgendaRow> ObtenerProblemasClienteAgendaV6(int idPGeneral , int idOportundad)
         {
             try
             {
                 List<ProblemaAgendaRow> rpta = new List<ProblemaAgendaRow>();
 
-                var query = "pla.SP_TProgramaGeneralProblemaDetalle_ObtenerDetallePorIdPGeneral";
+                var query = "pla.SP_TProgramaGeneralProblemaDetalle_ObtenerPorIdPGeneralYOportunidad";
                 var parametros = new
                 {
-                   IdPGeneral = idPGeneral
+                   IdPGeneral = idPGeneral,
+                   IdOportunidad = idOportundad
                 };
 
                 var resultado = _dapperRepository.QuerySPDapper(query, parametros);

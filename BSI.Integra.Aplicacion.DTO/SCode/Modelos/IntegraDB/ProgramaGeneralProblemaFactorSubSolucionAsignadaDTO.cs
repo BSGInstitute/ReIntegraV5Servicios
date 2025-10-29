@@ -44,6 +44,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string? ProblemaClienteSolucionDescripcion { get; set; }
         public string? ProblemaClienteSolucionTitulo { get; set; }
         public string? ProblemaClienteSolucionSubTitulo { get; set; }
+        public bool EsSolucionado { get; set; }
         public bool AplicaDescripcionSolucion { get; set; }
         public bool AplicaTituloSolucion { get; set; }
         public bool AplicaSubTituloSolucion { get; set; }
