@@ -21,7 +21,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         bool Delete(IEnumerable<int> listadoIds, string usuario);
         #endregion
 
-        ProgramaGeneralProblemaDetalle? ObtenerPorId(int idProgramaGeneralProblemaDetalle);
+        ProgramaGeneralProblemaDetalle? ObtenerPorId(int id);
         IEnumerable<ProblemaClienteByPGeneral> Obtener(int idPGeneral);
         IEnumerable<ProblemaAgendaRow> ObtenerProblemasClienteAgendaV6(int idPGeneral, int idOportundad);
 
