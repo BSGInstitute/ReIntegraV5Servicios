@@ -218,7 +218,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 return new ArgumentoMotivacionProgramaGeneralDTO
                 {
                     GarantiaDePrograma = garantiaDePrograma,
-                    EstruturaCurricular = estructuraCurricular,
+                    EstructuraCurricular = estructuraCurricular,
                     DemostracionDeValor = demostracionDeValor,
                     AspectosDiferenciadores = aspectosDiferenciadores,
                     ArgumentosDePerdidaPotencial = argumentosDePerdidaPotencial,
