@@ -77,19 +77,19 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             }
         }
 
-        //[HttpPost("InsertarArgumentoMotivacionSeleccion")]
-        //public IActionResult InsertarArgumentoMotivacionSeleccion([FromBody] ProgramaArgumentoMotivacionSeleccionDTO dto)
-        //{
-        //    try
-        //    {
-        //        //var resultado = _programaGeneralArgumentoService.InsertarArgumentoMotivacionSeleccion(dto, _tokenManager.UserName);
-        //        //return Ok(resultado);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //}
+        [HttpPost("InsertarArgumentoMotivacionSeleccion")]
+        public IActionResult InsertarArgumentoMotivacionSeleccion([FromBody] ProgramaArgumentoMotivacionSeleccionDTO dto)
+        {
+            try
+            {
+                var resultado = _programaGeneralArgumentoService.InsertarArgumentoMotivacionSeleccion(dto, _tokenManager.UserName);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
         [HttpPost("Insertar")]
         public IActionResult Insertar([FromBody] ProgramaGeneralArgumentoDTO dto)

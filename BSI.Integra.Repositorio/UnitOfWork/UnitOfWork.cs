@@ -7985,5 +7985,21 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
 
         }
+        private IProgramaMotivacionRepository _programaMotivacionRepository;
+        IProgramaMotivacionRepository IUnitOfWork.ProgramaMotivacionRepository
+        {
+            get
+            {
+                return _programaMotivacionRepository ?? new ProgramaMotivacionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IOportunidadProgramaMotivacionSeleccionRepository _oportunidadProgramaMotivacionSeleccionRepository;
+        IOportunidadProgramaMotivacionSeleccionRepository IUnitOfWork.OportunidadProgramaMotivacionSeleccionRepository
+        {
+            get
+            {
+                return _oportunidadProgramaMotivacionSeleccionRepository ?? new OportunidadProgramaMotivacionSeleccionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
     }
 }
