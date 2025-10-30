@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.Base.Exceptions;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -132,6 +134,168 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             }
         }
 
+        public async Task<List<ProgramaGeneralArgumentoDTO>> ObtenerArgumentoMotivacion()
+        {
+            return await Task.Run(() =>
+            {
+                // Obtener todos los argumentos padre.
+                var argumentos = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerTodo();
+
+                foreach (var item in argumentos)
+                {
+                    // Obtener modalidades por cada argumento.
+                    var modalidades = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoModalidad(item.Id);
+                    item.Modalidades = modalidades.Select(m => new ProgramaGeneralArgumentoModalidadDTO
+                    {
+                        Id = m.Id,
+                        IdModalidad = m.IdModalidadCurso,
+                        Nombre = m.Nombre
+                    }).ToList();
+
+                    // Obtener detalles por cada argumento.
+                    var detalles = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalle(item.Id);
+                    var detallesDtoList = new List<ProgramaGeneralArgumentoDetalleDTO>();
+                    foreach (var ag in detalles)
+                    {
+                        // Obtener motivación por cada detalle.
+                        var motivacion = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacion(ag.Id);
+
+                        var detalleDto = new ProgramaGeneralArgumentoDetalleDTO
+                        {
+                            Id = ag.Id,
+                            Detalle = ag.Detalle,
+                            Motivacion = (motivacion != null)
+                                ? new PGArgumentoDetalleMotivacionDTO
+                                {
+                                    Id = motivacion.IdProgramaGeneralMotivacion,
+                                    Nombre = motivacion.NombreMotivacion
+                                }
+                                : null
+                        };
+                        detallesDtoList.Add(detalleDto);
+                    }
+                    item.ArgumentoDetalle = detallesDtoList.OrderBy(d => d.Id).ToList();
+                }
+
+                return argumentos.OrderBy(a => a.Id).ToList();
+            });
+        }
+
+        public async Task<List<ConfiguracionProblemaJerarquicaDTO>> ObtenerProblemaCliente()
+        {
+            // Tarea 1: Obtener las 4 listas de "piezas" en paralelo y convertirlas en Diccionarios O(1).
+            var combosTask = Task.Run(() => {
+
+                var factorRepo = _unitOfWork.ProgramaGeneralProblemaFactorRepository.Obtener().OrderBy(f => f.Id).ToList();
+                var detalleRepo = _unitOfWork.ProgramaGeneralProblemaFactorDetalleRepository.Obtener().OrderBy(d => d.Id).ToList();
+                var solucionRepo = _unitOfWork.ProgramaGeneralProblemaFactorSolucionRepository.Obtener().OrderBy(sc => sc.Id).ToList();
+                var subSolucionesRepo = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionRepository.Obtener().OrderBy(sst => sst.Id).ToList();
+
+                var factor = factorRepo.Select(f => new FactorDTO { Id = f.Id, Nombre = f.Nombre }).ToList();
+                var detalle = detalleRepo.Select(d => new FactorDetalleDTO { Id = d.Id, Nombre = d.Nombre, Titulo = d.Titulo }).ToList();
+                var solucion = solucionRepo.Select(s => new FactorSolucionDTO
+                {
+                    Id = s.Id,
+                    Descripcion = s.Descripcion,
+                    Titulo = s.Titulo,
+                    SubTitulo = s.SubTitulo
+                }).ToList();
+                var subSoluciones = subSolucionesRepo.Select(ss => new SubSolucionDTO
+                {
+                    Id = ss.Id,
+                    IdProgramaGeneralProblemaFactorSolucion = ss.IdProgramaGeneralProblemaFactorSolucion,
+                    Solucion = ss.Solucion,
+                    Orden = ss.Orden,
+                    Nivel = ss.Nivel
+                }).ToList();
+
+                // Devolver todos los 4 lookups necesarios para el ensamblaje final.
+                return new
+                {
+                    FactorLookup = factor.ToDictionary(f => f.Id),
+                    DetalleLookup = detalle.ToDictionary(d => d.Id),
+                    SolucionLookup = solucion.ToDictionary(s => s.Id),
+                    SubSolucionLookup = subSoluciones.ToDictionary(ss => ss.Id)
+                };
+            });
+
+            // Tarea 2: Obtener la "tabla de enlace" (configuracionDetalle) en paralelo.
+            var detalleConfigTask = Task.Run(() => {
+                var filas = _unitOfWork
+                    .ProgramaGeneralProblemaDetalleRepository
+                    .Obtener() ?? Enumerable.Empty<ProblemaClienteByPGeneral>();
+
+                // Reconstruir los objetos de enlace desde los resultados SQL denormalizados.
+                return filas.GroupBy(x => x.Id).Select(g => {
+                    var first = g.First();
+
+                    // Extraer la lista *específica* de IDs de SubSolucion para esta entrada (enlace M-M).
+                    var subsolucionIds = g
+                        .Where(r => r.IdProgramaGeneralProblemaFactorSubSolucion.HasValue)
+                        .Select(r => r.IdProgramaGeneralProblemaFactorSubSolucion!.Value)
+                        .Distinct()
+                        .ToList();
+
+                    return new ProgramaGeneralProblemaDetalleObtener2
+                    {
+                        Id = g.Key,
+                        IdPGeneral = first.IdPGeneral,
+                        IdProgramaGeneralProblemaFactor = first.IdProgramaGeneralProblemaFactor,
+                        IdProgramaGeneralProblemaFactorDetalle = first.IdProgramaGeneralProblemaFactorDetalle,
+                        IdProgramaGeneralProblemaFactorSolucion = first.IdProgramaGeneralProblemaFactorSolucion,
+                        SubSolucionIds = subsolucionIds,
+                        AplicaTituloDetalle = first.AplicaTituloDetalle,
+                        AplicaNombreDetalle = first.AplicaNombreDetalle,
+                        AplicaPieDePagina = first.AplicaPieDePagina,
+                        AplicaDescripcionSolucion = first.AplicaDescripcionSolucion,
+                        AplicaTituloSolucion = first.AplicaTituloSolucion,
+                        AplicaSubTituloSolucion = first.AplicaSubTituloSolucion
+                    };
+                }).ToList();
+            });
+
+            await Task.WhenAll(combosTask, detalleConfigTask);
+
+            var lookups = await combosTask;
+            var configuraciones = await detalleConfigTask;
+
+            // Paso 3: Ensamblaje final de la jerarquía (en memoria).
+            var resultadoFinal = new List<ConfiguracionProblemaJerarquicaDTO>();
+
+            // Iterar sobre la "tabla de enlace" para construir la jerarquía.
+            foreach (var config in configuraciones)
+            {
+                // Construir la lista *filtrada* de sub-soluciones usando los IDs de la tabla de enlace.
+                var subSolucionesAnidadas = new List<SubSolucionDTO>();
+                foreach (var subId in config.SubSolucionIds)
+                {
+                    // Usar el Diccionario (lookup) O(1) para encontrar el objeto completo.
+                    if (lookups.SubSolucionLookup.TryGetValue(subId, out var subSolucionObj))
+                    {
+                        subSolucionesAnidadas.Add(subSolucionObj);
+                    }
+                }
+
+                var dto = new ConfiguracionProblemaJerarquicaDTO
+                {
+                    Id = config.Id,
+                    IdPGeneral = config.IdPGeneral,
+                    Factor = lookups.FactorLookup.TryGetValue(config.IdProgramaGeneralProblemaFactor, out var factor) ? factor : null,
+                    Detalle = config.IdProgramaGeneralProblemaFactorDetalle.HasValue && lookups.DetalleLookup.TryGetValue(config.IdProgramaGeneralProblemaFactorDetalle.Value, out var detalle) ? detalle : null,
+                    Solucion = config.IdProgramaGeneralProblemaFactorSolucion.HasValue && lookups.SolucionLookup.TryGetValue(config.IdProgramaGeneralProblemaFactorSolucion.Value, out var solucion) ? solucion : null,
+                    SubSoluciones = subSolucionesAnidadas.OrderBy(s => s.Id).ToList(),
+                    AplicaTituloDetalle = config.AplicaTituloDetalle,
+                    AplicaNombreDetalle = config.AplicaNombreDetalle,
+                    AplicaPieDePagina = config.AplicaPieDePagina,
+                    AplicaDescripcionSolucion = config.AplicaDescripcionSolucion,
+                    AplicaTituloSolucion = config.AplicaTituloSolucion,
+                    AplicaSubTituloSolucion = config.AplicaSubTituloSolucion
+                };
+                resultadoFinal.Add(dto);
+            }
+
+            return resultadoFinal.OrderBy(r => r.Id).ToList();
+        }
         public ArgumentoMotivacionProgramaGeneralDTO ObtenerArgumentoMotivacionByIdPGeneral(int idPGeneral)
         {
             try

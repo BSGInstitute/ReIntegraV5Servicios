@@ -232,8 +232,41 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+        public IEnumerable<ProblemaClienteByPGeneral> ObtenerProblemaCliente()
+        {
+            try
+            {
+                List<ProblemaClienteByPGeneral> rpta = new List<ProblemaClienteByPGeneral>();
+                var query = @"
+                    SELECT AplicaDescripcionSolucion,
+                       AplicaNombreDetalle,
+                       AplicaPieDePagina,
+                       AplicaSubTituloSolucion,
+                       AplicaTituloDetalle,
+                       AplicaTituloSolucion,
+                       IdPGeneral,
+                       Id,
+                       IdProgramaGeneralProblemaFactorDetalle,
+                       IdProgramaGeneralProblemaFactor,
+                       IdProgramaGeneralProblemaFactorSolucion,
+                       IdProgramaGeneralProblemaFactorSubSolucion,
+                       IdProgramaGeneralProblemaFactorSubSolucionAsignada
+                    FROM pla.V_ObtenerConfiguracionProblemaFactoByPGeneral ORDER BY Id DESC";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ProblemaClienteByPGeneral>>(resultado);
 
-        public IEnumerable<ProblemaAgendaRow> ObtenerProblemasClienteAgendaV6(int idPGeneral , int idOportundad)
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<ProblemaAgendaRow> ObtenerProblemasClienteAgendaV6(int idPGeneral, int idOportundad)
         {
             try
             {
