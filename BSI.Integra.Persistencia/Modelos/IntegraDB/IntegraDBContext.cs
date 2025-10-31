@@ -20444,6 +20444,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.Estado).HasComment("Estado del registro");
 
+                entity.Property(e => e.Evento)
+                    .HasMaxLength(100)
+                    .HasComment("Nombre del evento de Facebook al registrar el leadgen");
+
                 entity.Property(e => e.FechaCreacion)
                     .HasColumnType("datetime")
                     .HasComment("Fecha creacion del registro");
@@ -20455,6 +20459,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.Property(e => e.IdFacebookFormularioLeadgen).HasComment("Es fk T_FacebookFormularioLeadgen");
 
                 entity.Property(e => e.JsonApiFacebook).HasComment("Datos JSON del formulario leadgen obtenidos de Facebook Graph API enviados desce CRM");
+
+                entity.Property(e => e.Pixel)
+                    .HasMaxLength(20)
+                    .HasComment("Pixel de Facebook asociado al evento del leadgen");
 
                 entity.Property(e => e.RespuestaApiFacebook).HasComment("Respuesta completa de la API de Facebook al enviar/registrar el leadgen");
 
