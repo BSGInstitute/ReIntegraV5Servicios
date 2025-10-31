@@ -54,6 +54,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
             TProgramaGeneralPerfilScoringModalidads = new HashSet<TProgramaGeneralPerfilScoringModalidad>();
             TProgramaGeneralPerfilTipoDatos = new HashSet<TProgramaGeneralPerfilTipoDato>();
             TProgramaGeneralPresentacionArgumentos = new HashSet<TProgramaGeneralPresentacionArgumento>();
+            TProgramaGeneralProblemaDetalles = new HashSet<TProgramaGeneralProblemaDetalle>();
             TProgramaGeneralPuntoCortes = new HashSet<TProgramaGeneralPuntoCorte>();
             TSuscripcionProgramaGenerals = new HashSet<TSuscripcionProgramaGeneral>();
         }
@@ -320,6 +321,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual ICollection<TProgramaGeneralPerfilScoringModalidad> TProgramaGeneralPerfilScoringModalidads { get; set; }
         public virtual ICollection<TProgramaGeneralPerfilTipoDato> TProgramaGeneralPerfilTipoDatos { get; set; }
         public virtual ICollection<TProgramaGeneralPresentacionArgumento> TProgramaGeneralPresentacionArgumentos { get; set; }
+        public virtual ICollection<TProgramaGeneralProblemaDetalle> TProgramaGeneralProblemaDetalles { get; set; }
         public virtual ICollection<TProgramaGeneralPuntoCorte> TProgramaGeneralPuntoCortes { get; set; }
         public virtual ICollection<TSuscripcionProgramaGeneral> TSuscripcionProgramaGenerals { get; set; }
     }

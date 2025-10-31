@@ -2217,6 +2217,16 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
 
         }
+
+        private ICampoFormularioOpcionRepository campoFormularioOpcionRepository;
+        ICampoFormularioOpcionRepository IUnitOfWork.CampoFormularioOpcionRepository
+        {
+            get
+            {
+                return campoFormularioOpcionRepository ?? new CampoFormularioOpcionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
         private ICajaPorRendirRepository cajaPorRendirRepository;
         ICajaPorRendirRepository IUnitOfWork.CajaPorRendirRepository
         {
@@ -7906,6 +7916,74 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             {
                 return _programaGeneralProblemaFactorSubSolucionRepository ?? new ProgramaGeneralProblemaFactorSubSolucionRepository(_context, _connectionFactory, _dapperRepository);
             }
+        }
+
+
+        private IProgramaGeneralArgumentoRepository _programaGeneralArgumentoRepository;
+
+        IProgramaGeneralArgumentoRepository IUnitOfWork.ProgramaGeneralArgumentoRepository
+        {
+            get
+            {
+                return _programaGeneralArgumentoRepository ?? new ProgramaGeneralArgumentoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IProgramaGeneralArgumentoDetalleRepository _programaGeneralArgumentoDetalleRepository;
+
+        IProgramaGeneralArgumentoDetalleRepository IUnitOfWork.ProgramaGeneralArgumentoDetalleRepository
+        {
+            get
+            {
+                return _programaGeneralArgumentoDetalleRepository ?? new ProgramaGeneralArgumentoDetalleRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IProgramaGeneralArgumentoModalidadRepository _programaGeneralArgumentoModalidadRepository;
+
+        IProgramaGeneralArgumentoModalidadRepository IUnitOfWork.ProgramaGeneralArgumentoModalidadRepository
+        {
+            get
+            {
+                return _programaGeneralArgumentoModalidadRepository ?? new ProgramaGeneralArgumentoModalidadRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IProgramaGeneralArgumentoDetalleMotivacionRepository _programaGeneralArgumentoDetalleMotivacionRepository;
+
+        IProgramaGeneralArgumentoDetalleMotivacionRepository IUnitOfWork.ProgramaGeneralArgumentoDetalleMotivacionRepository
+        {
+            get
+            {
+                return _programaGeneralArgumentoDetalleMotivacionRepository ?? new ProgramaGeneralArgumentoDetalleMotivacionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IProgramaGeneralProblemaDetalleRepository _programaGeneralProblemaDetalleRepository;
+
+        IProgramaGeneralProblemaDetalleRepository IUnitOfWork.ProgramaGeneralProblemaDetalleRepository
+        {
+            get
+            {
+                return _programaGeneralProblemaDetalleRepository ?? new ProgramaGeneralProblemaDetalleRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IProgramaGeneralProblemaFactorSubSolucionAsignadaRepository _programaGeneralProblemaFactorSubSolucionAsignadaRepository;
+
+        IProgramaGeneralProblemaFactorSubSolucionAsignadaRepository IUnitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository
+        {
+            get
+            {
+                return _programaGeneralProblemaFactorSubSolucionAsignadaRepository ?? new ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IProgramaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository _programaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository;
+        IProgramaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository IUnitOfWork.ProgramaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository
+        {
+            get
+            {
+                return _programaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository ?? new ProgramaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+
         }
     }
 }

@@ -16,5 +16,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         ProgramaGeneralProblemaFactorDTO Actualizar(ProgramaGeneralProblemaFactorDTO dto, string usuario);
         bool Eliminar(int id, string usuario);
 
+        ProgramaGeneralProblemaFactorCompletoDTO ObtenerCombos();
+
     }
 }

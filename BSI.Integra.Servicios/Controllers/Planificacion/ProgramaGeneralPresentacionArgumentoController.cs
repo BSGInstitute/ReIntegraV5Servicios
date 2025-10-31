@@ -97,5 +97,9 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             var respuesta = _programaGeneralPresentacionArgumentoService.Eliminar(id, _tokenManager.UserName);
             return Ok(respuesta);
         }
+
+       
+
+
     }
 }

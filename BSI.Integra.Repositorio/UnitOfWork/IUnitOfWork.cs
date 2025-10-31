@@ -271,6 +271,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         ICajaPorRendirCabeceraRepository CajaPorRendirCabeceraRepository { get; }
         IFurRepository FurRepository { get; }
         ICampoFormularioRepository CampoFormularioRepository { get; }
+        ICampoFormularioOpcionRepository CampoFormularioOpcionRepository { get; }
         IConjuntoAnuncioRepository ConjuntoAnuncioRepository { get; }
         IFuentesPortalWebRepository FuentesPortalWebRepository { get; }
         IEstilosCssRepository EstilosCssRepository { get; }
@@ -937,5 +938,13 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IProgramaGeneralProblemaFactorDetalleRepository ProgramaGeneralProblemaFactorDetalleRepository { get; }
         IProgramaGeneralProblemaFactorSolucionRepository ProgramaGeneralProblemaFactorSolucionRepository { get; }
         IProgramaGeneralProblemaFactorSubSolucionRepository ProgramaGeneralProblemaFactorSubSolucionRepository { get; }
+        IProgramaGeneralArgumentoRepository ProgramaGeneralArgumentoRepository { get; }
+        IProgramaGeneralArgumentoDetalleRepository ProgramaGeneralArgumentoDetalleRepository { get; }
+        IProgramaGeneralArgumentoModalidadRepository ProgramaGeneralArgumentoModalidadRepository { get; }
+        IProgramaGeneralArgumentoDetalleMotivacionRepository ProgramaGeneralArgumentoDetalleMotivacionRepository { get; }
+
+        IProgramaGeneralProblemaDetalleRepository ProgramaGeneralProblemaDetalleRepository { get; }
+        IProgramaGeneralProblemaFactorSubSolucionAsignadaRepository ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository { get; }
+        IProgramaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository ProgramaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository { get; }
     }
 }

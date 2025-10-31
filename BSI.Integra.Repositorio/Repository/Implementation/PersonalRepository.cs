@@ -1120,13 +1120,48 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 string query = @"SELECT Id, Nombres, Apellidos, Rol, TipoPersonal, Email, AreaAbrev,Anexo, IdJefe,
-                                Central, Anexo3Cx, Id3cx, Password3Cx, Dominio, UsuarioAsterisk, ContrasenaAsterisk, IdAsterisk 
+                                Central, Anexo3Cx, Id3cx, Password3Cx, Dominio, UsuarioAsterisk, ContrasenaAsterisk, IdAsterisk,
+                                [Top],Accessories,HairColor,FacialHair,FacialHairColor,Clothes,ClothesColor,Eyes,Eyesbrow,Mouth,Skin,IdSexo,IdAvatar
                                 FROM gp.V_TPersonal_DatosAgenda 
                                 WHERE Estado=1 AND Activo=1 AND Id=@IdPersonal";
                 var respuestaQuery = _dapperRepository.FirstOrDefault(query, new { IdPersonal = idPersonal });
                 if (respuestaQuery != "null")
                 {
-                    return JsonConvert.DeserializeObject<PersonalDatosAgendaDTO>(respuestaQuery);
+
+                    var avatar = JsonConvert.DeserializeObject<PersonalDatosAgendaDTO>(respuestaQuery);
+                    if (avatar.IdAvatar == null)
+                    {
+                        if (avatar.IdSexo == 2)
+                        {
+                            avatar.Top = "LongHairStraight";
+                            avatar.Accessories = "Blank";
+                            avatar.HairColor = "Brown";
+                            avatar.FacialHair = "Blank";
+                            avatar.FacialHairColor = "Brown";
+                            avatar.Clothes = "ShirtScoopNeck";
+                            avatar.ClothesColor = "Pink";
+                            avatar.Eyes = "Default";
+                            avatar.Eyesbrow = "Default";
+                            avatar.Mouth = "Default";
+                            avatar.Skin = "Light";
+                        }
+                        else
+                        {
+                            avatar.Top = "ShortHairTheCaesar";
+                            avatar.Accessories = "Blank";
+                            avatar.HairColor = "Auburn";
+                            avatar.FacialHair = "Blank";
+                            avatar.FacialHairColor = "Auburn";
+                            avatar.Clothes = "CollarSweater";
+                            avatar.ClothesColor = "Blue02";
+                            avatar.Eyes = "Default";
+                            avatar.Eyesbrow = "Default";
+                            avatar.Mouth = "Default";
+                            avatar.Skin = "Tanned";
+                        }
+                    }
+
+                    return avatar;
                 }
                 return null;
             }

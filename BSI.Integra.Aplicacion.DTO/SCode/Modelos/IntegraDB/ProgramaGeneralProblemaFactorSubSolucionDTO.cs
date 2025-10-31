@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
+namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 {
     public class ProgramaGeneralProblemaFactorSubSolucionDTO
     {

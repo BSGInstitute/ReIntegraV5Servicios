@@ -24,10 +24,10 @@ namespace BSI.Integra.Servicios.Controllers
     public class ProgramaGeneralProblemaFactorSubSolucionController : ControllerBase
     {
         private ITokenManager _tokenManager;
-        private IProgramaGeneralProblemaFactorSubSolucionService _programaGeneralProblemaFactorDetalleService;
+        private IProgramaGeneralProblemaFactorSubSolucionService _programaGeneralProblemaFactorSubSolucionService;
         public ProgramaGeneralProblemaFactorSubSolucionController(IUnitOfWork unitOfWork, ITokenManager tokenManager)
         {
-            _programaGeneralProblemaFactorDetalleService = new ProgramaGeneralProblemaFactorSubSolucionService(unitOfWork);
+            _programaGeneralProblemaFactorSubSolucionService = new ProgramaGeneralProblemaFactorSubSolucionService(unitOfWork);
             _tokenManager = tokenManager;
         }
         /// Tipo Función: POST
@@ -48,7 +48,7 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var respuesta = _programaGeneralProblemaFactorDetalleService.Insertar(dtos, _tokenManager.UserName);
+            var respuesta = _programaGeneralProblemaFactorSubSolucionService.Insertar(dtos, _tokenManager.UserName);
             return Ok(respuesta);
         }
         /// Tipo Función: PUT
@@ -70,7 +70,7 @@ namespace BSI.Integra.Servicios.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var rpta = _programaGeneralProblemaFactorDetalleService.Actualizar(dtos, _tokenManager.UserName);
+            var rpta = _programaGeneralProblemaFactorSubSolucionService.Actualizar(dtos, _tokenManager.UserName);
             return Ok(rpta); 
         }
         /// Tipo Función: DELETE
@@ -88,7 +88,7 @@ namespace BSI.Integra.Servicios.Controllers
         [HttpDelete("[action]/{idProgramaGeneralProblemaFactorSubSolucion}")]
         public IActionResult Eliminar(int idProgramaGeneralProblemaFactorSubSolucion)
         {
-            var ok = _programaGeneralProblemaFactorDetalleService.Eliminar(idProgramaGeneralProblemaFactorSubSolucion, _tokenManager.UserName);
+            var ok = _programaGeneralProblemaFactorSubSolucionService.Eliminar(idProgramaGeneralProblemaFactorSubSolucion, _tokenManager.UserName);
             return Ok(ok);
         }
 
@@ -103,7 +103,7 @@ namespace BSI.Integra.Servicios.Controllers
         [HttpGet("[action]")]
         public IActionResult Obtener()
         {
-            var resultado = _programaGeneralProblemaFactorDetalleService.Obtener();
+            var resultado = _programaGeneralProblemaFactorSubSolucionService.Obtener();
             return Ok(resultado);
         }
 
@@ -111,8 +111,11 @@ namespace BSI.Integra.Servicios.Controllers
         [HttpGet("[action]/{idProgramaGeneralProblemaFactorSolucion}")]
         public IActionResult ObtenerPorIdProgramaGeneralProblemaFactorSolucion(int idProgramaGeneralProblemaFactorSolucion)
         {
-            var resultado = _programaGeneralProblemaFactorDetalleService.ObtenerPorIdProgramaGeneralProblemaFactorSolucion(idProgramaGeneralProblemaFactorSolucion);
+            var resultado = _programaGeneralProblemaFactorSubSolucionService.ObtenerPorIdProgramaGeneralProblemaFactorSolucion(idProgramaGeneralProblemaFactorSolucion);
             return Ok(resultado);
         }
+
+
+
     }
 }

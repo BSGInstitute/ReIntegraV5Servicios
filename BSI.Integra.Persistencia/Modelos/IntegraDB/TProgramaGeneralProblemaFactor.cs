@@ -8,6 +8,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     /// </summary>
     public partial class TProgramaGeneralProblemaFactor
     {
+        public TProgramaGeneralProblemaFactor()
+        {
+            TProgramaGeneralProblemaDetalles = new HashSet<TProgramaGeneralProblemaDetalle>();
+        }
+
         /// <summary>
         /// Es primary key
         /// </summary>
@@ -40,5 +45,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Campo de sistema automatico que guarda la version del registro
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
+
+        public virtual ICollection<TProgramaGeneralProblemaDetalle> TProgramaGeneralProblemaDetalles { get; set; }
     }
 }

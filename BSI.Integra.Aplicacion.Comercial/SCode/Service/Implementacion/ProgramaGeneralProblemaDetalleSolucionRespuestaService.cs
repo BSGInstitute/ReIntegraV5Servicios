@@ -168,7 +168,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                         Estado = true,
                         UsuarioCreacion = usuario,
                         UsuarioModificacion = usuario,
-                        FechaCreacion = DateTime.Now,
+                        FechaCreacion = DateTime.Now,  
                         FechaModificacion = DateTime.Now,
                     };
                     _unitOfWork.ProgramaGeneralProblemaDetalleSolucionRespuestaRepository.Add(problemaRespuesta);

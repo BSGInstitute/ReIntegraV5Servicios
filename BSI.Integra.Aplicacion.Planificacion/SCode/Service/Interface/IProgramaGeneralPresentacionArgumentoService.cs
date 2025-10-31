@@ -15,5 +15,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
 
         List<ProgramaGeneralPresentacionArgumentoDetalleAgendaDTO> ObtenerProgramaGeneralPresentacionArgumentoParaAgendaPorIdOportunidad(int idOportunidad);
         IEnumerable<ProgramaGeneralPresentacionArgumentoAgendaDTO> ObtenerProgramaGeneralArgumentoParaAgendaPorIdOportunidad(int idOportunidad);
+        
     }
 }

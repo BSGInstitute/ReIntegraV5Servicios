@@ -34,5 +34,30 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         /// Obtiene el estado actual de las conversiones en la cola
         /// </summary>
         Task<List<ConversionEstadoDTO>> ObtenerEstadoConversiones();
+
+        /// <summary>
+        /// Obtiene una subcuenta de Google Ads por su Customer ID
+        /// </summary>
+        Task<GoogleAdsSubcuentaDTO?> ObtenerSubcuentaPorCustomerId(string customerId);
+
+        /// <summary>
+        /// Obtiene una subcuenta de Google Ads por su ID interno
+        /// </summary>
+        Task<GoogleAdsSubcuentaDTO?> ObtenerSubcuentaPorId(int id);
+
+        /// <summary>
+        /// Obtiene todas las subcuentas activas de Google Ads
+        /// </summary>
+        Task<List<GoogleAdsSubcuentaDTO>> ObtenerSubcuentasActivas();
+
+        /// <summary>
+        /// Obtiene leads de Google sin subcuenta asignada para enriquecimiento
+        /// </summary>
+        Task<List<GoogleFormularioLeadgenDTO>> ObtenerLeadsSinSubcuentaAsignada(int limite);
+
+        /// <summary>
+        /// Actualiza la subcuenta asignada a un lead después de consultar Google Ads API
+        /// </summary>
+        Task ActualizarSubcuentaLead(int id, int idSubcuentaGoogle);
     }
 }
