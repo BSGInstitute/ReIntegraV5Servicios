@@ -104,5 +104,14 @@ namespace BSI.Integra.Servicios.Controllers
             var resultado = _programaGeneralProblemaFactorService.Obtener();
             return Ok(resultado);
         }
+
+        [HttpGet("[action]")]
+        public IActionResult ObtenerCombo()
+        {
+            var resultado = _programaGeneralProblemaFactorService.ObtenerCombos();
+            return Ok(resultado);
+        }
+
+
     }
 }

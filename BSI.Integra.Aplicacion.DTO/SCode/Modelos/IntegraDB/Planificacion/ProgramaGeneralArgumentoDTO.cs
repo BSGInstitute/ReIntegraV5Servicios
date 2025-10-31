@@ -22,7 +22,6 @@
     {
         public int Id { get; set; }
         public string Detalle { get; set; }
-        public string? InstruccionPieDetalle { get; set; }
         public PGArgumentoDetalleMotivacionDTO Motivacion { get; set; }
     }
     public class ProgramaGeneralArgumentoDetalleModelDTO
@@ -31,7 +30,7 @@
         public int IdProgramaGeneralArgumento { get; set; }
 
         public string Detalle { get; set; }
-        public string? InstruccionPieDetalle { get; set; }
+   
     }
 
     public class PGArgumentoDetalleMotivacionDTO
@@ -46,46 +45,39 @@
         public int IdProgramaGeneralMotivacion { get; set; }
         public string NombreMotivacion { get; set; }
     }
-    //public class ProgramaGeneralArgumentoDTO
-    //{
-    //    public int Id { get; set; }
-    //    public int IdPgeneral { get; set; }
-    //    public string Nombre { get; set; }
-    //    public string Descripcion { get; set; }
-    //    public bool EsVisibleAgenda { get; set; }
-    //    public bool Estado { get; set; }
-    //}
-    //public class ProgramaGeneralArgumentoModalidadDTO
-    //{
-    //    public int Id { get; set; }
-    //    public int IdProgramaGeneralArgumento { get; set; }
-    //    public int IdModalidadCurso { get; set; }
-    //    public string Nombre { get; set; }
-    //    public bool Estado { get; set; }
-    //}
-    //public class ProgramaGeneralArgumentoDetalleDTO
-    //{
-    //    public int Id { get; set; }
-    //    public int IdProgramaGeneralArgumento { get; set; }
-    //    public string Detalle { get; set; }
-    //    public string InstrucionPieDetalle { get; set; }
-    //    public bool Estado { get; set; }
-    //}
-    //public class ProgramaGeneralArgumentoDetalleMotivacionDTO
-    //{
-    //    public int Id { get; set; }
-    //    public int IdProgramaGeneralArgumentoDetalle { get; set; }
-    //    public int IdProgramaGeneralMotivacion { get; set; }
-    //    public string NombreMotivacion { get; set; }
-    //    public bool Estado { get; set; }
-    //}
-
-
+    public class ArgumentoMotivacionProgramaGeneralDTO
+    {
+        public List<ArgumentoMotivacionEstructuraDTO> GarantiaDePrograma { get; set; }
+        public List<ArgumentoMotivacionEstructuraDTO> EstruturaCurricular { get; set; }
+        public List<ArgumentoMotivacionEstructuraDTO> DemostracionDeValor { get; set; }
+        public List<ArgumentoMotivacionEstructuraDTO> AspectosDiferenciadores { get; set; }
+        public List<ArgumentoMotivacionEstructuraDTO> ArgumentosDePerdidaPotencial { get; set; }
+    }
+    public class ArgumentoMotivacionEstructuraDTO
+    {
+        public ProgramaGeneralArgumentoDTO Argumento { get; set; }
+        public List<ProgramaGeneralArgumentoDetalleDTO> ArgumentoDetalle { get; set; }
+        public List<ProgramaGeneralArgumentoModalidadDTO> Modalidades { get; set; }
+    }
     public class ProgramaGeneralArgumentoMotivacionDTO
     {
         public int Id { get; set; }
         public int IdPGeneral { get; set; }
         public string Nombre { get; set; }
        
+    }
+
+    public class ProgramaArgumentoMotivacionSeleccionDTO
+    {
+        public int IdOportunidad { get; set; }
+        public int IdPGeneral { get; set; }
+        public List<SeleccionMotivacionDTO> SeleccionMotivacion { get; set; } = [];
+    }
+
+    public class SeleccionMotivacionDTO
+    {
+        public int IdMotivacion { get; set; }
+        public string descripcionMotivacion { get; set; }
+        public bool seleccionado { get; set; }
     }
 }

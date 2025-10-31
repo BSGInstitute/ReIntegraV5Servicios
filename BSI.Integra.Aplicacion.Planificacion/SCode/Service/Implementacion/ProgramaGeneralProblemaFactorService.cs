@@ -27,7 +27,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 cfg.CreateMap<TProgramaGeneralProblemaFactor, ProgramaGeneralProblemaFactor>(MemberList.None).ReverseMap();
                 cfg.CreateMap<TProgramaGeneralProblemaFactor, ProgramaGeneralProblemaFactorDTO>(MemberList.None).ReverseMap();
                 cfg.CreateMap<ProgramaGeneralProblemaFactor, ProgramaGeneralProblemaFactorDTO>(MemberList.None).ReverseMap();
-                cfg.CreateMap<TPartnerBeneficioPw, PartnerBeneficioPw>(MemberList.None).ReverseMap();
+            
 
             });
             _mapper = new Mapper(config);
@@ -185,6 +185,40 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             {
                 throw;
             }
+        }
+
+
+        /// Autor: Marco Jose Villanueva Torres
+        /// Fecha: 23/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene los registro Problema Factor
+        /// </summary>
+        /// <returns> Lista ProgramaGeneralProblemaFactorDTO </returns>
+        public ProgramaGeneralProblemaFactorCompletoDTO ObtenerCombos()
+        {
+            try
+            {
+                var ProblemaFactor = _unitOfWork.ProgramaGeneralProblemaFactorRepository.Obtener();
+                var ProblemaFactorDetalle = _unitOfWork.ProgramaGeneralProblemaFactorDetalleRepository.Obtener();
+                var ProblemaFactorSolucion = _unitOfWork.ProgramaGeneralProblemaFactorSolucionRepository.Obtener();
+
+
+                ProgramaGeneralProblemaFactorCompletoDTO resultado = new ProgramaGeneralProblemaFactorCompletoDTO() 
+                {
+                    ProblemaFactor = ProblemaFactor,
+                    ProblemaFactorDetalle = ProblemaFactorDetalle,
+                    ProblemaFactorSolucion = ProblemaFactorSolucion
+                };
+                
+
+                return resultado;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+           
         }
 
     }

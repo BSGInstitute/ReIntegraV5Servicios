@@ -50,12 +50,12 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             }
         }
 
-        [HttpGet("[Action]")]
-        public IActionResult ObtenerProgramaGeneralArgumentoTodo()
+        [HttpGet("[action]/{idPGeneral}")]
+        public IActionResult ObtenerProgramaGeneralArgumentoTodo(int idPGeneral)
         {
             try
             {
-                var result = _programaGeneralArgumentoService.ObtenerInformacionProgramaGeneralArgumentoTodo();
+                var result = _programaGeneralArgumentoService.ObtenerInformacionProgramaGeneralArgumentoTodo(idPGeneral);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -63,6 +63,33 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("[action]/{idPGeneral}")]
+        public IActionResult ObtenerProgramaGeneralArgumentoMotivacionByIdPGeneral(int idPGeneral)
+        {
+            try
+            {
+                var result = _programaGeneralArgumentoService.ObtenerArgumentoMotivacionByIdPGeneral(idPGeneral);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        //[HttpPost("InsertarArgumentoMotivacionSeleccion")]
+        //public IActionResult InsertarArgumentoMotivacionSeleccion([FromBody] ProgramaArgumentoMotivacionSeleccionDTO dto)
+        //{
+        //    try
+        //    {
+        //        //var resultado = _programaGeneralArgumentoService.InsertarArgumentoMotivacionSeleccion(dto, _tokenManager.UserName);
+        //        //return Ok(resultado);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
 
         [HttpPost("Insertar")]
         public IActionResult Insertar([FromBody] ProgramaGeneralArgumentoDTO dto)

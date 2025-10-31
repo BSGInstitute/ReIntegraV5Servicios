@@ -7956,5 +7956,34 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _programaGeneralArgumentoDetalleMotivacionRepository ?? new ProgramaGeneralArgumentoDetalleMotivacionRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+        private IProgramaGeneralProblemaDetalleRepository _programaGeneralProblemaDetalleRepository;
+
+        IProgramaGeneralProblemaDetalleRepository IUnitOfWork.ProgramaGeneralProblemaDetalleRepository
+        {
+            get
+            {
+                return _programaGeneralProblemaDetalleRepository ?? new ProgramaGeneralProblemaDetalleRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IProgramaGeneralProblemaFactorSubSolucionAsignadaRepository _programaGeneralProblemaFactorSubSolucionAsignadaRepository;
+
+        IProgramaGeneralProblemaFactorSubSolucionAsignadaRepository IUnitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository
+        {
+            get
+            {
+                return _programaGeneralProblemaFactorSubSolucionAsignadaRepository ?? new ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IProgramaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository _programaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository;
+        IProgramaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository IUnitOfWork.ProgramaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository
+        {
+            get
+            {
+                return _programaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository ?? new ProgramaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+
+        }
     }
 }
