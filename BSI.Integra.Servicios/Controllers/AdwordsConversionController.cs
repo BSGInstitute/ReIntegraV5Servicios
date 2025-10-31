@@ -76,5 +76,45 @@ namespace BSI.Integra.Servicios.Controllers
                 });
             }
         }
+
+        /// <summary>
+        /// Consulta la API de Google Ads para obtener la subcuenta de una campaña
+        /// </summary>
+        /// <param name="campaignId">ID de la campaña de Google Ads</param>
+        /// <returns>Información de la subcuenta o null si no se encuentra</returns>
+        /// <response code="200">Subcuenta obtenida exitosamente</response>
+        /// <response code="404">Subcuenta no encontrada</response>
+        /// <response code="500">Error interno del servidor</response>
+        [Route("[action]/{campaignId}")]
+        [HttpGet]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> ObtenerSubcuentaAPI(string campaignId)
+        {
+            try
+            {
+                var subcuenta = await _service.ObtenerSubcuentaAPI(campaignId);
+
+                if (subcuenta == null)
+                {
+                    return NotFound(new
+                    {
+                        mensaje = $"No se encontró subcuenta para la campaña {campaignId}"
+                    });
+                }
+
+                return Ok(subcuenta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    mensaje = "Error al consultar subcuenta",
+                    error = ex.Message,
+                    detalles = ex.InnerException?.Message
+                });
+            }
+        }
     }
 }
