@@ -34,6 +34,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
             TPgeneralVersionProgramas = new HashSet<TPgeneralVersionPrograma>();
             TPreguntaProgramaCapacitacions = new HashSet<TPreguntaProgramaCapacitacion>();
             TProgramaAreaRelacionada = new HashSet<TProgramaAreaRelacionadum>();
+            TProgramaGeneralArgumentos = new HashSet<TProgramaGeneralArgumento>();
             TProgramaGeneralMaterialEstudioAdicionals = new HashSet<TProgramaGeneralMaterialEstudioAdicional>();
             TProgramaGeneralPerfilAformacionCoeficientes = new HashSet<TProgramaGeneralPerfilAformacionCoeficiente>();
             TProgramaGeneralPerfilAtrabajoCoeficientes = new HashSet<TProgramaGeneralPerfilAtrabajoCoeficiente>();
@@ -53,6 +54,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
             TProgramaGeneralPerfilScoringModalidads = new HashSet<TProgramaGeneralPerfilScoringModalidad>();
             TProgramaGeneralPerfilTipoDatos = new HashSet<TProgramaGeneralPerfilTipoDato>();
             TProgramaGeneralPresentacionArgumentos = new HashSet<TProgramaGeneralPresentacionArgumento>();
+            TProgramaGeneralProblemaDetalles = new HashSet<TProgramaGeneralProblemaDetalle>();
             TProgramaGeneralPuntoCortes = new HashSet<TProgramaGeneralPuntoCorte>();
             TSuscripcionProgramaGenerals = new HashSet<TSuscripcionProgramaGeneral>();
         }
@@ -299,6 +301,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual ICollection<TPgeneralVersionPrograma> TPgeneralVersionProgramas { get; set; }
         public virtual ICollection<TPreguntaProgramaCapacitacion> TPreguntaProgramaCapacitacions { get; set; }
         public virtual ICollection<TProgramaAreaRelacionadum> TProgramaAreaRelacionada { get; set; }
+        public virtual ICollection<TProgramaGeneralArgumento> TProgramaGeneralArgumentos { get; set; }
         public virtual ICollection<TProgramaGeneralMaterialEstudioAdicional> TProgramaGeneralMaterialEstudioAdicionals { get; set; }
         public virtual ICollection<TProgramaGeneralPerfilAformacionCoeficiente> TProgramaGeneralPerfilAformacionCoeficientes { get; set; }
         public virtual ICollection<TProgramaGeneralPerfilAtrabajoCoeficiente> TProgramaGeneralPerfilAtrabajoCoeficientes { get; set; }
@@ -318,6 +321,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual ICollection<TProgramaGeneralPerfilScoringModalidad> TProgramaGeneralPerfilScoringModalidads { get; set; }
         public virtual ICollection<TProgramaGeneralPerfilTipoDato> TProgramaGeneralPerfilTipoDatos { get; set; }
         public virtual ICollection<TProgramaGeneralPresentacionArgumento> TProgramaGeneralPresentacionArgumentos { get; set; }
+        public virtual ICollection<TProgramaGeneralProblemaDetalle> TProgramaGeneralProblemaDetalles { get; set; }
         public virtual ICollection<TProgramaGeneralPuntoCorte> TProgramaGeneralPuntoCortes { get; set; }
         public virtual ICollection<TSuscripcionProgramaGeneral> TSuscripcionProgramaGenerals { get; set; }
     }

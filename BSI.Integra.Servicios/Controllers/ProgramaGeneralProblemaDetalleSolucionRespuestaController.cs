@@ -31,7 +31,7 @@ namespace BSI.Integra.Servicios.Controllers
         /// Fecha: 13/08/2022
         /// Versión: 1.0
         /// <summary>
-        /// Realiza una insercion basica a la tabla
+        /// Realiza una insercion basica a la tabla 
         /// </summary>
         /// <param name="entidad">Entidad a insertar</param>
         /// <returns>Retorna 200 y objeto ingresado o 400 y mensaje de error </returns>
