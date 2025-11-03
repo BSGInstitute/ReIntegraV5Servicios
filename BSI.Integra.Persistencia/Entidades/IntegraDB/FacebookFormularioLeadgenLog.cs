@@ -13,7 +13,7 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
         public string JsonApiFacebook { get; set; } = null!;
         public string RespuestaApiFacebook { get; set; } = null!;
         public bool EsError { get; set; }
-        public bool Evento { get; set; }
-        public bool Pixel { get; set; }
+        public string Evento { get; set; }
+        public string Pixel { get; set; }
     }
 }
