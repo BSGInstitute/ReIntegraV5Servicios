@@ -139,7 +139,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             return await Task.Run(() =>
             {
                 // Obtener todos los argumentos padre.
-                var argumentos = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerTodo();
+                var argumentos = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerTodoProgramaGeneral();
 
                 foreach (var item in argumentos)
                 {
@@ -223,7 +223,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             var detalleConfigTask = Task.Run(() => {
                 var filas = _unitOfWork
                     .ProgramaGeneralProblemaDetalleRepository
-                    .Obtener() ?? Enumerable.Empty<ProblemaClienteByPGeneral>();
+                    .ObtenerProblemaCliente() ?? Enumerable.Empty<ProblemaClienteByPGeneral>();
 
                 // Reconstruir los objetos de enlace desde los resultados SQL denormalizados.
                 return filas.GroupBy(x => x.Id).Select(g => {
