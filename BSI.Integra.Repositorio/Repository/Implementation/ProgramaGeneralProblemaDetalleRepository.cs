@@ -232,11 +232,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
-        public IEnumerable<ProblemaClienteByPGeneral> ObtenerProblemaCliente()
+        public IEnumerable<ProblemaClienteByPGeneral> ObtenerProblemaCliente(int idPGeneral)
         {
             try
             {
-                List<ProblemaClienteByPGeneral> rpta = new List<ProblemaClienteByPGeneral>();
+                List<ProblemaClienteByPGeneral> rpta = new List<ProblemaClienteByPGeneral>(idPGeneral);
                 var query = @"
                     SELECT AplicaDescripcionSolucion,
                        AplicaNombreDetalle,
@@ -251,8 +251,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                        IdProgramaGeneralProblemaFactorSolucion,
                        IdProgramaGeneralProblemaFactorSubSolucion,
                        IdProgramaGeneralProblemaFactorSubSolucionAsignada
-                    FROM pla.V_ObtenerConfiguracionProblemaFactoByPGeneral ORDER BY Id DESC";
-                var resultado = _dapperRepository.QueryDapper(query, null);
+                    FROM pla.V_ObtenerConfiguracionProblemaFactoByPGeneral where IdPGeneral=@idPGeneral ORDER BY Id DESC";
+                var resultado = _dapperRepository.QueryDapper(query, new { idPGeneral });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
                     rpta = JsonConvert.DeserializeObject<List<ProblemaClienteByPGeneral>>(resultado);
@@ -263,6 +263,39 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+        public async Task<IEnumerable<ProblemaClienteByPGeneral>> ObtenerProblemaClienteAsync(int idPGeneral)
+        {
+            try
+            {
+                var query = @"
+                SELECT AplicaDescripcionSolucion,
+                       AplicaNombreDetalle,
+                       AplicaPieDePagina,
+                       AplicaSubTituloSolucion,
+                       AplicaTituloDetalle,
+                       AplicaTituloSolucion,
+                       IdPGeneral,
+                       Id,
+                       IdProgramaGeneralProblemaFactorDetalle,
+                       IdProgramaGeneralProblemaFactor,
+                       IdProgramaGeneralProblemaFactorSolucion,
+                       IdProgramaGeneralProblemaFactorSubSolucion,
+                       IdProgramaGeneralProblemaFactorSubSolucionAsignada
+                FROM pla.V_ObtenerConfiguracionProblemaFactoByPGeneral
+                WHERE IdPGeneral = @idPGeneral
+                ORDER BY Id DESC";
+                var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<IEnumerable<ProblemaClienteByPGeneral>>(resultado)!;
+                }
+                return new List<ProblemaClienteByPGeneral>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerProblemaClienteAsync(), {ex.Message}");
             }
         }
 

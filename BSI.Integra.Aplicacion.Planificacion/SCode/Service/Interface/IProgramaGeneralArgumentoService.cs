@@ -1,5 +1,6 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
+using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,8 +23,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         IEnumerable<ProgramaGeneralArgumentoMotivacionDTO> ObtenerMotivaciones(int IdPGeneral);
         bool Eliminar(int id, string usuario);
         bool InsertarArgumentoMotivacionSeleccion(ProgramaArgumentoMotivacionSeleccionDTO data, string usuario);
-        //object InsertarArgumentoMotivacionSeleccion(ProgramaArgumentoMotivacionSeleccionDTO data);
-        Task<List<ProgramaGeneralArgumentoDTO>> ObtenerArgumentoMotivacion();
-        Task<List<ConfiguracionProblemaJerarquicaDTO>> ObtenerProblemaCliente();
+
+        ///object InsertarArgumentoMotivacionSeleccion(ProgramaArgumentoMotivacionSeleccionDTO data);
+        Task<List<ProgramaGeneralArgumentoDTO>> ObtenerArgumentoMotivacion(int idPGeneral);
+        Task<List<ConfiguracionProblemaJerarquicaDTO>> ObtenerProblemaCliente(int idPGeneral);
     }
 }
