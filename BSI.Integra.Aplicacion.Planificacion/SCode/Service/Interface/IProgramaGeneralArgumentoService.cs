@@ -21,6 +21,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
 
         IEnumerable<ProgramaGeneralArgumentoMotivacionDTO> ObtenerMotivaciones(int IdPGeneral);
         bool Eliminar(int id, string usuario);
+        bool InsertarArgumentoMotivacionSeleccion(ProgramaArgumentoMotivacionSeleccionDTO data, string usuario);
         object InsertarArgumentoMotivacionSeleccion(ProgramaArgumentoMotivacionSeleccionDTO data);
         Task<List<ProgramaGeneralArgumentoDTO>> ObtenerArgumentoMotivacion();
         Task<List<ConfiguracionProblemaJerarquicaDTO>> ObtenerProblemaCliente();

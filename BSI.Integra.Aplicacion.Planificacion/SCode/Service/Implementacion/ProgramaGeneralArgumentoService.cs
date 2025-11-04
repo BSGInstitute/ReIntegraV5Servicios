@@ -381,7 +381,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 return new ArgumentoMotivacionProgramaGeneralDTO
                 {
                     GarantiaDePrograma = garantiaDePrograma,
-                    EstruturaCurricular = estructuraCurricular,
+                    EstructuraCurricular = estructuraCurricular,
                     DemostracionDeValor = demostracionDeValor,
                     AspectosDiferenciadores = aspectosDiferenciadores,
                     ArgumentosDePerdidaPotencial = argumentosDePerdidaPotencial,
@@ -849,19 +849,83 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw ex;
             }
         }
-        public object InsertarArgumentoMotivacionSeleccion(ProgramaArgumentoMotivacionSeleccionDTO data) 
+        public bool InsertarArgumentoMotivacionSeleccion(ProgramaArgumentoMotivacionSeleccionDTO data,string usuario) 
         {
             try
             {
-                //obtener todos las oportunidades de la tabla pla.T_OportunidadProgramaMotivacionSeleccion con el estado  = 1
-                //recorrer la lista seleccionmotivacion,  y solo obtener los que estan con selecionado en = true
-                //insertar los que 
+                var motivacionesSelectFiltro = data.SeleccionMotivacion
+                 .Where(x => x.seleccionado)
+                 .ToList();
+                var result = _unitOfWork.OportunidadProgramaMotivacionSeleccionRepository
+                    .ObtenerTodoByIdOportunidad(data.IdOportunidad);
 
-                foreach (var argumento in data.SeleccionMotivacion)
+                if (!motivacionesSelectFiltro.Any())
                 {
-                    // Lógica para insertar cada argumento en GarantiaDePrograma
+                    if (result != null && result.Any())
+                    {
+                        foreach (var item in result)
+                        {
+                            _unitOfWork.OportunidadProgramaMotivacionSeleccionRepository.Delete(item.Id, usuario);
+                        }
+                        _unitOfWork.Commit();
+                    }
+
+                    return true;
                 }
-                return new { };
+
+                if (motivacionesSelectFiltro.Count > 2)
+                    throw new Exception("Solo puede seleccionar 2 motivaciones");
+                var listaMotivaciones = _unitOfWork.ProgramaMotivacionRepository.ObtenerTodo();
+                List<OportunidadProgramaMotivacionSeleccion> motivacionesSeleccionadas = new List<OportunidadProgramaMotivacionSeleccion>();
+                foreach (var motivacion in motivacionesSelectFiltro)
+                {
+                    var entidad = _unitOfWork.ProgramaGeneralMotivacionRepository.ObtenerPorId(motivacion.IdMotivacion);
+                    var nombre = entidad.Nombre
+                    .ToLower()
+                    .Trim()
+                    .Normalize(NormalizationForm.FormD);
+                    nombre = new string(nombre
+                     .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                     .ToArray());
+
+                    nombre = Regex.Replace(nombre, @"[^a-z]", "");
+                    var motivacionCoincidente = listaMotivaciones.FirstOrDefault(m =>
+                    {
+                        var nombreLista = m.Descripcion
+                            .ToLower()
+                            .Trim()
+                            .Normalize(NormalizationForm.FormD);
+                        nombreLista = new string(nombreLista
+                            .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                            .ToArray());
+                        nombreLista = Regex.Replace(nombreLista, @"[^a-z]", "");
+                        return nombreLista == nombre;
+                    });
+                    if (motivacionCoincidente != null)
+                    {
+                        OportunidadProgramaMotivacionSeleccion opo = new()
+                        {
+                            IdOportunidad = data.IdOportunidad,
+                            IdProgramaMotivacion = motivacionCoincidente.Id,
+                            Estado = true,
+                            FechaModificacion = DateTime.Now,
+                            UsuarioModificacion = usuario
+                        };
+                        motivacionesSeleccionadas.Add(opo);
+                    }
+                }
+
+                if (result == null || !result.Any())
+                {
+                    foreach (var m in motivacionesSeleccionadas)
+                    {
+                        m.FechaCreacion = DateTime.Now;
+                        m.UsuarioCreacion = usuario;
+                        _unitOfWork.OportunidadProgramaMotivacionSeleccionRepository.Add(m);
+                    }
+                    _unitOfWork.Commit();
+                }
+                return true;
             }
             catch (Exception ex)
             {
