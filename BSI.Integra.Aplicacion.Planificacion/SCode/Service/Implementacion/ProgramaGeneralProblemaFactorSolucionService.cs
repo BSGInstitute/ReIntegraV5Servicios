@@ -177,7 +177,14 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 if (entidad != null && entidad.Id != 0)
                 {
                     var respuesta = _unitOfWork.ProgramaGeneralProblemaFactorSolucionRepository.Delete(id, usuario);
-
+                    var solucionesHijos = _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionRepository.ObtenerPorIdProgramaGeneralProblemaFactorSolucion(entidad.Id);
+                    if (solucionesHijos.Count() > 0)
+                    {
+                        foreach (var item in solucionesHijos)
+                        {
+                            _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionRepository.Delete(item.Id, usuario);
+                        }
+                    }
                     _unitOfWork.Commit();
                     return respuesta;
                 }

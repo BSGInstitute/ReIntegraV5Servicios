@@ -48,7 +48,7 @@
     public class ArgumentoMotivacionProgramaGeneralDTO
     {
         public List<ArgumentoMotivacionEstructuraDTO> GarantiaDePrograma { get; set; }
-        public List<ArgumentoMotivacionEstructuraDTO> EstruturaCurricular { get; set; }
+        public List<ArgumentoMotivacionEstructuraDTO> EstructuraCurricular { get; set; }
         public List<ArgumentoMotivacionEstructuraDTO> DemostracionDeValor { get; set; }
         public List<ArgumentoMotivacionEstructuraDTO> AspectosDiferenciadores { get; set; }
         public List<ArgumentoMotivacionEstructuraDTO> ArgumentosDePerdidaPotencial { get; set; }

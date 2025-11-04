@@ -78,10 +78,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             var conversiones = new List<ConversionQueueDTO>();
 
-            // Primero obtener credenciales para los ConversionActionIds
-            var credenciales = await ObtenerCredenciales();
-            if (credenciales == null) return conversiones;
-
             using (var conn = (SqlConnection)_connectionFactory.GetConnection)
             {
                 if (conn.State != System.Data.ConnectionState.Open)
@@ -98,23 +94,25 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         c.FechaHoraConversion,
                         c.FechaHoraConversionFormatoGoogle,
                         c.ValorConversion,
+                        c.IdSubcuentaGoogle,
+                        s.CustomerId,
+                        s.NombreSubcuenta,
                         CASE c.TipoConversion
-                            WHEN 'Conversion IT' THEN @ActionIdIT
-                            WHEN 'Conversion IP, PF' THEN @ActionIdIPPF
-                            WHEN 'Conversion IC, IS y M' THEN @ActionIdICISM
+                            WHEN 'Conversion IT' THEN s.ConversionActionIdIT
+                            WHEN 'Conversion IP, PF' THEN s.ConversionActionIdIPPF
+                            WHEN 'Conversion IC, IS y M' THEN s.ConversionActionIdICISM
                         END AS ConversionActionId
                     FROM mkt.T_GoogleAdsConversionQueue c
+                    LEFT JOIN mkt.T_GoogleAdsSubcuenta s ON c.IdSubcuentaGoogle = s.Id AND s.Estado = 1 AND s.Activo = 1
                     WHERE c.EstadoEnvio = 'Pendiente'
                         AND c.EsValidoParaEnvio = 1
                         AND c.IntentosEnvio < 3
                         AND c.Estado = 1
+                        AND c.FechaHoraConversion >= DATEADD(DAY, -90, GETDATE())
                     ORDER BY c.FechaCreacion ASC
                 ", conn);
 
                 cmd.Parameters.AddWithValue("@Limite", limite);
-                cmd.Parameters.AddWithValue("@ActionIdIT", credenciales.ConversionActionIdIT ?? (object)DBNull.Value);
-                cmd.Parameters.AddWithValue("@ActionIdIPPF", credenciales.ConversionActionIdIPPF ?? (object)DBNull.Value);
-                cmd.Parameters.AddWithValue("@ActionIdICISM", credenciales.ConversionActionIdICISM ?? (object)DBNull.Value);
 
                 using (var reader = await cmd.ExecuteReaderAsync())
                 {
@@ -131,7 +129,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                             FechaHoraConversion = reader.GetDateTime(6),
                             FechaHoraConversionFormatoGoogle = reader.GetString(7),
                             ValorConversion = reader.IsDBNull(8) ? (decimal?)null : reader.GetDecimal(8),
-                            ConversionActionId = reader.IsDBNull(9) ? string.Empty : reader.GetString(9)
+                            IdSubcuentaGoogle = reader.IsDBNull(9) ? (int?)null : reader.GetInt32(9),
+                            CustomerId = reader.IsDBNull(10) ? null : reader.GetString(10),
+                            NombreSubcuenta = reader.IsDBNull(11) ? null : reader.GetString(11),
+                            ConversionActionId = reader.IsDBNull(12) ? string.Empty : reader.GetString(12)
                         });
                     }
                 }
@@ -225,6 +226,174 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
 
             return estados;
+        }
+
+        public async Task<GoogleAdsSubcuentaDTO?> ObtenerSubcuentaPorCustomerId(string customerId)
+        {
+            using (var conn = (SqlConnection)_connectionFactory.GetConnection)
+            {
+                if (conn.State != System.Data.ConnectionState.Open)
+                    await conn.OpenAsync();
+
+                var cmd = new SqlCommand(@"
+                    SELECT Id, CustomerId, NombreSubcuenta, ConversionActionIdIT, ConversionActionIdIPPF, ConversionActionIdICISM, Activo
+                    FROM mkt.T_GoogleAdsSubcuenta
+                    WHERE CustomerId = @CustomerId AND Estado = 1 AND Activo = 1
+                ", conn);
+
+                cmd.Parameters.AddWithValue("@CustomerId", customerId);
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        return new GoogleAdsSubcuentaDTO
+                        {
+                            Id = reader.GetInt32(0),
+                            CustomerId = reader.GetString(1),
+                            NombreSubcuenta = reader.GetString(2),
+                            ConversionActionIdIT = reader.IsDBNull(3) ? null : reader.GetString(3),
+                            ConversionActionIdIPPF = reader.IsDBNull(4) ? null : reader.GetString(4),
+                            ConversionActionIdICISM = reader.IsDBNull(5) ? null : reader.GetString(5),
+                            Activo = reader.GetBoolean(6)
+                        };
+                    }
+                }
+            }
+            return null;
+        }
+
+        public async Task<GoogleAdsSubcuentaDTO?> ObtenerSubcuentaPorId(int id)
+        {
+            using (var conn = (SqlConnection)_connectionFactory.GetConnection)
+            {
+                if (conn.State != System.Data.ConnectionState.Open)
+                    await conn.OpenAsync();
+
+                var cmd = new SqlCommand(@"
+                    SELECT Id, CustomerId, NombreSubcuenta, ConversionActionIdIT, ConversionActionIdIPPF, ConversionActionIdICISM, Activo
+                    FROM mkt.T_GoogleAdsSubcuenta
+                    WHERE Id = @Id AND Estado = 1 AND Activo = 1
+                ", conn);
+
+                cmd.Parameters.AddWithValue("@Id", id);
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        return new GoogleAdsSubcuentaDTO
+                        {
+                            Id = reader.GetInt32(0),
+                            CustomerId = reader.GetString(1),
+                            NombreSubcuenta = reader.GetString(2),
+                            ConversionActionIdIT = reader.IsDBNull(3) ? null : reader.GetString(3),
+                            ConversionActionIdIPPF = reader.IsDBNull(4) ? null : reader.GetString(4),
+                            ConversionActionIdICISM = reader.IsDBNull(5) ? null : reader.GetString(5),
+                            Activo = reader.GetBoolean(6)
+                        };
+                    }
+                }
+            }
+            return null;
+        }
+
+        public async Task<List<GoogleAdsSubcuentaDTO>> ObtenerSubcuentasActivas()
+        {
+            var subcuentas = new List<GoogleAdsSubcuentaDTO>();
+
+            using (var conn = (SqlConnection)_connectionFactory.GetConnection)
+            {
+                if (conn.State != System.Data.ConnectionState.Open)
+                    await conn.OpenAsync();
+
+                var cmd = new SqlCommand(@"
+                    SELECT Id, CustomerId, NombreSubcuenta, ConversionActionIdIT, ConversionActionIdIPPF, ConversionActionIdICISM, Activo
+                    FROM mkt.T_GoogleAdsSubcuenta
+                    WHERE Estado = 1 AND Activo = 1
+                    ORDER BY NombreSubcuenta
+                ", conn);
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        subcuentas.Add(new GoogleAdsSubcuentaDTO
+                        {
+                            Id = reader.GetInt32(0),
+                            CustomerId = reader.GetString(1),
+                            NombreSubcuenta = reader.GetString(2),
+                            ConversionActionIdIT = reader.IsDBNull(3) ? null : reader.GetString(3),
+                            ConversionActionIdIPPF = reader.IsDBNull(4) ? null : reader.GetString(4),
+                            ConversionActionIdICISM = reader.IsDBNull(5) ? null : reader.GetString(5),
+                            Activo = reader.GetBoolean(6)
+                        });
+                    }
+                }
+            }
+            return subcuentas;
+        }
+
+        public async Task<List<GoogleFormularioLeadgenDTO>> ObtenerLeadsSinSubcuentaAsignada(int limite)
+        {
+            var leads = new List<GoogleFormularioLeadgenDTO>();
+
+            using (var conn = (SqlConnection)_connectionFactory.GetConnection)
+            {
+                if (conn.State != System.Data.ConnectionState.Open)
+                    await conn.OpenAsync();
+
+                var cmd = new SqlCommand(@"
+                    SELECT TOP (@Limite) Id, CampaniaGoogle, FormularioGoogle, Gcl
+                    FROM mkt.T_GoogleFormularioLeadgen
+                    WHERE IdSubcuentaGoogle IS NULL
+                        AND CampaniaGoogle IS NOT NULL
+                        AND CampaniaGoogle <> ''
+                        AND Estado = 1
+                        AND FechaCreacion >= DATEADD(DAY, -90, GETDATE())
+                    ORDER BY FechaCreacion ASC
+                ", conn);
+
+                cmd.Parameters.AddWithValue("@Limite", limite);
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        leads.Add(new GoogleFormularioLeadgenDTO
+                        {
+                            Id = reader.GetInt32(0),
+                            CampaniaGoogle = reader.GetString(1),
+                            FormularioGoogle = reader.IsDBNull(2) ? null : reader.GetString(2),
+                            Gclid = reader.IsDBNull(3) ? null : reader.GetString(3)
+                        });
+                    }
+                }
+            }
+            return leads;
+        }
+
+        public async Task ActualizarSubcuentaLead(int id, int idSubcuentaGoogle)
+        {
+            using (var conn = (SqlConnection)_connectionFactory.GetConnection)
+            {
+                if (conn.State != System.Data.ConnectionState.Open)
+                    await conn.OpenAsync();
+
+                var cmd = new SqlCommand(@"
+                    UPDATE mkt.T_GoogleFormularioLeadgen
+                    SET IdSubcuentaGoogle = @IdSubcuentaGoogle,
+                        FechaEnriquecimiento = GETDATE(),
+                        UsuarioModificacion = 'GoogleAdsAPI',
+                        FechaModificacion = GETDATE()
+                    WHERE Id = @Id
+                ", conn);
+
+                cmd.Parameters.AddWithValue("@Id", id);
+                cmd.Parameters.AddWithValue("@IdSubcuentaGoogle", idSubcuentaGoogle);
+
+                await cmd.ExecuteNonQueryAsync();
+            }
         }
     }
 }
