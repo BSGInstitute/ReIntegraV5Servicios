@@ -97,6 +97,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string Usuario { get; set; }
         public string TipoPersonal { get; set; }
         public string NivelVisualizacionAgenda { get; set; }
+        public string AreaAbrev { get; set; }
     }
 
     public class ReportePersonalDTO
