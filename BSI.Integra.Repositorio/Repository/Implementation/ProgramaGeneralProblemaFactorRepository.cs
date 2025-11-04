@@ -189,6 +189,29 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+        public async Task<IEnumerable<ProgramaGeneralProblemaFactorDTO>> ObtenerAsync()
+        {
+            try
+            {
+                var query = @"
+                SELECT Id, Nombre
+                FROM pla.T_ProgramaGeneralProblemaFactor
+                WHERE Estado = 1
+                ORDER BY Id DESC";
+                var resultado = await _dapperRepository.QueryDapperAsync(query, null);
+                if (!string.IsNullOrEmpty(resultado) && resultado != "[]")
+                {
+                    return JsonConvert.DeserializeObject<IEnumerable<ProgramaGeneralProblemaFactorDTO>>(resultado)!;
+                }
+                return new List<ProgramaGeneralProblemaFactorDTO>();
+            }
+            catch (Exception ex)
+            {
+                // Recomiendo loggear aquí y usar "throw;" para mantener el stacktrace.
+                throw ex;
+            }
+        }
+
         /// Autor: Marco Jose Villanueva Torres.
         /// Fecha: 15/04/2024
         /// <param name="id"> (PK) </param> 

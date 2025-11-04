@@ -63,6 +63,50 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 return BadRequest(ex.Message);
             }
         }
+
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 30-10-2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los argumentos de motivación
+        /// </summary>
+        [HttpGet("[action]/{idPGeneral}")]
+        public async Task<IActionResult> ObtenerArgumentoMotivacion(int idPGeneral)
+        {
+            try
+            {
+                var data = await _programaGeneralArgumentoService.ObtenerArgumentoMotivacion(idPGeneral);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 30-10-2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los problemas de cliente
+        /// </summary>
+        [HttpGet("[action]/{idPGeneral}")]
+        public async Task<IActionResult> ObtenerProblemaCliente(int idPGeneral)
+        {
+            try
+            {
+                var data = await _programaGeneralArgumentoService.ObtenerProblemaCliente(idPGeneral);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         [HttpGet("[action]/{idPGeneral}")]
         public IActionResult ObtenerProgramaGeneralArgumentoMotivacionByIdPGeneral(int idPGeneral)
         {
