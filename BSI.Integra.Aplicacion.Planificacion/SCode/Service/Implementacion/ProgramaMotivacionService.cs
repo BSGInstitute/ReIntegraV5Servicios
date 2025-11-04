@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.Base.Exceptions;
+using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.GestionPersonas;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
@@ -155,7 +156,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         }
 
 
-        public IEnumerable<ProgramaMotivacionDTO> Obtener()
+        public IEnumerable<ComboDTO> Obtener()
         {
             return _unitOfWork.ProgramaMotivacionRepository.Obtener();
         }

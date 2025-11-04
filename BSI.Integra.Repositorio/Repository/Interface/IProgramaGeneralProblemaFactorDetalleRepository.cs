@@ -23,6 +23,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         #endregion
         IEnumerable<ProgramaGeneralProblemaFactorDetalleDTO> Obtener();
         ProgramaGeneralProblemaFactorDetalle? ObtenerPorId(int id);
+        bool ExistePorNombre(string nombre);
 
     }
 }

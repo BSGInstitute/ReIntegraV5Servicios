@@ -1,4 +1,5 @@
-﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+﻿using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.GestionPersonas;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
@@ -25,7 +26,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         #endregion
         ProgramaMotivacion? ObtenerPorId(int id);
         List<ProgramaMotivacion> ObtenerTodo();
-        IEnumerable<ProgramaMotivacionDTO> Obtener();
+        IEnumerable<ComboDTO> Obtener();
 
     }
 }

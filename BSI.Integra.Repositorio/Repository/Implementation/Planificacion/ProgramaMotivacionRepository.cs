@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.GestionPersonas;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
@@ -202,8 +203,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                              UsuarioModificacion,
                              FechaCreacion,
                              FechaModificacion,
-                             RowVersion,
-                             IdMigracion FROM pla.T_ProgramaMotivacion
+                             RowVersion
+                           FROM pla.T_ProgramaMotivacion
                     WHERE Id=@id AND estado=1";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { id });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
@@ -217,20 +218,20 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 throw new Exception($"#FR-OPI-001@Error en ObtenerPorId(), {ex.Message}");
             }
         }
-        public IEnumerable<ProgramaMotivacionDTO> Obtener()
+        public IEnumerable<ComboDTO> Obtener()
         {
             try
             {
-                List<ProgramaMotivacionDTO> rpta = new List<ProgramaMotivacionDTO>();
+                List<ComboDTO> rpta = new List<ComboDTO>();
                 var query = @"
                SELECT Id,
-                      Descripcion,
+                      Descripcion as Nombre
                FROM pla.T_ProgramaMotivacion
                WHERE Estado = 1 ORDER BY Id DESC";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
-                    rpta = JsonConvert.DeserializeObject<List<ProgramaMotivacionDTO>>(resultado);
+                    rpta = JsonConvert.DeserializeObject<List<ComboDTO>>(resultado);
 
                 }
                 return rpta;

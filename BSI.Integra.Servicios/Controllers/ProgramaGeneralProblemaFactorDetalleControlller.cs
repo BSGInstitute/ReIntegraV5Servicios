@@ -104,5 +104,12 @@ namespace BSI.Integra.Servicios.Controllers
             var resultado = _programaGeneralProblemaFactorDetalleService.Obtener();
             return Ok(resultado);
         }
+
+        [HttpPost("[action]")]
+        public IActionResult Existe(string nombre)
+        {
+            var resultado = _programaGeneralProblemaFactorDetalleService.ExistePorNombre(nombre);
+            return Ok(resultado);
+        }
     }
 }
