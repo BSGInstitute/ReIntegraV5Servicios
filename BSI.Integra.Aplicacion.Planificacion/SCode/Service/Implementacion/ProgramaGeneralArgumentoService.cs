@@ -134,12 +134,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             }
         }
 
-        public async Task<List<ProgramaGeneralArgumentoDTO>> ObtenerArgumentoMotivacion()
+        public async Task<List<ProgramaGeneralArgumentoDTO>> ObtenerArgumentoMotivacion(int idPGeneral)
         {
             return await Task.Run(() =>
             {
                 // Obtener todos los argumentos padre.
-                var argumentos = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerTodoProgramaGeneral();
+                var argumentos = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerTodoProgramaGeneral(idPGeneral);
 
                 foreach (var item in argumentos)
                 {
@@ -181,7 +181,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             });
         }
 
-        public async Task<List<ConfiguracionProblemaJerarquicaDTO>> ObtenerProblemaCliente()
+        public async Task<List<ConfiguracionProblemaJerarquicaDTO>> ObtenerProblemaCliente(int idPGeneral)
         {
             // Tarea 1: Obtener las 4 listas de "piezas" en paralelo y convertirlas en Diccionarios O(1).
             var combosTask = Task.Run(() => {
@@ -223,7 +223,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             var detalleConfigTask = Task.Run(() => {
                 var filas = _unitOfWork
                     .ProgramaGeneralProblemaDetalleRepository
-                    .ObtenerProblemaCliente() ?? Enumerable.Empty<ProblemaClienteByPGeneral>();
+                    .ObtenerProblemaCliente(idPGeneral) ?? Enumerable.Empty<ProblemaClienteByPGeneral>();
 
                 // Reconstruir los objetos de enlace desde los resultados SQL denormalizados.
                 return filas.GroupBy(x => x.Id).Select(g => {
