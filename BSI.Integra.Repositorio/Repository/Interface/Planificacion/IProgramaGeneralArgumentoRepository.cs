@@ -29,5 +29,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         List<ProgramaGeneralArgumentoDTO> ObtenerTodo(int IdPGeneral);
         List<ProgramaGeneralArgumentoDTO> ObtenerTodoProgramaGeneral(int IdPGeneral);
         IEnumerable<ProgramaGeneralArgumentoMotivacionDTO> ObtenerMotivaciones(int IdPGeneral);
+        Task<IEnumerable<ProgramaGeneralArgumentoDTO>> ObtenerTodoProgramaGeneralAsync(int IdPGeneral);
+        Task<IEnumerable<ProgramaGeneralArgumentoModalidad>> ObtenerProgramaGeneralArgumentoModalidadAsync(int IdProgramaGeneralArgumento);
+        Task<IEnumerable<ProgramaGeneralArgumentoDetalle>> ObtenerProgramaGeneralArgumentoDetalleAsync(int IdProgramaGeneralArgumento);
+        Task<ProgramaGeneralArgumentoDetalleMotivacion> ObtenerProgramaGeneralArgumentoDetalleMotivacionAsync(int IdProgramaGeneralArgumentoDetalle);
     }
 }

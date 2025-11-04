@@ -24,6 +24,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         #endregion
         IEnumerable<ProgramaGeneralProblemaFactorSolucionDTO> Obtener();
         ProgramaGeneralProblemaFactorSolucion? ObtenerPorId(int id);
-
+        Task<IEnumerable<ProgramaGeneralProblemaFactorSolucionDTO>> ObtenerAsync();
     }
 }

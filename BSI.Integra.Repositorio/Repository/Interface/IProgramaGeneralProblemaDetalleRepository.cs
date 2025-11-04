@@ -25,6 +25,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<ProblemaClienteByPGeneral> Obtener(int idPGeneral);
         IEnumerable<ProblemaAgendaRow> ObtenerProblemasClienteAgendaV6(int idPGeneral, int idOportundad);
         IEnumerable<ProblemaClienteByPGeneral> ObtenerProblemaCliente(int idPGeneral);
-
+        Task<IEnumerable<ProblemaClienteByPGeneral>> ObtenerProblemaClienteAsync(int idPGeneral);
     }
 }
