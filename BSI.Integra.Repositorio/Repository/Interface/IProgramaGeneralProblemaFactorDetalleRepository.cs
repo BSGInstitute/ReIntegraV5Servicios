@@ -25,5 +25,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         ProgramaGeneralProblemaFactorDetalle? ObtenerPorId(int id);
         bool ExistePorNombre(string nombre);
 
+        Task<IEnumerable<ProgramaGeneralProblemaFactorDetalleDTO>> ObtenerAsync();
     }
 }
