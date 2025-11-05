@@ -11,6 +11,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public TProgramaMotivacion()
         {
             TOportunidadProgramaMotivacionSeleccions = new HashSet<TOportunidadProgramaMotivacionSeleccion>();
+            TProgramaGeneralArgumentoDetalleMotivacions = new HashSet<TProgramaGeneralArgumentoDetalleMotivacion>();
         }
 
         /// <summary>
@@ -47,5 +48,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public byte[] RowVersion { get; set; } = null!;
 
         public virtual ICollection<TOportunidadProgramaMotivacionSeleccion> TOportunidadProgramaMotivacionSeleccions { get; set; }
+        public virtual ICollection<TProgramaGeneralArgumentoDetalleMotivacion> TProgramaGeneralArgumentoDetalleMotivacions { get; set; }
     }
 }
