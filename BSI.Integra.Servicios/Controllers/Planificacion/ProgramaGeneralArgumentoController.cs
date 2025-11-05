@@ -63,12 +63,12 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 return BadRequest(ex.Message);
             }
         }
-        [HttpGet("[action]/{idPGeneral}")]
-        public IActionResult ObtenerProgramaGeneralArgumentoMotivacionByIdPGeneral(int idPGeneral)
+        [HttpGet("[action]/{idPGeneral}/{motivacion}")]
+        public IActionResult ObtenerProgramaGeneralArgumentoMotivacionByIdPGeneral(int idPGeneral, string motivacion)
         {
             try
             {
-                var result = _programaGeneralArgumentoService.ObtenerArgumentoMotivacionByIdPGeneral(idPGeneral);
+                var result = _programaGeneralArgumentoService.ObtenerArgumentoMotivacionByIdPGeneral(idPGeneral, motivacion);
                 return Ok(result);
             }
             catch (Exception ex)

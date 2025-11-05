@@ -10,8 +10,7 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
     {
         public int Id { get; set; }
         public int IdProgramaGeneralArgumentoDetalle { get; set; }
-        public int IdProgramaGeneralMotivacion { get; set; }
-        public string? NombreMotivacion { get; set; }
+        public int IdProgramaMotivacion { get; set; }
         public bool? Estado { get; set; }
         public DateTime? FechaCreacion { get; set; }
         public DateTime? FechaModificacion { get; set; }
