@@ -339,7 +339,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         //var _motivacion = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacion(ag.Id);
                         var _motivacion = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacionNombre(ag.Id);
                         if (_motivacion == null) continue;
-                        if (Normalizar(_motivacion.NombreMotivacion) != nombreMotivacion || Normalizar(_motivacion.NombreMotivacion) != Normalizar(motivacion)) continue;
+                        if (_motivacion.IdProgramaMotivacion != motivacionResult.Id) continue;
                         detalleDtoList.Add(new ProgramaGeneralArgumentoDetalleDTO
                         {
                             Id = ag.Id,
