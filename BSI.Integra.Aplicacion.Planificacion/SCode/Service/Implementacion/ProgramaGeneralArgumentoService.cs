@@ -167,8 +167,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         Motivacion = (motivacion != null)
                             ? new PGArgumentoDetalleMotivacionDTO
                             {
-                                Id = motivacion.IdProgramaGeneralMotivacion,
-                                Nombre = motivacion.NombreMotivacion
+                                Id = motivacion.IdProgramaMotivacion,
                             }
                             : null
                     };
@@ -528,7 +527,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                             Motivacion = new PGArgumentoDetalleMotivacionDTO
                             {
                                 Id = motivacionInsertada.Id,
-                                Nombre = motivacionInsertada.NombreMotivacion
                             }
                         });
                     }

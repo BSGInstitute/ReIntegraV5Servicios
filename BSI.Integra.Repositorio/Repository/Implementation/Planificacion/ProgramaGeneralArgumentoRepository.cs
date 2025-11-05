@@ -289,7 +289,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 var query = @"
-                SELECT Id, IdProgramaGeneralArgumentoDetalle, IdProgramaGeneralMotivacion, NombreMotivacion, Estado,
+                SELECT Id, IdProgramaGeneralArgumentoDetalle, IdProgramaMotivacion, Estado,
                        FechaCreacion, FechaModificacion, UsuarioCreacion, UsuarioModificacion, RowVersion
                 FROM pla.T_ProgramaGeneralArgumentoDetalleMotivacion
                 WHERE Estado = 1 AND IdProgramaGeneralArgumentoDetalle = @IdProgramaGeneralArgumentoDetalle";
