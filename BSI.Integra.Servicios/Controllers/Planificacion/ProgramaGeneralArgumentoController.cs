@@ -121,6 +121,20 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             }
         }
 
+        [HttpGet("[action]/{idOportunidad}")]
+        public IActionResult ObtenerMotivacionSeleccionByIdOportunidad(int idOportunidad)
+        {
+            try
+            {
+                var result = _programaGeneralArgumentoService.ObtenerMotivacionSeleccionByIdOportunidad(idOportunidad);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPost("InsertarArgumentoMotivacionSeleccion")]
         public IActionResult InsertarArgumentoMotivacionSeleccion([FromBody] ProgramaArgumentoMotivacionSeleccionDTO dto)
         {
