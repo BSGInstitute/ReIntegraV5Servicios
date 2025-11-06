@@ -297,6 +297,28 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public List<ProgramaExpositoresDTO> Expositores { get; set; }
         public List<RegistroListaSeccionesDocumentoDTO> Prerrequisitos { get; set; }
     }
-    
+
+    public class InformacionProgramaSpeechV2DTO
+    {
+        public List<PresentacionProgramadto> RefuerzodeConfianza { get; set; }
+        public List<PresentacionProgramadto> Limitaciones { get; set; }
+        public List<PresentacionProgramadto> Demostracióndevalor { get; set; }
+        public List<PresentacionProgramadto> Aspectosdiferenciadores { get; set; }
+        public List<PresentacionProgramadto> Garantiadeprograma { get; set; }
+        public List<PEspecificoPorIdPGeneral> Modalidad { get; set; }
+        public List<RegistroListaSeccionesDocumentoDTO> Objetivos { get; set; }
+        public ObtenerMontos2RespuestaDTO Montos { get; set; }
+        public PGeneralAlternoV2DTO General { get; set; }
+        public List<ProgramaGeneralSeccionDocumentoDTO> DatosAdicionales { get; set; }
+        public List<RegistroListaSeccionesDocumentoDTO> DuracionHorario { get; set; }
+        public List<RegistroListaSeccionesDocumentoV2DTO> DuracionHorarioETL { get; set; }
+        public List<RegistroListaSeccionesDocumentoDTO> PublicoObjetivo { get; set; }
+
+        public List<RegistroListaSeccionesDocumentoDTO> Metodologia { get; set; }
+        public List<RegistroListaSeccionesDocumentoDTO> Presentacion { get; set; }
+        public List<ProgramaExpositoresDTO> Expositores { get; set; }
+        public List<RegistroListaSeccionesDocumentoDTO> Prerrequisitos { get; set; }
+    }
+
 
 }

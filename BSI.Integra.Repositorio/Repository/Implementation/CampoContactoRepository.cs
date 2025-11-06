@@ -199,7 +199,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 List<CampoContactoDTO> rpta = new List<CampoContactoDTO>();
-                var query = @"SELECT Id, Nombre, TipoControl, ValoresPreEstablecidos,Procedimiento, Estado, UsuarioCreacion, UsuarioModificacion, FechaCreacion, FechaModificacion
+                var query = @"SELECT Id, Nombre, TipoControl, ValoresPreEstablecidos,Procedimiento, Estado, UsuarioCreacion, UsuarioModificacion, FechaCreacion, FechaModificacion, NombreLabel
                             FROM mkt.T_CampoContacto
                             WHERE Estado=1 order by id desc";
                 var resultado = _dapperRepository.QueryDapper(query, null);

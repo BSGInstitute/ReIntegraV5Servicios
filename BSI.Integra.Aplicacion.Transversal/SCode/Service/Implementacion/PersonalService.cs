@@ -4666,37 +4666,36 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                     personalLogUpdate.UsuarioModificacion = usuarioIntegra;
                                     personalLogUpdate.FechaModificacion = DateTime.Now;
                                     _unitOfWork.PersonalLogRepository.Update(personalLogUpdate);
+
+                                    PersonalLog personalLogBO = new PersonalLog();
+                                    personalLogBO.IdPersonal = personal.Id;
+                                    personalLogBO.Rol = personal.Rol;
+                                    personalLogBO.TipoPersonal = personal.TipoPersonal;
+                                    personalLogBO.IdJefe = personal.IdJefe;
+                                    personalLogBO.EstadoRol = rolAnterior != personal.Rol;
+                                    personalLogBO.EstadoTipoPersonal = tipoPersonalAnterior != personal.TipoPersonal;
+                                    personalLogBO.EstadoIdJefe = false;
+                                    personalLogBO.FechaInicio = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0); ;
+                                    personalLogBO.FechaFin = null;
+                                    personalLogBO.Estado = true;
+                                    personalLogBO.UsuarioModificacion = usuarioIntegra;
+                                    personalLogBO.UsuarioCreacion = usuarioIntegra;
+                                    personalLogBO.FechaCreacion = DateTime.Now;
+                                    personalLogBO.FechaModificacion = DateTime.Now;
+
+                                    _unitOfWork.PersonalLogRepository.Add(personalLogBO);
                                 }
-
-
-
-                            PersonalLog personalLogBO = new PersonalLog();
-                            personalLogBO.IdPersonal = personal.Id;
-                            personalLogBO.Rol = personal.Rol;
-                            personalLogBO.TipoPersonal = personal.TipoPersonal;
-                            personalLogBO.IdJefe = personal.IdJefe;
-                            personalLogBO.EstadoRol = rolAnterior != personal.Rol;
-                            personalLogBO.EstadoTipoPersonal = tipoPersonalAnterior != personal.TipoPersonal;
-                            personalLogBO.EstadoIdJefe = false;
-                            personalLogBO.FechaInicio = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0); ;
-                            personalLogBO.FechaFin = null;
-                            personalLogBO.Estado = true;
-                            personalLogBO.UsuarioModificacion = usuarioIntegra;
-                            personalLogBO.UsuarioCreacion = usuarioIntegra;
-                            personalLogBO.FechaCreacion = DateTime.Now;
-                            personalLogBO.FechaModificacion = DateTime.Now;
-
-                            _unitOfWork.PersonalLogRepository.Add(personalLogBO);
-                        }
-                        if (idJefeAnterior != personal.IdJefe)
-                        {
-                            if (estadoCambioRolJefe == false)
+                               
+                            }
+                            if (idJefeAnterior != personal.IdJefe)
                             {
-                                var personalLogUpdate = _unitOfWork.PersonalLogRepository.ObtenerPorIdPersonal(personal.Id).ToList().Where(x => x.IdPersonal == personal.Id && (x.EstadoIdJefe == true) && x.FechaFin == null).OrderByDescending(x => x.Id).FirstOrDefault();
-                                var personalCambioJefe = _unitOfWork.PersonalLogRepository.ObtenerPorIdPersonal(personal.Id).ToList().Where(x => x.IdPersonal == personal.Id && (x.EstadoIdJefe == true && x.EstadoRol == false && x.EstadoTipoPersonal == false) && x.FechaFin == null).OrderByDescending(x => x.Id).FirstOrDefault();
-                                estadoCambioRolJefe = personalLogUpdate.EstadoIdJefe == true && personalLogUpdate.EstadoRol == true && personalLogUpdate.EstadoTipoPersonal == true;
-                                if (estadoCambioRolJefe && personalCambioJefe == null)
+                                if (estadoCambioRolJefe == false)
                                 {
+                                    var personalLogUpdate = _unitOfWork.PersonalLogRepository.ObtenerPorIdPersonal(personal.Id).ToList().Where(x => x.IdPersonal == personal.Id && (x.EstadoIdJefe == true) && x.FechaFin == null).OrderByDescending(x => x.Id).FirstOrDefault();
+                                    var personalCambioJefe = _unitOfWork.PersonalLogRepository.ObtenerPorIdPersonal(personal.Id).ToList().Where(x => x.IdPersonal == personal.Id && (x.EstadoIdJefe == true && x.EstadoRol == false && x.EstadoTipoPersonal == false) && x.FechaFin == null).OrderByDescending(x => x.Id).FirstOrDefault();
+                                    estadoCambioRolJefe = personalLogUpdate.EstadoIdJefe == true && personalLogUpdate.EstadoRol == true && personalLogUpdate.EstadoTipoPersonal == true;
+                                    if (estadoCambioRolJefe && personalCambioJefe == null)
+                                    {
 
                                     PersonalLog personalLog = new PersonalLog();
                                     personalLog.IdPersonal = personal.Id;

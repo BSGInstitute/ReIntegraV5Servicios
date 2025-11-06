@@ -2568,6 +2568,27 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 				throw ex;
 			}
 		}
-
-	}
+        /// Autor: Max Mantilla Rodriguez.
+        /// Fecha: 14/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Inserta configuración predeterminada de resumenes para matrículas validas en la tabla pla.T_MatriculaConfiguracionResumenPrograma
+        /// </summary>
+        /// <param name="idPEspecifico"></param>
+        /// <returns>bool</returns>
+        public bool ActualizarConfiguracionPEspecificoAlumnoResumen(int idPEspecifico, string usuario)
+        {
+            try
+            {
+                FechaInicioProgramaEspecificoDTO rpta = new();
+                string query = "pla.SP_MatriculaConfiguracionResumenPrograma_ConfiguracionPredeterminada";
+                string resultado = _dapperRepository.QuerySPFirstOrDefault(query, new { idPEspecifico = idPEspecifico, usuario = usuario });
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+    }
 }

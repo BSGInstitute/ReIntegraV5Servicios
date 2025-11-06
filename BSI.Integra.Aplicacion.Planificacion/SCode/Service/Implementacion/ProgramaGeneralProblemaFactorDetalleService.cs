@@ -1,0 +1,209 @@
+﻿using AutoMapper;
+using BSI.Integra.Aplicacion.Base.Exceptions;
+using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.GestionPersonas;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
+using BSI.Integra.Persistencia.Entidades.IntegraDB.GestionPersonas;
+using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
+using BSI.Integra.Persistencia.Modelos.IntegraDB;
+using BSI.Integra.Repositorio.UnitOfWork;
+
+namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
+{
+    public class ProgramaGeneralProblemaFactorDetalleService : IProgramaGeneralProblemaFactorDetalleService
+    {
+        private IUnitOfWork _unitOfWork;
+        private Mapper _mapper;
+
+        public ProgramaGeneralProblemaFactorDetalleService(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<TProgramaGeneralProblemaFactorDetalle, ProgramaGeneralProblemaFactorDetalle>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TProgramaGeneralProblemaFactorDetalle, ProgramaGeneralProblemaFactorDetalleDTO>(MemberList.None).ReverseMap();
+                cfg.CreateMap<ProgramaGeneralProblemaFactorDetalle, ProgramaGeneralProblemaFactorDetalleDTO>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TPartnerBeneficioPw, PartnerBeneficioPw>(MemberList.None).ReverseMap();
+
+            });
+            _mapper = new Mapper(config);
+        }
+        /// Autor: Marco Jose Villanueva Torres
+        /// Fecha: 17/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene los registro Problema Factor
+        /// </summary>
+        /// <returns> Lista ProgramaGeneralProblemaFactorDetalleDTO </returns>
+        public IEnumerable<ProgramaGeneralProblemaFactorDetalleDTO> Obtener()
+        {
+            return _unitOfWork.ProgramaGeneralProblemaFactorDetalleRepository.Obtener();
+        }
+        /// Autor: Marco Jose Villanueva Torres
+        /// Fecha: 17/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el detalle de beneficios y contactos por id Partner
+        /// </summary>
+        /// <param name="idPartner">Id Partner</param>
+        /// <returns> Lista PartnerBeneficioPwDTO, Lista Contactos </returns>
+        public (IEnumerable<PartnerBeneficioPwDTO> Beneficios, IEnumerable<PartnerContactoPwDTO> Contactos) ObtenerBeneficioContactoPorId(int idPartner)
+        {
+            try
+            {
+                if (idPartner == 0)
+                {
+                    throw new BadRequestException("Id 0 no valido");
+                }
+                var beneficios = _unitOfWork.PartnerBeneficioPwRepository.ObtenerPorIdPartner(idPartner);
+                var contactos = _unitOfWork.PartnerContactoPwRepository.ObtenerPorIdPartner(idPartner);
+                return (_mapper.Map<IEnumerable<PartnerBeneficioPwDTO>>(beneficios), _mapper.Map<IEnumerable<PartnerContactoPwDTO>>(contactos));
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        /// Autor: Marco Jose Villanueva Torres
+        /// Fecha: 17/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Registra un nuevo ProgramaGeneralProblemaFactorDetalle
+        /// </summary>
+        /// <param name="dto">ProgramaGeneralProblemaFactorDetalle</param>
+        /// <param name="usuario">Usuario Registro</param>
+        /// <returns>ProgramaGeneralProblemaFactorDetalleDTO</returns>
+        public ProgramaGeneralProblemaFactorDetalleDTO Insertar(ProgramaGeneralProblemaFactorDetalleDTO dto, string usuario)
+        {
+            try
+            {
+                if (dto != null)
+                {
+                    ProgramaGeneralProblemaFactorDetalle entidad = new()
+                    {
+                        Nombre = dto.Nombre,
+                        Titulo = dto.Titulo,
+                        Estado = true,
+                        UsuarioCreacion = usuario,
+                        UsuarioModificacion = usuario,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now,
+                    };
+                    var respuesta = _unitOfWork.ProgramaGeneralProblemaFactorDetalleRepository.Add(entidad);
+                    _unitOfWork.Commit();
+                    entidad.Id = respuesta.Id;
+                    var resultado = _mapper.Map<ProgramaGeneralProblemaFactorDetalleDTO>(respuesta);
+                    return resultado;
+                }
+                else
+                    throw new BadRequestException("Entidad Nula");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        /// Autor: Marco Jose Villanueva Torres
+        /// Fecha: 17/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Modifica un ProgramaGeneralProblemaFactorDetalle
+        /// </summary>
+        /// <param name="dto">ProgramaGeneralProblemaFactorDetalle</param>
+        /// <param name="usuario">Usuario Modificacion</param>
+        /// <returns>ProgramaGeneralProblemaFactorDetalleDTO</returns>
+        public ProgramaGeneralProblemaFactorDetalleDTO Actualizar(ProgramaGeneralProblemaFactorDetalleDTO dto, string usuario)
+        {
+            try
+            {
+                ProgramaGeneralProblemaFactorDetalle? entidad = new();
+                if (dto != null)
+                {
+                    if (dto.Id != 0)
+                    {
+                        entidad = _unitOfWork.ProgramaGeneralProblemaFactorDetalleRepository.ObtenerPorId(dto.Id);
+                        if (entidad != null && entidad.Id != 0)
+                        {
+                            entidad.Nombre = dto.Nombre;
+                            entidad.Titulo = dto.Titulo;
+                            entidad.UsuarioModificacion = usuario;
+                            entidad.FechaModificacion = DateTime.Now;
+                            var respuesta = _unitOfWork.ProgramaGeneralProblemaFactorDetalleRepository.Update(entidad);
+                            _unitOfWork.Commit();
+
+
+                            return dto;
+                        }
+                        else
+                            throw new BadRequestException("Entidad no encontrada");
+                    }
+                    else
+                        throw new BadRequestException("Id Entidad 0");
+                }
+                else
+                    throw new BadRequestException("Entidad Nula");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        /// Autor: Marco Jose Villanueva Torres
+        /// Fecha: 17/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Elimina el registro partner por id
+        /// </summary>
+        /// <param name="id">Id Partner</param>
+        /// <returns> PGeneralDocumentoSeccionDTO </returns>
+        public bool Eliminar(int id, string usuario)
+        {
+            try
+            {
+                if (id == 0)
+                {
+                    throw new BadRequestException($"Id 0 no valido");
+                }
+                var entidad = _unitOfWork.ProgramaGeneralProblemaFactorDetalleRepository.ObtenerPorId(id);
+                if (entidad != null && entidad.Id != 0)
+                {
+                    var respuesta = _unitOfWork.ProgramaGeneralProblemaFactorDetalleRepository.Delete(id, usuario);
+
+                    _unitOfWork.Commit();
+                    return respuesta;
+                }
+                else
+                {
+                    throw new BadRequestException($"No se encontro la entidad con el id {id}");
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public bool ExistePorNombre( string nombre)
+        {
+            try
+            {
+                if (_unitOfWork.ProgramaGeneralProblemaFactorDetalleRepository.ExistePorNombre(nombre))
+                {
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+    }
+
+
+}

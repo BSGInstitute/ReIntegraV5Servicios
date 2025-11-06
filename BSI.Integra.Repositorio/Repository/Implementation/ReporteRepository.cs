@@ -309,14 +309,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var queryTotalEjecutadas = $@"
                     SELECT COUNT(*) AS CantidadTotal, 
                            ISNULL(SUM(CASE
-                                   WHEN IdEstadoOcurrencia = @IdEstadoOcurrenciaEjecutado
+                                   WHEN IdEstadoOcurrencia = @IdEstadoOcurrenciaEjecutado and IdOcurrencia not in (431)
                                    THEN 1
                                    ELSE 0
                                END), 0) AS CantidadTotalEjecutada,
                             ISNULL(SUM(CASE
                                     WHEN IdOcurrencia in (149, 162, 163, 164, 165, 168, 207, 209) THEN 1 
                                     ELSE 0
-                                END),0) AS CantidadTotalManual
+                                END),0) AS CantidadTotalManual,
+                            ISNULL(SUM(CASE WHEN IdOcurrencia in(431) THEN 1 ELSE 0 END),0) AS CantidadTotalContestaCorta
                     FROM {vista} 
                     WHERE EstadoOcurrencia = 1
                         AND EstadoOportunidad = 1
@@ -351,6 +352,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         AND (ComentarioActividad<>'Asignacion Manual' OR ComentarioActividad IS NULL)
                         AND IdEstadoOcurrencia = @idEstadoOcurrenciaEjecutado
                         AND Llamada != 0
+                        AND IdOcurrencia not in (431)
                         AND UsuarioModificacion NOT IN('UsuarioBic', 'UsuarioFaseX', 'UsuarioOM', 'system duplicado', 'sys duplicadoIP', 'CerradoBIC', 'AutomatizacionRN2') {filtros.Filtro}
                 ";
                 //AND IdFaseOportunidad NOT IN (4, 11,27)
@@ -375,6 +377,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     rpta.TotalLlamadas = datosTotal.CantidadTotal;
                     rpta.TotalLlamadasEjecutadas = datosTotal.CantidadTotalEjecutada;
                     rpta.TotalLlamadasManual = datosTotal.CantidadTotalManual;
+                    rpta.TotalLlamadasContestaCorta = datosTotal.CantidadTotalContestaCorta;
                     rpta.TotalLlamadasEjecutadasConLlamada = datosEjecutadasLlamada.Valor.GetValueOrDefault();
                 }
                 return rpta;

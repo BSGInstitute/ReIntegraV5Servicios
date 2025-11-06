@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
+using Microsoft.Data.SqlClient;
 using Newtonsoft.Json;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation
@@ -197,6 +199,320 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+
+
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todas las preguntas de evaluación activas por versión de formulario, ordenadas por el campo Orden.
+        /// </summary>
+        /// <param name="idVersionFormularioEvaluacionChatbot">ID de la versión del formulario</param>
+        /// <returns>Lista de preguntas ordenadas</returns>
+        public IEnumerable<PreguntaEvaluacion2DTO> ObtenerPreguntasPorVersionFormulario(int idVersionFormularioEvaluacionChatbot)
+            {
+                try
+                {
+                    var resultado = new List<PreguntaEvaluacion2DTO>();
+                    var query = "ia.SP_TPreguntaEvaluacionChatbot_ObtenerPorVersionFormulario";
+                    var response = _dapperRepository.QuerySPDapper(query, new { idVersionFormularioEvaluacionChatbot });
+
+                    if (!string.IsNullOrEmpty(response))
+                    {
+                        resultado = JsonConvert.DeserializeObject<List<PreguntaEvaluacion2DTO>>(response);
+                    }
+                    return resultado;
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+            }
+
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todas las respuestas activas por versión de formulario, ordenadas por pregunta y orden.
+        /// </summary>
+        /// <param name="idVersionFormulario">ID de la versión del formulario</param>
+        /// <returns>Lista de respuestas ordenadas</returns>
+        public IEnumerable<RespuestaEvaluacionDTO> ObtenerRespuestasPorVersionFormulario(int IdVersionFormularioEvaluacionChatbot)
+            {
+                try
+                {
+                    var resultado = new List<RespuestaEvaluacionDTO>();
+                    var query = "ia.SP_TRespuestaEvaluacionChatbot_ObtenerPorVersionFormulario";
+                    var response = _dapperRepository.QuerySPDapper(query, new { IdVersionFormularioEvaluacionChatbot });
+
+                    if (!string.IsNullOrEmpty(response))
+                    {
+                        resultado = JsonConvert.DeserializeObject<List<RespuestaEvaluacionDTO>>(response);
+                    }
+                    return resultado;
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+            }
+
+
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el chat entre chatbot y cliente por IdAlumno
+        /// </summary>
+        /// <param name="idAlumno">ID del alumno</param>
+        /// <returns>Lista de mensajes del chat</returns>
+        public IEnumerable<ChatbotMensajeDTO> ObtenerChatPorAlumno(int idAlumno)
+            {
+                try
+                {
+                    var resultado = new List<ChatbotMensajeDTO>();
+                    var query = "ia.SP_TChatbotPortalHiloChat_ObtenerPorAlumno";
+                    var response = _dapperRepository.QuerySPDapper(query, new { idAlumno });
+
+                    if (!string.IsNullOrEmpty(response))
+                    {
+                        resultado = JsonConvert.DeserializeObject<List<ChatbotMensajeDTO>>(response);
+                    }
+                    return resultado;
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+            }
+
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el chat entre chatbot y cliente por IdAlumno
+        /// </summary>
+        /// <param name="idAlumno">ID del alumno</param>
+        /// <returns>Lista de mensajes del chat</returns>
+        public IEnumerable<ChatbotMensajeDTO> ObtenerChatPorPortalSegmento(string IdContactoPortalSegmento)
+        {
+            try
+            {
+                var resultado = new List<ChatbotMensajeDTO>();
+                var query = "ia.SP_TChatbotPortalHiloChat_ObtenerPorContactoPortalSegmento";
+                var response = _dapperRepository.QuerySPDapper(query, new { IdContactoPortalSegmento });
+
+                if (!string.IsNullOrEmpty(response))
+                {
+                    resultado = JsonConvert.DeserializeObject<List<ChatbotMensajeDTO>>(response);
+                }
+                return resultado;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todas las respuestas activas por pregunta, ordenadas por el campo Orden.
+        /// </summary>
+        /// <param name="idPregunta">ID de la pregunta</param>
+        /// <returns>Lista de respuestas ordenadas</returns>
+        public IEnumerable<RespuestaEvaluacionDTO> ObtenerRespuestasPorPregunta(int idPregunta)
+        {
+            try
+            {
+                List<RespuestaEvaluacionDTO> rpta = new List<RespuestaEvaluacionDTO>();
+                var query = @"
+                SELECT 
+                    Id,
+                    Respuesta,
+                    Orden,
+                    Estado,
+                    IdPreguntaEvaluacionChatbot,
+                    IdTipoEntradaEvaluacionChatbot
+                FROM ia.T_RespuestaEvaluacionChatbot
+                WHERE IdPreguntaEvaluacionChatbot = @IdPregunta 
+                AND Estado = 1
+                ORDER BY Orden";
+
+                var parametros = new { IdPregunta = idPregunta };
+                var resultado = _dapperRepository.QueryDapper(query, parametros);
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<RespuestaEvaluacionDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todas las versiones de formulario activas.
+        /// </summary>
+        /// <returns>Lista de versiones de formulario activas</returns>
+        public IEnumerable<VersionFormularioDTO> ObtenerVersionesFormularioActivas()
+        {
+            try
+            {
+                List<VersionFormularioDTO> rpta = new List<VersionFormularioDTO>();
+                var query = @"
+                SELECT 
+                    Id,
+                    Nombre,
+                    Descripcion,
+                    Origen,
+                    Version,
+                    Estado
+                FROM ia.T_VersionFormularioEvaluacionChatbot
+                WHERE Estado = 1
+                ORDER BY Version DESC";
+
+                var resultado = _dapperRepository.QueryDapper(query, null);
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<VersionFormularioDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los tipos de entrada activos.
+        /// </summary>
+        /// <returns>Lista de tipos de entrada activos</returns>
+        public IEnumerable<TipoEntradaDTO> ObtenerTiposEntradaActivos()
+        {
+            try
+            {
+                List<TipoEntradaDTO> rpta = new List<TipoEntradaDTO>();
+                var query = @"
+                SELECT 
+                    Id,
+                    Nombre,
+                    Descripcion,
+                    Estado
+                FROM ia.T_TipoEntradaEvaluacionChatbot
+                WHERE Estado = 1
+                ORDER BY Nombre";
+
+                var resultado = _dapperRepository.QueryDapper(query, null);
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<TipoEntradaDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 22/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene hilos de chat con información completa de alumnos y matrículas
+        /// </summary>
+        /// <returns>Lista de hilos de chat con datos de alumnos</returns>
+        public IEnumerable<ChatbotHiloChatPorAlumnoDTO> ObtenerHilosChatConAlumnos()
+        {
+            try
+            {
+                List<ChatbotHiloChatPorAlumnoDTO> rpta = new List<ChatbotHiloChatPorAlumnoDTO>();
+                var query = @"ia.SP_ChatbotPortalHiloChat_ObtenerHilosConAlumno";
+
+                var resultado = _dapperRepository.QueryDapper(query, null);
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ChatbotHiloChatPorAlumnoDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 22/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene hilos de chat sin alumno asociado
+        /// </summary>
+        /// <returns>Lista de hilos de chat sin alumno</returns>
+        public IEnumerable<ChatbotHiloChatPorSegmentoDTO> ObtenerHilosChatPorSegmento()
+        {
+            try
+            {
+                List<ChatbotHiloChatPorSegmentoDTO> rpta = new List<ChatbotHiloChatPorSegmentoDTO>();
+                var query = @"ia.SP_ChatbotPortalHiloChat_ObtenerHilosSinAlumno";
+
+                var resultado = _dapperRepository.QueryDapper(query, null);
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ChatbotHiloChatPorSegmentoDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 23/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todas las respuestas del cliente por formulario aplicado
+        /// </summary>
+        /// <param name="IdFormularioAplicadoChatbot">ID del formulario aplicado</param>
+        /// <returns>Lista de respuestas del cliente con detalles de pregunta y respuesta predefinida</returns>
+        public IEnumerable<RespuestaClienteDTO> ObtenerRespuestasUsuarioPorFormularioAplicado(int IdChatbotPortalHiloChat)
+        {
+            try
+            {
+                List<RespuestaClienteDTO> rpta = new List<RespuestaClienteDTO>();
+                var query = $@"ia.SP_TRespuestaClienteChatbot_ObtenerRespuestasUsuario";
+                var resultado = _dapperRepository.QuerySPDapper(query, new { IdChatbotPortalHiloChat = IdChatbotPortalHiloChat });
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<RespuestaClienteDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 18/07/2022
         /// Version: 1.0
@@ -255,6 +571,89 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 24/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Inserta una evaluación completa de un hilo de chat en la base de datos.
+        /// </summary>
+        /// <param name="idChatbotPortalHiloChat">ID del hilo de chat que está siendo evaluado.</param>
+        /// <param name="idVersionFormularioEvaluacionChatbot">ID de la versión del formulario que se aplicó.</param>
+        /// <param name="usuarioCreacion">Nombre del usuario que registra la evaluación.</param>
+        /// <param name="respuestasSeleccionadasJson">Cadena JSON con las respuestas de selección.</param>
+        /// <param name="respuestasTextoJson">Cadena JSON con las respuestas de texto.</param>
+        /// <param name="problemasIdentificadosJson">Cadena JSON con los problemas identificados en la evaluación.</param>
+        /// <returns>Un objeto con el resultado de la inserción.</returns>
+        public InsertarRespuestaEvaluacionResultadoDTO InsertarRespuestaEvaluacionCompleta(
+            int idChatbotPortalHiloChat,
+            int idVersionFormularioEvaluacionChatbot,
+            string usuarioCreacion,
+            string respuestasSeleccionadasJson = null,
+            string respuestasTextoJson = null,
+            string problemasIdentificadosJson = null)
+        {
+            try
+            {
+                var _resultado = new InsertarRespuestaEvaluacionResultadoDTO();
+                var query = "ia.SP_TFormularioAplicadoChatbot_InsertarEvaluacionCompleta";
+
+                var parametros = new
+                {
+                    IdChatbotPortalHiloChat = idChatbotPortalHiloChat,
+                    IdVersionFormularioEvaluacionChatbot = idVersionFormularioEvaluacionChatbot,
+                    UsuarioCreacion = usuarioCreacion,
+                    RespuestasSeleccionadas = respuestasSeleccionadasJson,
+                    RespuestasTexto = respuestasTextoJson,
+                    ProblemasIdentificados = problemasIdentificadosJson
+                };
+
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(query, parametros);
+
+                if (!string.IsNullOrEmpty(resultado))
+                {
+                    _resultado = JsonConvert.DeserializeObject<InsertarRespuestaEvaluacionResultadoDTO>(resultado);
+                }
+                return _resultado;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 24/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los Ids de Pregunta únicos a partir de una lista de Ids de Respuestas (opciones).
+        /// </summary>
+        /// <param name="idsRespuesta">Lista de Ids de T_RespuestaEvaluacionChatbot</param>
+        /// <returns>Lista de Ids de T_PreguntaEvaluacionChatbot</returns>
+        public IEnumerable<int> ObtenerIdsPreguntaPorIdsRespuesta(IEnumerable<int> idsRespuesta)
+        {
+            try
+            {
+
+                var query = @"
+                            SELECT IdPreguntaEvaluacionChatbot 
+                            FROM ia.T_RespuestaEvaluacionChatbot
+                            WHERE Id IN @IdsRespuesta AND Estado = 1";
+                var resultadoJson = _dapperRepository.QueryDapper(query, new { IdsRespuesta = idsRespuesta });
+
+                if (!string.IsNullOrEmpty(resultadoJson) && !resultadoJson.Contains("[]"))
+                {
+                    var listaDeObjetos = JsonConvert.DeserializeObject<List<dynamic>>(resultadoJson);
+                    return listaDeObjetos.Select(o => (int)o.IdPreguntaEvaluacionChatbot);
+                }
+                return Enumerable.Empty<int>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error en Repositorio:ObtenerIdsPreguntaPorIdsRespuesta", ex);
+            }
+        }
+
         /// Autor: Gilmer Quispe.
         /// Fecha: 01/10/2022
         /// Version: 1.0

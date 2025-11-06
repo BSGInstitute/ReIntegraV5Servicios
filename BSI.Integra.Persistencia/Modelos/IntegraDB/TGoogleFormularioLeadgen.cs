@@ -118,7 +118,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Id de la tabla Original al migrar
         /// </summary>
         public int? IdMigracion { get; set; }
+        /// <summary>
+        /// Id de la subcuenta de Google Ads asociada a la oportunidad
+        /// </summary>
+        public int? IdGoogleAdsSubcuenta { get; set; }
 
+        public virtual TGoogleAdsSubcuentum? IdGoogleAdsSubcuentaNavigation { get; set; }
         public virtual ICollection<TGoogleAdsConversionQueue> TGoogleAdsConversionQueues { get; set; }
         public virtual ICollection<TOportunidadGoogleLead> TOportunidadGoogleLeads { get; set; }
     }

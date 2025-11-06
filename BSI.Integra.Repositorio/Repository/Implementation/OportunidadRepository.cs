@@ -4407,12 +4407,18 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 OportunidadDetalleProbabilidadDTO informacionOportunidad = new OportunidadDetalleProbabilidadDTO();
                 var query = @"SELECT
+                                AC.Id AS IdAreaCapacitacion,
+                                AC.Nombre AS AreaCapacitacion,
                                 PRpw.Nombre AS ClasificacionProbabilidad,
                                 OLH.IdOportunidad,
                                         OLH.IdFaseOportunidad_Ant AS IdFaseOportunidadAnterior,
                                         OLH.IdFaseOportunidad AS IdFaseOportunidadActual
                             FROM
                                 mkt.V_ModeloPredictivoProbabilidadIdProbabilidadRegistro MPPPR
+                                INNER JOIN com.T_Oportunidad AS O ON O.id=MPPPR.IdOportunidad AND O.Estado=1
+                                INNER JOIN pla.T_PEspecifico AS PE ON PE.IdCentroCosto=O.IdCentroCosto
+                                INNER JOIN pla.T_PGeneral AS PG ON PG.Id=PE.IdProgramaGeneral
+                                INNER JOIN pla.T_AreaCapacitacion AS AC ON AC.Id=PG.IdArea
                                 LEFT JOIN mkt.T_ProbabilidadRegistro_PW PRpw ON PRpw.Id = MPPPR.IdProbabilidadRegistroPW 
                                 OUTER APPLY (
                                     SELECT TOP 1 

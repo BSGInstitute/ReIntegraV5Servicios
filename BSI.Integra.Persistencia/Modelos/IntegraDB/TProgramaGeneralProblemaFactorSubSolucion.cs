@@ -8,6 +8,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     /// </summary>
     public partial class TProgramaGeneralProblemaFactorSubSolucion
     {
+        public TProgramaGeneralProblemaFactorSubSolucion()
+        {
+            TProgramaGeneralProblemaFactorSubSolucionAsignada = new HashSet<TProgramaGeneralProblemaFactorSubSolucionAsignadum>();
+        }
+
         /// <summary>
         /// Es primary key
         /// </summary>
@@ -54,5 +59,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public byte[] RowVersion { get; set; } = null!;
 
         public virtual TProgramaGeneralProblemaFactorSolucion IdProgramaGeneralProblemaFactorSolucionNavigation { get; set; } = null!;
+        public virtual ICollection<TProgramaGeneralProblemaFactorSubSolucionAsignadum> TProgramaGeneralProblemaFactorSubSolucionAsignada { get; set; }
     }
 }

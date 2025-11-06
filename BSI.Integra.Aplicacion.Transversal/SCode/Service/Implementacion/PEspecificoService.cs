@@ -2431,6 +2431,10 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     pEspecificoHijo.ResumenClaseActivo = dto.ResumenClaseActivo;
                     pEspecificoHijo.TutorVirtualActivo = dto.TutorVirtualActivo; 
                     _unitOfWork.PEspecificoRepository.Update(pEspecificoHijo);
+                    if (dto.ResumenClaseActivo == true)
+                    {
+                        _unitOfWork.PEspecificoRepository.ActualizarConfiguracionPEspecificoAlumnoResumen(EspecificoHijo.Id, usuario);
+                    }
                 }
                 _unitOfWork.Commit();
                 return _mapper.Map<PEspecificoDTO>(resultado);
