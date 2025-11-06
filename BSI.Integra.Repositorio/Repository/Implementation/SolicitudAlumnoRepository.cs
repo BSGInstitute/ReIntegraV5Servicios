@@ -733,19 +733,19 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var rpta = new RespuestaVerificacionSolicitudDTO();
 
-                // Estados activos: Pendiente(1), En Revisión(2), Asignado(3), En Proceso(5), Observado(6)
+                
                 var estadosActivos = new List<int> { 1, 2, 3, 5, 6 };
                 var estadosActivosStr = string.Join(",", estadosActivos);
 
                 // Llamar al SP con todos los parámetros del filtro
                 var resultado = _dapperRepository.QuerySPDapper(
-                    "ope.SP_SolicitudAlumnoCompleto_Obtener",
+                    "ope.SP_ChatBotObtenerSolicitudAlumno",
                     new
                     {
                         IdAlumno = filtro.IdAlumno,
-                        IdTipoReporte = filtro.IdTipoReporte,
-                        IdCategoria = filtro.Categoria,
-                        IdProblema = filtro.Problema,
+                        IdSolicitudTipoReporte = filtro.IdSolicitudTipoReporte,
+                        IdSolicitudCategoria = filtro.IdSolicitudCategoria,
+                        IdSolicitudProblema = filtro.IdSolicitudProblema,
                         IdPGeneral = filtro.IdPGeneral,
                         IdPEspecifico = filtro.IdPEspecifico,
                         IdEstadoSolicitud = estadosActivosStr,
@@ -776,9 +776,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                 "El alumno ya tiene una solicitud activa para este tipo de solicitud.";
                             rpta.ExisteSolicitud = true;
                             rpta.TiempoPasadoHoras = tiempoPasadoHoras;
-                            rpta.EstadoSolicitud = solicitudActiva.EstadoSolicitud;
-                            rpta.IdControlSolicitudOrigen =
-                                solicitudActiva.IdControlSolicitudOrigen;
+                            rpta.EstadoSolicitud = solicitudActiva.NombreEstadoSolicitud;
+                            rpta.NombreControlSolicitudOrigen = solicitudActiva.NombreControlSolicitudOrigen;
                             rpta.Error = null;
                         }
                         else
@@ -788,7 +787,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                             rpta.ExisteSolicitud = false;
                             rpta.TiempoPasadoHoras = null;
                             rpta.EstadoSolicitud = null;
-                            rpta.IdControlSolicitudOrigen = 0;
+                            rpta.NombreControlSolicitudOrigen = null;
                             rpta.Error = null;
                         }
                     }
@@ -799,7 +798,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         rpta.ExisteSolicitud = false;
                         rpta.TiempoPasadoHoras = null;
                         rpta.EstadoSolicitud = null;
-                        rpta.IdControlSolicitudOrigen = 0;
+                        rpta.NombreControlSolicitudOrigen = null;
                         rpta.Error = null;
                     }
                 }
@@ -810,7 +809,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     rpta.ExisteSolicitud = false;
                     rpta.TiempoPasadoHoras = null;
                     rpta.EstadoSolicitud = null;
-                    rpta.IdControlSolicitudOrigen = 0;
+                    rpta.NombreControlSolicitudOrigen = null;
                     rpta.Error = null;
                 }
 
@@ -824,7 +823,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     ExisteSolicitud = null,
                     TiempoPasadoHoras = null,
                     EstadoSolicitud = null,
-                    IdControlSolicitudOrigen = 0,
+                    NombreControlSolicitudOrigen = null,
                     Error = new ErrorDetalleDTO
                     {
                         Descripción = "Hubo problemas al calcular el tiempo",
@@ -894,9 +893,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 // Paso 2: Obtener IdPersonal asignado usando los SPs en cascada
                 int idPersonal = 0;
 
-                // Intento 1: Buscar en T_OportunidadClasificacionOperaciones
                 var resultadoPersonalClasificacion = _dapperRepository.QuerySPDapper(
-                    "ope.SP_PersonalAsignado_ObtenerPorMatriculaClasificacion",
+                    "ope.SP_ObtenerPersonalAsignadoMatricula",
                     new { IdMatriculaCabecera = idMatriculaCabecera }
                 );
 
@@ -914,47 +912,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     {
                         // Intentar con ambos nombres de campo (PascalCase y camelCase)
                         var diccionario = personalesClasificacion[0];
-                        if (diccionario.ContainsKey("IdPersonalAsignado"))
+                        if (diccionario.ContainsKey("IdPersonal_Asignado"))
                         {
-                            idPersonal = Convert.ToInt32(diccionario["IdPersonalAsignado"]);
+                            idPersonal = Convert.ToInt32(diccionario["IdPersonal_Asignado"]);
                         }
-                        else if (diccionario.ContainsKey("idPersonalAsignado"))
+                        else if (diccionario.ContainsKey("idPersonal_Asignado"))
                         {
-                            idPersonal = Convert.ToInt32(diccionario["idPersonalAsignado"]);
-                        }
-                    }
-                }
-
-                // Intento 2: Si no se encontró, buscar en T_Oportunidad
-                if (idPersonal == 0)
-                {
-                    var resultadoPersonalMatricula = _dapperRepository.QuerySPDapper(
-                        "ope.SP_PersonalAsignado_ObtenerPorMatricula",
-                        new { IdMatriculaCabecera = idMatriculaCabecera }
-                    );
-
-                    if (
-                        !string.IsNullOrWhiteSpace(resultadoPersonalMatricula)
-                        && !resultadoPersonalMatricula.Contains("[]")
-                        && !resultadoPersonalMatricula.Contains("null")
-                    )
-                    {
-                        var personalesMatricula = JsonConvert.DeserializeObject<
-                            List<Dictionary<string, object>>
-                        >(resultadoPersonalMatricula);
-
-                        if (personalesMatricula != null && personalesMatricula.Any())
-                        {
-                            // Intentar con ambos nombres de campo (PascalCase y camelCase)
-                            var diccionario = personalesMatricula[0];
-                            if (diccionario.ContainsKey("IdPersonalAsignado"))
-                            {
-                                idPersonal = Convert.ToInt32(diccionario["IdPersonalAsignado"]);
-                            }
-                            else if (diccionario.ContainsKey("idPersonalAsignado"))
-                            {
-                                idPersonal = Convert.ToInt32(diccionario["idPersonalAsignado"]);
-                            }
+                            idPersonal = Convert.ToInt32(diccionario["idPersonal_Asignado"]);
                         }
                     }
                 }

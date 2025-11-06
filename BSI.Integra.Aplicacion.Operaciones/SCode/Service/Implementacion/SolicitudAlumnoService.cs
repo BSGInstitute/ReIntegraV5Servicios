@@ -604,6 +604,7 @@ namespace BSI.Integra.Aplicacion.Operaciones.Service.Implementacion
                         ExisteSolicitud = null,
                         TiempoPasadoHoras = null,
                         EstadoSolicitud = null,
+                        NombreControlSolicitudOrigen = null,
                         Error = new ErrorDetalleDTO
                         {
                             Descripción = "Los datos de entrada no pueden ser nulos",
@@ -620,6 +621,7 @@ namespace BSI.Integra.Aplicacion.Operaciones.Service.Implementacion
                         ExisteSolicitud = null,
                         TiempoPasadoHoras = null,
                         EstadoSolicitud = null,
+                        NombreControlSolicitudOrigen = null,
                         Error = new ErrorDetalleDTO
                         {
                             Descripción = "El ID del alumno es inválido",
@@ -638,6 +640,7 @@ namespace BSI.Integra.Aplicacion.Operaciones.Service.Implementacion
                     ExisteSolicitud = null,
                     TiempoPasadoHoras = null,
                     EstadoSolicitud = null,
+                    NombreControlSolicitudOrigen = null,
                     Error = new ErrorDetalleDTO
                     {
                         Descripción = "Hubo problemas al calcular el tiempo",

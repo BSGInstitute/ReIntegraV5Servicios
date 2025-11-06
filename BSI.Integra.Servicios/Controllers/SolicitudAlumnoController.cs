@@ -559,6 +559,7 @@ namespace BSI.Integra.Servicios.Controllers
                         ExisteSolicitud = null,
                         TiempoPasadoHoras = null,
                         EstadoSolicitud = null,
+                        NombreControlSolicitudOrigen = null,
                         Error = new ErrorDetalleDTO
                         {
                             Descripción = "Hubo problemas al calcular el tiempo",

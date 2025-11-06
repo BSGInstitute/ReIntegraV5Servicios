@@ -272,10 +272,10 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 
     public class VerificarSolicitudAlumnoDTO
     {
-        public int IdTipoReporte { get; set; }
-        public int Categoria { get; set; }
-        public int Problema { get; set; }
         public int IdAlumno { get; set; }
+        public int IdSolicitudTipoReporte { get; set; }
+        public int IdSolicitudCategoria { get; set; }
+        public int IdSolicitudProblema { get; set; }
         public int IdPGeneral { get; set; }
         public int? IdPEspecifico { get; set; }
     }
@@ -286,13 +286,13 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public bool? ExisteSolicitud { get; set; }
         public int? TiempoPasadoHoras { get; set; }
         public string EstadoSolicitud { get; set; }
+        public string NombreControlSolicitudOrigen { get; set; }
         public ErrorDetalleDTO Error { get; set; }
-        public int IdControlSolicitudOrigen { get; set; }
     }
 
     public class SolicitudAlumnoRevisionDTO
     {
-        public int Id { get; set; }
+        public int IdSolicitudAlumno { get; set; }
         public int IdAlumno { get; set; }
         public int IdMatriculaCabecera { get; set; }
         public string CodigoMatricula { get; set; }
@@ -300,39 +300,40 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdPEspecifico { get; set; }
         public string NombrePEspecifico { get; set; }
         public int IdCentroCosto { get; set; }
-        public string CentroCosto { get; set; }
+        public string NombreCentroCosto { get; set; }
         public int IdPGeneral { get; set; }
-        public string PGeneral { get; set; }
+        public string NombrePGeneral { get; set; }
         public string DetalleSolicitud { get; set; }
         public string Prioridad { get; set; }
-        public string NombreSolicitud { get; set; }
-        public int IdTipoReporte { get; set; }
-        public string Tipo { get; set; }
+        public string DescripcionSolicitudProblema { get; set; }
+        public int IdSolicitudTipoReporte { get; set; }
+        public string NombreSolicitudTipoReporte { get; set; }
         public int IdSolicitudCategoria { get; set; }
         public string NombreSolicitudCategoria { get; set; }
-        public int IdSubCategoria { get; set; }
-        public string NombreSubCategoria { get; set; }
-        public int IdSolicitante { get; set; }
-        public string NombreSolicitante { get; set; }
-        public int IdAreaSolicitante { get; set; }
-        public string AreaSolicitante { get; set; }
-        public int IdAreaRevision { get; set; }
-        public string AreaRevision { get; set; }
+        public int IdSolicitudProblema { get; set; }
+        public string NombreSolicitudProblema { get; set; }
+        public int IdPersonal_Solicitante { get; set; }
+        public string NombrePersonal_Solicitante { get; set; }
+        public int IdPersonalAreaTrabajo_Solicitante { get; set; }
+        public string NombrePersonalAreaTrabajo_Solicitante { get; set; }
+        public int IdPersonalAreaTrabajo_Revision { get; set; }
+        public string NombrePersonalAreaTrabajo_Revision { get; set; }
         public string NombreArchivoSolicitante { get; set; }
-        public int IdPersonalRevision { get; set; }
-        public string PersonalRevision { get; set; }
-        public int IdAreaSolucion { get; set; }
-        public string AreaSolucion { get; set; }
-        public int IdPersonalSolucion { get; set; }
-        public string PersonalSolucion { get; set; }
+        public int IdPersonal_Revision { get; set; }
+        public string NombrePersonal_Revision { get; set; }
+        public int IdPersonalAreaTrabajo_Solucion { get; set; }
+        public string NombrePersonalAreaTrabajo_Solucion { get; set; }
+        public int IdPersonal_Solucion { get; set; }
+        public string NombrePersonal_Solucion { get; set; }
         public DateTime FechaRegistro { get; set; }
         public string ComentarioSolucion { get; set; }
         public string NombreArchivoSolucion { get; set; }
         public int IdEstadoSolicitud { get; set; }
-        public string EstadoSolicitud { get; set; }
+        public string NombreEstadoSolicitud { get; set; }
         public int IdControlSolicitudOrigen { get; set; }
-        public string ControlSolicitudOrigen { get; set; }
+        public string NombreControlSolicitudOrigen { get; set; }
     }
+
 
     public class RegistrarSolicitudAlumnoDTO
     {
