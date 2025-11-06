@@ -52,14 +52,15 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 List<ProgramaGeneralArgumentoDetalleDTO> argumentoDetalleDtoList = new();
                 foreach (var item in argumentoDetalles)
                 {
-                    var argumentoDetalleMotivaciones = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacion(item.Id);
+                    var argumentoDetalleMotivaciones = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacionNombre(item.Id);
+                    
                     var argumentoDetalleDto = new ProgramaGeneralArgumentoDetalleDTO
                     {
                         Id = item.Id,
                         Detalle = item.Detalle,
                         Motivacion = new PGArgumentoDetalleMotivacionDTO
                         {
-                            Id = argumentoDetalleMotivaciones.IdProgramaGeneralMotivacion,
+                            Id = argumentoDetalleMotivaciones.IdProgramaMotivacion,
                             Nombre = argumentoDetalleMotivaciones.NombreMotivacion
                         }
                     };
@@ -101,14 +102,14 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     List<ProgramaGeneralArgumentoDetalleDTO> argumentoDetalleDtoList = new();
                     foreach (var ag in argumentoDetalles)
                     {
-                        var argumentoDetalleMotivaciones = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacion(ag.Id);
+                        var argumentoDetalleMotivaciones = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacionNombre(item.Id);
                         var argumentoDetalleDto = new ProgramaGeneralArgumentoDetalleDTO
                         {
                             Id = ag.Id,
                             Detalle = ag.Detalle,
                             Motivacion = new PGArgumentoDetalleMotivacionDTO
                             {
-                                Id = argumentoDetalleMotivaciones.IdProgramaGeneralMotivacion,
+                                Id = argumentoDetalleMotivaciones.IdProgramaMotivacion,
                                 Nombre = argumentoDetalleMotivaciones.NombreMotivacion
                             }
                         };
@@ -166,8 +167,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         Motivacion = (motivacion != null)
                             ? new PGArgumentoDetalleMotivacionDTO
                             {
-                                Id = motivacion.IdProgramaGeneralMotivacion,
-                                Nombre = motivacion.NombreMotivacion
+                                Id = motivacion.IdProgramaMotivacion,
                             }
                             : null
                     };
@@ -296,17 +296,30 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
             return resultadoFinal.OrderBy(r => r.Id).ToList();
         }
-        public ArgumentoMotivacionProgramaGeneralDTO ObtenerArgumentoMotivacionByIdPGeneral(int idPGeneral)
+        public ArgumentoMotivacionProgramaGeneralDTO ObtenerArgumentoMotivacionByIdPGeneral(int idPGeneral, string motivacion)
         {
             try
             {
                 var programaGArgumentos = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerTodo(idPGeneral);
-
                 List<ArgumentoMotivacionEstructuraDTO> estructuraCurricular = new();
                 List<ArgumentoMotivacionEstructuraDTO> garantiaDePrograma = new();
                 List<ArgumentoMotivacionEstructuraDTO> demostracionDeValor = new();
                 List<ArgumentoMotivacionEstructuraDTO> aspectosDiferenciadores = new();
                 List<ArgumentoMotivacionEstructuraDTO> argumentosDePerdidaPotencial = new();
+
+                string Normalizar(string? texto)
+                {
+                    if (string.IsNullOrWhiteSpace(texto))
+                        return string.Empty;
+
+                    var n = texto.ToLower().Trim().Normalize(NormalizationForm.FormD);
+                    return new string(n.Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark).ToArray());
+                }
+
+                var motivacionResult = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerMotivacionesByDiccionario(Normalizar(motivacion));
+                string? motivacionDescripcion = motivacionResult != null ? motivacionResult.Nombre : motivacion;
+
+                var nombreMotivacion = Normalizar(motivacionDescripcion);
 
                 ArgumentoMotivacionEstructuraDTO ConstruirArgumento(ProgramaGeneralArgumentoDTO item)
                 {
@@ -323,15 +336,18 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
                     foreach (var ag in detalles)
                     {
-                        var motivacion = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacion(ag.Id);
+                        //var _motivacion = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacion(ag.Id);
+                        var _motivacion = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacionNombre(ag.Id);
+                        if (_motivacion == null) continue;
+                        if (_motivacion.IdProgramaMotivacion != motivacionResult.Id) continue;
                         detalleDtoList.Add(new ProgramaGeneralArgumentoDetalleDTO
                         {
                             Id = ag.Id,
                             Detalle = ag.Detalle,
                             Motivacion = new PGArgumentoDetalleMotivacionDTO
                             {
-                                Id = motivacion.IdProgramaGeneralMotivacion,
-                                Nombre = motivacion.NombreMotivacion
+                                Id = _motivacion.IdProgramaMotivacion,
+                                Nombre = _motivacion.NombreMotivacion
                             }
                         });
                     }
@@ -346,14 +362,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
                 foreach (var item in programaGArgumentos)
                 {
-                    var nombre = item.Nombre
-                    .ToLower()
-                    .Trim()
-                    .Normalize(NormalizationForm.FormD);
-                    nombre = new string(nombre
-                     .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-                     .ToArray());
-
+                    var nombre = Normalizar(item.Nombre);
                     nombre = Regex.Replace(nombre, @"[^a-z]", "");
 
                     switch (nombre)
@@ -380,6 +389,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 }
                 return new ArgumentoMotivacionProgramaGeneralDTO
                 {
+                    MotivacionPrincipal = motivacionDescripcion,
                     GarantiaDePrograma = garantiaDePrograma,
                     EstructuraCurricular = estructuraCurricular,
                     DemostracionDeValor = demostracionDeValor,
@@ -499,8 +509,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         ProgramaGeneralArgumentoDetalleMotivacion motivacion = new()
                         {
                             IdProgramaGeneralArgumentoDetalle = detalleInsertado.Id,
-                            IdProgramaGeneralMotivacion = m.Motivacion.Id,
-                            NombreMotivacion = m.Motivacion.Nombre,
+                            IdProgramaMotivacion = m.Motivacion.Id,
                             Estado = true,
                             FechaCreacion = DateTime.Now,
                             FechaModificacion = DateTime.Now,
@@ -518,7 +527,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                             Motivacion = new PGArgumentoDetalleMotivacionDTO
                             {
                                 Id = motivacionInsertada.Id,
-                                Nombre = motivacionInsertada.NombreMotivacion
                             }
                         });
                     }
@@ -688,8 +696,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     var mot = new ProgramaGeneralArgumentoDetalleMotivacion
                     {
                         IdProgramaGeneralArgumentoDetalle = detInsertado.Id, 
-                        IdProgramaGeneralMotivacion = nuevo.Motivacion.Id,
-                        NombreMotivacion = nuevo.Motivacion.Nombre,
+                        IdProgramaMotivacion = nuevo.Motivacion.Id,
                         Estado = true,
                         FechaCreacion = DateTime.Now,
                         FechaModificacion = DateTime.Now,
@@ -722,8 +729,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         var motNew = new ProgramaGeneralArgumentoDetalleMotivacion
                         {
                             IdProgramaGeneralArgumentoDetalle = det.Id,
-                            IdProgramaGeneralMotivacion = dto.Motivacion.Id,
-                            NombreMotivacion = dto.Motivacion.Nombre,
+                            IdProgramaMotivacion = dto.Motivacion.Id,
                             Estado = true,
                             FechaCreacion = DateTime.Now,
                             FechaModificacion = DateTime.Now,
@@ -734,8 +740,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     }
                     else
                     {
-                        motivExist.IdProgramaGeneralMotivacion = dto.Motivacion.Id;
-                        motivExist.NombreMotivacion = dto.Motivacion.Nombre;
+                        motivExist.IdProgramaMotivacion = dto.Motivacion.Id;
                         motivExist.FechaModificacion = DateTime.Now;
                         motivExist.UsuarioModificacion = usuario;
 
@@ -763,7 +768,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     {
                         var motiv = _unitOfWork
                             .ProgramaGeneralArgumentoRepository
-                            .ObtenerProgramaGeneralArgumentoDetalleMotivacion(d.Id);
+                            .ObtenerProgramaGeneralArgumentoDetalleMotivacionNombre(d.Id);
 
                         return new ProgramaGeneralArgumentoDetalleDTO
                         {
@@ -773,7 +778,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                                 ? null
                                 : new PGArgumentoDetalleMotivacionDTO
                                 {
-                                    Id = motiv.IdProgramaGeneralMotivacion,
+                                    Id = motiv.IdProgramaMotivacion,
                                     Nombre = motiv.NombreMotivacion
                                 }
                         };

@@ -47,6 +47,7 @@
     }
     public class ArgumentoMotivacionProgramaGeneralDTO
     {
+        public string MotivacionPrincipal { get; set; }
         public List<ArgumentoMotivacionEstructuraDTO> GarantiaDePrograma { get; set; }
         public List<ArgumentoMotivacionEstructuraDTO> EstructuraCurricular { get; set; }
         public List<ArgumentoMotivacionEstructuraDTO> DemostracionDeValor { get; set; }
@@ -80,6 +81,14 @@
         public string descripcionMotivacion { get; set; }
         public bool seleccionado { get; set; }
     }
+    public class ProgramaGeneralArgumentoDetalleMotivacionNombreDTO
+    {
+        public int IdProgramaGeneralArgumentoDetalleMotivacion { get; set; }
+	    public int IdProgramaGeneralArgumentoDetalle { get; set; }
+	    public int IdProgramaMotivacion { get; set; }
+        public string NombreMotivacion { get; set; }
+    }
+      
     public class FactorDTO
     {
         public int Id { get; set; }

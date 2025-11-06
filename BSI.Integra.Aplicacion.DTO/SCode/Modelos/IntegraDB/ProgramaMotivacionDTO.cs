@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 {
-    public class ProgramaGeneralProblemaFactorDetalleDTO
+    public class ProgramaMotivacionDTO
     {
         public int Id { get; set; }
-        public string? Nombre { get; set; }
-        public string? Titulo { get; set; }
-
+        public string Descripcion { get; set; }
     }
 }
