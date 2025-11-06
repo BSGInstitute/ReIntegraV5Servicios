@@ -179,13 +179,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             return argumentos.OrderBy(a => a.Id).ToList();
         }
 
-        public async Task<List<ConfiguracionProblemaJerarquicaDTO>> ObtenerProblemaCliente(int idPGeneral)
+        public async Task<List<ConfiguracionProblemaJerarquicaDTO>> ObtenerProblemaCliente(int idPGeneral, int? idAlumno = null)
         {
-            // NOTA: mantengo la firma async para que el método pueda seguir integrándose
-            // con código asincrónico de la capa superior. Las llamadas a los repositorios
-            // aquí se realizan de forma secuencial para evitar acceso concurrente al mismo DbContext.
-
-            // Obtener las cuatro listas (secuencial, sin Task.Run ni paralelismo)
             var factorRepo = (await _unitOfWork.ProgramaGeneralProblemaFactorRepository.ObtenerAsync())
                                .OrderBy(f => f.Id)
                                .ToList();
@@ -220,7 +215,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 Nivel = ss.Nivel
             }).ToList();
 
-            // Construir los lookups (O(1) para búsquedas posteriores)
             var lookups = new
             {
                 FactorLookup = factor.ToDictionary(f => f.Id),
@@ -229,44 +223,73 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 SubSolucionLookup = subSoluciones.ToDictionary(ss => ss.Id)
             };
 
-            // Obtener la "tabla de enlace" de forma secuencial (tal como tu repo lo expone)
-            var filas = (await _unitOfWork.ProgramaGeneralProblemaDetalleRepository
-                            .ObtenerProblemaClienteAsync(idPGeneral))
-                            ?? Enumerable.Empty<ProblemaClienteByPGeneral>();
 
-            // Reconstruir los objetos de enlace desde los resultados denormalizados
-            var configuraciones = filas.GroupBy(x => x.Id).Select(g =>
+            var catalogoFilas = (await _unitOfWork.ProgramaGeneralProblemaDetalleRepository
+                                .ObtenerProblemaClienteAsync(idPGeneral))
+                                ?? Enumerable.Empty<ProblemaClienteByPGeneral>();
+
+            IEnumerable<ProblemaClienteByPGeneral> filasParaEnsamblar = catalogoFilas;
+            var solucionesMarcadas = new HashSet<int>();
+
+            if (idAlumno.HasValue)
+            {
+                var respuestasHistoricas = (await _unitOfWork.ProgramaGeneralProblemaDetalleRepository
+                    .ObtenerHistorialRespuestasAsync(idPGeneral, idAlumno.Value))
+                    .ToList();
+
+                var solutionIdsParaMostrar = respuestasHistoricas
+                    .Select(r => r.IdProgramaGeneralProblemaFactorSolucion)
+                    .Distinct()
+                    .ToHashSet();
+
+                solucionesMarcadas = respuestasHistoricas
+                    .Where(r => r.EsSolucionado)
+                    .Select(r => r.IdProgramaGeneralProblemaFactorSolucion)
+                    .ToHashSet();
+
+                filasParaEnsamblar = catalogoFilas.Where(f =>
+                    f.IdProgramaGeneralProblemaFactorSolucion.HasValue &&
+                    solutionIdsParaMostrar.Contains(f.IdProgramaGeneralProblemaFactorSolucion.Value)
+                );
+
+            }
+
+            var configuraciones = filasParaEnsamblar.GroupBy(x => x.Id).Select(g =>
             {
                 var first = g.First();
-
                 var subsolucionIds = g
                     .Where(r => r.IdProgramaGeneralProblemaFactorSubSolucion.HasValue)
                     .Select(r => r.IdProgramaGeneralProblemaFactorSubSolucion!.Value)
                     .Distinct()
                     .ToList();
 
-                return new ProgramaGeneralProblemaDetalleObtener2
+                return new
                 {
-                    Id = g.Key,
-                    IdPGeneral = first.IdPGeneral,
-                    IdProgramaGeneralProblemaFactor = first.IdProgramaGeneralProblemaFactor,
-                    IdProgramaGeneralProblemaFactorDetalle = first.IdProgramaGeneralProblemaFactorDetalle,
-                    IdProgramaGeneralProblemaFactorSolucion = first.IdProgramaGeneralProblemaFactorSolucion,
-                    SubSolucionIds = subsolucionIds,
-                    AplicaTituloDetalle = first.AplicaTituloDetalle,
-                    AplicaNombreDetalle = first.AplicaNombreDetalle,
-                    AplicaPieDePagina = first.AplicaPieDePagina,
-                    AplicaDescripcionSolucion = first.AplicaDescripcionSolucion,
-                    AplicaTituloSolucion = first.AplicaTituloSolucion,
-                    AplicaSubTituloSolucion = first.AplicaSubTituloSolucion
+                    Config = new ProgramaGeneralProblemaDetalleObtener2
+                    {
+                        Id = g.Key,
+                        IdPGeneral = first.IdPGeneral,
+                        IdProgramaGeneralProblemaFactor = first.IdProgramaGeneralProblemaFactor,
+                        IdProgramaGeneralProblemaFactorDetalle = first.IdProgramaGeneralProblemaFactorDetalle,
+                        IdProgramaGeneralProblemaFactorSolucion = first.IdProgramaGeneralProblemaFactorSolucion,
+                        SubSolucionIds = subsolucionIds,
+                        AplicaTituloDetalle = first.AplicaTituloDetalle,
+                        AplicaNombreDetalle = first.AplicaNombreDetalle,
+                        AplicaPieDePagina = first.AplicaPieDePagina,
+                        AplicaDescripcionSolucion = first.AplicaDescripcionSolucion,
+                        AplicaTituloSolucion = first.AplicaTituloSolucion,
+                        AplicaSubTituloSolucion = first.AplicaSubTituloSolucion
+                    },
+                    IdSolucion = first.IdProgramaGeneralProblemaFactorSolucion
                 };
             }).ToList();
 
-            // Ensamblaje final de la jerarquía (en memoria) — idéntico a tu lógica original
             var resultadoFinal = new List<ConfiguracionProblemaJerarquicaDTO>();
 
-            foreach (var config in configuraciones)
+            foreach (var item in configuraciones)
             {
+                var config = item.Config;
+
                 var subSolucionesAnidadas = new List<SubSolucionDTO>();
                 foreach (var subId in config.SubSolucionIds)
                 {
@@ -275,6 +298,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         subSolucionesAnidadas.Add(subSolucionObj);
                     }
                 }
+
+                bool esSeleccionado = item.IdSolucion.HasValue &&
+                                              solucionesMarcadas.Contains(item.IdSolucion.Value);
 
                 var dto = new ConfiguracionProblemaJerarquicaDTO
                 {
@@ -289,7 +315,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     AplicaPieDePagina = config.AplicaPieDePagina,
                     AplicaDescripcionSolucion = config.AplicaDescripcionSolucion,
                     AplicaTituloSolucion = config.AplicaTituloSolucion,
-                    AplicaSubTituloSolucion = config.AplicaSubTituloSolucion
+                    AplicaSubTituloSolucion = config.AplicaSubTituloSolucion,
+
+                    EsSeleccionado = esSeleccionado
                 };
                 resultadoFinal.Add(dto);
             }

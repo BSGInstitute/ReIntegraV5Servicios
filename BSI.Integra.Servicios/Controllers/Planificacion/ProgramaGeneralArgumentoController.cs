@@ -93,11 +93,11 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// Obtiene todos los problemas de cliente
         /// </summary>
         [HttpGet("[action]/{idPGeneral}")]
-        public async Task<IActionResult> ObtenerProblemaCliente(int idPGeneral)
+        public async Task<IActionResult> ObtenerProblemaCliente(int idPGeneral, int? idAlumno = null)
         {
             try
             {
-                var data = await _programaGeneralArgumentoService.ObtenerProblemaCliente(idPGeneral);
+                var data = await _programaGeneralArgumentoService.ObtenerProblemaCliente(idPGeneral, idAlumno);
                 return Ok(data);
             }
             catch (Exception ex)
