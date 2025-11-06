@@ -290,14 +290,4 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public bool EsProblemaIdentificado { get; set; }
         public DateTime FechaCreacion { get; set; }
     }
-    public class ChatActivoDetalleIntegraDTO
-    {
-        public int IdMatriculaCabecera { get; set; }
-        public string Mensaje { get; set; }
-        public DateTime FechaCreacion { get; set; }
-        public string IdRemitente { get; set; }
-        public string Emisor { get; set; }
-        public bool EsChatBot { get; set; }
-        public int Pendientes { get; set; }
-    }
 }
