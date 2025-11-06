@@ -4,9 +4,9 @@
     {
         public int IdPersonalAsignado { get; set; }
         public int IdCentroCosto { get; set; }
-
         public int IdAlumno { get; set; }
-
+        public int? IdOrigen { get; set; }
+        public bool? Activo { get; set; }
     }
     public class OportunidadFichaDTO
     {

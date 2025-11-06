@@ -18,5 +18,11 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         /// Obtiene el estado actual de las conversiones en la cola
         /// </summary>
         Task<List<ConversionEstadoDTO>> ObtenerEstadoConversiones();
+
+        /// <summary>
+        /// Consulta la API de Google Ads para obtener la subcuenta de una campaña
+        /// </summary>
+        /// <param name="campaignId">ID de la campaña de Google Ads</param>
+        Task<GoogleAdsSubcuentaDTO?> ObtenerSubcuentaAPI(string campaignId);
     }
 }

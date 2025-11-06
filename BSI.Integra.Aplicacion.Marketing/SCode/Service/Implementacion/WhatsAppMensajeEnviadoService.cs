@@ -1141,7 +1141,6 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                     throw new BadRequestException("No existe el Programa Especifico");
                 }
                 var alummno = _unitOfWork.AlumnoRepository.ObtenerPorId(dto.IdAlumno);
-                //var alummno = _unitOfWork.AlumnoRepository.ObtenerPorId(oportunidad.IdAlumno);
                 if (alummno == null)
                 {
                     throw new BadRequestException("El alumno no existe");
@@ -1161,9 +1160,12 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                             oportunidadReprogramacionNueva.Oportunidad.IdFaseOportunidad = ValorEstatico.IdFaseOportunidadBNC;
                             oportunidadReprogramacionNueva.Oportunidad.IdPersonalAsignado = dto.IdPersonalAsignado;
                             oportunidadReprogramacionNueva.Oportunidad.IdTipoDato = ValorEstatico.IdTipoDatoLanzamiento;
-                            oportunidadReprogramacionNueva.Oportunidad.IdOrigen = 954;// Whatsapp Chat Bases Propias
+                            oportunidadReprogramacionNueva.Oportunidad.IdOrigen = dto.IdOrigen;
                             oportunidadReprogramacionNueva.Oportunidad.IdAlumno = dto.IdAlumno;
-                            oportunidadReprogramacionNueva.Oportunidad.IdEstadoOportunidad = ValorEstatico.IdEstadoOportunidadNoProgramada;
+                            if (dto.Activo.HasValue && dto.Activo.Value == true)
+                                oportunidadReprogramacionNueva.Oportunidad.IdEstadoOportunidad = ValorEstatico.IdEstadoOportunidadSegMejProg;
+                            else
+                                oportunidadReprogramacionNueva.Oportunidad.IdEstadoOportunidad = ValorEstatico.IdEstadoOportunidadNoProgramada;
                             oportunidadReprogramacionNueva.Oportunidad.UltimaFechaProgramada = null;
                             //oportunidadReprogramacionNueva.IdTipoInteraccion = 15;
                             oportunidadReprogramacionNueva.Oportunidad.IdCentroCosto = dto.IdCentroCosto;
@@ -1176,18 +1178,14 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                             oportunidadReprogramacionNueva.Oportunidad.IdClasificacionPersona = clasificacionPersona.Id;
                             oportunidadReprogramacionNueva.Oportunidad.IdPersonalAreaTrabajo = ValorEstatico.IdPersonalAreaTrabajoVentas;
 
-
                             //SE CREA UNA NUEVA OPORTUNIDAD
                             reprogramacionService.CrearOportunidad(ref oportunidadReprogramacionNueva, false, TipoPersona.Alumno);
 
                             scope.Complete();
-
-
                         }
 
                         catch (Exception ex)
                         {
-                            // scope.Dispose();
                             List<string> correos = new List<string>
                             {
                                 "sistemas@bsginstitute.com"

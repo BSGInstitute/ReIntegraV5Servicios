@@ -65,20 +65,38 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 // 3. Obtener access token
                 var accessToken = await ObtenerAccessToken(credenciales);
 
-                // 4. Enviar en lotes agrupados por tipo
+                // 4. Obtener todas las subcuentas activas
+                var subcuentas = await _repository.ObtenerSubcuentasActivas();
+
+                // 5. Enviar en lotes agrupados por subcuenta y tipo de conversión
                 int exitosas = 0;
                 int errores = 0;
 
-                var grupos = conversiones.GroupBy(c => c.TipoConversion);
+                // Separar conversiones con subcuenta asignada y sin subcuenta
+                var conversionesConSubcuenta = conversiones.Where(c => c.IdSubcuentaGoogle.HasValue).ToList();
+                var conversionesSinSubcuenta = conversiones.Where(c => !c.IdSubcuentaGoogle.HasValue).ToList();
 
-                foreach (var grupo in grupos)
+                // Procesar conversiones con subcuenta asignada
+                var gruposConSubcuenta = conversionesConSubcuenta
+                    .GroupBy(c => new { c.IdSubcuentaGoogle, c.TipoConversion });
+
+                foreach (var grupo in gruposConSubcuenta)
                 {
                     try
                     {
+                        var subcuenta = subcuentas.FirstOrDefault(s => s.Id == grupo.Key.IdSubcuentaGoogle);
+                        if (subcuenta == null)
+                        {
+                            await _repository.RegistrarLog($"Subcuenta {grupo.Key.IdSubcuentaGoogle} no encontrada", false);
+                            errores += grupo.Count();
+                            continue;
+                        }
+
                         var resultado = await EnviarLoteAGoogleAds(
                             grupo.ToList(),
                             accessToken,
-                            credenciales
+                            credenciales,
+                            subcuenta
                         );
 
                         exitosas += resultado.Exitosas;
@@ -86,13 +104,50 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     }
                     catch (Exception ex)
                     {
-                        await _repository.RegistrarLog($"Error al enviar lote de {grupo.Key}: {ex.Message}", false);
+                        await _repository.RegistrarLog($"Error al enviar lote de {grupo.Key.TipoConversion} para subcuenta {grupo.Key.IdSubcuentaGoogle}: {ex.Message}", false);
                         errores += grupo.Count();
 
-                        // Marcar todas como error
                         foreach (var conv in grupo)
                         {
                             await _repository.ActualizarEstadoConversion(conv.Id, "Error", null, ex.Message);
+                        }
+                    }
+                }
+
+                // Procesar conversiones sin subcuenta: enviar a TODAS las subcuentas activas
+                if (conversionesSinSubcuenta.Any())
+                {
+                    await _repository.RegistrarLog($"Procesando {conversionesSinSubcuenta.Count} conversiones sin subcuenta asignada - Se enviarán a todas las subcuentas", true);
+
+                    var gruposSinSubcuenta = conversionesSinSubcuenta.GroupBy(c => c.TipoConversion);
+
+                    foreach (var grupo in gruposSinSubcuenta)
+                    {
+                        // Enviar a cada subcuenta activa
+                        foreach (var subcuenta in subcuentas)
+                        {
+                            try
+                            {
+                                var resultado = await EnviarLoteAGoogleAds(
+                                    grupo.ToList(),
+                                    accessToken,
+                                    credenciales,
+                                    subcuenta
+                                );
+
+                                exitosas += resultado.Exitosas;
+                                errores += resultado.Errores;
+                            }
+                            catch (Exception ex)
+                            {
+                                await _repository.RegistrarLog($"Error al enviar lote de {grupo.Key} a subcuenta {subcuenta.NombreSubcuenta}: {ex.Message}", false);
+                            }
+                        }
+
+                        // Marcar las conversiones como enviadas si al menos una subcuenta fue exitosa
+                        foreach (var conv in grupo)
+                        {
+                            await _repository.ActualizarEstadoConversion(conv.Id, "Enviado", "Enviado a todas las subcuentas por no tener asignación específica", null);
                         }
                     }
                 }
@@ -120,6 +175,38 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         public async Task<List<ConversionEstadoDTO>> ObtenerEstadoConversiones()
         {
             return await _repository.ObtenerEstadoConversiones();
+        }
+
+        public async Task<GoogleAdsSubcuentaDTO?> ObtenerSubcuentaAPI(string campaignId)
+        {
+            try
+            {
+                // 1. Obtener credenciales
+                var credenciales = await _repository.ObtenerCredenciales();
+                if (credenciales == null)
+                {
+                    throw new Exception("No se encontraron credenciales activas");
+                }
+
+                // 2. Obtener access token
+                var accessToken = await ObtenerAccessToken(credenciales);
+
+                // 3. Consultar la API de Google Ads para obtener el customer_id de la campaña
+                var customerId = await ConsultarSubcuentaDeCampania(campaignId, accessToken, credenciales);
+
+                if (string.IsNullOrEmpty(customerId))
+                {
+                    return null;
+                }
+
+                // 4. Buscar la subcuenta en la base de datos por CustomerId
+                return await _repository.ObtenerSubcuentaPorCustomerId(customerId);
+            }
+            catch (Exception ex)
+            {
+                await _repository.RegistrarLog($"Error al obtener subcuenta de campaña {campaignId}: {ex.Message}", false);
+                return null;
+            }
         }
 
         // ==========================================
@@ -161,15 +248,35 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         private async Task<EnvioLoteResultado> EnviarLoteAGoogleAds(
             List<ConversionQueueDTO> conversiones,
             string accessToken,
-            AdwordsCredencialesDTO credenciales)
+            AdwordsCredencialesDTO credenciales,
+            GoogleAdsSubcuentaDTO subcuenta)
         {
             // Preparar payload
             var conversionesPayload = conversiones.Select(c =>
             {
+                // Calcular el ConversionActionId dinámicamente desde la subcuenta
+                string conversionActionId;
+                if (!string.IsNullOrEmpty(c.ConversionActionId))
+                {
+                    // Si ya tiene ConversionActionId desde la BD, usarlo
+                    conversionActionId = c.ConversionActionId;
+                }
+                else
+                {
+                    // Calcularlo dinámicamente desde la subcuenta según el TipoConversion
+                    conversionActionId = c.TipoConversion switch
+                    {
+                        "Conversion IT" => subcuenta.ConversionActionIdIT ?? string.Empty,
+                        "Conversion IP, PF" => subcuenta.ConversionActionIdIPPF ?? string.Empty,
+                        "Conversion IC, IS y M" => subcuenta.ConversionActionIdICISM ?? string.Empty,
+                        _ => string.Empty
+                    };
+                }
+
                 var conversion = new Dictionary<string, object>
                 {
                     ["gclid"] = c.Gclid,
-                    ["conversionAction"] = c.ConversionActionId,
+                    ["conversionAction"] = conversionActionId,
                     ["conversionDateTime"] = c.FechaHoraConversionFormatoGoogle,
                     ["currencyCode"] = "USD"
                 };
@@ -218,8 +325,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             {
                 httpClient.Timeout = TimeSpan.FromMinutes(5);
 
-                // URL con el Customer ID de la sub-cuenta donde están las conversiones
-                var customerId = credenciales.CustomerId.Replace("-", "");
+                // URL con el Customer ID de la subcuenta específica
+                var customerId = subcuenta.CustomerId.Replace("-", "");
                 var url = $"https://googleads.googleapis.com/{credenciales.ApiVersion}/customers/{customerId}:uploadClickConversions";
 
                 var request = new HttpRequestMessage(HttpMethod.Post, url);
@@ -262,6 +369,59 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 }
 
                 return new EnvioLoteResultado { Exitosas = exitosas, Errores = errores };
+            }
+        }
+
+        private async Task<string?> ConsultarSubcuentaDeCampania(string campaignId, string accessToken, AdwordsCredencialesDTO credenciales)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                httpClient.Timeout = TimeSpan.FromSeconds(30);
+
+                // Usar el Manager Account para buscar la campaña
+                var managerAccountId = credenciales.ManagerAccountId?.Replace("-", "") ?? credenciales.CustomerId.Replace("-", "");
+                var url = $"https://googleads.googleapis.com/{credenciales.ApiVersion}/customers/{managerAccountId}/googleAds:searchStream";
+
+                var gaqlQuery = new
+                {
+                    query = $@"
+                        SELECT
+                            campaign.id,
+                            campaign.name,
+                            customer.id
+                        FROM campaign
+                        WHERE campaign.id = {campaignId}
+                        LIMIT 1"
+                };
+
+                var jsonPayload = JsonConvert.SerializeObject(gaqlQuery);
+
+                var request = new HttpRequestMessage(HttpMethod.Post, url);
+                request.Headers.Add("Authorization", $"Bearer {accessToken}");
+                request.Headers.Add("developer-token", credenciales.DeveloperToken);
+                request.Content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+
+                var response = await httpClient.SendAsync(request);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    await _repository.RegistrarLog($"Error al consultar campaña {campaignId}: {responseContent}", false);
+                    return null;
+                }
+
+                // Parsear respuesta
+                dynamic? resultado = JsonConvert.DeserializeObject(responseContent);
+
+                if (resultado == null || resultado.results == null || resultado.results.Count == 0)
+                {
+                    return null;
+                }
+
+                // Extraer el customer.id del primer resultado
+                var customerResourceName = resultado.results[0].customer?.id?.ToString();
+
+                return customerResourceName;
             }
         }
     }
