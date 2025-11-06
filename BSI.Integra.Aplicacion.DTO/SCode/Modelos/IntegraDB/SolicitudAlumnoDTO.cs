@@ -217,7 +217,139 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public DateTime? FechaInicio { get; set; }
         public DateTime? FechaFin { get; set; }
     }
+    //EndPoints ChatBot
+    // DTOs para la respuesta jerárquica
+    public class ProblemaSolicitudDTO
+    {
+        public int Id { get; set; }
+        public string Problema { get; set; }
+    }
 
+    public class CategoriaSolicitudDTO
+    {
+        public int Id { get; set; }
+        public string Categoria { get; set; }
+        public List<ProblemaSolicitudDTO> Problemas { get; set; } =
+            new List<ProblemaSolicitudDTO>();
+    }
+
+    public class TipoSolicitudAlumnoDTO
+    {
+        public int Id { get; set; }
+        public string TipoSolicitud { get; set; }
+        public List<CategoriaSolicitudDTO> Categorias { get; set; } =
+            new List<CategoriaSolicitudDTO>();
+    }
+
+    public class TiposSolicitudCompletoDTO
+    {
+        public List<TipoSolicitudAlumnoDTO> TiposSolicitud { get; set; } =
+            new List<TipoSolicitudAlumnoDTO>();
+        public string Error { get; set; }
+    }
+
+    public class ErrorDetalleDTO
+    {
+        public string Descripción { get; set; }
+        public string Exception { get; set; }
+    }
+
+    public class TiposSolicitudAlumnosCompletoDTO
+    {
+        public List<TipoSolicitudAlumnoDTO> TiposSolicitud { get; set; }
+        public ErrorDetalleDTO Error { get; set; }
+    }
+
+    public class TipoSolicitudEstructuraDTO
+    {
+        public int IdSolicitudTipoReporte { get; set; }
+        public string TipoSolicitud { get; set; }
+        public int IdSolicitudCategoria { get; set; }
+        public string Categoria { get; set; }
+        public int IdSolicitudProblema { get; set; }
+        public string Problema { get; set; }
+    }
+
+    public class VerificarSolicitudAlumnoDTO
+    {
+        public int IdTipoReporte { get; set; }
+        public int Categoria { get; set; }
+        public int Problema { get; set; }
+        public int IdAlumno { get; set; }
+        public int IdPGeneral { get; set; }
+        public int? IdPEspecifico { get; set; }
+    }
+
+    public class RespuestaVerificacionSolicitudDTO
+    {
+        public string Mensaje { get; set; }
+        public bool? ExisteSolicitud { get; set; }
+        public int? TiempoPasadoHoras { get; set; }
+        public string EstadoSolicitud { get; set; }
+        public ErrorDetalleDTO Error { get; set; }
+        public int IdControlSolicitudOrigen { get; set; }
+    }
+
+    public class SolicitudAlumnoRevisionDTO
+    {
+        public int Id { get; set; }
+        public int IdAlumno { get; set; }
+        public int IdMatriculaCabecera { get; set; }
+        public string CodigoMatricula { get; set; }
+        public string NombreAlumno { get; set; }
+        public int IdPEspecifico { get; set; }
+        public string NombrePEspecifico { get; set; }
+        public int IdCentroCosto { get; set; }
+        public string CentroCosto { get; set; }
+        public int IdPGeneral { get; set; }
+        public string PGeneral { get; set; }
+        public string DetalleSolicitud { get; set; }
+        public string Prioridad { get; set; }
+        public string NombreSolicitud { get; set; }
+        public int IdTipoReporte { get; set; }
+        public string Tipo { get; set; }
+        public int IdSolicitudCategoria { get; set; }
+        public string NombreSolicitudCategoria { get; set; }
+        public int IdSubCategoria { get; set; }
+        public string NombreSubCategoria { get; set; }
+        public int IdSolicitante { get; set; }
+        public string NombreSolicitante { get; set; }
+        public int IdAreaSolicitante { get; set; }
+        public string AreaSolicitante { get; set; }
+        public int IdAreaRevision { get; set; }
+        public string AreaRevision { get; set; }
+        public string NombreArchivoSolicitante { get; set; }
+        public int IdPersonalRevision { get; set; }
+        public string PersonalRevision { get; set; }
+        public int IdAreaSolucion { get; set; }
+        public string AreaSolucion { get; set; }
+        public int IdPersonalSolucion { get; set; }
+        public string PersonalSolucion { get; set; }
+        public DateTime FechaRegistro { get; set; }
+        public string ComentarioSolucion { get; set; }
+        public string NombreArchivoSolucion { get; set; }
+        public int IdEstadoSolicitud { get; set; }
+        public string EstadoSolicitud { get; set; }
+        public int IdControlSolicitudOrigen { get; set; }
+        public string ControlSolicitudOrigen { get; set; }
+    }
+
+    public class RegistrarSolicitudAlumnoDTO
+    {
+        public int TipoSolicitudId { get; set; }
+        public int Categoria { get; set; }
+        public int Problema { get; set; }
+        public int AlumnoId { get; set; }
+        public int IdPEspecifico { get; set; }
+        public string DetalleSolicitud { get; set; }
+    }
+
+    public class RespuestaRegistroSolicitudDTO
+    {
+        public string Mensaje { get; set; }
+        public int? SolicitudId { get; set; }
+        public ErrorDetalleDTO Error { get; set; }
+    }
 
 
 }
