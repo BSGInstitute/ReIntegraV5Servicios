@@ -32904,6 +32904,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.IdProgramaMotivacion).HasComment("Programa de motivación seleccionado");
 
+                entity.Property(e => e.Prioridad).HasComment("Indica la prioridad de la motivacion.");
+
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
                     .IsConcurrencyToken()
