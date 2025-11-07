@@ -558,13 +558,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <param name="idPGeneral">Id del Programa General</param>
         /// <param name="idAlumno">Id del Alumno</param>
         /// <returns> List<PGeneralPublicoObjetivoParaAgendaDTO> </returns>
-        public IEnumerable<PGeneralPublicoObjetivoParaAgendaDTO> ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3PorAlumno(int idPGeneral, int idAlumno)
+        public IEnumerable<PGeneralPublicoObjetivoParaAgendaDTO> ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3PorAlumno(int idOportunidad, int idAlumno)
         {
             try
             {
                 List<PGeneralPublicoObjetivoParaAgendaDTO> publicoObjetivo = new List<PGeneralPublicoObjetivoParaAgendaDTO>();
 
-                var parametros = new { idPGeneral, idAlumno };
+                var parametros = new { idOportunidad, idAlumno };
                 var resultadoStoreProcedure = _dapperRepository.QuerySPDapper("com.SP_ObtenerPublicoObjetivoProgramaGeneralAgendaV3PorAlumno", parametros);
 
                 if (!string.IsNullOrEmpty(resultadoStoreProcedure) && !resultadoStoreProcedure.Contains("[]"))

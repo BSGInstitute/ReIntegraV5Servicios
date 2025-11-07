@@ -288,7 +288,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 var query = @"
-                SELECT Id, IdProgramaGeneralArgumentoDetalle, IdProgramaGeneralMotivacion, NombreMotivacion, Estado,
+                SELECT Id, IdProgramaGeneralArgumentoDetalle, IdProgramaMotivacion, Estado,
                        FechaCreacion, FechaModificacion, UsuarioCreacion, UsuarioModificacion, RowVersion
                 FROM pla.T_ProgramaGeneralArgumentoDetalleMotivacion
                 WHERE Estado = 1 AND IdProgramaGeneralArgumentoDetalle = @IdProgramaGeneralArgumentoDetalle";
@@ -437,26 +437,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 throw ex;
             }
         }
-        public async Task<IEnumerable<ProgramaGeneralArgumentoDTO>> ObtenerTodoProgramaGeneralAsync(int IdPGeneral)
+        public async Task<IEnumerable<ProgramaGeneralArgumentoDTO>> ObtenerTodoProgramaGeneralAsync(int IdOportunidad)
         {
             try
             {
-                var query = @"
-                SELECT
-                    Id,
-                    IdPGeneral,
-                    Nombre,
-                    Descripcion,
-                    EsVisibleAgenda,
-                    Estado,
-                    UsuarioCreacion,
-                    UsuarioModificacion,
-                    FechaCreacion,
-                    FechaModificacion,RowVersion
-                FROM pla.T_ProgramaGeneralArgumento
-                WHERE Estado = 1 AND IdPGeneral = @IdPGeneral";
+                var query = @"EXEC [pla].[SP_ObtenerArgumentosPorOportunidad] @IdOportunidad";
 
-                var resultado = await _dapperRepository.QueryDapperAsync(query, new { IdPGeneral }).ConfigureAwait(false);
+                var resultado = await _dapperRepository.QueryDapperAsync(query, new { IdOportunidad }).ConfigureAwait(false);
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {

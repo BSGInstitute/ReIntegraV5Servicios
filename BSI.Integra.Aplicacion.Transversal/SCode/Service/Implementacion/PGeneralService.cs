@@ -254,12 +254,12 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         /// <param name="idPGeneral">Id del Programa General</param>
         /// <param name="idAlumno">Id del Alumno</param>
         /// <returns> List<PGeneralPublicoObjetivoSalidaDTO> </returns>
-        public IEnumerable<PGeneralPublicoObjetivoSalidaDTO> ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3PorAlumno(int idPGeneral, int idAlumno)
+        public IEnumerable<PGeneralPublicoObjetivoSalidaDTO> ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3PorAlumno(int idOportunidad, int idAlumno)
         {
             IEnumerable<PGeneralPublicoObjetivoParaAgendaDTO> datosRepo;
             try
             {
-                datosRepo = _unitOfWork.PGeneralRepository.ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3PorAlumno(idPGeneral, idAlumno);
+                datosRepo = _unitOfWork.PGeneralRepository.ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3PorAlumno(idOportunidad, idAlumno);
             }
             catch (Exception ex)
             {

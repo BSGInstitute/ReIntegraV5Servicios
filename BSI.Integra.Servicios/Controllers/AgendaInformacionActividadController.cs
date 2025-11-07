@@ -122,11 +122,11 @@ namespace BSI.Integra.Servicios.Controllers
         /// <summary>
         /// Obtiene el Publico Objetivo para un Programa General para la nueva version de la agenda
         /// </summary>
-        /// <param name="idPGeneral">Id del Programa General</param>
+        /// <param name="idOportunidad">Id del Programa General</param>
         /// <param name="idAlumno">Id del Alumno</param>
         /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
-        [HttpGet("ObtenerPublicoObjetivoProgramaNuevaAgendaV3PorAlumno/{idPGeneral}/{idAlumno}")]
-        public IActionResult ObtenerPublicoObjetivoProgramaNuevaAgendaV3PorAlumno(int idPGeneral, int idAlumno)
+        [HttpGet("ObtenerPublicoObjetivoProgramaNuevaAgendaV3PorAlumno/{idOportunidad}/{idAlumno}")]
+        public IActionResult ObtenerPublicoObjetivoProgramaNuevaAgendaV3PorAlumno(int idOportunidad, int idAlumno)
         {
             if (!ModelState.IsValid)
             {
@@ -135,7 +135,7 @@ namespace BSI.Integra.Servicios.Controllers
             try
             {
                 var servicio = new PGeneralService(_unitOfWork);
-                return Ok(servicio.ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3PorAlumno(idPGeneral, idAlumno));
+                return Ok(servicio.ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3PorAlumno(idOportunidad, idAlumno));
             }
             catch (Exception ex)
             {
