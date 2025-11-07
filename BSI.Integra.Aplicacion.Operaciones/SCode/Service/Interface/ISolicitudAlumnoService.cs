@@ -1,10 +1,10 @@
-﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
-using BSI.Integra.Persistencia.Entidades.IntegraDB;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
 
 namespace BSI.Integra.Aplicacion.Operaciones.Service.Interface
 {
@@ -20,7 +20,18 @@ namespace BSI.Integra.Aplicacion.Operaciones.Service.Interface
         #endregion
         SolicitudAlumno ObtenerPorId(int id);
         IEnumerable<SolicitudPersonalAlumnoDTO> ObtenerPersonalSolicitanteAlumno();
-        IEnumerable<SolicitudPersonalSolucionAlumnoDTO> ObtenerPersonalSolucionSolicitudAlumno(List<int> IdPersonal);
-        IEnumerable<ReporteSolicitudAlumnoDTO> ObtenerReporteSolicitudesPorFiltroAlumno(FiltroReporteSolicitudAlumnoDTO FiltroReporteSolicitud);
+        IEnumerable<SolicitudPersonalSolucionAlumnoDTO> ObtenerPersonalSolucionSolicitudAlumno(
+            List<int> IdPersonal
+        );
+        IEnumerable<ReporteSolicitudAlumnoDTO> ObtenerReporteSolicitudesPorFiltroAlumno(
+            FiltroReporteSolicitudAlumnoDTO FiltroReporteSolicitud
+        );
+        TiposSolicitudAlumnosCompletoDTO ObtenerTiposSolicitudCompleto();
+        RespuestaVerificacionSolicitudDTO VerificarSolicitudActivaAlumno(
+            VerificarSolicitudAlumnoDTO filtro
+        );
+        RespuestaRegistroSolicitudDTO RegistrarSolicitudAlumno(
+            RegistrarSolicitudAlumnoDTO solicitud
+        );
     }
 }
