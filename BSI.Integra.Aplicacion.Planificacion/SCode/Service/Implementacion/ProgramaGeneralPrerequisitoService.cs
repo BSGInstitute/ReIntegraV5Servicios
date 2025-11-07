@@ -56,6 +56,57 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw ex;
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 07/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene Prerequisitos asociados a una Oportunidad.
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <returns> List<ProgramaGeneralPrerequisitoOportunidadDTO> </returns>
+        public IEnumerable<ProgramaGeneralPrerequisitoOportunidadV2DTO> ObtenerProgramaGeneralPrerequisitoPorIdOportunidadV2(int idOportunidad)
+        {
+            IEnumerable<ProgramaGeneralPrerequisitoOportunidadDTO> datosRepo;
+            try
+            {
+                datosRepo = _unitOfWork.ProgramaGeneralPrerequisitoRepository.ObtenerProgramaGeneralPrerequisitoPorIdOportunidad(idOportunidad);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en la capa de repositorio: {ex.Message}", ex);
+            }
+
+            if (datosRepo == null)
+            {
+                return Enumerable.Empty<ProgramaGeneralPrerequisitoOportunidadV2DTO>();
+            }
+
+            string ObtenerTextoRespuesta(int idRespuesta)
+            {
+                if (idRespuesta == 0) return null;
+                _mapeoRespuestas.TryGetValue(idRespuesta, out string txt);
+                return txt;
+            }
+            var resultadoTransformado = datosRepo.Select(prereq => new ProgramaGeneralPrerequisitoOportunidadV2DTO
+            {
+                IdPrerequisito = prereq.IdPrerequisito,
+                PRNombre = prereq.PRNombre,
+                Completado = prereq.Completado,
+                Respuesta = ObtenerTextoRespuesta(prereq.Respuesta)
+            });
+
+            return resultadoTransformado;
+        }
+        private static readonly Dictionary<int, string> _mapeoRespuestas = new Dictionary<int, string>
+        {
+            { 1, "Cumple al 100%" },
+            { 2, "Cumple al 75%" },
+            { 3, "Cumple al 50%" },
+            { 4, "Cumple al 25%" },
+            { 5, "No cumple" }
+        };
+
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 26/07/2022
         /// Version: 1.0

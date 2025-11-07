@@ -398,6 +398,41 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 07/11/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los Prerequisitos, Beneficios y Competidores asociados a una Oportunidad
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerPrerequisitosBeneficiosCompetidoresPorIdOportunidadV2/{idOportunidad}")]
+        public IActionResult ObtenerPrerequisitosBeneficiosCompetidoresPorIdOportunidadV2(int idOportunidad)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicioPrerequisito = new ProgramaGeneralPrerequisitoService(_unitOfWork);
+
+                var datosOportunidad = new OportunidadPrerequisitoGeneralesCompetidorDTO();
+
+
+                datosOportunidad.PrerequisitosGenerales =
+                    servicioPrerequisito.ObtenerProgramaGeneralPrerequisitoPorIdOportunidadV2(idOportunidad).ToList();
+
+                return Ok(datosOportunidad);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 27/07/2022
