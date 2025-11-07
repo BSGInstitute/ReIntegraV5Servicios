@@ -6,6 +6,7 @@ using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace BSI.Integra.Servicios.Controllers.Comercial
 {
@@ -403,6 +404,23 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         public IActionResult ObtenerHistorialInteraccionesPorIdOportunidad3cx(int idOportunidad)
         {
             return Ok(_agendaActividadService.ObtenerHistorialInteraccionesPorIdOportunidad3cx(idOportunidad));
+        }
+
+
+        /// Tipo Función: GET
+        /// Autor: Flavio R. Mamani Fabian
+        /// Fecha: 27//11/2023
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el Historial de Interacciones de la Oportunidad por su Id con transcripciones
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("[action]/{idOportunidad}")]
+        public async Task<IActionResult> ObtenerHistorialInteraccionesPorIdOportunidadAnalisisMensajePersonalizado(int idOportunidad)
+        {
+            var result = await _agendaActividadService.ObtenerHistorialInteraccionesPorIdOportunidadMensajePersonalizado(idOportunidad);
+            return Ok(result);
         }
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.

@@ -8,8 +8,9 @@ using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial.Transc
 
 namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Interface
 {
-    public interface ITranscriptionService 
+    public interface ITranscriptionService
     {
         Task InsertTranscriptionDataAsync(TranscriptionWebhookPayloadDTO payload);
+        Task<TranscripcionCompletaResponseDTO> ObtenerTranscripcion(int idLlamada);
     }
 }

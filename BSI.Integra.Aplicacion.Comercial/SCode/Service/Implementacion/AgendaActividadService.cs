@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.Base.Exceptions;
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
+using BSI.Integra.Aplicacion.Comercial.SCode.Service.Interface;
+using BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
@@ -547,6 +549,102 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 throw ex;
             }
         }
+
+        /// Autor: Flavio R. Mamani Fabian
+        /// Fecha: 27/11/2023
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el Historial de Interacciones de la Oportunidad por su Id
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        /// AutorModificacion:Margiory Ramirez 
+        /// Validacion si la oportunidad que trae es una venta cruzada,
+        /// si no es sigue flujo,si es trae la oportunidad anterior y la actual
+        /// Fecha Modificacion: 12/10/2023
+        /// Versión: 1.0
+        public async Task<HistorialInteraccionesResponseDTO> ObtenerHistorialInteraccionesPorIdOportunidadMensajePersonalizado(int idOportunidad)
+        {
+            try
+            {
+                IOportunidadLogService oportunidadLogService = new OportunidadLogService(_unitOfWork);
+                ITranscriptionService transcriptionService = new TranscriptionService(_unitOfWork);
+                var ventaCruzada = _unitOfWork.OportunidadRepository.ValidarOportundadVentaCruzada(idOportunidad);
+                var reporte = oportunidadLogService.ObtenerReporteSeguimientoActividadesPorIdOportunidad(idOportunidad);
+                var reporteSeguimientoNWActividadDTOs = new List<ReporteSeguimientoNWActividadAlternoDTO?>
+                    {
+                        reporte.FirstOrDefault(x => x.Estado == "NO EJECUTADO")
+                    };
+                reporteSeguimientoNWActividadDTOs.AddRange(reporte.Where(x => x.Estado != "NO EJECUTADO").OrderByDescending(x => x.FechaModificacion).ToList());
+                if (ventaCruzada != null)
+                {
+                    var RN1 = _unitOfWork.OportunidadRepository.ObtnerUltimoRN1(ventaCruzada);
+                    if (RN1 != null && RN1 != 0)
+                    {
+                        var reporteRN1 = oportunidadLogService.ObtenerReporteSeguimientoActividadesPorIdOportunidad(RN1.Value);
+                        var reporteSeguimientoNWActividadDTOsRN1 = new List<ReporteSeguimientoNWActividadAlternoDTO?>();
+                        reporteSeguimientoNWActividadDTOsRN1.AddRange(reporteRN1.Where(x => x.Estado != "NO EJECUTADO").OrderByDescending(x => x.FechaModificacion).ToList());
+                        reporteSeguimientoNWActividadDTOs.AddRange(reporteSeguimientoNWActividadDTOsRN1);
+                    }
+                }
+
+                var response = new HistorialInteraccionesResponseDTO();
+
+                // Procesar los registros: los primeros 4 van a PrimerasInteracciones, el resto a InteraccionesAnteriores
+                for (int i = 0; i < reporteSeguimientoNWActividadDTOs.Count; i++)
+                {
+                    var actividad = reporteSeguimientoNWActividadDTOs[i];
+
+                    if (i < 4)
+                    {
+                        // Para los primeros 4, obtener toda la información incluyendo transcripciones
+                        if (actividad != null && actividad.LlamadasIntegra3cx != null)
+                        {
+                            foreach (var llamada in actividad.LlamadasIntegra3cx)
+                            {
+                                if (llamada.Id.HasValue)
+                                {
+                                    try
+                                    {
+                                        var transcripcion = await transcriptionService.ObtenerTranscripcion(llamada.Id.Value);
+                                        llamada.Transcripcion = transcripcion;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        // Si no se puede obtener la transcripción, simplemente se deja como null
+                                        llamada.Transcripcion = null;
+                                    }
+                                }
+                            }
+                        }
+                        response.PrimerasInteracciones.Add(actividad);
+                    }
+                    else
+                    {
+                        // Para los registros después del 4to, crear un objeto resumido
+                        if (actividad != null)
+                        {
+                            var interaccionResumida = new InteraccionAnteriorResumidaDTO
+                            {
+                                FechaModificacion = actividad.FechaModificacion,
+                                FechaSiguienteLlamada = actividad.FechaSiguienteLlamada,
+                                FaseInicio = actividad.FaseInicio,
+                                FaseDestino = actividad.FaseDestino,
+                                FechaInicioLlamada = actividad.LlamadasIntegra3cx?.FirstOrDefault()?.FechaInicioLlamada
+                            };
+                            response.InteraccionesAnteriores.Add(interaccionResumida);
+                        }
+                    }
+                }
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 01/08/2022
         /// Versión: 1.0

@@ -396,6 +396,21 @@
         public bool OtroMedio { get; set; }
         public List<LlamadaIntegra3cxDTO> LlamadasIntegra3cx { get; set; } = new List<LlamadaIntegra3cxDTO>();
     }
+
+    public class InteraccionAnteriorResumidaDTO
+    {
+        public DateTime? FechaModificacion { get; set; }
+        public DateTime? FechaSiguienteLlamada { get; set; }
+        public string? FaseInicio { get; set; }
+        public string? FaseDestino { get; set; }
+        public DateTime? FechaInicioLlamada { get; set; }
+    }
+
+    public class HistorialInteraccionesResponseDTO
+    {
+        public List<ReporteSeguimientoNWActividadAlternoDTO?> PrimerasInteracciones { get; set; } = new List<ReporteSeguimientoNWActividadAlternoDTO?>();
+        public List<InteraccionAnteriorResumidaDTO> InteraccionesAnteriores { get; set; } = new List<InteraccionAnteriorResumidaDTO>();
+    }
     public class EstadoFaseOportunidadLogDTO
     {
         public int? IdFaseOportunidad { get; set; }
