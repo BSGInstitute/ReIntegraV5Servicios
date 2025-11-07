@@ -153,4 +153,11 @@
         public string NombreMotivacion { get; set; }
         public int? Prioridad { get; set; }
     }
+
+    public class MotivacionDiccionarioViewDTO
+    {
+        public int IdProgramaMotivacion { get; set; }
+        public string DescripcionProgramaMotivacion { get; set; }
+        public string NombreMotivacionAlterno { get; set; }
+    }
 }

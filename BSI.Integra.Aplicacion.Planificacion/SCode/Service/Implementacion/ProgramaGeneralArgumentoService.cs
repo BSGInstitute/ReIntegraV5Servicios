@@ -950,5 +950,16 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw ex;
             }
         }
+        public List<MotivacionDiccionarioViewDTO> ObtenerMotivacionesTodoDiccionario()
+        {
+            try
+            {
+                return _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerMotivacionesTodoDiccionario();
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

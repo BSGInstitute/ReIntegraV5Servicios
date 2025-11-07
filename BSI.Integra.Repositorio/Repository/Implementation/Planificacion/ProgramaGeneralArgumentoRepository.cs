@@ -519,6 +519,28 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
+        public List<MotivacionDiccionarioViewDTO> ObtenerMotivacionesTodoDiccionario()
+        {
+            try
+            {
+                List<MotivacionDiccionarioViewDTO> rpta = new List<MotivacionDiccionarioViewDTO>();
+                var query = @"
+                    SELECT IdProgramaMotivacion, DescripcionProgramaMotivacion, NombreMotivacionAlterno
+                    FROM pla.V_ProgramaMotivacionDiccionario_ProgramaMotivacion
+                ";
+                var resultado = _dapperRepository.QueryDapper(query, new {});
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<MotivacionDiccionarioViewDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public ProgramaGeneralArgumentoDetalleMotivacionNombreDTO ObtenerProgramaGeneralArgumentoDetalleMotivacionNombre(int IdProgramaGeneralArgumentoDetalle)
         {
             try
