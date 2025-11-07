@@ -80,6 +80,7 @@
         public int IdMotivacion { get; set; }
         public string descripcionMotivacion { get; set; }
         public bool seleccionado { get; set; }
+        public int prioridad { get; set; }
     }
     public class ProgramaGeneralArgumentoDetalleMotivacionNombreDTO
     {
