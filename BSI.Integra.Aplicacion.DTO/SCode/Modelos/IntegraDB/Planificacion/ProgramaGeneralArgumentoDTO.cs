@@ -144,5 +144,11 @@
         public bool AplicaDescripcionSolucion { get; set; }
         public bool AplicaTituloSolucion { get; set; }
         public bool AplicaSubTituloSolucion { get; set; }
+        public bool EsSeleccionado { get; set; }
+    }
+    public class RespuestaHistoricaDTO
+    {
+        public int IdProgramaGeneralProblemaFactorSolucion { get; set; }
+        public bool EsSolucionado { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -265,28 +266,27 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+
         public async Task<IEnumerable<ProblemaClienteByPGeneral>> ObtenerProblemaClienteAsync(int idPGeneral)
         {
             try
             {
-                var query = @"
-                SELECT AplicaDescripcionSolucion,
-                       AplicaNombreDetalle,
-                       AplicaPieDePagina,
-                       AplicaSubTituloSolucion,
-                       AplicaTituloDetalle,
-                       AplicaTituloSolucion,
-                       IdPGeneral,
-                       Id,
-                       IdProgramaGeneralProblemaFactorDetalle,
-                       IdProgramaGeneralProblemaFactor,
-                       IdProgramaGeneralProblemaFactorSolucion,
-                       IdProgramaGeneralProblemaFactorSubSolucion,
-                       IdProgramaGeneralProblemaFactorSubSolucionAsignada
-                FROM pla.V_ObtenerConfiguracionProblemaFactoByPGeneral
-                WHERE IdPGeneral = @idPGeneral
-                ORDER BY Id DESC";
-                var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
+                var queryBase = @"
+        SELECT DISTINCT
+            pc.AplicaDescripcionSolucion, pc.AplicaNombreDetalle, pc.AplicaPieDePagina,
+            pc.AplicaSubTituloSolucion, pc.AplicaTituloDetalle, pc.AplicaTituloSolucion,
+            pc.IdPGeneral, pc.Id, pc.IdProgramaGeneralProblemaFactorDetalle,
+            pc.IdProgramaGeneralProblemaFactor, pc.IdProgramaGeneralProblemaFactorSolucion,
+            pc.IdProgramaGeneralProblemaFactorSubSolucion, 
+            pc.IdProgramaGeneralProblemaFactorSubSolucionAsignada
+        FROM pla.V_ObtenerConfiguracionProblemaFactoByPGeneral pc
+        WHERE pc.IdPGeneral = @idPGeneral
+        ORDER BY pc.Id DESC
+        ";
+
+                var resultado = await _dapperRepository
+                    .QueryDapperAsync(queryBase, new { idPGeneral });
+
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
                     return JsonConvert.DeserializeObject<IEnumerable<ProblemaClienteByPGeneral>>(resultado)!;
@@ -295,7 +295,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error en ObtenerProblemaClienteAsync(), {ex.Message}");
+                throw ex;
             }
         }
 
@@ -324,6 +324,35 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
-        
+
+        public async Task<IEnumerable<RespuestaHistoricaDTO>> ObtenerHistorialRespuestasAsync(
+            int idPGeneral,
+            int? idAlumno)
+        {
+            try
+            {
+                var query = @"
+                            EXEC [pla].SP_TProgramaGeneralProblemaFactorSolucionRespuesta_ObtenerObjeciones
+                                        @idPGeneral = @idPGeneral,
+                                        @idAlumno = @idAlumno;
+                            ";
+
+                var resultadoJson = await _dapperRepository.QueryDapperAsync(
+                    query,
+                    new { idPGeneral, idAlumno }
+                );
+
+                if (string.IsNullOrEmpty(resultadoJson) || resultadoJson.Contains("[]"))
+                {
+                    return Enumerable.Empty<RespuestaHistoricaDTO>();
+                }
+
+                return JsonConvert.DeserializeObject<IEnumerable<RespuestaHistoricaDTO>>(resultadoJson)!;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

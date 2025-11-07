@@ -122,7 +122,33 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
-        
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 06/11/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el Publico Objetivo para un Programa General para la nueva version de la agenda
+        /// </summary>
+        /// <param name="idPGeneral">Id del Programa General</param>
+        /// <param name="idAlumno">Id del Alumno</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerPublicoObjetivoProgramaNuevaAgendaV3PorAlumno/{idPGeneral}/{idAlumno}")]
+        public IActionResult ObtenerPublicoObjetivoProgramaNuevaAgendaV3PorAlumno(int idPGeneral, int idAlumno)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new PGeneralService(_unitOfWork);
+                return Ok(servicio.ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3PorAlumno(idPGeneral, idAlumno));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         /// Tipo Función: GET
         /// Autor: Carlos Crispin R.
         /// Mdificado por: Jose Vega (2025-08-27) - Ajuste para retornar JSON estructurado en la respuesta.
@@ -161,6 +187,7 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 22/07/2022
@@ -531,6 +558,41 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 07/11/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los Prerequisitos, Beneficios y Competidores asociados a una Oportunidad
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerPrerequisitosBeneficiosCompetidoresPorIdOportunidadV2/{idOportunidad}")]
+        public IActionResult ObtenerPrerequisitosBeneficiosCompetidoresPorIdOportunidadV2(int idOportunidad)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicioPrerequisito = new ProgramaGeneralPrerequisitoService(_unitOfWork);
+
+                var datosOportunidad = new OportunidadPrerequisitoGeneralesCompetidorDTO();
+
+
+                datosOportunidad.PrerequisitosGenerales =
+                    servicioPrerequisito.ObtenerProgramaGeneralPrerequisitoPorIdOportunidadV2(idOportunidad).ToList();
+
+                return Ok(datosOportunidad);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 27/07/2022

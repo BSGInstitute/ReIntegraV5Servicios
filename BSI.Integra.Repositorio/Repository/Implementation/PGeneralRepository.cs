@@ -549,6 +549,36 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+        /// Autor: Jose Vega
+        /// Fecha: 06/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene Publico Objetivo para Agenda Nueva V3
+        /// </summary>
+        /// <param name="idPGeneral">Id del Programa General</param>
+        /// <param name="idAlumno">Id del Alumno</param>
+        /// <returns> List<PGeneralPublicoObjetivoParaAgendaDTO> </returns>
+        public IEnumerable<PGeneralPublicoObjetivoParaAgendaDTO> ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3PorAlumno(int idPGeneral, int idAlumno)
+        {
+            try
+            {
+                List<PGeneralPublicoObjetivoParaAgendaDTO> publicoObjetivo = new List<PGeneralPublicoObjetivoParaAgendaDTO>();
+
+                var parametros = new { idPGeneral, idAlumno };
+                var resultadoStoreProcedure = _dapperRepository.QuerySPDapper("com.SP_ObtenerPublicoObjetivoProgramaGeneralAgendaV3PorAlumno", parametros);
+
+                if (!string.IsNullOrEmpty(resultadoStoreProcedure) && !resultadoStoreProcedure.Contains("[]"))
+                {
+                    publicoObjetivo = JsonConvert.DeserializeObject<List<PGeneralPublicoObjetivoParaAgendaDTO>>(resultadoStoreProcedure);
+                }
+                return publicoObjetivo;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// Autor: Jonathan Caipo
         /// Fecha: 12/12/2022
         /// Version: 1.0
