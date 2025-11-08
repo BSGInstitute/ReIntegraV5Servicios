@@ -441,7 +441,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                var query = @"EXEC [pla].[SP_ObtenerArgumentosPorOportunidad] @IdOportunidad";
+                var query = @"EXEC pla.SP_ProgramaGeneralArgumento_ObtenerPorOportunidad @IdOportunidad";
 
                 var resultado = await _dapperRepository.QueryDapperAsync(query, new { IdOportunidad }).ConfigureAwait(false);
 
