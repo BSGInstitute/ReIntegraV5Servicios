@@ -438,26 +438,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 throw ex;
             }
         }
-        public async Task<IEnumerable<ProgramaGeneralArgumentoDTO>> ObtenerTodoProgramaGeneralAsync(int IdPGeneral)
+        public async Task<IEnumerable<ProgramaGeneralArgumentoDTO>> ObtenerTodoProgramaGeneralAsync(int IdOportunidad)
         {
             try
             {
-                var query = @"
-                SELECT
-                    Id,
-                    IdPGeneral,
-                    Nombre,
-                    Descripcion,
-                    EsVisibleAgenda,
-                    Estado,
-                    UsuarioCreacion,
-                    UsuarioModificacion,
-                    FechaCreacion,
-                    FechaModificacion,RowVersion
-                FROM pla.T_ProgramaGeneralArgumento
-                WHERE Estado = 1 AND IdPGeneral = @IdPGeneral";
+                var query = @"EXEC pla.SP_ProgramaGeneralArgumento_ObtenerPorOportunidad @IdOportunidad";
 
-                var resultado = await _dapperRepository.QueryDapperAsync(query, new { IdPGeneral }).ConfigureAwait(false);
+                var resultado = await _dapperRepository.QueryDapperAsync(query, new { IdOportunidad }).ConfigureAwait(false);
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {

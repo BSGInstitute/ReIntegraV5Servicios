@@ -71,12 +71,12 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <summary>
         /// Obtiene todos los argumentos de motivación
         /// </summary>
-        [HttpGet("[action]/{idPGeneral}")]
-        public async Task<IActionResult> ObtenerArgumentoMotivacion(int idPGeneral)
+        [HttpGet("[action]/{idOportunidad}")]
+        public async Task<IActionResult> ObtenerArgumentoMotivacion(int idOportunidad)
         {
             try
             {
-                var data = await _programaGeneralArgumentoService.ObtenerArgumentoMotivacion(idPGeneral);
+                var data = await _programaGeneralArgumentoService.ObtenerArgumentoMotivacion(idOportunidad);
                 return Ok(data);
             }
             catch (Exception ex)
@@ -92,7 +92,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <summary>
         /// Obtiene todos los problemas de cliente
         /// </summary>
-        [HttpGet("[action]/{idPGeneral}")]
+        [HttpGet("[action]/{idPGeneral}/{idAlumno}")]
         public async Task<IActionResult> ObtenerProblemaCliente(int idPGeneral, int? idAlumno = null)
         {
             try

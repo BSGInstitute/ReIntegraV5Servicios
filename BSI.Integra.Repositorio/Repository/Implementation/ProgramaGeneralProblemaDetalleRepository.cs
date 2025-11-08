@@ -332,7 +332,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var query = @"
-                            EXEC [pla].SP_TProgramaGeneralProblemaFactorSolucionRespuesta_ObtenerObjeciones
+                            EXEC [pla].SP_ObtenerProblemaFactorSolucion
                                         @idPGeneral = @idPGeneral,
                                         @idAlumno = @idAlumno;
                             ";

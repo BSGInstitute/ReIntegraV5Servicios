@@ -106,6 +106,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public int? ObtenerPduPorIdPGeneral(int IdPgeneral);
         Task<List<ListaCursosPorProgramaDTO>> ListaCursosHijoPorIdPGeneralAsync(int idPGeneral);
         Task<List<ContenidoHijoDTO>> ContenidoEstructuraHijoPadreAsync(int idPGeneral);
-        IEnumerable<PGeneralPublicoObjetivoParaAgendaDTO> ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3PorAlumno(int idPGeneral, int idAlumno);
+        IEnumerable<PGeneralPublicoObjetivoParaAgendaDTO> ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3PorAlumno(int idOportunidad);
     }
 }
