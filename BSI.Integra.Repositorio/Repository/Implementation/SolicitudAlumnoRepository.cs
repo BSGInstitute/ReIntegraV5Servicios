@@ -683,7 +683,266 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+        /// Autor: Lolo Zaa
+        /// Fecha: 30/10/2024
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene arbol de solicitudes alumno
+        /// </summary>
+        /// <param> </param>
+        /// <returns> TipoSolicitudEstructuradaDTO </returns>
+        public List<TipoSolicitudEstructuraDTO> ObtenerEstructuraSolicitudesPlana()
+        {
+            try
+            {
+                var rpta = new List<TipoSolicitudEstructuraDTO>();
 
-        
+                // Usar stored procedure en lugar de consulta directa
+                var resultado = _dapperRepository.QuerySPDapper(
+                    "ope.SP_SolicitudEstructura_Obtener",
+                    null
+                );
+
+                if (!string.IsNullOrWhiteSpace(resultado))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<TipoSolicitudEstructuraDTO>>(
+                        resultado
+                    );
+                }
+
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al obtener estructura de solicitudes: {ex.Message}");
+            }
+        }
+        /// Autor: Lolo Zaa
+        /// Fecha: 30/10/2024
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la solicitud activa del alumno
+        /// </summary>
+        /// <param> </param>
+        /// <returns> TipoSolicitudEstructuradaDTO </returns>
+        public RespuestaVerificacionSolicitudDTO VerificarSolicitudActivaAlumno(
+            VerificarSolicitudAlumnoDTO filtro
+        )
+        {
+            try
+            {
+                var rpta = new RespuestaVerificacionSolicitudDTO();
+
+                
+                var estadosActivos = new List<int> { 1, 2, 3, 5, 6 };
+                var estadosActivosStr = string.Join(",", estadosActivos);
+
+                // Llamar al SP con todos los parámetros del filtro
+                var resultado = _dapperRepository.QuerySPDapper(
+                    "ope.SP_ChatBotObtenerSolicitudAlumno",
+                    new
+                    {
+                        IdAlumno = filtro.IdAlumno,
+                        IdSolicitudTipoReporte = filtro.IdSolicitudTipoReporte,
+                        IdSolicitudCategoria = filtro.IdSolicitudCategoria,
+                        IdSolicitudProblema = filtro.IdSolicitudProblema,
+                        IdPGeneral = filtro.IdPGeneral,
+                        IdPEspecifico = filtro.IdPEspecifico,
+                        IdEstadoSolicitud = estadosActivosStr,
+                        FechaInicio = (DateTime?)null,
+                        FechaFin = (DateTime?)null,
+                    }
+                );
+
+                if (!string.IsNullOrWhiteSpace(resultado))
+                {
+                    var solicitudes = JsonConvert.DeserializeObject<
+                        List<SolicitudAlumnoRevisionDTO>
+                    >(resultado);
+
+                    if (solicitudes != null && solicitudes.Any())
+                    {
+                        // El SP ya filtró por todos los criterios, tomamos la primera coincidencia
+                        var solicitudActiva = solicitudes.FirstOrDefault();
+
+                        if (solicitudActiva != null)
+                        {
+                            var tiempoPasadoHoras = (int)
+                                Math.Round(
+                                    (DateTime.Now - solicitudActiva.FechaRegistro).TotalHours
+                                );
+
+                            rpta.Mensaje =
+                                "El alumno ya tiene una solicitud activa para este tipo de solicitud.";
+                            rpta.ExisteSolicitud = true;
+                            rpta.TiempoPasadoHoras = tiempoPasadoHoras;
+                            rpta.EstadoSolicitud = solicitudActiva.NombreEstadoSolicitud;
+                            rpta.NombreControlSolicitudOrigen = solicitudActiva.NombreControlSolicitudOrigen;
+                            rpta.Error = null;
+                        }
+                        else
+                        {
+                            rpta.Mensaje =
+                                "No se encontró ninguna solicitud activa para el alumno y tipo de solicitud indicado.";
+                            rpta.ExisteSolicitud = false;
+                            rpta.TiempoPasadoHoras = null;
+                            rpta.EstadoSolicitud = null;
+                            rpta.NombreControlSolicitudOrigen = null;
+                            rpta.Error = null;
+                        }
+                    }
+                    else
+                    {
+                        rpta.Mensaje =
+                            "No se encontró ninguna solicitud activa para el alumno y tipo de solicitud indicado.";
+                        rpta.ExisteSolicitud = false;
+                        rpta.TiempoPasadoHoras = null;
+                        rpta.EstadoSolicitud = null;
+                        rpta.NombreControlSolicitudOrigen = null;
+                        rpta.Error = null;
+                    }
+                }
+                else
+                {
+                    rpta.Mensaje =
+                        "No se encontró ninguna solicitud activa para el alumno y tipo de solicitud indicado.";
+                    rpta.ExisteSolicitud = false;
+                    rpta.TiempoPasadoHoras = null;
+                    rpta.EstadoSolicitud = null;
+                    rpta.NombreControlSolicitudOrigen = null;
+                    rpta.Error = null;
+                }
+
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                return new RespuestaVerificacionSolicitudDTO
+                {
+                    Mensaje = null,
+                    ExisteSolicitud = null,
+                    TiempoPasadoHoras = null,
+                    EstadoSolicitud = null,
+                    NombreControlSolicitudOrigen = null,
+                    Error = new ErrorDetalleDTO
+                    {
+                        Descripción = "Hubo problemas al calcular el tiempo",
+                        Exception = ex.ToString(),
+                    },
+                };
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 31/10/2024
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene los datos necesarios de BD para crear una solicitud de alumno
+        /// </summary>
+        /// <param name="idAlumno">ID del alumno</param>
+        /// <param name="idPEspecifico">ID del programa específico</param>
+        /// <returns>Tupla con IdMatriculaCabecera, IdPersonal y posibles errores</returns>
+        public (
+            int? IdMatriculaCabecera,
+            int? IdPersonal,
+            string ErrorDescripcion,
+            string ErrorException
+        ) ObtenerDatosParaSolicitudAlumno(int idAlumno, int idPEspecifico)
+        {
+            try
+            {
+                // Paso 1: Obtener IdMatriculaCabecera activa
+                var queryMatricula =
+                    @"
+                    SELECT TOP 1 MC.Id
+                    FROM fin.T_MatriculaCabecera MC
+                    WHERE MC.IdAlumno = @IdAlumno
+                        AND MC.IdPEspecifico = @IdPEspecifico
+                        AND MC.Estado = 1
+                    ORDER BY MC.FechaCreacion DESC";
+
+                var parametrosMatricula = new
+                {
+                    IdAlumno = idAlumno,
+                    IdPEspecifico = idPEspecifico,
+                };
+
+                var resultadoMatricula = _dapperRepository.QueryDapper(
+                    queryMatricula,
+                    parametrosMatricula
+                );
+
+                if (
+                    string.IsNullOrWhiteSpace(resultadoMatricula)
+                    || resultadoMatricula.Contains("[]")
+                )
+                {
+                    return (
+                        null,
+                        null,
+                        "No se encontró una matrícula activa para el alumno con el programa especificado",
+                        "No existe matrícula activa"
+                    );
+                }
+
+                var matriculas = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(
+                    resultadoMatricula
+                );
+                var idMatriculaCabecera = Convert.ToInt32(matriculas[0]["Id"]);
+
+                // Paso 2: Obtener IdPersonal asignado usando los SPs en cascada
+                int idPersonal = 0;
+
+                var resultadoPersonalClasificacion = _dapperRepository.QuerySPDapper(
+                    "ope.SP_ObtenerPersonalAsignadoMatricula",
+                    new { IdMatriculaCabecera = idMatriculaCabecera }
+                );
+
+                if (
+                    !string.IsNullOrWhiteSpace(resultadoPersonalClasificacion)
+                    && !resultadoPersonalClasificacion.Contains("[]")
+                    && !resultadoPersonalClasificacion.Contains("null")
+                )
+                {
+                    var personalesClasificacion = JsonConvert.DeserializeObject<
+                        List<Dictionary<string, object>>
+                    >(resultadoPersonalClasificacion);
+
+                    if (personalesClasificacion != null && personalesClasificacion.Any())
+                    {
+                        // Intentar con ambos nombres de campo (PascalCase y camelCase)
+                        var diccionario = personalesClasificacion[0];
+                        if (diccionario.ContainsKey("IdPersonal_Asignado"))
+                        {
+                            idPersonal = Convert.ToInt32(diccionario["IdPersonal_Asignado"]);
+                        }
+                        else if (diccionario.ContainsKey("idPersonal_Asignado"))
+                        {
+                            idPersonal = Convert.ToInt32(diccionario["idPersonal_Asignado"]);
+                        }
+                    }
+                }
+
+                // Si no se encontró personal, retornar error
+                if (idPersonal == 0)
+                {
+                    return (
+                        null,
+                        null,
+                        "No se encontró un personal asignado para la matrícula del alumno",
+                        "No existe personal asignado"
+                    );
+                }
+
+                // Retornar los datos obtenidos de BD
+                return (idMatriculaCabecera, idPersonal, null, null);
+            }
+            catch (Exception ex)
+            {
+                return (null, null, "Error al obtener datos de la base de datos", ex.ToString());
+            }
+        }
+
+
     }
 }

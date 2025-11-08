@@ -498,6 +498,115 @@ namespace BSI.Integra.Servicios.Controllers
             }
 
         }
+        /// TipoFuncion: POST
+        /// Autor: Lolo Zaa
+        /// Fecha: 15/07/2024
+        /// Versión: 1.0
+        /// <summary>
+        /// Obteniene arbol de solicitudes por alumno
+        /// </summary>
+        [Route("[action]")]
+        [HttpGet]
+        public ActionResult ObtenerTiposSolicitudCompleto()
+        {
+            try
+            {
+                var solicitudAlumnoService = new SolicitudAlumnoService(unitOfWork);
+                var resultado = solicitudAlumnoService.ObtenerTiposSolicitudCompleto();
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return Ok(
+                    new TiposSolicitudAlumnosCompletoDTO
+                    {
+                        TiposSolicitud = null,
+                        Error = new ErrorDetalleDTO
+                        {
+                            Descripción =
+                                "No se encontraron registros de tipo de solicitud, categoría o problema.",
+                            Exception = ex.ToString(),
+                        },
+                    }
+                );
+            }
+        }
+        /// TipoFuncion: POST
+        /// Autor: Lolo Zaa
+        /// Fecha: 15/07/2024
+        /// Versión: 1.0
+        /// <summary>
+        /// Obteniene la solicitud activa del Alumno
+        /// </summary>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult VerificarSolicitudActivaAlumno(
+            [FromBody] VerificarSolicitudAlumnoDTO filtro
+        )
+        {
+            try
+            {
+                var solicitudAlumnoService = new SolicitudAlumnoService(unitOfWork);
+                var resultado = solicitudAlumnoService.VerificarSolicitudActivaAlumno(filtro);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return Ok(
+                    new RespuestaVerificacionSolicitudDTO
+                    {
+                        Mensaje = null,
+                        ExisteSolicitud = null,
+                        TiempoPasadoHoras = null,
+                        EstadoSolicitud = null,
+                        NombreControlSolicitudOrigen = null,
+                        Error = new ErrorDetalleDTO
+                        {
+                            Descripción = "Hubo problemas al calcular el tiempo",
+                            Exception = ex.ToString(),
+                        },
+                    }
+                );
+            }
+        }
+
+        /// TipoFuncion: POST
+        /// Autor: Lolo Zaa
+        /// Fecha: 31/10/2024
+        /// Versión: 1.0
+        /// <summary>
+        /// Registra una nueva solicitud de alumno desde el ChatBot
+        /// </summary>
+        /// <param name="solicitud">Datos de la solicitud a registrar</param>
+        /// <returns>RespuestaRegistroSolicitudDTO</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult RegistrarSolicitudAlumno(
+            [FromBody] RegistrarSolicitudAlumnoDTO solicitud
+        )
+        {
+            try
+            {
+                var solicitudAlumnoService = new SolicitudAlumnoService(unitOfWork);
+                var resultado = solicitudAlumnoService.RegistrarSolicitudAlumno(solicitud);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return Ok(
+                    new RespuestaRegistroSolicitudDTO
+                    {
+                        Mensaje = null,
+                        SolicitudId = null,
+                        Error = new ErrorDetalleDTO
+                        {
+                            Descripción = "No se pudo registrar la solicitud.",
+                            Exception = ex.ToString(),
+                        },
+                    }
+                );
+            }
+        }
 
 
     }

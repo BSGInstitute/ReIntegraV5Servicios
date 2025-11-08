@@ -461,7 +461,321 @@ namespace BSI.Integra.Aplicacion.Operaciones.Service.Implementacion
                 throw ex;
             }
         }
+        /// Autor: Lolo Zaa
+        /// Fecha: 30/10/2024
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene arbol de solicitudes alumno
+        /// </summary>
+        /// <param> </param>
+        /// <returns> TipoSolicitudEstructuradaDTO </returns>
+        public TiposSolicitudAlumnosCompletoDTO ObtenerTiposSolicitudCompleto()
+        {
+            try
+            {
+                // Obtener datos planos del repository
+                var datosPlano =
+                    _unitOfWork.SolicitudAlumnoRepository.ObtenerEstructuraSolicitudesPlana();
 
+                if (datosPlano == null || !datosPlano.Any())
+                {
+                    return new TiposSolicitudAlumnosCompletoDTO
+                    {
+                        TiposSolicitud = null,
+                        Error = new ErrorDetalleDTO
+                        {
+                            Descripción =
+                                "No se encontraron registros de tipo de solicitud, categoría o problema.",
+                            Exception = "No hay datos en la base de datos",
+                        },
+                    };
+                }
+
+                // Construir estructura jerárquica
+                var tiposSolicitud = ConstruirEstructuraJerarquica(datosPlano);
+
+                if (!tiposSolicitud.Any())
+                {
+                    return new TiposSolicitudAlumnosCompletoDTO
+                    {
+                        TiposSolicitud = null,
+                        Error = new ErrorDetalleDTO
+                        {
+                            Descripción =
+                                "No se encontraron registros de tipo de solicitud, categoría o problema.",
+                            Exception = "No se pudo construir la estructura jerárquica",
+                        },
+                    };
+                }
+                return new TiposSolicitudAlumnosCompletoDTO
+                {
+                    TiposSolicitud = tiposSolicitud,
+                    Error = null,
+                };
+            }
+            catch (Exception ex)
+            {
+                return new TiposSolicitudAlumnosCompletoDTO
+                {
+                    TiposSolicitud = null,
+                    Error = new ErrorDetalleDTO
+                    {
+                        Descripción =
+                            "No se encontraron registros de tipo de solicitud, categoría o problema.",
+                        Exception = ex.ToString(),
+                    },
+                };
+            }
+        }
+
+        /// <summary>
+        /// Construye la estructura jerárquica a partir de datos planos
+        /// </summary>
+        private List<TipoSolicitudAlumnoDTO> ConstruirEstructuraJerarquica(
+            List<TipoSolicitudEstructuraDTO> datosPlano
+        )
+        {
+            var tiposSolicitud = new List<TipoSolicitudAlumnoDTO>();
+
+            // Agrupar por tipo de solicitud
+            var gruposTipo = datosPlano.GroupBy(d => new
+            {
+                d.IdSolicitudTipoReporte,
+                d.TipoSolicitud,
+            });
+
+            foreach (var grupoTipo in gruposTipo)
+            {
+                var tipoSolicitud = new TipoSolicitudAlumnoDTO
+                {
+                    Id = grupoTipo.Key.IdSolicitudTipoReporte,
+                    TipoSolicitud = grupoTipo.Key.TipoSolicitud,
+                    Categorias = new List<CategoriaSolicitudDTO>(),
+                };
+
+                // Agrupar por categoría dentro del tipo
+                var gruposCategoria = grupoTipo.GroupBy(d => new
+                {
+                    d.IdSolicitudCategoria,
+                    d.Categoria,
+                });
+
+                foreach (var grupoCategoria in gruposCategoria)
+                {
+                    var categoria = new CategoriaSolicitudDTO
+                    {
+                        Id = grupoCategoria.Key.IdSolicitudCategoria,
+                        Categoria = grupoCategoria.Key.Categoria,
+                        Problemas = new List<ProblemaSolicitudDTO>(),
+                    };
+
+                    // Agregar problemas de la categoría
+                    foreach (var problema in grupoCategoria)
+                    {
+                        categoria.Problemas.Add(
+                            new ProblemaSolicitudDTO
+                            {
+                                Id = problema.IdSolicitudProblema,
+                                Problema = problema.Problema,
+                            }
+                        );
+                    }
+
+                    tipoSolicitud.Categorias.Add(categoria);
+                }
+
+                tiposSolicitud.Add(tipoSolicitud);
+            }
+
+            return tiposSolicitud;
+        }
+
+        public RespuestaVerificacionSolicitudDTO VerificarSolicitudActivaAlumno(
+            VerificarSolicitudAlumnoDTO filtro
+        )
+        {
+            try
+            {
+                if (filtro == null)
+                {
+                    return new RespuestaVerificacionSolicitudDTO
+                    {
+                        Mensaje = null,
+                        ExisteSolicitud = null,
+                        TiempoPasadoHoras = null,
+                        EstadoSolicitud = null,
+                        NombreControlSolicitudOrigen = null,
+                        Error = new ErrorDetalleDTO
+                        {
+                            Descripción = "Los datos de entrada no pueden ser nulos",
+                            Exception = "El objeto filtro es null",
+                        },
+                    };
+                }
+
+                if (filtro.IdAlumno <= 0)
+                {
+                    return new RespuestaVerificacionSolicitudDTO
+                    {
+                        Mensaje = null,
+                        ExisteSolicitud = null,
+                        TiempoPasadoHoras = null,
+                        EstadoSolicitud = null,
+                        NombreControlSolicitudOrigen = null,
+                        Error = new ErrorDetalleDTO
+                        {
+                            Descripción = "El ID del alumno es inválido",
+                            Exception = "IdAlumno debe ser mayor a 0",
+                        },
+                    };
+                }
+
+                return _unitOfWork.SolicitudAlumnoRepository.VerificarSolicitudActivaAlumno(filtro);
+            }
+            catch (Exception ex)
+            {
+                return new RespuestaVerificacionSolicitudDTO
+                {
+                    Mensaje = null,
+                    ExisteSolicitud = null,
+                    TiempoPasadoHoras = null,
+                    EstadoSolicitud = null,
+                    NombreControlSolicitudOrigen = null,
+                    Error = new ErrorDetalleDTO
+                    {
+                        Descripción = "Hubo problemas al calcular el tiempo",
+                        Exception = ex.ToString(),
+                    },
+                };
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 31/10/2024
+        /// Version: 1.0
+        /// <summary>
+        /// Registra una nueva solicitud de alumno desde el ChatBot
+        /// </summary>
+        /// <param name="solicitud">Datos de la solicitud a registrar</param>
+        /// <returns>RespuestaRegistroSolicitudDTO</returns>
+        public RespuestaRegistroSolicitudDTO RegistrarSolicitudAlumno(
+            RegistrarSolicitudAlumnoDTO solicitud
+        )
+        {
+            try
+            {
+                // Validaciones de negocio
+                if (solicitud == null)
+                {
+                    return new RespuestaRegistroSolicitudDTO
+                    {
+                        Mensaje = null,
+                        SolicitudId = null,
+                        Error = new ErrorDetalleDTO
+                        {
+                            Descripción = "Los datos de entrada no pueden ser nulos",
+                            Exception = "El objeto solicitud es null",
+                        },
+                    };
+                }
+
+                if (solicitud.AlumnoId <= 0)
+                {
+                    return new RespuestaRegistroSolicitudDTO
+                    {
+                        Mensaje = null,
+                        SolicitudId = null,
+                        Error = new ErrorDetalleDTO
+                        {
+                            Descripción = "El ID del alumno es inválido",
+                            Exception = "AlumnoId debe ser mayor a 0",
+                        },
+                    };
+                }
+
+                if (string.IsNullOrWhiteSpace(solicitud.DetalleSolicitud))
+                {
+                    return new RespuestaRegistroSolicitudDTO
+                    {
+                        Mensaje = null,
+                        SolicitudId = null,
+                        Error = new ErrorDetalleDTO
+                        {
+                            Descripción = "El detalle de la solicitud es requerido",
+                            Exception = "DetalleSolicitud no puede estar vacío",
+                        },
+                    };
+                }
+
+                // Obtener datos de BD a través del Repository
+                var (idMatriculaCabecera, idPersonal, errorDesc, errorEx) =
+                    _unitOfWork.SolicitudAlumnoRepository.ObtenerDatosParaSolicitudAlumno(
+                        solicitud.AlumnoId,
+                        solicitud.IdPEspecifico
+                    );
+
+                // Si hubo error en las consultas de BD
+                if (!string.IsNullOrEmpty(errorDesc))
+                {
+                    return new RespuestaRegistroSolicitudDTO
+                    {
+                        Mensaje = null,
+                        SolicitudId = null,
+                        Error = new ErrorDetalleDTO
+                        {
+                            Descripción = errorDesc,
+                            Exception = errorEx,
+                        },
+                    };
+                }
+
+                // Construir la entidad SolicitudAlumno
+                var nuevaSolicitud = new SolicitudAlumno
+                {
+                    IdEstadoSolicitud = 1, // Por Revisar
+                    IdPersonal = idPersonal.Value,
+                    IdSolicitud = solicitud.Problema,
+                    IdMatriculaCabecera = idMatriculaCabecera.Value,
+                    IdPespescifico = solicitud.IdPEspecifico,
+                    DetalleSolicitud = solicitud.DetalleSolicitud,
+                    ContentTypeSolicitante = null,
+                    NombreArchivoSolicitante = null,
+                    ContentTypeSolucion = null,
+                    NombreArchivoSolucion = null,
+                    ComentarioSolucion = null,
+                    FechaCreacion = DateTime.Now,
+                    FechaModificacion = DateTime.Now,
+                    UsuarioCreacion = "ChatBot",
+                    UsuarioModificacion = "ChatBot",
+                    Estado = true,
+                    IdControlSolicitudOrigen = 8, // ChatBot
+                };
+
+                // Usar el método base Add del Service (que ya hace Commit internamente)
+                var solicitudCreada = Add(nuevaSolicitud);
+
+                // Retornar éxito con el Id generado
+                return new RespuestaRegistroSolicitudDTO
+                {
+                    Mensaje = "La solicitud fue registrada exitosamente.",
+                    SolicitudId = solicitudCreada.Id,
+                    Error = null,
+                };
+            }
+            catch (Exception ex)
+            {
+                return new RespuestaRegistroSolicitudDTO
+                {
+                    Mensaje = null,
+                    SolicitudId = null,
+                    Error = new ErrorDetalleDTO
+                    {
+                        Descripción = "No se pudo registrar la solicitud.",
+                        Exception = ex.ToString(),
+                    },
+                };
+            }
+        }
 
     }
 }
