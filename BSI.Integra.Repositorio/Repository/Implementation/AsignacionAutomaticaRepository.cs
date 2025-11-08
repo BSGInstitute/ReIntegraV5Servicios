@@ -504,7 +504,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 {
                     _query += @"
                     SELECT Id, IdAlumno, Nombres, Correo, Movil, AreaFormacion,   Cargo,  AreaTrabajo,  Industria,  Region,  FechaRegistro,  HoraRegistro,
-                    NombrePrograma,  CentroCosto,  Categoria,  Campania,  Procesado,  Formulario,  EstadoOportunidad 
+                    NombrePrograma,  CentroCosto,  Categoria,  Campania, CampaniaActualizada, Procesado,  Formulario,  EstadoOportunidad 
                     FROM mkt.V_ObtenerReporteLandingPageFacebook WHERE Convert(Date, FechaRegistro) >= Convert(Date,@fechaInicial) and Convert(Date, FechaRegistro)  <= Convert(Date,@fechaFinal) Order by FechaRegistro Desc";
                     registroLandingPageDB = _dapperRepository.QueryDapper(_query, new { fechaInicial = filtros.FechaInicial.Value.Date, fechaFinal = filtros.FechaFinal.Value.Date });
                 }
@@ -514,7 +514,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
                     _query += @"
                     SELECT Id, IdAlumno, Nombres, Correo, Movil, AreaFormacion,   Cargo,  AreaTrabajo,  Industria,  Region,  FechaRegistro,  HoraRegistro,
-                    NombrePrograma,  CentroCosto,  Categoria,  Campania,  Procesado,  Formulario,  EstadoOportunidad 
+                    NombrePrograma,  CentroCosto,  Categoria,  Campania , CampaniaActualizada,  Procesado,  Formulario,  EstadoOportunidad 
                     FROM mkt.V_ObtenerReporteLandingPageFacebook WHERE Convert(Date, FechaRegistro) >= Convert(Date,@fechaInicial) and Convert(Date, FechaRegistro)  <= Convert(Date,@fechaFinal) Order by FechaRegistro Desc";
                     registroLandingPageDB = _dapperRepository.QueryDapper(_query, new { fechaInicial = filtros.FechaInicial.Value.Date, fechaFinal = filtros.FechaFinal.Value.Date });
                 }
@@ -526,7 +526,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
                     _query += @"
                     SELECT Id, IdAlumno, Nombres, Correo, Movil, AreaFormacion,   Cargo,  AreaTrabajo,  Industria,  Region,  FechaRegistro,  HoraRegistro,
-                    NombrePrograma,  CentroCosto,  Categoria,  Campania,  Procesado,  Formulario,  EstadoOportunidad 
+                    NombrePrograma,  CentroCosto,  Categoria,  Campania , CampaniaActualizada,  Procesado,  Formulario,  EstadoOportunidad 
                     FROM mkt.V_ObtenerReporteLandingPageFacebook WHERE Convert(Date, FechaRegistro) >= Convert(Date,@fechaInicial) and Convert(Date, FechaRegistro)  <= Convert(Date,@fechaFinal) Order by FechaRegistro Desc";
                     registroLandingPageDB = _dapperRepository.QueryDapper(_query, new { fechaInicial = filtros.FechaInicial.Value.Date, fechaFinal = filtros.FechaFinal.Value.Date });
                 }
