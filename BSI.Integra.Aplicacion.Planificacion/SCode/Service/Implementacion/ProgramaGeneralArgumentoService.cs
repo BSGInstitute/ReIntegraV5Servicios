@@ -855,6 +855,18 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw ex;
             }
         }
+        public List<OportunidadMotivacionSeleccionViewDTO> ObtenerMotivacionSeleccionByIdOportunidad(int idOportunidad)
+        {
+            try
+            {
+                return _unitOfWork.OportunidadProgramaMotivacionSeleccionRepository.ObtenerMotivacionSeleccionByIdOportunidad(idOportunidad);
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.Rollback();
+                throw ex;
+            }
+        }
         public bool InsertarArgumentoMotivacionSeleccion(ProgramaArgumentoMotivacionSeleccionDTO data,string usuario) 
         {
             try
@@ -940,6 +952,17 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             catch (Exception ex)
             {
                 _unitOfWork.Rollback();
+                throw ex;
+            }
+        }
+        public List<MotivacionDiccionarioViewDTO> ObtenerMotivacionesTodoDiccionario()
+        {
+            try
+            {
+                return _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerMotivacionesTodoDiccionario();
+            }
+            catch(Exception ex)
+            {
                 throw ex;
             }
         }

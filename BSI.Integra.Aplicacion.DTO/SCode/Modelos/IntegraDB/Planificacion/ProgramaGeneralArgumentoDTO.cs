@@ -147,4 +147,19 @@
         public bool AplicaTituloSolucion { get; set; }
         public bool AplicaSubTituloSolucion { get; set; }
     }
+    public class OportunidadMotivacionSeleccionViewDTO
+    {
+        public int IdOportunidadProgramaMotivacionSeleccion { get; set; }
+        public int IdOportunidad { get; set; }
+        public int IdProgramaMotivacion { get; set; }
+        public string NombreMotivacion { get; set; }
+        public int? Prioridad { get; set; }
+    }
+
+    public class MotivacionDiccionarioViewDTO
+    {
+        public int IdProgramaMotivacion { get; set; }
+        public string DescripcionProgramaMotivacion { get; set; }
+        public string NombreMotivacionAlterno { get; set; }
+    }
 }

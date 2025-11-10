@@ -1,4 +1,5 @@
-﻿using BSI.Integra.Persistencia.Entidades.IntegraDB;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using System;
 using System.Collections.Generic;
@@ -20,5 +21,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         //bool Delete(IEnumerable<int> listadoIds, string usuario);
         #endregion
         List<OportunidadProgramaMotivacionSeleccion> ObtenerTodoByIdOportunidad(int idOportunidad);
+        List<OportunidadMotivacionSeleccionViewDTO> ObtenerMotivacionSeleccionByIdOportunidad(int idOportunidad);
     }
 }
