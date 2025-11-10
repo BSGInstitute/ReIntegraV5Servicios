@@ -6,6 +6,7 @@ using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
+using BSI.Integra.Repositorio.Repository.Implementation.Planificacion;
 using BSI.Integra.Repositorio.UnitOfWork;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using System;
@@ -858,79 +859,83 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         {
             try
             {
-                var motivacionesSelectFiltro = data.SeleccionMotivacion
-                 .Where(x => x.seleccionado)
-                 .ToList();
                 var result = _unitOfWork.OportunidadProgramaMotivacionSeleccionRepository
                     .ObtenerTodoByIdOportunidad(data.IdOportunidad);
-
-                if (!motivacionesSelectFiltro.Any())
+                if (!result.Any() && !data.SeleccionMotivacion.Any())
                 {
-                    if (result != null && result.Any())
-                    {
-                        foreach (var item in result)
-                        {
-                            _unitOfWork.OportunidadProgramaMotivacionSeleccionRepository.Delete(item.Id, usuario);
-                        }
-                        _unitOfWork.Commit();
-                    }
-
                     return true;
                 }
-
-                if (motivacionesSelectFiltro.Count > 2)
+                if (data.SeleccionMotivacion.Count > 2)
                     throw new Exception("Solo puede seleccionar 2 motivaciones");
-                var listaMotivaciones = _unitOfWork.ProgramaMotivacionRepository.ObtenerTodo();
-                List<OportunidadProgramaMotivacionSeleccion> motivacionesSeleccionadas = new List<OportunidadProgramaMotivacionSeleccion>();
-                foreach (var motivacion in motivacionesSelectFiltro)
+                if (!result.Any() && data.SeleccionMotivacion.Any())
                 {
-                    var entidad = _unitOfWork.ProgramaGeneralMotivacionRepository.ObtenerPorId(motivacion.IdMotivacion);
-                    var nombre = entidad.Nombre
-                    .ToLower()
-                    .Trim()
-                    .Normalize(NormalizationForm.FormD);
-                    nombre = new string(nombre
-                     .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-                     .ToArray());
+                    foreach (var motivacion in data.SeleccionMotivacion)
+                    { 
+                        OportunidadProgramaMotivacionSeleccion opo = new()
+                        {
+                            IdOportunidad = data.IdOportunidad,
+                            IdProgramaMotivacion = motivacion.IdProgramaMotivacion,
+                            Prioridad = motivacion.Prioridad,
+                            Estado = true,
+                            FechaCreacion = DateTime.Now,
+                            UsuarioCreacion = usuario,
+                            FechaModificacion = DateTime.Now,
+                            UsuarioModificacion = usuario
+                        };
+                        _unitOfWork.OportunidadProgramaMotivacionSeleccionRepository.Add(opo);
+                    }
+                    _unitOfWork.Commit();
+                    return true;
+                }
+                if (result.Any() && !data.SeleccionMotivacion.Any())
+                {
+                    foreach (var item in result)
+                        _unitOfWork.OportunidadProgramaMotivacionSeleccionRepository.Delete(item.Id, usuario);
+                    _unitOfWork.Commit();
+                    return true;
+                }
+                if (result.Any() && data.SeleccionMotivacion.Any())
+                {
+                    var idsSeleccion = data.SeleccionMotivacion.Select(x => x.IdProgramaMotivacion).ToList();
+                    var idsExistentes = result.Select(x => x.IdProgramaMotivacion).ToList();
 
-                    nombre = Regex.Replace(nombre, @"[^a-z]", "");
-                    var motivacionCoincidente = listaMotivaciones.FirstOrDefault(m =>
-                    {
-                        var nombreLista = m.Descripcion
-                            .ToLower()
-                            .Trim()
-                            .Normalize(NormalizationForm.FormD);
-                        nombreLista = new string(nombreLista
-                            .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-                            .ToArray());
-                        nombreLista = Regex.Replace(nombreLista, @"[^a-z]", "");
-                        return nombreLista == nombre;
-                    });
-                    if (motivacionCoincidente != null)
+                    var eliminar = result.Where(x => !idsSeleccion.Contains(x.IdProgramaMotivacion)).ToList();
+                    foreach (var item in eliminar)
+                        _unitOfWork.OportunidadProgramaMotivacionSeleccionRepository.Delete(item.Id, usuario);
+
+                    var agregar = data.SeleccionMotivacion.Where(x => !idsExistentes.Contains(x.IdProgramaMotivacion)).ToList();
+                    foreach (var motivacion in agregar)
                     {
                         OportunidadProgramaMotivacionSeleccion opo = new()
                         {
                             IdOportunidad = data.IdOportunidad,
-                            IdProgramaMotivacion = motivacionCoincidente.Id,
+                            IdProgramaMotivacion = motivacion.IdProgramaMotivacion,
+                            Prioridad = motivacion.Prioridad,
                             Estado = true,
+                            FechaCreacion = DateTime.Now,
+                            UsuarioCreacion = usuario,
                             FechaModificacion = DateTime.Now,
                             UsuarioModificacion = usuario
                         };
-                        motivacionesSeleccionadas.Add(opo);
+                        _unitOfWork.OportunidadProgramaMotivacionSeleccionRepository.Add(opo);
                     }
-                }
-
-                if (result == null || !result.Any())
-                {
-                    foreach (var m in motivacionesSeleccionadas)
+                    var actualizar = data.SeleccionMotivacion.Where(x => idsExistentes.Contains(x.IdProgramaMotivacion)).ToList();
+                    foreach (var motivacion in actualizar)
                     {
-                        m.FechaCreacion = DateTime.Now;
-                        m.UsuarioCreacion = usuario;
-                        _unitOfWork.OportunidadProgramaMotivacionSeleccionRepository.Add(m);
+                        var existente = result.FirstOrDefault(x => x.IdProgramaMotivacion == motivacion.IdProgramaMotivacion);
+                        if (existente == null)
+                            continue;
+
+                        existente.Prioridad = motivacion.Prioridad;
+                        existente.FechaModificacion = DateTime.Now;
+                        existente.UsuarioModificacion = usuario;
+
+                        _unitOfWork.OportunidadProgramaMotivacionSeleccionRepository.Update(existente);
                     }
                     _unitOfWork.Commit();
+                    return true;
                 }
-                return true;
+                return false;
             }
             catch (Exception ex)
             {

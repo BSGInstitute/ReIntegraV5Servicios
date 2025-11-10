@@ -11,5 +11,6 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
     {
         public int IdOportunidad { get; set; }
         public int IdProgramaMotivacion { get; set; }
+        public int Prioridad { get; set; }
     }
 }
