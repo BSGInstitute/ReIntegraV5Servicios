@@ -15,6 +15,8 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         IEnumerable<ProgramaGeneralCertificacionDetalleAgendaDTO> ObtenerRequisitosCertificacionProgramaPorIdOportunidad(int idOportunidad);
         IEnumerable<ProgramaGeneralMotivacionDetalleAgendaDTO> ObtenerArgumentosMotivacionProgramaPorIdOportunidad(int idOportunidad);
         OportunidadInformacionDTO ObtenerOportunidadInformacion(int idAlumno, int idClasificacionPersona);
+        OportunidadInformacionDTO ObtenerOportunidadInformacionPersonalizado(int idAlumno, int idClasificacionPersona);
+
         IEnumerable<ProgramaGeneralProblemaDetalleAgendaDTO> ObtenerProgramaGeneralProblemaDetallePorIdOportunidad(int idOportunidad);
         IEnumerable<CorreoInteraccionV2AgendaDTO> ObtenerCorreoInteraccionV2EnviadosPorPersonal(int idAlumno, int idPersonal);
         IEnumerable<CompetidorOportunidadAgendaDTO> ObtenerCompetidorPorIdOportunidad(int idOportunidad);

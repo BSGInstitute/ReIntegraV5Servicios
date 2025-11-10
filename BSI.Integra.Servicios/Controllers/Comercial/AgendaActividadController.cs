@@ -202,6 +202,42 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
                 return BadRequest(ex.Message);
             }
         }
+
+        /// Tipo Función: GET
+        /// Autor: Jonathan Caipo
+        /// Fecha: 30/11/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la informacion de Oportunidades asociada a una ClasificacionPersona y un Alumno.
+        /// </summary>
+        /// <param name="idClasificacionPersona">Id de Clasificacion Persona</param>
+        /// <param name="idAlumno">Id del Alumno</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("[action]/{idOportunidad}")]
+        public IActionResult ObtenerOportunidadInformacionPersonalizado(int idOportunidad)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                IOportunidadService oportunidadService = new OportunidadService(_unitOfWork);
+                var oportunidad = oportunidadService.ObtenerPorId(idOportunidad);
+
+                if (oportunidad?.IdClasificacionPersona == null)
+                {
+                    return BadRequest("La oportunidad no tiene una clasificación de persona asociada.");
+                }
+                IAgendaActividadService agendaActividadService = new AgendaActividadService(_unitOfWork);
+                return Ok(agendaActividadService.ObtenerOportunidadInformacion(oportunidad.IdAlumno.Value, oportunidad.IdClasificacionPersona.Value));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 25/07/2022

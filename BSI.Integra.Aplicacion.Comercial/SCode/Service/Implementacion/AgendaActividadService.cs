@@ -174,6 +174,32 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 throw ex;
             }
         }
+        /// Autor: Jonathan Caipo
+        /// Fecha: 30/11/2022
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la informacion relacionada a Oportunidades basado en IdClasificacionPersona y IdAlumno* (No usado por el momento)
+        /// </summary>
+        /// <param name="idClasificacionPersona">Id de Clasificacion Persona</param>
+        /// <param name="idAlumno">Id del Alumno</param>
+        /// <returns> List<OportunidadInformacionDTO> </returns>
+        public OportunidadInformacionDTO ObtenerOportunidadInformacionPersonalizado(int idAlumno, int idClasificacionPersona)
+        {
+            try
+            {
+                var oportunidadInformacion = new OportunidadInformacionDTO();
+                IOportunidadService oportunidadService = new OportunidadService(_unitOfWork);
+
+                oportunidadInformacion.ListaVentaCruzada = oportunidadService.ObtenerVentaCruzadaParaAgendaPorIdClasificacionPersona(idClasificacionPersona).ToList();
+                oportunidadInformacion.ListaHistorial = oportunidadService.ObtenerHistorialOportunidadesParaAgendaPorIdClasificacionPersona(idClasificacionPersona).ToList();
+
+                return oportunidadInformacion;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         /// Autor: Jose Vega
         /// Fecha: 14/10/2025
