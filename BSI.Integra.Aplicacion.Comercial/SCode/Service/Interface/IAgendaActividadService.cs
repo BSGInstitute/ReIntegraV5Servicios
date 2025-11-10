@@ -34,6 +34,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         SeguimientoAsesorDTO ObtenerSeguimientoAsesor(int idAsesor, int idCategoriaOrigen, int estadoPantalla);
         DocumentoAgendaDetalleDTO ObtenerDocumentosPorIdActividadDetalle(int idActividadDetalle);
         (AlumnoInformacionDTO, SueldoPromedioDTO, ResultadoVisualizarOportunidadDTO) ObtenerDatosAlumno(int idClasificacionPersona, int idOportunidad, int idPersonal);
+        AlumnoInformacionDTO ObtenerDatosAlumnoPersonalizado(int idClasificacionPersona, int idOportunidad);
         IEnumerable<PlantillaWhatsAppAgendaDTO> ObtenerPlantillaWhatsApp();
         StringDTO ObtenerProbabilidadSueldoOportunidad(int idOportunidad, int idPais);
         //ValorEtiquetaDTO ObtenerValorEtiqueta(int idCentroCosto, int idFaseOportunidad, int idOportunidad);

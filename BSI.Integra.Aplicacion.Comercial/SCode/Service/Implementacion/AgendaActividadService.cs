@@ -550,20 +550,15 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
         }
 
-        /// Autor: Flavio R. Mamani Fabian
-        /// Fecha: 27/11/2023
+        /// Autor: Joseph Llanque
+        /// Fecha: 10/11/2025
         /// Versión: 1.0
         /// <summary>
         /// Obtiene el Historial de Interacciones de la Oportunidad por su Id
         /// </summary>
         /// <param name="idOportunidad">Id de la Oportunidad</param>
         /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
-        /// AutorModificacion:Margiory Ramirez 
-        /// Validacion si la oportunidad que trae es una venta cruzada,
-        /// si no es sigue flujo,si es trae la oportunidad anterior y la actual
-        /// Fecha Modificacion: 12/10/2023
-        /// Versión: 1.0
-        public async Task<HistorialInteraccionesResponseDTO> ObtenerHistorialInteraccionesPorIdOportunidadMensajePersonalizado(int idOportunidad)
+      public async Task<HistorialInteraccionesResponseDTO> ObtenerHistorialInteraccionesPorIdOportunidadMensajePersonalizado(int idOportunidad)
         {
             try
             {
@@ -611,7 +606,6 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                                     }
                                     catch (Exception)
                                     {
-                                        // Si no se puede obtener la transcripción, simplemente se deja como null
                                         llamada.Transcripcion = null;
                                     }
                                 }
@@ -924,6 +918,29 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                     Valor = 0
                 };
             return (alumnoInformacionDTO, sueldoPromedioDTO, resultadoVisualizarOportunidadDTO);
+        }
+        /// Autor: Erick Marcelo Quispe.
+        /// Fecha: 05/08/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los Datos del Alumno
+        /// </summary>
+        /// <param name="idClasificacionPersona">Id de Clasificacion Persona</param>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <param name="idPersonal">Id del Personal</param>
+        /// <returns> Retorna 200 y lista de objetos para combo o 400 y mensaje de error </returns>
+        public AlumnoInformacionDTO ObtenerDatosAlumnoPersonalizado(int idClasificacionPersona, int idOportunidad)
+        {
+            IAlumnoService alumnoService = new AlumnoService(_unitOfWork);
+            IEmpresaService empresaService = new EmpresaService(_unitOfWork);
+            ISentinelService sentinelService = new SentinelService(_unitOfWork);
+            IOportunidadService oportunidadService = new OportunidadService(_unitOfWork);
+
+            var alumnoInformacionDTO = alumnoService.ObtenerInformacionAlumnoPorIdClasificacionPersona(idClasificacionPersona);
+
+            var idTamanioEmpresa = alumnoInformacionDTO.IdEmpresa != null ? empresaService.ObtenerIdTamanioEmpresaPorIdEmpresa(alumnoInformacionDTO.IdEmpresa!.Value) : null;
+   
+            return (alumnoInformacionDTO);
         }
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 08/08/2022

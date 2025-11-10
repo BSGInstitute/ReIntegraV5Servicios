@@ -3,6 +3,7 @@ using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
+using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -408,8 +409,8 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
 
 
         /// Tipo Función: GET
-        /// Autor: Flavio R. Mamani Fabian
-        /// Fecha: 27//11/2023
+        /// Autor: Joseph Llanque
+        /// Fecha: 27//12/2025
         /// Versión: 1.0
         /// <summary>
         /// Obtiene el Historial de Interacciones de la Oportunidad por su Id con transcripciones
@@ -422,6 +423,44 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             var result = await _agendaActividadService.ObtenerHistorialInteraccionesPorIdOportunidadMensajePersonalizado(idOportunidad);
             return Ok(result);
         }
+
+        /// Tipo Función: GET
+        /// Autor: Erick Marcelo Quispe.
+        /// Fecha: 05/08/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los Datos del Alumno
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <returns> Retorna 200 y lista de objetos para combo o 400 y mensaje de error </returns>
+        [HttpGet("[action]/{idOportunidad}")]
+        public IActionResult ObtenerDatosAlumnoPersonalizado(int idOportunidad)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                // Obtener idClasificacionPersona desde la oportunidad
+                IOportunidadService oportunidadService = new OportunidadService(_unitOfWork);
+                var oportunidad = oportunidadService.ObtenerPorId(idOportunidad);
+
+                if (oportunidad?.IdClasificacionPersona == null)
+                {
+                    return BadRequest("La oportunidad no tiene una clasificación de persona asociada.");
+                }
+
+                IAgendaActividadService agendaActividadService = new AgendaActividadService(_unitOfWork);
+                var result = agendaActividadService.ObtenerDatosAlumnoPersonalizado(oportunidad.IdClasificacionPersona.Value, idOportunidad);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 01/08/2022
