@@ -40,7 +40,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Marketing.LinkedIn
         BoolDTO ObtenerEstadoEnvio(int id);
         IEnumerable<ReporteLeadsDTO> ObtenerReporteLeads();
         IEnumerable<ReporteLeadsDTO> ObtenerReporteLeadsByFecha(FiltroLandingPagePortaLinkedInDTO filtro);
-        IEnumerable<ReporteLeadsPendientesDTO> ObtenerReportePendientes();
+        IEnumerable<ReporteLeadsPendientesDTO> ObtenerReportePendientes(int cuentaAsociada);
 
         bool CrearFormularioRegularizado(LinkedInActualizarDTO dto, string usuario);
         bool ActualizarFormularioRegularizado(LinkedInActualizarDTO dto, string usuario);

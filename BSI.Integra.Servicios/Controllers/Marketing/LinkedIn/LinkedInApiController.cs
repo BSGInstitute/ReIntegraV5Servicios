@@ -57,9 +57,9 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.LinkedIn
 
 
         [HttpGet("[action]")]
-        public IActionResult ObtenerReportePendientes()
+        public IActionResult ObtenerReportePendientes(int cuentaAsociada)
         {
-            var resultado = _linkedInApiService.ObtenerReportePendientes();
+            var resultado = _linkedInApiService.ObtenerReportePendientes(cuentaAsociada);
             return Ok(resultado);
 
         }

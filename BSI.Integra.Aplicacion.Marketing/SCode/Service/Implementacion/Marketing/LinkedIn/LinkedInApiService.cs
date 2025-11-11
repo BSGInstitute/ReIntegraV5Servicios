@@ -690,9 +690,9 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
 
 
 
-        public IEnumerable<ReporteLeadsPendientesDTO> ObtenerReportePendientes()
+        public IEnumerable<ReporteLeadsPendientesDTO> ObtenerReportePendientes(int cuentaAsociada)
         {
-            return _unitOfWork.LinkedInApiRepository.ObtenerReportePendientes();
+            return _unitOfWork.LinkedInApiRepository.ObtenerReportePendientes(cuentaAsociada);
         }
 
         public bool Actualizar(LinkedInActualizarDTO dto, string usuario)

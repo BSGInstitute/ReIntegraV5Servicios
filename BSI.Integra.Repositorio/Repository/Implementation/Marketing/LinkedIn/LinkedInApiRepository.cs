@@ -709,7 +709,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.LinkedIn
 
 
 
-        public IEnumerable<ReporteLeadsPendientesDTO> ObtenerReportePendientes()
+        public IEnumerable<ReporteLeadsPendientesDTO> ObtenerReportePendientes(int cuentaAsociada)
         {
             try
             {
@@ -737,9 +737,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.LinkedIn
                         FechaIntegra,
                         OportunidadRegistrada,
                         CuentaAsociada
-                    FROM mkt.V_LinkedinReportePendiente
+                    FROM mkt.V_LinkedinReportePendiente where CuentaAsociada =@cuentaAsociada
                     ORDER BY FechaLead DESC";
-                var resultado = _dapperRepository.QueryDapper(query, null);
+                var resultado = _dapperRepository.QueryDapper(query, new { cuentaAsociada });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
                     rpta = JsonConvert.DeserializeObject<List<ReporteLeadsPendientesDTO>>(resultado);

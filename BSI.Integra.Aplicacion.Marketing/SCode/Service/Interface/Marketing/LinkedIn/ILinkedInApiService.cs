@@ -18,7 +18,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Interface.Marketing.LinkedIn
         object GenerarOportunindadesLead();
         IEnumerable<ReporteLeadsDTO> ObtenerReporteLeads();
         IEnumerable<ReporteLeadsDTO> ObtenerReporteLeadsByFecha(FiltroLandingPagePortaLinkedInDTO filtro);
-        IEnumerable<ReporteLeadsPendientesDTO> ObtenerReportePendientes();
+        IEnumerable<ReporteLeadsPendientesDTO> ObtenerReportePendientes(int cuentaAsociada);
         bool Actualizar(LinkedInActualizarDTO dto, string usuario);
         bool SubirOportunidadesPendientes(string usuario);
         BoolDTO ValidarCreacionOportunidadLinkedinEstado();
