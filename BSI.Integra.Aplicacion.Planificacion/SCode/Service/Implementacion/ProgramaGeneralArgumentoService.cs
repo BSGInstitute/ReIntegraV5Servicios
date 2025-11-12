@@ -103,7 +103,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     List<ProgramaGeneralArgumentoDetalleDTO> argumentoDetalleDtoList = new();
                     foreach (var ag in argumentoDetalles)
                     {
-                        var argumentoDetalleMotivaciones = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacionNombre(item.Id);
+                        var argumentoDetalleMotivaciones = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacionNombre(ag.Id);
                         var argumentoDetalleDto = new ProgramaGeneralArgumentoDetalleDTO
                         {
                             Id = ag.Id,
