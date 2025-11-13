@@ -75,6 +75,18 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Campo de sistema que almacena la versión del registro
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
+        /// <summary>
+        /// Comentario sobre la consistencia de la ocurrencia
+        /// </summary>
+        public string? ComentarioConsistenciaOcurrencia { get; set; }
+        /// <summary>
+        /// Indica si el cambio de fase es consistente (1) o no (0)
+        /// </summary>
+        public bool? CambioFaseConsistente { get; set; }
+        /// <summary>
+        /// Comentario sobre la consistencia del cambio de fase
+        /// </summary>
+        public string? ComentarioConsistenciaCambioFase { get; set; }
 
         public virtual TLlamadaWebphoneCruceCentralTresCx IdLlamadaWebphoneCruceCentralTresCxNavigation { get; set; } = null!;
         public virtual ICollection<TFraseCombinadum> TFraseCombinada { get; set; }

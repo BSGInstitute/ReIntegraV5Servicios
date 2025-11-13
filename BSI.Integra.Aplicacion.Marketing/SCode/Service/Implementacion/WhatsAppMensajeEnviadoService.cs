@@ -18,7 +18,10 @@ using BSI.Integra.Repositorio.UnitOfWork;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
+using Nancy.Json;
 using Newtonsoft.Json;
+using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Transactions;
 using System.Web.Mvc;
@@ -702,6 +705,11 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
 
                     if (!string.IsNullOrWhiteSpace(item.CelularUM))
                         item.CelularUMEncriptado = alumnoService.EncriptarNumeroHash(Regex.Replace(item.CelularUM, @"[^\d]", ""));
+
+                    var result = _unitOfWork.WhatsAppMensajeEnviadoRepository.ObtenerRangoProbabilidadAlumno(item.IdAlumnoUM.Value);
+
+                    var parsed = JsonConvert.DeserializeObject<Dictionary<string, string>>(result);
+                    item.Rango = parsed != null && parsed.ContainsKey("Rango") ? parsed["Rango"] : string.Empty;
                 }
                 return resultadoAgrupado;
             }
@@ -1133,7 +1141,6 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                     throw new BadRequestException("No existe el Programa Especifico");
                 }
                 var alummno = _unitOfWork.AlumnoRepository.ObtenerPorId(dto.IdAlumno);
-                //var alummno = _unitOfWork.AlumnoRepository.ObtenerPorId(oportunidad.IdAlumno);
                 if (alummno == null)
                 {
                     throw new BadRequestException("El alumno no existe");
@@ -1153,9 +1160,12 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                             oportunidadReprogramacionNueva.Oportunidad.IdFaseOportunidad = ValorEstatico.IdFaseOportunidadBNC;
                             oportunidadReprogramacionNueva.Oportunidad.IdPersonalAsignado = dto.IdPersonalAsignado;
                             oportunidadReprogramacionNueva.Oportunidad.IdTipoDato = ValorEstatico.IdTipoDatoLanzamiento;
-                            oportunidadReprogramacionNueva.Oportunidad.IdOrigen = 954;// Whatsapp Chat Bases Propias
+                            oportunidadReprogramacionNueva.Oportunidad.IdOrigen = dto.IdOrigen;
                             oportunidadReprogramacionNueva.Oportunidad.IdAlumno = dto.IdAlumno;
-                            oportunidadReprogramacionNueva.Oportunidad.IdEstadoOportunidad = ValorEstatico.IdEstadoOportunidadNoProgramada;
+                            if (dto.Activo.HasValue && dto.Activo.Value == true)
+                                oportunidadReprogramacionNueva.Oportunidad.IdEstadoOportunidad = ValorEstatico.IdEstadoOportunidadSegMejProg;
+                            else
+                                oportunidadReprogramacionNueva.Oportunidad.IdEstadoOportunidad = ValorEstatico.IdEstadoOportunidadNoProgramada;
                             oportunidadReprogramacionNueva.Oportunidad.UltimaFechaProgramada = null;
                             //oportunidadReprogramacionNueva.IdTipoInteraccion = 15;
                             oportunidadReprogramacionNueva.Oportunidad.IdCentroCosto = dto.IdCentroCosto;
@@ -1168,18 +1178,14 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                             oportunidadReprogramacionNueva.Oportunidad.IdClasificacionPersona = clasificacionPersona.Id;
                             oportunidadReprogramacionNueva.Oportunidad.IdPersonalAreaTrabajo = ValorEstatico.IdPersonalAreaTrabajoVentas;
 
-
                             //SE CREA UNA NUEVA OPORTUNIDAD
                             reprogramacionService.CrearOportunidad(ref oportunidadReprogramacionNueva, false, TipoPersona.Alumno);
 
                             scope.Complete();
-
-
                         }
 
                         catch (Exception ex)
                         {
-                            // scope.Dispose();
                             List<string> correos = new List<string>
                             {
                                 "sistemas@bsginstitute.com"
@@ -1528,6 +1534,180 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
             }
         }
 
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 29/08/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Captura registros de alumnos en base a chats mediante un modelo IA
+        /// </summary>
+        /// <param name="celular">Celular del alumno</param>
+        /// <param name="rango">Antiguedad de los chats a analizar</param>
+        /// <returns>Datos capturados por el modelo IA</returns>
+        public async Task<DatosExtraccionRegistrosResponseDTO> CapturarRegistrosModeloIA(DatosExtraccionRegistrosDTO datosExtraccionRegistros)
+        {
+            // 1. Obtencion de chats
+            List<MensajeExtraccionRegistroDTO> ChatsWhatsAppMarketing = new List<MensajeExtraccionRegistroDTO>();
+            DateTime fechaFin = DateTime.Now;
+            DateTime fechaInicio = fechaFin.AddDays(-datosExtraccionRegistros.Rango);
+
+            ChatsWhatsAppMarketing = _unitOfWork.WhatsAppMensajeEnviadoRepository.ObtenerChatWhatsAppMarketingPorCelularRangoFecha(datosExtraccionRegistros.CelularAlumno, fechaInicio, fechaFin);
+            var ultimoMensajeCampania = _unitOfWork.CampaniaGeneralWhatsAppRepository.ObtenerUltimoMensajeCampaniaEnviado(datosExtraccionRegistros.CelularAlumno);
+
+            DatosExtraccionRegistrosRequestDTO datosExtraccionRegistrosRequest = new DatosExtraccionRegistrosRequestDTO
+            {
+                Id_cliente = datosExtraccionRegistros.CelularAlumno,
+                Timestamp = fechaFin.ToString(),
+                Mensajes = ChatsWhatsAppMarketing,
+                Campos = new List<string>
+                                {
+                                    "nombres",
+                                    "apellidos",
+                                    "cargo",
+                                    "area_de_formacion",
+                                    "area_de_trabajo",
+                                    "industria"
+                                },
+                Info_curso = ultimoMensajeCampania
+            };
+
+            // 2. Envio de chats al modelo IA
+            string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/api/extractor_texto/consulta/";
+
+            var Serializer = new JavaScriptSerializer();
+            var serializedResult = Serializer.Serialize(datosExtraccionRegistrosRequest);
+
+            var resultado = await PostJsonAsync<DatosExtraccionRegistrosResponseDTO>(url, serializedResult);
+
+            if (resultado == null)
+                throw new Exception("La respuesta de la API externa fue nula o falló.");
+
+            return resultado;
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 30/09/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Desactiva la interacción automática del asistente WhatsApp para un cliente y campania específicos
+        /// </summary>
+        /// <param name="celularAlumno">número de WhatsApp del alumno</param>
+        /// <param name="idCampania">ID de campaña a desactivar</param>
+        /// <returns>Resultado del servicio externo</returns>
+        public async Task<DesactivarInteraccionResponseDTO> DesactivarInteraccionAutomaticaWhatsapp(string celularAlumno, string idCampania)
+        {
+            //string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/testing/api/interaccion_whatsapp/forzar_derivacion/?num_whatsapp={celularAlumno}&id_campania={idCampania}";
+            string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/api/interaccion_whatsapp/forzar_derivacion/?num_whatsapp={celularAlumno}&id_campania={idCampania}";
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.PostAsync(url, null);
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"Error al llamar al API externa: {responseContent}");
+
+                var resultado = JsonConvert.DeserializeObject<DesactivarInteraccionResponseDTO>(responseContent);
+
+                if (resultado == null)
+                    throw new Exception("La respuesta de la API externa fue nula o inválida.");
+
+                return resultado;
+            }
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 01/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener datos extraidos mediante la interaccion automatica de un telefono
+        /// </summary>
+        /// <param name="celularAlumno">número de WhatsApp del alumno</param>
+        /// <returns>Resultado del servicio externo</returns>
+        public async Task<DatosInteraccionAutomaticaResponseDTO> ObtenerDatosExtraidosInteraccionAutomatica(string celularAlumno)
+        {
+            //string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/testing/api/interaccion_whatsapp/consulta_datos_extraidos/?num_whatsapp={celularAlumno}";
+            string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/api/interaccion_whatsapp/consulta_datos_extraidos/?num_whatsapp={celularAlumno}";
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.PostAsync(url, null);
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"Error al llamar al API externa: {responseContent}");
+
+                var resultado = JsonConvert.DeserializeObject<DatosInteraccionAutomaticaResponseDTO>(responseContent);
+
+                if (resultado == null)
+                    throw new Exception("La respuesta de la API externa fue nula o inválida.");
+
+                return resultado;
+            }
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 01/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Valida el guardado de los datos extraidos por la interaccion automatica de un telefono
+        /// </summary>
+        /// <param name="celularAlumno">número de WhatsApp del alumno</param>
+        /// <returns>Resultado del servicio externo</returns>
+        public async Task<DesactivarInteraccionResponseDTO> ValidarGuardadoDatosInteraccionAutomatica(string celularAlumno)
+        {
+            //string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/testing/api/interaccion_whatsapp/validacion/?num_whatsapp={celularAlumno}";
+            string url = $"http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/api/interaccion_whatsapp/validacion/?num_whatsapp={celularAlumno}";
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.PostAsync(url, null);
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"Error al llamar al API externa: {responseContent}");
+
+                var resultado = JsonConvert.DeserializeObject<DesactivarInteraccionResponseDTO>(responseContent);
+
+                if (resultado == null)
+                    throw new Exception("La respuesta de la API externa fue nula o inválida.");
+
+                return resultado;
+            }
+        }
+
+        private async Task<T> PostJsonAsync<T>(string url, string jsonString)
+        {
+            try
+            {
+                var http = (HttpWebRequest)WebRequest.Create(new Uri(url));
+                http.Accept = "application/json";
+                http.ContentType = "application/json";
+                http.Method = "POST";
+
+                byte[] bytes = Encoding.ASCII.GetBytes(jsonString);
+
+                using (Stream requestStream = await http.GetRequestStreamAsync())
+                {
+                    requestStream.Write(bytes, 0, bytes.Length);
+                }
+
+                using (var response = await http.GetResponseAsync())
+                using (var stream = response.GetResponseStream())
+                using (var reader = new StreamReader(stream))
+                {
+                    string content = await reader.ReadToEndAsync();
+                    return JsonConvert.DeserializeObject<T>(content);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en el metodo PostJsonAsync: {ex.Message}", ex);
+            }
+        }
     }
 }
 

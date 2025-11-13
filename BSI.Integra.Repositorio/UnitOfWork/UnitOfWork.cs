@@ -2217,6 +2217,16 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
 
         }
+
+        private ICampoFormularioOpcionRepository campoFormularioOpcionRepository;
+        ICampoFormularioOpcionRepository IUnitOfWork.CampoFormularioOpcionRepository
+        {
+            get
+            {
+                return campoFormularioOpcionRepository ?? new CampoFormularioOpcionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
         private ICajaPorRendirRepository cajaPorRendirRepository;
         ICajaPorRendirRepository IUnitOfWork.CajaPorRendirRepository
         {
@@ -3302,6 +3312,15 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             get
             {
                 return _facebookFormularioLeadgenRepository ?? new FacebookFormularioLeadgenRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IFacebookFormularioLeadgenLogRepository _facebookFormularioLeadgenLogRepository;
+        IFacebookFormularioLeadgenLogRepository IUnitOfWork.FacebookFormularioLeadgenLogRepository
+        {
+            get
+            {
+                return _facebookFormularioLeadgenLogRepository ?? new FacebookFormularioLeadgenLogRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
 
@@ -7257,6 +7276,14 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private IWavixRepository _wavixRepository;
+        IWavixRepository IUnitOfWork.WavixRepository
+        {
+            get
+            {
+                return _wavixRepository ?? new WavixRepository(_dapperRepository);
+            }
+        }
 
 
         private IProgramaGeneralPresentacionArgumentoRepository _programaGeneralPresentacionArgumentoRepository;
@@ -7849,6 +7876,129 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             get
             {
                 return _procesoSeleccionPuntajeCalificacionRepository ?? new ProcesoSeleccionPuntajeCalificacionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IProgramaGeneralProblemaFactorRepository _programaGeneralProblemaFactorRepository;
+
+        IProgramaGeneralProblemaFactorRepository IUnitOfWork.ProgramaGeneralProblemaFactorRepository
+        {
+            get
+            {
+                return _programaGeneralProblemaFactorRepository ?? new ProgramaGeneralProblemaFactorRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+
+        private IProgramaGeneralProblemaFactorDetalleRepository _programaGeneralProblemaFactorDetalleRepository;
+
+        IProgramaGeneralProblemaFactorDetalleRepository IUnitOfWork.ProgramaGeneralProblemaFactorDetalleRepository
+        {
+            get
+            {
+                return _programaGeneralProblemaFactorDetalleRepository ?? new ProgramaGeneralProblemaFactorDetalleRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IProgramaGeneralProblemaFactorSolucionRepository _programaGeneralProblemaFactorSolucionRepository;
+
+        IProgramaGeneralProblemaFactorSolucionRepository IUnitOfWork.ProgramaGeneralProblemaFactorSolucionRepository
+        {
+            get
+            {
+                return _programaGeneralProblemaFactorSolucionRepository ?? new ProgramaGeneralProblemaFactorSolucionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IProgramaGeneralProblemaFactorSubSolucionRepository _programaGeneralProblemaFactorSubSolucionRepository;
+
+        IProgramaGeneralProblemaFactorSubSolucionRepository IUnitOfWork.ProgramaGeneralProblemaFactorSubSolucionRepository
+        {
+            get
+            {
+                return _programaGeneralProblemaFactorSubSolucionRepository ?? new ProgramaGeneralProblemaFactorSubSolucionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+
+        private IProgramaGeneralArgumentoRepository _programaGeneralArgumentoRepository;
+
+        IProgramaGeneralArgumentoRepository IUnitOfWork.ProgramaGeneralArgumentoRepository
+        {
+            get
+            {
+                return _programaGeneralArgumentoRepository ?? new ProgramaGeneralArgumentoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IProgramaGeneralArgumentoDetalleRepository _programaGeneralArgumentoDetalleRepository;
+
+        IProgramaGeneralArgumentoDetalleRepository IUnitOfWork.ProgramaGeneralArgumentoDetalleRepository
+        {
+            get
+            {
+                return _programaGeneralArgumentoDetalleRepository ?? new ProgramaGeneralArgumentoDetalleRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IProgramaGeneralArgumentoModalidadRepository _programaGeneralArgumentoModalidadRepository;
+
+        IProgramaGeneralArgumentoModalidadRepository IUnitOfWork.ProgramaGeneralArgumentoModalidadRepository
+        {
+            get
+            {
+                return _programaGeneralArgumentoModalidadRepository ?? new ProgramaGeneralArgumentoModalidadRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IProgramaGeneralArgumentoDetalleMotivacionRepository _programaGeneralArgumentoDetalleMotivacionRepository;
+
+        IProgramaGeneralArgumentoDetalleMotivacionRepository IUnitOfWork.ProgramaGeneralArgumentoDetalleMotivacionRepository
+        {
+            get
+            {
+                return _programaGeneralArgumentoDetalleMotivacionRepository ?? new ProgramaGeneralArgumentoDetalleMotivacionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IProgramaGeneralProblemaDetalleRepository _programaGeneralProblemaDetalleRepository;
+
+        IProgramaGeneralProblemaDetalleRepository IUnitOfWork.ProgramaGeneralProblemaDetalleRepository
+        {
+            get
+            {
+                return _programaGeneralProblemaDetalleRepository ?? new ProgramaGeneralProblemaDetalleRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IProgramaGeneralProblemaFactorSubSolucionAsignadaRepository _programaGeneralProblemaFactorSubSolucionAsignadaRepository;
+
+        IProgramaGeneralProblemaFactorSubSolucionAsignadaRepository IUnitOfWork.ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository
+        {
+            get
+            {
+                return _programaGeneralProblemaFactorSubSolucionAsignadaRepository ?? new ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IProgramaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository _programaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository;
+        IProgramaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository IUnitOfWork.ProgramaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository
+        {
+            get
+            {
+                return _programaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository ?? new ProgramaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+
+        }
+        private IProgramaMotivacionRepository _programaMotivacionRepository;
+        IProgramaMotivacionRepository IUnitOfWork.ProgramaMotivacionRepository
+        {
+            get
+            {
+                return _programaMotivacionRepository ?? new ProgramaMotivacionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IOportunidadProgramaMotivacionSeleccionRepository _oportunidadProgramaMotivacionSeleccionRepository;
+        IOportunidadProgramaMotivacionSeleccionRepository IUnitOfWork.OportunidadProgramaMotivacionSeleccionRepository
+        {
+            get
+            {
+                return _oportunidadProgramaMotivacionSeleccionRepository ?? new OportunidadProgramaMotivacionSeleccionRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
     }

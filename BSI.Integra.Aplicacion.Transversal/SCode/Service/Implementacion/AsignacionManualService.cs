@@ -45,7 +45,28 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         }
         private ActividadDetalle _ActividadDetalleLocal = new ActividadDetalle();
 
-
+        public RespuestaCambioActividadCabeceraAgendaDTO CambioActividadCabeceraAgenda(AsignarActividadesAgendaV6DTO data)
+        {
+            try
+            {
+                var asesor = _unitOfWork.AsignacionOportunidadRepository.ObtenerUsuarioAgendaV6PorIdAsesor(data.IdAsesor);
+                if (asesor == null)
+                    return new RespuestaCambioActividadCabeceraAgendaDTO
+                    {
+                        Estado = "ERROR",
+                        Mensaje = "Asesor no habilitado para usar Agenda V6"
+                    };
+                var resultado = _unitOfWork.AsignacionOportunidadRepository.CambioActividadCabeceraAgenda(data.IdAsesor, data.Agenda ?? "V6");
+                return new RespuestaCambioActividadCabeceraAgendaDTO
+                {
+                    Estado = resultado.Estado,
+                    Mensaje = resultado.Mensaje
+                };
+            } catch (Exception)
+            {
+                throw;
+            }
+        }
         //public object AsignarAsesor(AsignarAsesorManualDTO AsignarAsesor, string Usuario)
         //{
 
@@ -713,7 +734,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.Commit();
 
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
-
+                            var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                            try
+                            {
+                                FacebookFormularioLeadingLog.EvaluarConversionFacebook((int)asig.IdOportunidad);
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                             // (Conservamos el envío de correo como estaba en manual)
                             IAgendaService agendaService = new AgendaService(_unitOfWork);
                             agendaService.EnviarCorreoOportunidadAutomatico(oportunidadService._asignacionManual.OportunidadNueva.Id, 1967, "Automatico1967");
@@ -1134,7 +1162,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.Commit();
 
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
-
+                            var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                            try
+                            {
+                                FacebookFormularioLeadingLog.EvaluarConversionFacebook((int)asig.IdOportunidad);
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                             var agendaService = new AgendaService(_unitOfWork);
                             agendaService.EnviarCorreoOportunidadAutomatico(
                                 oportunidadService._asignacionManual.OportunidadNueva.Id, 1967, "Automatico1967");
@@ -1551,7 +1586,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.OportunidadLogRepository.Add(oportunidadService._asignacionManual.OportunidadLogNueva);
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
-
+                            var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                            try
+                            {
+                                FacebookFormularioLeadingLog.EvaluarConversionFacebook(oportunidadNueva.Id);
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                             //_repOportunidad.Update(portu);
                             //_unitOfWork.Commit();
 
@@ -1725,7 +1767,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.OportunidadLogRepository.Add(oportunidadService._asignacionManual.OportunidadLogNueva);
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
-
+                            var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                            try
+                            {
+                                FacebookFormularioLeadingLog.EvaluarConversionFacebook(oportunidadNueva.Id);
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                             //_repOportunidad.Update(portu);
                             //_unitOfWork.Commit();
 
@@ -1907,7 +1956,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.OportunidadLogRepository.Add(oportunidadService._asignacionManual.OportunidadLogNueva);
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
-
+                            var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                            try
+                            {
+                                FacebookFormularioLeadingLog.EvaluarConversionFacebook(oportunidadNueva.Id);
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                             //_repOportunidad.Update(portu);
                             //_unitOfWork.Commit();
 
@@ -2088,7 +2144,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.OportunidadLogRepository.Add(oportunidadService._asignacionManual.OportunidadLogNueva);
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
-
+                            var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                            try
+                            {
+                                FacebookFormularioLeadingLog.EvaluarConversionFacebook(oportunidadNueva.Id);
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                             //_repOportunidad.Update(portu);
                             //_unitOfWork.Commit();
 
@@ -2217,6 +2280,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.OportunidadLogRepository.Add(oportunidadService._asignacionManual.OportunidadLogNueva);
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
+                            var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                            try
+                            {
+                                FacebookFormularioLeadingLog.EvaluarConversionFacebook(idOportunidad);
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                             //oportunidadDTO.FasesActivas = Oportunidad.fasesac;
 
 
@@ -2399,6 +2470,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.OportunidadLogRepository.Add(oportunidadService._asignacionManual.OportunidadLogNueva);
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
+                            var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                            try
+                            {
+                                FacebookFormularioLeadingLog.EvaluarConversionFacebook(oportunidadNueva.Id);
+                            }
+                            catch (Exception ex)
+                            {
+                            }
 
 
 
@@ -2583,7 +2662,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.OportunidadLogRepository.Add(oportunidadService._asignacionManual.OportunidadLogNueva);
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
-
+                            var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                            try
+                            {
+                                FacebookFormularioLeadingLog.EvaluarConversionFacebook(oportunidadAntigua.Id);
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                             //_repOportunidad.Update(portu);
                             //_unitOfWork.Commit();
 
@@ -3711,7 +3797,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         _unitOfWork.OportunidadLogRepository.Add(oportunidadService._asignacionManual.OportunidadLogNueva);
                         _unitOfWork.Commit();
                         oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
-
+                        var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                        try
+                        {
+                            FacebookFormularioLeadingLog.EvaluarConversionFacebook((int)asig.IdOportunidad);
+                        }
+                        catch (Exception ex)
+                        {
+                        }
                         try
                         {
                             OportunidadWhatsappEnvioDTO item = new OportunidadWhatsappEnvioDTO();

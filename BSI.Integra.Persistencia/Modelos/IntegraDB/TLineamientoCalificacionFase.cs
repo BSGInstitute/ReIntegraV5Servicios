@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     /// <summary>
-    /// Especifica lineamientos o pautas de evaluacion asociados a un criterio de transicion de fase.
+    /// Especifica lineamientos o pautas de evaluación asociados a un criterio de transición de fase.
     /// </summary>
     public partial class TLineamientoCalificacionFase
     {
@@ -57,9 +57,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
         /// <summary>
-        /// Campo de auditoria IdMigracion del registro
+        /// Id de la tabla Original al migrar
         /// </summary>
-        public Guid? IdMigracion { get; set; }
+        public int? IdMigracion { get; set; }
 
         public virtual TCriterioCalificacionFaseOportunidad IdCriterioCalificacionFaseOportunidadNavigation { get; set; } = null!;
         public virtual TCriticidadCalificacion IdCriticidadCalificacionNavigation { get; set; } = null!;

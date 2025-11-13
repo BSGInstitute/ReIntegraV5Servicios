@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.Transversal.SCode.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
+using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
+using BSI.Integra.Repositorio.Repository.Implementation;
 using BSI.Integra.Repositorio.UnitOfWork;
 using System.Transactions;
 //using static BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.FiltroTipoFormularioSolicitudDTO;
@@ -234,7 +237,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         /// Inserta  los registros de T_FormularioSolicitud
         /// </summary>
         /// <returns> List<FormularioSolicitudDTO> </returns>
-
         public FormularioSolicitud InsertarFormularioSolicitud(InsertarFormularioSolicitudCampoDTO obj)
         {
             try
@@ -284,7 +286,70 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     };
                     camposnuevos.Add(campo);
                 }
-                _repCampoFormulario.Add(camposnuevos);
+
+                // Insertar uno a uno para obtener Id generado
+                List<CampoFormulario> camposNuevosInsertados = new List<CampoFormulario>();
+                foreach (var campo in camposnuevos)
+                {
+                    var campoInsertado = _repCampoFormulario.Add(campo);
+                    camposNuevosInsertados.Add(campoInsertado);
+                }
+
+                List<CampoFormularioOpcion> opcionesInsertar = new List<CampoFormularioOpcion>();
+
+                for (int i = 0; i < camposNuevosInsertados.Count; i++)
+                {
+                    var campoInsertado = camposNuevosInsertados[i];
+                    var listaOpcionesStr = obj.Campo[i].ListaOpcion;
+
+                    if (!string.IsNullOrEmpty(listaOpcionesStr))
+                    {
+                        if (listaOpcionesStr.ToLower() == "all")
+                        {
+                            opcionesInsertar.Add(new CampoFormularioOpcion()
+                            {
+                                IdCampoFormulario = campoInsertado.Id,
+                                Valor = -1,
+                                Estado = true,
+                                FechaCreacion = DateTime.Now,
+                                FechaModificacion = DateTime.Now,
+                                UsuarioCreacion = obj.Formulario.Usuario,
+                                UsuarioModificacion = obj.Formulario.Usuario,
+                            });
+                        }
+                        else
+                        {
+                            var opciones = listaOpcionesStr.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                .Select(x =>
+                                {
+                                    int.TryParse(x.Trim(), out int val);
+                                    return val;
+                                })
+                                .Where(x => x != 0)
+                                .ToList();
+
+                            foreach (var opcion in opciones)
+                            {
+                                opcionesInsertar.Add(new CampoFormularioOpcion()
+                                {
+                                    IdCampoFormulario = campoInsertado.Id,
+                                    Valor = opcion,
+                                    Estado = true,
+                                    FechaCreacion = DateTime.Now,
+                                    FechaModificacion = DateTime.Now,
+                                    UsuarioCreacion = obj.Formulario.Usuario,
+                                    UsuarioModificacion = obj.Formulario.Usuario,
+                                });
+                            }
+                        }
+                    }
+                }
+
+                if (opcionesInsertar.Any())
+                {
+                    _unitOfWork.CampoFormularioOpcionRepository.Add(opcionesInsertar);
+                    _unitOfWork.Commit();
+                }
 
                 return response;
             }
@@ -337,15 +402,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw ex;
             }
         }
-        // Autor: Margiory Ramirez Neyra.
+
+        /// Autor: Margiory Ramirez Neyra.
         /// Fecha: 12/09/2022
         /// Version: 1.0
         /// <summary>
         /// Actulizar]  los registros   de COnjunto de  Anuncio de T_FormularioSolicitud
         /// </summary>
         /// <returns> List<FormularioSolicitudDTO> </returns>
-
-
         public FormularioSolicitud ActualizarFormularioSolicitud(InsertarFormularioSolicitudCampoDTO obj)
         {
             try
@@ -372,7 +436,25 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                 var respuesta = this.Update(formularioSolicitud);
 
-                var IdCampos = _repCampoFormulario.GetBy(w => w.Estado == true && w.IdFormularioSolicitud == formularioSolicitud.Id, w => new { w.Id }).Select(x => x.Id);
+                var IdCampos = _repCampoFormulario.GetBy(w => w.Estado == true && w.IdFormularioSolicitud == formularioSolicitud.Id, w => new { w.Id }).Select(x => x.Id).ToList();
+
+                // Eliminar lógicamente opciones anteriores asociadas a esos campos
+                if (IdCampos.Any())
+                {
+                    var opcionesAnteriores = _unitOfWork.CampoFormularioOpcionRepository.GetBy(x => IdCampos.Contains(x.IdCampoFormulario) && x.Estado).ToList();
+
+                    if (opcionesAnteriores.Any())
+                    {
+                        foreach (var opcion in opcionesAnteriores)
+                        {
+                            opcion.Estado = false;
+                            opcion.FechaModificacion = DateTime.Now;
+                            opcion.UsuarioModificacion = obj.Formulario.Usuario;
+                        }
+
+                        _unitOfWork.CampoFormularioOpcionRepository.Update(opcionesAnteriores);
+                    }
+                }
 
                 _repCampoFormulario.Delete(IdCampos, obj.Formulario.Usuario);
 
@@ -398,7 +480,72 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     };
                     camposnuevos.Add(campo);
                 }
-                _repCampoFormulario2.Add(camposnuevos);
+
+                List<CampoFormulario> camposNuevosInsertados = new List<CampoFormulario>();
+                foreach (var campo in camposnuevos)
+                {
+                    var campoInsertado = _repCampoFormulario2.Add(campo);
+                    camposNuevosInsertados.Add(campoInsertado);
+                }
+
+                // Insertar nuevas opciones
+                List<CampoFormularioOpcion> opcionesInsertar = new List<CampoFormularioOpcion>();
+
+                for (int i = 0; i < camposNuevosInsertados.Count; i++)
+                {
+                    var campoInsertado = camposNuevosInsertados[i];
+                    var listaOpcionesStr = obj.Campo[i].ListaOpcion;
+
+                    if (!string.IsNullOrEmpty(listaOpcionesStr))
+                    {
+                        if (listaOpcionesStr.ToLower() == "all")
+                        {
+                            opcionesInsertar.Add(new CampoFormularioOpcion()
+                            {
+                                IdCampoFormulario = campoInsertado.Id,
+                                Valor = -1,
+                                Estado = true,
+                                FechaCreacion = DateTime.Now,
+                                FechaModificacion = DateTime.Now,
+                                UsuarioCreacion = obj.Formulario.Usuario,
+                                UsuarioModificacion = obj.Formulario.Usuario,
+                            });
+                        }
+                        else
+                        {
+                            var opciones = listaOpcionesStr.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                                .Select(x =>
+                                                {
+                                                    int.TryParse(x.Trim(), out int val);
+                                                    return val;
+                                                })
+                                                .Where(x => x != 0)
+                                                .ToList();
+
+                            foreach (var opcion in opciones)
+                            {
+                                opcionesInsertar.Add(new CampoFormularioOpcion()
+                                {
+                                    IdCampoFormulario = campoInsertado.Id,
+                                    Valor = opcion,
+                                    Estado = true,
+                                    FechaCreacion = DateTime.Now,
+                                    FechaModificacion = DateTime.Now,
+                                    UsuarioCreacion = obj.Formulario.Usuario,
+                                    UsuarioModificacion = obj.Formulario.Usuario,
+                                });
+                            }
+                        }
+                    }
+                }
+
+
+                if (opcionesInsertar.Any())
+                {
+                    _unitOfWork.CampoFormularioOpcionRepository.Add(opcionesInsertar);
+                    _unitOfWork.Commit();
+                }
+
                 return respuesta;
             }
             catch (Exception ex)

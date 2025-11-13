@@ -28,6 +28,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         List<WhatsAppHistorialMensajesDTO> ListaHistorialMensajeChatControlMensaje(int idPersonal, string numero, string area);
         bool ValidarPlantillasEnviadas(string plantilla, string numero);
         bool ValidarPlantillasEnviadasApiComercial(string plantilla, string numero);
+        bool ValidarPlantillasEnviadasApiComercialPersonal(string plantilla, string numero, int idPersonal);
         bool ValidarPlantillasEnviadasApiComercial(string plantilla, string numero, DateTime fechaUltimoMensajeRecibido);
         bool ValidarPlantillasEnviadasNuevoWebHook(string plantilla, string numero);
         bool ValidarMesajeRecibidosApiComercial(string numero);
@@ -72,16 +73,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         bool VerificarActualizarAlumno(int idAlumno);
         public void RegistrarActualizacionAlumno(int idAlumno, string usuario);
         public bool EsAsesorVentasValido(int idAsesor);
-
-
-
-
-
-
-
-
-
-
+        public string ObtenerRangoProbabilidadAlumno(int idAlumno);
+        public List<MensajeExtraccionRegistroDTO> ObtenerChatWhatsAppMarketingPorCelularRangoFecha(string celularAlumno, DateTime fechaInicio, DateTime fechaFin);
 
 
     }

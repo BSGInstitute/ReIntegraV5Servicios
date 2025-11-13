@@ -1175,6 +1175,27 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 return respuestaMensajeHook;
             }
         }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 29/08/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Devuelve el ultimo mensaje de campania que se envio a un alumno
+        /// </summary>
+        /// <param name="celularAlumno">Celular del alumno</param>
+        /// <returns>Ultimo mensaje de campania enviado</returns>
+        public string ObtenerUltimoMensajeCampaniaEnviado(string celularAlumno)
+        {
+            try
+            {
+                var response = _unitOfWork.CampaniaGeneralWhatsAppRepository.ObtenerUltimoMensajeCampaniaEnviado(celularAlumno);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }
 

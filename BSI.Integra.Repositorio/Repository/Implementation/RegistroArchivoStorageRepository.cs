@@ -252,16 +252,23 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 List<ComboContenedorArchivoDTO> rpta = new List<ComboContenedorArchivoDTO>();
-                var query = $@"SELECT DISTINCT
-                                       IdContenedor,
-                                       Contenedor,
-                                       AplicaSubcontenedores,
-                                       AplicaSubidaMultiple,
-                                       AplicaValidacion
-                                FROM mkt.V_RegistroArchivosContenedoresSubcontenedores RACS
-                                INNER JOIN mkt.V_RegistroArchivoStoragePermisoUsuario RASP
-                                    ON RACS.IdContenedor = RASP.IdUrlBlockStorage
-                                WHERE IdPersonal = {IdPersonal}";
+                var query = $@"SELECT
+                                RACS.IdContenedor AS IdContenedor,
+                                RACS.Contenedor AS Contenedor,
+                                RACS.AplicaSubcontenedores AS AplicaSubcontenedores,
+                                RACS.AplicaSubidaMultiple AS AplicaSubidaMultiple,
+                                RACS.AplicaValidacion AS AplicaValidacion,
+                                MIN(RACS.IdSubcontenedor) AS IdSubcontenedor 
+                            FROM mkt.V_RegistroArchivosContenedoresSubcontenedores AS RACS
+                            INNER JOIN mkt.V_RegistroArchivoStoragePermisoUsuario AS RASP
+                                ON RACS.IdContenedor = RASP.IdUrlBlockStorage
+                            WHERE IdPersonal = {IdPersonal}
+                            GROUP BY
+                                RACS.IdContenedor,
+                                RACS.Contenedor,
+                                RACS.AplicaSubcontenedores,
+                                RACS.AplicaSubidaMultiple,
+                                RACS.AplicaValidacion; ";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {

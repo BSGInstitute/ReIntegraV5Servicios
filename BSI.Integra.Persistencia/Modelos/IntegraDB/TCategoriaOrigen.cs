@@ -8,6 +8,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public TCategoriaOrigen()
         {
             TCampaniaGenerals = new HashSet<TCampaniaGeneral>();
+            TGoogleAdsConversionQueues = new HashSet<TGoogleAdsConversionQueue>();
         }
 
         /// <summary>
@@ -72,5 +73,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public string? CodigoPublicidad { get; set; }
 
         public virtual ICollection<TCampaniaGeneral> TCampaniaGenerals { get; set; }
+        public virtual ICollection<TGoogleAdsConversionQueue> TGoogleAdsConversionQueues { get; set; }
     }
 }

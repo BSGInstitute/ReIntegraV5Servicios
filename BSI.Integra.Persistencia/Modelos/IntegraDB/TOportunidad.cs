@@ -13,11 +13,14 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
             TCalidadProcesamientos = new HashSet<TCalidadProcesamiento>();
             TComprobantePagoOportunidads = new HashSet<TComprobantePagoOportunidad>();
             TContadorBicLogs = new HashSet<TContadorBicLog>();
+            TGoogleAdsConversionQueues = new HashSet<TGoogleAdsConversionQueue>();
             TModeloDataMinings = new HashSet<TModeloDataMining>();
             TModeloPredictivoProbabilidads = new HashSet<TModeloPredictivoProbabilidad>();
             TOportunidadClasificacionOperaciones = new HashSet<TOportunidadClasificacionOperacione>();
             TOportunidadCompetidors = new HashSet<TOportunidadCompetidor>();
             TOportunidadLogs = new HashSet<TOportunidadLog>();
+            TOportunidadProgramaMotivacionSeleccions = new HashSet<TOportunidadProgramaMotivacionSeleccion>();
+            TProgramaGeneralProblemaFactorSolucionRespuesta = new HashSet<TProgramaGeneralProblemaFactorSolucionRespuestum>();
             TSolucionClienteByActividads = new HashSet<TSolucionClienteByActividad>();
         }
 
@@ -251,17 +254,21 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public int? NumeroIntentoLlamada { get; set; }
 
         public virtual TAnuncioFacebook? IdAnuncioFacebookNavigation { get; set; }
+        public virtual TOportunidadGoogleLead TOportunidadGoogleLead { get; set; } = null!;
         public virtual ICollection<TActividadDetalle> TActividadDetalles { get; set; }
         public virtual ICollection<TAsignacionOportunidad> TAsignacionOportunidads { get; set; }
         public virtual ICollection<TCalidadProcesamientoAlterno> TCalidadProcesamientoAlternos { get; set; }
         public virtual ICollection<TCalidadProcesamiento> TCalidadProcesamientos { get; set; }
         public virtual ICollection<TComprobantePagoOportunidad> TComprobantePagoOportunidads { get; set; }
         public virtual ICollection<TContadorBicLog> TContadorBicLogs { get; set; }
+        public virtual ICollection<TGoogleAdsConversionQueue> TGoogleAdsConversionQueues { get; set; }
         public virtual ICollection<TModeloDataMining> TModeloDataMinings { get; set; }
         public virtual ICollection<TModeloPredictivoProbabilidad> TModeloPredictivoProbabilidads { get; set; }
         public virtual ICollection<TOportunidadClasificacionOperacione> TOportunidadClasificacionOperaciones { get; set; }
         public virtual ICollection<TOportunidadCompetidor> TOportunidadCompetidors { get; set; }
         public virtual ICollection<TOportunidadLog> TOportunidadLogs { get; set; }
+        public virtual ICollection<TOportunidadProgramaMotivacionSeleccion> TOportunidadProgramaMotivacionSeleccions { get; set; }
+        public virtual ICollection<TProgramaGeneralProblemaFactorSolucionRespuestum> TProgramaGeneralProblemaFactorSolucionRespuesta { get; set; }
         public virtual ICollection<TSolucionClienteByActividad> TSolucionClienteByActividads { get; set; }
     }
 }

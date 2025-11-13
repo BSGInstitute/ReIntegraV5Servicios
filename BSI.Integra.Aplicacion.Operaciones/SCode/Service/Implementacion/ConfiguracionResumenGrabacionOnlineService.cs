@@ -141,7 +141,7 @@ namespace BSI.Integra.Aplicacion.Operaciones.Service.Implementacion
                 }
 
                 datos.UrlVideo = ConstruirUrlVimeo(datos.UrlVideo);
-                var urlBase = "http://proceso-resumen.bsginstitute.com/api/v1/workflow/batch";
+                var urlBase = "http://ia-proceso-resumen-sesiones-api.bsginstitute.com/api/v1/workflow/batch";
                 var proceso = new List<IniciarProcesoResumenGrabacionesDTO>
                 {
                     new IniciarProcesoResumenGrabacionesDTO

@@ -5,6 +5,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     public partial class TFacebookFormularioLeadgen
     {
+        public TFacebookFormularioLeadgen()
+        {
+            TFacebookFormularioLeadgenLogs = new HashSet<TFacebookFormularioLeadgenLog>();
+        }
+
         /// <summary>
         /// Es primary key
         /// </summary>
@@ -105,5 +110,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Id original de Facebook del anuncio
         /// </summary>
         public string? FacebookAnuncioNombre { get; set; }
+        /// <summary>
+        /// Plataforma de origen del lead (Facebook, Instagram, etc.)
+        /// </summary>
+        public string? Plataforma { get; set; }
+
+        public virtual ICollection<TFacebookFormularioLeadgenLog> TFacebookFormularioLeadgenLogs { get; set; }
     }
 }

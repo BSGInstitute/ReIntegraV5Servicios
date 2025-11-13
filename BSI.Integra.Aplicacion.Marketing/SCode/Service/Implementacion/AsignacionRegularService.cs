@@ -6,7 +6,6 @@ using BSI.Integra.Aplicacion.Marketing.Service.Interface;
 using BSI.Integra.Aplicacion.Marketing.Service.Interface.Marketing.WhatsApp;
 using BSI.Integra.Aplicacion.Servicios.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
-using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -784,7 +783,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                                                 break;
                                             }
 
-                                           if (Opor.AsignacionRegular == true && Opor.AsignacionDirecta == false && Opor.AsignacionDirectaWhatsapp == false && Opor.AsigancionDirectaMailing == false)
+                                            if (Opor.AsignacionRegular == true && Opor.AsignacionDirecta == false && Opor.AsignacionDirectaWhatsapp == false && Opor.AsigancionDirectaMailing == false)
                                             {
 
                                                 var cantidad = 0;
@@ -833,13 +832,13 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                     }
                     catch (Exception ex)
                     {
-                      
+
                         Console.WriteLine(ex.Message);
                     }
                 }
                 EnvioCorreoAsignacion("Fin Asignacion de datos");
                 return true;
-                
+
             }
             catch (Exception ex)
             {
@@ -897,7 +896,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                                 IdAsesor = asesor.IdPersonal,
                                 FechaProgramada = null,
                                 IdCentroCosto = new int(),
-                            SegunMejorPro = false
+                                SegunMejorPro = false
                             };
 
                             var ListaDetalle = _unitOfWork.AsignacionRegularRepository.ObtenerConfiguracionDetalle(asesor.Id.Value);
@@ -907,7 +906,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                             {
                                 if (detalleConfiguracionPais.IdPais == oportunidad.IdPais)
                                 {
-                                    
+
                                     if (oportunidad.AsignacionDirectaWhatsapp == true && detalleConfiguracionPais.DatoCalidadWhatsapp == true)
                                     {
                                         data.SegunMejorPro = true;
@@ -918,7 +917,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                                         estadoAsignacion = true;
                                         break;
                                     }
-                                  
+
                                 }
                             }
 
@@ -926,7 +925,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                             {
                                 // Aumentar el índice del asesor solo si se asignó una oportunidad
                                 indiceAsesor++;
-                        
+
                             }
                         }
                     }
@@ -944,7 +943,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
             }
         }
 
-        
+
 
         /// Autor: Edson Daniel Mayta Escobedo
         /// Fecha: 19/09/2022
@@ -1108,7 +1107,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
         /// Obtiene lista de asesores
         /// </summary>
         /// <returns>List<ObtenerAsesorConfiguracionPorPaisDTO></returns>
-      
+
 
 
         public List<ObtenerAsesorConfiguracionPorPaisDTO> ObtenerAsesorConfiguracionPorPais(int id)
@@ -1130,12 +1129,12 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                         Codigo = config.Codigo,
                         CantidadTotal = config.CantidadTotal,
                         ActivarAsignacionPaisConfiguracion = config.ActivarAsignacionPaisConfiguracion,
-                        CantidadTotalPeru=config.CantidadTotalPeru,
-                        CantidadTotalChile=config.CantidadTotalChile,
-                        CantidadTotalMexico=config.CantidadTotalMexico,
-                        CantidadTotalColombia=config.CantidadTotalColombia,
-                        CantidadTotalBolivia=config.CantidadTotalBolivia,
-                        CantidadTotalInternacional=config.CantidadTotalInternacional,
+                        CantidadTotalPeru = config.CantidadTotalPeru,
+                        CantidadTotalChile = config.CantidadTotalChile,
+                        CantidadTotalMexico = config.CantidadTotalMexico,
+                        CantidadTotalColombia = config.CantidadTotalColombia,
+                        CantidadTotalBolivia = config.CantidadTotalBolivia,
+                        CantidadTotalInternacional = config.CantidadTotalInternacional,
 
                     };
 
@@ -1446,7 +1445,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                                         DatoCalidadMailing = ObtenerDatoCalidadMailing(configuracion, idPais),
                                         Distribucion = ObtenerDistribucion(configuracion, idPais),
                                         IdPais = idPais,
-                                       
+
                                     };
 
                                     _unitOfWork.AsignacionRegularRepository.InsertarConfiguracionAsignacioDetalle(nuevoDetalle, usuarioModificacion);
@@ -1583,6 +1582,37 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                 throw ex;
             }
         }
+
+
+
+
+        /// <summary>
+        /// Autor: Miguel Valdivia
+        /// Fecha: 27/08/2025
+        /// Version: 1.0
+        /// Actualiza el tope de asignación diaria
+        /// </summary>
+        /// <param name="idAsignacionRegular">ID de la asignación regular</param>
+        /// <param name="TopeAsignacionDiaria">Nuevo tope de asignación diaria</param>
+        /// <param name="UsuarioModificacion">Usuario que realiza la modificación</param>
+        /// <returns>bool? - True si se actualizó correctamente</returns>
+        public bool? ActualizarTopeAsignacionDiaria(int idAsignacionRegular, int TopeAsignacionDiaria, String UsuarioModificacion)
+        {
+            try
+            {
+                bool? RespuestaBool = new bool();
+                RespuestaBool = _unitOfWork.AsignacionRegularRepository.ActualizarTopeAsignacionDiaria(idAsignacionRegular, TopeAsignacionDiaria, UsuarioModificacion);
+                return RespuestaBool;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
+
         /// Autor: Edson Daniel Mayta Escobedo
         /// Fecha: 20/05/2023
         /// Version: 1.0
@@ -1869,9 +1899,9 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
             try
             {
                 List<string> correosAlerta = new List<string>();
-           
+
                 correosAlerta.Add("mramirez@bsginstitute.com");
-              ;
+                ;
 
                 var mailServiceAlerta = new TMK_MailService();
                 TMKMailDataDTO mailDataAlerta = new TMKMailDataDTO();

@@ -112,6 +112,12 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string? LogoPrograma { get; set; }
         public string? UrlLogoPrograma { get; set; }
     }
+    public class PGeneralAlternoV2DTO
+    {
+        public int Id { get; set; }
+        public string? Nombre { get; set; }
+        public string? pw_duracion { get; set; }
+    }
     public class PGeneralCabeceraSpeechAgendaDTO
     {
         public string? ProgramaGeneral { get; set; }

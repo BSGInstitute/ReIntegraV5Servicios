@@ -1003,6 +1003,49 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
         }
+
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 29/08/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Devuelve el ultimo mensaje de campania que se envio a un alumno
+        /// </summary>
+        /// <param name="celularAlumno">Celular del alumno</param>
+        /// <returns>Ultimo mensaje de campania enviado</returns>
+        public string ObtenerUltimoMensajeCampaniaEnviado(string celularAlumno)
+        {
+            try
+            {
+                UltimoMensajeDTO ultimoMensaje = new UltimoMensajeDTO();
+                var _query = @"SELECT TOP 1
+		                                CGDRAW.MensajePlantillaHtml AS UltimoMensaje
+	                                FROM
+		                                mkt.T_CampaniaGeneralDetalleResponsableAlumnoWhatsApp AS CGDRAW
+	                                WHERE
+		                                CGDRAW.CelularWhatsApp = @Celular AND CGDRAW.MensajePlantillaHtml IS NOT NULL
+	                                ORDER BY
+		                                CGDRAW.FechaCreacion DESC";
+
+                var respuesta = _dapperRepository.FirstOrDefault(_query, new { Celular = celularAlumno });
+                return respuesta;
+
+                //if (!string.IsNullOrEmpty(respuesta) && !respuesta.Contains("[]"))
+                //{
+                //    ultimoMensaje = JsonConvert.DeserializeObject<UltimoMensajeDTO>(respuesta);
+                //    return ultimoMensaje.UltimoMensaje;
+                //}
+                //else
+                //{
+                //    return null;
+                //}
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
     }
 }
 

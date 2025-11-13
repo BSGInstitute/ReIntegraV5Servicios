@@ -42,5 +42,7 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
         public string? FacebookAnuncioId { get; set; }
 
         public string? FacebookAnuncioNombre { get; set; }
+
+        public string? Plataforma { get; set; }
     }
 }

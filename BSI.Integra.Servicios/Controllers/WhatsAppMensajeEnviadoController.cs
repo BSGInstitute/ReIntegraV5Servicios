@@ -1681,6 +1681,105 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 29/08/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Captura registros de alumnos en base a chats mediante un modelo IA
+        /// </summary>
+        /// <param name="datosExtraccionRegistros">Contiene celular del alumno y rango de antiguedad de chats</param>
+        /// <returns>Datos capturados por el modelo IA</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public async Task<ActionResult> CapturarRegistrosModeloIA([FromBody] DatosExtraccionRegistrosDTO datosExtraccionRegistros)
+        {
+            try
+            {
+                var _servicioWhatsappMsjEnv = new WhatsAppMensajeEnviadoService(_unitOfWork);
+                var resultado = await _servicioWhatsappMsjEnv.CapturarRegistrosModeloIA(datosExtraccionRegistros);
 
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 30/09/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Desactiva la interacción automática del asistente WhatsApp para un cliente y campania específicos
+        /// </summary>
+        /// <param name="celularAlumno">número de WhatsApp del alumno</param>
+        /// <param name="idCampania">ID de campaña a desactivar</param>
+        /// <returns>Resultado del servicio externo</returns>
+        [Route("[action]/{celularAlumno}/{idCampania}")]
+        [HttpPost]
+        public async Task<ActionResult> DesactivarInteraccionAutomaticaWhatsapp(string celularAlumno, string idCampania)
+        {
+            try
+            {
+                var _servicioWhatsappMsjEnv = new WhatsAppMensajeEnviadoService(_unitOfWork);
+                var resultado = await _servicioWhatsappMsjEnv.DesactivarInteraccionAutomaticaWhatsapp(celularAlumno, idCampania);
+
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 01/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener datos extraidos mediante la interaccion automatica de un telefono
+        /// </summary>
+        /// <param name="celularAlumno">número de WhatsApp del alumno</param>
+        /// <returns>Resultado del servicio externo</returns>
+        [Route("[action]/{celularAlumno}")]
+        [HttpGet]
+        public async Task<ActionResult> ObtenerDatosExtraidosInteraccionAutomatica(string celularAlumno)
+        {
+            try
+            {
+                var _servicioWhatsappMsjEnv = new WhatsAppMensajeEnviadoService(_unitOfWork);
+                var resultado = await _servicioWhatsappMsjEnv.ObtenerDatosExtraidosInteraccionAutomatica(celularAlumno);
+
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 01/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Valida el guardado de los datos extraidos por la interaccion automatica de un telefono
+        /// </summary>
+        /// <param name="celularAlumno">número de WhatsApp del alumno</param>
+        /// <returns>Resultado del servicio externo</returns>
+        [Route("[action]/{celularAlumno}")]
+        [HttpPost]
+        public async Task<ActionResult> ValidarGuardadoDatosInteraccionAutomatica(string celularAlumno)
+        {
+            try
+            {
+                var _servicioWhatsappMsjEnv = new WhatsAppMensajeEnviadoService(_unitOfWork);
+                var resultado = await _servicioWhatsappMsjEnv.ValidarGuardadoDatosInteraccionAutomatica(celularAlumno);
+
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

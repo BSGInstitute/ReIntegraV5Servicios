@@ -271,6 +271,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         ICajaPorRendirCabeceraRepository CajaPorRendirCabeceraRepository { get; }
         IFurRepository FurRepository { get; }
         ICampoFormularioRepository CampoFormularioRepository { get; }
+        ICampoFormularioOpcionRepository CampoFormularioOpcionRepository { get; }
         IConjuntoAnuncioRepository ConjuntoAnuncioRepository { get; }
         IFuentesPortalWebRepository FuentesPortalWebRepository { get; }
         IEstilosCssRepository EstilosCssRepository { get; }
@@ -399,6 +400,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
 
         IAdwordsApiVolumenBusquedumRepository AdwordsApiVolumenBusquedumRepository { get; }
         IFacebookFormularioLeadgenRepository FacebookFormularioLeadgenRepository { get; }
+        IFacebookFormularioLeadgenLogRepository FacebookFormularioLeadgenLogRepository { get; }
         IAsignacionAutomaticaTempRepository AsignacionAutomaticaTempRepository { get; }
         IAsignacionAutomaticaConfiguracionRepository AsignacionAutomaticaConfiguracionRepository { get; }
         IBloqueHorarioProcesaOportunidadRepository BloqueHorarioProcesaOportunidadRepository { get; }
@@ -889,6 +891,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IMotivoCeseRepository MotivoCeseRepository { get; }
         IEntidadSeguroSaludRepository EntidadSeguroSaludRepository { get; }
         INivelIdiomaRepository NivelIdiomaRepository { get; }
+        IWavixRepository WavixRepository { get; }
         IParentescoPersonalRepository ParentescoPersonalRepository { get; }
         ITipoPagoRemuneracionRepository TipoPagoRemuneracionRepository { get; }
         IMotivoInactividadRepository MotivoInactividadRepository { get; }
@@ -931,6 +934,19 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IMatriculaFormularioProgresivoRepository MatriculaFormularioProgresivoRepository { get; }
 
         IProcesoSeleccionPuntajeCalificacionRepository ProcesoSeleccionPuntajeCalificacionRepository { get; }
+        IProgramaGeneralProblemaFactorRepository ProgramaGeneralProblemaFactorRepository { get; }
+        IProgramaGeneralProblemaFactorDetalleRepository ProgramaGeneralProblemaFactorDetalleRepository { get; }
+        IProgramaGeneralProblemaFactorSolucionRepository ProgramaGeneralProblemaFactorSolucionRepository { get; }
+        IProgramaGeneralProblemaFactorSubSolucionRepository ProgramaGeneralProblemaFactorSubSolucionRepository { get; }
+        IProgramaGeneralArgumentoRepository ProgramaGeneralArgumentoRepository { get; }
+        IProgramaGeneralArgumentoDetalleRepository ProgramaGeneralArgumentoDetalleRepository { get; }
+        IProgramaGeneralArgumentoModalidadRepository ProgramaGeneralArgumentoModalidadRepository { get; }
+        IProgramaGeneralArgumentoDetalleMotivacionRepository ProgramaGeneralArgumentoDetalleMotivacionRepository { get; }
 
+        IProgramaGeneralProblemaDetalleRepository ProgramaGeneralProblemaDetalleRepository { get; }
+        IProgramaGeneralProblemaFactorSubSolucionAsignadaRepository ProgramaGeneralProblemaFactorSubSolucionAsignadaRepository { get; }
+        IProgramaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository ProgramaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository { get; }
+        IProgramaMotivacionRepository ProgramaMotivacionRepository { get; }
+        IOportunidadProgramaMotivacionSeleccionRepository OportunidadProgramaMotivacionSeleccionRepository { get; }
     }
 }

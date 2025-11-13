@@ -468,7 +468,7 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Implementacion
                 var uuid = ObtenerUUIDDesdeResultado(resultado); 
                
                 var cfdiId = ObtenerCfdiIdDesdeResultado(resultado); 
-                _unitOfWork.FacturamaRepository.ActualizarFacturaComoEnviada(idFactura, uuid, cfdiId, DateTime.Now, usuario);
+                _unitOfWork.FacturamaRepository.ActualizarFacturaComoEnviada(idFactura, uuid, cfdiId, null, usuario);
                 var listaDestinatariosExitosoFacturama = _unitOfWork.GmailCorreoRepository.listaDestinatariosExitosoFacturama();
                 listaDestinatariosExitosoFacturama.Insert(0, new StringDTO { Valor = datos.cliente.Email });
                 foreach (var destinatario in listaDestinatariosExitosoFacturama)
@@ -588,7 +588,7 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Implementacion
                         _unitOfWork.FacturamaRepository.ActualizarFacturaComoEnviada(idFactura, uuid, cfdiId, DateTime.Now, datos.Usuario);
                         var cronogramafinal = _unitOfWork.FacturamaRepository.ObtenerIdCronogramaPorIdFactura(idFactura);
                         var actulizarCronogramafinal = _unitOfWork.FacturamaRepository.ActualizaEnviadoFacturama(cronogramafinal, datos.Usuario);
-
+                        
                         var listaDestinatariosExitosoFacturama = _unitOfWork.GmailCorreoRepository.listaDestinatariosExitosoFacturama();
                         listaDestinatariosExitosoFacturama.Insert(0, new StringDTO { Valor = datosFactura.cliente.Email });
                         foreach (var destinatario in listaDestinatariosExitosoFacturama)
@@ -662,16 +662,25 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Implementacion
             return mensaje;
         }
 
-
         public bool ExisteFacturaConfigurada(int idCronogramaPagoDetalleFinal)
 
         {
             return _unitOfWork.FacturamaRepository.ExisteFacturaConfigurada(idCronogramaPagoDetalleFinal);
         }
 
-
-   
-
+        /// Autor: Humberto Oscata
+        /// Fecha: 18/09/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Elimina facturas creadas y pendientes de emitir Facturama
+        /// </summary>
+        /// <param name="idsFacturas">Lista de ids de las facturas a eliminar</param>
+        /// <param name="usuario">Nombre del usuario que modificara</param>
+        /// <returns>Resultado (true o false) del eliminar</returns>
+        public bool EliminarFacturasPendientesFacturama(List<int> idsFacturas, string usuario)
+        {
+            return _unitOfWork.FacturamaRepository.EliminarFacturasPendientesFacturama(idsFacturas, usuario);
+        }
 
     }
 

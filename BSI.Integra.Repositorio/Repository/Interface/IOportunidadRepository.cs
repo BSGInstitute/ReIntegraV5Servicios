@@ -124,7 +124,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public List<ArchivoOportunidadDTO> ObtenerArchivosOportunidad();
         public void InsertarHistorialOportunidad(int idOportunidad, string usuario);
         public List<OportunidadMasivaDTO> ObtenerOportunidadesMasivas();
-
+        public OportunidadConversionesDTO ObtenerInformacionOportunidadConversion(int idOportunidad);
+        public OportunidadDetalleProbabilidadDTO ObtenerInformacionOportunidadProbabilidad(int idOportunidad);
 
     }
 }
