@@ -237,6 +237,22 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         Detalles = g.Detalles
                     }).ToList();
                 }
+                var keysEsperadas = new[]
+                {
+                    "garantiaDePrograma",
+                    "estructuraCurricular",
+                    "demostracionDeValor",
+                    "aspectosDiferenciadores",
+                    "argumentosDePerdidaPotencial"
+                };
+
+                foreach (var key in keysEsperadas)
+                {
+                    if (!motivacionDTO.Argumentos.ContainsKey(key))
+                    {
+                        motivacionDTO.Argumentos[key] = null;
+                    }
+                }
 
                 resultadoFinal.Add(motivacionDTO);
             }
