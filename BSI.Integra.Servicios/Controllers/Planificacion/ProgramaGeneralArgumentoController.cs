@@ -92,7 +92,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <summary>
         /// Obtiene todos los problemas de cliente
         /// </summary>
-        [HttpGet("[action]/{idPGeneral}/{idAlumno}")]
+        [HttpGet("[action]/{idPGeneral}")]
         public async Task<IActionResult> ObtenerProblemaCliente(int idPGeneral, int? idAlumno = null)
         {
             try

@@ -213,7 +213,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         /// <param name="idClasificacionPersona">Id de Clasificacion Persona</param>
         /// <param name="idAlumno">Id del Alumno</param>
         /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
-        [HttpGet("[action]/{idOportunidad}")]
+        [HttpGet("ObtenerOportunidadInformacionPersonalizado/{idOportunidad}")]
         public IActionResult ObtenerOportunidadInformacionPersonalizado(int idOportunidad)
         {
             if (!ModelState.IsValid)
@@ -453,7 +453,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         /// </summary>
         /// <param name="idOportunidad">Id de la Oportunidad</param>
         /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
-        [HttpGet("[action]/{idOportunidad}")]
+        [HttpGet("ObtenerHistorialInteraccionesPorIdOportunidadAnalisisMensajePersonalizado/{idOportunidad}")]
         public async Task<IActionResult> ObtenerHistorialInteraccionesPorIdOportunidadAnalisisMensajePersonalizado(int idOportunidad)
         {
             var result = await _agendaActividadService.ObtenerHistorialInteraccionesPorIdOportunidadMensajePersonalizado(idOportunidad);
@@ -469,7 +469,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         /// </summary>
         /// <param name="idOportunidad">Id de la Oportunidad</param>
         /// <returns> Retorna 200 y lista de objetos para combo o 400 y mensaje de error </returns>
-        [HttpGet("[action]/{idOportunidad}")]
+        [HttpGet("ObtenerDatosAlumnoPersonalizado/{idOportunidad}")]
         public IActionResult ObtenerDatosAlumnoPersonalizado(int idOportunidad)
         {
             if (!ModelState.IsValid)
