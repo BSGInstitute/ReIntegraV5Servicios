@@ -134,59 +134,31 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             }
         }
 
-        // En: ProgramaGeneralArgumentoService.cs
-
         public async Task<List<MotivacionSalidaDTO>> ObtenerArgumentoMotivacion(int idOportunidad)
         {
-            /*
-            **********************************************************
-            * INICIO DE LA CORRECCION (Turno 80 - Conflicto de FK)
-            * (START OF CORRECTION (Turn 80 - FK Mismatch))
-            **********************************************************
-            */
-
-            // Consulta 0: Argumentos (y derivar IdPGeneral)
             var argumentosCompletos = await _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerArgumentosAsync(idOportunidad);
             if (argumentosCompletos == null || !argumentosCompletos.Any())
             {
                 return new List<MotivacionSalidaDTO>();
             }
-
             int idPGeneral = argumentosCompletos[0].IdPGeneral;
-
             var argumentosRepo = argumentosCompletos
                 .Select(a => new ArgumentoRepoDTO { Id = a.Id, Nombre = a.Nombre })
                 .ToList();
 
-            // Consulta 1: Prioridades (SELECCIONADAS)
             var prioridades = await _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerPrioridadesAsync(idOportunidad);
-
-            // Filtro (Turno 74) - Si no hay seleccionadas, devuelve vacio
             if (prioridades == null || !prioridades.Any())
             {
                 return new List<MotivacionSalidaDTO>();
             }
+            var prioridadLookup = prioridades
+                .GroupBy(p => p.IdProgramaMotivacion)
+                .ToDictionary(g => g.Key, g => g.First().Prioridad);
 
-            var prioridadLookup = prioridades.ToDictionary(p => p.IdProgramaMotivacion, p => p.Prioridad);
-            var idsMotivacionSeleccionadas = prioridadLookup.Keys.ToList(); // (ej. 1, 3)
-
-            // Consulta 2: Motivaciones (Nombres) (Filtrada por IDs de Prioridad)
-            var motivaciones = await _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerMotivacionesAsync(idsMotivacionSeleccionadas);
-
-            // Consulta 3: Motivaciones (Descripciones HTML) (Filtrada por IdPGeneral)
             var descripciones = await _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerDescripcionesMotivacionAsync(idPGeneral);
 
-            // Consultas 4 y 5 (N+1)
             var detalles = await _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerDetallesAsync(idPGeneral);
-            var links = await _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerLinksAsync(idPGeneral);
-
-            /*
-            **********************************************************
-            * FIN DE LA CORRECCION (Turno 80)
-            **********************************************************
-            */
-
-            // 2. Crear Lookups (Diccionarios rapidos)
+            var links = await _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerArgumentoDetalleAsync(idPGeneral);
 
             var motivacionesPorDetalleLookup = links.ToLookup(l => l.IdProgramaGeneralArgumentoDetalle, l => l.IdProgramaMotivacion);
             var detallesMap = detalles.ToDictionary(
@@ -195,53 +167,46 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             );
             var argumentosRepoLookup = argumentosRepo.ToDictionary(a => a.Id);
 
-            // CORRECCION (Turno 80): Lookup para las Descripciones HTML (Consulta 3)
-            // (FIX (Turn 80): Lookup for HTML Descriptions (Query 3))
-            // (Este lookup AHORA usa el 'IdProgramaMotivacion' (Generico))
-            // ((This lookup NOW uses the 'IdProgramaMotivacion' (Generic)))
-            var descripcionLookup = descripciones.ToDictionary(d => d.IdProgramaMotivacion, d => d.Descripcion);
+            var descripcionLookup = descripciones
+                .GroupBy(d => NormalizarClave(d.NombreMotivacion))
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.First()
+                );
 
-            // 3. Construir la Jerarquia Final
             var resultadoFinal = new List<MotivacionSalidaDTO>();
 
-            foreach (var m in motivaciones)
+            foreach (var kvp in prioridadLookup)
             {
-                // (Logica de 'tipo' (Principal/Secundaria) sin cambios)
-                string tipo = null;
-                if (prioridadLookup.TryGetValue(m.Id, out int prioridad))
+                int idMotivacionGenerica = kvp.Key; // (ej. 1)
+                int prioridad = kvp.Value;
+
+                if (!_motivacionGenericaLookup.TryGetValue(idMotivacionGenerica, out string nombreMotivacion))
                 {
-                    tipo = prioridad == 1 ? "Principal" : (prioridad == 2 ? "Secundaria" : null);
+                    continue;
                 }
 
-                /*
-                **********************************************************
-                * CORRECCION (Turno 80): Esta logica ahora funciona.
-                * (FIX (Turn 80): This logic now works.)
-                * 'm.Id' (ej. 1, 3) (de PM)
-                * 'descripcionLookup' (Keys: 1, 3) (de PGMA/PGM/PM)
-                * * El 'TryGetValue(m.Id)' ahora encontrara el HTML.
-                * (The 'TryGetValue(m.Id)' will now find the HTML.)
-                **********************************************************
-                */
-                descripcionLookup.TryGetValue(m.Id, out string descripcionHtml);
+                string tipo = prioridad == 1 ? "Principal" : (prioridad == 2 ? "Secundaria" : null);
+                string claveMotivacion = NormalizarClave(nombreMotivacion);
 
-                string descripcionLimpia = LimpiarHtml(descripcionHtml);
+                if (!descripcionLookup.TryGetValue(claveMotivacion, out var descripcionData))
+                {
+                    continue;
+                }
+
+                 string descripcionLimpio = LimpiarHtml(descripcionData.Descripcion);
 
                 var motivacionDTO = new MotivacionSalidaDTO
                 {
-                    Id = m.Id,
-                    Nombre = m.Nombre, // (Viene de T_ProgramaMotivacion.Descripcion)
-                    Descripcion = descripcionLimpia, // (Viene de T_PGM_Argumento.Nombre)
+                    Id = descripcionData.IdEspecifico,
+                    Nombre = nombreMotivacion,
+                    Descripcion = descripcionLimpio,
                     Tipo = tipo,
                     Argumentos = new Dictionary<string, List<ArgumentoAgrupadoDTO>>()
                 };
 
-                // (El resto de la logica de 'stitching' (union) y el
-                // helper 'ObtenerKeyNombre' (switch) del Turno 75
-                // permanecen exactamente iguales)
-
                 var detallesDeEstaMotivacion = links
-                    .Where(l => l.IdProgramaMotivacion == m.Id)
+                    .Where(l => l.IdProgramaMotivacion == idMotivacionGenerica)
                     .Select(l => detallesMap.GetValueOrDefault(l.IdProgramaGeneralArgumentoDetalle))
                     .Where(d => d != null);
 
@@ -279,47 +244,78 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             return resultadoFinal.OrderBy(m => m.Id).ToList();
         }
 
-        /// <summary>
-        /// Metodo Helper (privado) para traducir el Nombre del Argumento
-        /// al "slug" (KeyNombre) requerido por el JSON (Turno 55).
-        /// </summary>
+        private static readonly Dictionary<int, string> _motivacionGenericaLookup = new Dictionary<int, string>
+        {
+            { 1, "Aprender" },
+            { 2, "Aplicar" },
+            { 3, "Certificarse" },
+            { 4, "Desarrollo Profesional" },
+            { 5, "Superación Personal" },
+            { 6, "Mejora en la calidad de vida" }
+        };
+
         private string ObtenerKeyNombre(string nombreArgumento)
         {
-            // Esta logica de mapeo debe coincidir con los Nombres de la DB
-            switch (nombreArgumento)
+            if (string.IsNullOrWhiteSpace(nombreArgumento))
+                return null;
+            string clave = NormalizarClave(nombreArgumento);
+
+            switch (clave)
             {
-                case "Garantía / Confiabilidad":
+                case "garantia / confiabilidad":
+                case "garantia/confiabilidad":
+                case "garantia y confiabilidad":
                     return "garantiaDePrograma";
-                case "Parte técnica":
+
+                case "parte tecnica":
                     return "estructuraCurricular";
-                case "Demostración de valor":
+
+                case "demostracion de valor":
                     return "demostracionDeValor";
-                case "Aspectos diferenciadores":
+
+                case "aspectos diferenciadores":
                     return "aspectosDiferenciadores";
-                case "Argumentos de pérdida potencial":
+
+                case "argumentos de perdida potencial":
                     return "argumentosDePerdidaPotencial";
+
                 default:
-                    return null; // Ignorar
+                    return null;
             }
         }
-        /// <summary>
-        /// Metodo Helper (privado) para limpiar el HTML de las descripciones (Turno 82).
-        /// Convierte HTML (<b>, <p>, <li>) a texto plano con saltos de linea.
-        /// (Private helper method to clean HTML from descriptions (Turn 82).
-        /// Converts HTML (<b>, <p>, <li>) to plain text with line breaks.)
-        /// </summary>
+
+        private static string NormalizarClave(string valor)
+        {
+        if (string.IsNullOrWhiteSpace(valor))
+            return string.Empty;
+        string formD = valor.Normalize(NormalizationForm.FormD);
+        var sb = new StringBuilder(formD.Length);
+        foreach (char ch in formD)
+        {
+            var uc = CharUnicodeInfo.GetUnicodeCategory(ch);
+            if (uc != UnicodeCategory.NonSpacingMark)
+            {
+                sb.Append(ch);
+            }
+        }
+        return sb.ToString()
+                 .Normalize(NormalizationForm.FormC)
+                 .ToLowerInvariant()
+                 .Trim();
+        }
+
         private string LimpiarHtml(string html)
         {
             if (string.IsNullOrEmpty(html))
             {
                 return null;
             }
+
             string texto = WebUtility.HtmlDecode(html);
             texto = Regex.Replace(texto, @"<(p|br)[^>]*>", "\n", RegexOptions.IgnoreCase | RegexOptions.Multiline);
             texto = Regex.Replace(texto, @"<li[^>]*>", "\n* ", RegexOptions.IgnoreCase | RegexOptions.Multiline);
-            texto = Regex.Replace(texto, "<[^>]*>", string.Empty);
+            texto = Regex.Replace(texto, "<[^>]*>", string.Empty, RegexOptions.Multiline);
             texto = Regex.Replace(texto, @"(\n\s*){2,}", "\n\n");
-
             return texto.Trim();
         }
 

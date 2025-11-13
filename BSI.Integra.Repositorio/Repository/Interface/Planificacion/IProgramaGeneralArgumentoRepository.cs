@@ -35,7 +35,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         Task<ProgramaGeneralArgumentoDetalleMotivacion> ObtenerProgramaGeneralArgumentoDetalleMotivacionAsync(int IdProgramaGeneralArgumentoDetalle);
         Task<List<ProgramaGeneralArgumentoDTO>> ObtenerArgumentosAsync(int idOportunidad);
         Task<List<DetalleRepoDTO>> ObtenerDetallesAsync(int idPGeneral);
-        Task<List<DetalleMotivacionLinkRepoDTO>> ObtenerLinksAsync(int idPGeneral);
+        Task<List<ArgumentoDetalleMotivacionRepoDTO>> ObtenerArgumentoDetalleAsync(int idPGeneral);
         Task<List<PrioridadRepoDTO>> ObtenerPrioridadesAsync(int idOportunidad);
         Task<List<DescripcionRepoDTO>> ObtenerDescripcionesMotivacionAsync(int idPGeneral);
         Task<List<MotivacionRepoDTO>> ObtenerMotivacionesAsync(List<int> idsMotivacion);

@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 {
@@ -232,155 +233,117 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 throw;
             }
         }
-            // En: ProgramaGeneralArgumentoRepository.cs (o repositorios separados)
 
-            /*
-            **********************************************************
-            * ADVERTENCIA (Principio 5: Transparencia):
-            * Esta implementacion sigue la instruccion del usuario (Turno 73/77).
-            * Genera 6 llamadas secuenciales a la DB (N+1) y 6 deserializaciones JSON.
-            **********************************************************
-            */
+        public async Task<List<ProgramaGeneralArgumentoDTO>> ObtenerArgumentosAsync(int idOportunidad)
+        {
+            var spArgumentos = "EXEC pla.SP_ProgramaGeneralArgumento_ObtenerPorOportunidad @IdOportunidad";
+            var resultado = await _dapperRepository.QueryDapperAsync(
+                spArgumentos,
+                new { IdOportunidad = idOportunidad }
+            ).ConfigureAwait(false);
 
-            // CONSULTA 0 (del Turno 67) - Obtener Argumentos y IdPGeneral
-            public async Task<List<ProgramaGeneralArgumentoDTO>> ObtenerArgumentosAsync(int idOportunidad)
+            if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
             {
-                var spArgumentos = "EXEC pla.SP_ProgramaGeneralArgumento_ObtenerPorOportunidad @IdOportunidad";
-                var jsonArgumentos = await _dapperRepository.QueryDapperAsync(
-                    spArgumentos,
-                    new { IdOportunidad = idOportunidad }
-                ).ConfigureAwait(false);
-
-                if (!string.IsNullOrEmpty(jsonArgumentos) && !jsonArgumentos.Contains("[]"))
-                {
-                    // CORRECCION (Turno 72): 'ProgramaGeneralArgumentoDTO.Nombre' debe ser STRING
-                    return JsonConvert.DeserializeObject<List<ProgramaGeneralArgumentoDTO>>(jsonArgumentos);
-                }
-                return new List<ProgramaGeneralArgumentoDTO>();
+                return JsonConvert.DeserializeObject<List<ProgramaGeneralArgumentoDTO>>(resultado);
             }
+            return new List<ProgramaGeneralArgumentoDTO>();
+        }
 
-
-            // CONSULTA 1 (del Turno 73/77) - Obtener Prioridades (SELECCIONADAS)
-            public async Task<List<PrioridadRepoDTO>> ObtenerPrioridadesAsync(int idOportunidad)
+        public async Task<List<PrioridadRepoDTO>> ObtenerPrioridadesAsync(int idOportunidad)
+        {
+            var query = @"
+                            SELECT OPMS.IdProgramaMotivacion, OPMS.Prioridad
+                            FROM pla.T_OportunidadProgramaMotivacionSeleccion AS OPMS
+                            WHERE OPMS.IdOportunidad = @IdOportunidad AND OPMS.Estado = 1;";
+            var resultado = await _dapperRepository.QueryDapperAsync(query, new { IdOportunidad = idOportunidad }).ConfigureAwait(false);
+            if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
             {
-                var queryRS5 = @"
-            SELECT OPMS.IdProgramaMotivacion, OPMS.Prioridad
-            FROM pla.T_OportunidadProgramaMotivacionSeleccion AS OPMS
-            WHERE OPMS.IdOportunidad = @IdOportunidad AND OPMS.Estado = 1;";
-                var jsonRS5 = await _dapperRepository.QueryDapperAsync(queryRS5, new { IdOportunidad = idOportunidad }).ConfigureAwait(false);
-                if (!string.IsNullOrEmpty(jsonRS5) && !jsonRS5.Contains("[]"))
-                {
-                    return JsonConvert.DeserializeObject<List<PrioridadRepoDTO>>(jsonRS5);
-                }
-                return new List<PrioridadRepoDTO>();
+                return JsonConvert.DeserializeObject<List<PrioridadRepoDTO>>(resultado);
             }
+            return new List<PrioridadRepoDTO>();
+        }
 
-            // CONSULTA 2 (CORREGIDA - Turno 80) - Obtener Motivaciones (Genericas)
-            // (Usa T_ProgramaMotivacion (Turno 77, Snippet 6))
-            public async Task<List<MotivacionRepoDTO>> ObtenerMotivacionesAsync(List<int> idsMotivacion)
+        public async Task<List<MotivacionRepoDTO>> ObtenerMotivacionesAsync(List<int> idsMotivacion)
+        {
+            var query = @"
+                            SELECT
+                                PM.Id,
+                                PM.Descripcion AS Nombre
+                            FROM pla.T_ProgramaMotivacion AS PM
+                            WHERE PM.Id IN @IdsMotivacion AND PM.Estado = 1;";
+
+            var resultado = await _dapperRepository.QueryDapperAsync(query, new { IdsMotivacion = idsMotivacion }).ConfigureAwait(false);
+
+            if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
             {
-                var queryRS1 = @"
-            SELECT
-                PM.Id,
-                PM.Descripcion AS Nombre /* (El 'Nombre' del JSON (Turno 79) es la 'Descripcion' (Turno 77)) */
-            FROM pla.T_ProgramaMotivacion AS PM
-            WHERE PM.Id IN @IdsMotivacion AND PM.Estado = 1;";
-
-                var jsonRS1 = await _dapperRepository.QueryDapperAsync(queryRS1, new { IdsMotivacion = idsMotivacion }).ConfigureAwait(false);
-
-                if (!string.IsNullOrEmpty(jsonRS1) && !jsonRS1.Contains("[]"))
-                {
-                    return JsonConvert.DeserializeObject<List<MotivacionRepoDTO>>(jsonRS1);
-                }
-                return new List<MotivacionRepoDTO>();
+                return JsonConvert.DeserializeObject<List<MotivacionRepoDTO>>(resultado);
             }
+            return new List<MotivacionRepoDTO>();
+        }
 
-            // CONSULTA 3 (CORREGIDA - Turno 80) - Obtener Descripciones HTML
-            // (Usa T_ProgramaGeneralMotivacionArgumento (Turno 77, Snippet 12))
-            public async Task<List<DescripcionRepoDTO>> ObtenerDescripcionesMotivacionAsync(int idPGeneral)
+        public async Task<List<DescripcionRepoDTO>> ObtenerDescripcionesMotivacionAsync(int idPGeneral)
+        {
+            var query = @"
+                                SELECT 
+                                    PGM.Id AS IdEspecifico,
+                                    PGM.Nombre AS NombreMotivacion, 
+                                    STRING_AGG(CONVERT(NVARCHAR(MAX), PGMA.Nombre), ' ') AS Descripcion
+                                FROM pla.T_ProgramaGeneralMotivacionArgumento AS PGMA
+                                INNER JOIN pla.T_ProgramaGeneralMotivacion AS PGM 
+                                    ON PGMA.IdProgramaGeneralMotivacion = PGM.Id
+                                WHERE 
+                                    PGMA.IdPGeneral = @IdPGeneral 
+                                    AND PGMA.Estado = 1 
+                                    AND PGM.Estado = 1 
+                                GROUP BY 
+                                    PGM.Id, PGM.Nombre";
+
+            var resultado = await _dapperRepository.QueryDapperAsync(query, new { IdPGeneral = idPGeneral }).ConfigureAwait(false);
+
+            if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
             {
-                /*
-                **********************************************************
-                * CORRECCION (Turno 80): Resuelve el Conflicto de FK
-                * Unimos PGMA -> PGM -> PM para obtener el 'Id' Generico (PM.Id)
-                * (FIX (Turn 80): Resolves the FK Mismatch
-                * We join PGMA -> PGM -> PM to get the Generic 'Id' (PM.Id))
-                **********************************************************
-                */
-                var queryRS_HTML = @"
-            SELECT 
-                PM.Id AS IdProgramaMotivacion, /* (FK a PM (Generico)) */
-                STRING_AGG(CONVERT(NVARCHAR(MAX), PGMA.Nombre), ' ') AS Descripcion
-            FROM pla.T_ProgramaGeneralMotivacionArgumento AS PGMA
-            /* (JOIN 1: PGMA (HTML) -> PGM (Especifico)) */
-            INNER JOIN pla.T_ProgramaGeneralMotivacion AS PGM 
-                ON PGMA.IdProgramaGeneralMotivacion = PGM.Id
-            /* (JOIN 2: PGM (Especifico) -> PM (Generico) via NOMBRES) */
-            INNER JOIN pla.T_ProgramaMotivacion AS PM
-                ON PGM.Nombre = PM.Descripcion
-            WHERE 
-                PGMA.IdPGeneral = @IdPGeneral 
-                AND PGMA.Estado = 1 
-                AND PGM.Estado = 1 
-                AND PM.Estado = 1
-            GROUP BY 
-                PM.Id"; // Group by PM.Id (Generico)
-
-                var jsonRS_HTML = await _dapperRepository.QueryDapperAsync(queryRS_HTML, new { IdPGeneral = idPGeneral }).ConfigureAwait(false);
-                if (!string.IsNullOrEmpty(jsonRS_HTML) && !jsonRS_HTML.Contains("[]"))
-                {
-                    return JsonConvert.DeserializeObject<List<DescripcionRepoDTO>>(jsonRS_HTML);
-                }
-                return new List<DescripcionRepoDTO>();
+                return JsonConvert.DeserializeObject<List<DescripcionRepoDTO>>(resultado);
             }
+            return new List<DescripcionRepoDTO>();
+        }
 
-
-            // CONSULTA 4 (del Turno 73) - Obtener Detalles
-            public async Task<List<DetalleRepoDTO>> ObtenerDetallesAsync(int idPGeneral)
+        public async Task<List<DetalleRepoDTO>> ObtenerDetallesAsync(int idPGeneral)
             {
-                var queryRS3 = @"
-            SELECT PGAD.Id, PGAD.IdProgramaGeneralArgumento, PGAD.Detalle
-            FROM pla.T_ProgramaGeneralArgumentoDetalle AS PGAD
-            INNER JOIN pla.T_ProgramaGeneralArgumento AS PGA ON PGAD.IdProgramaGeneralArgumento = PGA.Id
-            WHERE PGA.IdPGeneral = @IdPGeneral AND PGAD.Estado = 1;";
-                var jsonRS3 = await _dapperRepository.QueryDapperAsync(queryRS3, new { IdPGeneral = idPGeneral }).ConfigureAwait(false);
-                if (!string.IsNullOrEmpty(jsonRS3) && !jsonRS3.Contains("[]"))
+                var query = @"
+                                SELECT PGAD.Id, PGAD.IdProgramaGeneralArgumento, PGAD.Detalle
+                                FROM pla.T_ProgramaGeneralArgumentoDetalle AS PGAD
+                                INNER JOIN pla.T_ProgramaGeneralArgumento AS PGA ON PGAD.IdProgramaGeneralArgumento = PGA.Id
+                                WHERE PGA.IdPGeneral = @IdPGeneral AND PGAD.Estado = 1;";
+                var resultado = await _dapperRepository.QueryDapperAsync(query, new { IdPGeneral = idPGeneral }).ConfigureAwait(false);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
-                    return JsonConvert.DeserializeObject<List<DetalleRepoDTO>>(jsonRS3);
+                    return JsonConvert.DeserializeObject<List<DetalleRepoDTO>>(resultado);
                 }
                 return new List<DetalleRepoDTO>();
             }
 
-            // CONSULTA 5 (del Turno 73) - Obtener Links
-            public async Task<List<DetalleMotivacionLinkRepoDTO>> ObtenerLinksAsync(int idPGeneral)
+
+        public async Task<List<ArgumentoDetalleMotivacionRepoDTO>> ObtenerArgumentoDetalleAsync(int idPGeneral)
+        {
+
+            var query = @"
+                            SELECT 
+                                PGADM.IdProgramaGeneralArgumentoDetalle, 
+                                PGADM.IdProgramaMotivacion
+                            FROM pla.T_ProgramaGeneralArgumentoDetalleMotivacion AS PGADM
+                            INNER JOIN pla.T_ProgramaGeneralArgumentoDetalle AS PGAD 
+                                ON PGADM.IdProgramaGeneralArgumentoDetalle = PGAD.Id
+                            INNER JOIN pla.T_ProgramaGeneralArgumento AS PGA 
+                                ON PGAD.IdProgramaGeneralArgumento = PGA.Id
+                            WHERE PGA.IdPGeneral = @IdPGeneral AND PGADM.Estado = 1;";
+            var resultado = await _dapperRepository.QueryDapperAsync(query, new { IdPGeneral = idPGeneral }).ConfigureAwait(false);
+            if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
             {
-                /*
-                **********************************************************
-                * ASUNCION CRITICA (Turno 79):
-                * Asumo que 'IdProgramaMotivacion' (en T_PGADM) es el FK
-                * a T_ProgramaMotivacion (PM) (Generico).
-                * (CRITICAL ASSUMPTION (Turn 79):
-                * Assuming 'IdProgramaMotivacion' (in T_PGADM) is the FK
-                * to T_ProgramaMotivacion (PM) (Generic).)
-                **********************************************************
-                */
-                var queryRS4 = @"
-            SELECT 
-                PGADM.IdProgramaGeneralArgumentoDetalle, 
-                PGADM.IdProgramaMotivacion /* (ASUNCION: FK a PM (Generico)) */
-            FROM pla.T_ProgramaGeneralArgumentoDetalleMotivacion AS PGADM
-            INNER JOIN pla.T_ProgramaGeneralArgumentoDetalle AS PGAD 
-                ON PGADM.IdProgramaGeneralArgumentoDetalle = PGAD.Id
-            INNER JOIN pla.T_ProgramaGeneralArgumento AS PGA 
-                ON PGAD.IdProgramaGeneralArgumento = PGA.Id
-            WHERE PGA.IdPGeneral = @IdPGeneral AND PGADM.Estado = 1;";
-                var jsonRS4 = await _dapperRepository.QueryDapperAsync(queryRS4, new { IdPGeneral = idPGeneral }).ConfigureAwait(false);
-                if (!string.IsNullOrEmpty(jsonRS4) && !jsonRS4.Contains("[]"))
-                {
-                    return JsonConvert.DeserializeObject<List<DetalleMotivacionLinkRepoDTO>>(jsonRS4);
-                }
-                return new List<DetalleMotivacionLinkRepoDTO>();
+                return JsonConvert.DeserializeObject<List<ArgumentoDetalleMotivacionRepoDTO>>(resultado);
             }
+            return new List<ArgumentoDetalleMotivacionRepoDTO>();
+        }
+
         public async Task<IEnumerable<ProgramaGeneralArgumentoDetalle>> ObtenerProgramaGeneralArgumentoDetalleAsync(int IdProgramaGeneralArgumento)
         {
             try

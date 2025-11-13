@@ -76,14 +76,29 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         {
             try
             {
-                var data = await _programaGeneralArgumentoService.ObtenerArgumentoMotivacion(idOportunidad);
-                return Ok(data);
+                var motivaciones = await _programaGeneralArgumentoService.ObtenerArgumentoMotivacion(idOportunidad);
+                if (motivaciones == null || motivaciones.Count == 0)
+                {
+                    motivaciones = new List<MotivacionSalidaDTO> { null };
+                }
+                var response = new ObtenerArgumentoMotivacionResponseDTO
+                {
+                    Motivaciones = motivaciones,
+                    Error = null
+                };
+                return Ok(response);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                var responseError = new ObtenerArgumentoMotivacionResponseDTO
+                {
+                    Motivaciones = new List<MotivacionSalidaDTO>(),
+                    Error = ex.Message
+                };
+                return BadRequest(responseError);
             }
         }
+
 
         /// Tipo Función: GET
         /// Autor: Jose Vega
@@ -92,7 +107,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <summary>
         /// Obtiene todos los problemas de cliente
         /// </summary>
-        [HttpGet("[action]/{idPGeneral}/{idAlumno}")]
+        [HttpGet("[action]/{idPGeneral}")]
         public async Task<IActionResult> ObtenerProblemaCliente(int idPGeneral, int? idAlumno = null)
         {
             try

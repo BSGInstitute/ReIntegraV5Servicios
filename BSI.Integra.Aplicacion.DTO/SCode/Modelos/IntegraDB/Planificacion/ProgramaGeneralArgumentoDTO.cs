@@ -145,108 +145,70 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public bool EsSolucionado { get; set; }
     }
 
-
-/*
-**********************************************************
-* PASO 1: DTOS DE SALIDA (PARA EL JSON FINAL - TURNO 55/77)
-* (Estos DTOs (Salida/Agrupado/Detalle) no cambian
-* respecto al Turno 75)
-**********************************************************
-*/
-
-public class MotivacionSalidaDTO
+    public class MotivacionSalidaDTO
     {
-        [JsonProperty("id")]
         public int Id { get; set; }
-        [JsonProperty("nombre")]
-        public string Nombre { get; set; } // (Viene de T_ProgramaMotivacion.Descripcion)
-        [JsonProperty("tipo")]
-        public string Tipo { get; set; } // Principal, Secundaria, o null
-        [JsonProperty("descripcion")]
-        public string Descripcion { get; set; } // (Viene de T_ProgramaGeneralMotivacionArgumento.Nombre)
-
-        [JsonProperty("argumentos")]
+        public string Nombre { get; set; }
+        public string Tipo { get; set; }
+        public string Descripcion { get; set; }
         public Dictionary<string, List<ArgumentoAgrupadoDTO>> Argumentos { get; set; }
     }
 
     public class ArgumentoAgrupadoDTO
     {
-        [JsonProperty("id")]
         public int Id { get; set; }
-        [JsonProperty("nombre")]
         public string Nombre { get; set; }
-        [JsonProperty("detalles")]
         public List<DetalleSalidaDTO> Detalles { get; set; }
     }
 
     public class DetalleSalidaDTO
     {
-        [JsonProperty("id")]
         public int Id { get; set; }
-        [JsonProperty("detalle")]
         public string Detalle { get; set; }
     }
 
-
-    /*
-    **********************************************************
-    * PASO 2: DTOS DE REPOSITORIO (CORREGIDOS - TURNO 79)
-    * (DTOs internos para el N+1)
-    **********************************************************
-    */
-
-    // Para Consulta 2 (Motivaciones)
     public class MotivacionRepoDTO
     {
-        public int Id { get; set; } // (Viene de T_ProgramaMotivacion.Id)
-        public string Nombre { get; set; } // (Viene de T_ProgramaMotivacion.Descripcion)
+        public int Id { get; set; }
+        public string Nombre { get; set; } 
     }
 
-    // Para Consulta 3 (Descripciones HTML)
     public class DescripcionRepoDTO
     {
-        // CORRECCION (Turno 79): Esta es la FK a T_ProgramaMotivacion (Generico)
-        // (FIX (Turn 79): This is the FK to T_ProgramaMotivacion (Generic))
-        public int IdProgramaMotivacion { get; set; }
-        public string Descripcion { get; set; } // (Viene de T_PGM_Argumento.Nombre)
+
+        public int IdEspecifico { get; set; }
+        public string NombreMotivacion { get; set; }
+        public string Descripcion { get; set; }
     }
 
-    // Para Consulta 4 (Argumentos)
     public class ArgumentoRepoDTO
     {
-        /*
-        **********************************************************
-        * CORRECCION DEL ERROR (TURNO 72)
-        * (ERROR FIX (TURN 72))
-        * 'Nombre' debe ser 'string'.
-        * (Make sure 'Nombre' is 'string'.)
-        **********************************************************
-        */
+
         public int Id { get; set; }
-        public string Nombre { get; set; } // <-- Debe ser 'string', no 'int'
+        public string Nombre { get; set; }
     }
 
-    // Para Consulta 5 (Detalles)
     public class DetalleRepoDTO
     {
         public int Id { get; set; }
-        public int IdProgramaGeneralArgumento { get; set; } // FK
+        public int IdProgramaGeneralArgumento { get; set; }
         public string Detalle { get; set; }
     }
 
-    // Para Consulta 6 (Links)
-    public class DetalleMotivacionLinkRepoDTO
+    public class ArgumentoDetalleMotivacionRepoDTO
     {
-        public int IdProgramaGeneralArgumentoDetalle { get; set; } // FK
-        public int IdProgramaMotivacion { get; set; } // FK
+        public int IdProgramaGeneralArgumentoDetalle { get; set; }
+        public int IdProgramaMotivacion { get; set; }
     }
 
-    // Para Consulta 1 (Prioridades/Seleccionadas)
     public class PrioridadRepoDTO
     {
-        public int IdProgramaMotivacion { get; set; } // FK
-        public int Prioridad { get; set; } // 1 o 2
+        public int IdProgramaMotivacion { get; set; }
+        public int Prioridad { get; set; }
     }
-
-
+    public class ObtenerArgumentoMotivacionResponseDTO
+    {
+        public List<MotivacionSalidaDTO> Motivaciones { get; set; }
+        public string Error { get; set; }
+    }
 }
