@@ -45,7 +45,28 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         }
         private ActividadDetalle _ActividadDetalleLocal = new ActividadDetalle();
 
-
+        public RespuestaCambioActividadCabeceraAgendaDTO CambioActividadCabeceraAgenda(AsignarActividadesAgendaV6DTO data)
+        {
+            try
+            {
+                var asesor = _unitOfWork.AsignacionOportunidadRepository.ObtenerUsuarioAgendaV6PorIdAsesor(data.IdAsesor);
+                if (asesor == null)
+                    return new RespuestaCambioActividadCabeceraAgendaDTO
+                    {
+                        Estado = "ERROR",
+                        Mensaje = "Asesor no habilitado para usar Agenda V6"
+                    };
+                var resultado = _unitOfWork.AsignacionOportunidadRepository.CambioActividadCabeceraAgenda(data.IdAsesor, data.Agenda ?? "V6");
+                return new RespuestaCambioActividadCabeceraAgendaDTO
+                {
+                    Estado = resultado.Estado,
+                    Mensaje = resultado.Mensaje
+                };
+            } catch (Exception)
+            {
+                throw;
+            }
+        }
         //public object AsignarAsesor(AsignarAsesorManualDTO AsignarAsesor, string Usuario)
         //{
 

@@ -35,6 +35,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         Task<IEnumerable<ProgramaGeneralArgumentoDetalle>> ObtenerProgramaGeneralArgumentoDetalleAsync(int IdProgramaGeneralArgumento);
         Task<ProgramaGeneralArgumentoDetalleMotivacion> ObtenerProgramaGeneralArgumentoDetalleMotivacionAsync(int IdProgramaGeneralArgumentoDetalle);
         ComboDTO ObtenerMotivacionesByDiccionario(string motivacion);
+        List<MotivacionDiccionarioViewDTO> ObtenerMotivacionesTodoDiccionario();
         ProgramaGeneralArgumentoDetalleMotivacionNombreDTO ObtenerProgramaGeneralArgumentoDetalleMotivacionNombre(int IdProgramaGeneralArgumentoDetalle);
     }
 }
