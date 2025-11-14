@@ -51,11 +51,28 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             {
                 var asesor = _unitOfWork.AsignacionOportunidadRepository.ObtenerUsuarioAgendaV6PorIdAsesor(data.IdAsesor);
                 if (asesor == null)
+                {
+                    var asesores = _unitOfWork.AsignacionOportunidadRepository.ObtenerAsesoresAgendaV6();
+                    if(asesores.Any())
+                    {
+                        List<object> cambioLista = new List<object>();
+                        foreach (var item in asesores)
+                        {
+                            cambioLista.Add(_unitOfWork.AsignacionOportunidadRepository.CambioActividadCabeceraAgenda(item.IdAsesor, data.Agenda ?? "V6"));
+                        }
+                        return new RespuestaCambioActividadCabeceraAgendaDTO
+                        {
+                            Estado = "",
+                            Mensaje = "Cambio de Actividad Cabecera a todos los asesores agenda V6",
+                            Result = cambioLista,
+                        };
+                    }
                     return new RespuestaCambioActividadCabeceraAgendaDTO
                     {
                         Estado = "ERROR",
-                        Mensaje = "Asesor no habilitado para usar Agenda V6"
+                        Mensaje = "Sin Asesores asignados para usar Agenda V6"
                     };
+                }
                 var resultado = _unitOfWork.AsignacionOportunidadRepository.CambioActividadCabeceraAgenda(data.IdAsesor, data.Agenda ?? "V6");
                 return new RespuestaCambioActividadCabeceraAgendaDTO
                 {
@@ -67,6 +84,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw;
             }
         }
+
         //public object AsignarAsesor(AsignarAsesorManualDTO AsignarAsesor, string Usuario)
         //{
 

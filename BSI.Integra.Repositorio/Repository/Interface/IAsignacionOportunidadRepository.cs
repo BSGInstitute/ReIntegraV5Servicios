@@ -19,6 +19,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         ValorIntDTO ObtenerCantidadOportunidadesAsesor(int idAsesor, DateTime fechaAsignacion);
         ValorIntDTO ObtenerMaximaAsignacionAsesor(int idAsesor);
         AsesorUsoV6DTO? ObtenerUsuarioAgendaV6PorIdAsesor(int idAsesor);
+        List<AsesorUsoV6DTO> ObtenerAsesoresAgendaV6();
         RespuestaCambioActividadCabeceraAgendaDTO CambioActividadCabeceraAgenda(int IdAsesor, string Agenda);
     }
 }
