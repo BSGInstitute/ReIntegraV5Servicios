@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -136,47 +137,214 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             }
         }
 
-        public async Task<List<ProgramaGeneralArgumentoDTO>> ObtenerArgumentoMotivacion(int idOportunidad)
+        public async Task<List<MotivacionSalidaDTO>> ObtenerArgumentoMotivacion(int idOportunidad)
         {
-            var argumentos = (await _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerTodoProgramaGeneralAsync(idOportunidad)).ToList();
-
-            foreach (var item in argumentos)
+            var argumentosCompletos = await _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerArgumentosAsync(idOportunidad);
+            if (argumentosCompletos == null || !argumentosCompletos.Any())
             {
-                // Obtener modalidades por cada argumento
-                var modalidades = await _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoModalidadAsync(item.Id);
-                item.Modalidades = modalidades.Select(m => new ProgramaGeneralArgumentoModalidadDTO
-                {
-                    Id = m.Id,
-                    IdModalidad = m.IdModalidadCurso,
-                    Nombre = m.Nombre
-                }).ToList();
+                return new List<MotivacionSalidaDTO>();
+            }
+            int idPGeneral = argumentosCompletos[0].IdPGeneral;
+            var argumentosRepo = argumentosCompletos
+                .Select(a => new ArgumentoRepoDTO { Id = a.Id, Nombre = a.Nombre })
+                .ToList();
 
-                // Obtener detalles por cada argumento
-                var detalles = await _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleAsync(item.Id);
+            var prioridades = await _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerPrioridadesAsync(idOportunidad);
+            if (prioridades == null || !prioridades.Any())
+            {
+                return new List<MotivacionSalidaDTO>();
+            }
+            var prioridadLookup = prioridades
+                .GroupBy(p => p.IdProgramaMotivacion)
+                .ToDictionary(g => g.Key, g => g.First().Prioridad);
 
-                var detallesDtoList = new List<ProgramaGeneralArgumentoDetalleDTO>();
-                foreach (var ag in detalles)
-                {
-                    // Obtener motivación por cada detalle
-                    var motivacion = await _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacionAsync(ag.Id);
+            var descripciones = await _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerDescripcionesMotivacionAsync(idPGeneral);
 
-                    var detalleDto = new ProgramaGeneralArgumentoDetalleDTO
+            var detalles = await _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerDetallesAsync(idPGeneral);
+            var links = await _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerArgumentoDetalleAsync(idPGeneral);
+
+            var motivacionesPorDetalleLookup = links.ToLookup(l => l.IdProgramaGeneralArgumentoDetalle, l => l.IdProgramaMotivacion);
+            var detallesMap = detalles.ToDictionary(
+                d => d.Id,
+                d => new { DetalleRepo = d, DetalleDto = new DetalleSalidaDTO { Id = d.Id, Detalle = d.Detalle } }
+            );
+            var argumentosRepoLookup = argumentosRepo.ToDictionary(a => a.Id);
+
+            var descripcionLookup = descripciones
+                .GroupBy(d => NormalizarClave(d.NombreMotivacion))
+                .ToDictionary(
+                    g => g.Key,
+                    g => new DescripcionRepoDTO
                     {
-                        Id = ag.Id,
-                        Detalle = ag.Detalle,
-                        Motivacion = (motivacion != null)
-                            ? new PGArgumentoDetalleMotivacionDTO
-                            {
-                                Id = motivacion.IdProgramaMotivacion,
-                            }
-                            : null
-                    };
-                    detallesDtoList.Add(detalleDto);
+                        IdEspecifico = g.First().IdEspecifico,
+                        NombreMotivacion = g.First().NombreMotivacion,
+                        Descripcion = string.Join(" ",
+                            g.OrderBy(x => x.Orden)
+                             .Select(x => x.Descripcion)
+                        )
+                    }
+                );
+
+
+            var resultadoFinal = new List<MotivacionSalidaDTO>();
+
+            foreach (var kvp in prioridadLookup)
+            {
+                int idMotivacionGenerica = kvp.Key; // (ej. 1)
+                int prioridad = kvp.Value;
+
+                if (!_motivacionGenericaLookup.TryGetValue(idMotivacionGenerica, out string nombreMotivacion))
+                {
+                    continue;
                 }
-                item.ArgumentoDetalle = detallesDtoList.OrderBy(d => d.Id).ToList();
+
+                string tipo = prioridad == 1 ? "Principal" : (prioridad == 2 ? "Secundaria" : null);
+                string claveMotivacion = NormalizarClave(nombreMotivacion);
+
+                if (!descripcionLookup.TryGetValue(claveMotivacion, out var descripcionData))
+                {
+                    continue;
+                }
+
+                string descripcionLimpio = LimpiarHtml(descripcionData.Descripcion);
+
+                var motivacionDTO = new MotivacionSalidaDTO
+                {
+                    Id = descripcionData.IdEspecifico,
+                    Nombre = nombreMotivacion,
+                    Descripcion = descripcionLimpio,
+                    Tipo = tipo,
+                    Argumentos = new Dictionary<string, List<ArgumentoAgrupadoDTO>>()
+                };
+
+                var detallesDeEstaMotivacion = links
+                    .Where(l => l.IdProgramaMotivacion == idMotivacionGenerica)
+                    .Select(l => detallesMap.GetValueOrDefault(l.IdProgramaGeneralArgumentoDetalle))
+                    .Where(d => d != null);
+
+                var detallesAgrupadosPorArgumento = detallesDeEstaMotivacion
+                    .Select(d => new {
+                        IdArgumento = d.DetalleRepo.IdProgramaGeneralArgumento,
+                        DetalleDto = d.DetalleDto
+                    })
+                    .GroupBy(d => d.IdArgumento);
+
+                var argumentosAgrupadosPorKeyNombre = detallesAgrupadosPorArgumento
+                    .Select(g => new {
+                        ArgumentoRepo = argumentosRepoLookup.GetValueOrDefault(g.Key),
+                        Detalles = g.Select(d => d.DetalleDto).OrderBy(d => d.Id).ToList()
+                    })
+                    .Where(x => x.ArgumentoRepo != null)
+                    .GroupBy(x => ObtenerKeyNombre(x.ArgumentoRepo.Nombre));
+
+                foreach (var grupo in argumentosAgrupadosPorKeyNombre)
+                {
+                    string jsonKey = grupo.Key;
+                    if (string.IsNullOrEmpty(jsonKey)) continue;
+
+                    motivacionDTO.Argumentos[jsonKey] = grupo.Select(g => new ArgumentoAgrupadoDTO
+                    {
+                        Id = g.ArgumentoRepo.Id,
+                        Nombre = g.ArgumentoRepo.Nombre,
+                        Detalles = g.Detalles
+                    }).ToList();
+                }
+                var keysEsperadas = new[]
+                {
+                    "garantiaDePrograma",
+                    "estructuraCurricular",
+                    "demostracionDeValor",
+                    "aspectosDiferenciadores",
+                    "argumentosDePerdidaPotencial"
+                };
+
+                foreach (var key in keysEsperadas)
+                {
+                    if (!motivacionDTO.Argumentos.ContainsKey(key))
+                    {
+                        motivacionDTO.Argumentos[key] = null;
+                    }
+                }
+
+                resultadoFinal.Add(motivacionDTO);
             }
 
-            return argumentos.OrderBy(a => a.Id).ToList();
+            return resultadoFinal.OrderBy(m => m.Id).ToList();
+        }
+
+        private static readonly Dictionary<int, string> _motivacionGenericaLookup = new Dictionary<int, string>
+        {
+            { 1, "Aprender" },
+            { 2, "Aplicar" },
+            { 3, "Certificarse" },
+            { 4, "Desarrollo Profesional" },
+            { 5, "Superación Personal" },
+            { 6, "Mejora en la calidad de vida" }
+        };
+
+        private string ObtenerKeyNombre(string nombreArgumento)
+        {
+            if (string.IsNullOrWhiteSpace(nombreArgumento))
+                return null;
+            string clave = NormalizarClave(nombreArgumento);
+
+            switch (clave)
+            {
+                case "garantia / confiabilidad":
+                case "garantia/confiabilidad":
+                case "garantia y confiabilidad":
+                    return "garantiaDePrograma";
+
+                case "parte tecnica":
+                    return "estructuraCurricular";
+
+                case "demostracion de valor":
+                    return "demostracionDeValor";
+
+                case "aspectos diferenciadores":
+                    return "aspectosDiferenciadores";
+
+                case "argumentos de perdida potencial":
+                    return "argumentosDePerdidaPotencial";
+
+                default:
+                    return null;
+            }
+        }
+
+        private static string NormalizarClave(string valor)
+        {
+            if (string.IsNullOrWhiteSpace(valor))
+                return string.Empty;
+            string formD = valor.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder(formD.Length);
+            foreach (char ch in formD)
+            {
+                var uc = CharUnicodeInfo.GetUnicodeCategory(ch);
+                if (uc != UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(ch);
+                }
+            }
+            return sb.ToString()
+                     .Normalize(NormalizationForm.FormC)
+                     .ToLowerInvariant()
+                     .Trim();
+        }
+
+        private string LimpiarHtml(string html)
+        {
+            if (string.IsNullOrEmpty(html))
+            {
+                return null;
+            }
+
+            string texto = WebUtility.HtmlDecode(html);
+            texto = Regex.Replace(texto, @"<(p|br)[^>]*>", "\n", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            texto = Regex.Replace(texto, @"<li[^>]*>", "\n* ", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            texto = Regex.Replace(texto, "<[^>]*>", string.Empty, RegexOptions.Multiline);
+            texto = Regex.Replace(texto, @"(\n\s*){2,}", "\n\n");
+            return texto.Trim();
         }
 
         public async Task<List<ConfiguracionProblemaJerarquicaDTO>> ObtenerProblemaCliente(int idPGeneral, int? idAlumno = null)
@@ -324,6 +492,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
             return resultadoFinal.OrderBy(r => r.Id).ToList();
         }
+
         public ArgumentoMotivacionProgramaGeneralDTO ObtenerArgumentoMotivacionByIdPGeneral(int idPGeneral, string motivacion)
         {
             try

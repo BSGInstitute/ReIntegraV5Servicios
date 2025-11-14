@@ -26,7 +26,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         bool InsertarArgumentoMotivacionSeleccion(ProgramaArgumentoMotivacionSeleccionDTO data, string usuario);
 
         ///object InsertarArgumentoMotivacionSeleccion(ProgramaArgumentoMotivacionSeleccionDTO data);
-        Task<List<ProgramaGeneralArgumentoDTO>> ObtenerArgumentoMotivacion(int idOportunidadl);
+        Task<List<MotivacionSalidaDTO>> ObtenerArgumentoMotivacion(int idOportunidadl);
         Task<List<ConfiguracionProblemaJerarquicaDTO>> ObtenerProblemaCliente(int idPGeneral, int? idAlumno=null );
         List<MotivacionDiccionarioViewDTO> ObtenerMotivacionesTodoDiccionario();
     }

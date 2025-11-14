@@ -65,35 +65,49 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         }
 
         /// Tipo Función: GET
-        /// Autor: Jose Vega
-        /// Fecha: 30-10-2025
-        /// Versión: 1.0
-        /// <summary>
-        /// Obtiene todos los argumentos de motivación
-        /// </summary>
-        [HttpGet("[action]/{idOportunidad}")]
+        /// Autor: Jose Vega
+        /// Fecha: 30-10-2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los argumentos de motivación
+        /// </summary>
+        [HttpGet("[action]/{idOportunidad}")]
         public async Task<IActionResult> ObtenerArgumentoMotivacion(int idOportunidad)
         {
             try
             {
-                var data = await _programaGeneralArgumentoService.ObtenerArgumentoMotivacion(idOportunidad);
-                return Ok(data);
+                var motivaciones = await _programaGeneralArgumentoService.ObtenerArgumentoMotivacion(idOportunidad);
+                if (motivaciones == null || motivaciones.Count == 0)
+                {
+                      motivaciones = new List<MotivacionSalidaDTO> { null };
+                }
+                var response = new ObtenerArgumentoMotivacionResponseDTO
+                {
+                    Motivaciones = motivaciones,
+                    Error = null
+                };
+                return Ok(response);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                var responseError = new ObtenerArgumentoMotivacionResponseDTO
+                {
+                    Motivaciones = new List<MotivacionSalidaDTO>(),
+                    Error = ex.Message
+                };
+                return BadRequest(responseError);
             }
         }
 
         /// Tipo Función: GET
-        /// Autor: Jose Vega
-        /// Fecha: 30-10-2025
-        /// Versión: 1.0
-        /// <summary>
-        /// Obtiene todos los problemas de cliente
-        /// </summary>
+               /// Autor: Jose Vega
+               /// Fecha: 30-10-2025
+               /// Versión: 1.0
+               /// <summary>
+               /// Obtiene todos los problemas de cliente
+               /// </summary>
         [HttpGet("[action]/{idPGeneral}")]
-        public async Task<IActionResult> ObtenerProblemaCliente(int idPGeneral, int? idAlumno = null)
+        public async Task<IActionResult> ObtenerProblemaCliente(int idPGeneral, [FromQuery] int? idAlumno = null)
         {
             try
             {
@@ -105,6 +119,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 return BadRequest(ex.Message);
             }
         }
+
 
 
         [HttpGet("[action]/{idPGeneral}/{motivacion}")]

@@ -37,5 +37,11 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         ComboDTO ObtenerMotivacionesByDiccionario(string motivacion);
         List<MotivacionDiccionarioViewDTO> ObtenerMotivacionesTodoDiccionario();
         ProgramaGeneralArgumentoDetalleMotivacionNombreDTO ObtenerProgramaGeneralArgumentoDetalleMotivacionNombre(int IdProgramaGeneralArgumentoDetalle);
+        Task<List<ProgramaGeneralArgumentoDTO>> ObtenerArgumentosAsync(int idOportunidad);
+        Task<List<DetalleRepoDTO>> ObtenerDetallesAsync(int idPGeneral);
+        Task<List<ArgumentoDetalleMotivacionRepoDTO>> ObtenerArgumentoDetalleAsync(int idPGeneral);
+        Task<List<PrioridadRepoDTO>> ObtenerPrioridadesAsync(int idOportunidad);
+        Task<List<DescripcionRepoDTO>> ObtenerDescripcionesMotivacionAsync(int idPGeneral);
+        Task<List<MotivacionRepoDTO>> ObtenerMotivacionesAsync(List<int> idsMotivacion);
     }
 }
