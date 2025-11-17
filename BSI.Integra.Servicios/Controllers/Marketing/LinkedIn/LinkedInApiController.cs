@@ -56,7 +56,7 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.LinkedIn
         }
 
 
-        [HttpGet("[action]")]
+        [HttpGet("[action]/{cuentaAsociada}")]
         public IActionResult ObtenerReportePendientes(int cuentaAsociada)
         {
             var resultado = _linkedInApiService.ObtenerReportePendientes(cuentaAsociada);
@@ -81,6 +81,13 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.LinkedIn
         {
 
             var resultado = _linkedInApiService.SubirOportunidadesPendientes(_tokenManager.UserName);
+            return Ok(resultado);
+        }
+        [HttpPost("[action]")]
+        public IActionResult SubirOportunidadesPendientesSeleccionadas(List<string> guidLinkedinLead)
+        {
+
+            var resultado = _linkedInApiService.SubirOportunidadesPendientesSeleccionadas(guidLinkedinLead ,_tokenManager.UserName);
             return Ok(resultado);
         }
 

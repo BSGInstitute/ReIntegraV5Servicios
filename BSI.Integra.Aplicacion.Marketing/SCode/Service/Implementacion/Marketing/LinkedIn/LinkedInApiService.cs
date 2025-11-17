@@ -12,6 +12,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.LinkedIn
@@ -56,7 +58,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
                     _unitOfWork.LinkedInApiRepository.ActualizarEstadoEnviado(1);
                     return false;
                 }
-                if (campañas && form)   
+                if (campañas && form)
                 {
                     leads = await ObtenerLeads();
                 }
@@ -701,9 +703,9 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
             {
                 var existe = _unitOfWork.LinkedInApiRepository.ObtenerIdPorGuidLinkedInLead(dto.GuidLinkedInLead);
                 var valorPais = _unitOfWork.LinkedInApiRepository.ObtenerQuestionLeadForm(dto.GuidLinkedInLead);
-                if (valorPais!=null)
+                if (valorPais != null)
                 {
-                    if(valorPais.Pais != dto.Pais)
+                    if (valorPais.Pais != dto.Pais)
                     {
                         _unitOfWork.LinkedInApiRepository.ActualizarPaisQuestionLeadForm(dto, usuario);
                     }
@@ -751,6 +753,44 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
             }
         }
 
+
+        public async Task<bool> SubirOportunidadesPendientesSeleccionadasAsync(List<string> guidLinkedinLead, string usuario)
+        {
+            if (string.IsNullOrWhiteSpace(usuario)) return false;
+            if (guidLinkedinLead == null || guidLinkedinLead.Count == 0) return false;
+
+            try
+            {
+                // Limpia nulos, trim y quita duplicados
+                var guids = guidLinkedinLead
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Select(x => x.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                if (guids.Count == 0) return false;
+
+                var url = "https://integrav5-oportunidad-servicios.bsginstitute.com/api/LinkedIn/SubirOportunidadesPendientesSeleccionadas";
+
+                using var http = new HttpClient();
+
+                // Si tu API es estricta con nombres/casing, respeta exactamente las propiedades esperadas:
+                var payload = new
+                {
+                    usuario = usuario,
+                    guidLinkedinLead = guids 
+                };
+
+                var resp = await http.PostAsJsonAsync(url, payload,
+                    new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+
+                return resp.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
 
         public BoolDTO ValidarCreacionOportunidadLinkedinEstado()
