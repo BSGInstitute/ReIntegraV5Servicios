@@ -31,6 +31,29 @@
         public bool? SegunMejorPro { get; set; }
         public bool? envioWhats { get; set; }
     }
+    public class AsignarActividadesAgendaV6DTO
+    {
+        public int IdAsesor { get; set; }
+        public string? Agenda { get; set; }
+    }
+    public class AsesorUsoV6DTO
+    {
+        public int Id { get; set; }
+        public int IdAsesor { get; set; }
+        public bool Estado { get; set; }
+        public string UsuarioCreacion { get; set; }
+        public string UsuarioModificacion { get; set; }
+        public DateTime FechaCreacion { get; set; }
+        public DateTime FechaModificacion { get; set; }
+    }
+
+    public class RespuestaCambioActividadCabeceraAgendaDTO
+    {
+        public int? IdAsesor { get; set; }
+        public string? Estado { get; set; }
+        public string? Mensaje { get; set; }
+        public List<object>? Result { get; set; }
+    }
 
 
 }

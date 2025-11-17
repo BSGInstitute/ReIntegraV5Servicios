@@ -107,18 +107,38 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         }
 
 
-        [HttpGet("[action]/{idPGeneral}")]
-        public IActionResult ObtenerProgramaGeneralArgumentoMotivacionByIdPGeneral(int idPGeneral)
+        [HttpGet("[action]/{idPGeneral}/{motivacion}")]
+        public IActionResult ObtenerProgramaGeneralArgumentoMotivacionByIdPGeneral(int idPGeneral, string motivacion)
         {
             try
             {
-                var result = _programaGeneralArgumentoService.ObtenerArgumentoMotivacionByIdPGeneral(idPGeneral);
+                var result = _programaGeneralArgumentoService.ObtenerArgumentoMotivacionByIdPGeneral(idPGeneral, motivacion);
                 return Ok(result);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpGet("[action]/{idOportunidad}")]
+        public IActionResult ObtenerMotivacionSeleccionByIdOportunidad(int idOportunidad)
+        {
+            try
+            {
+                var result = _programaGeneralArgumentoService.ObtenerMotivacionSeleccionByIdOportunidad(idOportunidad);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("[action]")]
+        public IActionResult ObtenerMotivacionesTodoDiccionario()
+        {
+            var result = _programaGeneralArgumentoService.ObtenerMotivacionesTodoDiccionario();
+            return Ok(result);
         }
 
         [HttpPost("InsertarArgumentoMotivacionSeleccion")]
@@ -134,7 +154,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 return BadRequest(ex.Message);
             }
         }
-
+        
         [HttpPost("Insertar")]
         public IActionResult Insertar([FromBody] ProgramaGeneralArgumentoDTO dto)
         {

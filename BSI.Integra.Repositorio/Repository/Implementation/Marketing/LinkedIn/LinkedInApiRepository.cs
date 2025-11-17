@@ -736,7 +736,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.LinkedIn
                         FechaLead,
                         FechaIntegra,
                         OportunidadRegistrada,
-                        CuentaAsociada
+                        CuentaAsociada,
+                        UrlPerfilLinkedIn
                     FROM mkt.V_LinkedinReportePendiente where CuentaAsociada =@cuentaAsociada
                     ORDER BY FechaLead DESC";
                 var resultado = _dapperRepository.QueryDapper(query, new { cuentaAsociada });
@@ -765,6 +766,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.LinkedIn
                     AreaTrabajo = dto.AreaTrabajo,
                     AreaFormacion = dto.AreaFormacion,
                     Industria = dto.Industria,
+                    UrlPerfil = dto.UrlPerfil,
                     Usuario = usuario
                 };
 
@@ -817,6 +819,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.LinkedIn
                     AreaTrabajo = dto.AreaTrabajo,
                     AreaFormacion = dto.AreaFormacion,
                     Industria = dto.Industria,
+                    UrlPerfil = dto.UrlPerfil,
                     Usuario = usuario
                 };
 
@@ -945,7 +948,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.LinkedIn
                        Cargo,
                        AreaFormacion,
                        AreaTrabajo,
-                       Industria 
+                       Industria
                     FROM mkt.T_QuestionLeadForm 
                     WHERE Estado = 1 AND GuidLinkedInLead = @GuidLinkedInLead";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { GuidLinkedInLead });

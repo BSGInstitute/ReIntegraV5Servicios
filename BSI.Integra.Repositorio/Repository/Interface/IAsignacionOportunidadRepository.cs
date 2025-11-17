@@ -1,4 +1,5 @@
 ﻿using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 
@@ -17,5 +18,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         AsignacionOportunidad ObtenerPorIdOportunidad(int idOportunidad);
         ValorIntDTO ObtenerCantidadOportunidadesAsesor(int idAsesor, DateTime fechaAsignacion);
         ValorIntDTO ObtenerMaximaAsignacionAsesor(int idAsesor);
+        AsesorUsoV6DTO? ObtenerUsuarioAgendaV6PorIdAsesor(int idAsesor);
+        List<AsesorUsoV6DTO> ObtenerAsesoresAgendaV6();
+        RespuestaCambioActividadCabeceraAgendaDTO CambioActividadCabeceraAgenda(int IdAsesor, string Agenda);
     }
 }

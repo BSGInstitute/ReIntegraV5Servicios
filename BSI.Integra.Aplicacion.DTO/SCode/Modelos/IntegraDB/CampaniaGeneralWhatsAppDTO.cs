@@ -201,7 +201,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int Dias { get; set; }
         public string Usuario { get; set; }
 
-    }    
+    }
     public class InsertarCampaniaGeneralDetalleResponsableInserWhatsAppDTO
     {
         public int Id { get; set; }
@@ -359,7 +359,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string Usuario { get; set; }
     }
 
-   
+
     public class WhatsAppPlantillaDTO
     {
         public int IdPlantilla { get; set; }
@@ -393,7 +393,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string Mensaje { get; set; }
         public int IdPais { get; set; }
         public int IdAlumno { get; set; }
-        public int IdPersonal { get; set; } 
+        public int IdPersonal { get; set; }
         public string usuario { get; set; }
 
     }
@@ -516,6 +516,11 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     public class UltimoMensajeDTO
     {
         public string UltimoMensaje { get; set; }
+    }
+
+    public class NumeroIdentificadorDTO
+    {
+        public string NumeroIdentificador { get; set; }
     }
 }
 

@@ -32904,6 +32904,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.IdProgramaMotivacion).HasComment("Programa de motivación seleccionado");
 
+                entity.Property(e => e.Prioridad).HasComment("Indica la prioridad de la motivacion.");
+
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
                     .IsConcurrencyToken()
@@ -42555,11 +42557,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.IdProgramaGeneralArgumentoDetalle).HasComment("Identificador del detalle de argumento de programa general asociado.");
 
-                entity.Property(e => e.IdProgramaGeneralMotivacion).HasComment("Identificador de la motivación de programa general asociada.");
-
-                entity.Property(e => e.NombreMotivacion)
-                    .IsUnicode(false)
-                    .HasComment("Nombre descriptivo de la motivación.");
+                entity.Property(e => e.IdProgramaMotivacion).HasComment("Identificador de la motivación de programa general asociada.");
 
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
@@ -42581,10 +42579,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasForeignKey(d => d.IdProgramaGeneralArgumentoDetalle)
                     .HasConstraintName("FK_T_ProgramaGeneralArgumentoDetalleMotivacion_ProgramaGeneralArgumentoDetalle_IdProgramaGeneralArgumentoDetalle");
 
-                entity.HasOne(d => d.IdProgramaGeneralMotivacionNavigation)
+                entity.HasOne(d => d.IdProgramaMotivacionNavigation)
                     .WithMany(p => p.TProgramaGeneralArgumentoDetalleMotivacions)
-                    .HasForeignKey(d => d.IdProgramaGeneralMotivacion)
-                    .HasConstraintName("FK_T_ProgramaGeneralArgumentoDetalleMotivacion_ProgramaGeneralMotivacion_IdProgramaGeneralMotivacion");
+                    .HasForeignKey(d => d.IdProgramaMotivacion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_ProgramaGeneralArgumentoDetalleMotivacion_ProgramaMotivacion_IdProgramaMotivacion");
             });
 
             modelBuilder.Entity<TProgramaGeneralArgumentoModalidad>(entity =>

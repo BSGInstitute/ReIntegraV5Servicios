@@ -1,4 +1,5 @@
-﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+﻿using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -33,5 +34,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         Task<IEnumerable<ProgramaGeneralArgumentoModalidad>> ObtenerProgramaGeneralArgumentoModalidadAsync(int IdProgramaGeneralArgumento);
         Task<IEnumerable<ProgramaGeneralArgumentoDetalle>> ObtenerProgramaGeneralArgumentoDetalleAsync(int IdProgramaGeneralArgumento);
         Task<ProgramaGeneralArgumentoDetalleMotivacion> ObtenerProgramaGeneralArgumentoDetalleMotivacionAsync(int IdProgramaGeneralArgumentoDetalle);
+        ComboDTO ObtenerMotivacionesByDiccionario(string motivacion);
+        List<MotivacionDiccionarioViewDTO> ObtenerMotivacionesTodoDiccionario();
+        ProgramaGeneralArgumentoDetalleMotivacionNombreDTO ObtenerProgramaGeneralArgumentoDetalleMotivacionNombre(int IdProgramaGeneralArgumentoDetalle);
     }
 }

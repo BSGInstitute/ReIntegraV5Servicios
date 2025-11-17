@@ -1095,11 +1095,10 @@ namespace BSI.Integra.Servicios.Controllers
         /// <param name=""></param>
         /// <returns></returns>
         [Authorize]
-        [Route("[action]/{IdProgramaGeneralMotivacion}/{Usuario}")]
-        [HttpGet]
-        public ActionResult EliminarMotivacionVenta(int IdProgramaGeneralMotivacion, string Usuario)
+        [JwtExpirationValidation]
+        [HttpDelete("[action]/{IdProgramaGeneralMotivacion}")]
+        public ActionResult EliminarMotivacionVenta(int IdProgramaGeneralMotivacion)
         {
-
             var respuesta = _pGeneralService.EliminarMotivacionVenta(IdProgramaGeneralMotivacion, _tokenManager.UserName);
             return Ok(respuesta);
         }

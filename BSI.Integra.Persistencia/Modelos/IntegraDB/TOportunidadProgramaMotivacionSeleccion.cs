@@ -44,6 +44,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Campo para control de concurrencia
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
+        /// <summary>
+        /// Indica la prioridad de la motivacion.
+        /// </summary>
+        public int? Prioridad { get; set; }
 
         public virtual TOportunidad IdOportunidadNavigation { get; set; } = null!;
         public virtual TProgramaMotivacion IdProgramaMotivacionNavigation { get; set; } = null!;
