@@ -326,6 +326,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TEtiquetum> TEtiqueta { get; set; } = null!;
         public virtual DbSet<TEvaluacionCategorium> TEvaluacionCategoria { get; set; } = null!;
         public virtual DbSet<TEvaluacionEscalaCalificacion> TEvaluacionEscalaCalificacions { get; set; } = null!;
+        public virtual DbSet<TEvaluacionLlamadaConfiguracionVersion> TEvaluacionLlamadaConfiguracionVersions { get; set; } = null!;
+        public virtual DbSet<TEvaluacionLlamadaCriterio> TEvaluacionLlamadaCriterios { get; set; } = null!;
+        public virtual DbSet<TEvaluacionLlamadaCriticidad> TEvaluacionLlamadaCriticidads { get; set; } = null!;
+        public virtual DbSet<TEvaluacionLlamadaFase> TEvaluacionLlamadaFases { get; set; } = null!;
+        public virtual DbSet<TEvaluacionLlamadaLineamiento> TEvaluacionLlamadaLineamientos { get; set; } = null!;
+        public virtual DbSet<TEvaluacionLlamadaPuntoGeneral> TEvaluacionLlamadaPuntoGenerals { get; set; } = null!;
         public virtual DbSet<TExaman> TExamen { get; set; } = null!;
         public virtual DbSet<TExamenAsignado> TExamenAsignados { get; set; } = null!;
         public virtual DbSet<TExamenAsignadoEvaluador> TExamenAsignadoEvaluadors { get; set; } = null!;
@@ -19294,6 +19300,352 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TEvaluacionLlamadaConfiguracionVersion>(entity =>
+            {
+                entity.ToTable("T_EvaluacionLlamadaConfiguracionVersion", "com");
+
+                entity.HasComment("Versiones de configuración de evaluación de llamadas. El área se determina implícitamente por los Lineamientos y PuntosGenerales asociados.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la versión de configuración");
+
+                entity.Property(e => e.Comentario)
+                    .HasMaxLength(500)
+                    .HasComment("Comentarios adicionales sobre la versión");
+
+                entity.Property(e => e.DescripcionVersion)
+                    .HasMaxLength(255)
+                    .HasComment("Descripción de la versión de configuración");
+
+                entity.Property(e => e.EsVigente).HasComment("Indica si esta versión es la vigente actualmente");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de última modificación del registro");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de versión de fila para concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro por última vez");
+            });
+
+            modelBuilder.Entity<TEvaluacionLlamadaCriterio>(entity =>
+            {
+                entity.ToTable("T_EvaluacionLlamadaCriterio", "com");
+
+                entity.HasComment("Criterios de evaluación por fase. El área se hereda de los Lineamientos asociados.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del criterio");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500)
+                    .HasComment("Descripción detallada del criterio");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de última modificación del registro");
+
+                entity.Property(e => e.IdEvaluacionLlamadaFase).HasComment("Identificador de la fase a la que pertenece el criterio");
+
+                entity.Property(e => e.NombreCriterio)
+                    .HasMaxLength(200)
+                    .HasComment("Nombre del criterio de evaluación");
+
+                entity.Property(e => e.Orden).HasComment("Orden de presentación del criterio");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de versión de fila para concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro por última vez");
+
+                entity.HasOne(d => d.IdEvaluacionLlamadaFaseNavigation)
+                    .WithMany(p => p.TEvaluacionLlamadaCriterios)
+                    .HasForeignKey(d => d.IdEvaluacionLlamadaFase)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_EvaluacionLlamadaCriterio_EvaluacionLlamadaFase_IdEvaluacionLlamadaFase");
+            });
+
+            modelBuilder.Entity<TEvaluacionLlamadaCriticidad>(entity =>
+            {
+                entity.ToTable("T_EvaluacionLlamadaCriticidad", "com");
+
+                entity.HasComment("Catálogo de criticidades compartido entre todas las áreas.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la criticidad");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500)
+                    .HasComment("Descripción de la criticidad");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de última modificación del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .HasComment("Nombre de la criticidad");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de versión de fila para concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro por última vez");
+            });
+
+            modelBuilder.Entity<TEvaluacionLlamadaFase>(entity =>
+            {
+                entity.ToTable("T_EvaluacionLlamadaFase", "com");
+
+                entity.HasComment("Fases de evaluación de llamadas. El área se hereda de los Lineamientos asociados.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la fase");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500)
+                    .HasComment("Descripción detallada de la fase");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de última modificación del registro");
+
+                entity.Property(e => e.NombreFase)
+                    .HasMaxLength(200)
+                    .HasComment("Nombre de la fase de evaluación");
+
+                entity.Property(e => e.Orden).HasComment("Orden de presentación de la fase");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de versión de fila para concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro por última vez");
+            });
+
+            modelBuilder.Entity<TEvaluacionLlamadaLineamiento>(entity =>
+            {
+                entity.ToTable("T_EvaluacionLlamadaLineamiento", "com");
+
+                entity.HasComment("Lineamientos de evaluación. Almacena IdPersonalAreaTrabajo e IdConfiguracionVersion. NULL en versión = editable, NOT NULL = congelado.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del lineamiento");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500)
+                    .HasComment("Descripción detallada del lineamiento");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de última modificación del registro");
+
+                entity.Property(e => e.IdEvaluacionLlamadaConfiguracionVersion).HasComment("Identificador de la versión de configuración. NULL indica que el registro es editable, NOT NULL indica que está congelado");
+
+                entity.Property(e => e.IdEvaluacionLlamadaCriterio).HasComment("Identificador del criterio al que pertenece el lineamiento");
+
+                entity.Property(e => e.IdEvaluacionLlamadaCriticidad).HasComment("Identificador de la criticidad asociada al lineamiento");
+
+                entity.Property(e => e.IdPersonalAreaTrabajo).HasComment("Identificador del área de trabajo asociada");
+
+                entity.Property(e => e.NombreLineamiento)
+                    .HasMaxLength(200)
+                    .HasComment("Nombre del lineamiento de evaluación");
+
+                entity.Property(e => e.Orden).HasComment("Orden de presentación del lineamiento");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de versión de fila para concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro por última vez");
+
+                entity.HasOne(d => d.IdEvaluacionLlamadaConfiguracionVersionNavigation)
+                    .WithMany(p => p.TEvaluacionLlamadaLineamientos)
+                    .HasForeignKey(d => d.IdEvaluacionLlamadaConfiguracionVersion)
+                    .HasConstraintName("FK_T_EvaluacionLlamadaLineamiento_EvaluacionLlamadaConfiguracionVersion_IdEvaluacionLlamadaConfiguracionVersion");
+
+                entity.HasOne(d => d.IdEvaluacionLlamadaCriterioNavigation)
+                    .WithMany(p => p.TEvaluacionLlamadaLineamientos)
+                    .HasForeignKey(d => d.IdEvaluacionLlamadaCriterio)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_EvaluacionLlamadaLineamiento_EvaluacionLlamadaCriterio_IdEvaluacionLlamadaCriterio");
+
+                entity.HasOne(d => d.IdEvaluacionLlamadaCriticidadNavigation)
+                    .WithMany(p => p.TEvaluacionLlamadaLineamientos)
+                    .HasForeignKey(d => d.IdEvaluacionLlamadaCriticidad)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_EvaluacionLlamadaLineamiento_EvaluacionLlamadaCriticidad_IdEvaluacionLlamadaCriticidad");
+
+                entity.HasOne(d => d.IdPersonalAreaTrabajoNavigation)
+                    .WithMany(p => p.TEvaluacionLlamadaLineamientos)
+                    .HasForeignKey(d => d.IdPersonalAreaTrabajo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_EvaluacionLlamadaLineamiento_PersonalAreaTrabajo_IdPersonalAreaTrabajo");
+            });
+
+            modelBuilder.Entity<TEvaluacionLlamadaPuntoGeneral>(entity =>
+            {
+                entity.ToTable("T_EvaluacionLlamadaPuntoGeneral", "com");
+
+                entity.HasComment("Puntos generales de evaluación. Almacena IdPersonalAreaTrabajo e IdConfiguracionVersion. NULL en versión = editable, NOT NULL = congelado.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del punto general");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(1000)
+                    .HasComment("Descripción detallada del punto general");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de última modificación del registro");
+
+                entity.Property(e => e.IdEvaluacionLlamadaConfiguracionVersion).HasComment("Identificador de la versión de configuración. NULL indica que el registro es editable, NOT NULL indica que está congelado");
+
+                entity.Property(e => e.IdPersonalAreaTrabajo).HasComment("Identificador del área de trabajo asociada");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(1000)
+                    .HasComment("Nombre del punto general de evaluación");
+
+                entity.Property(e => e.Orden).HasComment("Orden de presentación del punto general");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de versión de fila para concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro por última vez");
+
+                entity.HasOne(d => d.IdEvaluacionLlamadaConfiguracionVersionNavigation)
+                    .WithMany(p => p.TEvaluacionLlamadaPuntoGenerals)
+                    .HasForeignKey(d => d.IdEvaluacionLlamadaConfiguracionVersion)
+                    .HasConstraintName("FK_T_EvaluacionLlamadaPuntoGeneral_EvaluacionLlamadaConfiguracionVersion_IdEvaluacionLlamadaConfiguracionVersion");
+
+                entity.HasOne(d => d.IdPersonalAreaTrabajoNavigation)
+                    .WithMany(p => p.TEvaluacionLlamadaPuntoGenerals)
+                    .HasForeignKey(d => d.IdPersonalAreaTrabajo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_EvaluacionLlamadaPuntoGeneral_PersonalAreaTrabajo_IdPersonalAreaTrabajo");
             });
 
             modelBuilder.Entity<TExaman>(entity =>
