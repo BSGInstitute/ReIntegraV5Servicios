@@ -1,12 +1,8 @@
 ﻿using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
-using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Sendingblue;
-using BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Sendingblue;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
-using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Helpers;
-using DocumentFormat.OpenXml.Office2010.Excel;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -24,6 +20,7 @@ namespace BSI.Integra.Servicios.Controllers
     [EnableCors("CorsVista")]
     public class CampaniaGeneralWhatsAppController : Controller
     {
+        private string ASESOR_MULTICANAL_MKT = "6503";
         private IUnitOfWork unitOfWork;
         public CampaniaGeneralWhatsAppController(IUnitOfWork unitOfWork)
         {
@@ -223,7 +220,7 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex);
             }
         }
-        
+
 
         [Route("[action]")]
         [HttpPost]
@@ -270,7 +267,7 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex);
             }
         }
-        
+
         [Route("[action]")]
         [HttpPost]
         public IActionResult EliminarCampaniaGeneralDetalleResponsableWhatsApp(EliminarCampaniaGeneralDetalleResponsableWhatsAppDTO json)
@@ -479,10 +476,18 @@ namespace BSI.Integra.Servicios.Controllers
                 var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
                 var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
                 var Idusuario = _respuestaCorrecta.RegistroClaimToken.IdPersonal;
-                json.IdPersonal = Idusuario;
                 json.usuario = usuario;
-                //var Usuario = "achipanaa";
+
+                //Exepcion para el asesor multicanal de marketing
+                if (json.IdPersonal.ToString() == ASESOR_MULTICANAL_MKT)
+                {
+                    string numeroIdentificador = new CampaniaGeneralWhatsAppService(unitOfWork).ObtenerNumeroIdentificadorWhatsAppPorIdPersonal(json.IdPersonal);
+                    return Ok(new CampaniaGeneralWhatsAppService(unitOfWork).EnvioMensajePorPlantilla(json, numeroIdentificador));
+                }
+
+                json.IdPersonal = Idusuario;
                 return Ok(new CampaniaGeneralWhatsAppService(unitOfWork).EnvioMensajePorPlantilla(json));
+
             }
             catch (Exception ex)
             {
@@ -535,15 +540,20 @@ namespace BSI.Integra.Servicios.Controllers
         {
             try
             {
-
                 var claimsIdentity = User.Identity as ClaimsIdentity;
                 var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
                 var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
                 var Idusuario = _respuestaCorrecta.RegistroClaimToken.IdPersonal;
-                json.IdPersonal = Idusuario;
                 json.usuario = usuario;
-                //var Usuario = "achipanaa";
 
+                //Exepcion para el asesor multicanal de marketing
+                if (json.IdPersonal.ToString() == ASESOR_MULTICANAL_MKT)
+                {
+                    string numeroIdentificador = new CampaniaGeneralWhatsAppService(unitOfWork).ObtenerNumeroIdentificadorWhatsAppPorIdPersonal(json.IdPersonal);
+                    return Ok(new CampaniaGeneralWhatsAppService(unitOfWork).EnvioMensajePorTexto(json, numeroIdentificador));
+                }
+
+                json.IdPersonal = Idusuario;
                 return Ok(new CampaniaGeneralWhatsAppService(unitOfWork).EnvioMensajePorTexto(json));
             }
             catch (Exception ex)
@@ -552,7 +562,7 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
-    
+
 
         [Route("[action]")]
         [HttpPost]
@@ -599,7 +609,7 @@ namespace BSI.Integra.Servicios.Controllers
         {
             try
             {
-             
+
                 return Ok(new CampaniaGeneralWhatsAppService(unitOfWork).ObtenerDiasPorPrioridadWhatsapp(id));
             }
             catch (Exception ex)

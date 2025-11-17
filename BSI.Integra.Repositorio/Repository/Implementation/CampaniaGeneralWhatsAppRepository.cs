@@ -164,7 +164,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
         #endregion
 
-        
+
 
         public List<ObtenerCampaniaGeneralDetalleWhatsAppGrupoDTO> ObtenerCampaniaGeneralDetalleWhatsApp(IdDTO id)
         {
@@ -235,7 +235,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                var _query = string.Empty; 
+                var _query = string.Empty;
                 _query = "exec [mkt].[SP_ActualizarCampaniaGeneralWhatsApp] @Nombre, @HoraEnvio, @FechaInicioWhatsapp,  @Id, @Usuario";
                 var respuesta = _dapperRepository.QueryDapper(_query, new { Nombre = json.Nombre, HoraEnvio = json.HoraEnvio, FechaInicioWhatsapp = json.FechaInicioEnvioWhatsapp, Id = json.Id, Usuario = json.Usuario });
                 if (!string.IsNullOrEmpty(respuesta) && respuesta != "null") return true;
@@ -266,7 +266,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
         }
-        
+
         public bool EliminarCampaniaGeneralWhatsApp(EliminarCampaniaGeneralWhatsAppDTO json)
         {
             try
@@ -1029,16 +1029,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
                 var respuesta = _dapperRepository.FirstOrDefault(_query, new { Celular = celularAlumno });
                 return respuesta;
-
-                //if (!string.IsNullOrEmpty(respuesta) && !respuesta.Contains("[]"))
-                //{
-                //    ultimoMensaje = JsonConvert.DeserializeObject<UltimoMensajeDTO>(respuesta);
-                //    return ultimoMensaje.UltimoMensaje;
-                //}
-                //else
-                //{
-                //    return null;
-                //}
             }
             catch (Exception e)
             {
@@ -1046,6 +1036,26 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        public string ObtenerNumeroIdentificadorWhatsAppPorIdPersonal(int idPersonal)
+        {
+            try
+            {
+                var _query = @"SELECT TOP 1 WCA.NumeroIndentificador AS NumeroIdentificador FROM conf.T_WhatsAppConfiguracionApi WCA WHERE WCA.IdPersonal_Asignado = @IdPersonal AND WCA.Estado = 1";
+                var jsonResult = _dapperRepository.FirstOrDefault(_query, new { IdPersonal = idPersonal });
+
+                if (!string.IsNullOrEmpty(jsonResult) && !jsonResult.Contains("[]"))
+                {
+                    var result = JsonConvert.DeserializeObject<NumeroIdentificadorDTO>(jsonResult);
+                    return result.NumeroIdentificador;
+                }
+                return null;
+
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
     }
 }
 
