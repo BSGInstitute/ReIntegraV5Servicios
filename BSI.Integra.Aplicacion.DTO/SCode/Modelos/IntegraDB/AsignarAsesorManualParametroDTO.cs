@@ -52,6 +52,7 @@
         public int? IdAsesor { get; set; }
         public string? Estado { get; set; }
         public string? Mensaje { get; set; }
+        public List<object>? Result { get; set; }
     }
 
 
