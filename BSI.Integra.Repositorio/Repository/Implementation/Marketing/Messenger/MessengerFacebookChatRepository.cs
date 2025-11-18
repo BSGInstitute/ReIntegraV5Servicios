@@ -30,16 +30,33 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.Messenger
                 if (string.IsNullOrWhiteSpace(jsonResult))
                     return new List<ResumenMessengerFacebookChatDTO>();
 
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var listaMensajes = JsonSerializer.Deserialize<List<ResumenMessengerFacebookChatDTO>>(jsonResult);
 
-                return JsonSerializer.Deserialize<List<ResumenMessengerFacebookChatDTO>>(jsonResult, options);
+                return listaMensajes.OrderByDescending(m => m.FechaMensaje).ToList();
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
+        public List<ChatMessengerFacebookDTO> ObtenerHistorialChatPorPSID(ObtenerHistorialChatPorPSIDRequestDTO request)
+        {
+            try
+            {
+                var SP_Obtener = "[mkt].[SP_ObtenerHistorialMessengerFacebookChat]";
+                var jsonResult = _dapperRepository.QuerySPDapper(SP_Obtener, request);
 
+                if (string.IsNullOrWhiteSpace(jsonResult))
+                    return new List<ChatMessengerFacebookDTO>();
 
+                var listaMensajes = JsonSerializer.Deserialize<List<ChatMessengerFacebookDTO>>(jsonResult);
+
+                return listaMensajes.OrderBy(m => m.FechaEvento).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

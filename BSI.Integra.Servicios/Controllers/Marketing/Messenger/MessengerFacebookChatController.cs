@@ -1,8 +1,10 @@
 ﻿using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Messenger;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.Messenger;
 using BSI.Integra.Repositorio.UnitOfWork;
+using BSI.Integra.Servicios.Helpers;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BSI.Integra.Servicios.Controllers.Marketing.Messenger
 {
@@ -28,7 +30,7 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Messenger
 
         [HttpGet]
         [Route("[action]")]
-        public IActionResult ObtenerGrillaChats([FromQuery] DateTime? fechaInicio, [FromQuery] DateTime? fechaFin, [FromQuery] string tipo = "all")
+        public IActionResult ObtenerGrillaChats([FromQuery] DateTime? fechaInicio, [FromQuery] DateTime? fechaFin, [FromQuery] string tipo = "todas")
         {
             try
             {
@@ -38,26 +40,54 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Messenger
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Error interno al obtener los chats");
+                return StatusCode(500, "Error al obtener los chats");
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("[action]")]
-        public IActionResult ObtenerHistorialChatPorUsuario()
+        public IActionResult ObtenerHistorialChatPorPSID([FromBody] ObtenerHistorialChatPorPSIDRequestDTO request)
         {
-            // Lógica para obtener los chats de Messenger
-            return Ok("Funcionalidad para obtener chats de Messenger aún no implementada.");
+            try
+            {
+                List<ChatMessengerFacebookDTO> result = _messengerFacebookChatService.ObtenerHistorialChatPorPSID(request);
+
+                if(result == null || result.Count == 0)
+                    return NotFound("No se encontró historial de chat para el identificador");
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Error al obtener el historial del contacto");
+            }
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("[action]")]
-        public IActionResult ObtenerHistorialChatPorPSID()
+        public async Task<IActionResult> EnviarMensajeTexto([FromBody] EnviarMensajeTextoRequest request)
         {
-            // Lógica para obtener los chats de Messenger
-            return Ok("Funcionalidad para obtener chats de Messenger aún no implementada.");
-        }
+            try
+            {
+                var claimsIdentity = User.Identity as ClaimsIdentity;
+                var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+                int idPersonal = _respuestaCorrecta.RegistroClaimToken.IdPersonal;
+                string usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
+                request.IdPersonal = idPersonal;
+                request.UsuarioCreacion = usuario;
 
+                EnviarMensajeResponse result = await _messengerFacebookChatService.EnviarMensajeTexto(request);
+
+                if (result.Success)
+                    return Ok(new { enviado = true, mensaje = "Mensaje enviado correctamente." });
+                else
+                    return BadRequest(new { enviado = false, mensaje = result.Message ?? "No se pudo enviar el mensaje por una razón desconocida." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { enviado = false, mensaje = "Ocurrió un error interno del servidor." });
+            }
+        }
 
     }
 }
