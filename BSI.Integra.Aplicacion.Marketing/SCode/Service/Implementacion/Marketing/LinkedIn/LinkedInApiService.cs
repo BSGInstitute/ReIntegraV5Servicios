@@ -12,9 +12,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Net.Http.Json;
 
 namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.LinkedIn
 {
@@ -781,10 +780,10 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
                     guidLinkedinLead = guids 
                 };
 
-                var resp = await http.PostAsJsonAsync(url, payload,
-                    new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+                //var resp = await http.PostAsJsonAsync(url, payload,
+                //    new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
-                return resp.IsSuccessStatusCode;
+                return false;
             }
             catch
             {

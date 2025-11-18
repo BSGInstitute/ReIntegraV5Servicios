@@ -87,7 +87,7 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.LinkedIn
         public IActionResult SubirOportunidadesPendientesSeleccionadas(List<string> guidLinkedinLead)
         {
 
-            var resultado = _linkedInApiService.SubirOportunidadesPendientesSeleccionadas(guidLinkedinLead ,_tokenManager.UserName);
+            var resultado = _linkedInApiService.SubirOportunidadesPendientesSeleccionadasAsync(guidLinkedinLead ,_tokenManager.UserName);
             return Ok(resultado);
         }
 
