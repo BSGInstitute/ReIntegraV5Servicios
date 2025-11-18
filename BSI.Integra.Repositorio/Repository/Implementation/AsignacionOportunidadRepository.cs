@@ -276,6 +276,33 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception($"#FR-OPI-001@Error en ObtenerPorId(), {ex.Message}");
             }
         }
+        public List<AsesorUsoV6DTO> ObtenerAsesoresAgendaV6()
+        {
+            try
+            {
+                List<AsesorUsoV6DTO> rpta = new List<AsesorUsoV6DTO>();
+                var query = @"
+               	   SELECT Id,
+	                    IdAsesor,
+	                    Estado,
+	                    UsuarioCreacion,
+	                    UsuarioModificacion,
+	                    FechaCreacion,
+	                    FechaModificacion
+                    FROM mkt.T_AsesoresAgendaV6
+                    WHERE Estado = 1";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<AsesorUsoV6DTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#FR-OPI-001@Error en ObtenerPorId(), {ex.Message}");
+            }
+        }
         public RespuestaCambioActividadCabeceraAgendaDTO CambioActividadCabeceraAgenda(int IdAsesor, string Agenda)
         {
             try
