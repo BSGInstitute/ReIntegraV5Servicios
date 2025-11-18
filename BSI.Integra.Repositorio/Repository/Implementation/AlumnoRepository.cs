@@ -2401,7 +2401,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                string _queryDatosAlumno = @"SELECT Id, UserName as usuario,Clave as contrasenia FROM [20.169.245.8].integraDB_PortalWeb.dbo.AspNetUsers WHERE IdAlumno=@idAlumno";
+                string _queryDatosAlumno = @"SELECT Id, UserName as usuario,Clave as contrasenia FROM [192.168.2.5].integraDB_PortalWeb.dbo.AspNetUsers WHERE IdAlumno=@idAlumno";
                 var queryDatosAlumno = _dapperRepository.FirstOrDefault(_queryDatosAlumno, new { idAlumno = idAlumno });
                 return JsonConvert.DeserializeObject<AlumnoAccesosDTO>(queryDatosAlumno);
             }
@@ -3194,7 +3194,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var _query = string.Empty;
                 AvatarAlumnoDTO usuarioAvatar = new AvatarAlumnoDTO();
-                _query = "SELECT IdAvatar,IdALumno,TopC, Accessories, Hair_Color, Facial_Hair, Facial_Hair_Color, Clothes, Clothes_Color,Eyes,Eyesbrow,Mouth,Skin FROM [20.169.245.8].integraDB_PortalWeb.dbo.V_PW_ObtenerAvatar WHERE IdAlumno = @IdAlumno";
+                _query = "SELECT IdAvatar,IdALumno,TopC, Accessories, Hair_Color, Facial_Hair, Facial_Hair_Color, Clothes, Clothes_Color,Eyes,Eyesbrow,Mouth,Skin FROM [192.168.2.5].integraDB_PortalWeb.dbo.V_PW_ObtenerAvatar WHERE IdAlumno = @IdAlumno";
                 var respuesta = _dapperRepository.FirstOrDefault(_query, new { IdAlumno });
                 if (!string.IsNullOrEmpty(respuesta) && !respuesta.Contains("[]") && respuesta != "null")
                 {
