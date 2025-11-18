@@ -103,7 +103,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// Fecha: 10/07/2023
         /// Version: 1.0
         /// <summary>
-        /// Crea un nuevo registro en [40.76.216.5].integraDB_PortalWeb.dbo.T_TransaccionAuditoriaPago y retorna el (PK)
+        /// Crea un nuevo registro en [20.169.245.8].integraDB_PortalWeb.dbo.T_TransaccionAuditoriaPago y retorna el (PK)
         /// </summary>
         /// <param name="transaccion"> Nuevos parametros a registrarse </param>
         /// <returns> int </returns>

@@ -35,7 +35,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                             SELECT DISTINCT 
                                 CONCAT(Nombre, ' ', Apellido) AS Valor
                             FROM 
-                                [40.76.216.5].integraDB_PortalWeb.dbo.T_LibroReclamacion 
+                                [20.169.245.8].integraDB_PortalWeb.dbo.T_LibroReclamacion 
                             WHERE 
                                 Nombre LIKE @Nombre";
                 var lista = _dapperRepository.QueryDapper(query, new { Nombre = $"%{nombre}%" });
@@ -67,7 +67,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                             SELECT DISTINCT 
                                 DNI AS Valor
                             FROM 
-                                [40.76.216.5].integraDB_PortalWeb.dbo.T_LibroReclamacion 
+                                [20.169.245.8].integraDB_PortalWeb.dbo.T_LibroReclamacion 
                             WHERE 
                                 DNI LIKE @Dni";
                 var resultado = _dapperRepository.QueryDapper(query, new { Dni = $"%{dni}%" });
