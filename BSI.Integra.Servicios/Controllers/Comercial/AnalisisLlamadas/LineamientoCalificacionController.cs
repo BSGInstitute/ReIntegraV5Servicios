@@ -959,6 +959,30 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
             }
         }
 
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<ActionResult<List<bool>>> TranscripcionAutoV2(int idPersonalAreaTrabajo)
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = await lineamientoCalificacionService.TranscripcionAutoV2(1, idPersonalAreaTrabajo);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 
         /// Tipo Función: POST
         /// Autor: Jose Vega
@@ -1007,6 +1031,30 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
             {
                 var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
                 var resultado = await lineamientoCalificacionService.CalificacionAuto(1);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<ActionResult<List<bool>>> CalificacionAutoV2(int idPersonalAreaTrabajo)
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = await lineamientoCalificacionService.CalificacionAutoV2(1, idPersonalAreaTrabajo);
                 return Ok(resultado);
             }
             catch (Exception ex)

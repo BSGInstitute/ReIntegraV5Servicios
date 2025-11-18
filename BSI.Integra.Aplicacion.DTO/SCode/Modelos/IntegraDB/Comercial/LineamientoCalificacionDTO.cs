@@ -303,6 +303,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int IdActividadDetalle { get; set; }
         public int IdLlamada { get; set; }
         public int IdOportunidad { get; set; }
+        public int IdPersonalAreaTrabajo { get; set; }
         public int IdPersonal_Asignado { get; set; }
         public string Comentario { get; set; }
         public int? IdOcurrenciaAlterno { get; set; }

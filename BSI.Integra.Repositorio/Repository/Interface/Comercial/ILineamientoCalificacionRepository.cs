@@ -86,5 +86,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
         IEnumerable<EvaluacionLlamadaDetalleDTO> ObtenerDetallesEvaluacionPorLlamada(int idLlamada);
         IEnumerable<EvaluacionPuntoGeneralDetalleDTO> ObtenerDetallesEvaluacionPuntosGeneralesPorLlamada(int idLlamada);
         IEnumerable<ConfiguracionEsquemaCalificacionPorLlamdaDTO> HistorialVersionCalificacionPorLlamada(int idLlamada);
+        IEnumerable<LlamadaWebphoneOcurrenciaDTO> ObtenerOcurrenciaRegistradaV2(int idOportunidad, int idPersonalAreaTrabajo);
+        IEnumerable<LlamadaProcesoAutoDTO> ObtenerHistoricoLlamadaCompletoPorIdOportunidadV2(int IdOportunidad, int IdPersonalAreaTrabajo);
+        LlamadaProcesoAutoDTO ObtenerDatosConfiguracionCalificacionPorIdLlamadaV2(int idLlamada, int IdPersonalAreaTrabajo);
     }
 }

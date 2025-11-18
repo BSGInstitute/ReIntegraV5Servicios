@@ -1101,6 +1101,31 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             }
 
         }
+        public LlamadaProcesoAutoDTO ObtenerDatosConfiguracionCalificacionPorIdLlamadaV2(int idLlamada, int IdPersonalAreaTrabajo)
+        {
+            try
+            {
+                LlamadaProcesoAutoDTO configuracion = new LlamadaProcesoAutoDTO();
+
+                var parametros = new
+                {
+                    IdLlamadaWebphoneCruceCentralTresCx = idLlamada,
+                    IdPersonalAreaTrabajo = IdPersonalAreaTrabajo
+                };
+
+                var resultado = _dapperRepository.QuerySPFirstOrDefault("[com].[SP_ObtenerInformacionCalificacionLlamadaV2]", parametros);
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                {
+                    configuracion = JsonConvert.DeserializeObject<LlamadaProcesoAutoDTO>(resultado);
+                }
+                return configuracion;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
         public IEnumerable<LlamadaProcesoAutoDTO> ObtenerHistoricoLlamadaCompletoPorIdOportunidad(int IdOportunidad)
         {
             try
@@ -1120,6 +1145,32 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 
         }
 
+        public IEnumerable<LlamadaProcesoAutoDTO> ObtenerHistoricoLlamadaCompletoPorIdOportunidadV2(int IdOportunidad, int IdPersonalAreaTrabajo)
+        {
+            try
+            {
+                List<LlamadaProcesoAutoDTO> HistorialLlamada = new List<LlamadaProcesoAutoDTO>();
+
+                var parametros = new
+                {
+                    IdOportunidad = IdOportunidad,
+                    IdPersonalAreaTrabajo = IdPersonalAreaTrabajo
+                };
+
+                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ObtenerHistorialLlamadaOportunidadV2]", parametros);
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                {
+                    HistorialLlamada = JsonConvert.DeserializeObject<List<LlamadaProcesoAutoDTO>>(resultado);
+                }
+
+                return HistorialLlamada;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosConfiguracionTranscripcionMasiva()
         {
             try
@@ -1464,6 +1515,50 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 throw ex;
             }
         }
+
+        public IEnumerable<LlamadaWebphoneOcurrenciaDTO> ObtenerOcurrenciaRegistradaV2(int idOportunidad, int idPersonalAreaTrabajo)
+        {
+            try
+            {
+                var informacionLlamada = new List<LlamadaWebphoneOcurrenciaDTO>();
+
+                var query = @"SELECT
+                            IdAlumno,
+                            NombreCliente,
+                            IdLlamada,
+                            IdOportunidad,
+                            IdOcurrenciaPadreAlterno,
+                            IdOcurrenciaActividadAlterno,
+                            IdOcurrenciaAlterno,
+                            OcurrenciaPadreAlterno,
+                            OcurrenciaAlterno,
+                            EstadoOcurrenciaAlterno,
+                            FechaReal
+                      FROM
+                            [com].[V_ObtenerHistoricoOcurrencia]
+                      WHERE IdOportunidad = @idOportunidad
+                        AND IdPersonalAreaTrabajo = @idPersonalAreaTrabajo
+                      ORDER BY FechaReal DESC;";
+
+                var resultado = _dapperRepository.QueryDapper(query, new
+                {
+                    IdOportunidad = idOportunidad,
+                    IdPersonalAreaTrabajo = idPersonalAreaTrabajo
+                });
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                {
+                    informacionLlamada = JsonConvert.DeserializeObject<List<LlamadaWebphoneOcurrenciaDTO>>(resultado);
+                }
+
+                return informacionLlamada;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// <summary>
         /// Obtiene la configuración de cambio de fase de oportunidad con criterios y lineamientos desde la vista com.V_ObtenerConfiguracionCambioFaseOportunidad,
         /// filtrando por IdFaseOrigen e IdFaseDestino.
