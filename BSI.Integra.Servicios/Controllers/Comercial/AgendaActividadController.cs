@@ -2,6 +2,7 @@
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
+using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -197,6 +198,24 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("[action]/{idPGeneral}")]
+        public IActionResult ObtenerCentroCostoVentaCruzadaV2(int idPGeneral)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                IAgendaActividadService agendaActividadService = new AgendaActividadService(_unitOfWork);
+                return Ok(agendaActividadService.ObtenerCentroCostoVentaCruzada(idPGeneral));
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
             }
         }
         /// Tipo Función: GET
