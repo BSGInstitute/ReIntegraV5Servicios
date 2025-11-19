@@ -58,5 +58,45 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.Messenger
                 throw ex;
             }
         }
+        
+        public List<ObtenerDatosGeneralesAlumnosPorPSIDResponseDTO> ObtenerDatosGeneralesAlumnosPorPSID(ObtenerDatosGeneralesAlumnosPorPSIDRequestDTO request)
+        {
+            try
+            {
+                var SP_Obtener = "[mkt].[SP_ObtenerAlumnosPorIdentificadorPaginaMessengerChat]";
+                var jsonResult = _dapperRepository.QuerySPDapper(SP_Obtener, request);
+
+                if (string.IsNullOrWhiteSpace(jsonResult))
+                    return new List<ObtenerDatosGeneralesAlumnosPorPSIDResponseDTO>();
+
+                var listaMensajes = JsonSerializer.Deserialize<List<ObtenerDatosGeneralesAlumnosPorPSIDResponseDTO>>(jsonResult);
+
+                return listaMensajes.OrderBy(m => m.Fecha).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        public bool GuardarAlumnoOportunidadRegistro(string identificadorAmbitoPagina, int idOportunidad, int idAlumno, string usuario)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(identificadorAmbitoPagina))
+                    return false;
+
+                var SP_Insertar = "[mkt].[SP_TMessengerAlumnoRegistro_Insertar]";
+                var jsonResult = _dapperRepository.QuerySPDapper(SP_Insertar, new { IdentificadorAmbitoPagina = identificadorAmbitoPagina, IdAlumno = idAlumno, IdOportunidad  = idOportunidad, UsuarioCreacion = usuario });
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
     }
 }

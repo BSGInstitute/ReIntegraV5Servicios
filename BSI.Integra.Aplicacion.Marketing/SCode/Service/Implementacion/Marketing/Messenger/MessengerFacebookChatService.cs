@@ -1,5 +1,6 @@
 ﻿using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Messenger;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.Messenger;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.Messenger;
 using Newtonsoft.Json;
 using System.Text;
@@ -26,6 +27,10 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketin
         public List<ChatMessengerFacebookDTO> ObtenerHistorialChatPorPSID(ObtenerHistorialChatPorPSIDRequestDTO request)
         {
             return _messengerFacebookChatRepository.ObtenerHistorialChatPorPSID(request);
+        }
+        public List<ObtenerDatosGeneralesAlumnosPorPSIDResponseDTO> ObtenerDatosGeneralesAlumnosPorPSID(ObtenerDatosGeneralesAlumnosPorPSIDRequestDTO request)
+        {
+            return _messengerFacebookChatRepository.ObtenerDatosGeneralesAlumnosPorPSID(request);
         }
 
         public async Task<EnviarMensajeResponse> EnviarMensajeTexto(EnviarMensajeTextoRequest request)
@@ -74,6 +79,11 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketin
                     Message = $"Error inesperado al procesar la respuesta: {ex.Message}",
                 };
             }
+        }
+
+        public bool GuardarAlumnoOportunidadRegistro(string identificadorAmbitoPagina, int idOportunidad, int idAlumno, string usuario)
+        {
+            return _messengerFacebookChatRepository.GuardarAlumnoOportunidadRegistro(identificadorAmbitoPagina, idOportunidad, idAlumno, usuario);
         }
     }
 }

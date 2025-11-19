@@ -27,6 +27,16 @@
     {
         public string IdentificadorAmbitoPagina { get; set; }
     }
+    public class ObtenerDatosGeneralesAlumnosPorPSIDRequestDTO
+    {
+        public string IdentificadorAmbitoPagina { get; set; }
+    }
+    public class ObtenerDatosGeneralesAlumnosPorPSIDResponseDTO
+    {
+        public int IdAlumno { get; set; }
+        public string Email { get; set; }
+        public DateTime Fecha { get; set; }
+    }
 
     public class ValidarExistePSIDResponse
     {

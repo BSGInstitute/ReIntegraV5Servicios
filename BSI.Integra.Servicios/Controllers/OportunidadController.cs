@@ -1,4 +1,6 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.Messenger;
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.Messenger;
 using BSI.Integra.Aplicacion.Marketing.Service.Implementacion;
 using BSI.Integra.Aplicacion.Marketing.Service.Interface;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
@@ -34,10 +36,13 @@ namespace BSI.Integra.Servicios.Controllers
     {
         private IUnitOfWork unitOfWork;
         private ITokenManager _tokenManager;
-        public OportunidadController(IUnitOfWork unitOfWork, ITokenManager tokenManager)
+        private readonly IMessengerFacebookChatService _messengerFacebookChatService;
+
+        public OportunidadController(IUnitOfWork unitOfWork, ITokenManager tokenManager, IMessengerFacebookChatService messengerFacebookChatService)
         {
             this.unitOfWork = unitOfWork;
             _tokenManager = tokenManager;
+            _messengerFacebookChatService = messengerFacebookChatService;
         }
         /// Tipo Función: POST
         /// Autor: Gilmer Quispe
@@ -163,6 +168,9 @@ namespace BSI.Integra.Servicios.Controllers
                 catch (Exception)
                 {
                 }
+
+                if(!string.IsNullOrWhiteSpace(Formulario.Alumno.IdentificadorAmbitoPagina))
+                    _messengerFacebookChatService.GuardarAlumnoOportunidadRegistro(Formulario.Alumno.IdentificadorAmbitoPagina, oportunidad.Id, oportunidad.IdAlumno ?? 0, Formulario.Usuario);
 
                 return Ok(new { Rpta = "Ok", Records = oportunidad });
             }

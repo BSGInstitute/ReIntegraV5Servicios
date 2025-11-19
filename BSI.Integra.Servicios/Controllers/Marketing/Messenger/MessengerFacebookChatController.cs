@@ -89,5 +89,21 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Messenger
             }
         }
 
+        [HttpPost]
+        [Route("[action]")]
+        public IActionResult ObtenerDatosGeneralesAlumnosPorPSID([FromBody] ObtenerDatosGeneralesAlumnosPorPSIDRequestDTO request)
+        {
+            try
+            {
+                List<ObtenerDatosGeneralesAlumnosPorPSIDResponseDTO> result = _messengerFacebookChatService.ObtenerDatosGeneralesAlumnosPorPSID(request);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Error al obtener alumnos registrados del contacto");
+            }
+        }
+
     }
 }
