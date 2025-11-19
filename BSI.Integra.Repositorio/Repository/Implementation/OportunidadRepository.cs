@@ -414,13 +414,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                List<CentroCostoVentaCruzadaDTO> listaCentroCosto = new List<CentroCostoVentaCruzadaDTO>();
-                var responseView = _dapperRepository.QueryDapper("pla.V_ProgramaGeneral_CentroCosto", new { idPGeneral });
-                if(!string.IsNullOrEmpty(responseView) && !responseView.Contains("[]"))
+                List<CentroCostoVentaCruzadaDTO> rpta = new List<CentroCostoVentaCruzadaDTO>();
+                var query = @"
+                    SELECT IdCentroCosto,CentroCosto,IdPGeneral,NombrePrograma,IdPEspecifico  FROM pla.V_ProgramaGeneral_CentroCosto where IdPGeneral = @idPGeneral";
+                var resultado = _dapperRepository.QueryDapper(query, new { idPGeneral });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
-                    listaCentroCosto = JsonConvert.DeserializeObject<List<CentroCostoVentaCruzadaDTO>>(responseView)!;
+                    rpta = JsonConvert.DeserializeObject<List<CentroCostoVentaCruzadaDTO>>(resultado);
                 }
-                return listaCentroCosto;
+                return rpta;
             }
             catch(Exception ex)
             {
