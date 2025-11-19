@@ -8,6 +8,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public TPersonalAreaTrabajo()
         {
             TConvocatoriaPersonals = new HashSet<TConvocatoriaPersonal>();
+            TEvaluacionLlamadaLineamientos = new HashSet<TEvaluacionLlamadaLineamiento>();
+            TEvaluacionLlamadaPuntoGenerals = new HashSet<TEvaluacionLlamadaPuntoGeneral>();
             TPuestoTrabajoRelacionDetalles = new HashSet<TPuestoTrabajoRelacionDetalle>();
             TPuestoTrabajos = new HashSet<TPuestoTrabajo>();
             TUrlContenedorPermisos = new HashSet<TUrlContenedorPermiso>();
@@ -53,6 +55,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public int? IdMigracion { get; set; }
 
         public virtual ICollection<TConvocatoriaPersonal> TConvocatoriaPersonals { get; set; }
+        public virtual ICollection<TEvaluacionLlamadaLineamiento> TEvaluacionLlamadaLineamientos { get; set; }
+        public virtual ICollection<TEvaluacionLlamadaPuntoGeneral> TEvaluacionLlamadaPuntoGenerals { get; set; }
         public virtual ICollection<TPuestoTrabajoRelacionDetalle> TPuestoTrabajoRelacionDetalles { get; set; }
         public virtual ICollection<TPuestoTrabajo> TPuestoTrabajos { get; set; }
         public virtual ICollection<TUrlContenedorPermiso> TUrlContenedorPermisos { get; set; }
