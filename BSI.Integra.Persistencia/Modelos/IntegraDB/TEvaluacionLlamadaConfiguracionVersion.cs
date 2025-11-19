@@ -10,8 +10,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TEvaluacionLlamadaConfiguracionVersion()
         {
-            TEvaluacionLlamadaLineamientos = new HashSet<TEvaluacionLlamadaLineamiento>();
-            TEvaluacionLlamadaPuntoGenerals = new HashSet<TEvaluacionLlamadaPuntoGeneral>();
+            TVersionCalificacionPuntoGenerals = new HashSet<TVersionCalificacionPuntoGeneral>();
+            TVersionFaseCalificacions = new HashSet<TVersionFaseCalificacion>();
         }
 
         /// <summary>
@@ -54,8 +54,13 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Control de versión de fila para concurrencia
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
+        /// <summary>
+        /// (FK) Referencia al área de trabajo asociada a esta configuración
+        /// </summary>
+        public int? IdPersonalAreaTrabajo { get; set; }
 
-        public virtual ICollection<TEvaluacionLlamadaLineamiento> TEvaluacionLlamadaLineamientos { get; set; }
-        public virtual ICollection<TEvaluacionLlamadaPuntoGeneral> TEvaluacionLlamadaPuntoGenerals { get; set; }
+        public virtual TPersonalAreaTrabajo? IdPersonalAreaTrabajoNavigation { get; set; }
+        public virtual ICollection<TVersionCalificacionPuntoGeneral> TVersionCalificacionPuntoGenerals { get; set; }
+        public virtual ICollection<TVersionFaseCalificacion> TVersionFaseCalificacions { get; set; }
     }
 }
