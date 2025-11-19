@@ -4,17 +4,17 @@ using System.Collections.Generic;
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     /// <summary>
-    /// Catálogo de criticidades compartido entre todas las áreas.
+    /// Criticidades congeladas por versión de configuración
     /// </summary>
-    public partial class TEvaluacionLlamadaCriticidad
+    public partial class TVersionCriticidadCalificacion
     {
-        public TEvaluacionLlamadaCriticidad()
+        public TVersionCriticidadCalificacion()
         {
-            TEvaluacionLlamadaLineamientos = new HashSet<TEvaluacionLlamadaLineamiento>();
+            TVersionLineamientoCalificacions = new HashSet<TVersionLineamientoCalificacion>();
         }
 
         /// <summary>
-        /// Identificador único de la criticidad
+        /// (PK) Primary Key del registro
         /// </summary>
         public int Id { get; set; }
         /// <summary>
@@ -26,30 +26,34 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public string? Descripcion { get; set; }
         /// <summary>
-        /// Estado del registro (1=Activo, 0=Inactivo)
+        /// Nivel asociado
+        /// </summary>
+        public int? Nivel { get; set; }
+        /// <summary>
+        /// Estado del registro
         /// </summary>
         public bool? Estado { get; set; }
         /// <summary>
-        /// Usuario que creó el registro
+        /// Usuario que creó
         /// </summary>
         public string UsuarioCreacion { get; set; } = null!;
         /// <summary>
-        /// Usuario que modificó el registro por última vez
+        /// Usuario que modificó
         /// </summary>
         public string UsuarioModificacion { get; set; } = null!;
         /// <summary>
-        /// Fecha de creación del registro
+        /// Fecha de creación
         /// </summary>
         public DateTime FechaCreacion { get; set; }
         /// <summary>
-        /// Fecha de última modificación del registro
+        /// Fecha de modificación
         /// </summary>
         public DateTime FechaModificacion { get; set; }
         /// <summary>
-        /// Control de versión de fila para concurrencia
+        /// Control de concurrencia
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
 
-        public virtual ICollection<TEvaluacionLlamadaLineamiento> TEvaluacionLlamadaLineamientos { get; set; }
+        public virtual ICollection<TVersionLineamientoCalificacion> TVersionLineamientoCalificacions { get; set; }
     }
 }
