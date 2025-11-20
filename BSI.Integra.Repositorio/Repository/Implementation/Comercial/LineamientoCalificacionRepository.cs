@@ -421,6 +421,76 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 throw ex;
             }
         }
+        /// Autor: Jose Vega
+        /// Fecha: 20/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las cabeceras del historial filtrando directamente por la columna IdPersonalAreaTrabajo.
+        /// </summary> 
+        public IEnumerable<ConfiguracionEsquemaCalificacionLlamdaDTO> HistorialVersionCalificacionLlamadaV2(int idPersonalAreaTrabajo)
+        {
+            try
+            {
+
+                var query = @"
+                SELECT 
+                     Id
+                    ,DescripcionVersion
+                    ,EsVigente
+                    ,Comentario
+                    ,UsuarioCreacion
+                    ,UsuarioModificacion
+                    ,FechaCreacion
+                    ,FechaModificacion
+                FROM com.T_EvaluacionLlamadaConfiguracionVersion WITH(NOLOCK)
+                WHERE Estado = 1 
+                  AND IdPersonalAreaTrabajo = @IdPersonalAreaTrabajo
+                ORDER BY FechaCreacion DESC";
+
+                var parametros = new { IdPersonalAreaTrabajo = idPersonalAreaTrabajo };
+
+                var resultado = _dapperRepository.QueryDapper(query, parametros);
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                {
+                    return JsonConvert.DeserializeObject<List<ConfiguracionEsquemaCalificacionLlamdaDTO>>(resultado);
+                }
+                return new List<ConfiguracionEsquemaCalificacionLlamdaDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        /// Autor: Jose Vega
+        /// Fecha: 20/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Ejecuta el SP y retorna la lista plana sin procesar estructura.
+        /// </summary>
+        public List<EvaluacionLlamadaJerarquicaDTO> ObtenerDataConfiguracionPorVersion(int idEvaluacionLlamadaConfiguracionVersion, int idPersonalAreaTrabajo)
+        {
+            try
+            {
+                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_EvaluacionLlamadaObtenerConfiguracionPorVersion]", new
+                {
+                    IdPersonalAreaTrabajo = idPersonalAreaTrabajo,
+                    IdEvaluacionLlamadaConfiguracionVersion = idEvaluacionLlamadaConfiguracionVersion
+                });
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<List<EvaluacionLlamadaJerarquicaDTO>>(resultado);
+                }
+
+                return new List<EvaluacionLlamadaJerarquicaDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// Autor: Joseph Llanque
         /// Fecha: 07/03/2025
         /// Version: 1.0
