@@ -1,4 +1,6 @@
-﻿namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Messenger
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+
+namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Messenger
 {
     public class ResumenMessengerFacebookChatDTO
     {
@@ -31,11 +33,25 @@
     {
         public string IdentificadorAmbitoPagina { get; set; }
     }
+    public class ObtenerDatosGeneralesAlumnosPorPSIDTemp
+    {
+        public int IdAlumno { get; set; }
+        public string Email { get; set; }
+        public DateTime FechaModificacionAlumno { get; set; }
+        public int IdOportunidad { get; set; }
+        public DateTime FechaModificacionOportunidad { get; set; }
+    }
     public class ObtenerDatosGeneralesAlumnosPorPSIDResponseDTO
     {
         public int IdAlumno { get; set; }
         public string Email { get; set; }
-        public DateTime Fecha { get; set; }
+        public List<OportunidadDatoGeneralDTO> Oportunidades { get; set; }
+        public DateTime FechaModificacionAlumno { get; set; }
+    }
+    public class OportunidadDatoGeneralDTO
+    {
+        public int IdOportunidad { get; set; }
+        public DateTime FechaModificacionOportunidad { get; set; } 
     }
 
     public class ValidarExistePSIDResponse

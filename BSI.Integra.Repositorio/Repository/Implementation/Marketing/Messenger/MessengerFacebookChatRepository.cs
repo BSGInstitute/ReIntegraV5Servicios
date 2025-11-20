@@ -21,7 +21,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.Messenger
                 {
                     FechaInicio = fechaInicio,
                     FechaFin = fechaFin,
-                    DireccionMensaje = tipo?.ToLower() ?? "all"
+                    DireccionMensaje = tipo?.ToLower() ?? "todas"
                 };
 
                 var SP_Obtener = "[mkt].[SP_ObtenerGrillaMessengerFacebookChat]";
@@ -39,6 +39,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.Messenger
                 throw ex;
             }
         }
+
         public List<ChatMessengerFacebookDTO> ObtenerHistorialChatPorPSID(ObtenerHistorialChatPorPSIDRequestDTO request)
         {
             try
@@ -66,21 +67,36 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.Messenger
                 var SP_Obtener = "[mkt].[SP_ObtenerAlumnosPorIdentificadorPaginaMessengerChat]";
                 var jsonResult = _dapperRepository.QuerySPDapper(SP_Obtener, request);
 
-                if (string.IsNullOrWhiteSpace(jsonResult))
+                if (string.IsNullOrWhiteSpace(jsonResult) || jsonResult.Trim() == "[]")
                     return new List<ObtenerDatosGeneralesAlumnosPorPSIDResponseDTO>();
 
-                var listaMensajes = JsonSerializer.Deserialize<List<ObtenerDatosGeneralesAlumnosPorPSIDResponseDTO>>(jsonResult);
-
-                return listaMensajes.OrderBy(m => m.Fecha).ToList();
-            }
+                var listaMensajes = JsonSerializer.Deserialize<List<ObtenerDatosGeneralesAlumnosPorPSIDTemp>>(jsonResult);
+                
+                var listaAgrupada = listaMensajes.GroupBy(x => new { x.IdAlumno, x.Email })
+                    .Select(g => new ObtenerDatosGeneralesAlumnosPorPSIDResponseDTO
+                    {
+                        IdAlumno = g.Key.IdAlumno,
+                        Email = g.Key.Email,
+                        FechaModificacionAlumno = g.Max(x => x.FechaModificacionAlumno),
+                        Oportunidades = g.Select(o => new OportunidadDatoGeneralDTO
+                        {
+                            IdOportunidad = o.IdOportunidad,
+                            FechaModificacionOportunidad = o.FechaModificacionOportunidad
+                        })
+                        .OrderBy(o => o.FechaModificacionOportunidad)
+                        .ToList()
+                    })
+                    .OrderBy(a => a.IdAlumno)
+                    .ToList();
+                        return listaAgrupada;
+                    }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
 
-
-        public bool GuardarAlumnoOportunidadRegistro(string identificadorAmbitoPagina, int idOportunidad, int idAlumno, string usuario)
+        public bool GuardarAlumnoOportunidadRegistro(string identificadorAmbitoPagina, int idOportunidad, string usuario)
         {
             try
             {
@@ -88,7 +104,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.Messenger
                     return false;
 
                 var SP_Insertar = "[mkt].[SP_TMessengerAlumnoRegistro_Insertar]";
-                var jsonResult = _dapperRepository.QuerySPDapper(SP_Insertar, new { IdentificadorAmbitoPagina = identificadorAmbitoPagina, IdAlumno = idAlumno, IdOportunidad  = idOportunidad, UsuarioCreacion = usuario });
+                var jsonResult = _dapperRepository.QuerySPDapper(SP_Insertar, new { IdentificadorAmbitoPagina = identificadorAmbitoPagina, IdOportunidad  = idOportunidad, UsuarioCreacion = usuario });
 
                 return true;
             }

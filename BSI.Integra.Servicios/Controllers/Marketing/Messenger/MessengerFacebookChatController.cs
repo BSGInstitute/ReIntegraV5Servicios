@@ -28,6 +28,16 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Messenger
             this._messengerFacebookChatService = messengerFacebookChatService;
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 11/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la grilla de mensajes de messenger entrantes o salientes respecto de un rango de fechas
+        /// </summary>
+        /// <param name="fechaInicio">fecha inicio rango</param>
+        /// <param name="fechaFin">fecha fin rango</param>
+        /// <param name="tipo">Tipo de mensajes (entrante, saliente)</param>
+        /// <returns>Lista de ultimos mensajes messenger por PSID</returns>
         [HttpGet]
         [Route("[action]")]
         public IActionResult ObtenerGrillaChats([FromQuery] DateTime? fechaInicio, [FromQuery] DateTime? fechaFin, [FromQuery] string tipo = "todas")
@@ -44,6 +54,14 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Messenger
             }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 12/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el historial de chats para un identificador de ambito de pagina
+        /// </summary>
+        /// <param name="request">Objeto que contiene el identificadoAmbitoPagina</param>
+        /// <returns>Lista de mensajes messenger</returns>
         [HttpPost]
         [Route("[action]")]
         public IActionResult ObtenerHistorialChatPorPSID([FromBody] ObtenerHistorialChatPorPSIDRequestDTO request)
@@ -63,6 +81,38 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Messenger
             }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 19/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene los datos generales de alumnos registrados por PSID
+        /// </summary>
+        /// <param name="request">Objeto que contiene el identificadoAmbitoPagina</param>
+        /// <returns>Listado de alumnos y sus detalles por PSID</returns>
+        [HttpPost]
+        [Route("[action]")]
+        public IActionResult ObtenerDatosGeneralesAlumnosPorPSID([FromBody] ObtenerDatosGeneralesAlumnosPorPSIDRequestDTO request)
+        {
+            try
+            {
+                List<ObtenerDatosGeneralesAlumnosPorPSIDResponseDTO> result = _messengerFacebookChatService.ObtenerDatosGeneralesAlumnosPorPSID(request);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Error al obtener alumnos registrados del contacto");
+            }
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 14/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Envia un mensaje de texto
+        /// </summary>
+        /// <param name="request">Objeto con los detalles del mensaje</param>
+        /// <returns>Objeto con cofirmacion de envio y posible mensaje error</returns>
         [HttpPost]
         [Route("[action]")]
         public async Task<IActionResult> EnviarMensajeTexto([FromBody] EnviarMensajeTextoRequest request)
@@ -88,22 +138,5 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Messenger
                 return StatusCode(500, new { enviado = false, mensaje = "Ocurrió un error interno del servidor." });
             }
         }
-
-        [HttpPost]
-        [Route("[action]")]
-        public IActionResult ObtenerDatosGeneralesAlumnosPorPSID([FromBody] ObtenerDatosGeneralesAlumnosPorPSIDRequestDTO request)
-        {
-            try
-            {
-                List<ObtenerDatosGeneralesAlumnosPorPSIDResponseDTO> result = _messengerFacebookChatService.ObtenerDatosGeneralesAlumnosPorPSID(request);
-
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Error al obtener alumnos registrados del contacto");
-            }
-        }
-
     }
 }

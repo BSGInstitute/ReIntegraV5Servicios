@@ -170,7 +170,7 @@ namespace BSI.Integra.Servicios.Controllers
                 }
 
                 if(!string.IsNullOrWhiteSpace(Formulario.Alumno.IdentificadorAmbitoPagina))
-                    _messengerFacebookChatService.GuardarAlumnoOportunidadRegistro(Formulario.Alumno.IdentificadorAmbitoPagina, oportunidad.Id, oportunidad.IdAlumno ?? 0, Formulario.Usuario);
+                    _messengerFacebookChatService.GuardarAlumnoOportunidadRegistro(Formulario.Alumno.IdentificadorAmbitoPagina, oportunidad.Id, Formulario.Usuario);
 
                 return Ok(new { Rpta = "Ok", Records = oportunidad });
             }
@@ -304,6 +304,9 @@ namespace BSI.Integra.Servicios.Controllers
                 catch (Exception)
                 {
                 }
+
+                if (!string.IsNullOrWhiteSpace(Formulario.Alumno.IdentificadorAmbitoPagina))
+                    _messengerFacebookChatService.GuardarAlumnoOportunidadRegistro(Formulario.Alumno.IdentificadorAmbitoPagina, oportunidad.Id, Formulario.Usuario);
 
                 return Ok(new { Rpta = "Ok", Records = oportunidad });
             }
