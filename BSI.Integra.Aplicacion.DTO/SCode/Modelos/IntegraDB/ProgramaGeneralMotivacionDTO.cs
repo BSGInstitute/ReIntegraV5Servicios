@@ -47,8 +47,6 @@
         public int IdCentroCosto { get; set; }
         public string CentroCosto { get; set; }
         public int IdPGeneral { get; set; }
-        public string? NombrePrograma { get; set; }
         public int? IdPEspecifico { get; set; }
-        public string EstadoP { get; set; }
     }
 }
