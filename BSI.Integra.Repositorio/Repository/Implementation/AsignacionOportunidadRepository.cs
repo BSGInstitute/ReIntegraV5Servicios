@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO;
-using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
 using Newtonsoft.Json;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation
 {
@@ -248,76 +246,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception e)
             {
                 throw new Exception(e.Message);
-            }
-        }
-        public AsesorUsoV6DTO? ObtenerUsuarioAgendaV6PorIdAsesor(int idAsesor)
-        {
-            try
-            {
-                var query = @"
-               	   SELECT Id,
-	                    IdAsesor,
-	                    Estado,
-	                    UsuarioCreacion,
-	                    UsuarioModificacion,
-	                    FechaCreacion,
-	                    FechaModificacion
-                    FROM mkt.T_AsesoresAgendaV6
-                    WHERE IdAsesor=@idAsesor AND Estado = 1";
-                var resultado = _dapperRepository.FirstOrDefault(query, new { idAsesor });
-                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
-                {
-                    return JsonConvert.DeserializeObject<AsesorUsoV6DTO>(resultado)!;
-                }
-                return null;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"#FR-OPI-001@Error en ObtenerPorId(), {ex.Message}");
-            }
-        }
-        public List<AsesorUsoV6DTO> ObtenerAsesoresAgendaV6()
-        {
-            try
-            {
-                List<AsesorUsoV6DTO> rpta = new List<AsesorUsoV6DTO>();
-                var query = @"
-               	   SELECT Id,
-	                    IdAsesor,
-	                    Estado,
-	                    UsuarioCreacion,
-	                    UsuarioModificacion,
-	                    FechaCreacion,
-	                    FechaModificacion
-                    FROM mkt.T_AsesoresAgendaV6
-                    WHERE Estado = 1";
-                var resultado = _dapperRepository.QueryDapper(query, null);
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                {
-                    rpta = JsonConvert.DeserializeObject<List<AsesorUsoV6DTO>>(resultado);
-                }
-                return rpta;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"#FR-OPI-001@Error en ObtenerPorId(), {ex.Message}");
-            }
-        }
-        public RespuestaCambioActividadCabeceraAgendaDTO CambioActividadCabeceraAgenda(int IdAsesor, string Agenda)
-        {
-            try
-            {
-                var query = @"EXEC mkt.SP_CambioAgendaArbolOcurrencias @IdAsesor, @Agenda";
-                var resultado = _dapperRepository.FirstOrDefault(query, new { IdAsesor, Agenda });
-                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
-                {
-                    return JsonConvert.DeserializeObject<RespuestaCambioActividadCabeceraAgendaDTO>(resultado)!;
-                }
-                return null;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
         }
     }
