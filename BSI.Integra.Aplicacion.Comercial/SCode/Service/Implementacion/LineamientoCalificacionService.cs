@@ -1193,7 +1193,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             var semaphore = new SemaphoreSlim(10);
             foreach (var oportunidad in itemsAgrupadosPorOportunidad)
             {
-                
+
                 var llamadasParaCalificar = ObtenerSiguienteLlamadaParaCalificar(oportunidad.IdOportunidad);
 
                 if (!llamadasParaCalificar.Any())
@@ -1228,15 +1228,15 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         var todasLasLlamadas = _unitOfWork.LineamientoCalificacionRepository
                                                         .ObtenerHistoricoLlamadaCompletoPorIdOportunidad(oportunidad.IdOportunidad);
 
-                       var llamadasHistoricas = todasLasLlamadas
-                            .Where(x => x.EsLlamadaTranscrita== true && (x.IdActividadDetalle < item.IdActividadDetalle || (x.IdActividadDetalle == item.IdActividadDetalle
-                                                                    && x.FechaLlamada <= item.FechaLlamada) ))
-                            .OrderByDescending(x => x.IdActividadDetalle)
-                            .ThenByDescending(x => x.FechaLlamada)
-                            .ToList();
+                        var llamadasHistoricas = todasLasLlamadas
+                             .Where(x => x.EsLlamadaTranscrita == true && (x.IdActividadDetalle < item.IdActividadDetalle || (x.IdActividadDetalle == item.IdActividadDetalle
+                                                                     && x.FechaLlamada <= item.FechaLlamada)))
+                             .OrderByDescending(x => x.IdActividadDetalle)
+                             .ThenByDescending(x => x.FechaLlamada)
+                             .ToList();
 
                         var llamadasHistoricasCalificadas = todasLasLlamadas
-                            .Where(x => x.IdActividadDetalle <= item.IdActividadDetalle && x.EsLlamadaTranscrita == true && x.EsLlamadaCalificada ==true)
+                            .Where(x => x.IdActividadDetalle <= item.IdActividadDetalle && x.EsLlamadaTranscrita == true && x.EsLlamadaCalificada == true)
                             .OrderByDescending(x => x.IdActividadDetalle)
                             .ThenByDescending(x => x.FechaLlamada)
                             .ToList();
@@ -1268,7 +1268,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                     var detallesEvaluacionPorLlamada = _unitOfWork.LineamientoCalificacionRepository
                                         .ObtenerDetallesEvaluacionPorLlamada(idLlamadaInt)
                                         .ToList();
-                                    var detallesPuntoGeneralesPorLlamada = _unitOfWork.LineamientoCalificacionRepository 
+                                    var detallesPuntoGeneralesPorLlamada = _unitOfWork.LineamientoCalificacionRepository
                                       .ObtenerDetallesEvaluacionPuntosGeneralesPorLlamada(idLlamadaInt)
                                       .ToList();
 
@@ -1335,11 +1335,11 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             userName = "System-auto",
                             idCodigoPais = item.IdCodigoPais.ToString(),
                             transcription = transcripcionesParaPayload,
-                            lineamientos = lineamientos, 
+                            lineamientos = lineamientos,
                             brochure,
                             faseOrigen = item.FaseOportunidad_Ant,
                             faseDestino = item.FaseOportunidad,
-                            puntosCriticosAsesor=puntosCriticosAsesor
+                            puntosCriticosAsesor = puntosCriticosAsesor
                         };
 
 
@@ -1405,67 +1405,77 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             }
             return resultados.ToList();
         }
-
-         /// Autor: Jose Vega
-         /// Fecha: 2025-11-17
-         /// Version: 2.0
-         /// <summary>
-         /// Procesa la calificación automática de llamadas.
-         /// Refactorizado para aceptar 'idPersonalAreaTrabajo' y segmentar la 
-         /// lógica de construcción del 'brochure' por área (Ventas=8, Clientes=3).
-         /// </summary>
-         /// <param name="tipoCalificacion">Tipo de calificación (1=Auto, 2=Masiva).</param>
-         /// <param name="idPersonalAreaTrabajo">ID del área de trabajo (8=Ventas, 3=Clientes).</param>
-         /// <returns>Una lista de booleanos indicando el resultado de cada calificación.</returns>
-         
-        public async Task<List<bool>> CalificacionAutoV2(int tipoCalificacion, int idPersonalAreaTrabajo)
+        /// Autor: Jose Vega
+        /// Fecha: 2025-11-17
+        /// Version: 2.0
+        /// <summary>
+        /// Procesa la calificación automática de llamadas.
+        /// Refactorizado para aceptar 'idPersonalAreaTrabajo' y segmentar la
+        /// lógica de construcción del 'brochure' por área (Ventas=8, Clientes=3).
+        /// </summary>
+        /// <param name="tipoCalificacion">Tipo de calificación (1=Auto, 2=Masiva).</param>
+        /// <param name="idPersonalAreaTrabajo">ID del área de trabajo (8=Ventas, 3=Clientes).</param>
+        /// <returns>Una lista de booleanos indicando el resultado de cada calificación.</returns>
+        public async Task<List<bool>> CalificacionAutoV2(
+            int tipoCalificacion,
+            int idPersonalAreaTrabajo
+        )
         {
-
             var serviceInformacionPrograma = new InformacionProgramaService(_unitOfWork);
 
             IEnumerable<LlamadaProcesoAutoDTO> items = null;
-            switch (idPersonalAreaTrabajo)
+            switch (tipoCalificacion)
             {
-                case 8:
-                    items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionAuto();
+                case 1:
+                    items =
+                        _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionAuto();
                     break;
-                case 3:
-                    items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionAtencionCliente();
+                case 2:
+                    items =
+                        _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionMasiva();
                     break;
                 default:
                     return new List<bool>();
             }
 
-            var lineamientoVigente = _unitOfWork.LineamientoCalificacionRepository
-                .HistorialVersionCalificacionLlamada()
-                .FirstOrDefault(x => x.EsVigente);
+            var configuracionVigente =
+                _unitOfWork.LineamientoCalificacionRepository.ObtenerConfiguracionVigentePorArea(
+                    idPersonalAreaTrabajo
+                );
 
-            if (lineamientoVigente == null || items == null || !items.Any())
+            if (
+                configuracionVigente == null
+                || !configuracionVigente.Any()
+                || items == null
+                || !items.Any()
+            )
                 return new List<bool>();
 
-            var lineamientoVigenteProcesados = JsonSerializer.Deserialize<ConfiguracionLineamientoDTO>(
-                lineamientoVigente.ConfiguracionJSON,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-            )!;
-
             var resultados = new List<bool>();
-            var itemsAgrupadosPorOportunidad = items.GroupBy(x => x.IdOportunidad)
+            var itemsAgrupadosPorOportunidad = items
+                .GroupBy(x => x.IdOportunidad)
                 .Select(g => new
                 {
                     IdOportunidad = g.Key,
-                    Llamadas = g.OrderBy(x => x.IdActividadDetalle).ThenBy(x => x.FechaLlamada).ToList()
+                    Llamadas = g.OrderBy(x => x.IdActividadDetalle)
+                        .ThenBy(x => x.FechaLlamada)
+                        .ToList(),
                 })
                 .ToList();
 
-            var lineamientos = BuildLineamientosFormateados(lineamientoVigenteProcesados);
+            var lineamientos = BuildLineamientosFormateadosFromSp(configuracionVigente);
 
             using var httpClient = new HttpClient
             {
-                BaseAddress = new Uri("http://ia-analisis-llamadas-comercial-api.bsginstitute.com/")
+                BaseAddress = new Uri(
+                    "http://ia-analisis-llamadas-comercial-api.bsginstitute.com/"
+                ),
             };
 
             httpClient.DefaultRequestHeaders.Accept.Clear();
-            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpClient.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json")
+            );
             httpClient.DefaultRequestHeaders.Add("Cache-Control", "no-cache");
             httpClient.DefaultRequestHeaders.Add("User-Agent", "PostmanRuntime/7.44.0");
             httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
@@ -1475,7 +1485,10 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
             foreach (var oportunidad in itemsAgrupadosPorOportunidad)
             {
-                var llamadasParaCalificar = ObtenerSiguienteLlamadaParaCalificarV2(oportunidad.IdOportunidad, idPersonalAreaTrabajo);
+                var llamadasParaCalificar = ObtenerSiguienteLlamadaParaCalificarV2(
+                    oportunidad.IdOportunidad,
+                    idPersonalAreaTrabajo
+                );
 
                 if (!llamadasParaCalificar.Any())
                 {
@@ -1487,33 +1500,54 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     await semaphore.WaitAsync();
                     try
                     {
-                        var historicos = oportunidad.Llamadas
-                            .Where(x => x.IdActividadDetalle < item.IdActividadDetalle)
+                        var historicos = oportunidad
+                            .Llamadas.Where(x => x.IdActividadDetalle < item.IdActividadDetalle)
                             .ToList();
 
-                        bool historicoOk = historicos.All(h => h.EsLlamadaTranscrita == true && h.EsLlamadaCalificada == true);
-                        bool actualOk = item.EsLlamadaTranscrita == true && item.EsLlamadaCalificada != true;
+                        bool historicoOk = historicos.All(h =>
+                            h.EsLlamadaTranscrita == true && h.EsLlamadaCalificada == true
+                        );
+                        bool actualOk =
+                            item.EsLlamadaTranscrita == true && item.EsLlamadaCalificada != true;
 
                         if (!historicoOk || !actualOk)
                             return false;
 
-                        var puntosCriticosAsesor = _unitOfWork.LineamientoCalificacionRepository
-                            .ObtenerPuntoCriticoDiario(item.IdPersonal_Asignado, DateTime.Now.Date.AddDays(-1))
+                        var puntosCriticosAsesor = _unitOfWork
+                            .LineamientoCalificacionRepository.ObtenerPuntoCriticoDiario(
+                                item.IdPersonal_Asignado,
+                                DateTime.Now.Date.AddDays(-1)
+                            )
                             .Select(x => x.PuntoCritico)
                             .ToList();
 
-                        var todasLasLlamadas = _unitOfWork.LineamientoCalificacionRepository
-                            .ObtenerHistoricoLlamadaCompletoPorIdOportunidadV2(oportunidad.IdOportunidad, idPersonalAreaTrabajo);
+                        var todasLasLlamadas =
+                            _unitOfWork.LineamientoCalificacionRepository.ObtenerHistoricoLlamadaCompletoPorIdOportunidadV2(
+                                oportunidad.IdOportunidad,
+                                idPersonalAreaTrabajo
+                            );
 
                         var llamadasHistoricas = todasLasLlamadas
-                            .Where(x => x.EsLlamadaTranscrita == true && (x.IdActividadDetalle < item.IdActividadDetalle || (x.IdActividadDetalle == item.IdActividadDetalle
-                                        && x.FechaLlamada <= item.FechaLlamada)))
+                            .Where(x =>
+                                x.EsLlamadaTranscrita == true
+                                && (
+                                    x.IdActividadDetalle < item.IdActividadDetalle
+                                    || (
+                                        x.IdActividadDetalle == item.IdActividadDetalle
+                                        && x.FechaLlamada <= item.FechaLlamada
+                                    )
+                                )
+                            )
                             .OrderByDescending(x => x.IdActividadDetalle)
                             .ThenByDescending(x => x.FechaLlamada)
                             .ToList();
 
                         var llamadasHistoricasCalificadas = todasLasLlamadas
-                            .Where(x => x.IdActividadDetalle <= item.IdActividadDetalle && x.EsLlamadaTranscrita == true && x.EsLlamadaCalificada == true)
+                            .Where(x =>
+                                x.IdActividadDetalle <= item.IdActividadDetalle
+                                && x.EsLlamadaTranscrita == true
+                                && x.EsLlamadaCalificada == true
+                            )
                             .OrderByDescending(x => x.IdActividadDetalle)
                             .ThenByDescending(x => x.FechaLlamada)
                             .ToList();
@@ -1522,7 +1556,9 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         var llamadasHistoricasParaPayload = llamadasHistoricasCalificadas.ToList();
 
                         var transcripcionesParaPayload = new List<object>();
-                        var transcripcionActual = await ObtenerTranscripcion(llamadaActual.IdLlamada);
+                        var transcripcionActual = await ObtenerTranscripcion(
+                            llamadaActual.IdLlamada
+                        );
                         if (transcripcionActual != null)
                         {
                             transcripcionesParaPayload.Add(transcripcionActual);
@@ -1530,44 +1566,87 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
                         foreach (var llamadaHistorica in llamadasHistoricasParaPayload)
                         {
-                            var transcripcionHistorica = await ObtenerTranscripcion(llamadaHistorica.IdLlamada);
+                            var transcripcionHistorica = await ObtenerTranscripcion(
+                                llamadaHistorica.IdLlamada
+                            );
                             if (transcripcionHistorica != null)
                             {
-                                if (int.TryParse(transcripcionHistorica.IdLlamada, out int idLlamadaInt))
+                                if (
+                                    int.TryParse(
+                                        transcripcionHistorica.IdLlamada,
+                                        out int idLlamadaInt
+                                    )
+                                )
                                 {
-                                    var lineamientoVigentePorLLamada = _unitOfWork.LineamientoCalificacionRepository
-                                        .HistorialVersionCalificacionPorLlamada(idLlamadaInt)
+                                    var versionHistorica = _unitOfWork
+                                        .LineamientoCalificacionRepository.HistorialVersionCalificacionPorLlamadav2(
+                                            idLlamadaInt
+                                        )
                                         .FirstOrDefault();
 
-                                    var lineamientoVigentePorLLamadaProcesados = JsonSerializer.Deserialize<ConfiguracionLineamientoDTO>(
-                                        lineamientoVigentePorLLamada.ConfiguracionJSON,
-                                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-                                    )!;
-
-                                    var detallesEvaluacionPorLlamada = _unitOfWork.LineamientoCalificacionRepository
-                                        .ObtenerDetallesEvaluacionPorLlamada(idLlamadaInt)
-                                        .ToList();
-
-                                    var detallesPuntoGeneralesPorLlamada = _unitOfWork.LineamientoCalificacionRepository
-                                        .ObtenerDetallesEvaluacionPuntosGeneralesPorLlamada(idLlamadaInt)
-                                        .ToList();
-
-                                    var lineamientosEnriquecidos = BuildLineamientosEnriquecidos(
-                                        lineamientoVigentePorLLamadaProcesados,
-                                        detallesEvaluacionPorLlamada,
-                                        detallesPuntoGeneralesPorLlamada);
-
-                                    var payloadHistorico = new
+                                    if (versionHistorica != null)
                                     {
-                                        idLlamada = transcripcionHistorica.IdLlamada,
-                                        transcription = new
+                                        var configuracionHistorica =
+                                            _unitOfWork.LineamientoCalificacionRepository.ObtenerConfiguracionPorVersion(
+                                                versionHistorica.IdVersionConfiguracionCalificacionLlamada,
+                                                idPersonalAreaTrabajo
+                                            );
+
+                                        var detallesEvaluacionPorLlamada = _unitOfWork
+                                            .LineamientoCalificacionRepository.ObtenerDetallesEvaluacionPorLlamada(
+                                                idLlamadaInt
+                                            )
+                                            .ToList();
+
+                                        var detallesPuntoGeneralesPorLlamada = _unitOfWork
+                                            .LineamientoCalificacionRepository.ObtenerDetallesEvaluacionPuntosGeneralesPorLlamada(
+                                                idLlamadaInt
+                                            )
+                                            .ToList();
+
+                                        var lineamientosEnriquecidos =
+                                            BuildLineamientosEnriquecidosFromSp(
+                                                configuracionHistorica,
+                                                detallesEvaluacionPorLlamada,
+                                                detallesPuntoGeneralesPorLlamada
+                                            );
+
+                                        var payloadHistorico = new
                                         {
-                                            source = transcripcionHistorica.Transcription.Source,
-                                            summary = transcripcionHistorica.Transcription.Summary
-                                        },
-                                        calificaciones = new { lineamientos = lineamientosEnriquecidos }
-                                    };
-                                    transcripcionesParaPayload.Add(payloadHistorico);
+                                            idLlamada = transcripcionHistorica.IdLlamada,
+                                            transcription = new
+                                            {
+                                                source = transcripcionHistorica
+                                                    .Transcription
+                                                    .Source,
+                                                summary = transcripcionHistorica
+                                                    .Transcription
+                                                    .Summary,
+                                            },
+                                            calificaciones = new
+                                            {
+                                                lineamientos = lineamientosEnriquecidos,
+                                            },
+                                        };
+                                        transcripcionesParaPayload.Add(payloadHistorico);
+                                    }
+                                    else
+                                    {
+                                        var payloadHistorico = new
+                                        {
+                                            idLlamada = transcripcionHistorica.IdLlamada,
+                                            transcription = new
+                                            {
+                                                source = transcripcionHistorica
+                                                    .Transcription
+                                                    .Source,
+                                                summary = transcripcionHistorica
+                                                    .Transcription
+                                                    .Summary,
+                                            },
+                                        };
+                                        transcripcionesParaPayload.Add(payloadHistorico);
+                                    }
                                 }
                                 else
                                 {
@@ -1577,8 +1656,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                         transcription = new
                                         {
                                             source = transcripcionHistorica.Transcription.Source,
-                                            summary = transcripcionHistorica.Transcription.Summary
-                                        }
+                                            summary = transcripcionHistorica.Transcription.Summary,
+                                        },
                                     };
                                     transcripcionesParaPayload.Add(payloadHistorico);
                                 }
@@ -1595,7 +1674,9 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                 brochure = BuildBrochureClientes(item, serviceInformacionPrograma);
                                 break;
                             default:
-                                Console.WriteLine($"[WARN] idPersonalAreaTrabajo '{idPersonalAreaTrabajo}' no reconocido. Brochure estará vacío.");
+                                Console.WriteLine(
+                                    $"[WARN] idPersonalAreaTrabajo '{idPersonalAreaTrabajo}' no reconocido. Brochure estará vacío."
+                                );
                                 brochure = new { };
                                 break;
                         }
@@ -1611,56 +1692,87 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             brochure,
                             faseOrigen = item.FaseOportunidad_Ant,
                             faseDestino = item.FaseOportunidad,
-                            puntosCriticosAsesor = puntosCriticosAsesor
+                            puntosCriticosAsesor = puntosCriticosAsesor,
                         };
 
-                        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(
-                            payload,
-                            new System.Text.Json.JsonSerializerOptions
-                            {
-                                WriteIndented = true,
-                                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
-                                DictionaryKeyPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
-                            }
-                        ));
+                        Console.WriteLine(
+                            System.Text.Json.JsonSerializer.Serialize(
+                                payload,
+                                new System.Text.Json.JsonSerializerOptions
+                                {
+                                    WriteIndented = true,
+                                    PropertyNamingPolicy = System
+                                        .Text
+                                        .Json
+                                        .JsonNamingPolicy
+                                        .CamelCase,
+                                    DictionaryKeyPolicy = System
+                                        .Text
+                                        .Json
+                                        .JsonNamingPolicy
+                                        .CamelCase,
+                                }
+                            )
+                        );
 
-                        var llamadaActualizada = _unitOfWork.LineamientoCalificacionRepository
-                            .ObtenerDatosConfiguracionCalificacionPorIdLlamadaV2(item.IdLlamada, idPersonalAreaTrabajo);
+                        var llamadaActualizada =
+                            _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionPorIdLlamadaV2(
+                                item.IdLlamada,
+                                idPersonalAreaTrabajo
+                            );
 
                         if (llamadaActualizada?.EsLlamadaCalificada == true)
                         {
-                            Console.WriteLine($"[SKIP] Llamada {item.IdLlamada} ya fue calificada por otro proceso");
+                            Console.WriteLine(
+                                $"[SKIP] Llamada {item.IdLlamada} ya fue calificada por otro proceso"
+                            );
                             return false;
                         }
 
                         if (transcripcionesParaPayload.Any())
                         {
                             var primeraTranscripcion = transcripcionesParaPayload.First();
-                            var idLlamadaPrimera = primeraTranscripcion.GetType().GetProperty("IdLlamada")?.GetValue(primeraTranscripcion)?.ToString();
+                            var idLlamadaPrimera = primeraTranscripcion
+                                .GetType()
+                                .GetProperty("IdLlamada")
+                                ?.GetValue(primeraTranscripcion)
+                                ?.ToString();
 
                             if (idLlamadaPrimera != item.IdLlamada.ToString())
                             {
-                                Console.WriteLine($"[SKIP] La llamada actual {item.IdLlamada} no está en la primera posición del array. Primera posición: {idLlamadaPrimera}");
+                                Console.WriteLine(
+                                    $"[SKIP] La llamada actual {item.IdLlamada} no está en la primera posición del array. Primera posición: {idLlamadaPrimera}"
+                                );
                                 return false;
                             }
                         }
                         else
                         {
-                            Console.WriteLine($"[SKIP] No hay transcripciones disponibles para la llamada {item.IdLlamada}");
+                            Console.WriteLine(
+                                $"[SKIP] No hay transcripciones disponibles para la llamada {item.IdLlamada}"
+                            );
                             return false;
                         }
 
-                        var response = await httpClient.PostAsJsonAsync("grading/queue/batch", payload);
+                        var response = await httpClient.PostAsJsonAsync(
+                            "grading/queue/batch",
+                            payload
+                        );
                         response.EnsureSuccessStatusCode();
                         var json = await response.Content.ReadAsStringAsync();
-                        var evaluacionData = JsonSerializer.Deserialize<ResultadoEvaluacion>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                        var evaluacionData = JsonSerializer.Deserialize<ResultadoEvaluacion>(
+                            json,
+                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                        );
 
                         return true;
                     }
                     catch (Exception ex)
                     {
                         //_logger.LogError(ex, $"Error al calificar llamada {item.IdLlamada}");
-                        Console.WriteLine($"[ERROR] Error al calificar llamada {item.IdLlamada}: {ex.Message}");
+                        Console.WriteLine(
+                            $"[ERROR] Error al calificar llamada {item.IdLlamada}: {ex.Message}"
+                        );
                         return false;
                     }
                     finally
@@ -1673,6 +1785,159 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 resultados.AddRange(resultadosOportunidad);
             }
             return resultados.ToList();
+        }
+
+
+
+        public object BuildLineamientosEnriquecidosFromSp(
+            IEnumerable<ConfiguracionVigenteJerarquiaDTO> configuracion,
+            List<EvaluacionLlamadaDetalleDTO> detallesEvaluacionPorLlamada,
+            List<EvaluacionPuntoGeneralDetalleDTO> detallesPuntoGeneralesPorLlamada
+        )
+        {
+            var fasesDict = new Dictionary<string, object>();
+
+            if (configuracion == null || !configuracion.Any())
+                return new
+                {
+                    fases = new Dictionary<string, object>(),
+                    puntosgenerales = new List<object>(),
+                };
+
+            var fases = configuracion.Where(x => x.TipoEntidad == "FASE").OrderBy(x => x.Orden);
+            var criterios = configuracion.Where(x => x.TipoEntidad == "CRITERIO");
+            var lineamientos = configuracion.Where(x => x.TipoEntidad == "LINEAMIENTO");
+
+            foreach (var fase in fases)
+            {
+                var criteriosDict = new Dictionary<string, object>();
+                var criteriosDeFase = criterios
+                    .Where(c => c.IdPadre == fase.Id)
+                    .OrderBy(c => c.Orden);
+
+                foreach (var criterio in criteriosDeFase)
+                {
+                    var evaluacionCriterio = detallesEvaluacionPorLlamada.FirstOrDefault(e =>
+                        e.IdCriterioCalificacionLlamada == criterio.Id
+                    );
+
+                    var lineamientosDeCriterio = lineamientos
+                        .Where(l => l.IdPadre == criterio.Id)
+                        .OrderBy(l => l.Orden)
+                        .Select(l => new
+                        {
+                            id = l.Id,
+                            orden = l.Orden,
+                            lineamiento = l.Nombre,
+                            importancia = l.NombreCriticidad,
+                        })
+                        .ToList();
+
+                    criteriosDict[criterio.Nombre] = new
+                    {
+                        id = criterio.Id,
+                        orden = criterio.Orden,
+                        nota = evaluacionCriterio?.Nota,
+                        comentario = evaluacionCriterio?.Comentario,
+                        brecha = evaluacionCriterio?.Brecha,
+                        lineamientos = lineamientosDeCriterio,
+                    };
+                }
+
+                fasesDict[fase.Nombre] = new
+                {
+                    id = fase.Id,
+                    orden = fase.Orden,
+                    criterios = criteriosDict,
+                };
+            }
+
+            var puntosGenerales = configuracion
+                .Where(x => x.TipoEntidad == "PUNTOGENERAL")
+                .OrderBy(pg => pg.Orden)
+                .Select(pg => new
+                {
+                    id = pg.Id,
+                    orden = pg.Orden,
+                    nombre = pg.Nombre,
+                    descripcion = pg.Descripcion,
+                    nota = detallesPuntoGeneralesPorLlamada
+                        .FirstOrDefault(d => d.IdCalificacionPuntoGeneral == pg.Id)
+                        ?.Nota,
+                    comentario = detallesPuntoGeneralesPorLlamada
+                        .FirstOrDefault(d => d.IdCalificacionPuntoGeneral == pg.Id)
+                        ?.Comentario,
+                    brecha = detallesPuntoGeneralesPorLlamada
+                        .FirstOrDefault(d => d.IdCalificacionPuntoGeneral == pg.Id)
+                        ?.Brecha,
+                })
+                .Cast<object>()
+                .ToList();
+
+            return new { fases = fasesDict, puntosgenerales = puntosGenerales };
+        }
+
+        public object BuildLineamientosFormateadosFromSp(
+            IEnumerable<ConfiguracionVigenteJerarquiaDTO> configuracion
+        )
+        {
+            var fasesDict = new Dictionary<string, object>();
+
+            var fases = configuracion.Where(x => x.TipoEntidad == "FASE").OrderBy(x => x.Orden);
+            var criterios = configuracion.Where(x => x.TipoEntidad == "CRITERIO");
+            var lineamientos = configuracion.Where(x => x.TipoEntidad == "LINEAMIENTO");
+
+            foreach (var fase in fases)
+            {
+                var criteriosDict = new Dictionary<string, object>();
+                var criteriosDeFase = criterios
+                    .Where(c => c.IdPadre == fase.Id)
+                    .OrderBy(c => c.Orden);
+
+                foreach (var criterio in criteriosDeFase)
+                {
+                    var lineamientosDeCriterio = lineamientos
+                        .Where(l => l.IdPadre == criterio.Id)
+                        .OrderBy(l => l.Orden)
+                        .Select(l => new
+                        {
+                            id = l.Id,
+                            orden = l.Orden,
+                            lineamiento = l.Nombre,
+                            importancia = l.NombreCriticidad,
+                        })
+                        .ToList();
+
+                    criteriosDict[criterio.Nombre] = new
+                    {
+                        id = criterio.Id,
+                        orden = criterio.Orden,
+                        lineamientos = lineamientosDeCriterio,
+                    };
+                }
+
+                fasesDict[fase.Nombre] = new
+                {
+                    id = fase.Id,
+                    orden = fase.Orden,
+                    criterios = criteriosDict,
+                };
+            }
+
+            var puntosGenerales = configuracion
+                .Where(x => x.TipoEntidad == "PUNTOGENERAL")
+                .OrderBy(pg => pg.Orden)
+                .Select(pg => new
+                {
+                    id = pg.Id,
+                    orden = pg.Orden,
+                    nombre = pg.Nombre,
+                    descripcion = pg.Descripcion,
+                })
+                .Cast<object>()
+                .ToList();
+
+            return new { fases = fasesDict, puntosgenerales = puntosGenerales };
         }
 
         private object BuildBrochureVentas(LlamadaProcesoAutoDTO item, InformacionProgramaService serviceInformacionPrograma)

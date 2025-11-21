@@ -97,5 +97,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
         LlamadaProcesoAutoDTO ObtenerDatosConfiguracionCalificacionPorIdLlamadaV2(int idLlamada, int IdPersonalAreaTrabajo);
         IEnumerable<ConfiguracionEsquemaCalificacionLlamdaDTO> HistorialVersionCalificacionLlamadaV2(int idPersonalAreaTrabajo);
         List<EvaluacionLlamadaJerarquicaDTO> ObtenerDataConfiguracionPorVersion(int idEvaluacionLlamadaConfiguracionVersion, int idPersonalAreaTrabajo);
+        IEnumerable<ConfiguracionVigenteJerarquiaDTO> ObtenerConfiguracionPorVersion(int idVersion, int idPersonalAreaTrabajo);
+        IEnumerable<ConfiguracionVigenteJerarquiaDTO> ObtenerConfiguracionVigentePorArea(int idPersonalAreaTrabajo);
+        IEnumerable<ConfiguracionEsquemaCalificacionPorLlamdaDTO> HistorialVersionCalificacionPorLlamadav2(int idLlamada);
     }
 }

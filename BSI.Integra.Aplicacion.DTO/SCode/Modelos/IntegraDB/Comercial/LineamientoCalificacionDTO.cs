@@ -1170,4 +1170,21 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public List<EvaluacionLlamadaCriticidadDTO> CriticidadCalificacion { get; set; } = new List<EvaluacionLlamadaCriticidadDTO>();
         public List<EvaluacionLlamadaPuntoGeneralDTO> PuntosGeneralesCalificacion { get; set; } = new List<EvaluacionLlamadaPuntoGeneralDTO>();
     }
+    public class ConfiguracionVigenteJerarquiaDTO
+    {
+        public string TipoEntidad { get; set; }
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public int? Orden { get; set; }
+        public int? IdPadre { get; set; }
+        public string NombrePadre { get; set; }
+        public int? IdCriticidad { get; set; }
+        public string NombreCriticidad { get; set; }
+        public string Descripcion { get; set; }
+    }
+    public class VersionConfiguracionPorLlamadaDTO
+    {
+        public int IdVersionConfiguracionCalificacionLlamada { get; set; }
+    }
+
 }

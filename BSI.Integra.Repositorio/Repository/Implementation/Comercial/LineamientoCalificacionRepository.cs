@@ -1962,8 +1962,88 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
         throw;
     }
 }
+        /// Autor: Lolo Zaa
+        /// Fecha: 17/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la version de configuracion por IdLlamada
+        /// </summary> 
+        /// <returns> IEnumerable<ComboDTO> </returns>
+        public IEnumerable<ConfiguracionEsquemaCalificacionPorLlamdaDTO> HistorialVersionCalificacionPorLlamadav2(int idLlamada)
+        {
+            try
+            {
+                var historial = new List<ConfiguracionEsquemaCalificacionPorLlamdaDTO>();
+                var query = "com.SP_EvaluacionLlamadaObtenerEvaluacionLlamadaConfiguracion";
 
-        
+                var resultado = _dapperRepository.QuerySPDapper(query, new
+                {
+                    IdLlamadaWebphoneCruceCentralTresCx = idLlamada
+                });
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                {
+                    historial = JsonConvert.DeserializeObject<List<ConfiguracionEsquemaCalificacionPorLlamdaDTO>>(resultado);
+                }
+
+                return historial;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public IEnumerable<ConfiguracionVigenteJerarquiaDTO> ObtenerConfiguracionPorVersion(
+        int idVersion,
+        int idPersonalAreaTrabajo
+    )
+        {
+            try
+            {
+                var configuracion = new List<ConfiguracionVigenteJerarquiaDTO>();
+                var resultado = _dapperRepository.QuerySPDapper(
+                    "[com].[SP_EvaluacionLlamadaObtenerConfiguracionPorVersion]",
+                    new { IdVersion = idVersion, IdPersonalAreaTrabajo = idPersonalAreaTrabajo }
+                );
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                {
+                    configuracion = JsonConvert.DeserializeObject<
+                        List<ConfiguracionVigenteJerarquiaDTO>
+                    >(resultado);
+                }
+                return configuracion;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<ConfiguracionVigenteJerarquiaDTO> ObtenerConfiguracionVigentePorArea(
+        int idPersonalAreaTrabajo
+    )
+        {
+            try
+            {
+                var configuracion = new List<ConfiguracionVigenteJerarquiaDTO>();
+                var resultado = _dapperRepository.QuerySPDapper(
+                    "[com].[SP_EvaluacionLlamadaObtenerConfiguracionVigente]",
+                    new { IdPersonalAreaTrabajo = idPersonalAreaTrabajo }
+                );
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                {
+                    configuracion = JsonConvert.DeserializeObject<
+                        List<ConfiguracionVigenteJerarquiaDTO>
+                    >(resultado);
+                }
+                return configuracion;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
     }
 
 
