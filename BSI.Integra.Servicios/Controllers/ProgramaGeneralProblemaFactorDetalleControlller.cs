@@ -106,7 +106,7 @@ namespace BSI.Integra.Servicios.Controllers
         }
 
         [HttpPost("[action]")]
-        public IActionResult Existe(string nombre)
+        public IActionResult Existe([FromBody] string nombre)
         {
             var resultado = _programaGeneralProblemaFactorDetalleService.ExistePorNombre(nombre);
             return Ok(resultado);
