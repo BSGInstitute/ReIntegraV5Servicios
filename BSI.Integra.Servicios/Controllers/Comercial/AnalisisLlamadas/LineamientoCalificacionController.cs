@@ -967,14 +967,14 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
         /// Obtiene todos los registros de la tabla
         /// </summary>
         /// <returns> List<ComboDTO> </returns>
-        [Route("[action]")]
+        [Route("[action]/{idPersonalAreaTrabajo}")]
         [HttpGet]
         public async Task<ActionResult<List<bool>>> TranscripcionAutoV2(int idPersonalAreaTrabajo)
         {
             try
             {
                 var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
-                var resultado = await lineamientoCalificacionService.TranscripcionAutoV2(1, idPersonalAreaTrabajo);
+                var resultado = await lineamientoCalificacionService.TranscripcionAutoV2(idPersonalAreaTrabajo);
                 return Ok(resultado);
             }
             catch (Exception ex)
@@ -1157,6 +1157,31 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
                 var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
 
                 var resultado = lineamientoCalificacionService.ObtenerReporte(request);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 14/08/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Reporte de calificación de clientes (agrupado por llamada).
+        /// Calcula promedio excluyendo -1 y devuelve puntos críticos (3 peores).
+        /// </summary>
+        [HttpPost("[Action]")]
+        public IActionResult ReporteCalificacionClientePorArea([FromBody] ReporteCalificacionAreaRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+
+                var resultado = lineamientoCalificacionService.ObtenerReportePorArea(request);
                 return Ok(resultado);
             }
             catch (Exception ex)

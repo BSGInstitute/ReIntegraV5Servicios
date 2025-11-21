@@ -328,6 +328,36 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public bool? EsLlamadaCalificada { get; set; }
         public DateTime? FechaLlamada { get; set; }
     }
+    public class LlamadaProcesoAutoAtencioClienteDTO
+    {
+        public int IdActividadDetalle { get; set; }
+        public int IdLlamada { get; set; }
+        public int IdOportunidad { get; set; }
+        public int IdPersonalAreaTrabajo { get; set; }
+        public int IdPersonalAsignado { get; set; }
+        public string Comentario { get; set; }
+        public int? IdOcurrencia { get; set; }
+        public int? IdOcurrenciaActividad { get; set; }
+        public string NombreOcurrencia { get; set; }
+        public int IdOportunidadLog { get; set; }
+        public int IdAlumno { get; set; }
+        public int IdCodigoPais { get; set; }
+        public int IdCentroCosto { get; set; }
+
+        public int IdClasificacionPersona { get; set; }
+
+        public int IdFaseOportunidadAnterior { get; set; }
+        public int IdFaseOportunidadActual { get; set; }
+        public string FaseOportunidad_Ant { get; set; }
+        public string FaseOportunidad { get; set; }
+
+        public string UrlAudioProcesado { get; set; }
+        public string Origen { get; set; }
+        public int? DuracionContestoCentral { get; set; }
+        public bool? EsLlamadaTranscrita { get; set; } = false;
+        public bool? EsLlamadaCalificada { get; set; }
+        public DateTime? FechaLlamada { get; set; }
+    }
 
 
 
@@ -513,7 +543,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
 
 
     /*IINICIO DTOS REPÔRTES*/
-
+    /*eliminar ReporteCalificacionRequest en cuanto se suba nueva version por area*/
     public class ReporteCalificacionRequest
     {
         public DateTime FechaInicio { get; set; }
@@ -522,6 +552,19 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int? IdCentroCosto { get; set; }
         public int? IdFaseI { get; set; }
         public int? IdFaseD { get; set; }
+        public int? EstadoActividadCabecera { get; set; }
+        public int Pagina { get; set; } = 1;
+        public int TamanioPagina { get; set; } = 10;
+    }
+    public class ReporteCalificacionAreaRequest
+    {
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaFin { get; set; }
+        public List<int>? IdsAsesores { get; set; }
+        public int? IdCentroCosto { get; set; }
+        public int? IdFaseI { get; set; }
+        public int? IdFaseD { get; set; }
+        public int? IdPersonalAreaTrabajo { get; set; }
         public int? EstadoActividadCabecera { get; set; }
         public int Pagina { get; set; } = 1;
         public int TamanioPagina { get; set; } = 10;
@@ -776,6 +819,22 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         /// Fecha real de la actividad
         /// </summary>
         public DateTime FechaReal { get; set; }
+    }
+
+    public class HistoricoOcurrenciaAtencionClienteDto
+    {
+        public int IdLlamada { get; set; }
+        public string EstadoOcurrencia { get; set; }
+        public int IdAlumno { get; set; }
+        public int IdOcurrencia { get; set; }
+        public int IdOcurrenciaActividad { get; set; }
+        public int IdOcurrenciaPadre { get; set; }
+        public int IdOportunidad { get; set; }
+        public DateTime FechaReal { get; set; }
+        public string NombreCliente { get; set; }
+        public string Ocurrencia { get; set; }
+        public int IdPersonalAreaTrabajo { get; set; }
+        public string OcurrenciaPadre { get; set; }
     }
 
 

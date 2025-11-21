@@ -1064,6 +1064,24 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             }
 
         }
+        public IEnumerable<LlamadaProcesoAutoAtencioClienteDTO> ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente()
+        {
+            try
+            {
+                List<LlamadaProcesoAutoAtencioClienteDTO> configuracion = new List<LlamadaProcesoAutoAtencioClienteDTO>();
+                var resultado = _dapperRepository.QuerySPDapper("ope.SP_ObtenerInformacionTranscripcionAutomaticaAtencionCliente", new { });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                {
+                    configuracion = JsonConvert.DeserializeObject<List<LlamadaProcesoAutoAtencioClienteDTO>>(resultado);
+                }
+                return configuracion;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
 
         public IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosConfiguracionCalificacionAuto()
         {
@@ -1071,6 +1089,24 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             {
                 List<LlamadaProcesoAutoDTO> configuracion = new List<LlamadaProcesoAutoDTO>();
                 var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ObtenerInformacionCalificacionAutomatica]", new { });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                {
+                    configuracion = JsonConvert.DeserializeObject<List<LlamadaProcesoAutoDTO>>(resultado);
+                }
+                return configuracion;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+        public IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosConfiguracionCalificacionAtencionCliente()
+        {
+            try
+            {
+                List<LlamadaProcesoAutoDTO> configuracion = new List<LlamadaProcesoAutoDTO>();
+                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ObtenerInformacionCalificacionAutomaticaPorAreaTrabajo]", new { });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
                 {
                     configuracion = JsonConvert.DeserializeObject<List<LlamadaProcesoAutoDTO>>(resultado);
@@ -1268,6 +1304,66 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 
 
         }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 14/08/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Ejecuta [com].[SP_ReporteCalificacionClientes] y mapea:
+        ///   - ResultSet1: detalle (calificaciones por llamada)
+        ///   - ResultSet2: total de registros
+        /// </summary>
+        public (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReportePorArea(ReporteCalificacionAreaRequest req)
+        {
+            var resultadoQuery = _dapperRepository.QuerySPDapper(
+                      "[com].[SP_ReporteCalificacionClienteV2]",
+                      new
+                      {
+                          req.FechaInicio,
+                          req.FechaFin,
+                          IdsAsesores = (req.IdsAsesores != null && req.IdsAsesores.Any())
+                              ? JsonConvert.SerializeObject(req.IdsAsesores)
+                              : null,
+                          req.IdCentroCosto,
+                          req.IdFaseI,
+                          req.IdFaseD,
+                          req.EstadoActividadCabecera,
+                          req.Pagina,
+                          req.TamanioPagina,
+                          req.IdPersonalAreaTrabajo
+                      }
+                  );
+
+            string payload;
+
+            var token = JToken.Parse(resultadoQuery);
+
+            if (token.Type == JTokenType.Array)
+            {
+                var arr = (JArray)token;
+                var first = arr.FirstOrDefault() as JObject;
+                payload = (string?)first?["JsonResult"] ?? string.Empty;
+            }
+            else if (token.Type == JTokenType.Object)
+            {
+                var obj = (JObject)token;
+                payload = (string?)obj["JsonResult"] ?? resultadoQuery;
+            }
+            else
+            {
+                payload = resultadoQuery;
+            }
+            if (string.IsNullOrWhiteSpace(payload))
+                return (Enumerable.Empty<LlamadaCalificadaRawDTO>(), 0);
+            var wrapper = JsonConvert.DeserializeObject<ReporteJsonWrapper>(payload);
+            var items = wrapper?.Items ?? new List<LlamadaCalificadaRawDTO>();
+            var total = wrapper?.TotalRegistros ?? items.Count;
+            return (items, total);
+
+
+
+        }
+
         /// Autor: Joseph Llanque
         /// Fecha: 14/08/2025
         /// Versión: 1.0
@@ -1516,26 +1612,27 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             }
         }
 
-        public IEnumerable<LlamadaWebphoneOcurrenciaDTO> ObtenerOcurrenciaRegistradaV2(int idOportunidad, int idPersonalAreaTrabajo)
+        public IEnumerable<HistoricoOcurrenciaAtencionClienteDto> ObtenerOcurrenciaRegistradaV2(int idOportunidad, int idPersonalAreaTrabajo)
         {
             try
             {
-                var informacionLlamada = new List<LlamadaWebphoneOcurrenciaDTO>();
+                var informacionLlamada = new List<HistoricoOcurrenciaAtencionClienteDto>();
 
                 var query = @"SELECT
-                            IdAlumno,
-                            NombreCliente,
-                            IdLlamada,
-                            IdOportunidad,
-                            IdOcurrenciaPadreAlterno,
-                            IdOcurrenciaActividadAlterno,
-                            IdOcurrenciaAlterno,
-                            OcurrenciaPadreAlterno,
-                            OcurrenciaAlterno,
-                            EstadoOcurrenciaAlterno,
-                            FechaReal
+                             IdLlamada,
+				             EstadoOcurrencia,
+				             IdAlumno,
+				             IdOcurrencia,
+				             IdOcurrenciaActividad,
+				             IdOcurrenciaPadre,
+				             IdOportunidad,
+				             FechaReal,
+				             NombreCliente,
+				             Ocurrencia,
+				             IdPersonalAreaTrabajo,
+				             OcurrenciaPadre
                       FROM
-                            [com].[V_ObtenerHistoricoOcurrencia]
+                            ope.V_ObtenerHistoricoOcurrenciaAtencionCliente
                       WHERE IdOportunidad = @idOportunidad
                         AND IdPersonalAreaTrabajo = @idPersonalAreaTrabajo
                       ORDER BY FechaReal DESC;";
@@ -1548,7 +1645,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
                 {
-                    informacionLlamada = JsonConvert.DeserializeObject<List<LlamadaWebphoneOcurrenciaDTO>>(resultado);
+                    informacionLlamada = JsonConvert.DeserializeObject<List<HistoricoOcurrenciaAtencionClienteDto>>(resultado);
                 }
 
                 return informacionLlamada;

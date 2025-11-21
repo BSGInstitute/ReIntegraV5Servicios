@@ -56,7 +56,11 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
 
 
         IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosConfiguracionTranscripcionAuto();
+        IEnumerable<LlamadaProcesoAutoAtencioClienteDTO> ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente();
+
         IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosConfiguracionCalificacionAuto();
+        IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosConfiguracionCalificacionAtencionCliente();
+
         LlamadaProcesoAutoDTO ObtenerDatosConfiguracionCalificacionPorIdLlamada(int idLlamada);
 
         IEnumerable<LlamadaProcesoAutoDTO> ObtenerHistoricoLlamadaCompletoPorIdOportunidad(int idOportunidad);
@@ -68,6 +72,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
 
 
         (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporte(ReporteCalificacionRequest req);
+        (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReportePorArea(ReporteCalificacionAreaRequest req);
+
         (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporteFase(ReporteCalificacionRequest req);
 
         IEnumerable<LlamadaCalificadaRawDTO> ObtenerDatosParaPromedioGlobal(ReporteCalificacionGlobalRequest request);
@@ -86,7 +92,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
         IEnumerable<EvaluacionLlamadaDetalleDTO> ObtenerDetallesEvaluacionPorLlamada(int idLlamada);
         IEnumerable<EvaluacionPuntoGeneralDetalleDTO> ObtenerDetallesEvaluacionPuntosGeneralesPorLlamada(int idLlamada);
         IEnumerable<ConfiguracionEsquemaCalificacionPorLlamdaDTO> HistorialVersionCalificacionPorLlamada(int idLlamada);
-        IEnumerable<LlamadaWebphoneOcurrenciaDTO> ObtenerOcurrenciaRegistradaV2(int idOportunidad, int idPersonalAreaTrabajo);
+        IEnumerable<HistoricoOcurrenciaAtencionClienteDto> ObtenerOcurrenciaRegistradaV2(int idOportunidad, int idPersonalAreaTrabajo);
         IEnumerable<LlamadaProcesoAutoDTO> ObtenerHistoricoLlamadaCompletoPorIdOportunidadV2(int IdOportunidad, int IdPersonalAreaTrabajo);
         LlamadaProcesoAutoDTO ObtenerDatosConfiguracionCalificacionPorIdLlamadaV2(int idLlamada, int IdPersonalAreaTrabajo);
     }

@@ -731,20 +731,10 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             return resultados;
         }
 
-        public async Task<List<bool>> TranscripcionAutoV2(int tipoTranscripcion, int idPersonalAreaTrabajo)
+        public async Task<List<bool>> TranscripcionAutoV2(int idPersonalAreaTrabajo)
         {
-            IEnumerable<LlamadaProcesoAutoDTO> items = null;
-            switch (tipoTranscripcion)
-            {
-                case 1:
-                    items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionTranscripcionAuto();
-                    break;
-                case 2:
-                    items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionTranscripcionMasiva();
-                    break;
-                default:
-                    return new List<bool>();
-            }
+            IEnumerable<LlamadaProcesoAutoAtencioClienteDTO> items = null;
+            items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente();
 
             var resultados = new List<bool>();
 
@@ -776,30 +766,34 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     .Select(oc => new
                     {
                         IdLlamada = oc.IdLlamada,
-                        EstadoOcurrencia = oc.EstadoOcurrenciaAlterno,
-                        ocurrencia = oc.OcurrenciaAlterno,
+                        EstadoOcurrencia = oc.EstadoOcurrencia,
+                        ocurrencia = oc.Ocurrencia,
                         Fecha = oc.FechaReal,
                     })
                     .ToList();
 
                 object payload;
+                string endpoint;
 
-                // Cuerpo para Ventas => con informacionFases
-                if (idPersonalAreaTrabajo == 8)
-                {
-                    payload = PayloadVentas(item, historialReprogramaciones);
-                }
-                else
-                {
-                    // Cuerpo para Atencion al Cliente => sin informacionFases
+                //// Cuerpo para Ventas => con informacionFases
+                //if (idPersonalAreaTrabajo == 8)
+                //{
+                //    payload = PayloadVentas(item, historialReprogramaciones);
+                //    endpoint = "transcriptions/transcribe";
+                //}
+                //else 
+                //{
+                    // Cuerpo para Atencion al Cliente con endpoint específico
                     payload = PayloadAtencionCliente(item, historialReprogramaciones);
-                }
+                    endpoint = "transcriptions_atc/transcribe_atc";
+                //}
+                
 
                 await semaphore.WaitAsync();
                 try
                 {
                     var response = await httpClient.PostAsJsonAsync(
-                        "transcriptions/transcribe",
+                        endpoint,
                         payload
                     );
                     response.EnsureSuccessStatusCode();
@@ -910,7 +904,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         }
 
         private object PayloadAtencionCliente<T>(
-        LlamadaProcesoAutoDTO item,
+        LlamadaProcesoAutoAtencioClienteDTO item,
         List<T> historialReprogramaciones
         )
         {
@@ -918,17 +912,26 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             {
                 idLlamada = item.IdLlamada.ToString(),
                 idActividadDetalle = item.IdActividadDetalle.ToString(),
-                idPersonal = item.IdPersonal_Asignado,
+                idPersonal = item.IdPersonalAsignado,
                 username = "System-Auto",
                 contacto = "Generico",
                 audio_url = item.UrlAudioProcesado,
                 locale = "es-ES",
-                ocurrencia = item.Ocurrencia,
+                ocurrencia = item.NombreOcurrencia,
                 historialReprogramaciones = historialReprogramaciones,
-                faseOrigen = item.IdFaseOportunidad_Ant,
-                faseDestino = item.IdFaseOportunidad,
+                faseOrigen = item.IdFaseOportunidadActual,
+                faseDestino = item.IdFaseOportunidadAnterior,
             };
+            string json = JsonSerializer.Serialize(
+                payload,
+                new JsonSerializerOptions
+                {
+                    WriteIndented = false,
+                    Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                }
+            );
 
+            Console.WriteLine(json);
             return payload;
         }
 
@@ -1316,13 +1319,13 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             var serviceInformacionPrograma = new InformacionProgramaService(_unitOfWork);
 
             IEnumerable<LlamadaProcesoAutoDTO> items = null;
-            switch (tipoCalificacion)
+            switch (idPersonalAreaTrabajo)
             {
-                case 1:
+                case 8:
                     items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionAuto();
                     break;
-                case 2:
-                    items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionMasiva();
+                case 3:
+                    items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionAtencionCliente();
                     break;
                 default:
                     return new List<bool>();
@@ -2827,6 +2830,76 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 Data = agrupado
             };
         }
+
+        public ReporteCalificacionResponse ObtenerReportePorArea(ReporteCalificacionAreaRequest req)
+        {
+            var (filas, total) = _unitOfWork.LineamientoCalificacionRepository.ObtenerReportePorArea(req);
+
+            var filasOrdenadas = filas
+                .OrderByDescending(f => f.FechaInicioLlamadaCentral)
+                .ThenBy(f => f.IdLlamada)
+                .ToList();
+
+            var agrupado = filasOrdenadas
+                .GroupBy(f => f.IdLlamada)
+                .Select(g =>
+                {
+                    var first = g.First();
+
+                    var notasValidas = g
+                        .Where(x => x.PuntajePromedio >= 0)
+                        .Select(x => x.PuntajePromedio)
+                        .ToList();
+
+                    decimal? promedio = notasValidas.Count > 0 ? Math.Round(notasValidas.Average(), 2) : (decimal?)null;
+
+                    var puntosCriticos = g
+                        .Where(x => !string.IsNullOrWhiteSpace(x.PuntoCritico))
+                        .Select(x => x.PuntoCritico!.Trim())
+                        .Distinct()
+                        .ToList();
+
+                    return new LlamadaCalificadaDTO
+                    {
+                        IdLlamada = g.Key,
+                        IdOportunidad = first.IdOportunidad,
+                        FechaInicioLlamadaCentral = first.FechaInicioLlamadaCentral,
+                        DuracionContestoCentral = first.DuracionContestoCentral,
+                        IdAlumno = first.IdAlumno,
+                        NombreCliente = first.NombreCliente,
+                        IdAsesor = first.IdAsesor,
+                        NombreAsesor = first.NombreAsesor,
+                        IdCentroCosto = first.IdCentroCosto,
+                        NombreCentroCosto = first.NombreCentroCosto,
+                        NombreFaseI = first.NombreFaseI,
+                        CodigoFaseI = first.CodigoFaseI,
+                        NombreFaseD = first.NombreFaseD,
+                        CodigoFaseD = first.CodigoFaseD,
+                        Promedio = promedio,
+                        IdOcurrenciaPadreAlterno = first.IdOcurrenciaPadreAlterno,
+                        IdOcurrenciaActividadAlterno = first.IdOcurrenciaActividadAlterno,
+                        IdOcurrenciaAlterno = first.IdOcurrenciaAlterno,
+                        OcurrenciaPadreAlterno = first.OcurrenciaPadreAlterno,
+                        OcurrenciaAlterno = first.OcurrenciaAlterno,
+                        EstadoOcurrenciaAlterno = first.EstadoOcurrenciaAlterno,
+                        PuntosCriticos = puntosCriticos,
+                        ComentarioLlamadaNoCalificada = null,
+                        OcurrenciaConsistente = first.OcurrenciaConsistente,
+                        ComentarioConsistenciaOcurrencia = first.ComentarioConsistenciaOcurrencia,
+                        CambioFaseConsistente = first.CambioFaseConsistente,
+                        ComentarioConsistenciaCambioFase = first.ComentarioConsistenciaCambioFase,
+                        InterrupcionLlamada = first.InterrupcionLlamada
+                    };
+                })
+                .ToList();
+
+            return new ReporteCalificacionResponse
+            {
+                TotalRegistros = total,
+                Data = agrupado
+            };
+        }
+
         public ReporteCalificacionResponse ObtenerReporteFase(ReporteCalificacionRequest req)
         {
             var (filas, total) = _unitOfWork.LineamientoCalificacionRepository.ObtenerReporteFase(req);
