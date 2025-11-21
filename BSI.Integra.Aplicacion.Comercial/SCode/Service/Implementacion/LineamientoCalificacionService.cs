@@ -164,7 +164,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         /// Version: 1.0
         /// <summary>
         /// Obtiene todos los registros de la tabla
-        /// </summary> 
+        /// </summary>
         /// <returns> IEnumerable<ComboDTO> </returns>
         public IEnumerable<LineamientoCalificacion> ObtenerLineamiento()
         {
@@ -212,6 +212,111 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             {
                 throw ex;
             }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 20/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el historial de versiones de configuración de calificación para un área específica, 
+        /// construyendo y serializando el JSON de configuración detallada para cada versión.
+        /// </summary>
+        /// <param name="idPersonalAreaTrabajo">Identificador del área de trabajo del personal</param>
+        /// <returns> IEnumerable<ConfiguracionEsquemaCalificacionLlamdaDTO> </returns>
+        public IEnumerable<ConfiguracionEsquemaCalificacionLlamdaDTO> HistorialVersionCalificacionLlamadaV2(int idPersonalAreaTrabajo)
+        {
+            try
+            {
+                var historial = _unitOfWork.LineamientoCalificacionRepository
+                                           .HistorialVersionCalificacionLlamadaV2(idPersonalAreaTrabajo)
+                                           .ToList();
+
+                foreach (var version in historial)
+                {
+                    var listaPlana = _unitOfWork.LineamientoCalificacionRepository
+                                                .ObtenerDataConfiguracionPorVersion(version.Id, idPersonalAreaTrabajo);
+                    var dataEstructurada = MapearDataEstructurada(listaPlana);
+                    version.ConfiguracionJSON = JsonSerializer.Serialize(dataEstructurada);
+                }
+
+                return historial;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 20/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Transforma la lista plana y mezclada obtenida del Stored Procedure en un objeto contenedor con listas tipadas.
+        /// Realiza la segregación por 'TipoEntidad' y aplica el ordenamiento necesario en memoria.
+        /// </summary>
+        /// <param name="listaPlana">Colección plana de objetos jerárquicos provenientes de la base de datos.</param>
+        /// <returns> Objeto ConfiguracionLineamientoV2DTO con las colecciones separadas y listas para serializar. </returns>
+        private ConfiguracionLineamientoV2DTO MapearDataEstructurada(List<EvaluacionLlamadaJerarquicaDTO> listaPlana)
+        {
+            var data = new ConfiguracionLineamientoV2DTO();
+
+            if (listaPlana != null && listaPlana.Any())
+            {
+                data.FasesCalificacion = listaPlana
+                    .Where(x => x.TipoEntidad == "FASE")
+                    .OrderBy(x => x.Orden)
+                    .Select(x => new EvaluacionLlamadaFaseDTO
+                    {
+                        Id = x.Id,
+                        NombreFase = x.Nombre,
+                        Orden = x.Orden ?? 0,
+                        Descripcion = x.Descripcion
+                    }).ToList();
+
+                data.CriteriosCalificacion = listaPlana
+                    .Where(x => x.TipoEntidad == "CRITERIO")
+                    .Select(x => new EvaluacionLlamadaCriterioDTO
+                    {
+                        Id = x.Id,
+                        NombreCriterio = x.Nombre,
+                        IdFaseCalificacion = x.IdPadre ?? 0,
+                        Orden = x.Orden ?? 0,
+                        Descripcion = x.Descripcion
+                    }).ToList();
+
+                data.LineamientosCalificacion = listaPlana
+                    .Where(x => x.TipoEntidad == "LINEAMIENTO")
+                    .Select(x => new EvaluacionLlamadaLineamientoDTO
+                    {
+                        Id = x.Id,
+                        NombreLineamiento = x.Nombre,
+                        IdCriterioCalificacionLlamada = x.IdPadre ?? 0,
+                        IdCriticidadCalificacion = x.IdCriticidad ?? 0,
+                        Orden = x.Orden ?? 0,
+                        Descripcion = x.Descripcion
+                    }).ToList();
+
+                data.CriticidadCalificacion = listaPlana
+                    .Where(x => x.TipoEntidad == "CRITICIDAD")
+                    .Select(x => new EvaluacionLlamadaCriticidadDTO
+                    {
+                        Id = x.Id,
+                        Nombre = x.Nombre,
+                        Descripcion = x.Descripcion
+                    }).ToList();
+
+                data.PuntosGeneralesCalificacion = listaPlana
+                    .Where(x => x.TipoEntidad == "PUNTOGENERAL")
+                    .Select(x => new EvaluacionLlamadaPuntoGeneralDTO
+                    {
+                        Id = x.Id,
+                        Nombre = x.Nombre,
+                        Orden = x.Orden ?? 0,
+                        Descripcion = x.Descripcion
+                    }).ToList();
+            }
+
+            return data;
         }
         /// Autor: Joseph Llanque.
         /// Fecha: 03/07/2025

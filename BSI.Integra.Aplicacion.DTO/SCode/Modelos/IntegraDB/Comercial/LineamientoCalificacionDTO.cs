@@ -1,10 +1,14 @@
 ﻿
 
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
+using Google.Api.Ads.AdWords.v201809;
+using Mandrill.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -1099,5 +1103,71 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int IdVersionConfiguracionCalificacionLlamada { get; set; }
         public string ConfiguracionJSON { get; set; }
         
+    }
+    public class EvaluacionLlamadaJerarquicaDTO
+    {
+        public string TipoEntidad { get; set; }
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public int? Orden { get; set; }
+        public int? IdPadre { get; set; }
+        public string NombrePadre { get; set; }
+        public int? IdCriticidad { get; set; }
+        public string NombreCriticidad { get; set; }
+        public string Descripcion { get; set; }
+    }
+
+    public class EvaluacionLlamadaFaseDTO
+    {
+        public int Id { get; set; }
+        [JsonPropertyName("Nombre")]
+        public string NombreFase { get; set; }
+        public int Orden { get; set; }
+        public string Descripcion { get; set; }
+    }
+
+    public class EvaluacionLlamadaCriterioDTO
+    {
+        public int Id { get; set; }
+        public int IdFaseCalificacion { get; set; }
+        public string NombreCriterio { get; set; }
+        public int Orden { get; set; }
+        public string Descripcion { get; set; }
+    }
+
+    public class EvaluacionLlamadaLineamientoDTO
+    {
+        public int Id { get; set; }
+        public int IdCriterioCalificacionLlamada { get; set; }
+        public int IdCriticidadCalificacion { get; set; }
+        public string NombreLineamiento { get; set; }
+        public int Orden { get; set; }
+        public string Descripcion { get; set; }
+    }
+
+    public class EvaluacionLlamadaCriticidadDTO
+    {
+        public int Id { get; set; }
+        [JsonPropertyName("NombreCriticidad")]
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+    }
+
+    public class EvaluacionLlamadaPuntoGeneralDTO
+    {
+        public int Id { get; set; }
+        [JsonPropertyName("Nombre")]
+        public string Nombre { get; set; }
+
+        public int Orden { get; set; }
+        public string Descripcion { get; set; }
+    }
+    public class ConfiguracionLineamientoV2DTO
+    {
+        public List<EvaluacionLlamadaFaseDTO> FasesCalificacion { get; set; } = new List<EvaluacionLlamadaFaseDTO>();
+        public List<EvaluacionLlamadaCriterioDTO> CriteriosCalificacion { get; set; } = new List<EvaluacionLlamadaCriterioDTO>();
+        public List<EvaluacionLlamadaLineamientoDTO> LineamientosCalificacion { get; set; } = new List<EvaluacionLlamadaLineamientoDTO>();
+        public List<EvaluacionLlamadaCriticidadDTO> CriticidadCalificacion { get; set; } = new List<EvaluacionLlamadaCriticidadDTO>();
+        public List<EvaluacionLlamadaPuntoGeneralDTO> PuntosGeneralesCalificacion { get; set; } = new List<EvaluacionLlamadaPuntoGeneralDTO>();
     }
 }

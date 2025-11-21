@@ -402,6 +402,31 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
             }
         }
 
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 18/11/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Endpoint que obtiene el historial de versiones de configuración de calificación para un área de trabajo específica.
+        /// </summary>
+        /// <param name="idPersonalAreaTrabajo">Identificador del área de trabajo.</param>
+        /// <returns> ActionResult con la lista de ConfiguracionEsquemaCalificacionLlamdaDTO </returns>
+        [Route("[action]/{idPersonalAreaTrabajo}")]
+        [HttpGet]
+        public ActionResult HistorialVersionCalificacionLlamadaV2(int idPersonalAreaTrabajo)
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.HistorialVersionCalificacionLlamadaV2(idPersonalAreaTrabajo);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         /// Autor: Joseph Llanque
         /// Fecha: 11/03/2025
         /// Versión: 1.0
