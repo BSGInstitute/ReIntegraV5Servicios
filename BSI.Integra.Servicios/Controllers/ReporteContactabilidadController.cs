@@ -1,5 +1,6 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
+using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Helpers;
 using Microsoft.AspNetCore.Cors;
@@ -21,9 +22,11 @@ namespace BSI.Integra.Servicios.Controllers
     public class ReporteContactabilidadController : ControllerBase
     {
         private IUnitOfWork unitOfWork;
-        public ReporteContactabilidadController(IUnitOfWork unitOfWork)
+        private IConfiguracionAccesoPersonalService _configuracionAccesoPersonalService;
+        public ReporteContactabilidadController(IUnitOfWork unitOfWork, IConfiguracionAccesoPersonalService configuracionAccesoPersonalService)
         {
             this.unitOfWork = unitOfWork;
+            _configuracionAccesoPersonalService = configuracionAccesoPersonalService;
         }
         /// TipoFuncion: GET
         /// Autor: Gilmer Quispe
@@ -65,8 +68,17 @@ namespace BSI.Integra.Servicios.Controllers
             try
             {
                 var reporte = new ReporteService(unitOfWork);
-                var result = reporte.ObtenerCombosReporteOperaciones(idPersonal);
-                return Ok(result);
+                var claimsIdentity = User.Identity as ClaimsIdentity;
+                var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+
+                if (_respuestaCorrecta.TokenValida)
+                {
+                    idPersonal = _configuracionAccesoPersonalService.ObtenerIdPersonalAcceso(_respuestaCorrecta.RegistroClaimToken.IdPersonal, "Comercial/SeguimientoOportunidades");
+                    var result = reporte.ObtenerCombosReporteOperaciones(idPersonal);
+                    return Ok(result);
+                }
+                else
+                throw new UnauthorizedAccessException("Usted no tiene acceso");
             }
             catch (Exception ex)
             {
