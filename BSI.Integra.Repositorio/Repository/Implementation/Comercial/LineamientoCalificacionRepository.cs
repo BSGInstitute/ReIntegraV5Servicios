@@ -1880,7 +1880,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
     try
     {
         var detalleLlamada = new List<EvaluacionLlamadaDetalleDTO>();
-        var query = "com.SP_EvaluacionLlamada_ObtenerDetalleAutomatica";
+        var query = "com.SP_EvaluacionLlamada_ObtenerDetalleAutomaticaV2";
 
         var resultado = _dapperRepository.QuerySPDapper(query, new 
         {
@@ -1911,7 +1911,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
     try
     {
         var detalleLlamada = new List<EvaluacionPuntoGeneralDetalleDTO>();
-        var query = "com.SP_EvaluacionLlamada_ObtenerPuntoGeneralDetalle";
+        var query = "com.SP_EvaluacionLlamada_ObtenerPuntoGeneralDetalleV2";
 
         var resultado = _dapperRepository.QuerySPDapper(query, new
         {

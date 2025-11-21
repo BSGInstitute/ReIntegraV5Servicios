@@ -1406,6 +1406,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             return resultados.ToList();
         }
         /// Autor: Jose Vega
+        /// Autor Modificación: Lolo Zaa
         /// Fecha: 2025-11-17
         /// Version: 2.0
         /// <summary>
@@ -1413,6 +1414,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         /// Refactorizado para aceptar 'idPersonalAreaTrabajo' y segmentar la
         /// lógica de construcción del 'brochure' por área (Ventas=8, Clientes=3).
         /// </summary>
+        /// descripcion modificación: se adapto la funcion a las tablas formalizadas.
         /// <param name="tipoCalificacion">Tipo de calificación (1=Auto, 2=Masiva).</param>
         /// <param name="idPersonalAreaTrabajo">ID del área de trabajo (8=Ventas, 3=Clientes).</param>
         /// <returns>Una lista de booleanos indicando el resultado de cada calificación.</returns>
@@ -1694,7 +1696,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             faseDestino = item.FaseOportunidad,
                             puntosCriticosAsesor = puntosCriticosAsesor,
                         };
-
+ 
                         Console.WriteLine(
                             System.Text.Json.JsonSerializer.Serialize(
                                 payload,
