@@ -48,8 +48,9 @@ namespace BSI.Integra.Servicios.Controllers
                 {
                     var servicioPersonal = new PersonalService(unitOfWork);
                     var resultado = new ReporteContactabilidadCombosDTO();
+                    var idPersonal = _configuracionAccesoPersonalService.ObtenerIdPersonalAcceso(_respuestaCorrecta.RegistroClaimToken.IdPersonal, "Comercial/ContactabilidadTresCx");
 
-                    resultado.Asesores = servicioPersonal.ObtenerAsesoresVentasOficial_CONT(_respuestaCorrecta.RegistroClaimToken.IdPersonal).Where(w => w.TipoPersonal == "Asesor" || w.TipoPersonal == "otro").ToList();
+                    resultado.Asesores = servicioPersonal.ObtenerAsesoresVentasOficial_CONT(idPersonal).Where(w => w.TipoPersonal == "Asesor" || w.TipoPersonal == "otro").ToList();
                     return Ok(resultado);
                 }
                 catch (Exception ex)
