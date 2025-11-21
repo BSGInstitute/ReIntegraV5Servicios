@@ -47,11 +47,12 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         bool SumaOportunidadWhatsApp(SumaOportunidadWhatsAootDTO json);
         bool RestaOportunidadWhatsApp(SumaOportunidadWhatsAootDTO json);
         ObtenerComboRespuestaWhatsAppp ObtenerComboRespuestaWhatsAppp();
-        bool EnvioMensajePorPlantilla(WhatsAppPlantillaDTO json);
-        bool EnvioMensajePorTexto(WhatsAppMensajeTextoDTO json);
+        bool EnvioMensajePorPlantilla(WhatsAppPlantillaDTO json, string numeroIdentificador = null);
+        bool EnvioMensajePorTexto(WhatsAppMensajeTextoDTO json, string numeroIdentificador = null);
         public DiasWhatsappDTO ObtenerDiasPorPrioridadWhatsapp(IdDTO id);
         public ObtenerCampaniaGeneralDetalleResponsablePorPrioridadAgrupadoDTO ObtenerCampaniaGeneralDetalleResponsablePorPrioridadAlterno(IdDiasWhatsappDTO datos);
         public bool EnvioMensajePorTextoFacebook(WhatsAppMensajeTextoFacebookDTO json);
         public string ObtenerUltimoMensajeCampaniaEnviado(string celularAlumno);
+        public string ObtenerNumeroIdentificadorWhatsAppPorIdPersonal(int IdPersonal);
     }
 }

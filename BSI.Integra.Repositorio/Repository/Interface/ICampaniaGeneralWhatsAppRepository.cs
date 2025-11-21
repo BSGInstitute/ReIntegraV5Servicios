@@ -61,6 +61,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public DiasWhatsappDTO ObtenerDiasPorPrioridadWhatsapp(IdDTO id);
         public List<ObtenerCampaniaGeneralDetalleResponsablePorPrioridadDTO> ObtenerCampaniaGeneralDetalleResponsablePorPrioridadAlterno(IdDiasWhatsappDTO datos);
         public string ObtenerUltimoMensajeCampaniaEnviado(string celularAlumno);
+        public string ObtenerNumeroIdentificadorWhatsAppPorIdPersonal(int idPersonal);
 
     }
 }

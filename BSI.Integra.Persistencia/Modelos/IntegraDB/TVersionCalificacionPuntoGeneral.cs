@@ -4,35 +4,30 @@ using System.Collections.Generic;
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     /// <summary>
-    /// Esta tabla almacena las fases de evaluacion de llamada
+    /// Puntos generales congelados por versión de configuración de evaluación
     /// </summary>
-    public partial class TFaseCalificacion
+    public partial class TVersionCalificacionPuntoGeneral
     {
-        public TFaseCalificacion()
-        {
-            TCriterioCalificacionLlamada = new HashSet<TCriterioCalificacionLlamadum>();
-        }
-
         /// <summary>
-        /// Identificador único de la fase
+        /// (PK) Primary Key del registro
         /// </summary>
         public int Id { get; set; }
         /// <summary>
-        /// Nombre de la fase
+        /// Nombre del punto general
         /// </summary>
         public string Nombre { get; set; } = null!;
         /// <summary>
-        /// Orden de la Fase
+        /// Orden del punto
         /// </summary>
         public int? Orden { get; set; }
         /// <summary>
-        /// Descripción de la fase
+        /// Descripción del punto general
         /// </summary>
         public string? Descripcion { get; set; }
         /// <summary>
-        /// Estado del registro (activo o inactivo)
+        /// Estado del registro
         /// </summary>
-        public bool Estado { get; set; }
+        public bool? Estado { get; set; }
         /// <summary>
         /// Usuario que creó el registro
         /// </summary>
@@ -42,23 +37,22 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public string UsuarioModificacion { get; set; } = null!;
         /// <summary>
-        /// Fecha de creación del registro
+        /// Fecha de creación
         /// </summary>
         public DateTime FechaCreacion { get; set; }
         /// <summary>
-        /// Fecha de modificación del registro
+        /// Fecha de modificación
         /// </summary>
         public DateTime FechaModificacion { get; set; }
         /// <summary>
-        /// Versión del registro para control de concurrencia
+        /// Control de concurrencia
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
         /// <summary>
-        /// (FK) Referencia al personal/área de trabajo correspondiente a la fase
+        /// (FK) Referencia a la versión de configuración de evaluación de llamadas
         /// </summary>
-        public int? IdPersonalAreaTrabajo { get; set; }
+        public int? IdEvaluacionLlamadaConfiguracionVersion { get; set; }
 
-        public virtual TPersonalAreaTrabajo? IdPersonalAreaTrabajoNavigation { get; set; }
-        public virtual ICollection<TCriterioCalificacionLlamadum> TCriterioCalificacionLlamada { get; set; }
+        public virtual TEvaluacionLlamadaConfiguracionVersion? IdEvaluacionLlamadaConfiguracionVersionNavigation { get; set; }
     }
 }

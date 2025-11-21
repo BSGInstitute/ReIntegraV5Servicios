@@ -143,6 +143,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     public class OportunidadVentaCruzadaAgendaDTO
     {
         public int IdOportunidad { get; set; }
+        public int IdPGeneral { get; set; }
         public string? Programa { get; set; }
         public string? Probabilidad { get; set; }
         public string? Precio { get; set; }

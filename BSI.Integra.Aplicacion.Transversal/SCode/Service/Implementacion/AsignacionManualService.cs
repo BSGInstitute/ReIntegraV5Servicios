@@ -45,7 +45,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         }
         private ActividadDetalle _ActividadDetalleLocal = new ActividadDetalle();
 
-
         //public object AsignarAsesor(AsignarAsesorManualDTO AsignarAsesor, string Usuario)
         //{
 

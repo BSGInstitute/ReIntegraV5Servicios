@@ -409,6 +409,29 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+
+        public IEnumerable<CentroCostoVentaCruzadaDTO> ObtenerCentroCostoVentaCruzada(int idPGeneral)
+        {
+            try
+            {
+                List<CentroCostoVentaCruzadaDTO> rpta = new List<CentroCostoVentaCruzadaDTO>();
+
+                var query = "EXEC pla.SP_ProgramaGeneralCentroCosto_Listar @IdPGeneral = @idPGeneral";
+
+                var resultado = _dapperRepository.QueryDapper(query, new { idPGeneral });
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<CentroCostoVentaCruzadaDTO>>(resultado);
+                }
+
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 23/07/2022
         /// Version: 1.0
