@@ -1418,27 +1418,11 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         /// <param name="tipoCalificacion">Tipo de calificación (1=Auto, 2=Masiva).</param>
         /// <param name="idPersonalAreaTrabajo">ID del área de trabajo (8=Ventas, 3=Clientes).</param>
         /// <returns>Una lista de booleanos indicando el resultado de cada calificación.</returns>
-        public async Task<List<bool>> CalificacionAutoV2(
-            int tipoCalificacion,
-            int idPersonalAreaTrabajo
-        )
+        public async Task<List<bool>> CalificacionAutoV2(int idPersonalAreaTrabajo)
         {
             var serviceInformacionPrograma = new InformacionProgramaService(_unitOfWork);
 
-            IEnumerable<LlamadaProcesoAutoDTO> items = null;
-            switch (tipoCalificacion)
-            {
-                case 1:
-                    items =
-                        _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionAuto();
-                    break;
-                case 2:
-                    items =
-                        _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionMasiva();
-                    break;
-                default:
-                    return new List<bool>();
-            }
+            IEnumerable<LlamadaProcesoAutoDTO> item = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionAuto();
 
             var configuracionVigente =
                 _unitOfWork.LineamientoCalificacionRepository.ObtenerConfiguracionVigentePorArea(
@@ -1448,13 +1432,13 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             if (
                 configuracionVigente == null
                 || !configuracionVigente.Any()
-                || items == null
-                || !items.Any()
+                || item == null
+                || !item.Any()
             )
                 return new List<bool>();
 
             var resultados = new List<bool>();
-            var itemsAgrupadosPorOportunidad = items
+            var itemsAgrupadosPorOportunidad = item
                 .GroupBy(x => x.IdOportunidad)
                 .Select(g => new
                 {

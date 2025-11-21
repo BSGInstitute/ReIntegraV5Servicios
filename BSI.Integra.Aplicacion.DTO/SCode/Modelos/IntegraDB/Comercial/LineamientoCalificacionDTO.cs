@@ -313,7 +313,9 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int? IdOcurrenciaAlterno { get; set; }
         public int? IdOcurrenciaActividadAlterno { get; set; }
         public int? IdOcurrenciaActividad { get; set; }
+        public int? IdOcurrencia { get; set; }
         public string Ocurrencia { get; set; }
+        public string OcurrenciaAlterno { get; set; }
         public int IdOportunidadLog { get; set; }
         public int IdAlumno { get; set; }
         public int IdCodigoPais { get; set; }

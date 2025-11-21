@@ -1079,7 +1079,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
             try
             {
                 var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
-                var resultado = await lineamientoCalificacionService.CalificacionAutoV2(1, idPersonalAreaTrabajo);
+                var resultado = await lineamientoCalificacionService.CalificacionAutoV2(idPersonalAreaTrabajo);
                 return Ok(resultado);
             }
             catch (Exception ex)
