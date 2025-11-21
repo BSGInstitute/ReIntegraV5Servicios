@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Infrastructure;
@@ -99,6 +100,27 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
                     rpta = JsonConvert.DeserializeObject<List<OportunidadProgramaMotivacionSeleccion>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public List<OportunidadMotivacionSeleccionViewDTO> ObtenerMotivacionSeleccionByIdOportunidad(int idOportunidad)
+        {
+            try
+            {
+                List<OportunidadMotivacionSeleccionViewDTO> rpta = new();
+                var query = @"
+                    SELECT IdOportunidadProgramaMotivacionSeleccion, IdOportunidad, IdProgramaMotivacion, NombreMotivacion, Prioridad
+                    FROM pla.V_TOportunidadProgramaMotivacionSeleccion_DatosSeleccion
+                    WHERE IdOportunidad=@idOportunidad";
+                var resultado = _dapperRepository.QueryDapper(query, new { idOportunidad });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<OportunidadMotivacionSeleccionViewDTO>>(resultado);
                 }
                 return rpta;
             }

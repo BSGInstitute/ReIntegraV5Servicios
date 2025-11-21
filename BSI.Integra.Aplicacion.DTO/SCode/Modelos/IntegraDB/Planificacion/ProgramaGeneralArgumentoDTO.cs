@@ -71,15 +71,17 @@
     public class ProgramaArgumentoMotivacionSeleccionDTO
     {
         public int IdOportunidad { get; set; }
-        public int IdPGeneral { get; set; }
-        public List<SeleccionMotivacionDTO> SeleccionMotivacion { get; set; } = [];
+        public int? IdPGeneral { get; set; }
+        public List<SeleccionMotivacionDTO> SeleccionMotivacion { get; set; }
     }
 
     public class SeleccionMotivacionDTO
     {
-        public int IdMotivacion { get; set; }
-        public string descripcionMotivacion { get; set; }
-        public bool seleccionado { get; set; }
+        public int IdProgramaMotivacion { get; set; }
+        public string DescripcionProgramaMotivacion { get; set; }
+        public string NombreMotivacionAlterno { get; set; }
+        public bool Seleccionado { get; set; }
+        public int Prioridad { get; set; }
     }
     public class ProgramaGeneralArgumentoDetalleMotivacionNombreDTO
     {
@@ -144,5 +146,20 @@
         public bool AplicaDescripcionSolucion { get; set; }
         public bool AplicaTituloSolucion { get; set; }
         public bool AplicaSubTituloSolucion { get; set; }
+    }
+    public class OportunidadMotivacionSeleccionViewDTO
+    {
+        public int IdOportunidadProgramaMotivacionSeleccion { get; set; }
+        public int IdOportunidad { get; set; }
+        public int IdProgramaMotivacion { get; set; }
+        public string NombreMotivacion { get; set; }
+        public int? Prioridad { get; set; }
+    }
+
+    public class MotivacionDiccionarioViewDTO
+    {
+        public int IdProgramaMotivacion { get; set; }
+        public string DescripcionProgramaMotivacion { get; set; }
+        public string NombreMotivacionAlterno { get; set; }
     }
 }

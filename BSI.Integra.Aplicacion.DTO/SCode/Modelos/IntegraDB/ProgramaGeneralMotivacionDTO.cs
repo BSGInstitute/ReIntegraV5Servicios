@@ -41,4 +41,12 @@
         public string NombreArgumentoMotivacion { get; set; }
         public int IdModalidadMotivacion { get; set; }
     }
+
+    public class CentroCostoVentaCruzadaDTO
+    {
+        public int IdCentroCosto { get; set; }
+        public string CentroCosto { get; set; }
+        public int IdPGeneral { get; set; }
+        public int? IdPEspecifico { get; set; }
+    }
 }

@@ -149,6 +149,20 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient(); // Si no lo tienes ya
 builder.Services.AddScoped<IFacebookLeadsRecuperacionDatosService, FacebookLeadsRecuperacionDatosService>();
 
+
+builder.Services.AddTransient<
+    BSI.Integra.Repositorio.Repository.Interface.IMatriculaConfiguracionComunicacionAsesorRepository,
+    BSI.Integra.Repositorio.Repository.Implementation.Planificacion.MatriculaConfiguracionComunicacionAsesorRepository
+>();
+
+// Service
+builder.Services.AddTransient<
+    BSI.Integra.Aplicacion.Planificacion.Service.Interface.IMatriculaConfiguracionComunicacionAsesorService,
+    BSI.Integra.Aplicacion.Planificacion.Service.Implementacion.MatriculaConfiguracionComunicacionAsesorService
+>();
+
+
+
 // Google Ads Conversion Service
 builder.Services.AddScoped<BSI.Integra.Repositorio.Repository.Interface.IAdwordsConversionRepository, BSI.Integra.Repositorio.Repository.Implementation.AdwordsConversionRepository>();
 builder.Services.AddScoped<BSI.Integra.Aplicacion.Transversal.Service.Interface.IAdwordsConversionService, BSI.Integra.Aplicacion.Transversal.Service.Implementacion.AdwordsConversionService>();

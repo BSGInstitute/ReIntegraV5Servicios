@@ -22,10 +22,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
 
         IEnumerable<ProgramaGeneralArgumentoMotivacionDTO> ObtenerMotivaciones(int IdPGeneral);
         bool Eliminar(int id, string usuario);
+        List<OportunidadMotivacionSeleccionViewDTO> ObtenerMotivacionSeleccionByIdOportunidad(int idOportunidad);
         bool InsertarArgumentoMotivacionSeleccion(ProgramaArgumentoMotivacionSeleccionDTO data, string usuario);
 
         ///object InsertarArgumentoMotivacionSeleccion(ProgramaArgumentoMotivacionSeleccionDTO data);
         Task<List<ProgramaGeneralArgumentoDTO>> ObtenerArgumentoMotivacion(int idPGeneral);
         Task<List<ConfiguracionProblemaJerarquicaDTO>> ObtenerProblemaCliente(int idPGeneral);
+        List<MotivacionDiccionarioViewDTO> ObtenerMotivacionesTodoDiccionario();
     }
 }

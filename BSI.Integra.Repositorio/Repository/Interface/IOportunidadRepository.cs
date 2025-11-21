@@ -20,6 +20,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<Oportunidad> ObtenerOportunidad();
         IEnumerable<OportunidadComboDTO> ObtenerCombo();
         IEnumerable<OportunidadVentaCruzadaAgendaDTO> ObtenerVentaCruzadaParaAgendaPorIdClasificacionPersona(int idClasificacionPersona);
+        IEnumerable<CentroCostoVentaCruzadaDTO> ObtenerCentroCostoVentaCruzada(int idPGeneral);
         IEnumerable<OportunidadHistorialAgendaDTO> ObtenerHistorialOportunidadesParaAgendaPorIdClasificacionPersona(int idClasificacionPersona);
         Task<OportunidadTiempoCapacitacionDTO> ObtenerTiempoCapacitacionPorIdOportunidadAsync(int idOportunidad);
         OportunidadCodigoFaseDTO ObtenerCodigoFasePorIdOportunidad(int idOportunidad);
