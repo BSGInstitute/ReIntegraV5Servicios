@@ -849,7 +849,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 .ToList();
 
             using var httpClient = new HttpClient();
-            httpClient.BaseAddress = new Uri("http://ia-analisis-llamadas-comercial-api.bsginstitute.com/");
+            //httpClient.BaseAddress = new Uri("http://ia-analisis-llamadas-comercial-api.bsginstitute.com/");
+            httpClient.BaseAddress = new Uri("http://127.0.0.1:8000/");
 
             // Configurar headers como en Postman
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -897,16 +898,41 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 await semaphore.WaitAsync();
                 try
                 {
+                    // Serializar payload para debugging
+                    var payloadJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                    });
+                    Console.WriteLine($"[DEBUG] Payload enviado para llamada {item.IdLlamada}:");
+                    Console.WriteLine(payloadJson);
+
                     var response = await httpClient.PostAsJsonAsync(
                         endpoint,
                         payload
                     );
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        var errorContent = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine($"[ERROR] Status Code: {response.StatusCode} ({(int)response.StatusCode})");
+                        Console.WriteLine($"[ERROR] Detalle del error para llamada {item.IdLlamada}:");
+                        Console.WriteLine(errorContent);
+                        Console.WriteLine($"[ERROR] Headers de respuesta:");
+                        foreach (var header in response.Headers)
+                        {
+                            Console.WriteLine($"  {header.Key}: {string.Join(", ", header.Value)}");
+                        }
+                        return false;
+                    }
+
                     response.EnsureSuccessStatusCode();
                     return true;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    // _logger.LogError(ex, $"Error al transcribir llamada {item.IdLlamadaWebphoneCruceCentralTresCx}");
+                    Console.WriteLine($"[EXCEPTION] Error al transcribir llamada {item.IdLlamada}: {ex.Message}");
+                    Console.WriteLine($"[EXCEPTION] StackTrace: {ex.StackTrace}");
                     return false;
                 }
                 finally
@@ -1027,16 +1053,6 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 faseOrigen = item.IdFaseOportunidadActual,
                 faseDestino = item.IdFaseOportunidadAnterior,
             };
-            string json = JsonSerializer.Serialize(
-                payload,
-                new JsonSerializerOptions
-                {
-                    WriteIndented = false,
-                    Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-                }
-            );
-
-            Console.WriteLine(json);
             return payload;
         }
 
