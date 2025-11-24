@@ -49,6 +49,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Id de la tabla Original al migrar
         /// </summary>
         public int? IdMigracion { get; set; }
+        /// <summary>
+        /// Cantidad de Creditos disponibles para el tutor virtual
+        /// </summary>
+        public int? CreditoDisponibleTutorVirtual { get; set; }
 
         public virtual TPgeneral IdPgeneralNavigation { get; set; } = null!;
     }

@@ -38630,6 +38630,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.Id).HasComment("Clave Primaria de la tabla");
 
+                entity.Property(e => e.CreditoDisponibleTutorVirtual).HasComment("Cantidad de Creditos disponibles para el tutor virtual");
+
                 entity.Property(e => e.Duracion).HasComment("Duracion en horas de programa por version");
 
                 entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
