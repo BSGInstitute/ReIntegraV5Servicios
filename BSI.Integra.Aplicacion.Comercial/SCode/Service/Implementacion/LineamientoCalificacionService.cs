@@ -838,7 +838,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
         public async Task<List<bool>> TranscripcionAutoV2(int idPersonalAreaTrabajo)
         {
-            IEnumerable<LlamadaProcesoAutoAtencioClienteDTO> items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente();
+            IEnumerable<LlamadaProcesoAutoAtencioClienteDTO> items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente(idPersonalAreaTrabajo);
 
             var resultados = new List<bool>();
 
@@ -880,18 +880,18 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 object payload;
                 string endpoint;
 
-                //// Cuerpo para Ventas => con informacionFases
-                //if (idPersonalAreaTrabajo == 8)
-                //{
-                //    payload = PayloadVentas(item, historialReprogramaciones);
-                //    endpoint = "transcriptions/transcribe";
-                //}
-                //else 
-                //{
+                // Cuerpo para Ventas => con informacionFases
+                if (idPersonalAreaTrabajo == 8)
+                {
+                   payload = PayloadVentas(item, historialReprogramaciones);
+                   endpoint = "transcriptions/transcribe";
+                }
+                else 
+                {
                     // Cuerpo para Atencion al Cliente con endpoint específico
                     payload = PayloadAtencionCliente(item, historialReprogramaciones);
                     endpoint = "transcriptions_atc/transcribe_atc";
-                //}
+                }
                 
 
                 await semaphore.WaitAsync();

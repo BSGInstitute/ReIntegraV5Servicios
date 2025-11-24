@@ -1134,12 +1134,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             }
 
         }
-        public IEnumerable<LlamadaProcesoAutoAtencioClienteDTO> ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente()
+        public IEnumerable<LlamadaProcesoAutoAtencioClienteDTO> ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente(int idPersonalAreaTrabajo)
         {
             try
             {
                 List<LlamadaProcesoAutoAtencioClienteDTO> configuracion = new List<LlamadaProcesoAutoAtencioClienteDTO>();
-                var resultado = _dapperRepository.QuerySPDapper("ope.SP_ObtenerInformacionTranscripcionAutomaticaAtencionCliente", new { });
+                var resultado = _dapperRepository.QuerySPDapper("ope.SP_EvaluacionLlamadaObtenerTranscripcionAutomaticaAtencionCliente", new {idPersonalAreaTrabajo=idPersonalAreaTrabajo});
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
                 {
                     configuracion = JsonConvert.DeserializeObject<List<LlamadaProcesoAutoAtencioClienteDTO>>(resultado);
@@ -1718,9 +1718,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 				             NombreCliente,
 				             Ocurrencia,
 				             IdPersonalAreaTrabajo,
-				             OcurrenciaPadre
+				             OcurrenciaPadre,
+                    IdOcurrenciaPadreAlterno,
+                    IdOcurrenciaActividadAlterno,
+                    IdOcurrenciaAlterno,
+                    OcurrenciaPadreAlterno,
+                    OcurrenciaAlterno
+
                       FROM
-                            ope.V_ObtenerHistoricoOcurrenciaAtencionCliente
+                            ope.V_EvaluacionLlamadaObtenerHistoricoOcurrenciaAtencionCliente
                       WHERE IdOportunidad = @idOportunidad
                         AND IdPersonalAreaTrabajo = @idPersonalAreaTrabajo
                       ORDER BY FechaReal DESC;";
