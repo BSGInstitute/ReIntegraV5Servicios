@@ -84,10 +84,10 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.LinkedIn
             return Ok(resultado);
         }
         [HttpPost("[action]")]
-        public IActionResult SubirOportunidadesPendientesSeleccionadas(List<string> guidLinkedinLead)
+        public IActionResult SubirOportunidadesPendientesSeleccionadas([FromBody] SubirPendientesAgrupadas guidLinkedinLead)
         {
+            var resultado = _linkedInApiService.SubirOportunidadesPendientesSeleccionadas(guidLinkedinLead,_tokenManager.UserName);
 
-            var resultado = _linkedInApiService.SubirOportunidadesPendientesSeleccionadasAsync(guidLinkedinLead ,_tokenManager.UserName);
             return Ok(resultado);
         }
 

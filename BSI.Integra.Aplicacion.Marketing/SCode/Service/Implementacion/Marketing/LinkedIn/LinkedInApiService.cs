@@ -14,6 +14,9 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using System.Net.Http.Json;
+using Microsoft.AspNet.SignalR.Json;
+using System.Text;
+
 
 namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.LinkedIn
 {
@@ -739,7 +742,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
 
             try
             {
-                var url = "https://integrav5-oportunidad-servicios.bsginstitute.com/api/LinkedIn/SubirOportunidadesPendientes"
+                var url = "https://localhost:7288/api/LinkedIn/SubirOportunidadesPendientes"
                           + "?usuario=" + Uri.EscapeDataString(usuario);
 
                 using var http = new HttpClient();
@@ -752,36 +755,72 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
             }
         }
 
-
-        public async Task<bool> SubirOportunidadesPendientesSeleccionadasAsync(List<string> guidLinkedinLead, string usuario)
+        public bool SubirOportunidadesPendientesSeleccionadas(SubirPendientesAgrupadas res, string usuario)
         {
             if (string.IsNullOrWhiteSpace(usuario)) return false;
-            if (guidLinkedinLead == null || guidLinkedinLead.Count == 0) return false;
+            if (res == null) return false;
 
             try
             {
-                // Limpia nulos, trim y quita duplicados
-                var guids = guidLinkedinLead
-                    .Where(x => !string.IsNullOrWhiteSpace(x))
-                    .Select(x => x.Trim())
+                // Normaliza la lista de GUIDs string (solo recorta y quita vacíos)
+                var guids = (res.GuidLinkedInLead ?? new List<string>())
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .Select(s => s.Trim())
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToList();
-
                 if (guids.Count == 0) return false;
 
-                var url = "https://integrav5-oportunidad-servicios.bsginstitute.com/api/LinkedIn/SubirOportunidadesPendientesSeleccionadas";
+                if (res.CuentaAsociada <= 0) return false;
+                var grupo = res.Grupo > 0 ? res.Grupo : 1;
 
-                using var http = new HttpClient();
-
-                // Si tu API es estricta con nombres/casing, respeta exactamente las propiedades esperadas:
-                var payload = new
+                var payload = new SubirOportunidadesPendientesRequest
                 {
-                    usuario = usuario,
-                    guidLinkedinLead = guids 
+                    Usuario = usuario,
+                    Guids = new SubirPendientesAgrupadas
+                    {
+                        GuidLinkedInLead = guids,
+                        CuentaAsociada = res.CuentaAsociada,
+                        Grupo = grupo
+                    }
                 };
 
-                //var resp = await http.PostAsJsonAsync(url, payload,
-                //    new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+                var url = "https://localhost:44366/api/LinkedIn/SubirOportunidadesPendientesSeleccionadas";
+
+                // Para localhost con certificado de desarrollo
+                using var handler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                };
+                using var http = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(60) };
+                http.DefaultRequestHeaders.Accept.Clear();
+                http.DefaultRequestHeaders.Accept.ParseAdd("application/json");
+
+                var json = JsonConvert.SerializeObject(payload);
+                using var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var resp = http.PostAsync(url, content).GetAwaiter().GetResult();
+                var respText = resp.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+
+                // Logs de diagnóstico
+                Console.WriteLine($"POST {url} -> {(int)resp.StatusCode} {resp.StatusCode}");
+                Console.WriteLine($"Request JSON: {json}");
+                Console.WriteLine($"Response body: {respText}");
+
+                if (!resp.IsSuccessStatusCode) return false;
+
+                // Ok(bool) plano
+                if (bool.TryParse(respText, out var okDirecto)) return okDirecto;
+
+                // Ok(body JSON con booleano)
+                try
+                {
+                    var token = JToken.Parse(respText);
+                    if (token.Type == JTokenType.Boolean) return token.Value<bool>();
+                    var propTrue = token.SelectToken("$..value");
+                    if (propTrue != null && propTrue.Type == JTokenType.Boolean)
+                        return propTrue.Value<bool>();
+                }
+                catch { /* respuesta no JSON */ }
 
                 return false;
             }

@@ -21,7 +21,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Interface.Marketing.LinkedIn
         IEnumerable<ReporteLeadsPendientesDTO> ObtenerReportePendientes(int cuentaAsociada);
         bool Actualizar(LinkedInActualizarDTO dto, string usuario);
         bool SubirOportunidadesPendientes(string usuario);
-        Task<bool> SubirOportunidadesPendientesSeleccionadasAsync(List<string> guidLinkedinLead, string usuario);
+        bool SubirOportunidadesPendientesSeleccionadas(SubirPendientesAgrupadas res, string usuario);
         BoolDTO ValidarCreacionOportunidadLinkedinEstado();
         BoolDTO ValidarEstadoParaControlLinkedin();
     }
