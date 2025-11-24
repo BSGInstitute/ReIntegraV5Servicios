@@ -1072,7 +1072,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
         /// Obtiene todos los registros de la tabla
         /// </summary>
         /// <returns> List<ComboDTO> </returns>
-        [Route("[action]")]
+        [Route("[action]/{idPersonalAreaTrabajo}")]
         [HttpGet]
         public async Task<ActionResult<List<bool>>> CalificacionAutoV2(int idPersonalAreaTrabajo)
         {

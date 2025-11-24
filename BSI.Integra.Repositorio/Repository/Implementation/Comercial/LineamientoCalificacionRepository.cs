@@ -1176,7 +1176,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             try
             {
                 List<LlamadaProcesoAutoDTO> configuracion = new List<LlamadaProcesoAutoDTO>();
-                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ObtenerInformacionCalificacionAutomaticaEvaluacionLlamada]", new { });
+                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ObtenerInformacionCalificacionAutomaticaEvaluacionLlamada]", new { idPersonalAreaTrabajo = idPersonalAreaTrabajo });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
                 {
                     configuracion = JsonConvert.DeserializeObject<List<LlamadaProcesoAutoDTO>>(resultado);
