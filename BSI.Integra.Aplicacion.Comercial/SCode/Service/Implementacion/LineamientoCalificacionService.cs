@@ -1422,7 +1422,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         {
             var serviceInformacionPrograma = new InformacionProgramaService(_unitOfWork);
 
-            IEnumerable<LlamadaProcesoAutoDTO> item = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionAuto();
+            IEnumerable<LlamadaProcesoAutoDTO> item = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosEvaluacionLLamadaCalificacionAuto(idPersonalAreaTrabajo);
 
             var configuracionVigente =
                 _unitOfWork.LineamientoCalificacionRepository.ObtenerConfiguracionVigentePorArea(
@@ -1451,22 +1451,22 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
             var lineamientos = BuildLineamientosFormateadosFromSp(configuracionVigente);
 
-            using var httpClient = new HttpClient
-            {
-                BaseAddress = new Uri(
-                    "http://ia-analisis-llamadas-comercial-api.bsginstitute.com/"
-                ),
-            };
-
-            httpClient.DefaultRequestHeaders.Accept.Clear();
-            httpClient.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("application/json")
-            );
-            httpClient.DefaultRequestHeaders.Add("Cache-Control", "no-cache");
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "PostmanRuntime/7.44.0");
-            httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
-            httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
-
+            // using var httpClient = new HttpClient
+            // {
+            //     BaseAddress = new Uri(
+            //         "http://ia-analisis-llamadas-comercial-api.bsginstitute.com/"
+            //     ),
+            // };
+            //
+            // httpClient.DefaultRequestHeaders.Accept.Clear();
+            // httpClient.DefaultRequestHeaders.Accept.Add(
+            //     new MediaTypeWithQualityHeaderValue("application/json")
+            // );
+            // httpClient.DefaultRequestHeaders.Add("Cache-Control", "no-cache");
+            // httpClient.DefaultRequestHeaders.Add("User-Agent", "PostmanRuntime/7.44.0");
+            // httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
+            // httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
+            //
             var semaphore = new SemaphoreSlim(10);
 
             foreach (var oportunidad in itemsAgrupadosPorOportunidad)
@@ -1701,55 +1701,55 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             )
                         );
 
-                        var llamadaActualizada =
-                            _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionPorIdLlamadaV2(
-                                item.IdLlamada,
-                                idPersonalAreaTrabajo
-                            );
-
-                        if (llamadaActualizada?.EsLlamadaCalificada == true)
-                        {
-                            Console.WriteLine(
-                                $"[SKIP] Llamada {item.IdLlamada} ya fue calificada por otro proceso"
-                            );
-                            return false;
-                        }
-
-                        if (transcripcionesParaPayload.Any())
-                        {
-                            var primeraTranscripcion = transcripcionesParaPayload.First();
-                            var idLlamadaPrimera = primeraTranscripcion
-                                .GetType()
-                                .GetProperty("IdLlamada")
-                                ?.GetValue(primeraTranscripcion)
-                                ?.ToString();
-
-                            if (idLlamadaPrimera != item.IdLlamada.ToString())
-                            {
-                                Console.WriteLine(
-                                    $"[SKIP] La llamada actual {item.IdLlamada} no está en la primera posición del array. Primera posición: {idLlamadaPrimera}"
-                                );
-                                return false;
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine(
-                                $"[SKIP] No hay transcripciones disponibles para la llamada {item.IdLlamada}"
-                            );
-                            return false;
-                        }
-
-                        var response = await httpClient.PostAsJsonAsync(
-                            "grading/queue/batch",
-                            payload
-                        );
-                        response.EnsureSuccessStatusCode();
-                        var json = await response.Content.ReadAsStringAsync();
-                        var evaluacionData = JsonSerializer.Deserialize<ResultadoEvaluacion>(
-                            json,
-                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-                        );
+                        // var llamadaActualizada =
+                        //     _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionPorIdLlamadaV2(
+                        //         item.IdLlamada,
+                        //         idPersonalAreaTrabajo
+                        //     );
+                        //
+                        // if (llamadaActualizada?.EsLlamadaCalificada == true)
+                        // {
+                        //     Console.WriteLine(
+                        //         $"[SKIP] Llamada {item.IdLlamada} ya fue calificada por otro proceso"
+                        //     );
+                        //     return false;
+                        // }
+                        //
+                        // if (transcripcionesParaPayload.Any())
+                        // {
+                        //     var primeraTranscripcion = transcripcionesParaPayload.First();
+                        //     var idLlamadaPrimera = primeraTranscripcion
+                        //         .GetType()
+                        //         .GetProperty("IdLlamada")
+                        //         ?.GetValue(primeraTranscripcion)
+                        //         ?.ToString();
+                        //
+                        //     if (idLlamadaPrimera != item.IdLlamada.ToString())
+                        //     {
+                        //         Console.WriteLine(
+                        //             $"[SKIP] La llamada actual {item.IdLlamada} no está en la primera posición del array. Primera posición: {idLlamadaPrimera}"
+                        //         );
+                        //         return false;
+                        //     }
+                        // }
+                        // else
+                        // {
+                        //     Console.WriteLine(
+                        //         $"[SKIP] No hay transcripciones disponibles para la llamada {item.IdLlamada}"
+                        //     );
+                        //     return false;
+                        // }
+                        //
+                        // var response = await httpClient.PostAsJsonAsync(
+                        //     "grading/queue/batch",
+                        //     payload
+                        // );
+                        // response.EnsureSuccessStatusCode();
+                        // var json = await response.Content.ReadAsStringAsync();
+                        // var evaluacionData = JsonSerializer.Deserialize<ResultadoEvaluacion>(
+                        //     json,
+                        //     new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                        // );
 
                         return true;
                     }
