@@ -1171,6 +1171,24 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             }
 
         }
+        public IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosEvaluacionLLamadaCalificacionAuto(int idPersonalAreaTrabajo)
+        {
+            try
+            {
+                List<LlamadaProcesoAutoDTO> configuracion = new List<LlamadaProcesoAutoDTO>();
+                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ObtenerInformacionCalificacionAutomaticaEvaluacionLlamada]", new { });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                {
+                    configuracion = JsonConvert.DeserializeObject<List<LlamadaProcesoAutoDTO>>(resultado);
+                }
+                return configuracion;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
         public IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosConfiguracionCalificacionAtencionCliente()
         {
             try
@@ -1219,7 +1237,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                     IdPersonalAreaTrabajo = IdPersonalAreaTrabajo
                 };
 
-                var resultado = _dapperRepository.QuerySPFirstOrDefault("[com].[SP_ObtenerInformacionCalificacionLlamadaV2]", parametros);
+                var resultado = _dapperRepository.QuerySPFirstOrDefault("[com].[SP_ObtenerInformacionEvaluacionLlamada]", parametros);
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
                 {
@@ -1263,7 +1281,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                     IdPersonalAreaTrabajo = IdPersonalAreaTrabajo
                 };
 
-                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ObtenerHistorialLlamadaOportunidadV2]", parametros);
+                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ObtenerHistorialLlamadaOportunidadEvaluacionLlamada]", parametros);
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
                 {
