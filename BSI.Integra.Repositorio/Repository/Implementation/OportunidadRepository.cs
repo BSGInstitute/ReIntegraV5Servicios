@@ -416,7 +416,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 List<CentroCostoVentaCruzadaDTO> rpta = new List<CentroCostoVentaCruzadaDTO>();
 
-                var query = "EXEC pla.SP_ProgramaGeneralCentroCosto_Listar @IdPGeneral = @idPGeneral";
+                var query = "EXEC pla.SP_ObtenerProgramaGeneralCentroCosto @IdPGeneral = @idPGeneral";
 
                 var resultado = _dapperRepository.QueryDapper(query, new { idPGeneral });
 
