@@ -838,8 +838,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
         public async Task<List<bool>> TranscripcionAutoV2(int idPersonalAreaTrabajo)
         {
-            IEnumerable<LlamadaProcesoAutoAtencioClienteDTO> items = null;
-            items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente();
+            IEnumerable<LlamadaProcesoAutoAtencioClienteDTO> items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente();
 
             var resultados = new List<bool>();
 
@@ -1424,13 +1423,16 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         /// Autor: Jose Vega
         /// Autor Modificación: Lolo Zaa
         /// Fecha: 2025-11-17
+        /// Fecha Modificacion: 2025-11-21
         /// Version: 2.0
         /// <summary>
         /// Procesa la calificación automática de llamadas.
         /// Refactorizado para aceptar 'idPersonalAreaTrabajo' y segmentar la
         /// lógica de construcción del 'brochure' por área (Ventas=8, Clientes=3).
         /// </summary>
-        /// descripcion modificación: se adapto la funcion a las tablas formalizadas.
+        /// descripcion modificación
+        ///   -se adapto la funcion para usar las tablas normalizadas.
+        ///   -Se agrego nuevos Sps para el manejo de información
         /// <param name="tipoCalificacion">Tipo de calificación (1=Auto, 2=Masiva).</param>
         /// <param name="idPersonalAreaTrabajo">ID del área de trabajo (8=Ventas, 3=Clientes).</param>
         /// <returns>Una lista de booleanos indicando el resultado de cada calificación.</returns>
@@ -1475,7 +1477,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 BaseAddress = new Uri(
                     "http://127.0.0.1:8000/"
                 ),
-               
+
             };
             //
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -1562,7 +1564,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         var llamadasHistoricasParaPayload = llamadasHistoricasCalificadas.ToList();
 
                         var transcripcionesParaPayload = new List<object>();
-                        var transcripcionActual = await ObtenerTranscripcion(
+                        var transcripcionActual = await ObtenerDisplayTranscripcion(
                             llamadaActual.IdLlamada
                         );
                         if (transcripcionActual != null)
@@ -1572,7 +1574,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
                         foreach (var llamadaHistorica in llamadasHistoricasParaPayload)
                         {
-                            var transcripcionHistorica = await ObtenerTranscripcion(
+                            var transcripcionHistorica = await ObtenerDisplayTranscripcion(
                                 llamadaHistorica.IdLlamada
                             );
                             if (transcripcionHistorica != null)
@@ -1720,12 +1722,11 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                 }
                             )
                         );
-
                         var llamadaActualizada =
-                            _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionPorIdLlamadaV2(
-                                item.IdLlamada,
-                                idPersonalAreaTrabajo
-                            );
+                           _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionPorIdLlamadaV2(
+                               item.IdLlamada,
+                               idPersonalAreaTrabajo
+                           );
 
                         if (llamadaActualizada?.EsLlamadaCalificada == true)
                         {
