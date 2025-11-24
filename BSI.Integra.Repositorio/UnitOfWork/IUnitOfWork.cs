@@ -1,5 +1,4 @@
-﻿using BSI.Integra.Repositorio.Repository.Implementation;
-using BSI.Integra.Repositorio.Repository.Interface;
+﻿using BSI.Integra.Repositorio.Repository.Interface;
 using BSI.Integra.Repositorio.Repository.Interface.Comercial;
 using BSI.Integra.Repositorio.Repository.Interface.Configuracion;
 using BSI.Integra.Repositorio.Repository.Interface.Finanzas.Siigo;
@@ -11,6 +10,7 @@ using BSI.Integra.Repositorio.Repository.Interface.Marketing.FiltroSegmentoFolde
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.FiltroSegmentoTipoContacto;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.LinkedIn;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.Melissa;
+using BSI.Integra.Repositorio.Repository.Interface.Marketing.Messenger;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.Sendingblue;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.WhatsApp;
 using BSI.Integra.Repositorio.Repository.Interface.Operacion;
@@ -857,11 +857,11 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IAsentamientoMunicipioRepository AsentamientoMunicipioRepository { get; }
         ILinkedInApiRepository LinkedInApiRepository { get; }
         IWhatsAppUsuarioRepository WhatsAppUsuarioRepository { get; }
-        IWhatsAppConfiguracionApiRepository WhatsAppConfiguracionApiRepository { get; } 
+        IWhatsAppConfiguracionApiRepository WhatsAppConfiguracionApiRepository { get; }
         IDepartamentoPaiRepository DepartamentoPaiRepository { get; }
         ICiudadDepartamentoPaiRepository CiudadDepartamentoPaiRepository { get; }
         ISiigoApiRepository SiigoApiRepository { get; }
-        IProgramaGeneralPresentacionArgumentoRepository ProgramaGeneralPresentacionArgumentoRepository  { get; }
+        IProgramaGeneralPresentacionArgumentoRepository ProgramaGeneralPresentacionArgumentoRepository { get; }
         IProgramaGeneralPresentacionArgumentoModalidadRepository ProgramaGeneralPresentacionArgumentoModalidadRepository { get; }
         IProgramaGeneralPresentacionArgumentoDetalleSolucionRepository ProgramaGeneralPresentacionArgumentoDetalleSolucionRepository { get; }
         IFormularioProgresivoRepository FormularioProgresivoRepository { get; }
@@ -948,5 +948,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IProgramaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository ProgramaGeneralProblemaFactorSolucionRespuestaSolucionRespuestaRepository { get; }
         IProgramaMotivacionRepository ProgramaMotivacionRepository { get; }
         IOportunidadProgramaMotivacionSeleccionRepository OportunidadProgramaMotivacionSeleccionRepository { get; }
+
+        IMessengerFacebookChatRepository MessengerFacebookChatRepository { get; }
     }
 }
