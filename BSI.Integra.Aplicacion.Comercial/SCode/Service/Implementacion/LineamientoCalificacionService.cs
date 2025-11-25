@@ -318,12 +318,62 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
             return data;
         }
+
+        /// Autor: Lolo Arnold Zaa Fernandez
+        /// Fecha: 25/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la versión vigente de configuración de calificación para un área específica,
+        /// devolviendo los datos de la tabla T_EvaluacionLlamadaConfiguracionVersion con el JSON construido dinámicamente.
+        /// El JSON se construye usando BuildConfiguracionLineamientosFromSp a partir del SP SP_EvaluacionLlamadaObtenerConfiguracionVigente.
+        /// </summary>
+        /// <param name="idPersonalAreaTrabajo">Identificador del área de trabajo del personal</param>
+        /// <returns> ConfiguracionEsquemaCalificacionLlamdaDTO con los datos de la versión vigente y el JSON serializado </returns>
+        public ConfiguracionEsquemaCalificacionLlamdaDTO ObtenerConfiguracionVigenteV3(int idPersonalAreaTrabajo)
+        {
+            try
+            {
+                // Obtener la versión vigente de la tabla
+                var versionVigente = _unitOfWork.LineamientoCalificacionRepository
+                                           .HistorialVersionCalificacionLlamadaV2(idPersonalAreaTrabajo)
+                                           .FirstOrDefault(v => v.EsVigente);
+
+                if (versionVigente == null)
+                {
+                    return null;
+                }
+
+                // Obtener la configuración desde el SP
+                var configuracionVigente = _unitOfWork.LineamientoCalificacionRepository
+                    .ObtenerConfiguracionVigentePorArea(idPersonalAreaTrabajo);
+
+                if (configuracionVigente != null && configuracionVigente.Any())
+                {
+                    // Construir el objeto estructurado usando BuildConfiguracionLineamientosFromSp
+                    var dataEstructurada = BuildConfiguracionLineamientosFromSp(configuracionVigente);
+
+                    // Serializar el objeto a JSON
+                    versionVigente.ConfiguracionJSON = JsonSerializer.Serialize(dataEstructurada);
+                }
+                else
+                {
+                    versionVigente.ConfiguracionJSON = "{}";
+                }
+
+                return versionVigente;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// Autor: Joseph Llanque.
         /// Fecha: 03/07/2025
         /// Version: 1.0
         /// <summary>
         /// Obtiene todos los registros de la tabla
-        /// </summary> 
+        /// </summary>
         /// <returns> IEnumerable<ComboDTO> </returns>
         public IEnumerable<ConfiguracionMasivaTranscripcionCalificacionDTO> ObtenerConfiguracionMasivaActiva()
         {
@@ -1957,6 +2007,79 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 .ToList();
 
             return new { fases = fasesDict, puntosgenerales = puntosGenerales };
+        }
+
+        public ConfiguracionLineamientoDTO BuildConfiguracionLineamientosFromSp(
+            IEnumerable<ConfiguracionVigenteJerarquiaDTO> configuracion
+        )
+        {
+            var fases = configuracion
+                .Where(x => x.TipoEntidad == "FASE")
+                .OrderBy(x => x.Orden)
+                .Select(f => new FaseDTO
+                {
+                    Id = f.Id,
+                    Nombre = f.Nombre,
+                    Orden = f.Orden ?? 0
+                })
+                .ToList();
+
+            var criterios = configuracion
+                .Where(x => x.TipoEntidad == "CRITERIO")
+                .OrderBy(x => x.Orden)
+                .Select(c => new CriterioDTO
+                {
+                    Id = c.Id,
+                    IdFaseCalificacion = c.IdPadre ?? 0,
+                    NombreCriterio = c.Nombre,
+                    Orden = c.Orden ?? 0
+                })
+                .ToList();
+
+            var lineamientos = configuracion
+                .Where(x => x.TipoEntidad == "LINEAMIENTO")
+                .OrderBy(x => x.Orden)
+                .Select(l => new LineamientoDTO
+                {
+                    Id = l.Id,
+                    IdCriterioCalificacionLlamada = l.IdPadre ?? 0,
+                    IdCriticidadCalificacion = l.IdCriticidad ?? 0,
+                    NombreLineamiento = l.Nombre,
+                    Orden = l.Orden ?? 0
+                })
+                .ToList();
+
+            var criticidades = configuracion
+                .Where(x => x.TipoEntidad == "LINEAMIENTO" && x.IdCriticidad.HasValue)
+                .Select(x => new { Id = x.IdCriticidad.Value, Nombre = x.NombreCriticidad })
+                .Distinct()
+                .Select(cr => new CriticidadDTO
+                {
+                    Id = cr.Id,
+                    Nombre = cr.Nombre
+                })
+                .ToList();
+
+            var puntosGenerales = configuracion
+                .Where(x => x.TipoEntidad == "PUNTOGENERAL")
+                .OrderBy(x => x.Orden)
+                .Select(pg => new PuntoGeneralDTO
+                {
+                    Id = pg.Id,
+                    Nombre = pg.Nombre,
+                    Descripcion = pg.Descripcion ?? string.Empty,
+                    Orden = pg.Orden ?? 0
+                })
+                .ToList();
+
+            return new ConfiguracionLineamientoDTO
+            {
+                FasesCalificacion = fases,
+                CriteriosCalificacion = criterios,
+                LineamientosCalificacion = lineamientos,
+                CriticidadCalificacion = criticidades,
+                PuntosGeneralesCalificacion = puntosGenerales
+            };
         }
 
         private object BuildBrochureVentas(LlamadaProcesoAutoDTO item, InformacionProgramaService serviceInformacionPrograma)

@@ -427,6 +427,40 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
             }
         }
 
+        /// Tipo Función: GET
+        /// Autor: Lolo Arnold Zaa Fernandez
+        /// Fecha: 25/11/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Endpoint que obtiene la versión vigente de configuración de calificación para un área de trabajo específica.
+        /// Devuelve los datos de la tabla T_EvaluacionLlamadaConfiguracionVersion (id, fechaVersion, descripcionVersion,
+        /// esVigente, comentario, etc.) junto con el configuracionJSON construido dinámicamente.
+        /// El JSON se construye usando BuildConfiguracionLineamientosFromSp a partir del SP SP_EvaluacionLlamadaObtenerConfiguracionVigente.
+        /// </summary>
+        /// <param name="idPersonalAreaTrabajo">Identificador del área de trabajo.</param>
+        /// <returns> ActionResult con ConfiguracionEsquemaCalificacionLlamdaDTO que incluye los datos de la versión vigente y el JSON serializado </returns>
+        [Route("[action]/{idPersonalAreaTrabajo}")]
+        [HttpGet]
+        public ActionResult HistorialVesionEvaluacionLlamada(int idPersonalAreaTrabajo)
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ObtenerConfiguracionVigenteV3(idPersonalAreaTrabajo);
+
+                if (resultado == null)
+                {
+                    return NotFound(new { mensaje = "No se encontró una versión vigente para el área de trabajo especificada." });
+                }
+
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         /// Autor: Joseph Llanque
         /// Fecha: 11/03/2025
         /// Versión: 1.0
