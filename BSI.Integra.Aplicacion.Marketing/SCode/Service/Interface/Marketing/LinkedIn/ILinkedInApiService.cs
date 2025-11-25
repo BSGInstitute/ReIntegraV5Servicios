@@ -24,5 +24,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Interface.Marketing.LinkedIn
         bool SubirOportunidadesPendientesSeleccionadas(SubirPendientesAgrupadas res, string usuario);
         BoolDTO ValidarCreacionOportunidadLinkedinEstado();
         BoolDTO ValidarEstadoParaControlLinkedin();
+        bool ValidarEstadoParaControlLinkedinPorCuenta(int cuentaAsociada);
+        IEnumerable<LinkedinCuentaDTO> ObtenerCuentasActivas();
     }
 }

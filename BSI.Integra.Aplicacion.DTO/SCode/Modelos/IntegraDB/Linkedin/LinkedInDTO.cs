@@ -216,12 +216,20 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin
     public class SubirPendientesAgrupadas
     {
         public List<string>? GuidLinkedInLead { get; set; }
-        public int? CuentaAsociada { get; set; }
+        public int CuentaAsociada { get; set; }
         public int? Grupo { get; set; }
     }
     public class SubirOportunidadesPendientesRequest
     {
         public string Usuario { get; set; }
         public SubirPendientesAgrupadas Guids { get; set; }
+    }
+
+    public class LinkedinCuentaDTO
+    {
+        public int Id { get; set; }
+        public int NroCuenta { get; set; }
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
     }
 }

@@ -762,7 +762,6 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
 
             try
             {
-                // Normaliza la lista de GUIDs string (solo recorta y quita vacíos)
                 var guids = (res.GuidLinkedInLead ?? new List<string>())
                     .Where(s => !string.IsNullOrWhiteSpace(s))
                     .Select(s => s.Trim())
@@ -786,7 +785,6 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
 
                 var url = "https://localhost:44366/api/LinkedIn/SubirOportunidadesPendientesSeleccionadas";
 
-                // Para localhost con certificado de desarrollo
                 using var handler = new HttpClientHandler
                 {
                     ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
@@ -801,17 +799,17 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
                 var resp = http.PostAsync(url, content).GetAwaiter().GetResult();
                 var respText = resp.Content.ReadAsStringAsync().GetAwaiter().GetResult();
 
-                // Logs de diagnóstico
+
                 Console.WriteLine($"POST {url} -> {(int)resp.StatusCode} {resp.StatusCode}");
                 Console.WriteLine($"Request JSON: {json}");
                 Console.WriteLine($"Response body: {respText}");
 
                 if (!resp.IsSuccessStatusCode) return false;
 
-                // Ok(bool) plano
+                _unitOfWork.LinkedInApiRepository.LinkedinControlEnvioResetGrupo(res.CuentaAsociada);
                 if (bool.TryParse(respText, out var okDirecto)) return okDirecto;
 
-                // Ok(body JSON con booleano)
+
                 try
                 {
                     var token = JToken.Parse(respText);
@@ -820,7 +818,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
                     if (propTrue != null && propTrue.Type == JTokenType.Boolean)
                         return propTrue.Value<bool>();
                 }
-                catch { /* respuesta no JSON */ }
+                catch { }
 
                 return false;
             }
@@ -833,16 +831,28 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
 
         public BoolDTO ValidarCreacionOportunidadLinkedinEstado()
         {
-            {
-                return _unitOfWork.LinkedInApiRepository.ValidarCreacionOportunidadLinkedinEstado();
-            }
+
+            return _unitOfWork.LinkedInApiRepository.ValidarCreacionOportunidadLinkedinEstado();
+
         }
 
         public BoolDTO ValidarEstadoParaControlLinkedin()
         {
-            {
-                return _unitOfWork.LinkedInApiRepository.ValidarObtencionLeadLinkedinEstado();
-            }
+
+            return _unitOfWork.LinkedInApiRepository.ValidarObtencionLeadLinkedinEstado();
+
+        }
+        public IEnumerable<LinkedinCuentaDTO> ObtenerCuentasActivas()
+        {
+            return _unitOfWork.LinkedInApiRepository.ObtenerCuentasActivas();
+        }
+
+        public bool ValidarEstadoParaControlLinkedinPorCuenta(int cuentaAsociada)
+        {
+            var valor= _unitOfWork.LinkedInApiRepository.ValidarEstadoParaControlLinkedinPorCuenta(cuentaAsociada);
+            if (valor.Valor != true)
+                return false;
+            return true;
         }
     }
 }

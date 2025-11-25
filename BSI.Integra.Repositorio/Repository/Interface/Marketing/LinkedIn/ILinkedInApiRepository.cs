@@ -51,5 +51,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Marketing.LinkedIn
         List<InformacionBaseOportunidad> ObtenerReportePendientesRevisados();
         BoolDTO ValidarCreacionOportunidadLinkedinEstado();
         BoolDTO ValidarObtencionLeadLinkedinEstado();
+        BoolDTO ValidarEstadoParaControlLinkedinPorCuenta(int cuentaAsociada);
+        IEnumerable<LinkedinCuentaDTO> ObtenerCuentasActivas();
+        void LinkedinControlEnvioResetGrupo(int cuentaAsociada);
     }
 }

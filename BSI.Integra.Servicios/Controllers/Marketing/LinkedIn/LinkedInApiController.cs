@@ -106,6 +106,20 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.LinkedIn
             var resultado = _linkedInApiService.ValidarEstadoParaControlLinkedin();
             return Ok(resultado.Valor);
         }
+        [HttpGet("[action]/{cuentaAsociada}")]
+        public IActionResult ValidarObtencionLeadLinkedinEstadoPorCuenta(int cuentaAsociada)
+        {
 
+            var resultado = _linkedInApiService.ValidarEstadoParaControlLinkedinPorCuenta(cuentaAsociada);
+            return Ok(resultado);
+        }
+
+        [HttpGet("[action]")]
+        public IActionResult ObtenerCuentasActivas()
+        {
+
+            var resultado = _linkedInApiService.ObtenerCuentasActivas();
+            return Ok(resultado);
+        }
     }
 }
