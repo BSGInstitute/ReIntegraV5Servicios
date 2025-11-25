@@ -1134,15 +1134,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             }
 
         }
-        public IEnumerable<LlamadaProcesoAutoAtencioClienteDTO> ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente(int idPersonalAreaTrabajo)
+        public IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente(int idPersonalAreaTrabajo)
         {
             try
             {
-                List<LlamadaProcesoAutoAtencioClienteDTO> configuracion = new List<LlamadaProcesoAutoAtencioClienteDTO>();
+                List<LlamadaProcesoAutoDTO> configuracion = new List<LlamadaProcesoAutoDTO>();
                 var resultado = _dapperRepository.QuerySPDapper("ope.SP_EvaluacionLlamadaObtenerTranscripcionAutomaticaAtencionCliente", new {idPersonalAreaTrabajo=idPersonalAreaTrabajo});
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
                 {
-                    configuracion = JsonConvert.DeserializeObject<List<LlamadaProcesoAutoAtencioClienteDTO>>(resultado);
+                    configuracion = JsonConvert.DeserializeObject<List<LlamadaProcesoAutoDTO>>(resultado);
                 }
                 return configuracion;
             }

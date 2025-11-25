@@ -838,7 +838,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
         public async Task<List<bool>> TranscripcionAutoV2(int idPersonalAreaTrabajo)
         {
-            IEnumerable<LlamadaProcesoAutoAtencioClienteDTO> items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente(idPersonalAreaTrabajo);
+            IEnumerable<LlamadaProcesoAutoDTO> items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente(idPersonalAreaTrabajo);
 
             var resultados = new List<bool>();
 
@@ -848,8 +848,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 .ToList();
 
             using var httpClient = new HttpClient();
-            //httpClient.BaseAddress = new Uri("http://ia-analisis-llamadas-comercial-api.bsginstitute.com/");
-            httpClient.BaseAddress = new Uri("http://127.0.0.1:8000/");
+            httpClient.BaseAddress = new Uri("http://ia-analisis-llamadas-comercial-api.bsginstitute.com/");
+            //httpClient.BaseAddress = new Uri("http://127.0.0.1:8000/");
 
             // Configurar headers como en Postman
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -1034,7 +1034,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         }
 
         private object PayloadAtencionCliente<T>(
-        LlamadaProcesoAutoAtencioClienteDTO item,
+        LlamadaProcesoAutoDTO item,
         List<T> historialReprogramaciones
         )
         {
@@ -1042,15 +1042,15 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             {
                 idLlamada = item.IdLlamada.ToString(),
                 idActividadDetalle = item.IdActividadDetalle.ToString(),
-                idPersonal = item.IdPersonalAsignado,
+                idPersonal = item.IdPersonal_Asignado,
                 username = "System-Auto",
                 contacto = "Generico",
                 audio_url = item.UrlAudioProcesado,
                 locale = "es-ES",
-                ocurrencia = item.NombreOcurrencia,
+                ocurrencia = item.Ocurrencia,
                 historialReprogramaciones = historialReprogramaciones,
-                faseOrigen = item.IdFaseOportunidadActual,
-                faseDestino = item.IdFaseOportunidadAnterior,
+                faseOrigen = item.IdFaseOportunidad,
+                faseDestino = item.IdFaseOportunidad_Ant,
             };
             return payload;
         }
@@ -1471,12 +1471,12 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
             using var httpClient = new HttpClient
             {
-                //BaseAddress = new Uri(
-                //    "http://ia-analisis-llamadas-comercial-api.bsginstitute.com/"
-                //),
                 BaseAddress = new Uri(
-                    "http://127.0.0.1:8000/"
+                    "http://ia-analisis-llamadas-comercial-api.bsginstitute.com/"
                 ),
+                //BaseAddress = new Uri(
+                //    "http://127.0.0.1:8000/"
+                //),
 
             };
             //
