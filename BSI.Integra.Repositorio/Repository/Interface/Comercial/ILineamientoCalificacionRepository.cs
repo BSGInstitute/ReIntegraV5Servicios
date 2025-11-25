@@ -101,5 +101,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
         IEnumerable<ConfiguracionVigenteJerarquiaDTO> ObtenerConfiguracionPorVersion(int idVersion, int idPersonalAreaTrabajo);
         IEnumerable<ConfiguracionVigenteJerarquiaDTO> ObtenerConfiguracionVigentePorArea(int idPersonalAreaTrabajo);
         IEnumerable<ConfiguracionEsquemaCalificacionPorLlamdaDTO> HistorialVersionCalificacionPorLlamadav2(int idLlamada);
+
+        // Métodos para tablas temporales - Calificación en tiempo real
+        bool GuardarCalificacionLlamadaTemporal(CalificacionLlamadaManualTemporalDTO calificacionTemporal);
+        IEnumerable<CalificacionLlamadaDTO> ObtenerNotaCalificacionLineamientoTemporal(int idActividadDetalle, int numeroLlamada);
     }
 }

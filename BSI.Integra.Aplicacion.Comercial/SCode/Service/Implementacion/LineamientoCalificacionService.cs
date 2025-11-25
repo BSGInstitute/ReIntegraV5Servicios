@@ -3624,7 +3624,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         /// Version: 1.0
         /// <summary>
         /// Obtiene todos el resumen de punto critico diario por asesor
-        /// </summary> 
+        /// </summary>
         /// <returns> IEnumerable<ComboDTO> </returns>
         public IEnumerable<PuntoCriticoResumenDiarioDTO> ObtenerPuntoCriticoDiario(PuntoCriticoResumenEntradaDTO payload)
         {
@@ -3633,6 +3633,53 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 var idPersonal = payload.IdPersonal;
                 var FechaGeneracion = payload.FechaGeneracion;
                 return _unitOfWork.LineamientoCalificacionRepository.ObtenerPuntoCriticoDiario(idPersonal,FechaGeneracion);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 25/01/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Guarda calificación manual en tiempo real usando tablas temporales.
+        /// Permite calificar llamadas antes de que se registren definitivamente,
+        /// usando IdActividadDetalle + NumeroLlamada como identificadores temporales.
+        /// Los datos se guardan en T_EvaluacionLlamadaTemporal y T_EvaluacionDetalleManualTemporal.
+        /// </summary>
+        /// <param name="calificacionTemporal">DTO con datos de calificación temporal</param>
+        /// <returns>True si la operación fue exitosa</returns>
+        public bool GuardarCalificacionLlamadaTemporal(CalificacionLlamadaManualTemporalDTO calificacionTemporal)
+        {
+            try
+            {
+                return _unitOfWork.LineamientoCalificacionRepository.GuardarCalificacionLlamadaTemporal(calificacionTemporal);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 25/01/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene las calificaciones temporales de una llamada en tiempo real.
+        /// Utiliza IdActividadDetalle + NumeroLlamada para identificar la llamada
+        /// antes de que se registre en T_LlamadaWebphoneCruceCentralTresCx.
+        /// Consulta las tablas T_EvaluacionLlamadaTemporal y T_EvaluacionDetalleManualTemporal.
+        /// </summary>
+        /// <param name="idActividadDetalle">ID de la actividad detalle</param>
+        /// <param name="numeroLlamada">Número secuencial de la llamada (1, 2, 3, etc.)</param>
+        /// <returns>Lista de calificaciones temporales</returns>
+        public IEnumerable<CalificacionLlamadaDTO> ObtenerNotaCalificacionLineamientoTemporal(int idActividadDetalle, int numeroLlamada)
+        {
+            try
+            {
+                return _unitOfWork.LineamientoCalificacionRepository.ObtenerNotaCalificacionLineamientoTemporal(idActividadDetalle, numeroLlamada);
             }
             catch (Exception ex)
             {

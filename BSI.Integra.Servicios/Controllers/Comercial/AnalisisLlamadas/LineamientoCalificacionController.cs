@@ -450,6 +450,32 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
             }
         }
 
+        /// Autor: Joseph Llanque
+        /// Fecha: 25/01/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene calificaciones temporales en tiempo real desde T_EvaluacionLlamadaTemporal y T_EvaluacionDetalleManualTemporal.
+        /// Utiliza IdActividadDetalle + NumeroLlamada como identificadores antes de que la llamada definitiva se registre.
+        /// </summary>
+        /// <param name="idActividadDetalle">ID de la actividad detalle</param>
+        /// <param name="numeroLlamada">Número secuencial de la llamada dentro de la actividad</param>
+        /// <returns> Lista de CalificacionLlamadaDTO con las calificaciones temporales </returns>
+        [Route("[action]/{idActividadDetalle}/{numeroLlamada}")]
+        [HttpGet]
+        public ActionResult ObtenerNotaCalificacionLineamientoTemporal(int idActividadDetalle, int numeroLlamada)
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ObtenerNotaCalificacionLineamientoTemporal(idActividadDetalle, numeroLlamada);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 
         /// Autor: Joseph Llanque
         /// Fecha: 11/03/2025
@@ -631,6 +657,35 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
             {
                 var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
                 var resultado = lineamientoCalificacionService.GuardarCalificacionLlamada(activarConfiguracion);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 25/01/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Guarda calificación en tiempo real usando tablas temporales (T_EvaluacionLlamadaTemporal y T_EvaluacionDetalleManualTemporal).
+        /// Permite calificar antes de que la llamada definitiva se registre, usando IdActividadDetalle + NumeroLlamada.
+        /// </summary>
+        /// <param name="calificacionTemporal"> Datos necesarios para la inserción temporal de calificación manual </param>
+        /// <returns> bool indicando éxito de la operación </returns>
+        [HttpPost("[Action]")]
+        public IActionResult GuardarCalificacionLlamadaTemporal([FromBody] CalificacionLlamadaManualTemporalDTO calificacionTemporal)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.GuardarCalificacionLlamadaTemporal(calificacionTemporal);
                 return Ok(resultado);
             }
             catch (Exception ex)

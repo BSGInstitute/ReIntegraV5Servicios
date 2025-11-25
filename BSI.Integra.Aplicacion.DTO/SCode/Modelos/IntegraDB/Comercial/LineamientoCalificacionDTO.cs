@@ -1189,4 +1189,46 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int IdVersionConfiguracionCalificacionLlamada { get; set; }
     }
 
+    /// <summary>
+    /// DTO para calificación manual en tiempo real usando tablas temporales.
+    /// Utiliza IdActividadDetalle + NumeroLlamada en lugar de IdLlamada.
+    /// </summary>
+    public class CalificacionLlamadaManualTemporalDTO
+    {
+        /// <summary>
+        /// ID de la actividad detalle (usado temporalmente hasta obtener IdLlamada definitivo)
+        /// </summary>
+        public int IdActividadDetalle { get; set; }
+
+        /// <summary>
+        /// Número secuencial de la llamada dentro de la actividad (1, 2, 3, etc.)
+        /// </summary>
+        public int NumeroLlamada { get; set; }
+
+        /// <summary>
+        /// ID de la versión de configuración de calificación
+        /// </summary>
+        public int IdVersion { get; set; }
+
+        /// <summary>
+        /// Tipo de evaluación: false=Manual, true=Automática
+        /// </summary>
+        public bool TipoEvaluacion { get; set; }
+
+        /// <summary>
+        /// Lista de calificaciones por criterio
+        /// </summary>
+        public List<DetalleCalificacionMualDTO> Calificaciones { get; set; }
+
+        /// <summary>
+        /// Lista de calificaciones de puntos generales
+        /// </summary>
+        public List<DetalleCalificacionPuntoGeneralDTO> CalificacionesPuntosGenerales { get; set; }
+
+        /// <summary>
+        /// Usuario que realiza la calificación
+        /// </summary>
+        public string Usuario { get; set; }
+    }
+
 }

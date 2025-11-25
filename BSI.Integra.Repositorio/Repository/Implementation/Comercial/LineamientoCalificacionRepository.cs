@@ -2061,6 +2061,75 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             }
         }
 
+        /// Autor: Joseph Llanque
+        /// Fecha: 25/01/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Guarda calificación manual en tiempo real usando tablas temporales.
+        /// Inserta registro en T_EvaluacionLlamadaTemporal y T_EvaluacionDetalleManualTemporal.
+        /// Utiliza IdActividadDetalle + NumeroLlamada como identificadores temporales.
+        /// </summary>
+        /// <param name="calificacionTemporal">DTO con datos de calificación temporal</param>
+        /// <returns>True si la operación fue exitosa</returns>
+        public bool GuardarCalificacionLlamadaTemporal(CalificacionLlamadaManualTemporalDTO calificacionTemporal)
+        {
+            try
+            {
+                string calificacionesJson = JsonConvert.SerializeObject(calificacionTemporal.Calificaciones);
+                string calificacionesPuntoGeneralJson = JsonConvert.SerializeObject(calificacionTemporal.CalificacionesPuntosGenerales);
+
+                var parametros = new DynamicParameters();
+                parametros.Add("@idActividadDetalle", calificacionTemporal.IdActividadDetalle, DbType.Int32);
+                parametros.Add("@numeroLlamada", calificacionTemporal.NumeroLlamada, DbType.Int32);
+                parametros.Add("@idVersion", calificacionTemporal.IdVersion, DbType.Int32);
+                parametros.Add("@tipoEvaluacion", calificacionTemporal.TipoEvaluacion, DbType.Boolean);
+                parametros.Add("@calificaciones", calificacionesJson, DbType.String);
+                parametros.Add("@calificacionesPuntosGenerales", calificacionesPuntoGeneralJson, DbType.String);
+                parametros.Add("@usuario", calificacionTemporal.Usuario, DbType.String);
+
+                _dapperRepository.QuerySPDapper("[com].[SP_CalificacionLlamadaTemporal_Insertar]", parametros);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al insertar la calificación temporal de llamada: " + ex.Message);
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 25/01/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las calificaciones temporales desde T_EvaluacionLlamadaTemporal y T_EvaluacionDetalleManualTemporal.
+        /// Utiliza IdActividadDetalle + NumeroLlamada para identificar la llamada en tiempo real.
+        /// </summary>
+        /// <param name="idActividadDetalle">ID de la actividad detalle</param>
+        /// <param name="numeroLlamada">Número secuencial de la llamada</param>
+        /// <returns>Lista de calificaciones temporales</returns>
+        public IEnumerable<CalificacionLlamadaDTO> ObtenerNotaCalificacionLineamientoTemporal(int idActividadDetalle, int numeroLlamada)
+        {
+            try
+            {
+                var calificaciones = new List<CalificacionLlamadaDTO>();
+                var resultado = _dapperRepository.QuerySPDapper(
+                    "[com].[SP_CalificacionLlamadaTemporal_Obtener]",
+                    new { IdActividadDetalle = idActividadDetalle, NumeroLlamada = numeroLlamada }
+                );
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                {
+                    calificaciones = JsonConvert.DeserializeObject<List<CalificacionLlamadaDTO>>(resultado);
+                }
+
+                return calificaciones;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al obtener las calificaciones temporales: " + ex.Message);
+            }
+        }
+
 
     }
 
