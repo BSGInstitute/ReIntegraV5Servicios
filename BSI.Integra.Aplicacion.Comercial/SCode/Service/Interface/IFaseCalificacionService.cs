@@ -21,5 +21,6 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Interface
         #endregion
         FaseCalificacion ObtenerPorId(int id);
         IEnumerable<ComboDTO> ObtenerCombo();
+        IEnumerable<FaseCalificacion> ObtenerFasesPorArea(int idPersonalAreaTrabajo);
     }
 }

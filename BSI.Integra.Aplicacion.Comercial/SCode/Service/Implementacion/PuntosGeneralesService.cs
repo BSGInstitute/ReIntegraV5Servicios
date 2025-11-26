@@ -164,5 +164,23 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 throw ex;
             }
         }
+        /// Autor: Lolo Zaa
+        /// Fecha: 03/07/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla por area
+        /// </summary> 
+        /// <returns> IEnumerable<ComboDTO> </returns>
+        public IEnumerable<PuntosGeneralesCalificacion> ObtenerPuntosGeneralesPorArea(int idPersonalAreaTrabajo)
+        {
+            try
+            {
+                return _unitOfWork.PuntosGeneralesRepository.ObtenerPuntosGeneralesPorArea(idPersonalAreaTrabajo);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }
