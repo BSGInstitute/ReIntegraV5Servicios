@@ -426,6 +426,9 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public string? UserName { get; set; }
         [JsonPropertyName("contacto")]
         public string? contacto { get; set; }
+        [JsonPropertyName("idPersonalAreaTrabajo")]
+        public int IdPersonalAreaTrabajo { get; set; }
+
 
     }
 

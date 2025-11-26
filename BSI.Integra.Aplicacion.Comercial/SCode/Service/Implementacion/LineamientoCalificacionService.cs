@@ -5,6 +5,7 @@ using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Comercial;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
@@ -213,6 +214,51 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 throw ex;
             }
         }
+        /// Autor: Joseph Llanque.
+        /// Fecha: 03/07/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary> 
+        /// <returns> IEnumerable<ComboDTO> </returns>
+        public IEnumerable<ConfiguracionEsquemaCalificacionLlamdaDTO>HistorialVersionCalificacionLlamadaPorAreaTrabajo(int IdPersonalAreaTrabajo)
+        {
+            try
+            {
+                // Obtener todas las versiones históricas para el área de trabajo
+                var versiones = _unitOfWork.LineamientoCalificacionRepository
+                    .HistorialVersionCalificacionLlamadaV2(IdPersonalAreaTrabajo)
+                    .ToList();
+
+                foreach (var version in versiones)
+                {
+                    // Para cada versión, obtener la configuración correspondiente
+                    var configuracion = _unitOfWork.LineamientoCalificacionRepository
+                        .ObtenerDataConfiguracionPorVersion(version.Id, IdPersonalAreaTrabajo);
+
+                    if (configuracion != null && configuracion.Any())
+                    {
+                        // Construir el objeto estructurado usando MapearDataEstructurada (o tu método preferido)
+                        var dataEstructurada = MapearDataEstructurada(configuracion);
+
+                        // Serializar el objeto a JSON
+                        version.ConfiguracionJSON = JsonSerializer.Serialize(dataEstructurada);
+                    }
+                    else
+                    {
+                        version.ConfiguracionJSON = "{}";
+                    }
+                }
+
+                return versiones;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
 
         /// Autor: Jose Vega
         /// Fecha: 20/11/2025
@@ -257,67 +303,77 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         /// <param name="listaPlana">Colección plana de objetos jerárquicos provenientes de la base de datos.</param>
         /// <returns> Objeto ConfiguracionLineamientoV2DTO con las colecciones separadas y listas para serializar. </returns>
         private ConfiguracionLineamientoV2DTO MapearDataEstructurada(List<EvaluacionLlamadaJerarquicaDTO> listaPlana)
-        {
-            var data = new ConfiguracionLineamientoV2DTO();
+{
+    var data = new ConfiguracionLineamientoV2DTO();
 
-            if (listaPlana != null && listaPlana.Any())
+    if (listaPlana != null && listaPlana.Any())
+    {
+        data.FasesCalificacion = listaPlana
+            .Where(x => x.TipoEntidad == "FASE")
+            .GroupBy(x => x.Id)
+            .Select(g => g.First())
+            .OrderBy(x => x.Orden)
+            .Select(x => new EvaluacionLlamadaFaseDTO
             {
-                data.FasesCalificacion = listaPlana
-                    .Where(x => x.TipoEntidad == "FASE")
-                    .OrderBy(x => x.Orden)
-                    .Select(x => new EvaluacionLlamadaFaseDTO
-                    {
-                        Id = x.Id,
-                        NombreFase = x.Nombre,
-                        Orden = x.Orden ?? 0,
-                        Descripcion = x.Descripcion
-                    }).ToList();
+                Id = x.Id,
+                NombreFase = x.Nombre,
+                Orden = x.Orden ?? 0,
+                Descripcion = x.Descripcion
+            }).ToList();
 
-                data.CriteriosCalificacion = listaPlana
-                    .Where(x => x.TipoEntidad == "CRITERIO")
-                    .Select(x => new EvaluacionLlamadaCriterioDTO
-                    {
-                        Id = x.Id,
-                        NombreCriterio = x.Nombre,
-                        IdFaseCalificacion = x.IdPadre ?? 0,
-                        Orden = x.Orden ?? 0,
-                        Descripcion = x.Descripcion
-                    }).ToList();
+        data.CriteriosCalificacion = listaPlana
+            .Where(x => x.TipoEntidad == "CRITERIO")
+            .GroupBy(x => x.Id)
+            .Select(g => g.First())
+            .Select(x => new EvaluacionLlamadaCriterioDTO
+            {
+                Id = x.Id,
+                NombreCriterio = x.Nombre,
+                IdFaseCalificacion = x.IdPadre ?? 0,
+                Orden = x.Orden ?? 0,
+                Descripcion = x.Descripcion
+            }).ToList();
 
-                data.LineamientosCalificacion = listaPlana
-                    .Where(x => x.TipoEntidad == "LINEAMIENTO")
-                    .Select(x => new EvaluacionLlamadaLineamientoDTO
-                    {
-                        Id = x.Id,
-                        NombreLineamiento = x.Nombre,
-                        IdCriterioCalificacionLlamada = x.IdPadre ?? 0,
-                        IdCriticidadCalificacion = x.IdCriticidad ?? 0,
-                        Orden = x.Orden ?? 0,
-                        Descripcion = x.Descripcion
-                    }).ToList();
+        data.LineamientosCalificacion = listaPlana
+            .Where(x => x.TipoEntidad == "LINEAMIENTO")
+            .GroupBy(x => x.Id)
+            .Select(g => g.First())
+            .Select(x => new EvaluacionLlamadaLineamientoDTO
+            {
+                Id = x.Id,
+                NombreLineamiento = x.Nombre,
+                IdCriterioCalificacionLlamada = x.IdPadre ?? 0,
+                IdCriticidadCalificacion = x.IdCriticidad ?? 0,
+                Orden = x.Orden ?? 0,
+                Descripcion = x.Descripcion
+            }).ToList();
 
-                data.CriticidadCalificacion = listaPlana
-                    .Where(x => x.TipoEntidad == "CRITICIDAD")
-                    .Select(x => new EvaluacionLlamadaCriticidadDTO
-                    {
-                        Id = x.Id,
-                        Nombre = x.Nombre,
-                        Descripcion = x.Descripcion
-                    }).ToList();
+        data.CriticidadCalificacion = listaPlana
+            .Where(x => x.TipoEntidad == "CRITICIDAD")
+            .GroupBy(x => x.Id)
+            .Select(g => g.First())
+            .Select(x => new EvaluacionLlamadaCriticidadDTO
+            {
+                Id = x.Id,
+                Nombre = x.Nombre,
+                Descripcion = x.Descripcion
+            }).ToList();
 
-                data.PuntosGeneralesCalificacion = listaPlana
-                    .Where(x => x.TipoEntidad == "PUNTOGENERAL")
-                    .Select(x => new EvaluacionLlamadaPuntoGeneralDTO
-                    {
-                        Id = x.Id,
-                        Nombre = x.Nombre,
-                        Orden = x.Orden ?? 0,
-                        Descripcion = x.Descripcion
-                    }).ToList();
-            }
+        data.PuntosGeneralesCalificacion = listaPlana
+            .Where(x => x.TipoEntidad == "PUNTOGENERAL")
+            .GroupBy(x => x.Id)
+            .Select(g => g.First())
+            .Select(x => new EvaluacionLlamadaPuntoGeneralDTO
+            {
+                Id = x.Id,
+                Nombre = x.Nombre,
+                Orden = x.Orden ?? 0,
+                Descripcion = x.Descripcion
+            }).ToList();
+    }
 
-            return data;
-        }
+    return data;
+}
 
         /// Autor: Lolo Arnold Zaa Fernandez
         /// Fecha: 25/11/2025
@@ -367,6 +423,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 throw ex;
             }
         }
+
+  
 
         /// Autor: Joseph Llanque.
         /// Fecha: 03/07/2025
@@ -1521,12 +1579,12 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
             using var httpClient = new HttpClient
             {
-                BaseAddress = new Uri(
-                    "http://ia-analisis-llamadas-comercial-api.bsginstitute.com/"
-                ),
                 //BaseAddress = new Uri(
-                //    "http://127.0.0.1:8000/"
+                //    "http://ia-analisis-llamadas-comercial-api.bsginstitute.com/"
                 //),
+                BaseAddress = new Uri(
+                    "http://127.0.0.1:8000/"
+                ),
 
             };
             //
@@ -1751,6 +1809,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             faseOrigen = item.FaseOportunidad_Ant,
                             faseDestino = item.FaseOportunidad,
                             puntosCriticosAsesor = puntosCriticosAsesor,
+                            idPersonalAreaTrabajo= item.IdPersonalAreaTrabajo
                         };
  
                         Console.WriteLine(
@@ -3564,10 +3623,10 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             if (payload == null)
                 throw new ArgumentNullException(nameof(payload), "El cuerpo de calificación es nulo.");
 
-            /*AQui obtengo la version vigente de lineamientos para calificar*/
-            var lineamientoVigente = _unitOfWork.LineamientoCalificacionRepository
-                    .HistorialVersionCalificacionLlamada()
-                    .FirstOrDefault(x => x.EsVigente);
+            var lineamientoVigente =
+                                      ObtenerConfiguracionVigenteV3(
+                                          payload.IdPersonalAreaTrabajo
+                                      );
             if (lineamientoVigente == null)
                 throw new InvalidOperationException("No existe una versión vigente de lineamientos para calificar.");
             if (string.IsNullOrWhiteSpace(lineamientoVigente.ConfiguracionJSON))
@@ -3601,6 +3660,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 throw new InvalidOperationException("No se pudo guardar la calificación automática en la base de datos.");
 
         }
+
+
 
 
         /// <summary>

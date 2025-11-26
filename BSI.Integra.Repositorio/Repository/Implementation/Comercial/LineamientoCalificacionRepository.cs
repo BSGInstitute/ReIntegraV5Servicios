@@ -474,8 +474,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             {
                 var resultado = _dapperRepository.QuerySPDapper("[com].[SP_EvaluacionLlamadaObtenerConfiguracionPorVersion]", new
                 {
-                    IdPersonalAreaTrabajo = idPersonalAreaTrabajo,
-                    IdEvaluacionLlamadaConfiguracionVersion = idEvaluacionLlamadaConfiguracionVersion
+                    IdVersion = idEvaluacionLlamadaConfiguracionVersion,
+                    IdPersonalAreaTrabajo = idPersonalAreaTrabajo
                 });
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))

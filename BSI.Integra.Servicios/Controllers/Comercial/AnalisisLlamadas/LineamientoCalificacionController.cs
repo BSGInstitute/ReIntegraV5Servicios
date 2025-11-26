@@ -403,6 +403,30 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
         }
 
         /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la a por area trabajo
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]/{IdPersonalAreaTrabajo}")]
+        [HttpGet]
+        public ActionResult HistorialVersionCalificacionLlamadaPorAreaTrabajo(int IdPersonalAreaTrabajo)
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.HistorialVersionCalificacionLlamadaPorAreaTrabajo(IdPersonalAreaTrabajo);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: GET
         /// Autor: Jose Vega
         /// Fecha: 18/11/2025
         /// Versión: 1.0
