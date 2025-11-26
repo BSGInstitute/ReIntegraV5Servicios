@@ -91,6 +91,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
     {
         public int IdVersion { get; set; }
         public string Usuario { get; set; }
+        public int? IdPersonalAreaTrabajo {get; set;}
     }
     public class ConfiguracionEsquemaCalificacionLlamdaDTO
     {

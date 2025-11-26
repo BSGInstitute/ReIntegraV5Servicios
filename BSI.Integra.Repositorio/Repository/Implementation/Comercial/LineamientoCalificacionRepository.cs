@@ -720,7 +720,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
         {
             try
             {
-                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ActivarConfiguracionCalificacionLlamada]", new { activarVersion.IdVersion, activarVersion.Usuario });
+                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ActivarConfiguracionEvaluacionLlamada]", new { activarVersion.IdVersion, activarVersion.Usuario, activarVersion.IdPersonalAreaTrabajo });
                 return !string.IsNullOrEmpty(resultado) && !resultado.Contains("[]");
             }
             catch (Exception)
