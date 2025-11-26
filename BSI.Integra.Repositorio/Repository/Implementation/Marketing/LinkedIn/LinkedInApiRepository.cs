@@ -819,7 +819,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.LinkedIn
                     AreaTrabajo = dto.AreaTrabajo,
                     AreaFormacion = dto.AreaFormacion,
                     Industria = dto.Industria,
-                    UrlPerfil = dto.UrlPerfil,
+                    //UrlPerfil = dto.UrlPerfil,
                     Usuario = usuario
                 };
 

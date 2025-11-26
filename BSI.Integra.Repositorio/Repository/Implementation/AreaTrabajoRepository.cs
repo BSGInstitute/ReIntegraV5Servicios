@@ -155,7 +155,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                    Nombre
                             FROM pla.T_AreaTrabajo
                             WHERE Estado = 1
-                            ORDER BY FechaCreacion DESC;";
+                            ORDER BY Nombre ASC;";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
