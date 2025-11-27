@@ -85,17 +85,17 @@ namespace BSI.Integra.Servicios.Controllers
         }
 
         /// Tipo Función: GET
-        /// Autor: Marco Jose Villanueva Torres
+        /// Autor: Christopher Sandy D' Paris
         /// Fecha: 27/11/2025
         /// Versión: 1.0
         /// <summary>
-        /// Obtiene el detalle de beneficios y contactos por id 
+        /// Obtiene el detalle completo con países y beneficios
         /// </summary>
-        /// <returns> Retorna 200 y lista de objetos o 400 y mensaje de error </returns>
+        /// <returns> Retorna 200 y lista de objetos con detalle anidado o 400 y mensaje de error </returns>
         [HttpGet("[action]")]
-        public IActionResult Obtener()
+        public IActionResult ObtenerDetalle()
         {
-            var resultado = _PaqueteTutorVirtualService.Obtener();
+            var resultado = _PaqueteTutorVirtualService.ObtenerDetalle();
             return Ok(resultado);
         }
 

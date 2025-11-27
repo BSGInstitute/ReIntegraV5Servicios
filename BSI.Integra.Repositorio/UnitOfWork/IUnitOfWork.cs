@@ -951,5 +951,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
 
         IMessengerFacebookChatRepository MessengerFacebookChatRepository { get; }
         IPaqueteTutorVirtualRepository PaqueteTutorVirtualRepository { get; }
+        IPaqueteTutorVirtualPaisRepository PaqueteTutorVirtualPaisRepository { get; }
+        IPaqueteTutorVirtualBeneficioRepository PaqueteTutorVirtualBeneficioRepository { get; }
     }
 }

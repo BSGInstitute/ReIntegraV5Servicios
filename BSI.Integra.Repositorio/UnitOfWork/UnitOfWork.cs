@@ -8019,5 +8019,23 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _paqueteTutorVirtualRepository ?? new PaqueteTutorVirtualRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+
+        private IPaqueteTutorVirtualPaisRepository _paqueteTutorVirtualPaisRepository;
+        IPaqueteTutorVirtualPaisRepository IUnitOfWork.PaqueteTutorVirtualPaisRepository
+        {
+            get
+            {
+                return _paqueteTutorVirtualPaisRepository ?? new PaqueteTutorVirtualPaisRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IPaqueteTutorVirtualBeneficioRepository _paqueteTutorVirtualBeneficioRepository;
+        IPaqueteTutorVirtualBeneficioRepository IUnitOfWork.PaqueteTutorVirtualBeneficioRepository
+        {
+            get
+            {
+                return _paqueteTutorVirtualBeneficioRepository ?? new PaqueteTutorVirtualBeneficioRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
     }
 }

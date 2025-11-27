@@ -13,6 +13,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
     {
         
         IEnumerable<PaqueteTutorVirtualDTO> Obtener();
+        IEnumerable<PaqueteTutorVirtualDetalleDTO> ObtenerDetalle();
         PaqueteTutorVirtualDTO Insertar(PaqueteTutorVirtualDTO dto, string usuario);
         PaqueteTutorVirtualDTO Actualizar(PaqueteTutorVirtualDTO dto, string usuario);
         bool Eliminar(int id, string usuario);

@@ -4,6 +4,7 @@ using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.GestionPersonas;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.GestionPersonas;
+using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using System;
 using System.Collections.Generic;
@@ -40,6 +41,72 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         public IEnumerable<PaqueteTutorVirtualDTO> Obtener()
         {
             return _unitOfWork.PaqueteTutorVirtualRepository.Obtener();
+        }
+
+        /// Autor: Christopher Sandy D' Paris
+        /// Fecha:  27/11/2025
+        /// <summary>
+        /// Obtiene el detalle completo de paquetes con países y beneficios
+        /// </summary>
+        /// <returns> Lista PaqueteTutorVirtualDetalleDTO </returns>
+        public IEnumerable<PaqueteTutorVirtualDetalleDTO> ObtenerDetalle()
+        {
+            try
+            {
+                // Obtener todos los paquetes
+                var paquetes = _unitOfWork.PaqueteTutorVirtualRepository.GetAll().Where(p => p.Estado == true);
+                
+                List<PaqueteTutorVirtualDetalleDTO> resultado = new List<PaqueteTutorVirtualDetalleDTO>();
+
+                foreach (var paquete in paquetes)
+                {
+                    var paqueteDetalle = new PaqueteTutorVirtualDetalleDTO
+                    {
+                        Id = paquete.Id,
+                        Nombre = paquete.Nombre,
+                        CantidadCreditos = paquete.CantidadCredito,
+                        Paises = new List<PaquetePaisDetalleDTO>()
+                    };
+
+                    // Obtener países asociados al paquete
+                    var paises = _unitOfWork.PaqueteTutorVirtualPaisRepository.ObtenerPorIdPaquete(paquete.Id);
+
+                    foreach (var pais in paises)
+                    {
+                        var paisDetalle = new PaquetePaisDetalleDTO
+                        {
+                            Id = pais.Id,
+                            IdPais = pais.IdPais,
+                            IdMoneda = pais.IdMoneda,
+                            CostoIndividual = pais.CostoIndividual,
+                            CostoPrograma = pais.CostoPaquete,
+                            Beneficios = new List<PaqueteTutorVirtualBeneficioDetalleDTO>()
+                        };
+
+                        // Obtener beneficios asociados al país
+                        var beneficios = _unitOfWork.PaqueteTutorVirtualBeneficioRepository.ObtenerPorIdPaquetePais(pais.Id);
+
+                        foreach (var beneficio in beneficios)
+                        {
+                            paisDetalle.Beneficios.Add(new PaqueteTutorVirtualBeneficioDetalleDTO
+                            {
+                                Id = beneficio.Id,
+                                Nombre = beneficio.Nombre
+                            });
+                        }
+
+                        paqueteDetalle.Paises.Add(paisDetalle);
+                    }
+
+                    resultado.Add(paqueteDetalle);
+                }
+
+                return resultado;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         /// Autor: Villanueva Torres Marco Jose
