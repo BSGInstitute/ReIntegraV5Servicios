@@ -8011,6 +8011,13 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
-
+        private IPaqueteTutorVirtualRepository _paqueteTutorVirtualRepository;
+        IPaqueteTutorVirtualRepository IUnitOfWork.PaqueteTutorVirtualRepository
+        {
+            get
+            {
+                return _paqueteTutorVirtualRepository ?? new PaqueteTutorVirtualRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
     }
 }
