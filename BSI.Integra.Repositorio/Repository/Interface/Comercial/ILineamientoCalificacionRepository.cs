@@ -79,6 +79,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
         (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporteFase(ReporteCalificacionRequest req);
 
         IEnumerable<LlamadaCalificadaRawDTO> ObtenerDatosParaPromedioGlobal(ReporteCalificacionGlobalRequest request);
+        IEnumerable<LlamadaCalificadaAtencionClienteRawDTO> ObtenerDatosParaPromedioGlobalAtencionCliente(ReporteCalificacionGlobalRequest request);
         IEnumerable<CalificacionFaseDTO> ObtenerCalificacionFase(int idLlamada, bool tipoCalificacion);
         IEnumerable<InformacionLlamadaTresCxDTO> ObtenerInformacionLlamada(int idLlamada);
 

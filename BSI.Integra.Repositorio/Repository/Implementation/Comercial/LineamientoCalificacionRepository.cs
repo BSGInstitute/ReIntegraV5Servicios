@@ -1607,6 +1607,50 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             var wrapper = JsonConvert.DeserializeObject<ReporteJsonWrapper>(payload);
             return wrapper?.Items ?? new List<LlamadaCalificadaRawDTO>();
         }
+        public IEnumerable<LlamadaCalificadaAtencionClienteRawDTO> ObtenerDatosParaPromedioGlobalAtencionCliente(ReporteCalificacionGlobalRequest request)
+        {
+            var resultado = _dapperRepository.QuerySPDapper(
+                "[ope].[SP_ReporteCalificacionGlobalAtencionCliente]",
+                new
+                {
+                    request.FechaInicio,
+                    request.FechaFin,
+                    IdsAsesores = (request.IdsAsesores != null && request.IdsAsesores.Any())
+                        ? JsonConvert.SerializeObject(request.IdsAsesores)
+                        : null,
+                    request.IdCentroCosto,
+                    request.IdFaseI,
+                    request.IdFaseD,
+                    request.EstadoActividadCabecera
+                }
+            );
+
+            // Parsear resultado JSON (igual que el método existente)
+            string payload;
+            var token = JToken.Parse(resultado);
+
+            if (token.Type == JTokenType.Array)
+            {
+                var arr = (JArray)token;
+                var first = arr.FirstOrDefault() as JObject;
+                payload = (string?)first?["JsonResult"] ?? string.Empty;
+            }
+            else if (token.Type == JTokenType.Object)
+            {
+                var obj = (JObject)token;
+                payload = (string?)obj["JsonResult"] ?? resultado;
+            }
+            else
+            {
+                payload = resultado;
+            }
+
+            if (string.IsNullOrWhiteSpace(payload))
+                return Enumerable.Empty<LlamadaCalificadaAtencionClienteRawDTO>();
+
+            var wrapper = JsonConvert.DeserializeObject<ReporteJsonWrapperAtencionCliente>(payload);
+            return wrapper?.Items ?? new List<LlamadaCalificadaAtencionClienteRawDTO>();
+        }
 
         /// <summary>
         /// Obtiene calificaciones por fase para una llamada específica
