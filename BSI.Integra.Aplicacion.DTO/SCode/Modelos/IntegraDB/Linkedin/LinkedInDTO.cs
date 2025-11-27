@@ -195,7 +195,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin
         public string? Cargo { get; set; }
         public string? Industria { get; set; }
         public string? Pais { get; set; }
-        //public string? UrlPerfil { get; set; }
+        public string? UrlPerfil { get; set; }
     }
 
 
