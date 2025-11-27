@@ -3673,6 +3673,66 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             };
         }
 
+        public ReporteCalificacionGlobalResponse ObtenerPromedioGlobalAtencionCliente(
+            ReporteCalificacionGlobalRequest request
+        )
+        {
+            var filas =
+                _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosParaPromedioGlobalAtencionCliente(
+                    request
+                );
+
+            var filasOrdenadas = filas
+                .OrderByDescending(f => f.FechaInicioLlamadaCentral)
+                .ThenBy(f => f.IdLlamada)
+                .ToList();
+
+            // Agrupa todas las llamadas
+            var agrupadoTotal = filasOrdenadas.GroupBy(f => f.IdLlamada).ToList();
+
+            var totalLlamadas = agrupadoTotal.Count;
+
+            // Agrupa todas las llamadas (sin filtrar criterios)
+            var agrupado = filasOrdenadas
+                .GroupBy(f => f.IdLlamada)
+                .Select(g =>
+                {
+                    var notasValidas = g.Where(x => x.PuntajePromedio >= 0)
+                        .Select(x => x.PuntajePromedio);
+
+                    decimal? promedio = notasValidas.Any()
+                        ? Math.Round(notasValidas.Average(), 0, MidpointRounding.AwayFromZero)
+                        : (decimal?)null;
+
+                    return new
+                    {
+                        IdLlamada = g.Key,
+                        Promedio = promedio,
+                        TotalCalificaciones = notasValidas.Count(),
+                    };
+                })
+                .Where(x => x.Promedio.HasValue)
+                .ToList();
+
+            var totalCalificaciones = agrupado.Sum(x => x.TotalCalificaciones);
+
+            // Calcular promedio global SIN EXCLUIR ningún criterio (ATC incluye todos)
+            var promediosValidos = filasOrdenadas
+                .Where(x => x.PuntajePromedio >= 0)
+                .Select(x => x.PuntajePromedio);
+
+            var promedioGlobal = promediosValidos.Any()
+                ? Math.Round(promediosValidos.Average(), 2)
+                : 0;
+
+            return new ReporteCalificacionGlobalResponse
+            {
+                TotalLlamadas = totalLlamadas,
+                PromedioGlobal = promedioGlobal,
+                TotalCalificaciones = totalCalificaciones,
+                FechaCalculo = DateTime.Now,
+            };
+        }
 
         /// <summary>
         /// Obtiene calificaciones por fase para una llamada específica

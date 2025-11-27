@@ -1429,6 +1429,32 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
             }
         }
 
+         /// Tipo Función: POST
+        /// Autor: Lolo Zaa
+        /// Fecha: 27/11/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Reporte de calificación de clientes (agrupado por llamada).
+        /// Calcula promedio excluyendo -1 y devuelve puntos críticos (3 peores).
+
+        [HttpPost("[Action]")]
+        public IActionResult ObtenerPromedioGlobalAtencionCliente([FromBody] ReporteCalificacionGlobalRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ObtenerPromedioGlobalAtencionCliente(request);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
 
         /// <summary>
         /// Obtiene calificaciones por fase para una llamada específica
