@@ -19,7 +19,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad
             public string? IdActividadDetalle { get; set; }
             [JsonPropertyName("idPersonal")]
             public int? IdPersonal { get; set; }
-            [JsonPropertyName("userName")]
+            [JsonPropertyName("username")]
             public string? UserName { get; set; }
             [JsonPropertyName("contacto")]
             public string? contacto { get; set; }
