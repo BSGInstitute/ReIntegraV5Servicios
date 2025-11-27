@@ -45,6 +45,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
                 PuntosGeneralesCalificacion.FechaCreacion = DateTime.Now;
                 PuntosGeneralesCalificacion.FechaModificacion = DateTime.Now;
                 PuntosGeneralesCalificacion.Estado = true;
+                PuntosGeneralesCalificacion.IdPersonalAreaTrabajo = puntosGeneralesCalificacionEntradaDTO.IdPersonalAreaTrabajo;
                 var resultado = solicitudTipoReporteService.Add(PuntosGeneralesCalificacion);
                 return Ok(resultado);
             }
@@ -120,6 +121,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
                 PuntosGeneralesCalificacion.Descripcion = puntosGeneralesCalificacionEntradaDTO.Descripcion;
                 PuntosGeneralesCalificacion.UsuarioModificacion = puntosGeneralesCalificacionEntradaDTO.Usuario;
                 PuntosGeneralesCalificacion.FechaModificacion = DateTime.Now;
+                PuntosGeneralesCalificacion.IdPersonalAreaTrabajo = puntosGeneralesCalificacionEntradaDTO.IdPersonalAreaTrabajo;
                 var resultado = solicitudTipoReporteService.Update(PuntosGeneralesCalificacion);
                 return Ok(resultado);
 
@@ -263,6 +265,29 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
             {
                 var solicitudTipoReporteService = new PuntosGeneralesService(unitOfWork);
                 var resultado = solicitudTipoReporteService.ObtenerPuntosGenerales();
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+         /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 26/12/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla por area
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public ActionResult ObtenerPuntosGeneralesPorArea(int idPersonalAreaTrabajo)
+        {
+            try
+            {
+                var solicitudTipoReporteService = new PuntosGeneralesService(unitOfWork);
+                var resultado = solicitudTipoReporteService.ObtenerPuntosGeneralesPorArea(idPersonalAreaTrabajo);
                 return Ok(resultado);
             }
             catch (Exception ex)

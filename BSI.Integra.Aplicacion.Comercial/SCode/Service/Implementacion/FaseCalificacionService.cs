@@ -171,6 +171,24 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 throw ex;
             }
         }
+        /// Autor: Lolo Zaa.
+        /// Fecha: 25/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla por area 
+        /// </summary> 
+        /// <returns> IEnumerable<ComboDTO> </returns>
+        public IEnumerable<FaseCalificacion> ObtenerFasesPorArea(int idPersonalAreaTrabajo)
+        {
+            try
+            {
+                return _unitOfWork.FaseCalificacionRepository.ObtenerFasesPorArea(idPersonalAreaTrabajo);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 
  

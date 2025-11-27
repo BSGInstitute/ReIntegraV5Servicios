@@ -13,7 +13,6 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB.Comercial
         public string Nombre { get; set; } = null!;
         public int? Orden { get; set; }
         public string? Descripcion { get; set; }
-
-
+        public int? IdPersonalAreaTrabajo {get; set; }
     }
 }

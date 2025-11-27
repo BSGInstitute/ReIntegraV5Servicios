@@ -246,5 +246,32 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 throw ex;
             }
         }
+        /// Autor: Joseph Llanque
+        /// Fecha: 07/03/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary> 
+        /// <returns> IEnumerable<ComboDTO> </returns>
+        public IEnumerable<PuntosGeneralesCalificacion> ObtenerPuntosGeneralesPorArea(int idPersonalAreaTrabajo)
+        {
+            try
+            {
+                var comboDTOs = new List<PuntosGeneralesCalificacion>();
+                var query = @"SELECT Id,Nombre,Descripcion,Orden,IdPersonalAreaTrabajo 
+                                FROM com.T_CalificacionPuntoGeneral
+                                WHERE Estado =1 AND idPersonalAreaTrabajo=@idPersonalAreaTrabajo";
+                var resultado = _dapperRepository.QueryDapper(query, new { idPersonalAreaTrabajo = idPersonalAreaTrabajo });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                {
+                    comboDTOs = JsonConvert.DeserializeObject<List<PuntosGeneralesCalificacion>>(resultado);
+                }
+                return comboDTOs;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

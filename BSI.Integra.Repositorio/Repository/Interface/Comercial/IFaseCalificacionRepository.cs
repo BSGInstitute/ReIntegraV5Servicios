@@ -23,6 +23,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
         FaseCalificacion ObtenerPorId(int id);
         IEnumerable<ComboDTO> ObtenerCombo();
         IEnumerable<FaseCalificacion> ObtenerFases();
+        IEnumerable<FaseCalificacion> ObtenerFasesPorArea(int IdPersonalAreaTrabajo);
 
     }
 }

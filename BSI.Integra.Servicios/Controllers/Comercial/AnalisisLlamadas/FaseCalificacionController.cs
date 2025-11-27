@@ -54,6 +54,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
                 FaseCalificacion.FechaCreacion = DateTime.Now;
                 FaseCalificacion.FechaModificacion = DateTime.Now;
                 FaseCalificacion.Estado = true;
+                FaseCalificacion.IdPersonalAreaTrabajo = solicitudTipoReporteEntradaDTO.IdPersonalAreaTrabajo;
                 var resultado = solicitudTipoReporteService.Add(FaseCalificacion);
                 return Ok(resultado);
             }
@@ -129,6 +130,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
                 FaseCalificacion.Descripcion = solicitudTipoReporteEntradaDTO.Descripcion;
                 FaseCalificacion.UsuarioModificacion = solicitudTipoReporteEntradaDTO.Usuario;
                 FaseCalificacion.FechaModificacion = DateTime.Now;
+                FaseCalificacion.IdPersonalAreaTrabajo = solicitudTipoReporteEntradaDTO.IdPersonalAreaTrabajo;
                 var resultado = solicitudTipoReporteService.Update(FaseCalificacion);
                 return Ok(resultado);
 
@@ -164,7 +166,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
                     FaseCalificacion = solicitudTipoReporteService.ObtenerPorId(entidad.Id.Value);
                     FaseCalificacion.Nombre = entidad.Nombre;
                     FaseCalificacion.Orden = entidad.Orden;
-                    FaseCalificacion.Descripcion = entidad.Descripcion;
+            FaseCalificacion.Descripcion = entidad.Descripcion;
                     FaseCalificacion.UsuarioModificacion = entidad.Usuario;
                     FaseCalificacion.FechaModificacion = DateTime.Now;
                 }
@@ -272,6 +274,29 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
             {
                 var solicitudTipoReporteService = new FaseCalificacionService(unitOfWork);
                 var resultado = solicitudTipoReporteService.ObtenerFases();
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 25/11/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla por area
+        /// </summary>
+       /// <returns> List<ComboDTO> </returns>
+        [Route("[action]/{idPersonalAreaTrabajo}")]
+        [HttpGet]
+        public ActionResult ObtenerFasesPorArea(int idPersonalAreaTrabajo)
+        {
+            try
+            {
+                var solicitudTipoReporteService = new FaseCalificacionService(unitOfWork);
+                var resultado = solicitudTipoReporteService.ObtenerFasesPorArea(idPersonalAreaTrabajo);
                 return Ok(resultado);
             }
             catch (Exception ex)
