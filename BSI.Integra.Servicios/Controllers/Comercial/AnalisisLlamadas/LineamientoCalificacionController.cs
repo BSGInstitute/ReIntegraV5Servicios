@@ -1279,6 +1279,31 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
             }
         }
         /// Tipo Función: POST
+        /// Autor: Lolo Zaa
+        /// Fecha: 27/11/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Reporte de calificación de clientes (agrupado por llamada) para atencion al cliente.
+        /// Calcula promedio excluyendo -1 y devuelve puntos críticos (3 peores).
+        /// </summary>
+        [HttpPost("[Action]")]
+        public IActionResult ReporteCalificacionClientesAtencionCliente([FromBody] ReporteCalificacionRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+
+                var resultado = lineamientoCalificacionService.ObtenerReporteAtencionCliente(request);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: POST
         /// Autor: Joseph Llanque
         /// Fecha: 14/08/2025
         /// Versión: 1.0

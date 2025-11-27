@@ -582,6 +582,11 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public List<LlamadaCalificadaRawDTO> Items { get; set; }
         public int TotalRegistros { get; set; }
     }
+    public class ReporteJsonWrapperAtencionCliente
+    {
+        public List<LlamadaCalificadaAtencionClienteRawDTO> Items { get; set; }
+        public int TotalRegistros { get; set; }
+    }
 
     public class LlamadaCalificadaRawDTO
     {
@@ -621,12 +626,53 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public string? ComentarioConsistenciaCambioFase { get; set; }
         public string? InterrupcionLlamada { get; set; }
         public string? PuntoCritico { get; set; }
+    }
 
+    public class LlamadaCalificadaAtencionClienteRawDTO
+    {
+        public int IdLlamada { get; set; }
+        public int IdOportunidad { get; set; }
+        public DateTime FechaInicioLlamadaCentral { get; set; }
+        public int DuracionContestoCentral { get; set; }
 
+        public int IdAlumno { get; set; }
+        public string NombreCliente { get; set; }
 
+        public int IdAsesor { get; set; }
+        public string NombreAsesor { get; set; }
 
+        public int IdCentroCosto { get; set; }
+        public string NombreCentroCosto { get; set; }
 
+        public string NombreFaseI { get; set; }
+        public string CodigoFaseI { get; set; }
+        public string NombreFaseD { get; set; }
+        public string CodigoFaseD { get; set; }
 
+        public decimal PuntajePromedio { get; set; }
+
+        public int TipoCalificacion { get; set; }
+
+        public int IdCalificacionLlamada { get; set; }
+
+        public string Comentario { get; set; }
+
+        public int? IdOcurrenciaPadre { get; set; }
+        public int? IdOcurrenciaActividad { get; set; }
+        public int? IdOcurrencia { get; set; }
+
+        public string? OcurrenciaPadre { get; set; }
+        public string? Ocurrencia { get; set; }
+        public string? EstadoOcurrencia { get; set; }
+
+        public bool? OcurrenciaConsistente { get; set; }
+        public string? ComentarioConsistenciaOcurrencia { get; set; }
+
+        public bool? CambioFaseConsistente { get; set; }
+        public string? ComentarioConsistenciaCambioFase { get; set; }
+
+        public string? InterrupcionLlamada { get; set; }
+        public string? PuntoCritico { get; set; }
     }
 
     public class LlamadaCalificadaDTO
@@ -676,6 +722,51 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
 
         public List<string> PuntosCriticos { get; set; }
     }
+    public class LlamadaCalificadaAtencionClienteDTO
+    {
+        public int IdLlamada { get; set; }
+        public int IdOportunidad { get; set; }
+        public DateTime FechaInicioLlamadaCentral { get; set; }
+        public int? DuracionContestoCentral { get; set; }
+
+        public int IdAlumno { get; set; }
+        public string NombreCliente { get; set; }
+
+        public int IdAsesor { get; set; }
+        public string NombreAsesor { get; set; }
+
+        public int IdCentroCosto { get; set; }
+        public string NombreCentroCosto { get; set; }
+
+        public string NombreFaseI { get; set; }
+        public string CodigoFaseI { get; set; }
+        public string NombreFaseD { get; set; }
+        public string CodigoFaseD { get; set; }
+
+        public decimal? Promedio { get; set; }
+
+        // Cambios: se reemplazan los campos *Alterno* por los nombres reales del SP
+        public int? IdOcurrenciaPadre { get; set; }
+        public int? IdOcurrenciaActividad { get; set; }
+        public int? IdOcurrencia { get; set; }
+
+        public string? OcurrenciaPadre { get; set; }
+        public string? Ocurrencia { get; set; }
+        public string? EstadoOcurrencia { get; set; }
+
+        public string? ComentarioLlamadaNoCalificada { get; set; }
+
+        public bool? OcurrenciaConsistente { get; set; }
+        public string? ComentarioConsistenciaOcurrencia { get; set; }
+
+        public bool? CambioFaseConsistente { get; set; }
+        public string? ComentarioConsistenciaCambioFase { get; set; }
+
+        public string? InterrupcionLlamada { get; set; }
+
+        public List<string> PuntosCriticos { get; set; }
+    }
+
     public class PuntoCriticoDTO
     {
         public decimal? Nota { get; set; }
@@ -686,6 +777,11 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
     {
         public int TotalRegistros { get; set; }
         public IEnumerable<LlamadaCalificadaDTO> Data { get; set; }
+    }
+    public class ReporteCalificacionAtencionClienteResponse
+    {
+        public int TotalRegistros { get; set; }
+        public IEnumerable<LlamadaCalificadaAtencionClienteDTO> Data { get; set; }
     }
 
 

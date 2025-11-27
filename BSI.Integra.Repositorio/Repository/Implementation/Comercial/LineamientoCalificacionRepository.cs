@@ -1392,6 +1392,60 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 
 
         }
+        /// Autor: Lolo Zaa
+        /// Fecha: 27/11/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Ejecuta [com].[SP_ReporteCalificacionClientes] y mapea:
+        ///   - ResultSet1: detalle (calificaciones por llamada)
+        ///   - ResultSet2: total de registros
+        /// </summary>
+        public (IEnumerable<LlamadaCalificadaAtencionClienteRawDTO> Items, int Total) ObtenerReporteAtencionCliente(ReporteCalificacionRequest req)
+        {
+            var resultadoQuery = _dapperRepository.QuerySPDapper(
+                      "[com].[SP_ReporteCalificacionClienteATC]",
+                      new
+                      {
+                          req.FechaInicio,
+                          req.FechaFin,
+                          IdsAsesores = (req.IdsAsesores != null && req.IdsAsesores.Any())
+                              ? JsonConvert.SerializeObject(req.IdsAsesores)
+                              : null,
+                          req.IdCentroCosto,
+                          req.IdFaseI,
+                          req.IdFaseD,
+                          req.EstadoActividadCabecera,
+                          req.Pagina,
+                          req.TamanioPagina
+                      }
+                  );
+
+            string payload;
+
+            var token = JToken.Parse(resultadoQuery);
+
+            if (token.Type == JTokenType.Array)
+            {
+                var arr = (JArray)token;
+                var first = arr.FirstOrDefault() as JObject;
+                payload = (string?)first?["JsonResult"] ?? string.Empty;
+            }
+            else if (token.Type == JTokenType.Object)
+            {
+                var obj = (JObject)token;
+                payload = (string?)obj["JsonResult"] ?? resultadoQuery;
+            }
+            else
+            {
+                payload = resultadoQuery;
+            }
+            if (string.IsNullOrWhiteSpace(payload))
+                return (Enumerable.Empty<LlamadaCalificadaAtencionClienteRawDTO>(), 0);
+            var wrapper = JsonConvert.DeserializeObject<ReporteJsonWrapperAtencionCliente>(payload);
+            var items = wrapper?.Items ?? new List<LlamadaCalificadaAtencionClienteRawDTO>();
+            var total = wrapper?.TotalRegistros ?? items.Count;
+            return (items, total);
+        }
 
         /// Autor: Joseph Llanque
         /// Fecha: 14/08/2025
