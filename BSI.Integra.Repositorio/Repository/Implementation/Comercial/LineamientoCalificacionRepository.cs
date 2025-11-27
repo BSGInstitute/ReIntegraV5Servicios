@@ -445,7 +445,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 FROM com.T_EvaluacionLlamadaConfiguracionVersion WITH(NOLOCK)
                 WHERE Estado = 1 
                   AND IdPersonalAreaTrabajo = @IdPersonalAreaTrabajo
-                ORDER BY FechaCreacion DESC";
+                ORDER BY id DESC";
 
                 var parametros = new { IdPersonalAreaTrabajo = idPersonalAreaTrabajo };
 
@@ -1403,7 +1403,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
         public (IEnumerable<LlamadaCalificadaAtencionClienteRawDTO> Items, int Total) ObtenerReporteAtencionCliente(ReporteCalificacionRequest req)
         {
             var resultadoQuery = _dapperRepository.QuerySPDapper(
-                      "[com].[SP_ReporteCalificacionClienteATC]",
+                      "[ope].[SP_ReporteCalificacionClienteAtc]",
                       new
                       {
                           req.FechaInicio,
