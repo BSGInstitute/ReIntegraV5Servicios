@@ -178,12 +178,59 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var Oportunidad = MapeoEntidad(entidad);
-                var entidadExistente = base.FirstBy(w => w.Id == entidad.Id, s => new { s.RowVersion });
-                Oportunidad.RowVersion = entidadExistente.RowVersion;
 
+                // Leer la oportunidad actual para verificar concurrencia
+                var entidadExistente = base.FirstBy(w => w.Id == entidad.Id,
+                    s => new { s.RowVersion, s.IdPersonalAsignado });
 
+                var rowVersionOriginal = entidadExistente.RowVersion;
+                var idPersonalAsignadoOriginal = entidadExistente.IdPersonalAsignado;
+
+                // Asignar el RowVersion original para que Entity Framework pueda detectar cambios concurrentes
+                Oportunidad.RowVersion = rowVersionOriginal;
+
+                // Si la oportunidad estaba sin asignar (125) y se está asignando a alguien,
+                // validar que aún esté sin asignar para prevenir asignaciones duplicadas
+                bool esAsignacionNueva = (idPersonalAsignadoOriginal == 125 || idPersonalAsignadoOriginal == null)
+                                       && Oportunidad.IdPersonalAsignado.HasValue
+                                       && Oportunidad.IdPersonalAsignado != 125;
+
+                if (esAsignacionNueva)
+                {
+                    // Volver a verificar justo antes del UPDATE para detectar asignaciones concurrentes
+                    var verificacionFinal = base.FirstBy(w => w.Id == entidad.Id,
+                        s => new { s.IdPersonalAsignado, s.RowVersion });
+
+                    // Si la oportunidad ya fue asignada por otro proceso, lanzar excepción
+                    if (verificacionFinal.IdPersonalAsignado != 125 && verificacionFinal.IdPersonalAsignado != null)
+                    {
+                        throw new System.Data.DBConcurrencyException(
+                            $"La oportunidad {Oportunidad.Id} fue asignada por otro usuario. " +
+                            $"Asesor asignado: {verificacionFinal.IdPersonalAsignado}."
+                        );
+                    }
+
+                    // Si el RowVersion cambió, otra actualización ocurrió
+                    if (!verificacionFinal.RowVersion.SequenceEqual(rowVersionOriginal))
+                    {
+                        throw new System.Data.DBConcurrencyException(
+                            $"La oportunidad {Oportunidad.Id} fue modificada por otro usuario."
+                        );
+                    }
+
+                    // Actualizar el RowVersion más reciente
+                    Oportunidad.RowVersion = verificacionFinal.RowVersion;
+                }
+
+                // Realizar la actualización con Entity Framework
+                // Entity Framework automáticamente validará el RowVersion
                 base.Update(Oportunidad);
                 return Oportunidad;
+            }
+            catch (System.Data.DBConcurrencyException)
+            {
+                // Re-lanzar las excepciones de concurrencia sin envolverlas
+                throw;
             }
             catch (Exception ex)
             {
