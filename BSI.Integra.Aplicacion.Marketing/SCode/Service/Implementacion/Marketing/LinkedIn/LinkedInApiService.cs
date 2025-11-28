@@ -16,6 +16,7 @@ using System.Text.RegularExpressions;
 using System.Net.Http.Json;
 using Microsoft.AspNet.SignalR.Json;
 using System.Text;
+using Newtonsoft.Json.Serialization;
 
 
 namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.LinkedIn
@@ -772,16 +773,22 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
                 if (res.CuentaAsociada <= 0) return false;
                 var grupo = res.Grupo > 0 ? res.Grupo : 1;
 
-                var payload = new SubirOportunidadesPendientesRequest
+                var payload = new
                 {
-                    Usuario = usuario,
-                    Guids = new SubirPendientesAgrupadas
+                    usuario = usuario,
+                    guids = new
                     {
-                        GuidLinkedInLead = guids,
-                        CuentaAsociada = res.CuentaAsociada,
-                        Grupo = grupo
+                        guidLinkedInLead = guids,
+                        cuentaAsociada = res.CuentaAsociada,
+                        grupo = grupo
                     }
                 };
+
+                var json = JsonConvert.SerializeObject(payload, new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                    NullValueHandling = NullValueHandling.Ignore
+                });
 
                 var url = "https://localhost:44366/api/LinkedIn/SubirOportunidadesPendientesSeleccionadas";
 
@@ -793,7 +800,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
                 http.DefaultRequestHeaders.Accept.Clear();
                 http.DefaultRequestHeaders.Accept.ParseAdd("application/json");
 
-                var json = JsonConvert.SerializeObject(payload);
+                json = JsonConvert.SerializeObject(payload);
                 using var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 var resp = http.PostAsync(url, content).GetAwaiter().GetResult();
@@ -804,7 +811,11 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
                 Console.WriteLine($"Request JSON: {json}");
                 Console.WriteLine($"Response body: {respText}");
 
-                if (!resp.IsSuccessStatusCode) return false;
+                if (!resp.IsSuccessStatusCode)
+                {
+                    _unitOfWork.LinkedInApiRepository.LinkedinControlEnvioResetGrupo(res.CuentaAsociada);
+                    return false;
+                }
 
                 _unitOfWork.LinkedInApiRepository.LinkedinControlEnvioResetGrupo(res.CuentaAsociada);
                 if (bool.TryParse(respText, out var okDirecto)) return okDirecto;
