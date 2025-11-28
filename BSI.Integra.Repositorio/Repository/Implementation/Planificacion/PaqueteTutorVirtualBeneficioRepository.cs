@@ -24,8 +24,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             var config = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<TPaqueteTutorVirtualPaisBeneficio, PaqueteTutorVirtualBeneficio>(MemberList.None).ReverseMap();
-                cfg.CreateMap<PaqueteTutorVirtualBeneficio, PaqueteTutorVirtualBeneficioDTO>(MemberList.None).ReverseMap();
-                cfg.CreateMap<PaqueteTutorVirtualBeneficio, TPaqueteTutorVirtualPaisBeneficio>(MemberList.None).ReverseMap();
             });
             _mapper = new Mapper(config);
         }
@@ -136,7 +134,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
-        public bool Delete(IEnumerable<int> listadoIds, string usuario)
+        public bool Delete(List<int> listadoIds, string usuario)
         {
             try
             {

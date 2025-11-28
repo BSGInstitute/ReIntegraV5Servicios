@@ -32,16 +32,16 @@ namespace BSI.Integra.Servicios.Controllers
         /// </summary>
         /// <param name="dto">Entidad PaqueteTutorVirtualDTO</param>
         /// <returns>Retorna 200 y objeto ingresado o 400 y mensaje de error </returns>
-        [Authorize]
-        [JwtExpirationValidation]
+        //[Authorize]
+        //[JwtExpirationValidation]
         [HttpPost("[action]")]
-        public IActionResult Insertar([FromBody] PaqueteTutorVirtualDTO dto)
+        public IActionResult Insertar([FromBody] PaqueteTutorVirtualGuardarDTO dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var respuesta = _PaqueteTutorVirtualService.Insertar(dto, _tokenManager.UserName);
+            var respuesta = _PaqueteTutorVirtualService.Insertar(dto, "_tokenManager.UserName");
             return Ok(respuesta);
         }
         /// Tipo Función: PUT
@@ -53,16 +53,16 @@ namespace BSI.Integra.Servicios.Controllers
         /// </summary>
         /// <param name="entidad">Entidad a modificar</param>
         /// <returns>Retorna 200 y objeto actualizado o 400 y mensaje de error</returns>
-        [Authorize]
-        [JwtExpirationValidation]
+        //[Authorize]
+        //[JwtExpirationValidation]
         [HttpPut("[action]")]
-        public IActionResult Actualizar([FromBody] PaqueteTutorVirtualDTO dto)
+        public IActionResult Actualizar([FromBody] PaqueteTutorVirtualGuardarDTO dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var respuesta = _PaqueteTutorVirtualService.Actualizar(dto, _tokenManager.UserName);
+            var respuesta = _PaqueteTutorVirtualService.Actualizar(dto, "_tokenManager.UserName");
             return Ok(respuesta);
         }
         /// Tipo Función: DELETE
@@ -75,56 +75,12 @@ namespace BSI.Integra.Servicios.Controllers
         /// <param name="id">Id de la entidad a eliminar</param>
         /// <param name="usuario">Nombre del usuario que realiza la eliminacion</param>
         /// <returns>Retorna 200 y bandera de eliminacion realizada o 400 y mensaje de error</returns>
-        [Authorize]
-        [JwtExpirationValidation]
+        //[Authorize]
+        //[JwtExpirationValidation]
         [HttpDelete("[action]/{id}")]
         public IActionResult Eliminar(int id)
         {
-            var respuesta = _PaqueteTutorVirtualService.Eliminar(id, _tokenManager.UserName);
-            return Ok(respuesta);
-        }
-
-        /// Tipo Función: POST
-        /// Autor: Christopher Sandy D' Paris
-        /// Fecha:  27/11/2025
-        /// Versión: 1.0
-        /// <summary>
-        /// Inserta un paquete completo con países y beneficios
-        /// </summary>
-        /// <param name="dto">Entidad PaqueteTutorVirtualGuardarDTO con estructura completa</param>
-        /// <returns>Retorna 200 y objeto ingresado con IDs o 400 y mensaje de error </returns>
-        //[Authorize]
-        //[JwtExpirationValidation]
-        [HttpPost("[action]")]
-        public IActionResult InsertarCompleto([FromBody] PaqueteTutorVirtualGuardarDTO dto)
-        {
-            //if (!ModelState.IsValid)
-            //{
-            //    return BadRequest(ModelState);
-            //}
-            var respuesta = _PaqueteTutorVirtualService.InsertarCompleto(dto, "_tokenManager.UserName");
-            return Ok(respuesta);
-        }
-
-        /// Tipo Función: PUT
-        /// Autor: Christopher Sandy D' Paris
-        /// Fecha:  27/11/2025
-        /// Versión: 1.0
-        /// <summary>
-        /// Actualiza un paquete completo con países y beneficios
-        /// </summary>
-        /// <param name="dto">Entidad PaqueteTutorVirtualGuardarDTO con estructura completa</param>
-        /// <returns>Retorna 200 y objeto actualizado o 400 y mensaje de error</returns>
-        //[Authorize]
-        //[JwtExpirationValidation]
-        [HttpPut("[action]")]
-        public IActionResult ActualizarCompleto([FromBody] PaqueteTutorVirtualGuardarDTO dto)
-        {
-            //if (!ModelState.IsValid)
-            //{
-            //    return BadRequest(ModelState);
-            //}
-            var respuesta = _PaqueteTutorVirtualService.ActualizarCompleto(dto, "_tokenManager.UserName");
+            var respuesta = _PaqueteTutorVirtualService.Eliminar(id, "_tokenManager.UserName");
             return Ok(respuesta);
         }
 

@@ -19,7 +19,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
 
         IEnumerable<TPaqueteTutorVirtualPaisBeneficio> Add(IEnumerable<PaqueteTutorVirtualBeneficio> listadoEntidad);
         IEnumerable<TPaqueteTutorVirtualPaisBeneficio> Update(IEnumerable<PaqueteTutorVirtualBeneficio> listadoEntidad);
-        bool Delete(IEnumerable<int> listadoIds, string usuario);
+        bool Delete(List<int> listadoIds, string usuario);
         #endregion
 
         IEnumerable<PaqueteTutorVirtualBeneficioDTO> Obtener();

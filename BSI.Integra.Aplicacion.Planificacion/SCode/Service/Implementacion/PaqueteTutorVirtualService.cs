@@ -109,127 +109,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             }
         }
 
-        /// Autor: Villanueva Torres Marco Jose
-        /// Fecha:  27/11/2025
-        /// Version: 1.0
-        /// <summary>
-        /// Registra un nuevo PaqueteTutorVirtual
-        /// </summary>
-        /// <param name="dto">PaqueteTutorVirtualDTO</param>
-        /// <param name="usuario">Usuario Registro</param>
-        /// <returns>PaqueteTutorVirtualDTO</returns>
-        public PaqueteTutorVirtualDTO Insertar(PaqueteTutorVirtualDTO dto, string usuario)
-        {
-            try
-            {
-                if (dto != null)
-                {
-                    PaqueteTutorVirtual entidad = new()
-                    {
-                        Nombre = dto.Nombre,
-                        Estado = true,
-                        UsuarioCreacion = usuario,
-                        UsuarioModificacion = usuario,
-                        FechaCreacion = DateTime.Now,
-                        FechaModificacion = DateTime.Now,
-                    };
-                    var respuesta = _unitOfWork.PaqueteTutorVirtualRepository.Add(entidad);
-                    _unitOfWork.Commit();
-                    entidad.Id = respuesta.Id;
-                    var resultado = _mapper.Map<PaqueteTutorVirtualDTO>(respuesta);
-
-
-                    return resultado;
-                }
-                else
-                    throw new BadRequestException("Entidad Nula");
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-        /// Metodo Actualizar
-        /// Autor: Marco Jose Villanueva Torres
-        /// Fecha:  27/11/2025
-        /// Version: 1.0
-        /// <summary>
-        /// Realiza una inserción o actualizacion basica a la tabla y sus detalles
-        /// </summary>   
-        /// <param name="CategoriaPreguntaDTO"> parametros de la nueva PaqueteTutorVirtualDTO y sus detalles </param>
-
-        public PaqueteTutorVirtualDTO Actualizar(PaqueteTutorVirtualDTO dto, string usuario)
-        {
-            try
-            {
-                PaqueteTutorVirtual? entidad = new();
-                if (dto != null)
-                {
-                    if (dto.Id != 0)
-                    {
-                        entidad = _unitOfWork.PaqueteTutorVirtualRepository.ObtenerPorId(dto.Id);
-                        if (entidad != null && entidad.Id != 0)
-                        {
-                            entidad.Nombre = dto.Nombre;
-                            entidad.UsuarioModificacion = usuario;
-                            entidad.FechaModificacion = DateTime.Now;
-                            var respuesta = _unitOfWork.PaqueteTutorVirtualRepository.Update(entidad);
-                            _unitOfWork.Commit();
-
-
-                            return dto;
-                        }
-                        else
-                            throw new BadRequestException("Entidad no encontrada");
-                    }
-                    else
-                        throw new BadRequestException("Id Entidad 0");
-                }
-                else
-                    throw new BadRequestException("Entidad Nula");
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
-
-        /// Metodo Eliminar.
-        /// Autor: Marco Jose Villanueva Torres
-        /// Fecha:  27/11/2025
-        /// Version: 1.0
-        /// <summary>
-        /// Realiza una eliminacion logica por el Primary Key
-        /// </summary>   
-        /// <param name="id"> (PK) </param>
-        public bool Eliminar(int id, string usuario)
-        {
-            try
-            {
-                if (id == 0)
-                {
-                    throw new BadRequestException($"Id 0 no valido");
-                }
-                var entidad = _unitOfWork.PaqueteTutorVirtualRepository.ObtenerPorId(id);
-                if (entidad != null && entidad.Id != 0)
-                {
-                    var respuesta = _unitOfWork.PaqueteTutorVirtualRepository.Delete(id, usuario);
-
-                    _unitOfWork.Commit();
-                    return respuesta;
-                }
-                else
-                {
-                    throw new BadRequestException($"No se encontro la entidad con el id {id}");
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
         /// Autor: Christopher Sandy D' Paris
         /// Fecha:  27/11/2025
         /// Version: 1.0
@@ -239,7 +118,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         /// <param name="dto">PaqueteTutorVirtualGuardarDTO</param>
         /// <param name="usuario">Usuario Registro</param>
         /// <returns>PaqueteTutorVirtualGuardarDTO</returns>
-        public PaqueteTutorVirtualGuardarDTO InsertarCompleto(PaqueteTutorVirtualGuardarDTO dto, string usuario)
+        public PaqueteTutorVirtualGuardarDTO Insertar(PaqueteTutorVirtualGuardarDTO dto, string usuario)
         {
             try
             {
@@ -331,7 +210,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         /// <param name="dto">PaqueteTutorVirtualGuardarDTO</param>
         /// <param name="usuario">Usuario Modificación</param>
         /// <returns>PaqueteTutorVirtualGuardarDTO</returns>
-        public PaqueteTutorVirtualGuardarDTO ActualizarCompleto(PaqueteTutorVirtualGuardarDTO dto, string usuario)
+        public PaqueteTutorVirtualGuardarDTO Actualizar(PaqueteTutorVirtualGuardarDTO dto, string usuario)
         {
             try
             {
@@ -501,5 +380,55 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             }
         }
 
+        /// Metodo Eliminar.
+        /// Autor: Christopher Sandy D' Paris
+        /// Fecha:  27/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Realiza una eliminacion logica por el Primary Key en cascada
+        /// </summary>   
+        /// <param name="id"> (PK) </param>
+        public bool Eliminar(int id, string usuario)
+        {
+            try
+            {
+                if (id == 0)
+                {
+                    throw new BadRequestException($"Id 0 no valido");
+                }
+                var entidad = _unitOfWork.PaqueteTutorVirtualRepository.ObtenerPorId(id);
+                if (entidad != null && entidad.Id != 0)
+                {
+                    // 1. Obtener y eliminar países asociados
+                    var paises = _unitOfWork.PaqueteTutorVirtualPaisRepository.ObtenerPorIdPaquete(id);
+                    foreach (var pais in paises)
+                    {
+                        // 2. Obtener y eliminar beneficios asociados al país
+                        var beneficios = _unitOfWork.PaqueteTutorVirtualBeneficioRepository.ObtenerPorIdPaquetePais(pais.Id);
+                        if (beneficios.Any())
+                        {
+                            var idsBeneficios = beneficios.Select(b => b.Id).ToList();
+                            _unitOfWork.PaqueteTutorVirtualBeneficioRepository.Delete(idsBeneficios, usuario);
+                        }
+                        // Eliminar el país
+                        _unitOfWork.PaqueteTutorVirtualPaisRepository.Delete(pais.Id, usuario);
+                    }
+
+                    // 3. Eliminar el paquete principal
+                    var respuesta = _unitOfWork.PaqueteTutorVirtualRepository.Delete(id, usuario);
+
+                    _unitOfWork.Commit();
+                    return respuesta;
+                }
+                else
+                {
+                    throw new BadRequestException($"No se encontro la entidad con el id {id}");
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

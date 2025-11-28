@@ -11,16 +11,10 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
 {
     public interface IPaqueteTutorVirtualService
     {
-        
         IEnumerable<PaqueteTutorVirtualDTO> Obtener();
         IEnumerable<PaqueteTutorVirtualDetalleDTO> ObtenerDetalle();
-        PaqueteTutorVirtualDTO Insertar(PaqueteTutorVirtualDTO dto, string usuario);
-        PaqueteTutorVirtualDTO Actualizar(PaqueteTutorVirtualDTO dto, string usuario);
+        PaqueteTutorVirtualGuardarDTO Insertar(PaqueteTutorVirtualGuardarDTO dto, string usuario);
+        PaqueteTutorVirtualGuardarDTO Actualizar(PaqueteTutorVirtualGuardarDTO dto, string usuario);
         bool Eliminar(int id, string usuario);
-
-        // Métodos para manejo completo con países y beneficios
-        PaqueteTutorVirtualGuardarDTO InsertarCompleto(PaqueteTutorVirtualGuardarDTO dto, string usuario);
-        PaqueteTutorVirtualGuardarDTO ActualizarCompleto(PaqueteTutorVirtualGuardarDTO dto, string usuario);
-
     }
 }
