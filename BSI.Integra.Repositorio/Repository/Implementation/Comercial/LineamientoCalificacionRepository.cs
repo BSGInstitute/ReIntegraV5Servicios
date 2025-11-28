@@ -1334,7 +1334,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
         }
 
 
-
+        ///IMPORTANTE ELIMINAR CUANDO OBTENERREPORTEVENTA PASE A PRODUCCION
         /// Autor: Joseph Llanque
         /// Fecha: 14/08/2025
         /// Versión: 1.0
@@ -1392,6 +1392,65 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 
 
         }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 28/11/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Ejecuta [com].[SP_ReporteCalificacionClientes] y mapea:
+        ///   - ResultSet1: detalle (calificaciones por llamada)
+        ///   - ResultSet2: total de registros
+        /// </summary>
+        public (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporteVentas(ReporteCalificacionRequest req)
+        {
+            // Paso 1: Obtener el total llamando al SP de Total
+            var totalJson = _dapperRepository.QuerySPFirstOrDefault(
+                "[com].[SP_ReporteCalificacionCliente_ObtenerTotalVentas]",
+                new
+                {
+                    req.FechaInicio,
+                    req.FechaFin,
+                    IdsAsesores = (req.IdsAsesores != null && req.IdsAsesores.Any())
+                        ? JsonConvert.SerializeObject(req.IdsAsesores)
+                        : null,
+                    req.IdCentroCosto,
+                    req.IdFaseI,
+                    req.IdFaseD,
+                    req.EstadoActividadCabecera,
+                }
+            );
+
+            // Deserializar para obtener el TotalRegistros
+            var totalObj = JsonConvert.DeserializeObject<dynamic>(totalJson);
+            int total = (int)(totalObj?.TotalRegistros ?? 0);
+
+            // Paso 2: Obtener los items llamando al SP de Detalle
+            var itemsJson = _dapperRepository.QuerySPDapper(
+                "[com].[SP_ReporteCalificacionCliente_ObtenerDetalleVentas]",
+                new
+                {
+                    req.FechaInicio,
+                    req.FechaFin,
+                    IdsAsesores = (req.IdsAsesores != null && req.IdsAsesores.Any())
+                        ? JsonConvert.SerializeObject(req.IdsAsesores)
+                        : null,
+                    req.IdCentroCosto,
+                    req.IdFaseI,
+                    req.IdFaseD,
+                    req.EstadoActividadCabecera,
+                    req.Pagina,
+                    req.TamanioPagina,
+                }
+            );
+
+            // Deserializar directamente a la lista de DTOs
+            var items =
+                JsonConvert.DeserializeObject<List<LlamadaCalificadaRawDTO>>(itemsJson)
+                ?? new List<LlamadaCalificadaRawDTO>();
+
+            return (items, total);
+        }
+
         /// Autor: Lolo Zaa
         /// Fecha: 27/11/2025
         /// Versión: 1.0

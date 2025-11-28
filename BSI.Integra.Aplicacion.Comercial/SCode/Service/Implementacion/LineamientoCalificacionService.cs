@@ -3401,6 +3401,77 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 Data = agrupado
             };
         }
+        
+
+        public ReporteCalificacionResponse ObtenerReporteVentas(ReporteCalificacionRequest req)
+        {
+            var (items, total) = _unitOfWork.LineamientoCalificacionRepository.ObtenerReporteVentas(req);
+
+            var filasOrdenadas = items
+                .OrderByDescending(f => f.FechaInicioLlamadaCentral)
+                .ThenBy(f => f.IdLlamada)
+                .ToList();
+
+            var agrupado = filasOrdenadas
+                .GroupBy(f => f.IdLlamada)
+                .Select(g =>
+                {
+                    var first = g.First();
+
+                    var notasValidas = g
+                        .Where(x => x.PuntajePromedio >= 0)
+                        .Select(x => x.PuntajePromedio)
+                        .ToList();
+
+                    decimal? promedio = notasValidas.Count > 0 ? Math.Round(notasValidas.Average(), 2) : (decimal?)null;
+
+                    var puntosCriticos = g
+                        .Where(x => !string.IsNullOrWhiteSpace(x.PuntoCritico))
+                        .Select(x => x.PuntoCritico!.Trim())
+                        .Distinct()
+                        .ToList();
+
+                    return new LlamadaCalificadaDTO
+                    {
+                        IdLlamada = g.Key,
+                        IdOportunidad = first.IdOportunidad,
+                        FechaInicioLlamadaCentral = first.FechaInicioLlamadaCentral,
+                        DuracionContestoCentral = first.DuracionContestoCentral,
+                        IdAlumno = first.IdAlumno,
+                        NombreCliente = first.NombreCliente,
+                        IdAsesor = first.IdAsesor,
+                        NombreAsesor = first.NombreAsesor,
+                        IdCentroCosto = first.IdCentroCosto,
+                        NombreCentroCosto = first.NombreCentroCosto,
+                        NombreFaseI = first.NombreFaseI,
+                        CodigoFaseI = first.CodigoFaseI,
+                        NombreFaseD = first.NombreFaseD,
+                        CodigoFaseD = first.CodigoFaseD,
+                        Promedio = promedio,
+                        IdOcurrenciaPadreAlterno = first.IdOcurrenciaPadreAlterno,
+                        IdOcurrenciaActividadAlterno = first.IdOcurrenciaActividadAlterno,
+                        IdOcurrenciaAlterno = first.IdOcurrenciaAlterno,
+                        OcurrenciaPadreAlterno = first.OcurrenciaPadreAlterno,
+                        OcurrenciaAlterno = first.OcurrenciaAlterno,
+                        EstadoOcurrenciaAlterno = first.EstadoOcurrenciaAlterno,
+                        PuntosCriticos = puntosCriticos,
+                        ComentarioLlamadaNoCalificada = null,
+                        OcurrenciaConsistente = first.OcurrenciaConsistente,
+                        ComentarioConsistenciaOcurrencia = first.ComentarioConsistenciaOcurrencia,
+                        CambioFaseConsistente = first.CambioFaseConsistente,
+                        ComentarioConsistenciaCambioFase = first.ComentarioConsistenciaCambioFase,
+                        InterrupcionLlamada = first.InterrupcionLlamada
+                    };
+                })
+                .ToList();
+
+            return new ReporteCalificacionResponse
+            {
+                TotalRegistros = total,
+                Data = agrupado
+            };
+        }
+
         public ReporteCalificacionAtencionClienteResponse ObtenerReporteAtencionCliente(ReporteCalificacionRequest req)
         {
             var (filas, total) = _unitOfWork.LineamientoCalificacionRepository.ObtenerReporteAtencionCliente(req);
