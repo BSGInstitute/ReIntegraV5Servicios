@@ -743,7 +743,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
 
             try
             {
-                var url = "https://localhost:7288/api/LinkedIn/SubirOportunidadesPendientes"
+                var url = "https://integrav5-oportunidad-servicios.bsginstitute.com/api/LinkedIn/SubirOportunidadesPendientes"
                           + "?usuario=" + Uri.EscapeDataString(usuario);
 
                 using var http = new HttpClient();
