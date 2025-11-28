@@ -84,6 +84,50 @@ namespace BSI.Integra.Servicios.Controllers
             return Ok(respuesta);
         }
 
+        /// Tipo Función: POST
+        /// Autor: Christopher Sandy D' Paris
+        /// Fecha:  27/11/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Inserta un paquete completo con países y beneficios
+        /// </summary>
+        /// <param name="dto">Entidad PaqueteTutorVirtualGuardarDTO con estructura completa</param>
+        /// <returns>Retorna 200 y objeto ingresado con IDs o 400 y mensaje de error </returns>
+        //[Authorize]
+        //[JwtExpirationValidation]
+        [HttpPost("[action]")]
+        public IActionResult InsertarCompleto([FromBody] PaqueteTutorVirtualGuardarDTO dto)
+        {
+            //if (!ModelState.IsValid)
+            //{
+            //    return BadRequest(ModelState);
+            //}
+            var respuesta = _PaqueteTutorVirtualService.InsertarCompleto(dto, "_tokenManager.UserName");
+            return Ok(respuesta);
+        }
+
+        /// Tipo Función: PUT
+        /// Autor: Christopher Sandy D' Paris
+        /// Fecha:  27/11/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Actualiza un paquete completo con países y beneficios
+        /// </summary>
+        /// <param name="dto">Entidad PaqueteTutorVirtualGuardarDTO con estructura completa</param>
+        /// <returns>Retorna 200 y objeto actualizado o 400 y mensaje de error</returns>
+        //[Authorize]
+        //[JwtExpirationValidation]
+        [HttpPut("[action]")]
+        public IActionResult ActualizarCompleto([FromBody] PaqueteTutorVirtualGuardarDTO dto)
+        {
+            //if (!ModelState.IsValid)
+            //{
+            //    return BadRequest(ModelState);
+            //}
+            var respuesta = _PaqueteTutorVirtualService.ActualizarCompleto(dto, "_tokenManager.UserName");
+            return Ok(respuesta);
+        }
+
         /// Tipo Función: GET
         /// Autor: Christopher Sandy D' Paris
         /// Fecha: 27/11/2025

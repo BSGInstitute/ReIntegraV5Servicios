@@ -176,7 +176,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 var query = @"
                     SELECT
 	                    Id,Nombre
-                    FROM gp.T_PaqueteTutorVirtual
+                    FROM pla.T_PaqueteTutorVirtual
                     WHERE Estado = 1 ORDER BY Id DESC";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
@@ -210,10 +210,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 	                    UsuarioCreacion,
 	                    UsuarioModificacion,
 	                    FechaCreacion,
-	                    FechaModificacion,
-	                    RowVersion,
-	                    IdMigracion
-                    FROM gp.T_PaqueteTutorVirtual
+	                    FechaModificacion
+                    FROM pla.T_PaqueteTutorVirtual
                     WHERE Id=@id AND estado=1";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { id });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")

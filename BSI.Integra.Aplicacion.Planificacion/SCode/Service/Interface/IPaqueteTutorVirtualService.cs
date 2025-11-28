@@ -18,5 +18,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         PaqueteTutorVirtualDTO Actualizar(PaqueteTutorVirtualDTO dto, string usuario);
         bool Eliminar(int id, string usuario);
 
+        // Métodos para manejo completo con países y beneficios
+        PaqueteTutorVirtualGuardarDTO InsertarCompleto(PaqueteTutorVirtualGuardarDTO dto, string usuario);
+        PaqueteTutorVirtualGuardarDTO ActualizarCompleto(PaqueteTutorVirtualGuardarDTO dto, string usuario);
+
     }
 }

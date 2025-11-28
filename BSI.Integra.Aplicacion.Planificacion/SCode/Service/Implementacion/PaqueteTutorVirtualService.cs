@@ -230,5 +230,276 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             }
         }
 
+        /// Autor: Christopher Sandy D' Paris
+        /// Fecha:  27/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Inserta un PaqueteTutorVirtual completo con países y beneficios
+        /// </summary>
+        /// <param name="dto">PaqueteTutorVirtualGuardarDTO</param>
+        /// <param name="usuario">Usuario Registro</param>
+        /// <returns>PaqueteTutorVirtualGuardarDTO</returns>
+        public PaqueteTutorVirtualGuardarDTO InsertarCompleto(PaqueteTutorVirtualGuardarDTO dto, string usuario)
+        {
+            try
+            {
+                if (dto == null)
+                    throw new BadRequestException("Entidad Nula");
+
+                // 1. Insertar Paquete
+                PaqueteTutorVirtual paqueteEntidad = new()
+                {
+                    Nombre = dto.Nombre,
+                    CantidadCredito = dto.CantidadCredito,
+                    Estado = true,
+                    UsuarioCreacion = usuario,
+                    UsuarioModificacion = usuario,
+                    FechaCreacion = DateTime.Now,
+                    FechaModificacion = DateTime.Now,
+                };
+                var paqueteRespuesta = _unitOfWork.PaqueteTutorVirtualRepository.Add(paqueteEntidad);
+                _unitOfWork.Commit();
+                dto.Id = paqueteRespuesta.Id;
+
+                // 2. Insertar Países
+                if (dto.Paises != null && dto.Paises.Any())
+                {
+                    foreach (var paisDto in dto.Paises)
+                    {
+                        PaqueteTutorVirtualPais paisEntidad = new()
+                        {
+                            IdPaqueteTutorVirtual = paqueteRespuesta.Id,
+                            IdPais = paisDto.IdPais,
+                            IdMoneda = paisDto.IdMoneda,
+                            CostoIndividual = paisDto.CostoIndividual,
+                            CostoPaquete = paisDto.CostoPaquete,
+                            Estado = true,
+                            UsuarioCreacion = usuario,
+                            UsuarioModificacion = usuario,
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now,
+                            ListadoBeneficios = new List<PaqueteTutorVirtualBeneficio>()
+                        };
+
+                        // 3. Agregar Beneficios al país
+                        if (paisDto.Beneficios != null && paisDto.Beneficios.Any())
+                        {
+                            foreach (var beneficioDto in paisDto.Beneficios)
+                            {
+                                PaqueteTutorVirtualBeneficio beneficioEntidad = new()
+                                {
+                                    Nombre = beneficioDto.Nombre,
+                                    Estado = true,
+                                    UsuarioCreacion = usuario,
+                                    UsuarioModificacion = usuario,
+                                    FechaCreacion = DateTime.Now,
+                                    FechaModificacion = DateTime.Now
+                                };
+                                paisEntidad.ListadoBeneficios.Add(beneficioEntidad);
+                            }
+                        }
+
+                        var paisRespuesta = _unitOfWork.PaqueteTutorVirtualPaisRepository.Add(paisEntidad);
+                        _unitOfWork.Commit();
+                        paisDto.Id = paisRespuesta.Id;
+
+                        // Actualizar IDs de beneficios en el DTO
+                        if (paisDto.Beneficios != null && paisRespuesta.TPaqueteTutorVirtualPaisBeneficios != null)
+                        {
+                            for (int i = 0; i < paisDto.Beneficios.Count; i++)
+                            {
+                                paisDto.Beneficios[i].Id = paisRespuesta.TPaqueteTutorVirtualPaisBeneficios.ElementAt(i).Id;
+                            }
+                        }
+                    }
+                }
+
+                return dto;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Christopher Sandy D' Paris
+        /// Fecha:  27/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza un PaqueteTutorVirtual completo con países y beneficios
+        /// </summary>
+        /// <param name="dto">PaqueteTutorVirtualGuardarDTO</param>
+        /// <param name="usuario">Usuario Modificación</param>
+        /// <returns>PaqueteTutorVirtualGuardarDTO</returns>
+        public PaqueteTutorVirtualGuardarDTO ActualizarCompleto(PaqueteTutorVirtualGuardarDTO dto, string usuario)
+        {
+            try
+            {
+                if (dto == null)
+                    throw new BadRequestException("Entidad Nula");
+
+                if (dto.Id == 0)
+                    throw new BadRequestException("Id Entidad 0");
+
+                // 1. Actualizar Paquete
+                var paqueteExistente = _unitOfWork.PaqueteTutorVirtualRepository.ObtenerPorId(dto.Id);
+                if (paqueteExistente == null || paqueteExistente.Id == 0)
+                    throw new BadRequestException("Paquete no encontrado");
+
+                paqueteExistente.Nombre = dto.Nombre;
+                paqueteExistente.CantidadCredito = dto.CantidadCredito;
+                paqueteExistente.UsuarioModificacion = usuario;
+                paqueteExistente.FechaModificacion = DateTime.Now;
+                _unitOfWork.PaqueteTutorVirtualRepository.Update(paqueteExistente);
+                _unitOfWork.Commit();
+
+                // 2. Obtener países existentes
+                var paisesExistentes = _unitOfWork.PaqueteTutorVirtualPaisRepository.ObtenerPorIdPaquete(dto.Id).ToList();
+                var idsExistentes = paisesExistentes.Select(p => p.Id).ToList();
+                var idsRecibidos = dto.Paises.Where(p => p.Id > 0).Select(p => p.Id).ToList();
+
+                // 3. Eliminar países que ya no existen
+                var paisesEliminar = idsExistentes.Except(idsRecibidos).ToList();
+                foreach (var idEliminar in paisesEliminar)
+                {
+                    // Primero eliminar beneficios del país
+                    var beneficiosEliminar = _unitOfWork.PaqueteTutorVirtualBeneficioRepository
+                        .ObtenerPorIdPaquetePais(idEliminar)
+                        .Select(b => b.Id)
+                        .ToList();
+                    if (beneficiosEliminar.Any())
+                    {
+                        _unitOfWork.PaqueteTutorVirtualBeneficioRepository.Delete(beneficiosEliminar, usuario);
+                    }
+                    _unitOfWork.PaqueteTutorVirtualPaisRepository.Delete(idEliminar, usuario);
+                }
+                _unitOfWork.Commit();
+
+                // 4. Insertar/Actualizar países
+                foreach (var paisDto in dto.Paises)
+                {
+                    if (paisDto.Id > 0)
+                    {
+                        // Actualizar país existente
+                        var paisExistente = _unitOfWork.PaqueteTutorVirtualPaisRepository.ObtenerPorId(paisDto.Id);
+                        if (paisExistente != null)
+                        {
+                            paisExistente.IdPais = paisDto.IdPais;
+                            paisExistente.IdMoneda = paisDto.IdMoneda;
+                            paisExistente.CostoIndividual = paisDto.CostoIndividual;
+                            paisExistente.CostoPaquete = paisDto.CostoPaquete;
+                            paisExistente.UsuarioModificacion = usuario;
+                            paisExistente.FechaModificacion = DateTime.Now;
+                            _unitOfWork.PaqueteTutorVirtualPaisRepository.Update(paisExistente);
+                            _unitOfWork.Commit();
+
+                            // Manejar beneficios
+                            var beneficiosExistentes = _unitOfWork.PaqueteTutorVirtualBeneficioRepository
+                                .ObtenerPorIdPaquetePais(paisDto.Id).ToList();
+                            var idsBeneficiosExistentes = beneficiosExistentes.Select(b => b.Id).ToList();
+                            var idsBeneficiosRecibidos = paisDto.Beneficios.Where(b => b.Id > 0).Select(b => b.Id).ToList();
+
+                            // Eliminar beneficios que ya no existen
+                            var beneficiosEliminar = idsBeneficiosExistentes.Except(idsBeneficiosRecibidos).ToList();
+                            if (beneficiosEliminar.Any())
+                            {
+                                _unitOfWork.PaqueteTutorVirtualBeneficioRepository.Delete(beneficiosEliminar, usuario);
+                                _unitOfWork.Commit();
+                            }
+
+                            // Insertar/Actualizar beneficios
+                            foreach (var beneficioDto in paisDto.Beneficios)
+                            {
+                                if (beneficioDto.Id > 0)
+                                {
+                                    // Actualizar
+                                    var beneficioExistente = _unitOfWork.PaqueteTutorVirtualBeneficioRepository.ObtenerPorId(beneficioDto.Id);
+                                    if (beneficioExistente != null)
+                                    {
+                                        beneficioExistente.Nombre = beneficioDto.Nombre;
+                                        beneficioExistente.UsuarioModificacion = usuario;
+                                        beneficioExistente.FechaModificacion = DateTime.Now;
+                                        _unitOfWork.PaqueteTutorVirtualBeneficioRepository.Update(beneficioExistente);
+                                    }
+                                }
+                                else
+                                {
+                                    // Insertar nuevo beneficio
+                                    PaqueteTutorVirtualBeneficio nuevoBeneficio = new()
+                                    {
+                                        IdPaqueteTutorVirtualPais = paisDto.Id,
+                                        Nombre = beneficioDto.Nombre,
+                                        Estado = true,
+                                        UsuarioCreacion = usuario,
+                                        UsuarioModificacion = usuario,
+                                        FechaCreacion = DateTime.Now,
+                                        FechaModificacion = DateTime.Now
+                                    };
+                                    var beneficioRespuesta = _unitOfWork.PaqueteTutorVirtualBeneficioRepository.Add(nuevoBeneficio);
+                                    beneficioDto.Id = beneficioRespuesta.Id;
+                                }
+                            }
+                            _unitOfWork.Commit();
+                        }
+                    }
+                    else
+                    {
+                        // Insertar nuevo país
+                        PaqueteTutorVirtualPais nuevoPais = new()
+                        {
+                            IdPaqueteTutorVirtual = dto.Id,
+                            IdPais = paisDto.IdPais,
+                            IdMoneda = paisDto.IdMoneda,
+                            CostoIndividual = paisDto.CostoIndividual,
+                            CostoPaquete = paisDto.CostoPaquete,
+                            Estado = true,
+                            UsuarioCreacion = usuario,
+                            UsuarioModificacion = usuario,
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now,
+                            ListadoBeneficios = new List<PaqueteTutorVirtualBeneficio>()
+                        };
+
+                        // Agregar beneficios
+                        if (paisDto.Beneficios != null && paisDto.Beneficios.Any())
+                        {
+                            foreach (var beneficioDto in paisDto.Beneficios)
+                            {
+                                PaqueteTutorVirtualBeneficio beneficioEntidad = new()
+                                {
+                                    Nombre = beneficioDto.Nombre,
+                                    Estado = true,
+                                    UsuarioCreacion = usuario,
+                                    UsuarioModificacion = usuario,
+                                    FechaCreacion = DateTime.Now,
+                                    FechaModificacion = DateTime.Now
+                                };
+                                nuevoPais.ListadoBeneficios.Add(beneficioEntidad);
+                            }
+                        }
+
+                        var paisRespuesta = _unitOfWork.PaqueteTutorVirtualPaisRepository.Add(nuevoPais);
+                        _unitOfWork.Commit();
+                        paisDto.Id = paisRespuesta.Id;
+
+                        // Actualizar IDs de beneficios
+                        if (paisDto.Beneficios != null && paisRespuesta.TPaqueteTutorVirtualPaisBeneficios != null)
+                        {
+                            for (int i = 0; i < paisDto.Beneficios.Count; i++)
+                            {
+                                paisDto.Beneficios[i].Id = paisRespuesta.TPaqueteTutorVirtualPaisBeneficios.ElementAt(i).Id;
+                            }
+                        }
+                    }
+                }
+
+                return dto;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }

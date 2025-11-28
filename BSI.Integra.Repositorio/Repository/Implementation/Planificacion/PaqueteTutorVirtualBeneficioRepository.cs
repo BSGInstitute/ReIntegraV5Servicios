@@ -167,7 +167,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 	                    Id,
 	                    IdPaqueteTutorVirtualPais,
 	                    Nombre
-                    FROM gp.T_PaqueteTutorVirtualPaisBeneficio
+                    FROM pla.T_PaqueteTutorVirtualPaisBeneficio
                     WHERE Estado = 1 ORDER BY Id DESC";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
@@ -205,7 +205,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 	                    FechaCreacion,
 	                    FechaModificacion,
 	                    RowVersion
-                    FROM gp.T_PaqueteTutorVirtualPaisBeneficio
+                    FROM pla.T_PaqueteTutorVirtualPaisBeneficio
                     WHERE Id=@id AND estado=1";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { id });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
@@ -237,7 +237,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 	                    Id,
 	                    IdPaqueteTutorVirtualPais,
 	                    Nombre
-                    FROM gp.T_PaqueteTutorVirtualPaisBeneficio
+                    FROM pla.T_PaqueteTutorVirtualPaisBeneficio
                     WHERE IdPaqueteTutorVirtualPais = @idPaqueteTutorVirtualPais AND Estado = 1
                     ORDER BY Id DESC";
                 var resultado = _dapperRepository.QueryDapper(query, new { idPaqueteTutorVirtualPais });
