@@ -339,14 +339,6 @@ namespace BSI.Integra.Servicios.Controllers
             return Ok(servicio.CerrarOportunidadNS(data.IdOportunidades, data.Usuario));
         }
 
-        [Route("[Action]")]
-        [HttpPost]
-        public ActionResult CambioActividadCabeceraAgenda([FromBody] AsignarActividadesAgendaV6DTO data)
-        {
-            var servicio = new AsignacionManualService(unitOfWork);
-            return Ok(servicio.CambioActividadCabeceraAgenda(data));
-        }
-
     }
 }
 

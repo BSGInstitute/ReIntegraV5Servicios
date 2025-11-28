@@ -2,7 +2,7 @@
 
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
-    public partial class TEvaluacionLlamadaPuntoGeneral : BaseIntegraEntity
+    public partial class TVersionCriterioCalificacion : BaseIntegraEntity
     {
     }
 }

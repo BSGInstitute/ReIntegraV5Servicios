@@ -1,5 +1,4 @@
-﻿using BSI.Integra.Persistencia.Entidades.IntegraDB.GestionPersonas;
-using BSI.Integra.Persistencia.Infrastructure;
+﻿using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository;
 using BSI.Integra.Repositorio.Repository.Implementation;
@@ -14,6 +13,7 @@ using BSI.Integra.Repositorio.Repository.Implementation.Marketing.FiltroSegmento
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.FiltroSegmentoTipoContacto;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.LinkedIn;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.Melissa;
+using BSI.Integra.Repositorio.Repository.Implementation.Marketing.Messenger;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.Sendingblue;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.WhatsApp;
 using BSI.Integra.Repositorio.Repository.Implementation.Operaciones;
@@ -30,12 +30,12 @@ using BSI.Integra.Repositorio.Repository.Interface.Marketing.FiltroSegmentoFolde
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.FiltroSegmentoTipoContacto;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.LinkedIn;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.Melissa;
+using BSI.Integra.Repositorio.Repository.Interface.Marketing.Messenger;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.Sendingblue;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.WhatsApp;
 using BSI.Integra.Repositorio.Repository.Interface.Operacion;
 using BSI.Integra.Repositorio.Repository.Interface.Operaciones;
 using BSI.Integra.Repositorio.Repository.Interface.Planificacion;
-using Mandrill.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BSI.Integra.Repositorio.UnitOfWork
@@ -4699,7 +4699,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _criterioEvaluacionCategoriumRepository ?? new CriterioEvaluacionCategoriumRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
-        
+
         private IEvaluacionCategoriumRepository _evaluacionCategoriumRepository;
         IEvaluacionCategoriumRepository IUnitOfWork.EvaluacionCategoriumRepository
         {
@@ -7176,7 +7176,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _preguntaEncuestaCategoriaRepository ?? new PreguntaEncuestaCategoriaRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
-        
+
         private IPreguntaEncuestaRepository _preguntaEncuestaRepository;
         IPreguntaEncuestaRepository IUnitOfWork.PreguntaEncuestaRepository
         {
@@ -8001,5 +8001,16 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _oportunidadProgramaMotivacionSeleccionRepository ?? new OportunidadProgramaMotivacionSeleccionRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+
+        private IMessengerFacebookChatRepository _messengerFacebookChatRepository;
+        IMessengerFacebookChatRepository IUnitOfWork.MessengerFacebookChatRepository
+        {
+            get
+            {
+                return _messengerFacebookChatRepository ?? new MessengerFacebookChatRepository(_dapperRepository);
+            }
+        }
+
+
     }
 }

@@ -172,6 +172,16 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 throw ex;
             }
         }
+
+        public IEnumerable<CentroCostoVentaCruzadaDTO> ObtenerCentroCostoVentaCruzada (int idPGeneral)
+        {
+            try
+            {
+                return _unitOfWork.OportunidadRepository.ObtenerCentroCostoVentaCruzada(idPGeneral);
+
+            }
+            catch (Exception ex) { throw ex; }
+        }
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 25/07/2022
         /// Version: 1.0

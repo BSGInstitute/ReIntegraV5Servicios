@@ -3,34 +3,22 @@ using System.Collections.Generic;
 
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
-    /// <summary>
-    /// Fases de evaluación de llamadas. El área se hereda de los Lineamientos asociados.
-    /// </summary>
-    public partial class TEvaluacionLlamadaFase
+    public partial class TPaqueteTutorVirtualPaisBeneficio
     {
-        public TEvaluacionLlamadaFase()
-        {
-            TEvaluacionLlamadaCriterios = new HashSet<TEvaluacionLlamadaCriterio>();
-        }
-
         /// <summary>
-        /// Identificador único de la fase
+        /// Identificador autoincremental del beneficio
         /// </summary>
         public int Id { get; set; }
         /// <summary>
-        /// Nombre de la fase de evaluación
+        /// Id del detalle país-paquete al que pertenece el beneficio
         /// </summary>
-        public string NombreFase { get; set; } = null!;
+        public int IdPaqueteTutorVirtualPais { get; set; }
         /// <summary>
-        /// Orden de presentación de la fase
+        /// Nombre o descripción del beneficio incluido
         /// </summary>
-        public int? Orden { get; set; }
+        public string Nombre { get; set; } = null!;
         /// <summary>
-        /// Descripción detallada de la fase
-        /// </summary>
-        public string? Descripcion { get; set; }
-        /// <summary>
-        /// Estado del registro (1=Activo, 0=Inactivo)
+        /// Estado lógico del registro (1=Activo, 0=Inactivo)
         /// </summary>
         public bool? Estado { get; set; }
         /// <summary>
@@ -50,10 +38,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public DateTime FechaModificacion { get; set; }
         /// <summary>
-        /// Control de versión de fila para concurrencia
+        /// Control de concurrencia (timestamp)
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
 
-        public virtual ICollection<TEvaluacionLlamadaCriterio> TEvaluacionLlamadaCriterios { get; set; }
+        public virtual TPaqueteTutorVirtualPai IdPaqueteTutorVirtualPaisNavigation { get; set; } = null!;
     }
 }

@@ -4,55 +4,61 @@ using System.Collections.Generic;
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     /// <summary>
-    /// Esta tabla almacena los puntos generales de evaluacion de llamada
+    /// Criterios congelados por versión
     /// </summary>
-    public partial class TCalificacionPuntoGeneral
+    public partial class TVersionCriterioCalificacion
     {
+        public TVersionCriterioCalificacion()
+        {
+            TVersionLineamientoCalificacions = new HashSet<TVersionLineamientoCalificacion>();
+        }
+
         /// <summary>
-        /// Identificador único del punto general
+        /// (PK) Primary Key del registro
         /// </summary>
         public int Id { get; set; }
         /// <summary>
-        /// Nombre del punto (hasta 1000 caracteres)
+        /// Nombre del criterio
         /// </summary>
-        public string Nombre { get; set; } = null!;
+        public string NombreCriterio { get; set; } = null!;
         /// <summary>
-        /// Orden del punto 
+        /// Orden del criterio
         /// </summary>
         public int? Orden { get; set; }
         /// <summary>
-        /// Descripción del punto (hasta 1000 caracteres)
+        /// Descripción del criterio
         /// </summary>
         public string? Descripcion { get; set; }
         /// <summary>
-        /// Estado del registro (activo o inactivo)
+        /// Estado del registro
         /// </summary>
-        public bool Estado { get; set; }
+        public bool? Estado { get; set; }
         /// <summary>
-        /// Usuario que creó el registro
+        /// Usuario que creó
         /// </summary>
         public string UsuarioCreacion { get; set; } = null!;
         /// <summary>
-        /// Usuario que modificó el registro
+        /// Usuario que modificó
         /// </summary>
         public string UsuarioModificacion { get; set; } = null!;
         /// <summary>
-        /// Fecha de creación del registro
+        /// Fecha de creación
         /// </summary>
         public DateTime FechaCreacion { get; set; }
         /// <summary>
-        /// Fecha de modificación del registro
+        /// Fecha de modificación
         /// </summary>
         public DateTime FechaModificacion { get; set; }
         /// <summary>
-        /// Versión del registro para control de concurrencia
+        /// Control de concurrencia
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
         /// <summary>
-        /// (FK) Referencia al personal/área de trabajo asignado al punto general
+        /// Referencia a la fase congelada
         /// </summary>
-        public int? IdPersonalAreaTrabajo { get; set; }
+        public int IdVersionFaseCalificacion { get; set; }
 
-        public virtual TPersonalAreaTrabajo? IdPersonalAreaTrabajoNavigation { get; set; }
+        public virtual TVersionFaseCalificacion IdVersionFaseCalificacionNavigation { get; set; } = null!;
+        public virtual ICollection<TVersionLineamientoCalificacion> TVersionLineamientoCalificacions { get; set; }
     }
 }

@@ -350,6 +350,7 @@
         public string? Celular2 { get; set; }
         public int? IdEmpresa { get; set; }
         public string? Comentario { get; set; }
+        public string? IdentificadorAmbitoPagina { get; set; }
     }
     public class AlumnoAutocompleteEmailDTO
     {
