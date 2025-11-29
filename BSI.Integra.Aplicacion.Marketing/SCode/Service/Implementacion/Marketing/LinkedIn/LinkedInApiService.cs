@@ -13,6 +13,11 @@ using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+using System.Net.Http.Json;
+using Microsoft.AspNet.SignalR.Json;
+using System.Text;
+using Newtonsoft.Json.Serialization;
+
 
 namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.LinkedIn
 {
@@ -56,7 +61,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
                     _unitOfWork.LinkedInApiRepository.ActualizarEstadoEnviado(1);
                     return false;
                 }
-                if (campañas && form)   
+                if (campañas && form)
                 {
                     leads = await ObtenerLeads();
                 }
@@ -690,9 +695,9 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
 
 
 
-        public IEnumerable<ReporteLeadsPendientesDTO> ObtenerReportePendientes()
+        public IEnumerable<ReporteLeadsPendientesDTO> ObtenerReportePendientes(int cuentaAsociada)
         {
-            return _unitOfWork.LinkedInApiRepository.ObtenerReportePendientes();
+            return _unitOfWork.LinkedInApiRepository.ObtenerReportePendientes(cuentaAsociada);
         }
 
         public bool Actualizar(LinkedInActualizarDTO dto, string usuario)
@@ -701,9 +706,9 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
             {
                 var existe = _unitOfWork.LinkedInApiRepository.ObtenerIdPorGuidLinkedInLead(dto.GuidLinkedInLead);
                 var valorPais = _unitOfWork.LinkedInApiRepository.ObtenerQuestionLeadForm(dto.GuidLinkedInLead);
-                if (valorPais!=null)
+                if (valorPais != null)
                 {
-                    if(valorPais.Pais != dto.Pais)
+                    if (valorPais.Pais != dto.Pais)
                     {
                         _unitOfWork.LinkedInApiRepository.ActualizarPaisQuestionLeadForm(dto, usuario);
                     }
@@ -751,20 +756,114 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
             }
         }
 
+        public bool SubirOportunidadesPendientesSeleccionadas(SubirPendientesAgrupadas res, string usuario)
+        {
+            if (string.IsNullOrWhiteSpace(usuario)) return false;
+            if (res == null) return false;
+
+            try
+            {
+                var guids = (res.GuidLinkedInLead ?? new List<string>())
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .Select(s => s.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+                if (guids.Count == 0) return false;
+
+                if (res.CuentaAsociada <= 0) return false;
+                var grupo = res.Grupo > 0 ? res.Grupo : 1;
+
+                var payload = new
+                {
+                    usuario = usuario,
+                    guids = new
+                    {
+                        guidLinkedInLead = guids,
+                        cuentaAsociada = res.CuentaAsociada,
+                        grupo = grupo
+                    }
+                };
+
+                var json = JsonConvert.SerializeObject(payload, new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                    NullValueHandling = NullValueHandling.Ignore
+                });
+
+                var url = "https://localhost:44366/api/LinkedIn/SubirOportunidadesPendientesSeleccionadas";
+
+                using var handler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                };
+                using var http = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(60) };
+                http.DefaultRequestHeaders.Accept.Clear();
+                http.DefaultRequestHeaders.Accept.ParseAdd("application/json");
+
+                json = JsonConvert.SerializeObject(payload);
+                using var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var resp = http.PostAsync(url, content).GetAwaiter().GetResult();
+                var respText = resp.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+
+
+                Console.WriteLine($"POST {url} -> {(int)resp.StatusCode} {resp.StatusCode}");
+                Console.WriteLine($"Request JSON: {json}");
+                Console.WriteLine($"Response body: {respText}");
+
+                if (!resp.IsSuccessStatusCode)
+                {
+                    _unitOfWork.LinkedInApiRepository.LinkedinControlEnvioResetGrupo(res.CuentaAsociada);
+                    return false;
+                }
+
+                _unitOfWork.LinkedInApiRepository.LinkedinControlEnvioResetGrupo(res.CuentaAsociada);
+                if (bool.TryParse(respText, out var okDirecto)) return okDirecto;
+
+
+                try
+                {
+                    var token = JToken.Parse(respText);
+                    if (token.Type == JTokenType.Boolean) return token.Value<bool>();
+                    var propTrue = token.SelectToken("$..value");
+                    if (propTrue != null && propTrue.Type == JTokenType.Boolean)
+                        return propTrue.Value<bool>();
+                }
+                catch { }
+
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
 
         public BoolDTO ValidarCreacionOportunidadLinkedinEstado()
         {
-            {
-                return _unitOfWork.LinkedInApiRepository.ValidarCreacionOportunidadLinkedinEstado();
-            }
+
+            return _unitOfWork.LinkedInApiRepository.ValidarCreacionOportunidadLinkedinEstado();
+
         }
 
         public BoolDTO ValidarEstadoParaControlLinkedin()
         {
-            {
-                return _unitOfWork.LinkedInApiRepository.ValidarObtencionLeadLinkedinEstado();
-            }
+
+            return _unitOfWork.LinkedInApiRepository.ValidarObtencionLeadLinkedinEstado();
+
+        }
+        public IEnumerable<LinkedinCuentaDTO> ObtenerCuentasActivas()
+        {
+            return _unitOfWork.LinkedInApiRepository.ObtenerCuentasActivas();
+        }
+
+        public bool ValidarEstadoParaControlLinkedinPorCuenta(int cuentaAsociada)
+        {
+            var valor= _unitOfWork.LinkedInApiRepository.ValidarEstadoParaControlLinkedinPorCuenta(cuentaAsociada);
+            if (valor.Valor != true)
+                return false;
+            return true;
         }
     }
 }

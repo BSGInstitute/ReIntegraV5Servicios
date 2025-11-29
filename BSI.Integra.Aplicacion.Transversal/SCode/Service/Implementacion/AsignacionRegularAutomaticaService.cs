@@ -205,8 +205,10 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
         public async Task<bool> EjecutarAsignacionDatosAutomatizada(string Usuario)
         {
-            bool esManual = !Usuario.Equals("SYSTEMV5", StringComparison.OrdinalIgnoreCase);
+            bool esManual = !Usuario.Equals("SYSTEMV5", StringComparison.OrdinalIgnoreCase)
+                         && !Usuario.Equals("AsignacionAutomatica-Service", StringComparison.OrdinalIgnoreCase);
 
+            // Mantener el semáforo en memoria como segunda capa de protección
             if (!_semaforo.Wait(0))
             {
                 lock (_semaforo)
@@ -847,6 +849,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             try
             {
                 List<string> correosAlerta = new List<string>();
+                correosAlerta.Add("mvaldiviac@bsginstitute.com");
                 correosAlerta.Add("balmanzam@bsginstitute.com");
                 correosAlerta.Add("jrivera@bsginstitute.com");
                 correosAlerta.Add("loscataf@bsginstitute.com");
@@ -855,7 +858,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                 var mailServiceAlerta = new TMK_MailService();
                 TMKMailDataDTO mailDataAlerta = new TMKMailDataDTO();
-                mailDataAlerta.Sender = "ccrispin@bsginstitute.com";
+                //mailDataAlerta.Sender = "ccrispin@bsginstitute.com";
                 mailDataAlerta.Recipient = string.Join(",", correosAlerta);
                 mailDataAlerta.Subject = "Asignacion de datos";
                 mailDataAlerta.Message = mensaje;

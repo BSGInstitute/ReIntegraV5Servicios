@@ -21,5 +21,16 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public int? IdVersionPrograma { get; set; }
         public string NombreVersion { get; set; }
         public int? Duracion { get; set; }
+        public int? CreditoDisponibleTutorVirtual { get; set; }
+    }
+    public class UpdateOnlyVersionProgramaDTO
+    {
+        public int IdPgeneral { get; set; }
+        public List<PGeneralVersionProgramaDetalleDTO> versiones { get; set; } = [];
+    }
+    public class ResultadoPVersionDTO
+    {
+        public bool Estado { get; set; }
+        public string Mensaje { get; set; }
     }
 }

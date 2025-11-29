@@ -1858,6 +1858,31 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         {
             return _unitOfWork.OportunidadRepository.ObtenerReporteControlActividadesAgenda(idAsesor);
         }
+
+
+
+        /// Autor: Jorge Llerenat
+        /// Fecha: 28/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene métricas comparativas diarias de un asesor
+        /// </summary>
+        /// <param name="idAsesor">ID del asesor</param>
+        /// <param name="fecha">Fecha opcional (por defecto hoy)</param>
+        /// <returns>MetricasComparativasDiariasDTO con comparación vs día anterior</returns>
+        public MetricasComparativasDiariasDTO ObtenerMetricasComparativasDiarias(int idAsesor, DateTime? fecha = null)
+        {
+            try
+            {
+                return _unitOfWork.OportunidadRepository.ObtenerMetricasComparativasDiarias(idAsesor, fecha);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#HAS-OMCD-001@Error en ObtenerMetricasComparativasDiarias: {ex.Message}", ex);
+            }
+        }
+
+
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 12/03/2024
         /// Version: 1.0
