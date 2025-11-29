@@ -790,7 +790,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.Link
                     NullValueHandling = NullValueHandling.Ignore
                 });
 
-                var url = "https://localhost:44366/api/LinkedIn/SubirOportunidadesPendientesSeleccionadas";
+                var url = "https://integrav5-oportunidad-servicios.bsginstitute.com/api/LinkedIn/SubirOportunidadesPendientesSeleccionadas";
 
                 using var handler = new HttpClientHandler
                 {
