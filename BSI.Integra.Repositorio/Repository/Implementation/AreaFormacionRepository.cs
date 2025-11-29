@@ -205,7 +205,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 List<ComboDTO> respuesta = new List<ComboDTO>();
-                var query = @"SELECT Id,Nombre FROM pla.T_AreaFormacion WHERE Estado = 1";
+                var query = @"SELECT Id,Nombre FROM pla.T_AreaFormacion WHERE Estado = 1 ORDER BY Nombre ASC";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
