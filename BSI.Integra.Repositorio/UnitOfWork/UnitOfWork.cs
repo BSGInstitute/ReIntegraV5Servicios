@@ -55,7 +55,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         }
 
         public void Commit()
-        {
+        {       
             try
             {
                 _context.SaveChanges();
@@ -8011,6 +8011,31 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private IPaqueteTutorVirtualRepository _paqueteTutorVirtualRepository;
+        IPaqueteTutorVirtualRepository IUnitOfWork.PaqueteTutorVirtualRepository
+        {
+            get
+            {
+                return _paqueteTutorVirtualRepository ?? new PaqueteTutorVirtualRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
 
+        private IPaqueteTutorVirtualPaisRepository _paqueteTutorVirtualPaisRepository;
+        IPaqueteTutorVirtualPaisRepository IUnitOfWork.PaqueteTutorVirtualPaisRepository
+        {
+            get
+            {
+                return _paqueteTutorVirtualPaisRepository ?? new PaqueteTutorVirtualPaisRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IPaqueteTutorVirtualBeneficioRepository _paqueteTutorVirtualBeneficioRepository;
+        IPaqueteTutorVirtualBeneficioRepository IUnitOfWork.PaqueteTutorVirtualBeneficioRepository
+        {
+            get
+            {
+                return _paqueteTutorVirtualBeneficioRepository ?? new PaqueteTutorVirtualBeneficioRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
     }
 }

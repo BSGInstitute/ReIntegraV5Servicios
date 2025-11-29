@@ -556,6 +556,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TPaisAsignacionRegular> TPaisAsignacionRegulars { get; set; } = null!;
         public virtual DbSet<TPaisConfiguracionAsignacionRegular> TPaisConfiguracionAsignacionRegulars { get; set; } = null!;
         public virtual DbSet<TPanelIngresoDisponible> TPanelIngresoDisponibles { get; set; } = null!;
+        public virtual DbSet<TPaqueteTutorVirtual> TPaqueteTutorVirtuals { get; set; } = null!;
+        public virtual DbSet<TPaqueteTutorVirtualPai> TPaqueteTutorVirtualPais { get; set; } = null!;
+        public virtual DbSet<TPaqueteTutorVirtualPaisBeneficio> TPaqueteTutorVirtualPaisBeneficios { get; set; } = null!;
         public virtual DbSet<TParametroEvaluacion> TParametroEvaluacions { get; set; } = null!;
         public virtual DbSet<TParametroSeoPw> TParametroSeoPws { get; set; } = null!;
         public virtual DbSet<TParentescoPersonal> TParentescoPersonals { get; set; } = null!;
@@ -33825,6 +33828,169 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TPaqueteTutorVirtual>(entity =>
+            {
+                entity.ToTable("T_PaqueteTutorVirtual", "pla");
+
+                entity.Property(e => e.Id).HasComment("Identificador autoincremental del paquete");
+
+                entity.Property(e => e.CantidadCredito).HasComment("Cantidad de créditos incluidos en el paquete");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Estado lógico del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de última modificación del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del paquete de tutor virtual");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia (timestamp)");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro por última vez");
+            });
+
+            modelBuilder.Entity<TPaqueteTutorVirtualPai>(entity =>
+            {
+                entity.ToTable("T_PaqueteTutorVirtualPais", "pla");
+
+                entity.Property(e => e.Id).HasComment("Identificador autoincremental del registro");
+
+                entity.Property(e => e.CostoIndividual)
+                    .HasColumnType("decimal(10, 2)")
+                    .HasComment("Costo individual por tutor virtual");
+
+                entity.Property(e => e.CostoPaquete)
+                    .HasColumnType("decimal(10, 2)")
+                    .HasComment("Costo total del paquete para este país");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Estado lógico del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de última modificación del registro");
+
+                entity.Property(e => e.IdMoneda).HasComment("Id de la moneda con la que se vende el paquete");
+
+                entity.Property(e => e.IdPais).HasComment("Id del país asociado");
+
+                entity.Property(e => e.IdPaqueteTutorVirtual).HasComment("Id del paquete de tutor virtual");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia (timestamp)");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro por última vez");
+
+                entity.HasOne(d => d.IdMonedaNavigation)
+                    .WithMany(p => p.TPaqueteTutorVirtualPais)
+                    .HasForeignKey(d => d.IdMoneda)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_PaqueteTutorVirtualPais_TMoneda");
+
+                entity.HasOne(d => d.IdPaisNavigation)
+                    .WithMany(p => p.TPaqueteTutorVirtualPais)
+                    .HasForeignKey(d => d.IdPais)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_PaqueteTutorVirtualPais_TPais");
+
+                entity.HasOne(d => d.IdPaqueteTutorVirtualNavigation)
+                    .WithMany(p => p.TPaqueteTutorVirtualPais)
+                    .HasForeignKey(d => d.IdPaqueteTutorVirtual)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_PaqueteTutorVirtualPais_TPaqueteTutorVirtual");
+            });
+
+            modelBuilder.Entity<TPaqueteTutorVirtualPaisBeneficio>(entity =>
+            {
+                entity.ToTable("T_PaqueteTutorVirtualPaisBeneficio", "pla");
+
+                entity.Property(e => e.Id).HasComment("Identificador autoincremental del beneficio");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Estado lógico del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de última modificación del registro");
+
+                entity.Property(e => e.IdPaqueteTutorVirtualPais).HasComment("Id del detalle país-paquete al que pertenece el beneficio");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Nombre o descripción del beneficio incluido");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia (timestamp)");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro por última vez");
+
+                entity.HasOne(d => d.IdPaqueteTutorVirtualPaisNavigation)
+                    .WithMany(p => p.TPaqueteTutorVirtualPaisBeneficios)
+                    .HasForeignKey(d => d.IdPaqueteTutorVirtualPais)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_PaqueteTutorVirtualPaisBeneficio_TPaqueteTutorVirtualPais");
             });
 
             modelBuilder.Entity<TParametroEvaluacion>(entity =>

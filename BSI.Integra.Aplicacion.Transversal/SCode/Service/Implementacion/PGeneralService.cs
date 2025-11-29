@@ -2362,6 +2362,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 pgeneral.PgeneralVersionPrograma = programaGeneralDTO.DetallesProgramaGeneral.PgeneralVersionPrograma.Select(x => new PgeneralVersionPrograma
                 {
                     Duracion = x.Duracion,
+                    CreditoDisponibleTutorVirtual = x.CreditoDisponibleTutorVirtual,
                     IdVersionPrograma = x.IdVersionPrograma,
                     UsuarioCreacion = usuario,
                     UsuarioModificacion = usuario,
@@ -3155,6 +3156,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     if (_unitOfWork.PGeneralVersionProgramaRepository.Exist(x => x.IdPgeneral == idPgeneral && x.IdVersionPrograma == itemVersion.IdVersionPrograma))
                     {
                         entidad = _unitOfWork.PGeneralVersionProgramaRepository.ObtenerPorIdPgeneralIdVersionPrograma(idPgeneral, itemVersion.IdVersionPrograma.GetValueOrDefault())!;
+                        entidad.CreditoDisponibleTutorVirtual = itemVersion.CreditoDisponibleTutorVirtual;
                         entidad.Duracion = itemVersion.Duracion;
                         entidad.UsuarioModificacion = usuario;
                         entidad.FechaModificacion = DateTime.Now;
@@ -3163,6 +3165,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     {
                         entidad = new PgeneralVersionPrograma()
                         {
+                            CreditoDisponibleTutorVirtual = itemVersion.CreditoDisponibleTutorVirtual,
                             Duracion = itemVersion.Duracion,
                             IdVersionPrograma = itemVersion.IdVersionPrograma,
                             UsuarioCreacion = usuario,
@@ -5422,6 +5425,84 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             catch (Exception ex)
             {
                 throw;
+            }
+        }
+        public ResultadoPVersionDTO ActualizarVersionPrograma(UpdateOnlyVersionProgramaDTO data, string usuario)
+        {
+            try
+            {
+                //if (data == null) return new ResultadoDTO { Estado = false, Mensaje = "Datos nulos" };
+                if (data.versiones == null) data.versiones = new List<PGeneralVersionProgramaDetalleDTO>();
+
+                var elements = _unitOfWork.PGeneralVersionProgramaRepository
+                    .ObtenerPorIdPGeneral(data.IdPgeneral);
+
+                if (!data.versiones.Any())
+                {
+                    if (elements.Any())
+                    {
+                        _unitOfWork.PGeneralVersionProgramaRepository.Delete(
+                            elements.Select(x => x.Id),
+                            usuario
+                        );
+                        _unitOfWork.Commit();
+                    }
+                    return new ResultadoPVersionDTO { Estado = true, Mensaje = "Versiones eliminadas correctamente" };
+                }
+
+                List<int> idsEnviado = data.versiones
+                    .Where(v => v.IdVersionPrograma.HasValue)
+                    .Select(v => v.IdVersionPrograma.Value)
+                    .ToList();
+
+                var idsEliminar = elements
+                    .Where(x => x.IdVersionPrograma.HasValue &&
+                                !idsEnviado.Contains(x.IdVersionPrograma.Value))
+                    .Select(x => x.Id);
+
+                if (idsEliminar.Any())
+                    _unitOfWork.PGeneralVersionProgramaRepository.Delete(idsEliminar, usuario);
+
+                foreach (var itemVersion in data.versiones)
+                {
+                    if (!itemVersion.IdVersionPrograma.HasValue) continue;
+
+                    var existente = elements
+                        .FirstOrDefault(x => x.IdVersionPrograma == itemVersion.IdVersionPrograma);
+
+                    if (existente != null)
+                    {
+                        existente.CreditoDisponibleTutorVirtual = itemVersion.CreditoDisponibleTutorVirtual;
+                        existente.Duracion = itemVersion.Duracion;
+                        existente.UsuarioModificacion = usuario;
+                        existente.FechaModificacion = DateTime.Now;
+
+                        _unitOfWork.PGeneralVersionProgramaRepository.Update(existente);
+                    }
+                    else
+                    {
+                        var nuevo = new PgeneralVersionPrograma()
+                        {
+                            CreditoDisponibleTutorVirtual = itemVersion.CreditoDisponibleTutorVirtual,
+                            Duracion = itemVersion.Duracion,
+                            IdVersionPrograma = itemVersion.IdVersionPrograma,
+                            IdPgeneral = data.IdPgeneral,
+                            UsuarioCreacion = usuario,
+                            UsuarioModificacion = usuario,
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now,
+                            Estado = true,
+                        };
+
+                        _unitOfWork.PGeneralVersionProgramaRepository.Add(nuevo);
+                    }
+                }
+                _unitOfWork.Commit();
+                return new ResultadoPVersionDTO { Estado = true, Mensaje = "Versiones actualizadas correctamente" };
+            }
+            catch (Exception ex)
+            {
+                return new ResultadoPVersionDTO { Estado = false, Mensaje = ex.Message };
             }
         }
     }

@@ -12,6 +12,10 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
 {
     public interface IPGeneralVersionProgramaRepository : IGenericRepository<TPgeneralVersionPrograma>
     {
+        #region Metodos Base
+        TPgeneralVersionPrograma Add(PgeneralVersionPrograma entidad);
+        TPgeneralVersionPrograma Update(PgeneralVersionPrograma entidad);
+        #endregion
         Task<IEnumerable<ComboDTO>> ObtenerVersionesProgramaPorPGeneralAsync(int idPGeneral);
         IEnumerable<PGeneralVersionProgramaDetalleDTO> ObtenerPGeneralVersionProgramaDetallePorIdPGeneral(int idPGeneral);
         IEnumerable<PgeneralVersionPrograma> ObtenerPorIdPGeneral(int idPGeneral);

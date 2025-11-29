@@ -10,6 +10,7 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
         public int? IdVersionPrograma { get; set; }
 
         public int? Duracion { get; set; }
+        public int? CreditoDisponibleTutorVirtual { get; set; }
 
         public virtual TPgeneral IdPgeneralNavigation { get; set; } = null!;
 
