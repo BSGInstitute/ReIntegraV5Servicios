@@ -53,6 +53,14 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Cantidad de Creditos disponibles para el tutor virtual
         /// </summary>
         public int? CreditoDisponibleTutorVirtual { get; set; }
+        /// <summary>
+        /// Cantidad de webinars asignados a la version del programa
+        /// </summary>
+        public int? CantidadWebinarAsignado { get; set; }
+        /// <summary>
+        /// Cantidad de meses adicionales a los webinar por version de programa
+        /// </summary>
+        public int? CantidadMesAccesoAdicionalWebinar { get; set; }
 
         public virtual TPgeneral IdPgeneralNavigation { get; set; } = null!;
     }
