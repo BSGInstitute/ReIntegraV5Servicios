@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Linkedin;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
@@ -4643,5 +4644,69 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 return null;
             }
         }
+
+        /// Autor: Junior Llerena
+        /// Fecha: 01/12/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene los códigos de descuento asociados a un alumno
+        /// </summary>
+        /// <param name="idAlumno">ID del alumno</param>
+        /// <returns>Objeto con códigos de descuento del alumno</returns>
+        public AlumnoCodigosDescuentosDTO ObtenerCodigoDescuentoAlumno(int idAlumno)
+        {
+            try
+            {
+                string query = @"
+                    SELECT ppcd.Id,
+                           a.Id AS IdAlumno,
+                           ppcd.PorcentajeDescuento,
+                           ppcd.CodigoDescuentoArmado AS CodigoDescuento,
+                           ppcd.Utilizado,
+                           ppcd.Estado,
+                           ppcd.Correo
+                    FROM [192.168.2.5].integraDB_PortalWeb.mkt.T_ProgressiveProfilingCodigoDescuentoCorreo ppcd
+                    INNER JOIN mkt.T_alumno a ON ppcd.Correo COLLATE DATABASE_DEFAULT = a.Email1 COLLATE DATABASE_DEFAULT
+                    WHERE a.id = @idAlumno
+                      AND ppcd.Estado = 1
+                    ORDER BY ppcd.id DESC;";
+
+                var resultado = _dapperRepository.QueryDapper(query, new { idAlumno });
+
+                if (!string.IsNullOrEmpty(resultado) && resultado != "[]")
+                {
+                    var codigos = JsonConvert.DeserializeObject<List<CodigoDTO>>(resultado);
+
+                    if (codigos != null && codigos.Count > 0)
+                    {
+                        var alumnoDescuentos = new AlumnoCodigosDescuentosDTO
+                        {
+                            IdAlumno = idAlumno
+                        };
+
+                        var descuentosProperty = typeof(AlumnoCodigosDescuentosDTO).GetProperty("Descuentos");
+                        descuentosProperty.SetValue(alumnoDescuentos, codigos);
+
+                        return alumnoDescuentos;
+                    }
+                }
+                var alumnoVacio = new AlumnoCodigosDescuentosDTO
+                {
+                    IdAlumno = idAlumno
+                };
+                var propertyVacio = typeof(AlumnoCodigosDescuentosDTO).GetProperty("Descuentos");
+                propertyVacio.SetValue(alumnoVacio, new List<CodigoDTO>());
+
+                return alumnoVacio;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#OR-OCDA-001@Error en ObtenerCodigoDescuentoAlumno: {ex.Message}", ex);
+            }
+        }
+
+
+
+
     }
 }

@@ -72,5 +72,6 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         int ObtenerIdSkillPorCelular(string celular);
         IEnumerable<ColorPerfilProgramaDTO> ObtenerColorPerfilProgramaPorIdOportunidad(int idOportunidad);
         IEnumerable<ProgramaGeneralPresentacionArgumentoDetalleAgendaDTO> ObtenerProgramaGeneralPresentacionArgumentoDetallePorIdOportunidad(int idOportunidad);
+        AlumnoCodigosDescuentosDTO ObtenerCodigoDescuentoAlumno(int idAlumno);
     }
 }

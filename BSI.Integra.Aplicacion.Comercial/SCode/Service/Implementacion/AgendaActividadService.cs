@@ -2055,6 +2055,25 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
 
         }
+        /// Autor: MJunior Llerena
+        /// Fecha: 02/12/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene codigos y descuentos relacionados al idAlumno
+        /// </summary>
+        /// <param name="idAlumno">Id del Alumno</param>
+        /// <returns> List<AlumnoCodigosDescuentosDTO> </returns>
+        public AlumnoCodigosDescuentosDTO ObtenerCodigoDescuentoAlumno(int idAlumno)
+        {
+            try
+            {
+                return _unitOfWork.OportunidadRepository.ObtenerCodigoDescuentoAlumno(idAlumno);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#AAS-OCDA-001@Error en ObtenerCodigoDescuentoAlumno: {ex.Message}", ex);
+            }
+        }
 
     }
 }
