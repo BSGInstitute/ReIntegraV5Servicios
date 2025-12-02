@@ -404,7 +404,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         "wruiz@bsginstitute.com",
                         "sruiz@bsginstitute.com",
                         "salarconq@bsginstitute.com",
-                        "lcarpio@bsginstitute.com"
+                        "msalazari@bsginstitute.com"
                     };
                     List<string> correosPersonalizadosCopiaOculta = new List<string>
                     {
