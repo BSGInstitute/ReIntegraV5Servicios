@@ -1461,51 +1461,53 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
         /// </summary>
         public (IEnumerable<LlamadaCalificadaAtencionClienteRawDTO> Items, int Total) ObtenerReporteAtencionCliente(ReporteCalificacionRequest req)
         {
-            var resultadoQuery = _dapperRepository.QuerySPDapper(
-                      "[com].[SP_ReporteCalificacionClienteATC]",
-                      new
-                      {
-                          req.FechaInicio,
-                          req.FechaFin,
-                          IdsAsesores = (req.IdsAsesores != null && req.IdsAsesores.Any())
-                              ? JsonConvert.SerializeObject(req.IdsAsesores)
-                              : null,
-                          req.IdCentroCosto,
-                          req.IdFaseI,
-                          req.IdFaseD,
-                          req.EstadoActividadCabecera,
-                          req.Pagina,
-                          req.TamanioPagina
-                      }
-                  );
+            // Paso 1: Obtener el total llamando al SP de Total
+            var totalJson = _dapperRepository.QuerySPFirstOrDefault(
+                "[com].[SP_ReporteCalificacionCliente_ObtenerTotalAtencionCliente]",
+                new
+                {
+                    req.FechaInicio,
+                    req.FechaFin,
+                    IdsAsesores = (req.IdsAsesores != null && req.IdsAsesores.Any())
+                        ? JsonConvert.SerializeObject(req.IdsAsesores)
+                        : null,
+                    req.IdCentroCosto,
+                    req.IdFaseI,
+                    req.IdFaseD,
+                    req.EstadoActividadCabecera,
+                }
+            );
 
-            string payload;
+            // Deserializar para obtener el TotalRegistros
+            var totalObj = JsonConvert.DeserializeObject<dynamic>(totalJson);
+            int total = (int)(totalObj?.TotalRegistros ?? 0);
 
-            var token = JToken.Parse(resultadoQuery);
+            // Paso 2: Obtener los items llamando al SP de Detalle
+            var itemsJson = _dapperRepository.QuerySPDapper(
+                "[com].[SP_ReporteCalificacionCliente_ObtenerDetalleAtencionCLiente]",
+                new
+                {
+                    req.FechaInicio,
+                    req.FechaFin,
+                    IdsAsesores = (req.IdsAsesores != null && req.IdsAsesores.Any())
+                        ? JsonConvert.SerializeObject(req.IdsAsesores)
+                        : null,
+                    req.IdCentroCosto,
+                    req.IdFaseI,
+                    req.IdFaseD,
+                    req.EstadoActividadCabecera,
+                    req.Pagina,
+                    req.TamanioPagina,
+                }
+            );
 
-            if (token.Type == JTokenType.Array)
-            {
-                var arr = (JArray)token;
-                var first = arr.FirstOrDefault() as JObject;
-                payload = (string?)first?["JsonResult"] ?? string.Empty;
-            }
-            else if (token.Type == JTokenType.Object)
-            {
-                var obj = (JObject)token;
-                payload = (string?)obj["JsonResult"] ?? resultadoQuery;
-            }
-            else
-            {
-                payload = resultadoQuery;
-            }
-            if (string.IsNullOrWhiteSpace(payload))
-                return (Enumerable.Empty<LlamadaCalificadaAtencionClienteRawDTO>(), 0);
-            var wrapper = JsonConvert.DeserializeObject<ReporteJsonWrapperAtencionCliente>(payload);
-            var items = wrapper?.Items ?? new List<LlamadaCalificadaAtencionClienteRawDTO>();
-            var total = wrapper?.TotalRegistros ?? items.Count;
+            // Deserializar directamente a la lista de DTOs
+            var items =
+                JsonConvert.DeserializeObject<List<LlamadaCalificadaAtencionClienteRawDTO>>(itemsJson)
+                ?? new List<LlamadaCalificadaAtencionClienteRawDTO>();
+
             return (items, total);
         }
-
         /// Autor: Joseph Llanque
         /// Fecha: 14/08/2025
         /// Versión: 1.0
@@ -1620,6 +1622,61 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 
 
 
+        }
+        /// Autor: Lolo Zaa
+        /// Fecha: 28/11/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Ejecuta [com].[SP_ReporteCalificacionClientes] y mapea:
+        ///   - ResultSet1: detalle (calificaciones por llamada)
+        ///   - ResultSet2: total de registros
+        /// </summary>
+        public (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporteFaseVentas(ReporteCalificacionRequest req)
+        {
+            // Paso 1: Obtener el total llamando al SP de Total
+            var totalJson = _dapperRepository.QuerySPFirstOrDefault(
+                "[com].[SP_ReporteCalificacionFase_ObtenerTotalVentas]",
+                new
+                {
+                    req.FechaInicio,
+                    req.FechaFin,
+                    IdsAsesores = (req.IdsAsesores != null && req.IdsAsesores.Any())
+                        ? JsonConvert.SerializeObject(req.IdsAsesores)
+                        : null,
+                    req.IdCentroCosto,
+                    req.IdFaseI,
+                    req.IdFaseD
+                }
+            );
+
+            // Deserializar para obtener el TotalRegistros
+            var totalObj = JsonConvert.DeserializeObject<dynamic>(totalJson);
+            int total = (int)(totalObj?.TotalRegistros ?? 0);
+
+            // Paso 2: Obtener los items llamando al SP de Detalle
+            var itemsJson = _dapperRepository.QuerySPDapper(
+                "[com].[SP_ReporteCalificacionFase_ObtenerDetalleVentas]",
+                new
+                {
+                    req.FechaInicio,
+                    req.FechaFin,
+                    IdsAsesores = (req.IdsAsesores != null && req.IdsAsesores.Any())
+                        ? JsonConvert.SerializeObject(req.IdsAsesores)
+                        : null,
+                    req.IdCentroCosto,
+                    req.IdFaseI,
+                    req.IdFaseD,
+                    req.Pagina,
+                    req.TamanioPagina,
+                }
+            );
+
+            // Deserializar directamente a la lista de DTOs
+            var items =
+                JsonConvert.DeserializeObject<List<LlamadaCalificadaRawDTO>>(itemsJson)
+                ?? new List<LlamadaCalificadaRawDTO>();
+
+            return (items, total);
         }
 
         public IEnumerable<LlamadaCalificadaRawDTO> ObtenerDatosParaPromedioGlobal(ReporteCalificacionGlobalRequest request)

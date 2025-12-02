@@ -652,7 +652,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public string NombreFaseD { get; set; }
         public string CodigoFaseD { get; set; }
 
-        public decimal PuntajePromedio { get; set; }
+        public decimal? PuntajePromedio { get; set; }
 
         public int TipoCalificacion { get; set; }
 

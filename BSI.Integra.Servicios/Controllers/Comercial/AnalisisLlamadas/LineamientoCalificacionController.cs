@@ -1427,6 +1427,31 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
                 return BadRequest(ex.Message);
             }
         }
+        /// Tipo Función: POST
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Reporte de calificación de clientes (agrupado por llamada).
+        /// Calcula promedio excluyendo -1 y devuelve puntos críticos (3 peores).
+        /// </summary>
+        [HttpPost("[Action]")]
+        public IActionResult ReporteCalificacionFaseVentas([FromBody] ReporteCalificacionRequest request)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+
+                var resultado = lineamientoCalificacionService.ObtenerReporteFaseVentas(request);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
 
 

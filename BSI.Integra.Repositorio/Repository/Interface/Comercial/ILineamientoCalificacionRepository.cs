@@ -78,6 +78,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
         (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReportePorArea(ReporteCalificacionAreaRequest req);
 
         (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporteFase(ReporteCalificacionRequest req);
+        (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporteFaseVentas(ReporteCalificacionRequest req);
 
         IEnumerable<LlamadaCalificadaRawDTO> ObtenerDatosParaPromedioGlobal(ReporteCalificacionGlobalRequest request);
         IEnumerable<LlamadaCalificadaAtencionClienteRawDTO> ObtenerDatosParaPromedioGlobalAtencionCliente(ReporteCalificacionGlobalRequest request);

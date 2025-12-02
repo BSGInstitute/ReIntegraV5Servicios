@@ -3488,8 +3488,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     var first = g.First();
 
                     var notasValidas = g
-                        .Where(x => x.PuntajePromedio >= 0)
-                        .Select(x => x.PuntajePromedio)
+                        .Where(x => x.PuntajePromedio.HasValue && x.PuntajePromedio.Value >= 0)
+                        .Select(x => x.PuntajePromedio.Value)
                         .ToList();
 
                     decimal? promedio = notasValidas.Count > 0 ? Math.Round(notasValidas.Average(), 2) : (decimal?)null;
@@ -3506,41 +3506,30 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         IdOportunidad = first.IdOportunidad,
                         FechaInicioLlamadaCentral = first.FechaInicioLlamadaCentral,
                         DuracionContestoCentral = first.DuracionContestoCentral,
-
                         IdAlumno = first.IdAlumno,
                         NombreCliente = first.NombreCliente,
-
                         IdAsesor = first.IdAsesor,
                         NombreAsesor = first.NombreAsesor,
-
                         IdCentroCosto = first.IdCentroCosto,
                         NombreCentroCosto = first.NombreCentroCosto,
-
                         NombreFaseI = first.NombreFaseI,
                         CodigoFaseI = first.CodigoFaseI,
                         NombreFaseD = first.NombreFaseD,
                         CodigoFaseD = first.CodigoFaseD,
-
                         Promedio = promedio,
-
                         // Ocurrencias (sin sufijo Alterno)
                         IdOcurrenciaPadre = first.IdOcurrenciaPadre,
                         IdOcurrenciaActividad = first.IdOcurrenciaActividad,
                         IdOcurrencia = first.IdOcurrencia,
-
                         OcurrenciaPadre = first.OcurrenciaPadre,
                         Ocurrencia = first.Ocurrencia,
                         EstadoOcurrencia = first.EstadoOcurrencia,
-
                         PuntosCriticos = puntosCriticos,
-
                         ComentarioLlamadaNoCalificada = null, // el SP no devuelve esto
-
                         OcurrenciaConsistente = first.OcurrenciaConsistente,
                         ComentarioConsistenciaOcurrencia = first.ComentarioConsistenciaOcurrencia,
                         CambioFaseConsistente = first.CambioFaseConsistente,
                         ComentarioConsistenciaCambioFase = first.ComentarioConsistenciaCambioFase,
-
                         InterrupcionLlamada = first.InterrupcionLlamada
                     };
 
@@ -3688,6 +3677,68 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             };
         }
 
+        public ReporteCalificacionResponse ObtenerReporteFaseVentas(ReporteCalificacionRequest req)
+        {
+            var (filas, total) = _unitOfWork.LineamientoCalificacionRepository.ObtenerReporteFaseVentas(
+                req
+            );
+            var filasOrdenadas = filas
+                .OrderByDescending(f => f.FechaInicioLlamadaCentral)
+                .ThenBy(f => f.IdLlamada)
+                .ToList();
+            var agrupado = filasOrdenadas
+                .GroupBy(f => f.IdLlamada)
+                .Select(g =>
+                {
+                    var first = g.First();
+
+                    var notasValidas = g.Where(x => x.PuntajePromedio >= 0)
+                        .Select(x => x.PuntajePromedio);
+
+                    decimal? promedio = notasValidas.Any()
+                        ? Math.Round(notasValidas.Average(), 0, MidpointRounding.AwayFromZero) /*redondeo matematico solicitado 'or gerencia*/
+                        : (decimal?)null;
+
+                    var puntosCriticos = g.Where(x => !string.IsNullOrWhiteSpace(x.PuntoCritico))
+                        .Select(x => x.PuntoCritico!.Trim())
+                        .Distinct()
+                        .ToList();
+
+                    return new LlamadaCalificadaDTO
+                    {
+                        IdLlamada = g.Key,
+                        IdOportunidad = first.IdOportunidad,
+                        FechaInicioLlamadaCentral = first.FechaInicioLlamadaCentral,
+                        DuracionContestoCentral = first.DuracionContestoCentral,
+                        IdAlumno = first.IdAlumno,
+                        NombreCliente = first.NombreCliente,
+                        IdAsesor = first.IdAsesor,
+                        NombreAsesor = first.NombreAsesor,
+                        IdCentroCosto = first.IdCentroCosto,
+                        NombreCentroCosto = first.NombreCentroCosto,
+                        NombreFaseI = first.NombreFaseI,
+                        CodigoFaseI = first.CodigoFaseI,
+                        NombreFaseD = first.NombreFaseD,
+                        CodigoFaseD = first.CodigoFaseD,
+                        Promedio = promedio,
+                        IdOcurrenciaPadreAlterno = first.IdOcurrenciaPadreAlterno,
+                        IdOcurrenciaActividadAlterno = first.IdOcurrenciaActividadAlterno,
+                        IdOcurrenciaAlterno = first.IdOcurrenciaAlterno,
+                        IdVersionConfiguracionCalificacionLlamada =
+                            first.IdVersionConfiguracionCalificacionLlamada,
+                        OcurrenciaPadreAlterno = first.OcurrenciaPadreAlterno,
+                        OcurrenciaAlterno = first.OcurrenciaAlterno,
+                        EstadoOcurrenciaAlterno = first.EstadoOcurrenciaAlterno,
+                        OcurrenciaConsistente = first.OcurrenciaConsistente,
+                        ComentarioConsistenciaOcurrencia = first.ComentarioConsistenciaOcurrencia,
+                        InterrupcionLlamada = first.InterrupcionLlamada,
+                    };
+                })
+                .ToList();
+
+            return new ReporteCalificacionResponse { TotalRegistros = total, Data = agrupado };
+        }
+
 
         public ReporteCalificacionGlobalResponse ObtenerPromedioGlobal(ReporteCalificacionGlobalRequest request)
         {
@@ -3768,8 +3819,10 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 .GroupBy(f => f.IdLlamada)
                 .Select(g =>
                 {
-                    var notasValidas = g.Where(x => x.PuntajePromedio >= 0)
-                        .Select(x => x.PuntajePromedio);
+                    var notasValidas = g
+                        .Where(x => x.PuntajePromedio.HasValue && x.PuntajePromedio.Value >= 0)
+                        .Select(x => x.PuntajePromedio.Value)
+                        .ToList();
 
                     decimal? promedio = notasValidas.Any()
                         ? Math.Round(notasValidas.Average(), 0, MidpointRounding.AwayFromZero)
@@ -3789,8 +3842,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
             // Calcular promedio global SIN EXCLUIR ningún criterio (ATC incluye todos)
             var promediosValidos = filasOrdenadas
-                .Where(x => x.PuntajePromedio >= 0)
-                .Select(x => x.PuntajePromedio);
+                        .Where(x => x.PuntajePromedio.HasValue && x.PuntajePromedio.Value >= 0)
+                        .Select(x => x.PuntajePromedio.Value);
 
             var promedioGlobal = promediosValidos.Any()
                 ? Math.Round(promediosValidos.Average(), 2)
