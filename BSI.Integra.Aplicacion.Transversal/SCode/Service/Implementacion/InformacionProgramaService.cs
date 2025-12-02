@@ -468,7 +468,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
 
 
-        public InformacionProgramaSpeechDTO CargarInformacionProgramaAutomaticoSpeechV2(int idCentroCosto, int codigoPais, int idMatriculaCabecera, int idOportunidad)
+        public InformacionProgramaSpeechV2DTO CargarInformacionProgramaAutomaticoSpeechV2(int idCentroCosto, int codigoPais, int idMatriculaCabecera, int idOportunidad)
         {
             var servicioPGeneral = new PGeneralService(_unitOfWork);
             var sericioDocumentoAgendaService = new DocumentoAgendaService(_unitOfWork);
@@ -487,6 +487,18 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             List<PresentacionProgramadto> garantiadeprograma = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Garantia de programa", StringComparison.OrdinalIgnoreCase)).ToList();
             List<RegistroListaSeccionesDocumentoDTO> objetivos = _unitOfWork.DocumentoSeccionPwRepository.ObtenerDatosComplementariosProgramaGeneralV2Objetivos(idPGeneral);
             ObtenerMontos2RespuestaDTO montosBeneficios = ObtenerMontoPresentacionPrograma(idPGeneral, codigoPais);
+            var general = _unitOfWork.PGeneralRepository.ObtenerPGeneralPorId(idPGeneral);
+            PGeneralAlternoV2DTO? generalETL = null;
+            if (general != null)
+            {
+                generalETL = new PGeneralAlternoV2DTO
+                {
+                    Id = general.Id,
+                    Nombre = general.Nombre,
+                    pw_duracion = general.pw_duracion
+                };
+            }
+
             List<PEspecificoPorIdPGeneral> modalidad = servicioPEspecifico.ObtenerFechaInicioProgramaTodos(idPGeneral);
             List<RegistroListaSeccionesDocumentoDTO> prerrequisitosLista = _unitOfWork.DocumentoSeccionPwRepository.ObtenerSeccionDocumento(idPGeneral);
             List<RegistroListaSeccionesDocumentoDTO> prerrequisitos = prerrequisitosLista.Where(x => string.Equals(x.Titulo?.Trim(), "Prerrequisitos", StringComparison.OrdinalIgnoreCase)).ToList();
@@ -506,7 +518,21 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             List<RegistroListaSeccionesDocumentoDTO> presentacion = seccionV1.Where(s => string.Equals(s.Titulo?.Trim(), "Presentación", StringComparison.OrdinalIgnoreCase)).ToList();
             List<ProgramaGeneralSeccionDocumentoDTO> listaadicionales = sericioDocumentoAgendaService.ObtenerListaSeccionDocumentoProgramaGeneralSpeech(idPGeneral);
             List<ProgramaExpositoresDTO> expositores = _unitOfWork.DocumentoSeccionPwRepository.ObtenerExpositoresPorIdGeneral(idPGeneral);
-            InformacionProgramaSpeechDTO resultado = new InformacionProgramaSpeechDTO
+            //ETL 
+            var duracionHorarioETL = horario.Select(x => new RegistroListaSeccionesDocumentoV2DTO
+            {
+                IdPGeneral = x.IdPGeneral,
+                Titulo = x.Titulo,
+                Contenido = HtmlToJsonHelper.ConvertHtmlToJson(x.Contenido),
+                IdSeccionTipoDetalle_PW = x.IdSeccionTipoDetalle_PW,
+                NumeroFila = x.NumeroFila,
+                Cabecera = x.Cabecera,
+                PiePagina = x.PiePagina,
+                OrdenWeb = x.OrdenWeb,
+                NombreCurso = x.NombreCurso
+            }).ToList();
+
+            InformacionProgramaSpeechV2DTO resultado = new InformacionProgramaSpeechV2DTO
             {
                 RefuerzodeConfianza = refuerzoConfianza,
                 Limitaciones = limitaciones,
@@ -516,6 +542,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 Modalidad = modalidad,
                 Objetivos = objetivos,
                 Montos = montosBeneficios,
+                General = generalETL,
+                DuracionHorarioETL = duracionHorarioETL,
                 DuracionHorario = horario,
                 PublicoObjetivo = publicoObjetivo,
                 Metodologia = metodologias,
@@ -529,28 +557,37 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             return resultado;
         }
 
-        public InformacionProgramaSpeechDTO CargarInformacionProgramaByIdPGeneral(int idPGeneral, int codigoPais)
+        //christopher
+        public InformacionProgramaSpeechV2DTO CargarInformacionProgramaByIdPGeneral(int idPGeneral, int codigoPais)
         {
-            var servicioPGeneral = new PGeneralService(_unitOfWork);
-            var sericioDocumentoAgendaService = new DocumentoAgendaService(_unitOfWork);
-            IPEspecificoService servicioPEspecifico = new PEspecificoService(_unitOfWork);
-            //var data = servicioPGeneral.ObtenerPGeneralPEspecificoPorCentroCosto(idCentroCosto);
-            CargarInformacionProgramaRespuestaDTO informacionPrograma = null;
-            List<ResumenProgramaV2DTO> resumenProgramasV2 = null;
-            //var idPGeneral = data != null ? data.IdProgramaGeneral : 0;
-            var informacionProgramaAutomatico = new CargarInformacionProgramaAutomaticoRespuestaDTO();
             List<PresentacionProgramadto> secciones = _unitOfWork.ProgramaGeneralPresentacionArgumentoRepository.ObtenerProgramaGeneralPresentacionArgumento(idPGeneral);
-            List<RegistroListaSeccionesDocumentoDTO> seccionV1 = _unitOfWork.DocumentoSeccionPwRepository.ObtenerDatosComplementariosProgramaGeneralV2(idPGeneral);
             List<PresentacionProgramadto> refuerzoConfianza = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Refuerzo de la confianza", StringComparison.OrdinalIgnoreCase)).ToList();
             List<PresentacionProgramadto> limitaciones = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Limitaciones", StringComparison.OrdinalIgnoreCase)).ToList();
-            List<PresentacionProgramadto> demostracióndevalor = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Demostración de valor", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<PresentacionProgramadto> demostraciondevalor = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Demostración de valor", StringComparison.OrdinalIgnoreCase)).ToList();
             List<PresentacionProgramadto> aspectosdiferenciadores = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Aspectos diferenciadores", StringComparison.OrdinalIgnoreCase)).ToList();
             List<PresentacionProgramadto> garantiadeprograma = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Garantia de programa", StringComparison.OrdinalIgnoreCase)).ToList();
+            
             List<RegistroListaSeccionesDocumentoDTO> objetivos = _unitOfWork.DocumentoSeccionPwRepository.ObtenerDatosComplementariosProgramaGeneralV2Objetivos(idPGeneral);
             ObtenerMontos2RespuestaDTO montosBeneficios = ObtenerMontoPresentacionPrograma(idPGeneral, codigoPais);
+
+            var general = _unitOfWork.PGeneralRepository.ObtenerPGeneralPorId(idPGeneral);
+            PGeneralAlternoV2DTO? generalETL = null;
+            if (general != null)
+            {
+                generalETL = new PGeneralAlternoV2DTO
+                {
+                    Id = general.Id,
+                    Nombre = general.Nombre,
+                    pw_duracion = general.pw_duracion
+                };
+            }
+            IPEspecificoService servicioPEspecifico = new PEspecificoService(_unitOfWork);
             List<PEspecificoPorIdPGeneral> modalidad = servicioPEspecifico.ObtenerFechaInicioProgramaTodos(idPGeneral);
+            
             List<RegistroListaSeccionesDocumentoDTO> prerrequisitosLista = _unitOfWork.DocumentoSeccionPwRepository.ObtenerSeccionDocumento(idPGeneral);
             List<RegistroListaSeccionesDocumentoDTO> prerrequisitos = prerrequisitosLista.Where(x => string.Equals(x.Titulo?.Trim(), "Prerrequisitos", StringComparison.OrdinalIgnoreCase)).ToList();
+            
+            List<RegistroListaSeccionesDocumentoDTO> seccionV1 = _unitOfWork.DocumentoSeccionPwRepository.ObtenerDatosComplementariosProgramaGeneralV2(idPGeneral);
             List<RegistroListaSeccionesDocumentoDTO> horario = seccionV1.Where(s => {
                 var t = (s.Titulo ?? "").Trim();
                 return t.Equals("Duración y Horarios", StringComparison.OrdinalIgnoreCase)
@@ -565,18 +602,37 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             })
                .ToList();
             List<RegistroListaSeccionesDocumentoDTO> presentacion = seccionV1.Where(s => string.Equals(s.Titulo?.Trim(), "Presentación", StringComparison.OrdinalIgnoreCase)).ToList();
+            var sericioDocumentoAgendaService = new DocumentoAgendaService(_unitOfWork);
             List<ProgramaGeneralSeccionDocumentoDTO> listaadicionales = sericioDocumentoAgendaService.ObtenerListaSeccionDocumentoProgramaGeneralSpeech(idPGeneral);
+            // Expositores del programa
             List<ProgramaExpositoresDTO> expositores = _unitOfWork.DocumentoSeccionPwRepository.ObtenerExpositoresPorIdGeneral(idPGeneral);
-            InformacionProgramaSpeechDTO resultado = new InformacionProgramaSpeechDTO
+            //ETL Final Campos
+
+            var duracionHorarioETL = horario.Select(x => new RegistroListaSeccionesDocumentoV2DTO
+            {
+                    IdPGeneral = x.IdPGeneral,
+                    Titulo = x.Titulo,
+                    Contenido = HtmlToJsonHelper.ConvertHtmlToJson(x.Contenido),
+                    IdSeccionTipoDetalle_PW = x.IdSeccionTipoDetalle_PW,
+                    NumeroFila = x.NumeroFila,
+                    Cabecera = x.Cabecera,
+                    PiePagina = x.PiePagina,
+                    OrdenWeb = x.OrdenWeb,
+                    NombreCurso = x.NombreCurso
+            }).ToList();
+
+            InformacionProgramaSpeechV2DTO resultado = new InformacionProgramaSpeechV2DTO
             {
                 RefuerzodeConfianza = refuerzoConfianza,
                 Limitaciones = limitaciones,
-                Demostracióndevalor = demostracióndevalor,
+                Demostracióndevalor = demostraciondevalor,
                 Aspectosdiferenciadores = aspectosdiferenciadores,
                 Garantiadeprograma = garantiadeprograma,
                 Modalidad = modalidad,
                 Objetivos = objetivos,
                 Montos = montosBeneficios,
+                General = generalETL,
+                DuracionHorarioETL = duracionHorarioETL,
                 DuracionHorario = horario,
                 PublicoObjetivo = publicoObjetivo,
                 Metodologia = metodologias,
@@ -584,7 +640,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 Presentacion = presentacion,
                 Prerrequisitos = prerrequisitos,
                 DatosAdicionales = listaadicionales
-
             };
 
             return resultado;

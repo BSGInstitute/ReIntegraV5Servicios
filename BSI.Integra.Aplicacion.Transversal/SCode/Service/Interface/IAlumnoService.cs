@@ -88,6 +88,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         TAlumno ActualizarAlumnoTamanioEmpresaAgenda(int idAlumno, int idNuevo, string usuario);
         TAlumno ActualizarAlumnoExperiencia(int idAlumno, int idNuevo, string usuario);
         TAlumno ActualizarAlumnoPrincipalResponsabilidad(int idAlumno, string nuevoValor, string usuario);
+        TAlumno ActualizarPerfilProfesional(PerfilProfesionalDTO perfil,string usuario);
         //fin nuevo actualizar para la nueva version agenda
         bool ObtenerAlumnoPorDNI(StringDTO valor);
         PruebaCFD ObtenerAlumnoPorDNIV2(StringDTO valor);

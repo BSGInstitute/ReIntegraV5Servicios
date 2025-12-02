@@ -16,6 +16,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         List<PreguntaFrecuenteSeccionesDTO> CargarInformacionProgramaChange(List<PreguntaFrecuentePGeneralRespuestaDTO> preguntaFrecuentePGeneralDTO);
         CargarInformacionProgramaEndpointsDTO ObtenerInformacionPrograma(int idCentroCosto, int codigoPais, int idMatriculaCabecera, int idOportunidad);
         CargarInformacionProgramaEndpointsDTO CargarInformacionProgramaSinHTML(int idPGeneral, int codigoPais, int idMatriculaCabecera, int idOportunidad);
-        InformacionProgramaSpeechDTO CargarInformacionProgramaAutomaticoSpeechV2(int idCentroCosto, int codigoPais, int idMatriculaCabecera, int idOportunidad);
+        InformacionProgramaSpeechV2DTO CargarInformacionProgramaAutomaticoSpeechV2(int idCentroCosto, int codigoPais, int idMatriculaCabecera, int idOportunidad);
     }
 }

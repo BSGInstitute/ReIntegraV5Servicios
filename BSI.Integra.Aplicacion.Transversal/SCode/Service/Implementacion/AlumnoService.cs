@@ -3270,6 +3270,32 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw;
             }
         }
+        public TAlumno ActualizarPerfilProfesional(PerfilProfesionalDTO perfil, string usuario)
+        {
+            try
+            {
+                _alumno = _unitOfWork.AlumnoRepository.ObtenerPorId(perfil.IdAlumno.Value);
+
+                _alumno.IdAformacion = perfil.IdAFormacion;
+                _alumno.IdCargo = perfil.IdCargo;
+                _alumno.IdAtrabajo = perfil.IdATrabajo;
+                _alumno.IdIndustria = perfil.IdIndustria;
+                _alumno.IdEmpresa = perfil.IdEmpresa;
+                _alumno.IdTamanioEmpresaAgenda = perfil.IdTamanioEmpresa;
+                _alumno.IdExperiencia = perfil.IdTiempoExperiencia;
+                _alumno.PrincipalResponsabilidadProfesional = perfil.PrincipalResponsabilidad;
+                _alumno.FechaModificacion = DateTime.Now;
+                _alumno.UsuarioModificacion = usuario;
+
+                var resultadoAlumno = _unitOfWork.AlumnoRepository.Update(_alumno);
+                _unitOfWork.Commit();
+                return resultadoAlumno;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
         public bool ObtenerAlumnoPorDNI(StringDTO valor)
         {
             return _unitOfWork.AlumnoRepository.ObtenerAlumnoPorDNI(valor);

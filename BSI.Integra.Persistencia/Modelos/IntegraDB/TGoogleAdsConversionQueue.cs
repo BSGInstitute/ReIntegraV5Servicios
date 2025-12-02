@@ -172,11 +172,16 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Campo de auditoria RowVersion
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
+        /// <summary>
+        /// Id de la subcuenta de Google Ads asociada a la oportunidad
+        /// </summary>
+        public int? IdGoogleAdsSubcuenta { get; set; }
 
         public virtual TAlumno IdAlumnoNavigation { get; set; } = null!;
         public virtual TCategoriaOrigen? IdCategoriaOrigenNavigation { get; set; }
         public virtual TFaseOportunidad IdFaseOportunidadActualNavigation { get; set; } = null!;
         public virtual TFaseOportunidad? IdFaseOportunidadAnteriorNavigation { get; set; }
+        public virtual TGoogleAdsSubcuentum? IdGoogleAdsSubcuentaNavigation { get; set; }
         public virtual TGoogleFormularioLeadgen? IdGoogleFormularioLeadgenNavigation { get; set; }
         public virtual TOportunidad IdOportunidadNavigation { get; set; } = null!;
         public virtual TOrigen? IdOrigenNavigation { get; set; }

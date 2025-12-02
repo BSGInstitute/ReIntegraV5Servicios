@@ -496,7 +496,7 @@ namespace BSI.Integra.Servicios.Controllers
             try
             {
                 var servicio = new ChatDetalleIntegraService(unitOfWork);
-                var respuesta = servicio.ObtenerRespuestasUsuarioPorFormularioAplicado(dto.IdFormularioAplicadoChatbot);
+                var respuesta = servicio.ObtenerRespuestasUsuarioPorFormularioAplicado(dto.IdChatbotPortalHiloChat);
                 return Ok(respuesta);
             }
             catch (Exception ex)

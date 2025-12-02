@@ -4666,27 +4666,26 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                     personalLogUpdate.UsuarioModificacion = usuarioIntegra;
                                     personalLogUpdate.FechaModificacion = DateTime.Now;
                                     _unitOfWork.PersonalLogRepository.Update(personalLogUpdate);
+
+                                    PersonalLog personalLogBO = new PersonalLog();
+                                    personalLogBO.IdPersonal = personal.Id;
+                                    personalLogBO.Rol = personal.Rol;
+                                    personalLogBO.TipoPersonal = personal.TipoPersonal;
+                                    personalLogBO.IdJefe = personal.IdJefe;
+                                    personalLogBO.EstadoRol = rolAnterior != personal.Rol;
+                                    personalLogBO.EstadoTipoPersonal = tipoPersonalAnterior != personal.TipoPersonal;
+                                    personalLogBO.EstadoIdJefe = false;
+                                    personalLogBO.FechaInicio = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0); ;
+                                    personalLogBO.FechaFin = null;
+                                    personalLogBO.Estado = true;
+                                    personalLogBO.UsuarioModificacion = usuarioIntegra;
+                                    personalLogBO.UsuarioCreacion = usuarioIntegra;
+                                    personalLogBO.FechaCreacion = DateTime.Now;
+                                    personalLogBO.FechaModificacion = DateTime.Now;
+
+                                    _unitOfWork.PersonalLogRepository.Add(personalLogBO);
                                 }
-
-
-
-                                PersonalLog personalLogBO = new PersonalLog();
-                                personalLogBO.IdPersonal = personal.Id;
-                                personalLogBO.Rol = personal.Rol;
-                                personalLogBO.TipoPersonal = personal.TipoPersonal;
-                                personalLogBO.IdJefe = personal.IdJefe;
-                                personalLogBO.EstadoRol = rolAnterior != personal.Rol;
-                                personalLogBO.EstadoTipoPersonal = tipoPersonalAnterior != personal.TipoPersonal;
-                                personalLogBO.EstadoIdJefe = false;
-                                personalLogBO.FechaInicio = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0); ;
-                                personalLogBO.FechaFin = null;
-                                personalLogBO.Estado = true;
-                                personalLogBO.UsuarioModificacion = usuarioIntegra;
-                                personalLogBO.UsuarioCreacion = usuarioIntegra;
-                                personalLogBO.FechaCreacion = DateTime.Now;
-                                personalLogBO.FechaModificacion = DateTime.Now;
-
-                                _unitOfWork.PersonalLogRepository.Add(personalLogBO);
+                               
                             }
                             if (idJefeAnterior != personal.IdJefe)
                             {

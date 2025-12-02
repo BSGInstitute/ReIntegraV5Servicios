@@ -64,6 +64,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 entidadActual.UsuarioModificacion = Usuario;
                 entidadActual.FechaModificacion = DateTime.Now;
                 entidadActual.Nombre = entidad.Nombre;
+                entidadActual.NombreLabel = entidad.NombreLabel;
                 entidadActual.TipoControl = entidad.TipoControl;
                 entidadActual.ValoresPreEstablecidos = entidad.ValoresPreEstablecidos;
                 entidadActual.Procedimiento = entidad.Procedimiento;
