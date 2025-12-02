@@ -598,25 +598,22 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                 throw new Exception(e.Message);
             }
         }
-        /// Version: 1.0
+
+        /// Autor: Desconocido
+        /// Autor Edicion: Humberto Oscata
+        /// Version: 1.1
         /// <summary>
-        /// Obtiene los chat asignados a los asesores de marketing
+        /// Obtiene el listado de ultimos mensajes por cliente, para una rango de fecha especifico
         /// </summary>
+        /// <param name="filtro">Objeto con detalles del filtro para chats</param>
+        /// <returns>Lista de ultimos mensajes por cliente</returns>
         public List<ChatWhatsAppMarketingDTO> ObtenerChatWhatsAppMarketingV2(FiltroChatWhatsappDTO filtro)
         {
             try
             {
                 filtro.FechaFin = new DateTime(filtro.FechaFin.Year, filtro.FechaFin.Month, filtro.FechaFin.Day, 23, 59, 59);
                 filtro.FechaInicio = new DateTime(filtro.FechaInicio.Year, filtro.FechaInicio.Month, filtro.FechaInicio.Day, 0, 0, 0);
-                var resultado = _unitOfWork.WhatsAppMensajeEnviadoRepository.ObtenerChatWhatsAppMarketingv2(filtro.Tab, filtro.FechaInicio, filtro.FechaFin);
-                var alumnoService = new AlumnoService(_unitOfWork);
-                foreach (var dato in resultado)
-                {
-                   
-                    if (!string.IsNullOrWhiteSpace(dato.Celular))
-                        dato.CelularEncriptado = alumnoService.EncriptarNumeroHash(Regex.Replace(dato.Celular, @"[^\d]", ""));
-                }
-                return resultado;
+                return _unitOfWork.WhatsAppMensajeEnviadoRepository.ObtenerChatWhatsAppMarketingv2(filtro.Tab, filtro.FechaInicio, filtro.FechaFin);
             }
             catch (Exception e)
             {
@@ -635,16 +632,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
             try
             {
                 List<ChatWhatsAppMarketingDTO> ChatWhatsAppMarketing = new List<ChatWhatsAppMarketingDTO>();
-                ChatWhatsAppMarketing = _unitOfWork.WhatsAppMensajeEnviadoRepository.ObtenerChatWhatsAppFacebookMarketing(Tab, Dia, IdAsesor);
-
-                var alumnoService = new AlumnoService(_unitOfWork);
-                foreach (var item in ChatWhatsAppMarketing)
-                {
-                    if (!string.IsNullOrWhiteSpace(item.Celular))
-                        item.CelularEncriptado = alumnoService.EncriptarCorreoHash(item.Celular);
-                }
-
-                return ChatWhatsAppMarketing;
+                return ChatWhatsAppMarketing = _unitOfWork.WhatsAppMensajeEnviadoRepository.ObtenerChatWhatsAppFacebookMarketing(Tab, Dia, IdAsesor);
             }
             catch (Exception e)
             {

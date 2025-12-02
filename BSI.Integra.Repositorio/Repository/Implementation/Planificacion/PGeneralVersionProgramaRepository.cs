@@ -1,4 +1,5 @@
-﻿using BSI.Integra.Aplicacion.DTO;
+﻿using AutoMapper;
+using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
@@ -23,9 +24,60 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
     /// </summary>
     public class PGeneralVersionProgramaRepository : GenericRepository<TPgeneralVersionPrograma>, IPGeneralVersionProgramaRepository
     {
+        private Mapper _mapper;
         public PGeneralVersionProgramaRepository(IntegraDBContext context, IConnectionFactory connectionFactory, IDapperRepository dapperRepository) : base(context, connectionFactory, dapperRepository)
         {
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<TPgeneralVersionPrograma, PgeneralVersionPrograma>(MemberList.None).ReverseMap();
+            });
+            _mapper = new Mapper(config);
         }
+        #region
+        private TPgeneralVersionPrograma MapeoEntidad(PgeneralVersionPrograma entidad)
+        {
+            try
+            {
+                TPgeneralVersionPrograma modelo = _mapper.Map<TPgeneralVersionPrograma>(entidad);
+                return modelo;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public TPgeneralVersionPrograma Add(PgeneralVersionPrograma entidad)
+        {
+            try
+            {
+                var PgeneralVersionPrograma = MapeoEntidad(entidad);
+                base.Insert(PgeneralVersionPrograma);
+                return PgeneralVersionPrograma;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public TPgeneralVersionPrograma Update(PgeneralVersionPrograma entidad)
+        {
+            try
+            {
+                var PgeneralVersionPrograma = MapeoEntidad(entidad);
+                var entidadExistente = base.FirstBy(w => w.Id == entidad.Id, s => new { s.RowVersion });
+                PgeneralVersionPrograma.RowVersion = entidadExistente.RowVersion;
+
+                base.Update(PgeneralVersionPrograma);
+                return PgeneralVersionPrograma;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
         /// Autor: Gilmer Quispe.
         /// Fecha: 09/06/2023
         /// Version: 1.0
@@ -67,7 +119,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 IEnumerable<PGeneralVersionProgramaDetalleDTO> pgeneralVersionPrograma = new List<PGeneralVersionProgramaDetalleDTO>();
-                var _query = @"SELECT IdPgeneralVersionPrograma,IdPGeneral,NombreVersion,IdVersionPrograma,Duracion FROM pla.V_TPGeneral_VersionPrograma WHERE  Estado = 1 and IdPGeneral = @IdPgeneral";
+                var _query = @"SELECT IdPgeneralVersionPrograma,IdPGeneral,NombreVersion,IdVersionPrograma,Duracion,CreditoDisponibleTutorVirtual FROM pla.V_TPGeneral_VersionPrograma WHERE  Estado = 1 and IdPGeneral = @IdPgeneral";
                 var respuestaDapper = _dapperRepository.QueryDapper(_query, new { IdPgeneral = idPGeneral });
                 if (!string.IsNullOrEmpty(respuestaDapper) && !respuestaDapper.Contains("[]"))
                 {

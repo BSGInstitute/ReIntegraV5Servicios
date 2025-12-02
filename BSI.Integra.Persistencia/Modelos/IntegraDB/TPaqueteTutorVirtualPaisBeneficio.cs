@@ -20,7 +20,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// <summary>
         /// Estado lógico del registro (1=Activo, 0=Inactivo)
         /// </summary>
-        public bool? Estado { get; set; }
+        public bool Estado { get; set; }
         /// <summary>
         /// Usuario que creó el registro
         /// </summary>
