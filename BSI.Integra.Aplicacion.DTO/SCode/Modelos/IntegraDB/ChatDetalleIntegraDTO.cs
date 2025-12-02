@@ -199,7 +199,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         [Required]
         [MaxLength(50)]
         public string UsuarioCreacion { get; set; }
-
+        public int? IdSolicitudProblema { get; set; }
         public List<RespuestaSeleccionadaDTO> RespuestasSeleccionadas { get; set; } = new List<RespuestaSeleccionadaDTO>();
         public List<RespuestaTextoDTO> RespuestasTexto { get; set; } = new List<RespuestaTextoDTO>();
         public List<ProblemaIdentificadoDTO> ProblemasIdentificados { get; set; } = new List<ProblemaIdentificadoDTO>();
