@@ -4222,6 +4222,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var fechaActual = (fecha ?? DateTime.Today).Date;
                 var fechaAnterior = fechaActual.AddDays(-1);
+
+                if (fechaAnterior.DayOfWeek == System.DayOfWeek.Sunday)
+                {
+                    fechaAnterior = fechaAnterior.AddDays(-1);
+                }
+
                 var esHoy = fechaActual == DateTime.Today;
 
                 (int total, int ejecutadas, int its, int ips) ObtenerDatosHistorico(DateTime fechaConsulta)
@@ -4285,15 +4291,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
                 MetricaComparativaDTO CalcularMetrica(int hoy, int ayer)
                 {
-                    int porcentaje = ayer > 0 ? (int)Math.Round((double)hoy / ayer * 100) : 0;
-                    string estado;
+               
+                    int porcentaje = ayer > 0 ? (int)Math.Round(((double)(hoy - ayer) / ayer) * 100) : 0;
 
-                    if (porcentaje > 110)
-                        estado = "Incremento";
-                    else if (porcentaje >= 90 && porcentaje <= 110)
-                        estado = "Estable";
-                    else
-                        estado = "Decremento";
+                    string estado = porcentaje >= 0 ? "Positivo" : "Negativo";
 
                     return new MetricaComparativaDTO
                     {
