@@ -445,7 +445,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 FROM com.T_EvaluacionLlamadaConfiguracionVersion WITH(NOLOCK)
                 WHERE Estado = 1 
                   AND IdPersonalAreaTrabajo = @IdPersonalAreaTrabajo
-                ORDER BY FechaCreacion DESC";
+                ORDER BY id DESC";
 
                 var parametros = new { IdPersonalAreaTrabajo = idPersonalAreaTrabajo };
 
@@ -1933,11 +1933,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 				             Ocurrencia,
 				             IdPersonalAreaTrabajo,
 				             OcurrenciaPadre,
-                    IdOcurrenciaPadreAlterno,
-                    IdOcurrenciaActividadAlterno,
-                    IdOcurrenciaAlterno,
-                    OcurrenciaPadreAlterno,
-                    OcurrenciaAlterno
+                             IdOcurrenciaPadreAlterno,
+                             IdOcurrenciaActividadAlterno,
+                             IdOcurrenciaAlterno,
+                             OcurrenciaPadreAlterno,
+                             OcurrenciaAlterno
 
                       FROM
                             ope.V_EvaluacionLlamadaObtenerHistoricoOcurrenciaAtencionCliente
