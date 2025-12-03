@@ -1095,11 +1095,10 @@ namespace BSI.Integra.Servicios.Controllers
         /// <param name=""></param>
         /// <returns></returns>
         [Authorize]
-        [Route("[action]/{IdProgramaGeneralMotivacion}/{Usuario}")]
-        [HttpGet]
-        public ActionResult EliminarMotivacionVenta(int IdProgramaGeneralMotivacion, string Usuario)
+        [JwtExpirationValidation]
+        [HttpDelete("[action]/{IdProgramaGeneralMotivacion}")]
+        public ActionResult EliminarMotivacionVenta(int IdProgramaGeneralMotivacion)
         {
-
             var respuesta = _pGeneralService.EliminarMotivacionVenta(IdProgramaGeneralMotivacion, _tokenManager.UserName);
             return Ok(respuesta);
         }
@@ -1226,6 +1225,14 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ModelState);
             }
             var actualizar = _pGeneralService.Actualizar(programaGeneralDTO, _tokenManager.UserName);
+            return Ok(actualizar);
+        }
+
+        [Route("[Action]")]
+        [HttpPost]
+        public IActionResult ActualizarVersionPrograma([FromBody] UpdateOnlyVersionProgramaDTO jsonDTO)
+        {
+            var actualizar = _pGeneralService.ActualizarVersionPrograma(jsonDTO, "ctumir_sis");
             return Ok(actualizar);
         }
         /// TipoFuncion: POST

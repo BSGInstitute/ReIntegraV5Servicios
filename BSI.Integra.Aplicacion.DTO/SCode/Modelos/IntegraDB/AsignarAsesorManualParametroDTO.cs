@@ -31,8 +31,6 @@
         public bool? SegunMejorPro { get; set; }
         public bool? envioWhats { get; set; }
     }
-
-
 }
 
 

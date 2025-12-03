@@ -999,10 +999,14 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// Autor: Desconocido
+        /// Version: 1.0
         /// <summary>
-        /// ObtenerChatWhatsAppMarketingV2
+        /// Obtiene el listado de ultimos mensajes por cliente, para una rango de fecha especifico
         /// </summary>
-        /// <returns>Retorna 200 y listado de chats o 400 y mensaje de error</returns>
+        /// <param name="filtro">Objeto con detalles del filtro para chats</param>
+        /// <returns>Lista de ultimos mensajes por cliente</returns>
         [HttpPost("[action]")]
         public IActionResult ObtenerChatWhatsAppMarketingV2([FromBody] FiltroChatWhatsappDTO filtro)
         {

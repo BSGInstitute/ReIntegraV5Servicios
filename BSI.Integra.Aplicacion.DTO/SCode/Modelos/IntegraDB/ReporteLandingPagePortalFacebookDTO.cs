@@ -53,6 +53,8 @@
         public string CentroCosto { get; set; }
         public string Categoria { get; set; }
         public string Campania { get; set; }
+        public string? CampaniaActualizada { get; set; }
+
         public bool? Procesado { get; set; }
         public string Formulario { get; set; }
         public string EstadoOportunidad { get; set; }

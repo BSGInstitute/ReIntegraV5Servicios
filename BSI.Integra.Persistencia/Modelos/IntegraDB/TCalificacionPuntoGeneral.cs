@@ -13,7 +13,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public int Id { get; set; }
         /// <summary>
-        /// Nombre del punto
+        /// Nombre del punto (hasta 1000 caracteres)
         /// </summary>
         public string Nombre { get; set; } = null!;
         /// <summary>
@@ -21,7 +21,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public int? Orden { get; set; }
         /// <summary>
-        /// Descripción del punto
+        /// Descripción del punto (hasta 1000 caracteres)
         /// </summary>
         public string? Descripcion { get; set; }
         /// <summary>
@@ -48,5 +48,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Versión del registro para control de concurrencia
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
+        /// <summary>
+        /// (FK) Referencia al personal/área de trabajo asignado al punto general
+        /// </summary>
+        public int? IdPersonalAreaTrabajo { get; set; }
+
+        public virtual TPersonalAreaTrabajo? IdPersonalAreaTrabajoNavigation { get; set; }
     }
 }

@@ -339,7 +339,6 @@ namespace BSI.Integra.Servicios.Controllers
             return Ok(servicio.CerrarOportunidadNS(data.IdOportunidades, data.Usuario));
         }
 
-
     }
 }
 

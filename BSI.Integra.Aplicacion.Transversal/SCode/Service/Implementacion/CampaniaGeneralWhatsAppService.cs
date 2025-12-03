@@ -359,7 +359,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         AlumnoConfigurado = y.Key.AlumnoConfigurado
                     }).ToList(),
                 }).FirstOrDefault();
-                
+
                 return resultadoAgrupado;
             }
             catch (Exception ex)
@@ -438,7 +438,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             }
         }
 
-        public bool EnvioMensajePorPlantilla(WhatsAppPlantillaDTO json)
+        public bool EnvioMensajePorPlantilla(WhatsAppPlantillaDTO json, string numeroIdentificador = null)
         {
             try
             {
@@ -449,7 +449,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 WhatsAppEnviarMensajeDTO objetoWhatsAppHook = new WhatsAppEnviarMensajeDTO();
                 List<AlumnoWhatsAppMasivo> ListaAlumnos = new List<AlumnoWhatsAppMasivo>();
                 int IdProgramaGeneral = _unitOfWork.CampaniaGeneralWhatsAppRepository.ObtenerProgramaGeneral(json.IdCentroCosto);
-                string ? Plantilla = _unitOfWork.CampaniaGeneralWhatsAppRepository.ObtenerPlantillaWhatsApp(json.IdPlantilla);
+                string? Plantilla = _unitOfWork.CampaniaGeneralWhatsAppRepository.ObtenerPlantillaWhatsApp(json.IdPlantilla);
 
                 AlumnoWhatsAppMasivo Alumno = new AlumnoWhatsAppMasivo();
                 Alumno.IdAlumno = json.IdAlumno;
@@ -486,6 +486,10 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 var serializedResult = Serializer.Serialize(objetoWhatsAppHook);
                 string url = $"https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphMarketing";
                 //string url = $"https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphMarketing";
+
+                if (!string.IsNullOrEmpty(numeroIdentificador))
+                    url = $"{url}V2?numeroIdentificador={numeroIdentificador}";
+
                 try
                 {
 
@@ -542,7 +546,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                 foreach (var alumnoData in ListaAlumnos)
                 {
-                    try{
+                    try
+                    {
                         var objetoWhatsAppHook = new WhatsAppEnviarMensajeDTO
                         {
                             Id = 0,
@@ -567,11 +572,12 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             DatosPlantillaWhatsApp = JsonConvert.DeserializeObject<List<DatosPlantillaWhatsAppDTO>>(alumnoData.ObjetoPlantilla),
                         };
                         var serializedResult = Serializer.Serialize(objetoWhatsAppHook);
-                        
+
                         datoRespuesta = UrlPost(url, serializedResult);
                         if (datoRespuesta.EstadoMensaje == true)
                             alMenosUnEnvioExitoso = true;
-                    }catch (Exception exEnvio)
+                    }
+                    catch (Exception exEnvio)
                     {
                         continue;
                     }
@@ -584,7 +590,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             }
         }
 
-        public bool EnvioMensajePorTexto(WhatsAppMensajeTextoDTO json)
+        public bool EnvioMensajePorTexto(WhatsAppMensajeTextoDTO json, string numeroIdentificador = null)
         {
             try
             {
@@ -614,9 +620,12 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 objetoWhatsAppHook.DatosPlantillaWhatsApp = null;
                 var serializedResult = Serializer.Serialize(objetoWhatsAppHook);
 
-
                 string url = $"https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphMarketing";
                 //string url = $"https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphMarketing";
+
+                if (!string.IsNullOrEmpty(numeroIdentificador))
+                    url = $"{url}V2?numeroIdentificador={numeroIdentificador}";
+
                 try
                 {
 
@@ -679,25 +688,25 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 string url = $"https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphFacebookMarketing";
                 //string url = $"https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphFacebookMarketing";
                 try
-                    {
-                        //datoRespuesta = UrlPost(url, serializedResult);
-                        datoRespuesta = Task.Run(() => UrlPostAsync(url, serializedResult)).Result;
-                        PreCampaniaGeneralDetalleResponsableAlumnoWhatsAppDTO item = new PreCampaniaGeneralDetalleResponsableAlumnoWhatsAppDTO();
-                        //Json.CelularWhatsApp = objetoWhatsAppHook.WaTo;
-                        //Json.IdAlumno = objetoWhatsAppHook.IdAlumno;
-                        //Json.WhatsAppEmpresaIdPais = objetoWhatsAppHook.IdPais;
-                        //Json.MensajePlantillaHtml = objetoWhatsAppHook.WaCaption;
-                        //Json.ObjetoPlantilla = item.ObjetoPlantilla;
-                        objetoWhatsAppHook.WaId = datoRespuesta.WaId;
-                        //Json.IdPersonal = objetoWhatsAppHook.IdPersonal;
-                        var serializedResultInsertEnviado = Serializer.Serialize(json);
-                        bool ResultadoInserccion = _unitOfWork.WhatsAppConfiguracionPreEnvioRepository.InsertarCampaniaGeneralDetalleResponsableAlumnoEnviadoWhatsApp(serializedResultInsertEnviado, item.WaId, item.IdCampaniaGeneralDetalleResponsableWhatsApp);
-                        return (datoRespuesta.EstadoMensaje == true) ? true : false;
-                    }
-                    catch { }
-                    return false;
+                {
+                    //datoRespuesta = UrlPost(url, serializedResult);
+                    datoRespuesta = Task.Run(() => UrlPostAsync(url, serializedResult)).Result;
+                    PreCampaniaGeneralDetalleResponsableAlumnoWhatsAppDTO item = new PreCampaniaGeneralDetalleResponsableAlumnoWhatsAppDTO();
+                    //Json.CelularWhatsApp = objetoWhatsAppHook.WaTo;
+                    //Json.IdAlumno = objetoWhatsAppHook.IdAlumno;
+                    //Json.WhatsAppEmpresaIdPais = objetoWhatsAppHook.IdPais;
+                    //Json.MensajePlantillaHtml = objetoWhatsAppHook.WaCaption;
+                    //Json.ObjetoPlantilla = item.ObjetoPlantilla;
+                    objetoWhatsAppHook.WaId = datoRespuesta.WaId;
+                    //Json.IdPersonal = objetoWhatsAppHook.IdPersonal;
+                    var serializedResultInsertEnviado = Serializer.Serialize(json);
+                    bool ResultadoInserccion = _unitOfWork.WhatsAppConfiguracionPreEnvioRepository.InsertarCampaniaGeneralDetalleResponsableAlumnoEnviadoWhatsApp(serializedResultInsertEnviado, item.WaId, item.IdCampaniaGeneralDetalleResponsableWhatsApp);
+                    return (datoRespuesta.EstadoMensaje == true) ? true : false;
+                }
+                catch { }
+                return false;
 
-                  
+
 
             }
             catch (Exception ex)
@@ -798,7 +807,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             {
 
                 var modelo = _unitOfWork.CampaniaGeneralWhatsAppRepository.ProcesarDataPorPrioridadSendinblue(json);
-               _unitOfWork.Commit();
+                _unitOfWork.Commit();
                 return modelo;
             }
             catch (Exception ex)
@@ -1194,6 +1203,19 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+        }
+
+        public string ObtenerNumeroIdentificadorWhatsAppPorIdPersonal(int IdPersonal)
+        {
+            try
+            {
+                var modelo = _unitOfWork.CampaniaGeneralWhatsAppRepository.ObtenerNumeroIdentificadorWhatsAppPorIdPersonal(IdPersonal);
+                return modelo;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
     }

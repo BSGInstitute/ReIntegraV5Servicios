@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.GestionPersonas;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.GestionPersonas;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -189,6 +191,27 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+        public async Task<IEnumerable<ProgramaGeneralProblemaFactorDetalleDTO>> ObtenerAsync()
+        {
+            try
+            {
+                var query = @"
+                SELECT Id, Nombre, Titulo
+                FROM pla.T_ProgramaGeneralProblemaFactorDetalle
+                WHERE Estado = 1
+                ORDER BY Id DESC";
+                var resultado = await _dapperRepository.QueryDapperAsync(query, null);
+                if (!string.IsNullOrEmpty(resultado) && resultado != "[]")
+                {
+                    return JsonConvert.DeserializeObject<IEnumerable<ProgramaGeneralProblemaFactorDetalleDTO>>(resultado)!;
+                }
+                return new List<ProgramaGeneralProblemaFactorDetalleDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         /// Autor: Marco Jose Villanueva Torres.
         /// Fecha: 15/04/2024
         /// <param name="id"> (PK) </param> 
@@ -223,6 +246,41 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception ex)
             {
                 throw new Exception($"#FR-OPI-001@Error en ObtenerPorId(), {ex.Message}");
+            }
+        }
+
+        public bool ExistePorNombre(string nombre)
+        {
+            try
+            {
+                bool rpta = false;
+
+                var query = "pla.SP_T_ProgramaGeneralProblemaFactorDetalle_ExisteNombre";
+                var parametros = new
+                {
+                    Nombre = (nombre ?? string.Empty).Trim()
+                };
+
+                var resultado = _dapperRepository.QuerySPDapper(query, parametros);
+
+                if (!string.IsNullOrWhiteSpace(resultado) && !resultado.Equals("null", StringComparison.OrdinalIgnoreCase)
+                    && !resultado.Contains("[]"))
+                {
+                    var filas = Newtonsoft.Json.JsonConvert
+                        .DeserializeObject<System.Collections.Generic.List<System.Collections.Generic.Dictionary<string, object>>>(resultado);
+
+                    if (filas != null && filas.Count > 0 && filas[0] != null && filas[0].TryGetValue("Existe", out var v))
+                    {
+                        var s = Convert.ToString(v);
+                        rpta = s == "1" || string.Equals(s, "true", StringComparison.OrdinalIgnoreCase);
+                    }
+                }
+
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ExistePorNombreTitulo() {ex.Message}", ex);
             }
         }
     }

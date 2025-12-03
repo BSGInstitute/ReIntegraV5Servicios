@@ -15,6 +15,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         ProgramaGeneralProblemaFactorDetalleDTO Insertar(ProgramaGeneralProblemaFactorDetalleDTO dto, string usuario);
         ProgramaGeneralProblemaFactorDetalleDTO Actualizar(ProgramaGeneralProblemaFactorDetalleDTO dto, string usuario);
         bool Eliminar(int id, string usuario);
+        bool ExistePorNombre(string nombre);
 
     }
 }

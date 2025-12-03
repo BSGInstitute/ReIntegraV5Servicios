@@ -1,14 +1,24 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Linkedin;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
+using Google.Api.Ads.AdWords.v201809;
+using iText.Layout.Properties;
+using iText.StyledXmlParser.Jsoup.Nodes;
+using iText.StyledXmlParser.Jsoup.Select;
 using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
+using System.Data;
+using System.Drawing;
 using System.Net;
 using System.Text.RegularExpressions;
+using static QRCoder.PayloadGenerator;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation
 {
@@ -178,12 +188,59 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var Oportunidad = MapeoEntidad(entidad);
-                var entidadExistente = base.FirstBy(w => w.Id == entidad.Id, s => new { s.RowVersion });
-                Oportunidad.RowVersion = entidadExistente.RowVersion;
 
+                // Leer la oportunidad actual para verificar concurrencia
+                var entidadExistente = base.FirstBy(w => w.Id == entidad.Id,
+                    s => new { s.RowVersion, s.IdPersonalAsignado });
 
+                var rowVersionOriginal = entidadExistente.RowVersion;
+                var idPersonalAsignadoOriginal = entidadExistente.IdPersonalAsignado;
+
+                // Asignar el RowVersion original para que Entity Framework pueda detectar cambios concurrentes
+                Oportunidad.RowVersion = rowVersionOriginal;
+
+                // Si la oportunidad estaba sin asignar (125) y se está asignando a alguien,
+                // validar que aún esté sin asignar para prevenir asignaciones duplicadas
+                bool esAsignacionNueva = (idPersonalAsignadoOriginal == 125 || idPersonalAsignadoOriginal == null)
+                                       && Oportunidad.IdPersonalAsignado.HasValue
+                                       && Oportunidad.IdPersonalAsignado != 125;
+
+                if (esAsignacionNueva)
+                {
+                    // Volver a verificar justo antes del UPDATE para detectar asignaciones concurrentes
+                    var verificacionFinal = base.FirstBy(w => w.Id == entidad.Id,
+                        s => new { s.IdPersonalAsignado, s.RowVersion });
+
+                    // Si la oportunidad ya fue asignada por otro proceso, lanzar excepción
+                    if (verificacionFinal.IdPersonalAsignado != 125 && verificacionFinal.IdPersonalAsignado != null)
+                    {
+                        throw new System.Data.DBConcurrencyException(
+                            $"La oportunidad {Oportunidad.Id} fue asignada por otro usuario. " +
+                            $"Asesor asignado: {verificacionFinal.IdPersonalAsignado}."
+                        );
+                    }
+
+                    // Si el RowVersion cambió, otra actualización ocurrió
+                    if (!verificacionFinal.RowVersion.SequenceEqual(rowVersionOriginal))
+                    {
+                        throw new System.Data.DBConcurrencyException(
+                            $"La oportunidad {Oportunidad.Id} fue modificada por otro usuario."
+                        );
+                    }
+
+                    // Actualizar el RowVersion más reciente
+                    Oportunidad.RowVersion = verificacionFinal.RowVersion;
+                }
+
+                // Realizar la actualización con Entity Framework
+                // Entity Framework automáticamente validará el RowVersion
                 base.Update(Oportunidad);
                 return Oportunidad;
+            }
+            catch (System.Data.DBConcurrencyException)
+            {
+                // Re-lanzar las excepciones de concurrencia sin envolverlas
+                throw;
             }
             catch (Exception ex)
             {
@@ -407,6 +464,29 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        public IEnumerable<CentroCostoVentaCruzadaDTO> ObtenerCentroCostoVentaCruzada(int idPGeneral)
+        {
+            try
+            {
+                List<CentroCostoVentaCruzadaDTO> rpta = new List<CentroCostoVentaCruzadaDTO>();
+
+                var query = "EXEC pla.SP_ObtenerProgramaGeneralCentroCosto @IdPGeneral = @idPGeneral";
+
+                var resultado = _dapperRepository.QueryDapper(query, new { idPGeneral });
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<CentroCostoVentaCruzadaDTO>>(resultado);
+                }
+
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
         /// Autor: Erick Marcelo Quispe.
@@ -4125,6 +4205,127 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception($"#OR-ORCAA-001@Error en ObtenerReporteControlActividadesAgenda: {ex.Message}", ex);
             }
         }
+
+
+        /// Autor: Junior Llerena
+        /// Fecha: 28/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene métricas comparativas diarias de un asesor
+        /// </summary>
+        /// <param name="idAsesor">ID del asesor</param>
+        /// <param name="fecha">Fecha opcional (por defecto hoy)</param>
+        /// <returns>MetricasComparativasDiariasDTO con comparación vs día anterior</returns>
+        public MetricasComparativasDiariasDTO ObtenerMetricasComparativasDiarias(int idAsesor, DateTime? fecha = null)
+        {
+            try
+            {
+                var fechaActual = (fecha ?? DateTime.Today).Date;
+                var fechaAnterior = fechaActual.AddDays(-1);
+
+                if (fechaAnterior.DayOfWeek == System.DayOfWeek.Sunday)
+                {
+                    fechaAnterior = fechaAnterior.AddDays(-1);
+                }
+
+                var esHoy = fechaActual == DateTime.Today;
+
+                (int total, int ejecutadas, int its, int ips) ObtenerDatosHistorico(DateTime fechaConsulta)
+                {
+                    string query = @"
+                        SELECT TOP 1
+                            TotalActividad,
+                            Ejecutado,
+                            ItGenerado,
+                            IpGenerado
+                        FROM com.T_ControlActividadCongelado
+                        WHERE IdPersonal = @idAsesor
+                          AND CAST(Fecha AS DATE) = @fecha
+                          AND Estado = 1
+                        ORDER BY FechaCreacion DESC";
+
+                    var resultado = _dapperRepository.FirstOrDefault(query, new
+                    {
+                        idAsesor = idAsesor,
+                        fecha = fechaConsulta
+                    });
+
+                    int total = 0, ejecutadas = 0, its = 0, ips = 0;
+
+                    if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                    {
+                        var obj = JsonConvert.DeserializeObject<Dictionary<string, object>>(resultado);
+
+                        if (obj != null)
+                        {
+                            total = obj.ContainsKey("TotalActividad") ? Convert.ToInt32(obj["TotalActividad"]) : 0;
+                            ejecutadas = obj.ContainsKey("Ejecutado") ? Convert.ToInt32(obj["Ejecutado"]) : 0;
+                            its = obj.ContainsKey("ItGenerado") ? Convert.ToInt32(obj["ItGenerado"]) : 0;
+                            ips = obj.ContainsKey("IpGenerado") ? Convert.ToInt32(obj["IpGenerado"]) : 0;
+                        }
+                    }
+
+                    return (total, ejecutadas, its, ips);
+                }
+
+                int totalActividadesHoy, ejecutadasHoy, itsGeneradosHoy, ipsGeneradosHoy;
+
+                if (esHoy)
+                {
+                    var datosHoy = ObtenerReporteControlActividadesAgenda(idAsesor);
+                    totalActividadesHoy = datosHoy.Totales;
+                    ejecutadasHoy = datosHoy.Ejecutadas;
+                    itsGeneradosHoy = datosHoy.ItsGenerados;
+                    ipsGeneradosHoy = datosHoy.IpsGenerados;
+                }
+                else
+                {
+                    var datosHoy = ObtenerDatosHistorico(fechaActual);
+                    totalActividadesHoy = datosHoy.total;
+                    ejecutadasHoy = datosHoy.ejecutadas;
+                    itsGeneradosHoy = datosHoy.its;
+                    ipsGeneradosHoy = datosHoy.ips;
+                }
+
+                var datosAyer = ObtenerDatosHistorico(fechaAnterior);
+
+                MetricaComparativaDTO CalcularMetrica(int hoy, int ayer)
+                {
+               
+                    int porcentaje = ayer > 0 ? (int)Math.Round(((double)(hoy - ayer) / ayer) * 100) : 0;
+
+                    string estado = porcentaje >= 0 ? "Positivo" : "Negativo";
+
+                    return new MetricaComparativaDTO
+                    {
+                        Hoy = hoy,
+                        Ayer = ayer,
+                        Porcentaje = porcentaje,
+                        Estado = estado
+                    };
+                }
+
+                return new MetricasComparativasDiariasDTO
+                {
+                    Success = true,
+                    Fecha = fechaActual.ToString("yyyy-MM-dd"),
+                    FechaComparacion = fechaAnterior.ToString("yyyy-MM-dd"),
+                    IdAsesor = idAsesor,
+                    Metricas = new MetricasDTO
+                    {
+                        TotalActividades = CalcularMetrica(totalActividadesHoy, datosAyer.total),
+                        Ejecutadas = CalcularMetrica(ejecutadasHoy, datosAyer.ejecutadas),
+                        ItsGenerados = CalcularMetrica(itsGeneradosHoy, datosAyer.its),
+                        IpsGenerados = CalcularMetrica(ipsGeneradosHoy, datosAyer.ips)
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#HA-OMCD-001@Error en ObtenerMetricasComparativasDiarias: {ex.Message}", ex);
+            }
+        }
+
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 24/04/2024
         /// Version: 1.0
@@ -4407,12 +4608,18 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 OportunidadDetalleProbabilidadDTO informacionOportunidad = new OportunidadDetalleProbabilidadDTO();
                 var query = @"SELECT
+                                AC.Id AS IdAreaCapacitacion,
+                                AC.Nombre AS AreaCapacitacion,
                                 PRpw.Nombre AS ClasificacionProbabilidad,
                                 OLH.IdOportunidad,
                                         OLH.IdFaseOportunidad_Ant AS IdFaseOportunidadAnterior,
                                         OLH.IdFaseOportunidad AS IdFaseOportunidadActual
                             FROM
                                 mkt.V_ModeloPredictivoProbabilidadIdProbabilidadRegistro MPPPR
+                                INNER JOIN com.T_Oportunidad AS O ON O.id=MPPPR.IdOportunidad AND O.Estado=1
+                                INNER JOIN pla.T_PEspecifico AS PE ON PE.IdCentroCosto=O.IdCentroCosto
+                                INNER JOIN pla.T_PGeneral AS PG ON PG.Id=PE.IdProgramaGeneral
+                                INNER JOIN pla.T_AreaCapacitacion AS AC ON AC.Id=PG.IdArea
                                 LEFT JOIN mkt.T_ProbabilidadRegistro_PW PRpw ON PRpw.Id = MPPPR.IdProbabilidadRegistroPW 
                                 OUTER APPLY (
                                     SELECT TOP 1 
@@ -4438,5 +4645,69 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 return null;
             }
         }
+
+        /// Autor: Junior Llerena
+        /// Fecha: 01/12/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene los códigos de descuento asociados a un alumno
+        /// </summary>
+        /// <param name="idAlumno">ID del alumno</param>
+        /// <returns>Objeto con códigos de descuento del alumno</returns>
+        public AlumnoCodigosDescuentosDTO ObtenerCodigoDescuentoAlumno(int idAlumno)
+        {
+            try
+            {
+                string query = @"
+                    SELECT ppcd.Id,
+                           a.Id AS IdAlumno,
+                           ppcd.PorcentajeDescuento,
+                           ppcd.CodigoDescuentoArmado AS CodigoDescuento,
+                           ppcd.Utilizado,
+                           ppcd.Estado,
+                           ppcd.Correo
+                    FROM [192.168.2.5].integraDB_PortalWeb.mkt.T_ProgressiveProfilingCodigoDescuentoCorreo ppcd
+                    INNER JOIN mkt.T_alumno a ON ppcd.Correo COLLATE DATABASE_DEFAULT = a.Email1 COLLATE DATABASE_DEFAULT
+                    WHERE a.id = @idAlumno
+                      AND ppcd.Estado = 1
+                    ORDER BY ppcd.id DESC;";
+
+                var resultado = _dapperRepository.QueryDapper(query, new { idAlumno });
+
+                if (!string.IsNullOrEmpty(resultado) && resultado != "[]")
+                {
+                    var codigos = JsonConvert.DeserializeObject<List<CodigoDTO>>(resultado);
+
+                    if (codigos != null && codigos.Count > 0)
+                    {
+                        var alumnoDescuentos = new AlumnoCodigosDescuentosDTO
+                        {
+                            IdAlumno = idAlumno
+                        };
+
+                        var descuentosProperty = typeof(AlumnoCodigosDescuentosDTO).GetProperty("Descuentos");
+                        descuentosProperty.SetValue(alumnoDescuentos, codigos);
+
+                        return alumnoDescuentos;
+                    }
+                }
+                var alumnoVacio = new AlumnoCodigosDescuentosDTO
+                {
+                    IdAlumno = idAlumno
+                };
+                var propertyVacio = typeof(AlumnoCodigosDescuentosDTO).GetProperty("Descuentos");
+                propertyVacio.SetValue(alumnoVacio, new List<CodigoDTO>());
+
+                return alumnoVacio;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#OR-OCDA-001@Error en ObtenerCodigoDescuentoAlumno: {ex.Message}", ex);
+            }
+        }
+
+
+
+
     }
 }

@@ -19,11 +19,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// <summary>
         /// Identificador de la motivación de programa general asociada.
         /// </summary>
-        public int IdProgramaGeneralMotivacion { get; set; }
-        /// <summary>
-        /// Nombre descriptivo de la motivación.
-        /// </summary>
-        public string? NombreMotivacion { get; set; }
+        public int IdProgramaMotivacion { get; set; }
         /// <summary>
         /// Indica si el registro está activo o inactivo.
         /// </summary>
@@ -50,6 +46,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public byte[] RowVersion { get; set; } = null!;
 
         public virtual TProgramaGeneralArgumentoDetalle IdProgramaGeneralArgumentoDetalleNavigation { get; set; } = null!;
-        public virtual TProgramaGeneralMotivacion IdProgramaGeneralMotivacionNavigation { get; set; } = null!;
+        public virtual TProgramaMotivacion IdProgramaMotivacionNavigation { get; set; } = null!;
     }
 }

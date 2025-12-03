@@ -45,7 +45,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         }
         private ActividadDetalle _ActividadDetalleLocal = new ActividadDetalle();
 
-
         //public object AsignarAsesor(AsignarAsesorManualDTO AsignarAsesor, string Usuario)
         //{
 
@@ -753,6 +752,28 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             scope.Complete();
                         }
                     }
+                    catch (System.Data.DBConcurrencyException exConcurrency)
+                    {
+                        // Conflicto de concurrencia detectado: la oportunidad fue asignada por otro proceso
+                        _unitOfWork.LogRepository.Insert(new TLog
+                        {
+                            Ip = "-",
+                            Usuario = Usuario,
+                            Maquina = "-",
+                            Ruta = "AsignarAsesor-CONCURRENCY",
+                            Parametros = $"IdOportunidad={idOportunidad},IdAsesor={AsignarAsesor.IdAsesor},Usuario={Usuario}",
+                            Mensaje = $"CONCURRENCIA: La oportunidad {idOportunidad} ya fue asignada por otro usuario/proceso",
+                            Excepcion = exConcurrency.Message,
+                            Tipo = "WARNING",
+                            IdPadre = 0,
+                            UsuarioCreacion = Usuario,
+                            UsuarioModificacion = Usuario,
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now,
+                            Estado = true
+                        });
+                        // Continuar con la siguiente oportunidad (la transacción se hace rollback automáticamente)
+                    }
                     catch (Exception exOp)
                     {
                         _unitOfWork.LogRepository.Insert(new TLog
@@ -1181,6 +1202,29 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                             scope.Complete();
                         }
+                    }
+                    catch (System.Data.DBConcurrencyException exConcurrency)
+                    {
+                        // Conflicto de concurrencia detectado: la oportunidad fue asignada por otro proceso
+                        var _repLog = _unitOfWork.LogRepository;
+                        _repLog.Insert(new TLog
+                        {
+                            Ip = "-",
+                            Usuario = Usuario,
+                            Maquina = "-",
+                            Ruta = "AsignarAsesorAuto-CONCURRENCY",
+                            Parametros = $"IdOportunidad={idOportunidad},IdAsesor={AsignarAsesor.IdAsesor},Usuario={Usuario}",
+                            Mensaje = $"CONCURRENCIA: La oportunidad {idOportunidad} ya fue asignada por otro usuario/proceso",
+                            Excepcion = exConcurrency.Message,
+                            Tipo = "WARNING",
+                            IdPadre = 0,
+                            UsuarioCreacion = Usuario,
+                            UsuarioModificacion = Usuario,
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now,
+                            Estado = true
+                        });
+                        // Continuar con la siguiente oportunidad (la transacción se hace rollback automáticamente)
                     }
                     catch (Exception ex)
                     {

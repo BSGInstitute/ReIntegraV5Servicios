@@ -52,6 +52,14 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Campo de sistema automatico que guarda la version del registro
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
+        /// <summary>
+        /// Nombre del evento de Facebook al registrar el leadgen
+        /// </summary>
+        public string? Evento { get; set; }
+        /// <summary>
+        /// Pixel de Facebook asociado al evento del leadgen
+        /// </summary>
+        public string? Pixel { get; set; }
 
         public virtual TFacebookFormularioLeadgen IdFacebookFormularioLeadgenNavigation { get; set; } = null!;
     }

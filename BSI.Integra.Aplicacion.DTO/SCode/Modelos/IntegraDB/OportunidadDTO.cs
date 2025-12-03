@@ -143,6 +143,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     public class OportunidadVentaCruzadaAgendaDTO
     {
         public int IdOportunidad { get; set; }
+        public int IdPGeneral { get; set; }
         public string? Programa { get; set; }
         public string? Probabilidad { get; set; }
         public string? Precio { get; set; }
@@ -710,13 +711,15 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     }
     public class OportunidadDetalleProbabilidadDTO
     {
+        public int IdAreaCapacitacion { get; set; }
+        public string AreaCapacitacion { get; set; }
         public string ClasificacionProbabilidad { get; set; }
         public int IdOportunidad { get; set; }
         public int IdFaseOportunidadAnterior { get; set; }
         public int IdFaseOportunidadActual { get; set; }
     }
     public class OportunidadConversionesDTO
-    {
+    {        
         public int IdFacebookFormularioLeadgen { get; set; }
         public string LeadId { get; set; }
         public int IdOportunidad { get; set; }

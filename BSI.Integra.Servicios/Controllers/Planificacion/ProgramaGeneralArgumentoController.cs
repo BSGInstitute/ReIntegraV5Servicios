@@ -63,12 +63,56 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 return BadRequest(ex.Message);
             }
         }
+
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 30-10-2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los argumentos de motivación
+        /// </summary>
         [HttpGet("[action]/{idPGeneral}")]
-        public IActionResult ObtenerProgramaGeneralArgumentoMotivacionByIdPGeneral(int idPGeneral)
+        public async Task<IActionResult> ObtenerArgumentoMotivacion(int idPGeneral)
         {
             try
             {
-                var result = _programaGeneralArgumentoService.ObtenerArgumentoMotivacionByIdPGeneral(idPGeneral);
+                var data = await _programaGeneralArgumentoService.ObtenerArgumentoMotivacion(idPGeneral);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 30-10-2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los problemas de cliente
+        /// </summary>
+        [HttpGet("[action]/{idPGeneral}")]
+        public async Task<IActionResult> ObtenerProblemaCliente(int idPGeneral)
+        {
+            try
+            {
+                var data = await _programaGeneralArgumentoService.ObtenerProblemaCliente(idPGeneral);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpGet("[action]/{idPGeneral}/{motivacion}")]
+        public IActionResult ObtenerProgramaGeneralArgumentoMotivacionByIdPGeneral(int idPGeneral, string motivacion)
+        {
+            try
+            {
+                var result = _programaGeneralArgumentoService.ObtenerArgumentoMotivacionByIdPGeneral(idPGeneral, motivacion);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -77,20 +121,40 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             }
         }
 
-        //[HttpPost("InsertarArgumentoMotivacionSeleccion")]
-        //public IActionResult InsertarArgumentoMotivacionSeleccion([FromBody] ProgramaArgumentoMotivacionSeleccionDTO dto)
-        //{
-        //    try
-        //    {
-        //        //var resultado = _programaGeneralArgumentoService.InsertarArgumentoMotivacionSeleccion(dto, _tokenManager.UserName);
-        //        //return Ok(resultado);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //}
+        [HttpGet("[action]/{idOportunidad}")]
+        public IActionResult ObtenerMotivacionSeleccionByIdOportunidad(int idOportunidad)
+        {
+            try
+            {
+                var result = _programaGeneralArgumentoService.ObtenerMotivacionSeleccionByIdOportunidad(idOportunidad);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("[action]")]
+        public IActionResult ObtenerMotivacionesTodoDiccionario()
+        {
+            var result = _programaGeneralArgumentoService.ObtenerMotivacionesTodoDiccionario();
+            return Ok(result);
+        }
 
+        [HttpPost("InsertarArgumentoMotivacionSeleccion")]
+        public IActionResult InsertarArgumentoMotivacionSeleccion([FromBody] ProgramaArgumentoMotivacionSeleccionDTO dto)
+        {
+            try
+            {
+                var resultado = _programaGeneralArgumentoService.InsertarArgumentoMotivacionSeleccion(dto, _tokenManager.UserName);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        
         [HttpPost("Insertar")]
         public IActionResult Insertar([FromBody] ProgramaGeneralArgumentoDTO dto)
         {

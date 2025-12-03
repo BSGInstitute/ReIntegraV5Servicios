@@ -1613,18 +1613,31 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+
+        /// Autor: Desconocido
+        /// Autor Edicion: Humberto Oscata
+        /// Version: 1.1
         /// <summary>
-        /// Obtiene los chat asignados a los asesores de marketing
+        /// Obtiene el listado de ultimos mensajes por cliente, para una rango de fecha especifico
         /// </summary>
+        /// <param name="tab">Tipo de mensajes a devolver</param>
+        /// <param name="fechaInicio">Fecha inicio del rango</param>
+        /// <param name="fechaFin">Fecha fin del rango</param>
+        /// <returns>Lista de ultimos mensajes por cliente</returns>
         public List<ChatWhatsAppMarketingDTO> ObtenerChatWhatsAppMarketingv2(int tab, DateTime fechaInicio, DateTime fechaFin)
         {
             try
             {               
-                var resultado = _dapperRepository.QuerySPDapper("mkt.SP_ObtenerChatWhatsAppMarketingV2", new { Tab = tab, FechaInicio = fechaInicio, FechaFin = fechaFin });
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                var jsonResultado = _dapperRepository.QuerySPDapper("mkt.SP_ObtenerChatWhatsAppMarketingV2", new { Tab = tab, FechaInicio = fechaInicio, FechaFin = fechaFin });
+                if (!string.IsNullOrEmpty(jsonResultado) && !jsonResultado.Equals("[]"))
                 {
-                    return JsonConvert.DeserializeObject<List<ChatWhatsAppMarketingDTO>>(resultado)!;
+                    var resultado = JsonConvert.DeserializeObject<List<ChatWhatsAppMarketingDTO>>(jsonResultado)!;
+                    
+                    return resultado.OrderByDescending(x => x.Fecha)
+                        .ThenByDescending(x => x.Tiempo)
+                        .ToList();
                 }
+
                 return new List<ChatWhatsAppMarketingDTO>();
             }
             catch (Exception ex)
@@ -1632,13 +1645,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+
         /// Autor: Margiory Ramirez
         /// Fecha: 02/04/2024
         /// Version: 1.0
         /// <summary>
         /// Obtiene los chat asignados a los asesores de marketing
         /// </summary>
-    
         public List<ChatWhatsAppMarketingDTO> ObtenerChatWhatsAppFacebookMarketing(int Tab, int Dia, int IdAsesor)
         {
             try

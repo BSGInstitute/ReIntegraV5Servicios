@@ -132,6 +132,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin
         public DateTime? FechaIntegra { get; set; }
         public int? CuentaAsociada { get; set; }
         public int? IdAlumno { get; set; }
+        public string? UrlPerfilLinkedIn { get; set;}
     }
 
 
@@ -183,6 +184,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin
         public DateTime? FechaLead { get; set; }
         public DateTime? FechaIntegra { get; set; }
         public int CuentaAsociada { get; set; }
+        public string? UrlPerfilLinkedIn { get; set; }  
     }
 
     public class LinkedInActualizarDTO
@@ -193,6 +195,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin
         public string? Cargo { get; set; }
         public string? Industria { get; set; }
         public string? Pais { get; set; }
+        public string? UrlPerfil { get; set; }
     }
 
 
@@ -208,4 +211,25 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin
         public int Id { get; set; }
     }
 
+
+
+    public class SubirPendientesAgrupadas
+    {
+        public List<string>? GuidLinkedInLead { get; set; }
+        public int CuentaAsociada { get; set; }
+        public int? Grupo { get; set; }
+    }
+    public class SubirOportunidadesPendientesRequest
+    {
+        public string Usuario { get; set; }
+        public SubirPendientesAgrupadas Guids { get; set; }
+    }
+
+    public class LinkedinCuentaDTO
+    {
+        public int Id { get; set; }
+        public int NroCuenta { get; set; }
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+    }
 }

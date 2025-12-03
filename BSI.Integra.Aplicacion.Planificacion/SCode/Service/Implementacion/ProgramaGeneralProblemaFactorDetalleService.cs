@@ -97,8 +97,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     _unitOfWork.Commit();
                     entidad.Id = respuesta.Id;
                     var resultado = _mapper.Map<ProgramaGeneralProblemaFactorDetalleDTO>(respuesta);
-
-
                     return resultado;
                 }
                 else
@@ -189,5 +187,23 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        public bool ExistePorNombre( string nombre)
+        {
+            try
+            {
+                if (_unitOfWork.ProgramaGeneralProblemaFactorDetalleRepository.ExistePorNombre(nombre))
+                {
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
+
+
 }

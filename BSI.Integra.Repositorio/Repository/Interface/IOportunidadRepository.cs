@@ -1,8 +1,10 @@
 ﻿using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
+using Google.Api.Ads.AdWords.v201809;
 
 namespace BSI.Integra.Repositorio.Repository.Interface
 {
@@ -20,6 +22,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<Oportunidad> ObtenerOportunidad();
         IEnumerable<OportunidadComboDTO> ObtenerCombo();
         IEnumerable<OportunidadVentaCruzadaAgendaDTO> ObtenerVentaCruzadaParaAgendaPorIdClasificacionPersona(int idClasificacionPersona);
+        IEnumerable<CentroCostoVentaCruzadaDTO> ObtenerCentroCostoVentaCruzada(int idPGeneral);
         IEnumerable<OportunidadHistorialAgendaDTO> ObtenerHistorialOportunidadesParaAgendaPorIdClasificacionPersona(int idClasificacionPersona);
         Task<OportunidadTiempoCapacitacionDTO> ObtenerTiempoCapacitacionPorIdOportunidadAsync(int idOportunidad);
         OportunidadCodigoFaseDTO ObtenerCodigoFasePorIdOportunidad(int idOportunidad);
@@ -113,7 +116,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface
 
         ValorEtiquetaWhatsAppDTO? ObteneValoresEtiquetaWhatsApp(int idOportunidad);
         string InsertarEnviosWhatsappDiasSinContacto(int idOportunidad);
+        
         ControlActividadAgendaDTO ObtenerReporteControlActividadesAgenda(int idAsesor);
+
         List<ResultadoBusquedaFichaAlumnoDTO> BuscarFichaPorCelular(string celular);
         List<ObtenerSeguimientoPagosAlumnoComentarioDosDTO> ObtenerComentariosOperacionesPagosAcademicos2(int idOportunidad);
         IEnumerable<ColorPerfilProgramaDTO> ObtenerColorPerfilProgramaPorIdOportunidad(int idOportunidad);
@@ -126,6 +131,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public List<OportunidadMasivaDTO> ObtenerOportunidadesMasivas();
         public OportunidadConversionesDTO ObtenerInformacionOportunidadConversion(int idOportunidad);
         public OportunidadDetalleProbabilidadDTO ObtenerInformacionOportunidadProbabilidad(int idOportunidad);
+        MetricasComparativasDiariasDTO ObtenerMetricasComparativasDiarias(int idAsesor, DateTime? fecha = null);
+        AlumnoCodigosDescuentosDTO ObtenerCodigoDescuentoAlumno(int idAlumno);
+
 
     }
 }

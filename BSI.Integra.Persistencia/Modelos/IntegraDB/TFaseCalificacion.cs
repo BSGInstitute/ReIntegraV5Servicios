@@ -53,7 +53,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Versión del registro para control de concurrencia
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
+        /// <summary>
+        /// (FK) Referencia al personal/área de trabajo correspondiente a la fase
+        /// </summary>
+        public int? IdPersonalAreaTrabajo { get; set; }
 
+        public virtual TPersonalAreaTrabajo? IdPersonalAreaTrabajoNavigation { get; set; }
         public virtual ICollection<TCriterioCalificacionLlamadum> TCriterioCalificacionLlamada { get; set; }
     }
 }

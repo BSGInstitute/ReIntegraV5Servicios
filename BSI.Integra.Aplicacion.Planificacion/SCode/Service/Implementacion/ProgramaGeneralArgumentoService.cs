@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.Base.Exceptions;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
+using BSI.Integra.Repositorio.Repository.Implementation.Planificacion;
 using BSI.Integra.Repositorio.UnitOfWork;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -50,14 +53,15 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 List<ProgramaGeneralArgumentoDetalleDTO> argumentoDetalleDtoList = new();
                 foreach (var item in argumentoDetalles)
                 {
-                    var argumentoDetalleMotivaciones = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacion(item.Id);
+                    var argumentoDetalleMotivaciones = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacionNombre(item.Id);
+                    
                     var argumentoDetalleDto = new ProgramaGeneralArgumentoDetalleDTO
                     {
                         Id = item.Id,
                         Detalle = item.Detalle,
                         Motivacion = new PGArgumentoDetalleMotivacionDTO
                         {
-                            Id = argumentoDetalleMotivaciones.IdProgramaGeneralMotivacion,
+                            Id = argumentoDetalleMotivaciones.IdProgramaMotivacion,
                             Nombre = argumentoDetalleMotivaciones.NombreMotivacion
                         }
                     };
@@ -99,14 +103,14 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     List<ProgramaGeneralArgumentoDetalleDTO> argumentoDetalleDtoList = new();
                     foreach (var ag in argumentoDetalles)
                     {
-                        var argumentoDetalleMotivaciones = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacion(ag.Id);
+                        var argumentoDetalleMotivaciones = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacionNombre(ag.Id);
                         var argumentoDetalleDto = new ProgramaGeneralArgumentoDetalleDTO
                         {
                             Id = ag.Id,
                             Detalle = ag.Detalle,
                             Motivacion = new PGArgumentoDetalleMotivacionDTO
                             {
-                                Id = argumentoDetalleMotivaciones.IdProgramaGeneralMotivacion,
+                                Id = argumentoDetalleMotivaciones.IdProgramaMotivacion,
                                 Nombre = argumentoDetalleMotivaciones.NombreMotivacion
                             }
                         };
@@ -132,17 +136,191 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             }
         }
 
-        public ArgumentoMotivacionProgramaGeneralDTO ObtenerArgumentoMotivacionByIdPGeneral(int idPGeneral)
+        public async Task<List<ProgramaGeneralArgumentoDTO>> ObtenerArgumentoMotivacion(int idPGeneral)
+        {
+            // Ejecución secuencial para evitar accesos concurrentes a recursos no thread-safe.
+            var argumentos = (await _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerTodoProgramaGeneralAsync(idPGeneral)).ToList();
+
+            foreach (var item in argumentos)
+            {
+                // Obtener modalidades por cada argumento
+                var modalidades = await _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoModalidadAsync(item.Id);
+                item.Modalidades = modalidades.Select(m => new ProgramaGeneralArgumentoModalidadDTO
+                {
+                    Id = m.Id,
+                    IdModalidad = m.IdModalidadCurso,
+                    Nombre = m.Nombre
+                }).ToList();
+
+                // Obtener detalles por cada argumento
+                var detalles = await _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleAsync(item.Id);
+
+                var detallesDtoList = new List<ProgramaGeneralArgumentoDetalleDTO>();
+                foreach (var ag in detalles)
+                {
+                    // Obtener motivación por cada detalle
+                    var motivacion = await _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacionAsync(ag.Id);
+
+                    var detalleDto = new ProgramaGeneralArgumentoDetalleDTO
+                    {
+                        Id = ag.Id,
+                        Detalle = ag.Detalle,
+                        Motivacion = (motivacion != null)
+                            ? new PGArgumentoDetalleMotivacionDTO
+                            {
+                                Id = motivacion.IdProgramaMotivacion,
+                            }
+                            : null
+                    };
+                    detallesDtoList.Add(detalleDto);
+                }
+                item.ArgumentoDetalle = detallesDtoList.OrderBy(d => d.Id).ToList();
+            }
+
+            return argumentos.OrderBy(a => a.Id).ToList();
+        }
+
+        public async Task<List<ConfiguracionProblemaJerarquicaDTO>> ObtenerProblemaCliente(int idPGeneral)
+        {
+            // NOTA: mantengo la firma async para que el método pueda seguir integrándose
+            // con código asincrónico de la capa superior. Las llamadas a los repositorios
+            // aquí se realizan de forma secuencial para evitar acceso concurrente al mismo DbContext.
+
+            // Obtener las cuatro listas (secuencial, sin Task.Run ni paralelismo)
+            var factorRepo = (await _unitOfWork.ProgramaGeneralProblemaFactorRepository.ObtenerAsync())
+                               .OrderBy(f => f.Id)
+                               .ToList();
+
+            var detalleRepo = (await _unitOfWork.ProgramaGeneralProblemaFactorDetalleRepository.ObtenerAsync())
+                                .OrderBy(d => d.Id)
+                                .ToList();
+
+            var solucionRepo = (await _unitOfWork.ProgramaGeneralProblemaFactorSolucionRepository.ObtenerAsync())
+                                  .OrderBy(sc => sc.Id)
+                                  .ToList();
+
+            var subSolucionesRepo = (await _unitOfWork.ProgramaGeneralProblemaFactorSubSolucionRepository.ObtenerAsync())
+                                      .OrderBy(sst => sst.Id)
+                                      .ToList();
+
+            var factor = factorRepo.Select(f => new FactorDTO { Id = f.Id, Nombre = f.Nombre }).ToList();
+            var detalle = detalleRepo.Select(d => new FactorDetalleDTO { Id = d.Id, Nombre = d.Nombre, Titulo = d.Titulo }).ToList();
+            var solucion = solucionRepo.Select(s => new FactorSolucionDTO
+            {
+                Id = s.Id,
+                Descripcion = s.Descripcion,
+                Titulo = s.Titulo,
+                SubTitulo = s.SubTitulo
+            }).ToList();
+            var subSoluciones = subSolucionesRepo.Select(ss => new SubSolucionDTO
+            {
+                Id = ss.Id,
+                IdProgramaGeneralProblemaFactorSolucion = ss.IdProgramaGeneralProblemaFactorSolucion,
+                Solucion = ss.Solucion,
+                Orden = ss.Orden,
+                Nivel = ss.Nivel
+            }).ToList();
+
+            // Construir los lookups (O(1) para búsquedas posteriores)
+            var lookups = new
+            {
+                FactorLookup = factor.ToDictionary(f => f.Id),
+                DetalleLookup = detalle.ToDictionary(d => d.Id),
+                SolucionLookup = solucion.ToDictionary(s => s.Id),
+                SubSolucionLookup = subSoluciones.ToDictionary(ss => ss.Id)
+            };
+
+            // Obtener la "tabla de enlace" de forma secuencial (tal como tu repo lo expone)
+            var filas = (await _unitOfWork.ProgramaGeneralProblemaDetalleRepository
+                            .ObtenerProblemaClienteAsync(idPGeneral))
+                            ?? Enumerable.Empty<ProblemaClienteByPGeneral>();
+
+            // Reconstruir los objetos de enlace desde los resultados denormalizados
+            var configuraciones = filas.GroupBy(x => x.Id).Select(g =>
+            {
+                var first = g.First();
+
+                var subsolucionIds = g
+                    .Where(r => r.IdProgramaGeneralProblemaFactorSubSolucion.HasValue)
+                    .Select(r => r.IdProgramaGeneralProblemaFactorSubSolucion!.Value)
+                    .Distinct()
+                    .ToList();
+
+                return new ProgramaGeneralProblemaDetalleObtener2
+                {
+                    Id = g.Key,
+                    IdPGeneral = first.IdPGeneral,
+                    IdProgramaGeneralProblemaFactor = first.IdProgramaGeneralProblemaFactor,
+                    IdProgramaGeneralProblemaFactorDetalle = first.IdProgramaGeneralProblemaFactorDetalle,
+                    IdProgramaGeneralProblemaFactorSolucion = first.IdProgramaGeneralProblemaFactorSolucion,
+                    SubSolucionIds = subsolucionIds,
+                    AplicaTituloDetalle = first.AplicaTituloDetalle,
+                    AplicaNombreDetalle = first.AplicaNombreDetalle,
+                    AplicaPieDePagina = first.AplicaPieDePagina,
+                    AplicaDescripcionSolucion = first.AplicaDescripcionSolucion,
+                    AplicaTituloSolucion = first.AplicaTituloSolucion,
+                    AplicaSubTituloSolucion = first.AplicaSubTituloSolucion
+                };
+            }).ToList();
+
+            // Ensamblaje final de la jerarquía (en memoria) — idéntico a tu lógica original
+            var resultadoFinal = new List<ConfiguracionProblemaJerarquicaDTO>();
+
+            foreach (var config in configuraciones)
+            {
+                var subSolucionesAnidadas = new List<SubSolucionDTO>();
+                foreach (var subId in config.SubSolucionIds)
+                {
+                    if (lookups.SubSolucionLookup.TryGetValue(subId, out var subSolucionObj))
+                    {
+                        subSolucionesAnidadas.Add(subSolucionObj);
+                    }
+                }
+
+                var dto = new ConfiguracionProblemaJerarquicaDTO
+                {
+                    Id = config.Id,
+                    IdPGeneral = config.IdPGeneral,
+                    Factor = lookups.FactorLookup.TryGetValue(config.IdProgramaGeneralProblemaFactor, out var factorDto) ? factorDto : null,
+                    Detalle = config.IdProgramaGeneralProblemaFactorDetalle.HasValue && lookups.DetalleLookup.TryGetValue(config.IdProgramaGeneralProblemaFactorDetalle.Value, out var detalleDto) ? detalleDto : null,
+                    Solucion = config.IdProgramaGeneralProblemaFactorSolucion.HasValue && lookups.SolucionLookup.TryGetValue(config.IdProgramaGeneralProblemaFactorSolucion.Value, out var solucionDto) ? solucionDto : null,
+                    SubSoluciones = subSolucionesAnidadas.OrderBy(s => s.Id).ToList(),
+                    AplicaTituloDetalle = config.AplicaTituloDetalle,
+                    AplicaNombreDetalle = config.AplicaNombreDetalle,
+                    AplicaPieDePagina = config.AplicaPieDePagina,
+                    AplicaDescripcionSolucion = config.AplicaDescripcionSolucion,
+                    AplicaTituloSolucion = config.AplicaTituloSolucion,
+                    AplicaSubTituloSolucion = config.AplicaSubTituloSolucion
+                };
+                resultadoFinal.Add(dto);
+            }
+
+            return resultadoFinal.OrderBy(r => r.Id).ToList();
+        }
+        public ArgumentoMotivacionProgramaGeneralDTO ObtenerArgumentoMotivacionByIdPGeneral(int idPGeneral, string motivacion)
         {
             try
             {
                 var programaGArgumentos = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerTodo(idPGeneral);
-
                 List<ArgumentoMotivacionEstructuraDTO> estructuraCurricular = new();
                 List<ArgumentoMotivacionEstructuraDTO> garantiaDePrograma = new();
                 List<ArgumentoMotivacionEstructuraDTO> demostracionDeValor = new();
                 List<ArgumentoMotivacionEstructuraDTO> aspectosDiferenciadores = new();
                 List<ArgumentoMotivacionEstructuraDTO> argumentosDePerdidaPotencial = new();
+
+                string Normalizar(string? texto)
+                {
+                    if (string.IsNullOrWhiteSpace(texto))
+                        return string.Empty;
+
+                    var n = texto.ToLower().Trim().Normalize(NormalizationForm.FormD);
+                    return new string(n.Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark).ToArray());
+                }
+
+                var motivacionResult = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerMotivacionesByDiccionario(Normalizar(motivacion));
+                string? motivacionDescripcion = motivacionResult != null ? motivacionResult.Nombre : motivacion;
+
+                var nombreMotivacion = Normalizar(motivacionDescripcion);
 
                 ArgumentoMotivacionEstructuraDTO ConstruirArgumento(ProgramaGeneralArgumentoDTO item)
                 {
@@ -159,15 +337,18 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
                     foreach (var ag in detalles)
                     {
-                        var motivacion = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacion(ag.Id);
+                        //var _motivacion = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacion(ag.Id);
+                        var _motivacion = _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerProgramaGeneralArgumentoDetalleMotivacionNombre(ag.Id);
+                        if (_motivacion == null) continue;
+                        if (_motivacion.IdProgramaMotivacion != motivacionResult.Id) continue;
                         detalleDtoList.Add(new ProgramaGeneralArgumentoDetalleDTO
                         {
                             Id = ag.Id,
                             Detalle = ag.Detalle,
                             Motivacion = new PGArgumentoDetalleMotivacionDTO
                             {
-                                Id = motivacion.IdProgramaGeneralMotivacion,
-                                Nombre = motivacion.NombreMotivacion
+                                Id = _motivacion.IdProgramaMotivacion,
+                                Nombre = _motivacion.NombreMotivacion
                             }
                         });
                     }
@@ -182,14 +363,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
                 foreach (var item in programaGArgumentos)
                 {
-                    var nombre = item.Nombre
-                    .ToLower()
-                    .Trim()
-                    .Normalize(NormalizationForm.FormD);
-                    nombre = new string(nombre
-                     .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-                     .ToArray());
-
+                    var nombre = Normalizar(item.Nombre);
                     nombre = Regex.Replace(nombre, @"[^a-z]", "");
 
                     switch (nombre)
@@ -216,8 +390,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 }
                 return new ArgumentoMotivacionProgramaGeneralDTO
                 {
+                    MotivacionPrincipal = motivacionDescripcion,
                     GarantiaDePrograma = garantiaDePrograma,
-                    EstruturaCurricular = estructuraCurricular,
+                    EstructuraCurricular = estructuraCurricular,
                     DemostracionDeValor = demostracionDeValor,
                     AspectosDiferenciadores = aspectosDiferenciadores,
                     ArgumentosDePerdidaPotencial = argumentosDePerdidaPotencial,
@@ -335,8 +510,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         ProgramaGeneralArgumentoDetalleMotivacion motivacion = new()
                         {
                             IdProgramaGeneralArgumentoDetalle = detalleInsertado.Id,
-                            IdProgramaGeneralMotivacion = m.Motivacion.Id,
-                            NombreMotivacion = m.Motivacion.Nombre,
+                            IdProgramaMotivacion = m.Motivacion.Id,
                             Estado = true,
                             FechaCreacion = DateTime.Now,
                             FechaModificacion = DateTime.Now,
@@ -354,7 +528,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                             Motivacion = new PGArgumentoDetalleMotivacionDTO
                             {
                                 Id = motivacionInsertada.Id,
-                                Nombre = motivacionInsertada.NombreMotivacion
                             }
                         });
                     }
@@ -524,8 +697,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     var mot = new ProgramaGeneralArgumentoDetalleMotivacion
                     {
                         IdProgramaGeneralArgumentoDetalle = detInsertado.Id, 
-                        IdProgramaGeneralMotivacion = nuevo.Motivacion.Id,
-                        NombreMotivacion = nuevo.Motivacion.Nombre,
+                        IdProgramaMotivacion = nuevo.Motivacion.Id,
                         Estado = true,
                         FechaCreacion = DateTime.Now,
                         FechaModificacion = DateTime.Now,
@@ -558,8 +730,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         var motNew = new ProgramaGeneralArgumentoDetalleMotivacion
                         {
                             IdProgramaGeneralArgumentoDetalle = det.Id,
-                            IdProgramaGeneralMotivacion = dto.Motivacion.Id,
-                            NombreMotivacion = dto.Motivacion.Nombre,
+                            IdProgramaMotivacion = dto.Motivacion.Id,
                             Estado = true,
                             FechaCreacion = DateTime.Now,
                             FechaModificacion = DateTime.Now,
@@ -570,8 +741,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     }
                     else
                     {
-                        motivExist.IdProgramaGeneralMotivacion = dto.Motivacion.Id;
-                        motivExist.NombreMotivacion = dto.Motivacion.Nombre;
+                        motivExist.IdProgramaMotivacion = dto.Motivacion.Id;
                         motivExist.FechaModificacion = DateTime.Now;
                         motivExist.UsuarioModificacion = usuario;
 
@@ -599,7 +769,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     {
                         var motiv = _unitOfWork
                             .ProgramaGeneralArgumentoRepository
-                            .ObtenerProgramaGeneralArgumentoDetalleMotivacion(d.Id);
+                            .ObtenerProgramaGeneralArgumentoDetalleMotivacionNombre(d.Id);
 
                         return new ProgramaGeneralArgumentoDetalleDTO
                         {
@@ -609,7 +779,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                                 ? null
                                 : new PGArgumentoDetalleMotivacionDTO
                                 {
-                                    Id = motiv.IdProgramaGeneralMotivacion,
+                                    Id = motiv.IdProgramaMotivacion,
                                     Nombre = motiv.NombreMotivacion
                                 }
                         };
@@ -685,23 +855,114 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw ex;
             }
         }
-        public object InsertarArgumentoMotivacionSeleccion(ProgramaArgumentoMotivacionSeleccionDTO data) 
+        public List<OportunidadMotivacionSeleccionViewDTO> ObtenerMotivacionSeleccionByIdOportunidad(int idOportunidad)
         {
             try
             {
-                //obtener todos las oportunidades de la tabla pla.T_OportunidadProgramaMotivacionSeleccion con el estado  = 1
-                //recorrer la lista seleccionmotivacion,  y solo obtener los que estan con selecionado en = true
-                //insertar los que 
-
-                foreach (var argumento in data.SeleccionMotivacion)
-                {
-                    // Lógica para insertar cada argumento en GarantiaDePrograma
-                }
-                return new { };
+                return _unitOfWork.OportunidadProgramaMotivacionSeleccionRepository.ObtenerMotivacionSeleccionByIdOportunidad(idOportunidad);
             }
             catch (Exception ex)
             {
                 _unitOfWork.Rollback();
+                throw ex;
+            }
+        }
+        public bool InsertarArgumentoMotivacionSeleccion(ProgramaArgumentoMotivacionSeleccionDTO data,string usuario) 
+        {
+            try
+            {
+                var result = _unitOfWork.OportunidadProgramaMotivacionSeleccionRepository
+                    .ObtenerTodoByIdOportunidad(data.IdOportunidad);
+                if (!result.Any() && !data.SeleccionMotivacion.Any())
+                {
+                    return true;
+                }
+                if (data.SeleccionMotivacion.Count > 2)
+                    throw new Exception("Solo puede seleccionar 2 motivaciones");
+                if (!result.Any() && data.SeleccionMotivacion.Any())
+                {
+                    foreach (var motivacion in data.SeleccionMotivacion)
+                    { 
+                        OportunidadProgramaMotivacionSeleccion opo = new()
+                        {
+                            IdOportunidad = data.IdOportunidad,
+                            IdProgramaMotivacion = motivacion.IdProgramaMotivacion,
+                            Prioridad = motivacion.Prioridad,
+                            Estado = true,
+                            FechaCreacion = DateTime.Now,
+                            UsuarioCreacion = usuario,
+                            FechaModificacion = DateTime.Now,
+                            UsuarioModificacion = usuario
+                        };
+                        _unitOfWork.OportunidadProgramaMotivacionSeleccionRepository.Add(opo);
+                    }
+                    _unitOfWork.Commit();
+                    return true;
+                }
+                if (result.Any() && !data.SeleccionMotivacion.Any())
+                {
+                    foreach (var item in result)
+                        _unitOfWork.OportunidadProgramaMotivacionSeleccionRepository.Delete(item.Id, usuario);
+                    _unitOfWork.Commit();
+                    return true;
+                }
+                if (result.Any() && data.SeleccionMotivacion.Any())
+                {
+                    var idsSeleccion = data.SeleccionMotivacion.Select(x => x.IdProgramaMotivacion).ToList();
+                    var idsExistentes = result.Select(x => x.IdProgramaMotivacion).ToList();
+
+                    var eliminar = result.Where(x => !idsSeleccion.Contains(x.IdProgramaMotivacion)).ToList();
+                    foreach (var item in eliminar)
+                        _unitOfWork.OportunidadProgramaMotivacionSeleccionRepository.Delete(item.Id, usuario);
+
+                    var agregar = data.SeleccionMotivacion.Where(x => !idsExistentes.Contains(x.IdProgramaMotivacion)).ToList();
+                    foreach (var motivacion in agregar)
+                    {
+                        OportunidadProgramaMotivacionSeleccion opo = new()
+                        {
+                            IdOportunidad = data.IdOportunidad,
+                            IdProgramaMotivacion = motivacion.IdProgramaMotivacion,
+                            Prioridad = motivacion.Prioridad,
+                            Estado = true,
+                            FechaCreacion = DateTime.Now,
+                            UsuarioCreacion = usuario,
+                            FechaModificacion = DateTime.Now,
+                            UsuarioModificacion = usuario
+                        };
+                        _unitOfWork.OportunidadProgramaMotivacionSeleccionRepository.Add(opo);
+                    }
+                    var actualizar = data.SeleccionMotivacion.Where(x => idsExistentes.Contains(x.IdProgramaMotivacion)).ToList();
+                    foreach (var motivacion in actualizar)
+                    {
+                        var existente = result.FirstOrDefault(x => x.IdProgramaMotivacion == motivacion.IdProgramaMotivacion);
+                        if (existente == null)
+                            continue;
+
+                        existente.Prioridad = motivacion.Prioridad;
+                        existente.FechaModificacion = DateTime.Now;
+                        existente.UsuarioModificacion = usuario;
+
+                        _unitOfWork.OportunidadProgramaMotivacionSeleccionRepository.Update(existente);
+                    }
+                    _unitOfWork.Commit();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.Rollback();
+                throw ex;
+            }
+        }
+        public List<MotivacionDiccionarioViewDTO> ObtenerMotivacionesTodoDiccionario()
+        {
+            try
+            {
+                return _unitOfWork.ProgramaGeneralArgumentoRepository.ObtenerMotivacionesTodoDiccionario();
+            }
+            catch(Exception ex)
+            {
                 throw ex;
             }
         }

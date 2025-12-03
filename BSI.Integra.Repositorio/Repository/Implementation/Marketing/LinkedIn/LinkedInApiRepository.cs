@@ -709,7 +709,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.LinkedIn
 
 
 
-        public IEnumerable<ReporteLeadsPendientesDTO> ObtenerReportePendientes()
+        public IEnumerable<ReporteLeadsPendientesDTO> ObtenerReportePendientes(int cuentaAsociada)
         {
             try
             {
@@ -736,10 +736,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.LinkedIn
                         FechaLead,
                         FechaIntegra,
                         OportunidadRegistrada,
-                        CuentaAsociada
-                    FROM mkt.V_LinkedinReportePendiente
+                        CuentaAsociada,
+                        UrlPerfilLinkedIn
+                    FROM mkt.V_LinkedinReportePendiente where CuentaAsociada =@cuentaAsociada
                     ORDER BY FechaLead DESC";
-                var resultado = _dapperRepository.QueryDapper(query, null);
+                var resultado = _dapperRepository.QueryDapper(query, new { cuentaAsociada });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
                     rpta = JsonConvert.DeserializeObject<List<ReporteLeadsPendientesDTO>>(resultado);
@@ -765,6 +766,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.LinkedIn
                     AreaTrabajo = dto.AreaTrabajo,
                     AreaFormacion = dto.AreaFormacion,
                     Industria = dto.Industria,
+                    UrlPerfil = dto.UrlPerfil,
                     Usuario = usuario
                 };
 
@@ -817,6 +819,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.LinkedIn
                     AreaTrabajo = dto.AreaTrabajo,
                     AreaFormacion = dto.AreaFormacion,
                     Industria = dto.Industria,
+                    //UrlPerfil = dto.UrlPerfil,
                     Usuario = usuario
                 };
 
@@ -945,7 +948,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.LinkedIn
                        Cargo,
                        AreaFormacion,
                        AreaTrabajo,
-                       Industria 
+                       Industria
                     FROM mkt.T_QuestionLeadForm 
                     WHERE Estado = 1 AND GuidLinkedInLead = @GuidLinkedInLead";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { GuidLinkedInLead });
@@ -963,6 +966,71 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.LinkedIn
             }
         }
 
+        public IEnumerable<LinkedinCuentaDTO> ObtenerCuentasActivas()
+        {
+            try
+            {
+                List<LinkedinCuentaDTO> rpta = new List<LinkedinCuentaDTO>();
+                var query = @"
+                    SELECT Id,
+                       NroCuenta,
+                       Nombre,
+                       Descripcion 
+                    FROM mkt.T_LinkedInCuenta
+                    WHERE Estado = 1";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<LinkedinCuentaDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public BoolDTO ValidarEstadoParaControlLinkedinPorCuenta(int cuentaAsociada)
+        {
+            try
+            {
+                BoolDTO rpta = new BoolDTO();
+                var query = @"
+                    SELECT
+	                    EstadoDeEnvio as Valor
+                    FROM mkt.T_LinkedInLeadControlEnvio WHERE CuentaAsociada = @cuentaAsociada ";
+                var resultado = _dapperRepository.FirstOrDefault(query, new { cuentaAsociada });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    rpta = JsonConvert.DeserializeObject<BoolDTO>(resultado)!;
+
+                    return rpta;
+                }
+                return rpta; ;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        public void LinkedinControlEnvioResetGrupo(int cuentaAsociada)
+        {
+            try
+            {
+                var query = "mkt.SP_TLinkedInLeadControlEnvio_ReseteoGrupo";
+                var parametros = new
+                {
+                    CuentaAsociada = cuentaAsociada
+                };
+
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(query, parametros);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ActualizarEstadoEnviado() {ex.Message}", ex);
+            }
+        }
 
     }
 }

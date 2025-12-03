@@ -63,4 +63,21 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public List<ProgramaGeneralPresentacionArgumentoDetalleSolucionAgendaDTO> Argumentos { get; set; } = new List<ProgramaGeneralPresentacionArgumentoDetalleSolucionAgendaDTO>();
     }
 
+    
+    public class AlumnoCodigosDescuentosDTO
+    {
+        public int IdAlumno { get; set; }
+        public List<CodigoDTO> Descuentos { get; private set; }
+    }
+    public class CodigoDTO
+    {
+        public int Id { get; set; }
+        public int PorcentajeDescuento { get; set; }
+        public string CodigoDescuento { get; set; }
+        public Boolean? Utilizado {  get; set; }
+        public Boolean? Estado { get; set; }
+        public string Correo {  get; set; }
+
+    }
+
 }

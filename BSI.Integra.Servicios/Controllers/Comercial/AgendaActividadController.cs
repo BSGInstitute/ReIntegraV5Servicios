@@ -2,6 +2,7 @@
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
+using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -197,6 +198,24 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("[action]/{idPGeneral}")]
+        public IActionResult ObtenerCentroCostoVentaCruzadaV2(int idPGeneral)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                IAgendaActividadService agendaActividadService = new AgendaActividadService(_unitOfWork);
+                return Ok(agendaActividadService.ObtenerCentroCostoVentaCruzada(idPGeneral));
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
             }
         }
         /// Tipo Función: GET
@@ -1426,6 +1445,139 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             var resultado = agendaActividadService.ObtenerReporteControlActividadesAgenda(idAsesor);
             return Ok(resultado);
         }
+
+
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 28/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene métricas comparativas diarias de actividades de un asesor
+        /// </summary>
+        /// <param name="idAsesor">ID del asesor</param>
+        /// <param name="fecha">Fecha opcional para consultar (por defecto: día actual)</param>
+        /// <returns>
+        /// Métricas del día especificado comparadas con el día anterior:
+        /// - TotalActividades, Ejecutadas, ItsGenerados, IpsGenerados
+        /// - Cada métrica incluye: valores de hoy y ayer, porcentaje comparativo y estado (Incremento/Estable/Decremento)
+        /// - El porcentaje representa: (hoy / ayer) * 100
+        /// - Estados: Incremento (>110%), Estable (90-110%), Decremento (<90%)
+        /// </returns>
+        /// <remarks>
+        /// Uso:
+        /// - Consulta datos de HOY usando ObtenerReporteControlActividadesFecha
+        /// - Consulta datos de AYER desde T_ActividadesAsesorHistorico
+        /// - Calcula porcentaje como: hoy es el X% de lo que hizo ayer
+        ///
+        /// Ejemplos de interpretación:
+        /// - 125% = Hoy hizo 25% más que ayer
+        /// - 100% = Mismo rendimiento que ayer
+        /// - 12% = Hoy solo hizo el 12% de lo que hizo ayer
+        /// </remarks>
+        [Route("[Action]")]
+        [HttpGet]
+        public IActionResult ObtenerMetricasComparativasDiarias([FromQuery] int idAsesor, [FromQuery] DateTime? fecha = null)
+        {
+            try
+            {
+                if (idAsesor <= 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        mensaje = "El ID del asesor debe ser mayor a 0"
+                    });
+                }
+
+                var fechaConsulta = fecha ?? DateTime.Today;
+                if (fechaConsulta.Date > DateTime.Today)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        mensaje = "No se pueden consultar métricas de fechas futuras",
+                        fecha = fechaConsulta.ToString("yyyy-MM-dd")
+                    });
+                }
+
+                IAgendaActividadService agendaActividadService = new AgendaActividadService(_unitOfWork);
+
+                var resultado = agendaActividadService.ObtenerMetricasComparativasDiarias(idAsesor, fechaConsulta);
+
+                return Ok(resultado);
+            }
+            catch (ArgumentException argEx)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    mensaje = argEx.Message,
+                    error = "Validación de parámetros"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    mensaje = "Error al obtener métricas comparativas diarias",
+                    error = ex.Message,
+                    errorCode = "#AAC-OMCD-001"
+                });
+            }
+        }
+
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 01/12/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene los códigos de descuento asociados a un alumno
+        /// </summary>
+        /// <param name="idAlumno">ID del alumno</param>
+        /// <returns>Lista de códigos de descuento del alumno</returns>
+        [Route("[Action]")]
+        [HttpGet]
+        public IActionResult ObtenerCodigoDescuentoAlumno([FromQuery] string idAlumno)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(idAlumno))
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        mensaje = "El valor Id Alumno es requerido"
+                    });
+                }
+
+                if (!int.TryParse(idAlumno, out int idAlumnoInt))
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        mensaje = "El Id Alumno debe ser un número válido"
+                    });
+                }
+
+                IAgendaActividadService agendaService = new AgendaActividadService(_unitOfWork);
+                var resultado = agendaService.ObtenerCodigoDescuentoAlumno(idAlumnoInt);
+
+                return Ok(resultado);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    mensaje = "Error al obtener códigos de descuento asociados",
+                    error = e.Message,
+                    errorCode = "#AAC-OCDA-001"
+                });
+            }
+        }
+
+
         /// TipoFuncion: GET
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 04/24/2024

@@ -7,7 +7,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TProgramaGeneralMotivacion()
         {
-            TProgramaGeneralArgumentoDetalleMotivacions = new HashSet<TProgramaGeneralArgumentoDetalleMotivacion>();
             TProgramaGeneralMotivacionArgumentos = new HashSet<TProgramaGeneralMotivacionArgumento>();
             TProgramaGeneralMotivacionModalidads = new HashSet<TProgramaGeneralMotivacionModalidad>();
         }
@@ -53,7 +52,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public int? IdMigracion { get; set; }
 
-        public virtual ICollection<TProgramaGeneralArgumentoDetalleMotivacion> TProgramaGeneralArgumentoDetalleMotivacions { get; set; }
         public virtual ICollection<TProgramaGeneralMotivacionArgumento> TProgramaGeneralMotivacionArgumentos { get; set; }
         public virtual ICollection<TProgramaGeneralMotivacionModalidad> TProgramaGeneralMotivacionModalidads { get; set; }
     }

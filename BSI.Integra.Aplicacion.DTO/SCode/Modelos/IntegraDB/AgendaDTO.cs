@@ -186,6 +186,23 @@
         public int ItsGenerados { get; set; }
         public int IpsGenerados { get; set; }
     }
+
+    public class ActividadesAsesorHistoricoDTO
+    {
+        public int Id { get; set; }
+        public int IdAsesor { get; set; }
+        public DateTime Fecha { get; set; }
+        public int TotalActividades { get; set; }
+        public int Ejecutadas { get; set; }
+        public int ItsGenerados { get; set; }
+        public int IpsGenerados { get; set; }
+        public bool Estado { get; set; }
+        public string UsuarioCreacion { get; set; }
+        public DateTime FechaCreacion { get; set; }
+        public string UsuarioModificacion { get; set; }
+        public DateTime? FechaModificacion { get; set; }
+    }
+
     public class ResultadoBusquedaFichaAlumnoDTO
     {
         public string? TabAgenda { get; set; }
@@ -207,5 +224,30 @@
         public string TipoRegistro { get; set; }
         public string ColorHex { get; set; }
         public string ColorDescripcion { get; set; }
+    }
+
+    public class MetricaComparativaDTO
+    {
+        public int Hoy { get; set; }
+        public int Ayer { get; set; }
+        public int Porcentaje { get; set; }
+        public string Estado { get; set; }
+    }
+
+    public class MetricasDTO
+    {
+        public MetricaComparativaDTO TotalActividades { get; set; }
+        public MetricaComparativaDTO Ejecutadas { get; set; }
+        public MetricaComparativaDTO ItsGenerados { get; set; }
+        public MetricaComparativaDTO IpsGenerados { get; set; }
+    }
+
+    public class MetricasComparativasDiariasDTO
+    {
+        public bool Success { get; set; }
+        public string Fecha { get; set; }
+        public string FechaComparacion { get; set; }
+        public int IdAsesor { get; set; }
+        public MetricasDTO Metricas { get; set; }
     }
 }
