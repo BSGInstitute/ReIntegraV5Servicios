@@ -1817,11 +1817,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 				             Ocurrencia,
 				             IdPersonalAreaTrabajo,
 				             OcurrenciaPadre,
-                    IdOcurrenciaPadreAlterno,
-                    IdOcurrenciaActividadAlterno,
-                    IdOcurrenciaAlterno,
-                    OcurrenciaPadreAlterno,
-                    OcurrenciaAlterno
+                             IdOcurrenciaPadreAlterno,
+                             IdOcurrenciaActividadAlterno,
+                             IdOcurrenciaAlterno,
+                             OcurrenciaPadreAlterno,
+                             OcurrenciaAlterno
 
                       FROM
                             ope.V_EvaluacionLlamadaObtenerHistoricoOcurrenciaAtencionCliente
