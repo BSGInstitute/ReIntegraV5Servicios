@@ -3403,7 +3403,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         }
         
 
-        public ReporteCalificacionResponse ObtenerReporteVentas(ReporteCalificacionRequest req)
+        public ReporteCalificacionResponse ObtenerReporteVentas(ReporteCalificacionRequestV2 req)
         {
             var (items, total) = _unitOfWork.LineamientoCalificacionRepository.ObtenerReporteVentas(req);
 
@@ -3472,7 +3472,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             };
         }
 
-        public ReporteCalificacionAtencionClienteResponse ObtenerReporteAtencionCliente(ReporteCalificacionRequest req)
+        public ReporteCalificacionAtencionClienteResponse ObtenerReporteAtencionCliente(ReporteCalificacionRequestV2 req)
         {
             var (filas, total) = _unitOfWork.LineamientoCalificacionRepository.ObtenerReporteAtencionCliente(req);
 
@@ -3677,7 +3677,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             };
         }
 
-        public ReporteCalificacionResponse ObtenerReporteFaseVentas(ReporteCalificacionRequest req)
+        public ReporteCalificacionResponse ObtenerReporteFaseVentas(ReporteCalificacionRequestV2 req)
         {
             var (filas, total) = _unitOfWork.LineamientoCalificacionRepository.ObtenerReporteFaseVentas(
                 req
@@ -3794,9 +3794,63 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 FechaCalculo = DateTime.Now
             };
         }
+        public ReporteCalificacionGlobalResponse ObtenerPromedioGlobalVentas(ReporteCalificacionGlobalRequestV2 request)
+        {
+            var filas = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosParaPromedioGlobalVentas(request);
+            var filasOrdenadas = filas
+    .OrderByDescending(f => f.FechaInicioLlamadaCentral)
+    .ThenBy(f => f.IdLlamada)
+    .ToList();
+            // Agrupa todas las llamadas
+            var agrupadoTotal = filasOrdenadas
+                .GroupBy(f => f.IdLlamada)
+                .ToList();
+            var totalLlamadas = agrupadoTotal.Count;
+            // Agrupa todas las llamadas (sin filtrar criterios)
+            var agrupado = filasOrdenadas
+               .GroupBy(f => f.IdLlamada)
+               .Select(g =>
+               {
+                   var notasValidas = g
+                       .Where(x => x.PuntajePromedio >= 0)
+                       .Select(x => x.PuntajePromedio);
+
+                   decimal? promedio = notasValidas.Any()
+                       ? Math.Round(notasValidas.Average(), 0, MidpointRounding.AwayFromZero)
+                       : (decimal?)null;
+
+                   return new
+                   {
+                       IdLlamada = g.Key,
+                       Promedio = promedio,
+                       TotalCalificaciones = notasValidas.Count()
+                   };
+               })
+               .Where(x => x.Promedio.HasValue)
+               .ToList();
+
+            var totalCalificaciones = agrupado.Sum(x => x.TotalCalificaciones);
+
+            // Calcular promedio global excluyendo calificacion
+            var promediosValidos = filasOrdenadas
+                .Where(x => x.PuntajePromedio >= 0 && x.IdCriterioCalificacion != 36 && x.IdCriterioCalificacion != 37 && x.IdCriterioCalificacion != null)
+                .Select(x => x.PuntajePromedio);
+
+            var promedioGlobal = promediosValidos.Any()
+                ? Math.Round(promediosValidos.Average(), 2)
+                : 0;
+
+            return new ReporteCalificacionGlobalResponse
+            {
+                TotalLlamadas = totalLlamadas,
+                PromedioGlobal = promedioGlobal,
+                TotalCalificaciones = totalCalificaciones,
+                FechaCalculo = DateTime.Now
+            };
+        }
 
         public ReporteCalificacionGlobalResponse ObtenerPromedioGlobalAtencionCliente(
-            ReporteCalificacionGlobalRequest request
+            ReporteCalificacionGlobalRequestV2 request
         )
         {
             var filas =

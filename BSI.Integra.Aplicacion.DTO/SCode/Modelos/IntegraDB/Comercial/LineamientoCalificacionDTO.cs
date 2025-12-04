@@ -566,6 +566,18 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int Pagina { get; set; } = 1;
         public int TamanioPagina { get; set; } = 10;
     }
+    public class ReporteCalificacionRequestV2
+    {
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaFin { get; set; }
+        public List<int>? IdsAsesores { get; set; }
+        public int? IdCentroCosto { get; set; }
+        public int? IdFaseOportunidad_Ant { get; set; }
+        public int? IdFaseOportunidad { get; set; }
+        public int? EstadoActividadCabecera { get; set; }
+        public int Pagina { get; set; } = 1;
+        public int TamanioPagina { get; set; } = 10;
+    }
     public class ReporteCalificacionAreaRequest
     {
         public DateTime FechaInicio { get; set; }
@@ -610,7 +622,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public decimal PuntajePromedio { get; set; }
         public bool TipoCalificacion { get; set; }
         public int IdCalificacionLlamada { get; set; }
-        public int IdCriterioCalificacion { get; set; }
+        public int? IdCriterioCalificacion { get; set; }
         public string Comentario { get; set; }
         public int? IdOcurrenciaPadreAlterno { get; set; }
         public int? IdOcurrenciaActividadAlterno { get; set; }
@@ -656,7 +668,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
 
         public int TipoCalificacion { get; set; }
 
-        public int IdCalificacionLlamada { get; set; }
+        public int? IdCalificacionLlamada { get; set; }
 
         public string Comentario { get; set; }
 
@@ -803,6 +815,23 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int? IdFaseI { get; set; }
 
         public int? IdFaseD { get; set; }
+        public int? EstadoActividadCabecera { get; set; }
+    }
+    public class ReporteCalificacionGlobalRequestV2
+    {
+        [Required]
+        public DateTime FechaInicio { get; set; }
+
+        [Required]
+        public DateTime FechaFin { get; set; }
+
+        public List<int>? IdsAsesores { get; set; }
+
+        public int? IdCentroCosto { get; set; }
+
+        public int? IdFaseOportunidad_Ant { get; set; }
+
+        public int? IdFaseOportunidad { get; set; }
         public int? EstadoActividadCabecera { get; set; }
     }
     public class ReporteCalificacionGlobalResponse

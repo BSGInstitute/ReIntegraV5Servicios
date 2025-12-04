@@ -1401,11 +1401,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
         ///   - ResultSet1: detalle (calificaciones por llamada)
         ///   - ResultSet2: total de registros
         /// </summary>
-        public (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporteVentas(ReporteCalificacionRequest req)
+        public (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporteVentas(ReporteCalificacionRequestV2 req)
         {
             // Paso 1: Obtener el total llamando al SP de Total
             var totalJson = _dapperRepository.QuerySPFirstOrDefault(
-                "[com].[SP_ReporteCalificacionCliente_ObtenerTotalVentas]",
+                "[com].[SP_ReporteCalificacionClienteObtenerTotalVentas]",
                 new
                 {
                     req.FechaInicio,
@@ -1414,8 +1414,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                         ? JsonConvert.SerializeObject(req.IdsAsesores)
                         : null,
                     req.IdCentroCosto,
-                    req.IdFaseI,
-                    req.IdFaseD,
+                    req.IdFaseOportunidad_Ant,
+                    req.IdFaseOportunidad,
                     req.EstadoActividadCabecera,
                 }
             );
@@ -1426,7 +1426,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 
             // Paso 2: Obtener los items llamando al SP de Detalle
             var itemsJson = _dapperRepository.QuerySPDapper(
-                "[com].[SP_ReporteCalificacionCliente_ObtenerDetalleVentas]",
+                "[com].[SP_ReporteCalificacionClienteObtenerDetalleVentas]",
                 new
                 {
                     req.FechaInicio,
@@ -1435,8 +1435,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                         ? JsonConvert.SerializeObject(req.IdsAsesores)
                         : null,
                     req.IdCentroCosto,
-                    req.IdFaseI,
-                    req.IdFaseD,
+                    req.IdFaseOportunidad_Ant,
+                    req.IdFaseOportunidad,
                     req.EstadoActividadCabecera,
                     req.Pagina,
                     req.TamanioPagina,
@@ -1459,11 +1459,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
         ///   - ResultSet1: detalle (calificaciones por llamada)
         ///   - ResultSet2: total de registros
         /// </summary>
-        public (IEnumerable<LlamadaCalificadaAtencionClienteRawDTO> Items, int Total) ObtenerReporteAtencionCliente(ReporteCalificacionRequest req)
+        public (IEnumerable<LlamadaCalificadaAtencionClienteRawDTO> Items, int Total) ObtenerReporteAtencionCliente(ReporteCalificacionRequestV2 req)
         {
             // Paso 1: Obtener el total llamando al SP de Total
             var totalJson = _dapperRepository.QuerySPFirstOrDefault(
-                "[com].[SP_ReporteCalificacionCliente_ObtenerTotalAtencionCliente]",
+                "[ope].[SP_ReporteCalificacionClienteObtenerTotalAtencionCliente]",
                 new
                 {
                     req.FechaInicio,
@@ -1472,8 +1472,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                         ? JsonConvert.SerializeObject(req.IdsAsesores)
                         : null,
                     req.IdCentroCosto,
-                    req.IdFaseI,
-                    req.IdFaseD,
+                    req.IdFaseOportunidad_Ant,
+                    req.IdFaseOportunidad,
                     req.EstadoActividadCabecera,
                 }
             );
@@ -1484,7 +1484,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 
             // Paso 2: Obtener los items llamando al SP de Detalle
             var itemsJson = _dapperRepository.QuerySPDapper(
-                "[com].[SP_ReporteCalificacionCliente_ObtenerDetalleAtencionCLiente]",
+                "[ope].[SP_ReporteCalificacionClienteObtenerDetalleAtencionCLiente]",
                 new
                 {
                     req.FechaInicio,
@@ -1493,8 +1493,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                         ? JsonConvert.SerializeObject(req.IdsAsesores)
                         : null,
                     req.IdCentroCosto,
-                    req.IdFaseI,
-                    req.IdFaseD,
+                    req.IdFaseOportunidad_Ant,
+                    req.IdFaseOportunidad,
                     req.EstadoActividadCabecera,
                     req.Pagina,
                     req.TamanioPagina,
@@ -1631,11 +1631,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
         ///   - ResultSet1: detalle (calificaciones por llamada)
         ///   - ResultSet2: total de registros
         /// </summary>
-        public (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporteFaseVentas(ReporteCalificacionRequest req)
+        public (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporteFaseVentas(ReporteCalificacionRequestV2 req)
         {
             // Paso 1: Obtener el total llamando al SP de Total
             var totalJson = _dapperRepository.QuerySPFirstOrDefault(
-                "[com].[SP_ReporteCalificacionFase_ObtenerTotalVentas]",
+                "[com].[SP_ReporteCalificacionFaseObtenerTotalVentas]",
                 new
                 {
                     req.FechaInicio,
@@ -1644,8 +1644,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                         ? JsonConvert.SerializeObject(req.IdsAsesores)
                         : null,
                     req.IdCentroCosto,
-                    req.IdFaseI,
-                    req.IdFaseD
+                    req.IdFaseOportunidad_Ant,
+                    req.IdFaseOportunidad
                 }
             );
 
@@ -1655,7 +1655,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 
             // Paso 2: Obtener los items llamando al SP de Detalle
             var itemsJson = _dapperRepository.QuerySPDapper(
-                "[com].[SP_ReporteCalificacionFase_ObtenerDetalleVentas]",
+                "[com].[SP_ReporteCalificacionFaseObtenerDetalleVentas]",
                 new
                 {
                     req.FechaInicio,
@@ -1664,8 +1664,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                         ? JsonConvert.SerializeObject(req.IdsAsesores)
                         : null,
                     req.IdCentroCosto,
-                    req.IdFaseI,
-                    req.IdFaseD,
+                    req.IdFaseOportunidad_Ant,
+                    req.IdFaseOportunidad,
                     req.Pagina,
                     req.TamanioPagina,
                 }
@@ -1723,7 +1723,27 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             var wrapper = JsonConvert.DeserializeObject<ReporteJsonWrapper>(payload);
             return wrapper?.Items ?? new List<LlamadaCalificadaRawDTO>();
         }
-        public IEnumerable<LlamadaCalificadaAtencionClienteRawDTO> ObtenerDatosParaPromedioGlobalAtencionCliente(ReporteCalificacionGlobalRequest request)
+        public IEnumerable<LlamadaCalificadaRawDTO> ObtenerDatosParaPromedioGlobalVentas(ReporteCalificacionGlobalRequestV2 request)
+        {
+            var resultado = _dapperRepository.QuerySPDapper(
+                "[com].[SP_ReporteCalificacionGlobalVentas]",
+                new
+                {
+                    request.FechaInicio,
+                    request.FechaFin,
+                    IdsAsesores = (request.IdsAsesores != null && request.IdsAsesores.Any())
+                        ? JsonConvert.SerializeObject(request.IdsAsesores)
+                        : null,
+                    request.IdCentroCosto,
+                    request.IdFaseOportunidad_Ant,
+                    request.IdFaseOportunidad,
+                    request.EstadoActividadCabecera
+                }
+            );
+            var items = JsonConvert.DeserializeObject<List<LlamadaCalificadaRawDTO>>(resultado);
+            return items ?? new List<LlamadaCalificadaRawDTO>();
+        }
+        public IEnumerable<LlamadaCalificadaAtencionClienteRawDTO> ObtenerDatosParaPromedioGlobalAtencionCliente(ReporteCalificacionGlobalRequestV2 request)
         {
             var resultado = _dapperRepository.QuerySPDapper(
                 "[ope].[SP_ReporteCalificacionGlobalAtencionCliente]",
@@ -1735,37 +1755,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                         ? JsonConvert.SerializeObject(request.IdsAsesores)
                         : null,
                     request.IdCentroCosto,
-                    request.IdFaseI,
-                    request.IdFaseD,
+                    request.IdFaseOportunidad_Ant,
+                    request.IdFaseOportunidad,
                     request.EstadoActividadCabecera
                 }
             );
+            var items = JsonConvert.DeserializeObject<List<LlamadaCalificadaAtencionClienteRawDTO>>(resultado);
+            return items ?? new List<LlamadaCalificadaAtencionClienteRawDTO>();
 
-            // Parsear resultado JSON (igual que el método existente)
-            string payload;
-            var token = JToken.Parse(resultado);
 
-            if (token.Type == JTokenType.Array)
-            {
-                var arr = (JArray)token;
-                var first = arr.FirstOrDefault() as JObject;
-                payload = (string?)first?["JsonResult"] ?? string.Empty;
-            }
-            else if (token.Type == JTokenType.Object)
-            {
-                var obj = (JObject)token;
-                payload = (string?)obj["JsonResult"] ?? resultado;
-            }
-            else
-            {
-                payload = resultado;
-            }
-
-            if (string.IsNullOrWhiteSpace(payload))
-                return Enumerable.Empty<LlamadaCalificadaAtencionClienteRawDTO>();
-
-            var wrapper = JsonConvert.DeserializeObject<ReporteJsonWrapperAtencionCliente>(payload);
-            return wrapper?.Items ?? new List<LlamadaCalificadaAtencionClienteRawDTO>();
         }
 
         /// <summary>
