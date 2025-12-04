@@ -25,6 +25,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
             TModeloPredictivoTipoDatos = new HashSet<TModeloPredictivoTipoDato>();
             TModeloPredictivoTrabajos = new HashSet<TModeloPredictivoTrabajo>();
             TModeloPredictivos = new HashSet<TModeloPredictivo>();
+            TMontoPagoLogIdPgeneralModificadoNavigations = new HashSet<TMontoPagoLog>();
+            TMontoPagoLogIdPgeneralOriginalNavigations = new HashSet<TMontoPagoLog>();
             TPgeneralCodigoPartners = new HashSet<TPgeneralCodigoPartner>();
             TPgeneralConfiguracionPlantillas = new HashSet<TPgeneralConfiguracionPlantilla>();
             TPgeneralDescripcions = new HashSet<TPgeneralDescripcion>();
@@ -292,6 +294,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual ICollection<TModeloPredictivoTipoDato> TModeloPredictivoTipoDatos { get; set; }
         public virtual ICollection<TModeloPredictivoTrabajo> TModeloPredictivoTrabajos { get; set; }
         public virtual ICollection<TModeloPredictivo> TModeloPredictivos { get; set; }
+        public virtual ICollection<TMontoPagoLog> TMontoPagoLogIdPgeneralModificadoNavigations { get; set; }
+        public virtual ICollection<TMontoPagoLog> TMontoPagoLogIdPgeneralOriginalNavigations { get; set; }
         public virtual ICollection<TPgeneralCodigoPartner> TPgeneralCodigoPartners { get; set; }
         public virtual ICollection<TPgeneralConfiguracionPlantilla> TPgeneralConfiguracionPlantillas { get; set; }
         public virtual ICollection<TPgeneralDescripcion> TPgeneralDescripcions { get; set; }

@@ -8,6 +8,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public TMonedum()
         {
             TAnuncioFacebookMetricas = new HashSet<TAnuncioFacebookMetrica>();
+            TMontoPagoLogIdMonedaModificadoNavigations = new HashSet<TMontoPagoLog>();
+            TMontoPagoLogIdMonedaOriginalNavigations = new HashSet<TMontoPagoLog>();
             TPaqueteTutorVirtualPais = new HashSet<TPaqueteTutorVirtualPai>();
             TTipoCambioMoneda = new HashSet<TTipoCambioMonedum>();
         }
@@ -84,6 +86,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public decimal? PorcentajeMora { get; set; }
 
         public virtual ICollection<TAnuncioFacebookMetrica> TAnuncioFacebookMetricas { get; set; }
+        public virtual ICollection<TMontoPagoLog> TMontoPagoLogIdMonedaModificadoNavigations { get; set; }
+        public virtual ICollection<TMontoPagoLog> TMontoPagoLogIdMonedaOriginalNavigations { get; set; }
         public virtual ICollection<TPaqueteTutorVirtualPai> TPaqueteTutorVirtualPais { get; set; }
         public virtual ICollection<TTipoCambioMonedum> TTipoCambioMoneda { get; set; }
     }
