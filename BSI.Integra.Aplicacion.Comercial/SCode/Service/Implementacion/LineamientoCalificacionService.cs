@@ -958,7 +958,6 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             using var httpClient = new HttpClient();
             httpClient.BaseAddress = new Uri("http://ia-analisis-llamadas-comercial-api.bsginstitute.com/");
             //httpClient.BaseAddress = new Uri("http://127.0.0.1:8000/");
-
             // Configurar headers como en Postman
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(
@@ -1679,7 +1678,6 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         {
                             transcripcionesParaPayload.Add(transcripcionActual);
                         }
-
                         foreach (var llamadaHistorica in llamadasHistoricasParaPayload)
                         {
                             var transcripcionHistorica = await ObtenerDisplayTranscripcion(

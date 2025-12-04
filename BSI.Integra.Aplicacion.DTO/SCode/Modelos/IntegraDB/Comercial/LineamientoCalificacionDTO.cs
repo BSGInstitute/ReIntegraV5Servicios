@@ -961,15 +961,15 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int IdLlamada { get; set; }
         public string EstadoOcurrencia { get; set; }
         public int IdAlumno { get; set; }
-        public int IdOcurrencia { get; set; }
-        public int IdOcurrenciaActividad { get; set; }
-        public int IdOcurrenciaPadre { get; set; }
+        public int? IdOcurrencia { get; set; }
+        public int? IdOcurrenciaActividad { get; set; }
+        public int? IdOcurrenciaPadre { get; set; }
         public int IdOportunidad { get; set; }
         public DateTime FechaReal { get; set; }
         public string NombreCliente { get; set; }
-        public string Ocurrencia { get; set; }
+        public string? Ocurrencia { get; set; }
         public int IdPersonalAreaTrabajo { get; set; }
-        public string OcurrenciaPadre { get; set; }
+        public string? OcurrenciaPadre { get; set; }
     }
 
 
