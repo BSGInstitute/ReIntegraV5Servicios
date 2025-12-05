@@ -1311,7 +1311,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
         /// Calcula promedio excluyendo -1 y devuelve puntos críticos (3 peores).
         /// </summary>
         [HttpPost("[Action]")]
-        public IActionResult ReporteCalificacionClientesVentas([FromBody] ReporteCalificacionRequest request)
+        public IActionResult ReporteCalificacionClientesVentas([FromBody] ReporteCalificacionRequestV2 request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -1336,7 +1336,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
         /// Calcula promedio excluyendo -1 y devuelve puntos críticos (3 peores).
         /// </summary>
         [HttpPost("[Action]")]
-        public IActionResult ReporteCalificacionClientesAtencionCliente([FromBody] ReporteCalificacionRequest request)
+        public IActionResult ReporteCalificacionClientesAtencionCliente([FromBody] ReporteCalificacionRequestV2 request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -1436,7 +1436,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
         /// Calcula promedio excluyendo -1 y devuelve puntos críticos (3 peores).
         /// </summary>
         [HttpPost("[Action]")]
-        public IActionResult ReporteCalificacionFaseVentas([FromBody] ReporteCalificacionRequest request)
+        public IActionResult ReporteCalificacionFaseVentas([FromBody] ReporteCalificacionRequestV2 request)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -1478,6 +1478,29 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
                 return BadRequest(new { error = ex.Message });
             }
         }
+        /// <summary>
+        /// Obtiene el promedio global de calificaciones para el rango de fechas especificado.
+        /// Calcula el promedio de todas las calificaciones válidas (excluyendo -1).
+        /// </summary>
+        /// <param name="request">Parámetros de filtrado</param>
+        /// <returns>Promedio global, total de llamadas y total de calificaciones</returns>
+        [HttpPost("[Action]")]
+        public IActionResult ObtenerPromedioGlobalVentas([FromBody] ReporteCalificacionGlobalRequestV2 request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ObtenerPromedioGlobalVentas(request);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
 
          /// Tipo Función: POST
         /// Autor: Lolo Zaa
@@ -1488,7 +1511,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
         /// Calcula promedio excluyendo -1 y devuelve puntos críticos (3 peores).
 
         [HttpPost("[Action]")]
-        public IActionResult ObtenerPromedioGlobalAtencionCliente([FromBody] ReporteCalificacionGlobalRequest request)
+        public IActionResult ObtenerPromedioGlobalAtencionCliente([FromBody] ReporteCalificacionGlobalRequestV2 request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
