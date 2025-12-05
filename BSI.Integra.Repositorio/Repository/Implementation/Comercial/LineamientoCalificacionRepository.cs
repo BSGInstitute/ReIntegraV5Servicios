@@ -1410,8 +1410,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 {
                     req.FechaInicio,
                     req.FechaFin,
-                    ListaAsesor = (req.ListaAsesor != null && req.ListaAsesor.Any())
-                        ? JsonConvert.SerializeObject(req.ListaAsesor)
+                    IdPersonal_Asignados = (req.IdPersonal_Asignados != null && req.IdPersonal_Asignados.Any())
+                        ? JsonConvert.SerializeObject(req.IdPersonal_Asignados)
                         : null,
                     req.IdCentroCosto,
                     req.IdFaseOportunidad_Ant,
@@ -1431,8 +1431,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 {
                     req.FechaInicio,
                     req.FechaFin,
-                    ListaAsesor = (req.ListaAsesor != null && req.ListaAsesor.Any())
-                        ? JsonConvert.SerializeObject(req.ListaAsesor)
+                    IdPersonal_Asignados = (req.IdPersonal_Asignados != null && req.IdPersonal_Asignados.Any())
+                        ? JsonConvert.SerializeObject(req.IdPersonal_Asignados)
                         : null,
                     req.IdCentroCosto,
                     req.IdFaseOportunidad_Ant,
@@ -1468,8 +1468,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 {
                     req.FechaInicio,
                     req.FechaFin,
-                    ListaAsesor = (req.ListaAsesor != null && req.ListaAsesor.Any())
-                        ? JsonConvert.SerializeObject(req.ListaAsesor)
+                    IdPersonal_Asignados = (req.IdPersonal_Asignados != null && req.IdPersonal_Asignados.Any())
+                        ? JsonConvert.SerializeObject(req.IdPersonal_Asignados)
                         : null,
                     req.IdCentroCosto,
                     req.IdFaseOportunidad_Ant,
@@ -1489,8 +1489,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 {
                     req.FechaInicio,
                     req.FechaFin,
-                    ListaAsesor = (req.ListaAsesor != null && req.ListaAsesor.Any())
-                        ? JsonConvert.SerializeObject(req.ListaAsesor)
+                    IdPersonal_Asignados = (req.IdPersonal_Asignados != null && req.IdPersonal_Asignados.Any())
+                        ? JsonConvert.SerializeObject(req.IdPersonal_Asignados)
                         : null,
                     req.IdCentroCosto,
                     req.IdFaseOportunidad_Ant,
@@ -1640,8 +1640,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 {
                     req.FechaInicio,
                     req.FechaFin,
-                    ListaAsesor = (req.ListaAsesor != null && req.ListaAsesor.Any())
-                        ? JsonConvert.SerializeObject(req.ListaAsesor)
+                    IdPersonal_Asignados = (req.IdPersonal_Asignados != null && req.IdPersonal_Asignados.Any())
+                        ? JsonConvert.SerializeObject(req.IdPersonal_Asignados)
                         : null,
                     req.IdCentroCosto,
                     req.IdFaseOportunidad_Ant,
@@ -1660,10 +1660,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 {
                     req.FechaInicio,
                     req.FechaFin,
-                     ListaAsesor = (req.ListaAsesor != null && req.ListaAsesor.Any())
-                        ? JsonConvert.SerializeObject(req.ListaAsesor)
+                    IdPersonal_Asignados = (req.IdPersonal_Asignados != null && req.IdPersonal_Asignados.Any())
+                        ? JsonConvert.SerializeObject(req.IdPersonal_Asignados)
                         : null,
-                    req.IdCentroCosto,
+                    req.IdCentroCosto,  
                     req.IdFaseOportunidad_Ant,
                     req.IdFaseOportunidad,
                     req.Pagina,
@@ -1731,8 +1731,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 {
                     request.FechaInicio,
                     request.FechaFin,
-                    ListaAsesor = (request.ListaAsesor != null && request.ListaAsesor.Any())
-                        ? JsonConvert.SerializeObject(request.ListaAsesor)
+                    IdPersonal_Asignados = (request.IdPersonal_Asignados != null && request.IdPersonal_Asignados.Any())
+                        ? JsonConvert.SerializeObject(request.IdPersonal_Asignados)
                         : null,
                     request.IdCentroCosto,
                     request.IdFaseOportunidad_Ant,
@@ -1751,8 +1751,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 {
                     request.FechaInicio,
                     request.FechaFin,
-                    ListaAsesor = (request.ListaAsesor != null && request.ListaAsesor.Any())
-                        ? JsonConvert.SerializeObject(request.ListaAsesor)
+                    IdPersonal_Asignados = (request.IdPersonal_Asignados != null && request.IdPersonal_Asignados.Any())
+                        ? JsonConvert.SerializeObject(request.IdPersonal_Asignados)
                         : null,
                     request.IdCentroCosto,
                     request.IdFaseOportunidad_Ant,

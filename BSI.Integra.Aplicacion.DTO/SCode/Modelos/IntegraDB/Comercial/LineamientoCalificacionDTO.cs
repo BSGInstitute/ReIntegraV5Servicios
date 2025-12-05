@@ -570,7 +570,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
     {
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFin { get; set; }
-        public List<int>? ListaAsesor { get; set; }
+        public List<int>? IdPersonal_Asignados { get; set; }
         public int? IdCentroCosto { get; set; }
         public int? IdFaseOportunidad_Ant { get; set; }
         public int? IdFaseOportunidad { get; set; }
@@ -825,7 +825,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         [Required]
         public DateTime FechaFin { get; set; }
 
-        public List<int>? ListaAsesor { get; set; }
+        public List<int>? IdPersonal_Asignados { get; set; }
 
         public int? IdCentroCosto { get; set; }
 
