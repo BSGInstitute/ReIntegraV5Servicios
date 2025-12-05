@@ -953,5 +953,6 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IPaqueteTutorVirtualRepository PaqueteTutorVirtualRepository { get; }
         IPaqueteTutorVirtualPaisRepository PaqueteTutorVirtualPaisRepository { get; }
         IPaqueteTutorVirtualBeneficioRepository PaqueteTutorVirtualBeneficioRepository { get; }
+        IMontoPagoLogRepository MontoPagoLogRepository { get; }
     }
 }
