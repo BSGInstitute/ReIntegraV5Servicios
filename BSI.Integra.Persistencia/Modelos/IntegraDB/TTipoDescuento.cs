@@ -5,6 +5,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     public partial class TTipoDescuento
     {
+        public TTipoDescuento()
+        {
+            TMontoPagoLogIdTipoDescuentoModificadoNavigations = new HashSet<TMontoPagoLog>();
+            TMontoPagoLogIdTipoDescuentoOriginalNavigations = new HashSet<TMontoPagoLog>();
+        }
+
         /// <summary>
         /// Es primary key
         /// </summary>
@@ -69,5 +75,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Id de la tabla Original al migrar
         /// </summary>
         public Guid? IdMigracion { get; set; }
+
+        public virtual ICollection<TMontoPagoLog> TMontoPagoLogIdTipoDescuentoModificadoNavigations { get; set; }
+        public virtual ICollection<TMontoPagoLog> TMontoPagoLogIdTipoDescuentoOriginalNavigations { get; set; }
     }
 }

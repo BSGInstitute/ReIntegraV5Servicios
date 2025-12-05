@@ -7,6 +7,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TTipoPago()
         {
+            TMontoPagoLogIdTipoPagoModificadoNavigations = new HashSet<TMontoPagoLog>();
+            TMontoPagoLogIdTipoPagoOriginalNavigations = new HashSet<TMontoPagoLog>();
             TTipoPagoCategoria = new HashSet<TTipoPagoCategorium>();
         }
 
@@ -48,6 +50,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public Guid? IdMigracion { get; set; }
 
+        public virtual ICollection<TMontoPagoLog> TMontoPagoLogIdTipoPagoModificadoNavigations { get; set; }
+        public virtual ICollection<TMontoPagoLog> TMontoPagoLogIdTipoPagoOriginalNavigations { get; set; }
         public virtual ICollection<TTipoPagoCategorium> TTipoPagoCategoria { get; set; }
     }
 }

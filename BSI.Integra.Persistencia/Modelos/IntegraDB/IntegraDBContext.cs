@@ -506,6 +506,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TMontoPago> TMontoPagos { get; set; } = null!;
         public virtual DbSet<TMontoPagoCronograma> TMontoPagoCronogramas { get; set; } = null!;
         public virtual DbSet<TMontoPagoCronogramaDetalle> TMontoPagoCronogramaDetalles { get; set; } = null!;
+        public virtual DbSet<TMontoPagoLog> TMontoPagoLogs { get; set; } = null!;
         public virtual DbSet<TMontoPagoPlataforma> TMontoPagoPlataformas { get; set; } = null!;
         public virtual DbSet<TMontoPagoSuscripcion> TMontoPagoSuscripcions { get; set; } = null!;
         public virtual DbSet<TMoodleCategoriaTipo> TMoodleCategoriaTipos { get; set; } = null!;
@@ -30793,6 +30794,231 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasForeignKey(d => d.IdMontoPagoCronograma)
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_T_MontoPagoCronogramaDetalle_T_MontoPagoCronograma");
+            });
+
+            modelBuilder.Entity<TMontoPagoLog>(entity =>
+            {
+                entity.ToTable("T_MontoPagoLog", "pla");
+
+                entity.Property(e => e.Id).HasComment("(PK) Primary Key del registro");
+
+                entity.Property(e => e.Accion)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasComment("Acción realizada por el usuario");
+
+                entity.Property(e => e.CuotaDobleModificado).HasComment("Cuota doble modificada");
+
+                entity.Property(e => e.CuotaDobleOriginal).HasComment("Cuota doble original");
+
+                entity.Property(e => e.CuotasModificado)
+                    .HasColumnType("decimal(12, 2)")
+                    .HasComment("Monto de la cuota modificado");
+
+                entity.Property(e => e.CuotasOriginal)
+                    .HasColumnType("decimal(12, 2)")
+                    .HasComment("Monto de la cuota original");
+
+                entity.Property(e => e.DescripcionModificado)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Descripción modificada");
+
+                entity.Property(e => e.DescripcionOriginal)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Descripción original");
+
+                entity.Property(e => e.Estado).HasComment("Estado (eliminación lógica)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha creación");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha modificación");
+
+                entity.Property(e => e.IdMonedaModificado)
+                    .HasColumnName("IdMoneda_Modificado")
+                    .HasComment("(FK) Moneda modificada");
+
+                entity.Property(e => e.IdMonedaOriginal)
+                    .HasColumnName("IdMoneda_Original")
+                    .HasComment("(FK) Moneda original");
+
+                entity.Property(e => e.IdMontoPago).HasComment("(FK) que referencia a T_MontoPago");
+
+                entity.Property(e => e.IdPaisModificado)
+                    .HasColumnName("IdPais_Modificado")
+                    .HasComment("Id país modificado");
+
+                entity.Property(e => e.IdPaisOriginal)
+                    .HasColumnName("IdPais_Original")
+                    .HasComment("Id país original");
+
+                entity.Property(e => e.IdPgeneralModificado)
+                    .HasColumnName("IdPGeneral_Modificado")
+                    .HasComment("Id programa modificado");
+
+                entity.Property(e => e.IdPgeneralOriginal)
+                    .HasColumnName("IdPGeneral_Original")
+                    .HasComment("Id programa original");
+
+                entity.Property(e => e.IdTipoDescuentoModificado)
+                    .HasColumnName("IdTipoDescuento_Modificado")
+                    .HasComment("Id tipo descuento modificado");
+
+                entity.Property(e => e.IdTipoDescuentoOriginal)
+                    .HasColumnName("IdTipoDescuento_Original")
+                    .HasComment("Id tipo descuento original");
+
+                entity.Property(e => e.IdTipoPagoModificado)
+                    .HasColumnName("IdTipoPago_Modificado")
+                    .HasComment("Id tipo pago modificado");
+
+                entity.Property(e => e.IdTipoPagoOriginal)
+                    .HasColumnName("IdTipoPago_Original")
+                    .HasComment("Id tipo pago original");
+
+                entity.Property(e => e.MatriculaModificado)
+                    .HasColumnType("decimal(12, 2)")
+                    .HasComment("Matrícula modificada");
+
+                entity.Property(e => e.MatriculaOriginal)
+                    .HasColumnType("decimal(12, 2)")
+                    .HasComment("Matrícula original");
+
+                entity.Property(e => e.MontoDescontadoModificado)
+                    .HasColumnType("decimal(12, 2)")
+                    .HasComment("Monto descontado modificado");
+
+                entity.Property(e => e.MontoDescontadoOriginal)
+                    .HasColumnType("decimal(12, 2)")
+                    .HasComment("Monto descontado original");
+
+                entity.Property(e => e.NroCuotasModificado).HasComment("Número de cuotas modificado");
+
+                entity.Property(e => e.NroCuotasOriginal).HasComment("Número de cuotas original");
+
+                entity.Property(e => e.PaqueteModificado).HasComment("Paquete modificado");
+
+                entity.Property(e => e.PaqueteOriginal).HasComment("Paquete original");
+
+                entity.Property(e => e.PorDefectoModificado).HasComment("Por defecto modificado");
+
+                entity.Property(e => e.PorDefectoOriginal).HasComment("Por defecto original");
+
+                entity.Property(e => e.PrecioLetrasModificado)
+                    .HasMaxLength(250)
+                    .IsUnicode(false)
+                    .HasComment("Precio modificado expresado en letras");
+
+                entity.Property(e => e.PrecioLetrasOriginal)
+                    .HasMaxLength(250)
+                    .IsUnicode(false)
+                    .HasComment("Precio original expresado en letras");
+
+                entity.Property(e => e.PrecioModificado)
+                    .HasColumnType("decimal(12, 2)")
+                    .HasComment("Registro del precio modificado");
+
+                entity.Property(e => e.PrecioOriginal)
+                    .HasColumnType("decimal(12, 2)")
+                    .HasComment("Almacena el precio original");
+
+                entity.Property(e => e.PrimeraCuotaModificado)
+                    .HasMaxLength(14)
+                    .IsUnicode(false)
+                    .HasComment("Primera cuota modificada");
+
+                entity.Property(e => e.PrimeraCuotaOriginal)
+                    .HasMaxLength(14)
+                    .IsUnicode(false)
+                    .HasComment("Primera cuota original");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("RowVersion (concurrencia)");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario creación");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario modificación");
+
+                entity.Property(e => e.VencimientoModificado)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Vencimiento modificado");
+
+                entity.Property(e => e.VencimientoOriginal)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Vencimiento original");
+
+                entity.Property(e => e.VisibleWebModificado).HasComment("Visible web modificado");
+
+                entity.Property(e => e.VisibleWebOriginal).HasComment("Visible web original");
+
+                entity.HasOne(d => d.IdMonedaModificadoNavigation)
+                    .WithMany(p => p.TMontoPagoLogIdMonedaModificadoNavigations)
+                    .HasForeignKey(d => d.IdMonedaModificado)
+                    .HasConstraintName("FK_T_MontoPagoLog_Moneda_IdMoneda_Modificado");
+
+                entity.HasOne(d => d.IdMonedaOriginalNavigation)
+                    .WithMany(p => p.TMontoPagoLogIdMonedaOriginalNavigations)
+                    .HasForeignKey(d => d.IdMonedaOriginal)
+                    .HasConstraintName("FK_T_MontoPagoLog_Moneda_IdMoneda_Original");
+
+                entity.HasOne(d => d.IdPaisModificadoNavigation)
+                    .WithMany(p => p.TMontoPagoLogIdPaisModificadoNavigations)
+                    .HasForeignKey(d => d.IdPaisModificado)
+                    .HasConstraintName("FK_T_MontoPagoLog_Pais_IdPais_Modificado");
+
+                entity.HasOne(d => d.IdPaisOriginalNavigation)
+                    .WithMany(p => p.TMontoPagoLogIdPaisOriginalNavigations)
+                    .HasForeignKey(d => d.IdPaisOriginal)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_T_MontoPagoLog_Pais_IdPais_Original");
+
+                entity.HasOne(d => d.IdPgeneralModificadoNavigation)
+                    .WithMany(p => p.TMontoPagoLogIdPgeneralModificadoNavigations)
+                    .HasForeignKey(d => d.IdPgeneralModificado)
+                    .HasConstraintName("FK_T_MontoPagoLog_PGeneral_IdPGeneral_Modificado");
+
+                entity.HasOne(d => d.IdPgeneralOriginalNavigation)
+                    .WithMany(p => p.TMontoPagoLogIdPgeneralOriginalNavigations)
+                    .HasForeignKey(d => d.IdPgeneralOriginal)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_T_MontoPagoLog_PGeneral_IdPGeneral_Original");
+
+                entity.HasOne(d => d.IdTipoDescuentoModificadoNavigation)
+                    .WithMany(p => p.TMontoPagoLogIdTipoDescuentoModificadoNavigations)
+                    .HasForeignKey(d => d.IdTipoDescuentoModificado)
+                    .HasConstraintName("FK_T_MontoPagoLog_TipoDescuento_IdTipoDescuento_Modificado");
+
+                entity.HasOne(d => d.IdTipoDescuentoOriginalNavigation)
+                    .WithMany(p => p.TMontoPagoLogIdTipoDescuentoOriginalNavigations)
+                    .HasForeignKey(d => d.IdTipoDescuentoOriginal)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_T_MontoPagoLog_TipoDescuento_IdTipoDescuento_Original");
+
+                entity.HasOne(d => d.IdTipoPagoModificadoNavigation)
+                    .WithMany(p => p.TMontoPagoLogIdTipoPagoModificadoNavigations)
+                    .HasForeignKey(d => d.IdTipoPagoModificado)
+                    .HasConstraintName("FK_T_MontoPagoLog_TipoPago_IdTipoPago_Modificado");
+
+                entity.HasOne(d => d.IdTipoPagoOriginalNavigation)
+                    .WithMany(p => p.TMontoPagoLogIdTipoPagoOriginalNavigations)
+                    .HasForeignKey(d => d.IdTipoPagoOriginal)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_T_MontoPagoLog_TipoPago_IdTipoPago_Original");
             });
 
             modelBuilder.Entity<TMontoPagoPlataforma>(entity =>

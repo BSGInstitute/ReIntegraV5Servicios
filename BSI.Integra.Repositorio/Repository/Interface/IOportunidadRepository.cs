@@ -1,5 +1,6 @@
 ﻿using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -131,6 +132,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public OportunidadConversionesDTO ObtenerInformacionOportunidadConversion(int idOportunidad);
         public OportunidadDetalleProbabilidadDTO ObtenerInformacionOportunidadProbabilidad(int idOportunidad);
         MetricasComparativasDiariasDTO ObtenerMetricasComparativasDiarias(int idAsesor, DateTime? fecha = null);
+        AlumnoCodigosDescuentosDTO ObtenerCodigoDescuentoAlumno(int idAlumno);
+
 
     }
 }

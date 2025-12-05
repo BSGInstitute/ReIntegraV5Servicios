@@ -1527,6 +1527,56 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             }
         }
 
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 01/12/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene los códigos de descuento asociados a un alumno
+        /// </summary>
+        /// <param name="idAlumno">ID del alumno</param>
+        /// <returns>Lista de códigos de descuento del alumno</returns>
+        [Route("[Action]")]
+        [HttpGet]
+        public IActionResult ObtenerCodigoDescuentoAlumno([FromQuery] string idAlumno)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(idAlumno))
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        mensaje = "El valor Id Alumno es requerido"
+                    });
+                }
+
+                if (!int.TryParse(idAlumno, out int idAlumnoInt))
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        mensaje = "El Id Alumno debe ser un número válido"
+                    });
+                }
+
+                IAgendaActividadService agendaService = new AgendaActividadService(_unitOfWork);
+                var resultado = agendaService.ObtenerCodigoDescuentoAlumno(idAlumnoInt);
+
+                return Ok(resultado);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    mensaje = "Error al obtener códigos de descuento asociados",
+                    error = e.Message,
+                    errorCode = "#AAC-OCDA-001"
+                });
+            }
+        }
+
 
         /// TipoFuncion: GET
         /// Autor: Flavio R. Mamani Fabian
