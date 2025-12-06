@@ -5,9 +5,12 @@ using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
+using BSI.Integra.Aplicacion.Transversal.Service.Interface;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Comercial;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
+using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Encodings.Web;
@@ -1679,7 +1682,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                 brochure = BuildBrochureVentas(item, serviceInformacionPrograma);
                                 break;
                             case 3: //Area Clientes
-                                brochure = BuildBrochureClientes(item, serviceInformacionPrograma);
+                                brochure = BuildBrochureClientesAsync(item, serviceInformacionPrograma);
                                 break;
                             default:
                                 Console.WriteLine(
@@ -1999,19 +2002,79 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             return brochure;
         }
 
-        private object BuildBrochureClientes(LlamadaProcesoAutoDTO item, InformacionProgramaService serviceInformacionPrograma)
+        private async Task<object> BuildBrochureClientesAsync(LlamadaProcesoAutoDTO item, InformacionProgramaService serviceInformacionPrograma, SolicitudOperacionesService solicitudOperacionesService, AlumnoService alumnoService)
         {
             CargarInformacionProgramaAutomaticoRespuestaDTO InformacionPrograma = serviceInformacionPrograma.CargarInformacionProgramaAutomatico(item.IdCentroCosto, item.IdCodigoPais, 0, 0);
 
             CargarInformacionProgramaAutomaticoRespuestaDTO PresentacionPrograma = serviceInformacionPrograma.CargarInformacionProgramaAutomaticoSpeech(item.IdCentroCosto, item.IdCodigoPais, 0, 0);
 
-            var brochure = new
-            {
-                InformacionPrograma = InformacionPrograma,
-                PresentacionPrograma = PresentacionPrograma
-            };
 
-            return brochure;
+            List <DatosSolicitudOperacionesDTO> operacionesPendientes = solicitudOperacionesService.ObtenerSolicitudOperaciones(item.IdOportunidad);
+            List<DatosSolicitudOperacionesDTO> operacionesRealizadas = solicitudOperacionesService.ObtenerSolicitudOperacionesRealizadas(item.IdOportunidad);
+            AvanceAonlineAlumnoDTO AvanceAonline = alumnoService.obtenerDatosAvanceAonline(item.idMatricula); //Ajustar DTO
+            AvanceAonlineAlumnoDTO AvanceOnline = alumnoService.obtenerDatosAvanceOnline(item.idMatricula); //Ajustar DTO
+            List<HistorialAsesoraDTO> HistorialAsesoria = solicitudOperacionesService.ObtenerHistorialAsesora(item.idMatricula); //Ajustar DTO
+
+
+
+            List<object> listadoNotas = new List<object>();
+
+            int idMatriculaCabecera = 0;  // PENDIENTE DE AJUSTE
+            int idPespecifico = 0;        // PENDIENTE DE AJUSTE
+            int grupo = 1;                // PENDIENTE DE AJUSTE
+
+            try 
+        {
+        string urlApi = $"https://api-portalweb.bsginstitute.com/api/Nota/ListadoNotaProcesarSincronico?idMatriculaCabecera={idMatriculaCabecera}&idPespecifico={idPespecifico}&grupo={grupo}";
+
+        using (var client = new HttpClient())
+        {
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+            var response = await client.GetAsync(urlApi);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonString = await response.Content.ReadAsStringAsync();
+                
+                var opciones = new System.Text.Json.JsonSerializerOptions 
+                { 
+                    PropertyNameCaseInsensitive = true 
+                };
+
+                var resultado = System.Text.Json.JsonSerializer.Deserialize<List<object>>(jsonString, opciones);
+                
+                if (resultado != null)
+                {
+                    listadoNotas = resultado;
+                }
+            }
+            else
+            {
+                Console.WriteLine($"[WARN] La API retornó status: {response.StatusCode} para la URL: {urlApi}");
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[ERROR] Falló la petición HTTP: {ex.Message}");
+    }
+
+    // 4. Retorno del objeto combinado
+    var brochure = new
+    {
+        InformacionPrograma = InformacionPrograma,
+        PresentacionPrograma = PresentacionPrograma,
+        OperacionesPendientes = operacionesPendientes,
+        OperacionesRealizadas = operacionesRealizadas,
+        AvanceAonline = AvanceAonline,
+        AvanceOnline = AvanceOnline,
+        HistorialAsesoria = HistorialAsesoria,
+        ListadoNota = listadoNotas
+    };
+
+    return brochure;
         }
 
         /// Autor: Jose Vega
