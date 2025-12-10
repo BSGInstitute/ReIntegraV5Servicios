@@ -10,6 +10,8 @@ using BSI.Integra.Repositorio.Repository.Interface.Comercial;
 using Dapper;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Asn1.Ocsp;
+using Org.BouncyCastle.Ocsp;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -1237,7 +1239,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                     IdPersonalAreaTrabajo = IdPersonalAreaTrabajo
                 };
 
-                var resultado = _dapperRepository.QuerySPFirstOrDefault("[com].[SP_ObtenerInformacionEvaluacionLlamada]", parametros);
+                var resultado = _dapperRepository.QuerySPFirstOrDefault("[com].[SP_ObtenerInformacionEvaluacionLlamadaAreaTrabajo]", parametros);
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
                 {
@@ -1411,8 +1413,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                     req.FechaInicio,
                     req.FechaFin,
                     IdPersonal_Asignados = (req.IdPersonal_Asignados != null && req.IdPersonal_Asignados.Any())
-                        ? JsonConvert.SerializeObject(req.IdPersonal_Asignados)
-                        : null,
+                    ? string.Join(",", req.IdPersonal_Asignados)
+                    : null,
                     req.IdCentroCosto,
                     req.IdFaseOportunidad_Ant,
                     req.IdFaseOportunidad,
@@ -1432,8 +1434,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                     req.FechaInicio,
                     req.FechaFin,
                     IdPersonal_Asignados = (req.IdPersonal_Asignados != null && req.IdPersonal_Asignados.Any())
-                        ? JsonConvert.SerializeObject(req.IdPersonal_Asignados)
-                        : null,
+                    ? string.Join(",", req.IdPersonal_Asignados)
+                    : null,
                     req.IdCentroCosto,
                     req.IdFaseOportunidad_Ant,
                     req.IdFaseOportunidad,
@@ -1469,8 +1471,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                     req.FechaInicio,
                     req.FechaFin,
                     IdPersonal_Asignados = (req.IdPersonal_Asignados != null && req.IdPersonal_Asignados.Any())
-                        ? JsonConvert.SerializeObject(req.IdPersonal_Asignados)
-                        : null,
+                    ? string.Join(",", req.IdPersonal_Asignados)
+                    : null,
                     req.IdCentroCosto,
                     req.IdFaseOportunidad_Ant,
                     req.IdFaseOportunidad,
@@ -1490,8 +1492,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                     req.FechaInicio,
                     req.FechaFin,
                     IdPersonal_Asignados = (req.IdPersonal_Asignados != null && req.IdPersonal_Asignados.Any())
-                        ? JsonConvert.SerializeObject(req.IdPersonal_Asignados)
-                        : null,
+                    ? string.Join(",", req.IdPersonal_Asignados)
+                    : null,
                     req.IdCentroCosto,
                     req.IdFaseOportunidad_Ant,
                     req.IdFaseOportunidad,
@@ -1641,8 +1643,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                     req.FechaInicio,
                     req.FechaFin,
                     IdPersonal_Asignados = (req.IdPersonal_Asignados != null && req.IdPersonal_Asignados.Any())
-                        ? JsonConvert.SerializeObject(req.IdPersonal_Asignados)
-                        : null,
+                    ? string.Join(",", req.IdPersonal_Asignados)
+                    : null,
                     req.IdCentroCosto,
                     req.IdFaseOportunidad_Ant,
                     req.IdFaseOportunidad
@@ -1661,8 +1663,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                     req.FechaInicio,
                     req.FechaFin,
                     IdPersonal_Asignados = (req.IdPersonal_Asignados != null && req.IdPersonal_Asignados.Any())
-                        ? JsonConvert.SerializeObject(req.IdPersonal_Asignados)
-                        : null,
+                    ? string.Join(",", req.IdPersonal_Asignados)
+                    : null,
                     req.IdCentroCosto,  
                     req.IdFaseOportunidad_Ant,
                     req.IdFaseOportunidad,
@@ -1732,8 +1734,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                     request.FechaInicio,
                     request.FechaFin,
                     IdPersonal_Asignados = (request.IdPersonal_Asignados != null && request.IdPersonal_Asignados.Any())
-                        ? JsonConvert.SerializeObject(request.IdPersonal_Asignados)
-                        : null,
+                    ? string.Join(",", request.IdPersonal_Asignados)
+                    : null,
                     request.IdCentroCosto,
                     request.IdFaseOportunidad_Ant,
                     request.IdFaseOportunidad,
@@ -1752,8 +1754,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                     request.FechaInicio,
                     request.FechaFin,
                     IdPersonal_Asignados = (request.IdPersonal_Asignados != null && request.IdPersonal_Asignados.Any())
-                        ? JsonConvert.SerializeObject(request.IdPersonal_Asignados)
-                        : null,
+                    ? string.Join(",", request.IdPersonal_Asignados)
+                    : null,
                     request.IdCentroCosto,
                     request.IdFaseOportunidad_Ant,
                     request.IdFaseOportunidad,

@@ -1313,7 +1313,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
         [HttpPost("[Action]")]
         public IActionResult ReporteCalificacionClientesVentas([FromBody] ReporteCalificacionRequestV2 request)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+           if (!ModelState.IsValid) return BadRequest(ModelState);
 
             try
             {
