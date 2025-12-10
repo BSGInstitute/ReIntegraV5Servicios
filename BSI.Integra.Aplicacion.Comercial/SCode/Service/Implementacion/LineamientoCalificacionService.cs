@@ -2199,6 +2199,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             List<object> InformacionBeneficioSolicitado = new List<object>();
             List<object> BeneficiosPorMatricula = new List<object>();
             List<object> OportunidadMontoComplementarios = new List<object>();
+            object DatosCobranzaAlumno = new List<object>();
             List<object> operacionesPendientes = new List<object>();
             List<object> operacionesRealizadas = new List<object>();
             object AvanceAonline = new List<object>();
@@ -2358,7 +2359,10 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         {
                             try
                             {
-                                string tipoPersonal = "Coordinador";
+                                // Obtener TipoPersonal del personal asignado
+                                var personal = _unitOfWork.PersonalRepository.ObtenerPorId(item.IdPersonal_Asignado);
+                                string tipoPersonal = personal?.TipoPersonal ?? "Coordinador";
+
                                 var montoPagoCronogramaService = new MontoPagoCronogramaService(_unitOfWork);
                                 var montosComplementarios = montoPagoCronogramaService.ObtenerOportunidadMontoComplementarios(
                                     item.IdOportunidad,
@@ -2374,6 +2378,20 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             {
                                 Console.WriteLine($"[ERROR] Error al obtener montos complementarios: {ex.Message}");
                             }
+                        }
+
+                        // Obtener datos de cobranza del alumno
+                        try
+                        {
+                            var datosCobranza = alumnoService.obtenerDatosCobranzaAlumno(matricula.Id);
+                            if (datosCobranza != null)
+                            {
+                                DatosCobranzaAlumno = datosCobranza;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"[ERROR] Error al obtener datos de cobranza: {ex.Message}");
                         }
 
                         // Obtener cronograma de finanzas
@@ -2473,6 +2491,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 InformacionBeneficioSolicitado = InformacionBeneficioSolicitado,
                 BeneficiosPorMatricula = BeneficiosPorMatricula,
                 OportunidadMontoComplementarios = OportunidadMontoComplementarios,
+                DatosCobranzaAlumno = DatosCobranzaAlumno,
                 OperacionesPendientes = operacionesPendientes,
                 OperacionesRealizadas = operacionesRealizadas,
                 AvanceAonline = AvanceAonline,
