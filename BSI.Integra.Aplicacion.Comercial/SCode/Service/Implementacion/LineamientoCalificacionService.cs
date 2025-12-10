@@ -2228,8 +2228,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     BeneficiosPorMatricula = matriculaCabeceraService.ObtenerBeneficiosPorMatricula(item.CodigoMatricula);
 
                     // Obtener TipoPersonal para montos complementarios
-                    var personal = _unitOfWork.PersonalRepository.ObtenerPorId(item.IdPersonal_Asignado);
-                    string tipoPersonal = personal?.TipoPersonal ?? string.Empty;
+                    string tipoPersonal = "Coordinador";
 
                     // Obtener oportunidad montos complementarios
                     var montoPagoCronogramaService = new MontoPagoCronogramaService(_unitOfWork);
