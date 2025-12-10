@@ -2205,6 +2205,47 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             object AvanceOnline = new List<object>();
             List<object> HistorialAsesoria = new List<object>();
             List<object> listadoNotas = new List<object>();
+            List<object> ActividadesAgenda = new List<object>();
+
+            // Validamos usando las propiedades REALES del DTO (PascalCase)
+            if (item.IdOportunidad > 0 &&
+                item.IdTabmpty(item.CodigoAreaAgenda))
+            {
+                try
+                {
+                    var agendaService = new AgendaService(_unitOfWork);
+                    var filtros = new Dictionary<string, string>
+                    {
+                        { "IdOportunidad", item.IdOportunidad.ToString() }
+                    };
+
+                    // AQUÍ ESTÁ LA CORRECCIÓN DE NOMBRES:
+                    var resultadoAgenda = agendaService.CargarActividadSeleccionadaPorFiltroV2(
+                        item.idTab.Value,    // Corregido: item.idTab -> item.IdTabAgenda
+                        item.CodigoAreaAgenda,     // Corregido: item.codigoAreaTrabajo -> item.CodigoAreaAgenda
+                        filtros,
+                        0                          // Corregido: item.idAsesor no existe. Usamos 0 (System)
+                    );
+
+                    if (resultadoAgenda.ActividadesAgenda != null &&
+                        resultadoAgenda.ActividadesAgenda.ContainsKey("Programacion Manual"))
+                    {
+                        var listaTipada = resultadoAgenda.ActividadesAgenda["Programacion Manual"];
+
+                        if (listaTipada != null && listaTipada.Any())
+                        {
+                            ActividadesAgenda = listaTipada
+                                                .OrderBy(x => x.UltimaFechaProgramada)
+                                                .Cast<object>()
+                                                .ToList();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[ERROR] Error al obtener ActividadesAgenda: {ex.Message}");
+                }
+            }
 
             // Solo llamar si los parámetros son válidos
             if (item.IdCentroCosto > 0 && item.IdCodigoPais > 0 && serviceInformacionPrograma != null)
@@ -2478,7 +2519,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 AvanceAonline = AvanceAonline,
                 AvanceOnline = AvanceOnline,
                 HistorialAsesoria = HistorialAsesoria,
-                ListadoNota = listadoNotas
+                ListadoNota = listadoNotas,
+                ActividadesAgenda = ActividadesAgenda
             };
 
             return brochure;

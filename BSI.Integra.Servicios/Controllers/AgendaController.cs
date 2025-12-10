@@ -1332,6 +1332,59 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
         /// Tipo Función: POST
+        /// Autor: Jonathan Caipo
+        /// Fecha: 12/11/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene las Actividades para el Tab Programadas Manuales, con los filtros realizados
+        /// </summary>
+        /// <param name="idTab">Id del tab (PK de la tabla com.T_AgendaTab)</param>
+        /// <param name="codigoAreaTrabajo">Cadena con la abreviatura del codigo de area de trabajo</param>
+        /// <param name="filtros">Diccionario (string, string)</param>
+        /// <returns>Response 200 (Objeto anonimo Diccionario con la lista de actividades y la cantidad de RN2)</returns>
+        [Route("[action]/{idTab}/{codigoAreaTrabajo}/{idOportunidad?}")]
+        [HttpPost]
+        public ActionResult ObtenerActividadFiltradaPorAsesorProgramacionManualV2(
+            int idTab,
+            string codigoAreaTrabajo,
+            int? idOportunidad,
+            [FromBody] Dictionary<string, string> filtros)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                if (filtros == null) filtros = new Dictionary<string, string>();
+
+                if (idOportunidad.HasValue)
+                {
+                    if (filtros.ContainsKey("IdOportunidad"))
+                    {
+                        filtros["IdOportunidad"] = idOportunidad.Value.ToString();
+                    }
+                    else
+                    {
+                        filtros.Add("IdOportunidad", idOportunidad.Value.ToString());
+                    }
+                }
+
+                IAgendaService servicio = new AgendaService(_unitOfWork);
+                var resultado = servicio.CargarActividadSeleccionadaPorFiltroV2(idTab, codigoAreaTrabajo, filtros, 0);
+
+                return Ok(new
+                {
+                    Records = resultado.ActividadesAgenda["Programacion Manual"].OrderBy(x => x.UltimaFechaProgramada).ToList(),
+                    Total = resultado.CantidadRN2
+                });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        /// Tipo Función: POST
         /// Autor: Joseph Llanque
         /// Fecha: 03/07/2024
         /// Versión: 1.0

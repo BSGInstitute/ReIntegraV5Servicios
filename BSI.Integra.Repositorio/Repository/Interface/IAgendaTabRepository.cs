@@ -21,11 +21,19 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<AgendaTabConfiguracionAlternoDTO> ObtenerTabsConfigurados(string codigoAreaTrabajo);
         IEnumerable<AgendaTabConfiguracionAlternoDTO> ObtenerTabsConfiguradosPorIdTab(string codigoAreaTrabajo, int idTab);
         List<ActividadAgendaDTO> ObtenerActividadesProgramada(AgendaTabConfiguracionAlternoDTO tabAgenda, int idAsesor, Dictionary<string, string>? filtros);
+        List<ActividadAgendaV2DTO> ObtenerActividadesProgramadaV2(AgendaTabConfiguracionAlternoDTO tabAgenda, int idAsesor, Dictionary<string, string>? filtros);
+
         List<ActividadAgendaDTO> ObtenerActividadesNoProgramada(AgendaTabConfiguracionAlternoDTO tabAgenda, int idAsesor, Dictionary<string, string>? filtros);
+        List<ActividadAgendaV2DTO> ObtenerActividadesNoProgramadaV2(AgendaTabConfiguracionAlternoDTO tabAgenda, int idAsesor, Dictionary<string, string>? filtros);
+
         List<ActividadAgendaDTO> ObtenerActividadesOperaciones(AgendaTabConfiguracionAlternoDTO tabAgenda, int idAsesor, Dictionary<string, string> filtros);
+        List<ActividadAgendaV2DTO> ObtenerActividadesOperacionesV2(AgendaTabConfiguracionAlternoDTO tabAgenda, int idAsesor, Dictionary<string, string> filtros);
+
         List<ActividadAgendaDTO> ObtenerActividadesOperacionesFichaChat(AgendaTabConfiguracionAlternoDTO tabAgenda, int idAsesor, int idMatriculaCabecera);
         int CantidadActividadesPorTabOperaciones(AgendaTabConfiguracionAlternoDTO tabAgenda, int idAsesor, Dictionary<string, string> filtros);
         List<ActividadAgendaDTO> ObtenerActividades(AgendaTabConfiguracionAlternoDTO tabAgenda, int idAsesor, Dictionary<string, string>? filtros);
+        List<ActividadAgendaV2DTO> ObtenerActividadesV2(AgendaTabConfiguracionAlternoDTO tabAgenda, int idAsesor, Dictionary<string, string>? filtros);
+
         int CantidadActividadesPorTab(AgendaTabConfiguracionAlternoDTO tabAgenda, int idAsesor, Dictionary<string, string> filtros);
         List<PruebaActividadRealizadaDTO> ObtenerActividadesRealizadasSP(string idsAsesor, string fecha, int idCentroCosto, int idAlumno, int idFaseOportunidad, int idTipoDato, int idOrigen, int take, int skip, string idsCategoriaOrigen, int idProbabilidad, int idEstado);
         List<AgendaTabConfiguracionAlternoDTO> ObtenerTabsConfiguradosSinValidacion(string codigoAreaTrabajo);
