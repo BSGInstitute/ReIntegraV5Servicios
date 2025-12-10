@@ -240,7 +240,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             try
             {
                 var comboDTOs = new List<FaseCalificacion>();
-                var query = @"SELECT Id,Nombre,Descripcion,Orden 
+                var query = @"SELECT Id,Nombre,Descripcion,Orden,IdPersonalAreaTrabajo 
                                 FROM com.T_FaseCalificacion 
                                 WHERE Estado =1";
                 var resultado = _dapperRepository.QueryDapper(query, null);

@@ -73,13 +73,16 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
 
 
         (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporte(ReporteCalificacionRequest req);
-        (IEnumerable<LlamadaCalificadaAtencionClienteRawDTO> Items, int Total) ObtenerReporteAtencionCliente(ReporteCalificacionRequest req);
+        (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporteVentas(ReporteCalificacionRequestV2 req);
+        (IEnumerable<LlamadaCalificadaAtencionClienteRawDTO> Items, int Total) ObtenerReporteAtencionCliente(ReporteCalificacionRequestV2 req);
         (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReportePorArea(ReporteCalificacionAreaRequest req);
 
         (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporteFase(ReporteCalificacionRequest req);
+        (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporteFaseVentas(ReporteCalificacionRequestV2 req);
 
         IEnumerable<LlamadaCalificadaRawDTO> ObtenerDatosParaPromedioGlobal(ReporteCalificacionGlobalRequest request);
-        IEnumerable<LlamadaCalificadaAtencionClienteRawDTO> ObtenerDatosParaPromedioGlobalAtencionCliente(ReporteCalificacionGlobalRequest request);
+        IEnumerable<LlamadaCalificadaRawDTO> ObtenerDatosParaPromedioGlobalVentas(ReporteCalificacionGlobalRequestV2 request);
+        IEnumerable<LlamadaCalificadaAtencionClienteRawDTO> ObtenerDatosParaPromedioGlobalAtencionCliente(ReporteCalificacionGlobalRequestV2 request);
         IEnumerable<CalificacionFaseDTO> ObtenerCalificacionFase(int idLlamada, bool tipoCalificacion);
         IEnumerable<InformacionLlamadaTresCxDTO> ObtenerInformacionLlamada(int idLlamada);
 
