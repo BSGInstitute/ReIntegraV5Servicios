@@ -1548,6 +1548,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         public async Task<List<bool>> CalificacionAutoV2(int idPersonalAreaTrabajo)
         {
             var serviceInformacionPrograma = new InformacionProgramaService(_unitOfWork);
+            var solicitudOperacionesService = new SolicitudOperacionesService(_unitOfWork);
+            var alumnoService = new AlumnoService(_unitOfWork);
 
             IEnumerable<LlamadaProcesoAutoDTO> item = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosEvaluacionLLamadaCalificacionAuto(idPersonalAreaTrabajo);
 
@@ -1787,7 +1789,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                 brochure = BuildBrochureVentas(item, serviceInformacionPrograma);
                                 break;
                             case 3: //Area Clientes
-                                brochure = BuildBrochureClientesAsync(item, serviceInformacionPrograma);
+                                brochure = BuildBrochureClientesAsync(item, serviceInformacionPrograma, solicitudOperacionesService, alumnoService);
                                 break;
                             default:
                                 Console.WriteLine(
