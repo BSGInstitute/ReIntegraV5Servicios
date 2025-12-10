@@ -20,5 +20,6 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Interface
         #endregion
         PuntosGeneralesCalificacion ObtenerPorId(int id);
         IEnumerable<ComboDTO> ObtenerCombo();
+        IEnumerable<PuntosGeneralesCalificacion> ObtenerPuntosGeneralesPorArea(int idPersonalAreaTrabajo);
     }
 }

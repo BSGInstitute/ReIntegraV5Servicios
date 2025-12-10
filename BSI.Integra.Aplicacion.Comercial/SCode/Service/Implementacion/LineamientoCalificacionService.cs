@@ -216,6 +216,51 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 throw ex;
             }
         }
+        /// Autor: Joseph Llanque.
+        /// Fecha: 03/07/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla
+        /// </summary> 
+        /// <returns> IEnumerable<ComboDTO> </returns>
+        public IEnumerable<ConfiguracionEsquemaCalificacionLlamdaDTO>HistorialVersionCalificacionLlamadaPorAreaTrabajo(int IdPersonalAreaTrabajo)
+        {
+            try
+            {
+                // Obtener todas las versiones históricas para el área de trabajo
+                var versiones = _unitOfWork.LineamientoCalificacionRepository
+                    .HistorialVersionCalificacionLlamadaV2(IdPersonalAreaTrabajo)
+                    .ToList();
+
+                foreach (var version in versiones)
+                {
+                    // Para cada versión, obtener la configuración correspondiente
+                    var configuracion = _unitOfWork.LineamientoCalificacionRepository
+                        .ObtenerDataConfiguracionPorVersion(version.Id, IdPersonalAreaTrabajo);
+
+                    if (configuracion != null && configuracion.Any())
+                    {
+                        // Construir el objeto estructurado usando MapearDataEstructurada (o tu método preferido)
+                        var dataEstructurada = MapearDataEstructurada(configuracion);
+
+                        // Serializar el objeto a JSON
+                        version.ConfiguracionJSON = JsonSerializer.Serialize(dataEstructurada);
+                    }
+                    else
+                    {
+                        version.ConfiguracionJSON = "{}";
+                    }
+                }
+
+                return versiones;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
 
         /// Autor: Jose Vega
         /// Fecha: 20/11/2025
@@ -260,73 +305,135 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         /// <param name="listaPlana">Colección plana de objetos jerárquicos provenientes de la base de datos.</param>
         /// <returns> Objeto ConfiguracionLineamientoV2DTO con las colecciones separadas y listas para serializar. </returns>
         private ConfiguracionLineamientoV2DTO MapearDataEstructurada(List<EvaluacionLlamadaJerarquicaDTO> listaPlana)
-        {
-            var data = new ConfiguracionLineamientoV2DTO();
+{
+    var data = new ConfiguracionLineamientoV2DTO();
 
-            if (listaPlana != null && listaPlana.Any())
+    if (listaPlana != null && listaPlana.Any())
+    {
+        data.FasesCalificacion = listaPlana
+            .Where(x => x.TipoEntidad == "FASE")
+            .GroupBy(x => x.Id)
+            .Select(g => g.First())
+            .OrderBy(x => x.Orden)
+            .Select(x => new EvaluacionLlamadaFaseDTO
             {
-                data.FasesCalificacion = listaPlana
-                    .Where(x => x.TipoEntidad == "FASE")
-                    .OrderBy(x => x.Orden)
-                    .Select(x => new EvaluacionLlamadaFaseDTO
-                    {
-                        Id = x.Id,
-                        NombreFase = x.Nombre,
-                        Orden = x.Orden ?? 0,
-                        Descripcion = x.Descripcion
-                    }).ToList();
+                Id = x.Id,
+                NombreFase = x.Nombre,
+                Orden = x.Orden ?? 0,
+                Descripcion = x.Descripcion
+            }).ToList();
 
-                data.CriteriosCalificacion = listaPlana
-                    .Where(x => x.TipoEntidad == "CRITERIO")
-                    .Select(x => new EvaluacionLlamadaCriterioDTO
-                    {
-                        Id = x.Id,
-                        NombreCriterio = x.Nombre,
-                        IdFaseCalificacion = x.IdPadre ?? 0,
-                        Orden = x.Orden ?? 0,
-                        Descripcion = x.Descripcion
-                    }).ToList();
+        data.CriteriosCalificacion = listaPlana
+            .Where(x => x.TipoEntidad == "CRITERIO")
+            .GroupBy(x => x.Id)
+            .Select(g => g.First())
+            .Select(x => new EvaluacionLlamadaCriterioDTO
+            {
+                Id = x.Id,
+                NombreCriterio = x.Nombre,
+                IdFaseCalificacion = x.IdPadre ?? 0,
+                Orden = x.Orden ?? 0,
+                Descripcion = x.Descripcion
+            }).ToList();
 
-                data.LineamientosCalificacion = listaPlana
-                    .Where(x => x.TipoEntidad == "LINEAMIENTO")
-                    .Select(x => new EvaluacionLlamadaLineamientoDTO
-                    {
-                        Id = x.Id,
-                        NombreLineamiento = x.Nombre,
-                        IdCriterioCalificacionLlamada = x.IdPadre ?? 0,
-                        IdCriticidadCalificacion = x.IdCriticidad ?? 0,
-                        Orden = x.Orden ?? 0,
-                        Descripcion = x.Descripcion
-                    }).ToList();
+        data.LineamientosCalificacion = listaPlana
+            .Where(x => x.TipoEntidad == "LINEAMIENTO")
+            .GroupBy(x => x.Id)
+            .Select(g => g.First())
+            .Select(x => new EvaluacionLlamadaLineamientoDTO
+            {
+                Id = x.Id,
+                NombreLineamiento = x.Nombre,
+                IdCriterioCalificacionLlamada = x.IdPadre ?? 0,
+                IdCriticidadCalificacion = x.IdCriticidad ?? 0,
+                Orden = x.Orden ?? 0,
+                Descripcion = x.Descripcion
+            }).ToList();
 
-                data.CriticidadCalificacion = listaPlana
-                    .Where(x => x.TipoEntidad == "CRITICIDAD")
-                    .Select(x => new EvaluacionLlamadaCriticidadDTO
-                    {
-                        Id = x.Id,
-                        Nombre = x.Nombre,
-                        Descripcion = x.Descripcion
-                    }).ToList();
+        data.CriticidadCalificacion = listaPlana
+            .Where(x => x.TipoEntidad == "CRITICIDAD")
+            .GroupBy(x => x.Id)
+            .Select(g => g.First())
+            .Select(x => new EvaluacionLlamadaCriticidadDTO
+            {
+                Id = x.Id,
+                Nombre = x.Nombre,
+                Descripcion = x.Descripcion
+            }).ToList();
 
-                data.PuntosGeneralesCalificacion = listaPlana
-                    .Where(x => x.TipoEntidad == "PUNTOGENERAL")
-                    .Select(x => new EvaluacionLlamadaPuntoGeneralDTO
-                    {
-                        Id = x.Id,
-                        Nombre = x.Nombre,
-                        Orden = x.Orden ?? 0,
-                        Descripcion = x.Descripcion
-                    }).ToList();
+        data.PuntosGeneralesCalificacion = listaPlana
+            .Where(x => x.TipoEntidad == "PUNTOGENERAL")
+            .GroupBy(x => x.Id)
+            .Select(g => g.First())
+            .Select(x => new EvaluacionLlamadaPuntoGeneralDTO
+            {
+                Id = x.Id,
+                Nombre = x.Nombre,
+                Orden = x.Orden ?? 0,
+                Descripcion = x.Descripcion
+            }).ToList();
+    }
+
+    return data;
+}
+
+        /// Autor: Lolo Arnold Zaa Fernandez
+        /// Fecha: 25/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la versión vigente de configuración de calificación para un área específica,
+        /// devolviendo los datos de la tabla T_EvaluacionLlamadaConfiguracionVersion con el JSON construido dinámicamente.
+        /// El JSON se construye usando BuildConfiguracionLineamientosFromSp a partir del SP SP_EvaluacionLlamadaObtenerConfiguracionVigente.
+        /// </summary>
+        /// <param name="idPersonalAreaTrabajo">Identificador del área de trabajo del personal</param>
+        /// <returns> ConfiguracionEsquemaCalificacionLlamdaDTO con los datos de la versión vigente y el JSON serializado </returns>
+        public ConfiguracionEsquemaCalificacionLlamdaDTO ObtenerConfiguracionVigenteV3(int idPersonalAreaTrabajo)
+        {
+            try
+            {
+                // Obtener la versión vigente de la tabla
+                var versionVigente = _unitOfWork.LineamientoCalificacionRepository
+                                           .HistorialVersionCalificacionLlamadaV2(idPersonalAreaTrabajo)
+                                           .FirstOrDefault(v => v.EsVigente);
+
+                if (versionVigente == null)
+                {
+                    return null;
+                }
+
+                // Obtener la configuración desde el SP
+                var configuracionVigente = _unitOfWork.LineamientoCalificacionRepository
+                    .ObtenerConfiguracionVigentePorArea(idPersonalAreaTrabajo);
+
+                if (configuracionVigente != null && configuracionVigente.Any())
+                {
+                    // Construir el objeto estructurado usando BuildConfiguracionLineamientosFromSp
+                    var dataEstructurada = BuildConfiguracionLineamientosFromSp(configuracionVigente);
+
+                    // Serializar el objeto a JSON
+                    versionVigente.ConfiguracionJSON = JsonSerializer.Serialize(dataEstructurada);
+                }
+                else
+                {
+                    versionVigente.ConfiguracionJSON = "{}";
+                }
+
+                return versionVigente;
             }
-
-            return data;
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
+
+  
+
         /// Autor: Joseph Llanque.
         /// Fecha: 03/07/2025
         /// Version: 1.0
         /// <summary>
         /// Obtiene todos los registros de la tabla
-        /// </summary> 
+        /// </summary>
         /// <returns> IEnumerable<ComboDTO> </returns>
         public IEnumerable<ConfiguracionMasivaTranscripcionCalificacionDTO> ObtenerConfiguracionMasivaActiva()
         {
@@ -841,7 +948,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
         public async Task<List<bool>> TranscripcionAutoV2(int idPersonalAreaTrabajo)
         {
-            IEnumerable<LlamadaProcesoAutoAtencioClienteDTO> items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente();
+            IEnumerable<LlamadaProcesoAutoDTO> items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente(idPersonalAreaTrabajo);
 
             var resultados = new List<bool>();
 
@@ -851,9 +958,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 .ToList();
 
             using var httpClient = new HttpClient();
-            //httpClient.BaseAddress = new Uri("http://ia-analisis-llamadas-comercial-api.bsginstitute.com/");
-            httpClient.BaseAddress = new Uri("http://127.0.0.1:8000/");
-
+            httpClient.BaseAddress = new Uri("http://ia-analisis-llamadas-comercial-api.bsginstitute.com/");
+            //httpClient.BaseAddress = new Uri("http://127.0.0.1:8000/");
             // Configurar headers como en Postman
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(
@@ -883,18 +989,18 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 object payload;
                 string endpoint;
 
-                //// Cuerpo para Ventas => con informacionFases
-                //if (idPersonalAreaTrabajo == 8)
-                //{
-                //    payload = PayloadVentas(item, historialReprogramaciones);
-                //    endpoint = "transcriptions/transcribe";
-                //}
-                //else 
-                //{
+                // Cuerpo para Ventas => con informacionFases
+                if (idPersonalAreaTrabajo == 8)
+                {
+                   payload = PayloadVentas(item, historialReprogramaciones);
+                   endpoint = "transcriptions/transcribe";
+                }
+                else 
+                {
                     // Cuerpo para Atencion al Cliente con endpoint específico
                     payload = PayloadAtencionCliente(item, historialReprogramaciones);
                     endpoint = "transcriptions_atc/transcribe_atc";
-                //}
+                }
                 
 
                 await semaphore.WaitAsync();
@@ -1037,7 +1143,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         }
 
         private object PayloadAtencionCliente<T>(
-        LlamadaProcesoAutoAtencioClienteDTO item,
+        LlamadaProcesoAutoDTO item,
         List<T> historialReprogramaciones
         )
         {
@@ -1045,15 +1151,15 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             {
                 idLlamada = item.IdLlamada.ToString(),
                 idActividadDetalle = item.IdActividadDetalle.ToString(),
-                idPersonal = item.IdPersonalAsignado,
+                idPersonal = item.IdPersonal_Asignado,
                 username = "System-Auto",
                 contacto = "Generico",
                 audio_url = item.UrlAudioProcesado,
                 locale = "es-ES",
-                ocurrencia = item.NombreOcurrencia,
+                ocurrencia = item.Ocurrencia,
                 historialReprogramaciones = historialReprogramaciones,
-                faseOrigen = item.IdFaseOportunidadActual,
-                faseDestino = item.IdFaseOportunidadAnterior,
+                faseOrigen = item.IdFaseOportunidad,
+                faseDestino = item.IdFaseOportunidad_Ant,
             };
             return payload;
         }
@@ -1574,7 +1680,6 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         {
                             transcripcionesParaPayload.Add(transcripcionActual);
                         }
-
                         foreach (var llamadaHistorica in llamadasHistoricasParaPayload)
                         {
                             var transcripcionHistorica = await ObtenerDisplayTranscripcion(
@@ -1704,6 +1809,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             faseOrigen = item.FaseOportunidad_Ant,
                             faseDestino = item.FaseOportunidad,
                             puntosCriticosAsesor = puntosCriticosAsesor,
+                            idPersonalAreaTrabajo= item.IdPersonalAreaTrabajo
                         };
  
                         Console.WriteLine(
@@ -1960,6 +2066,79 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 .ToList();
 
             return new { fases = fasesDict, puntosgenerales = puntosGenerales };
+        }
+
+        public ConfiguracionLineamientoDTO BuildConfiguracionLineamientosFromSp(
+            IEnumerable<ConfiguracionVigenteJerarquiaDTO> configuracion
+        )
+        {
+            var fases = configuracion
+                .Where(x => x.TipoEntidad == "FASE")
+                .OrderBy(x => x.Orden)
+                .Select(f => new FaseDTO
+                {
+                    Id = f.Id,
+                    Nombre = f.Nombre,
+                    Orden = f.Orden ?? 0
+                })
+                .ToList();
+
+            var criterios = configuracion
+                .Where(x => x.TipoEntidad == "CRITERIO")
+                .OrderBy(x => x.Orden)
+                .Select(c => new CriterioDTO
+                {
+                    Id = c.Id,
+                    IdFaseCalificacion = c.IdPadre ?? 0,
+                    NombreCriterio = c.Nombre,
+                    Orden = c.Orden ?? 0
+                })
+                .ToList();
+
+            var lineamientos = configuracion
+                .Where(x => x.TipoEntidad == "LINEAMIENTO")
+                .OrderBy(x => x.Orden)
+                .Select(l => new LineamientoDTO
+                {
+                    Id = l.Id,
+                    IdCriterioCalificacionLlamada = l.IdPadre ?? 0,
+                    IdCriticidadCalificacion = l.IdCriticidad ?? 0,
+                    NombreLineamiento = l.Nombre,
+                    Orden = l.Orden ?? 0
+                })
+                .ToList();
+
+            var criticidades = configuracion
+                .Where(x => x.TipoEntidad == "LINEAMIENTO" && x.IdCriticidad.HasValue)
+                .Select(x => new { Id = x.IdCriticidad.Value, Nombre = x.NombreCriticidad })
+                .Distinct()
+                .Select(cr => new CriticidadDTO
+                {
+                    Id = cr.Id,
+                    Nombre = cr.Nombre
+                })
+                .ToList();
+
+            var puntosGenerales = configuracion
+                .Where(x => x.TipoEntidad == "PUNTOGENERAL")
+                .OrderBy(x => x.Orden)
+                .Select(pg => new PuntoGeneralDTO
+                {
+                    Id = pg.Id,
+                    Nombre = pg.Nombre,
+                    Descripcion = pg.Descripcion ?? string.Empty,
+                    Orden = pg.Orden ?? 0
+                })
+                .ToList();
+
+            return new ConfiguracionLineamientoDTO
+            {
+                FasesCalificacion = fases,
+                CriteriosCalificacion = criterios,
+                LineamientosCalificacion = lineamientos,
+                CriticidadCalificacion = criticidades,
+                PuntosGeneralesCalificacion = puntosGenerales
+            };
         }
 
         private object BuildBrochureVentas(LlamadaProcesoAutoDTO item, InformacionProgramaService serviceInformacionPrograma)
@@ -3282,6 +3461,147 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 Data = agrupado
             };
         }
+        
+
+        public ReporteCalificacionResponse ObtenerReporteVentas(ReporteCalificacionRequestV2 req)
+        {
+            var (items, total) = _unitOfWork.LineamientoCalificacionRepository.ObtenerReporteVentas(req);
+
+            var filasOrdenadas = items
+                .OrderByDescending(f => f.FechaInicioLlamadaCentral)
+                .ThenBy(f => f.IdLlamada)
+                .ToList();
+
+            var agrupado = filasOrdenadas
+                .GroupBy(f => f.IdLlamada)
+                .Select(g =>
+                {
+                    var first = g.First();
+
+                    var notasValidas = g
+                        .Where(x => x.PuntajePromedio >= 0)
+                        .Select(x => x.PuntajePromedio)
+                        .ToList();
+
+                    decimal? promedio = notasValidas.Count > 0 ? Math.Round(notasValidas.Average(), 2) : (decimal?)null;
+
+                    var puntosCriticos = g
+                        .Where(x => !string.IsNullOrWhiteSpace(x.PuntoCritico))
+                        .Select(x => x.PuntoCritico!.Trim())
+                        .Distinct()
+                        .ToList();
+
+                    return new LlamadaCalificadaDTO
+                    {
+                        IdLlamada = g.Key,
+                        IdOportunidad = first.IdOportunidad,
+                        FechaInicioLlamadaCentral = first.FechaInicioLlamadaCentral,
+                        DuracionContestoCentral = first.DuracionContestoCentral,
+                        IdAlumno = first.IdAlumno,
+                        NombreCliente = first.NombreCliente,
+                        IdAsesor = first.IdAsesor,
+                        NombreAsesor = first.NombreAsesor,
+                        IdCentroCosto = first.IdCentroCosto,
+                        NombreCentroCosto = first.NombreCentroCosto,
+                        NombreFaseI = first.NombreFaseI,
+                        CodigoFaseI = first.CodigoFaseI,
+                        NombreFaseD = first.NombreFaseD,
+                        CodigoFaseD = first.CodigoFaseD,
+                        Promedio = promedio,
+                        IdOcurrenciaPadreAlterno = first.IdOcurrenciaPadreAlterno,
+                        IdOcurrenciaActividadAlterno = first.IdOcurrenciaActividadAlterno,
+                        IdOcurrenciaAlterno = first.IdOcurrenciaAlterno,
+                        OcurrenciaPadreAlterno = first.OcurrenciaPadreAlterno,
+                        OcurrenciaAlterno = first.OcurrenciaAlterno,
+                        EstadoOcurrenciaAlterno = first.EstadoOcurrenciaAlterno,
+                        PuntosCriticos = puntosCriticos,
+                        ComentarioLlamadaNoCalificada = null,
+                        OcurrenciaConsistente = first.OcurrenciaConsistente,
+                        ComentarioConsistenciaOcurrencia = first.ComentarioConsistenciaOcurrencia,
+                        CambioFaseConsistente = first.CambioFaseConsistente,
+                        ComentarioConsistenciaCambioFase = first.ComentarioConsistenciaCambioFase,
+                        InterrupcionLlamada = first.InterrupcionLlamada
+                    };
+                })
+                .ToList();
+
+            return new ReporteCalificacionResponse
+            {
+                TotalRegistros = total,
+                Data = agrupado
+            };
+        }
+
+        public ReporteCalificacionAtencionClienteResponse ObtenerReporteAtencionCliente(ReporteCalificacionRequestV2 req)
+        {
+            var (filas, total) = _unitOfWork.LineamientoCalificacionRepository.ObtenerReporteAtencionCliente(req);
+
+            var filasOrdenadas = filas
+                .OrderByDescending(f => f.FechaInicioLlamadaCentral)
+                .ThenBy(f => f.IdLlamada)
+                .ToList();
+
+            var agrupado = filasOrdenadas
+                .GroupBy(f => f.IdLlamada)
+                .Select(g =>
+                {
+                    var first = g.First();
+
+                    var notasValidas = g
+                        .Where(x => x.PuntajePromedio.HasValue && x.PuntajePromedio.Value >= 0)
+                        .Select(x => x.PuntajePromedio.Value)
+                        .ToList();
+
+                    decimal? promedio = notasValidas.Count > 0 ? Math.Round(notasValidas.Average(), 2) : (decimal?)null;
+
+                    var puntosCriticos = g
+                        .Where(x => !string.IsNullOrWhiteSpace(x.PuntoCritico))
+                        .Select(x => x.PuntoCritico!.Trim())
+                        .Distinct()
+                        .ToList();
+
+                    return new LlamadaCalificadaAtencionClienteDTO
+                    {
+                        IdLlamada = g.Key,
+                        IdOportunidad = first.IdOportunidad,
+                        FechaInicioLlamadaCentral = first.FechaInicioLlamadaCentral,
+                        DuracionContestoCentral = first.DuracionContestoCentral,
+                        IdAlumno = first.IdAlumno,
+                        NombreCliente = first.NombreCliente,
+                        IdAsesor = first.IdAsesor,
+                        NombreAsesor = first.NombreAsesor,
+                        IdCentroCosto = first.IdCentroCosto,
+                        NombreCentroCosto = first.NombreCentroCosto,
+                        NombreFaseI = first.NombreFaseI,
+                        CodigoFaseI = first.CodigoFaseI,
+                        NombreFaseD = first.NombreFaseD,
+                        CodigoFaseD = first.CodigoFaseD,
+                        Promedio = promedio,
+                        // Ocurrencias (sin sufijo Alterno)
+                        IdOcurrenciaPadre = first.IdOcurrenciaPadre,
+                        IdOcurrenciaActividad = first.IdOcurrenciaActividad,
+                        IdOcurrencia = first.IdOcurrencia,
+                        OcurrenciaPadre = first.OcurrenciaPadre,
+                        Ocurrencia = first.Ocurrencia,
+                        EstadoOcurrencia = first.EstadoOcurrencia,
+                        PuntosCriticos = puntosCriticos,
+                        ComentarioLlamadaNoCalificada = null, // el SP no devuelve esto
+                        OcurrenciaConsistente = first.OcurrenciaConsistente,
+                        ComentarioConsistenciaOcurrencia = first.ComentarioConsistenciaOcurrencia,
+                        CambioFaseConsistente = first.CambioFaseConsistente,
+                        ComentarioConsistenciaCambioFase = first.ComentarioConsistenciaCambioFase,
+                        InterrupcionLlamada = first.InterrupcionLlamada
+                    };
+
+                })
+                .ToList();
+
+            return new ReporteCalificacionAtencionClienteResponse
+            {
+                TotalRegistros = total,
+                Data = agrupado
+            };
+        }
 
         public ReporteCalificacionResponse ObtenerReportePorArea(ReporteCalificacionAreaRequest req)
         {
@@ -3417,6 +3737,68 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             };
         }
 
+        public ReporteCalificacionResponse ObtenerReporteFaseVentas(ReporteCalificacionRequestV2 req)
+        {
+            var (filas, total) = _unitOfWork.LineamientoCalificacionRepository.ObtenerReporteFaseVentas(
+                req
+            );
+            var filasOrdenadas = filas
+                .OrderByDescending(f => f.FechaInicioLlamadaCentral)
+                .ThenBy(f => f.IdLlamada)
+                .ToList();
+            var agrupado = filasOrdenadas
+                .GroupBy(f => f.IdLlamada)
+                .Select(g =>
+                {
+                    var first = g.First();
+
+                    var notasValidas = g.Where(x => x.PuntajePromedio >= 0)
+                        .Select(x => x.PuntajePromedio);
+
+                    decimal? promedio = notasValidas.Any()
+                        ? Math.Round(notasValidas.Average(), 0, MidpointRounding.AwayFromZero) /*redondeo matematico solicitado 'or gerencia*/
+                        : (decimal?)null;
+
+                    var puntosCriticos = g.Where(x => !string.IsNullOrWhiteSpace(x.PuntoCritico))
+                        .Select(x => x.PuntoCritico!.Trim())
+                        .Distinct()
+                        .ToList();
+
+                    return new LlamadaCalificadaDTO
+                    {
+                        IdLlamada = g.Key,
+                        IdOportunidad = first.IdOportunidad,
+                        FechaInicioLlamadaCentral = first.FechaInicioLlamadaCentral,
+                        DuracionContestoCentral = first.DuracionContestoCentral,
+                        IdAlumno = first.IdAlumno,
+                        NombreCliente = first.NombreCliente,
+                        IdAsesor = first.IdAsesor,
+                        NombreAsesor = first.NombreAsesor,
+                        IdCentroCosto = first.IdCentroCosto,
+                        NombreCentroCosto = first.NombreCentroCosto,
+                        NombreFaseI = first.NombreFaseI,
+                        CodigoFaseI = first.CodigoFaseI,
+                        NombreFaseD = first.NombreFaseD,
+                        CodigoFaseD = first.CodigoFaseD,
+                        Promedio = promedio,
+                        IdOcurrenciaPadreAlterno = first.IdOcurrenciaPadreAlterno,
+                        IdOcurrenciaActividadAlterno = first.IdOcurrenciaActividadAlterno,
+                        IdOcurrenciaAlterno = first.IdOcurrenciaAlterno,
+                        IdVersionConfiguracionCalificacionLlamada =
+                            first.IdVersionConfiguracionCalificacionLlamada,
+                        OcurrenciaPadreAlterno = first.OcurrenciaPadreAlterno,
+                        OcurrenciaAlterno = first.OcurrenciaAlterno,
+                        EstadoOcurrenciaAlterno = first.EstadoOcurrenciaAlterno,
+                        OcurrenciaConsistente = first.OcurrenciaConsistente,
+                        ComentarioConsistenciaOcurrencia = first.ComentarioConsistenciaOcurrencia,
+                        InterrupcionLlamada = first.InterrupcionLlamada,
+                    };
+                })
+                .ToList();
+
+            return new ReporteCalificacionResponse { TotalRegistros = total, Data = agrupado };
+        }
+
 
         public ReporteCalificacionGlobalResponse ObtenerPromedioGlobal(ReporteCalificacionGlobalRequest request)
         {
@@ -3472,7 +3854,123 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 FechaCalculo = DateTime.Now
             };
         }
+        public ReporteCalificacionGlobalResponse ObtenerPromedioGlobalVentas(ReporteCalificacionGlobalRequestV2 request)
+        {
+            var filas = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosParaPromedioGlobalVentas(request);
+            var filasOrdenadas = filas
+    .OrderByDescending(f => f.FechaInicioLlamadaCentral)
+    .ThenBy(f => f.IdLlamada)
+    .ToList();
+            // Agrupa todas las llamadas
+            var agrupadoTotal = filasOrdenadas
+                .GroupBy(f => f.IdLlamada)
+                .ToList();
+            var totalLlamadas = agrupadoTotal.Count;
+            // Agrupa todas las llamadas (sin filtrar criterios)
+            var agrupado = filasOrdenadas
+               .GroupBy(f => f.IdLlamada)
+               .Select(g =>
+               {
+                   var notasValidas = g
+                       .Where(x => x.PuntajePromedio >= 0)
+                       .Select(x => x.PuntajePromedio);
 
+                   decimal? promedio = notasValidas.Any()
+                       ? Math.Round(notasValidas.Average(), 0, MidpointRounding.AwayFromZero)
+                       : (decimal?)null;
+
+                   return new
+                   {
+                       IdLlamada = g.Key,
+                       Promedio = promedio,
+                       TotalCalificaciones = notasValidas.Count()
+                   };
+               })
+               .Where(x => x.Promedio.HasValue)
+               .ToList();
+
+            var totalCalificaciones = agrupado.Sum(x => x.TotalCalificaciones);
+
+            // Calcular promedio global excluyendo calificacion
+            var promediosValidos = filasOrdenadas
+                .Where(x => x.PuntajePromedio >= 0 && x.IdCriterioCalificacion != 36 && x.IdCriterioCalificacion != 37 && x.IdCriterioCalificacion != null)
+                .Select(x => x.PuntajePromedio);
+
+            var promedioGlobal = promediosValidos.Any()
+                ? Math.Round(promediosValidos.Average(), 2)
+                : 0;
+
+            return new ReporteCalificacionGlobalResponse
+            {
+                TotalLlamadas = totalLlamadas,
+                PromedioGlobal = promedioGlobal,
+                TotalCalificaciones = totalCalificaciones,
+                FechaCalculo = DateTime.Now
+            };
+        }
+
+        public ReporteCalificacionGlobalResponse ObtenerPromedioGlobalAtencionCliente(
+            ReporteCalificacionGlobalRequestV2 request
+        )
+        {
+            var filas =
+                _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosParaPromedioGlobalAtencionCliente(
+                    request
+                );
+
+            var filasOrdenadas = filas
+                .OrderByDescending(f => f.FechaInicioLlamadaCentral)
+                .ThenBy(f => f.IdLlamada)
+                .ToList();
+
+            // Agrupa todas las llamadas
+            var agrupadoTotal = filasOrdenadas.GroupBy(f => f.IdLlamada).ToList();
+
+            var totalLlamadas = agrupadoTotal.Count;
+
+            // Agrupa todas las llamadas (sin filtrar criterios)
+            var agrupado = filasOrdenadas
+                .GroupBy(f => f.IdLlamada)
+                .Select(g =>
+                {
+                    var notasValidas = g
+                        .Where(x => x.PuntajePromedio.HasValue && x.PuntajePromedio.Value >= 0)
+                        .Select(x => x.PuntajePromedio.Value)
+                        .ToList();
+
+                    decimal? promedio = notasValidas.Any()
+                        ? Math.Round(notasValidas.Average(), 0, MidpointRounding.AwayFromZero)
+                        : (decimal?)null;
+
+                    return new
+                    {
+                        IdLlamada = g.Key,
+                        Promedio = promedio,
+                        TotalCalificaciones = notasValidas.Count(),
+                    };
+                })
+                .Where(x => x.Promedio.HasValue)
+                .ToList();
+
+            var totalCalificaciones = agrupado.Sum(x => x.TotalCalificaciones);
+
+            // Calcular promedio global SIN EXCLUIR ningún criterio (ATC incluye todos)
+            var promediosValidos = filasOrdenadas
+                        .Where(x => x.PuntajePromedio.HasValue && x.PuntajePromedio.Value >= 0)
+                        .Select(x => x.PuntajePromedio.Value);
+
+            var promedioGlobal = promediosValidos.Any()
+                ? Math.Round(promediosValidos.Average(), 2)
+                : 0;
+
+            return new ReporteCalificacionGlobalResponse
+            {
+                TotalLlamadas = totalLlamadas,
+                PromedioGlobal = promedioGlobal,
+                TotalCalificaciones = totalCalificaciones,
+                FechaCalculo = DateTime.Now,
+            };
+        }
 
         /// <summary>
         /// Obtiene calificaciones por fase para una llamada específica
@@ -3504,10 +4002,10 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             if (payload == null)
                 throw new ArgumentNullException(nameof(payload), "El cuerpo de calificación es nulo.");
 
-            /*AQui obtengo la version vigente de lineamientos para calificar*/
-            var lineamientoVigente = _unitOfWork.LineamientoCalificacionRepository
-                    .HistorialVersionCalificacionLlamada()
-                    .FirstOrDefault(x => x.EsVigente);
+            var lineamientoVigente =
+                                      ObtenerConfiguracionVigenteV3(
+                                          payload.IdPersonalAreaTrabajo
+                                      );
             if (lineamientoVigente == null)
                 throw new InvalidOperationException("No existe una versión vigente de lineamientos para calificar.");
             if (string.IsNullOrWhiteSpace(lineamientoVigente.ConfiguracionJSON))
@@ -3541,6 +4039,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 throw new InvalidOperationException("No se pudo guardar la calificación automática en la base de datos.");
 
         }
+
+
 
 
         /// <summary>
@@ -3688,7 +4188,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         /// Version: 1.0
         /// <summary>
         /// Obtiene todos el resumen de punto critico diario por asesor
-        /// </summary> 
+        /// </summary>
         /// <returns> IEnumerable<ComboDTO> </returns>
         public IEnumerable<PuntoCriticoResumenDiarioDTO> ObtenerPuntoCriticoDiario(PuntoCriticoResumenEntradaDTO payload)
         {
@@ -3697,6 +4197,53 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 var idPersonal = payload.IdPersonal;
                 var FechaGeneracion = payload.FechaGeneracion;
                 return _unitOfWork.LineamientoCalificacionRepository.ObtenerPuntoCriticoDiario(idPersonal,FechaGeneracion);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 25/01/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Guarda calificación manual en tiempo real usando tablas temporales.
+        /// Permite calificar llamadas antes de que se registren definitivamente,
+        /// usando IdActividadDetalle + NumeroLlamada como identificadores temporales.
+        /// Los datos se guardan en T_EvaluacionLlamadaTemporal y T_EvaluacionDetalleManualTemporal.
+        /// </summary>
+        /// <param name="calificacionTemporal">DTO con datos de calificación temporal</param>
+        /// <returns>True si la operación fue exitosa</returns>
+        public bool GuardarCalificacionLlamadaTemporal(CalificacionLlamadaManualTemporalDTO calificacionTemporal)
+        {
+            try
+            {
+                return _unitOfWork.LineamientoCalificacionRepository.GuardarCalificacionLlamadaTemporal(calificacionTemporal);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 25/01/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene las calificaciones temporales de una llamada en tiempo real.
+        /// Utiliza IdActividadDetalle + NumeroLlamada para identificar la llamada
+        /// antes de que se registre en T_LlamadaWebphoneCruceCentralTresCx.
+        /// Consulta las tablas T_EvaluacionLlamadaTemporal y T_EvaluacionDetalleManualTemporal.
+        /// </summary>
+        /// <param name="idActividadDetalle">ID de la actividad detalle</param>
+        /// <param name="numeroLlamada">Número secuencial de la llamada (1, 2, 3, etc.)</param>
+        /// <returns>Lista de calificaciones temporales</returns>
+        public IEnumerable<CalificacionLlamadaDTO> ObtenerNotaCalificacionLineamientoTemporal(int idActividadDetalle, int numeroLlamada)
+        {
+            try
+            {
+                return _unitOfWork.LineamientoCalificacionRepository.ObtenerNotaCalificacionLineamientoTemporal(idActividadDetalle, numeroLlamada);
             }
             catch (Exception ex)
             {

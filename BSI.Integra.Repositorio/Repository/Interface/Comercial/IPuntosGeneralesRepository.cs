@@ -22,5 +22,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
         PuntosGeneralesCalificacion ObtenerPorId(int id);
         IEnumerable<ComboDTO> ObtenerCombo();
         IEnumerable<PuntosGeneralesCalificacion> ObtenerPuntosGenerales();
+        IEnumerable<PuntosGeneralesCalificacion> ObtenerPuntosGeneralesPorArea(int idPersonalAreaTrabajo);
     }
 }

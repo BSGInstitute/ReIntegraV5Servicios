@@ -1,4 +1,5 @@
 ﻿using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Comercial;
 using System;
 using System.Collections.Generic;
@@ -21,5 +22,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Interface
         LineamientoCalificacion ObtenerPorId(int id);
         IEnumerable<ComboDTO> ObtenerCombo();
         Task<string?> GenerarCuerpoCalificacionv2(int idLlamada);
+        bool GuardarCalificacionLlamadaTemporal(CalificacionLlamadaManualTemporalDTO calificacionTemporal);
+        IEnumerable<CalificacionLlamadaDTO> ObtenerNotaCalificacionLineamientoTemporal(int idActividadDetalle, int numeroLlamada);
     }
 }

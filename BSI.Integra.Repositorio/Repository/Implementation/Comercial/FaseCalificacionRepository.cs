@@ -255,5 +255,32 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 throw ex;
             }
         }
+        /// Autor: Lolo Zaa.
+        /// Fecha: 25/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de la tabla por Area
+        /// </summary> 
+        /// <returns> IEnumerable<ComboDTO> </returns>
+        public IEnumerable<FaseCalificacion> ObtenerFasesPorArea(int idPersonalAreaTrabajo)
+        {
+            try
+            {
+                var comboDTOs = new List<FaseCalificacion>();
+                var query = @"SELECT Id,Nombre,Descripcion,Orden,IdPersonalAreaTrabajo
+                                FROM com.T_FaseCalificacion 
+                                WHERE Estado =1 AND IdPersonalAreaTrabajo=@idPersonalAreaTrabajo";
+                var resultado = _dapperRepository.QueryDapper(query, new { idPersonalAreaTrabajo = idPersonalAreaTrabajo });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                {
+                    comboDTOs = JsonConvert.DeserializeObject<List<FaseCalificacion>>(resultado);
+                }
+                return comboDTOs;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

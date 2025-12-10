@@ -56,7 +56,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
 
 
         IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosConfiguracionTranscripcionAuto();
-        IEnumerable<LlamadaProcesoAutoAtencioClienteDTO> ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente();
+        IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente(int idPersonalAreaTrabajo);
 
         IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosConfiguracionCalificacionAuto();
         IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosEvaluacionLLamadaCalificacionAuto(int idPersonalAreaTrabajo);
@@ -73,11 +73,13 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
 
 
         (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporte(ReporteCalificacionRequest req);
+        (IEnumerable<LlamadaCalificadaAtencionClienteRawDTO> Items, int Total) ObtenerReporteAtencionCliente(ReporteCalificacionRequest req);
         (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReportePorArea(ReporteCalificacionAreaRequest req);
 
         (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporteFase(ReporteCalificacionRequest req);
 
         IEnumerable<LlamadaCalificadaRawDTO> ObtenerDatosParaPromedioGlobal(ReporteCalificacionGlobalRequest request);
+        IEnumerable<LlamadaCalificadaAtencionClienteRawDTO> ObtenerDatosParaPromedioGlobalAtencionCliente(ReporteCalificacionGlobalRequest request);
         IEnumerable<CalificacionFaseDTO> ObtenerCalificacionFase(int idLlamada, bool tipoCalificacion);
         IEnumerable<InformacionLlamadaTresCxDTO> ObtenerInformacionLlamada(int idLlamada);
 
@@ -101,5 +103,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
         IEnumerable<ConfiguracionVigenteJerarquiaDTO> ObtenerConfiguracionPorVersion(int idVersion, int idPersonalAreaTrabajo);
         IEnumerable<ConfiguracionVigenteJerarquiaDTO> ObtenerConfiguracionVigentePorArea(int idPersonalAreaTrabajo);
         IEnumerable<ConfiguracionEsquemaCalificacionPorLlamdaDTO> HistorialVersionCalificacionPorLlamadav2(int idLlamada);
+
+        // Métodos para tablas temporales - Calificación en tiempo real
+        bool GuardarCalificacionLlamadaTemporal(CalificacionLlamadaManualTemporalDTO calificacionTemporal);
+        IEnumerable<CalificacionLlamadaDTO> ObtenerNotaCalificacionLineamientoTemporal(int idActividadDetalle, int numeroLlamada);
     }
 }

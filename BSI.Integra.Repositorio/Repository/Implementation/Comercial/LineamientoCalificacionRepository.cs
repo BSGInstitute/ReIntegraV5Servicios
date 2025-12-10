@@ -445,7 +445,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 FROM com.T_EvaluacionLlamadaConfiguracionVersion WITH(NOLOCK)
                 WHERE Estado = 1 
                   AND IdPersonalAreaTrabajo = @IdPersonalAreaTrabajo
-                ORDER BY FechaCreacion DESC";
+                ORDER BY id DESC";
 
                 var parametros = new { IdPersonalAreaTrabajo = idPersonalAreaTrabajo };
 
@@ -474,8 +474,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             {
                 var resultado = _dapperRepository.QuerySPDapper("[com].[SP_EvaluacionLlamadaObtenerConfiguracionPorVersion]", new
                 {
-                    IdPersonalAreaTrabajo = idPersonalAreaTrabajo,
-                    IdEvaluacionLlamadaConfiguracionVersion = idEvaluacionLlamadaConfiguracionVersion
+                    IdVersion = idEvaluacionLlamadaConfiguracionVersion,
+                    IdPersonalAreaTrabajo = idPersonalAreaTrabajo
                 });
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
@@ -720,7 +720,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
         {
             try
             {
-                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ActivarConfiguracionCalificacionLlamada]", new { activarVersion.IdVersion, activarVersion.Usuario });
+                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ActivarConfiguracionEvaluacionLlamada]", new { activarVersion.IdVersion, activarVersion.Usuario, activarVersion.IdPersonalAreaTrabajo });
                 return !string.IsNullOrEmpty(resultado) && !resultado.Contains("[]");
             }
             catch (Exception)
@@ -1134,15 +1134,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             }
 
         }
-        public IEnumerable<LlamadaProcesoAutoAtencioClienteDTO> ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente()
+        public IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente(int idPersonalAreaTrabajo)
         {
             try
             {
-                List<LlamadaProcesoAutoAtencioClienteDTO> configuracion = new List<LlamadaProcesoAutoAtencioClienteDTO>();
-                var resultado = _dapperRepository.QuerySPDapper("ope.SP_ObtenerInformacionTranscripcionAutomaticaAtencionCliente", new { });
+                List<LlamadaProcesoAutoDTO> configuracion = new List<LlamadaProcesoAutoDTO>();
+                var resultado = _dapperRepository.QuerySPDapper("ope.SP_EvaluacionLlamadaObtenerTranscripcionAutomaticaAtencionCliente", new {idPersonalAreaTrabajo=idPersonalAreaTrabajo});
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
                 {
-                    configuracion = JsonConvert.DeserializeObject<List<LlamadaProcesoAutoAtencioClienteDTO>>(resultado);
+                    configuracion = JsonConvert.DeserializeObject<List<LlamadaProcesoAutoDTO>>(resultado);
                 }
                 return configuracion;
             }
@@ -1392,6 +1392,60 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 
 
         }
+        /// Autor: Lolo Zaa
+        /// Fecha: 27/11/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Ejecuta [com].[SP_ReporteCalificacionClientes] y mapea:
+        ///   - ResultSet1: detalle (calificaciones por llamada)
+        ///   - ResultSet2: total de registros
+        /// </summary>
+        public (IEnumerable<LlamadaCalificadaAtencionClienteRawDTO> Items, int Total) ObtenerReporteAtencionCliente(ReporteCalificacionRequest req)
+        {
+            var resultadoQuery = _dapperRepository.QuerySPDapper(
+                      "[ope].[SP_ReporteCalificacionClienteAtc]",
+                      new
+                      {
+                          req.FechaInicio,
+                          req.FechaFin,
+                          IdsAsesores = (req.IdsAsesores != null && req.IdsAsesores.Any())
+                              ? JsonConvert.SerializeObject(req.IdsAsesores)
+                              : null,
+                          req.IdCentroCosto,
+                          req.IdFaseI,
+                          req.IdFaseD,
+                          req.EstadoActividadCabecera,
+                          req.Pagina,
+                          req.TamanioPagina
+                      }
+                  );
+
+            string payload;
+
+            var token = JToken.Parse(resultadoQuery);
+
+            if (token.Type == JTokenType.Array)
+            {
+                var arr = (JArray)token;
+                var first = arr.FirstOrDefault() as JObject;
+                payload = (string?)first?["JsonResult"] ?? string.Empty;
+            }
+            else if (token.Type == JTokenType.Object)
+            {
+                var obj = (JObject)token;
+                payload = (string?)obj["JsonResult"] ?? resultadoQuery;
+            }
+            else
+            {
+                payload = resultadoQuery;
+            }
+            if (string.IsNullOrWhiteSpace(payload))
+                return (Enumerable.Empty<LlamadaCalificadaAtencionClienteRawDTO>(), 0);
+            var wrapper = JsonConvert.DeserializeObject<ReporteJsonWrapperAtencionCliente>(payload);
+            var items = wrapper?.Items ?? new List<LlamadaCalificadaAtencionClienteRawDTO>();
+            var total = wrapper?.TotalRegistros ?? items.Count;
+            return (items, total);
+        }
 
         /// Autor: Joseph Llanque
         /// Fecha: 14/08/2025
@@ -1552,6 +1606,50 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 
             var wrapper = JsonConvert.DeserializeObject<ReporteJsonWrapper>(payload);
             return wrapper?.Items ?? new List<LlamadaCalificadaRawDTO>();
+        }
+        public IEnumerable<LlamadaCalificadaAtencionClienteRawDTO> ObtenerDatosParaPromedioGlobalAtencionCliente(ReporteCalificacionGlobalRequest request)
+        {
+            var resultado = _dapperRepository.QuerySPDapper(
+                "[ope].[SP_ReporteCalificacionGlobalAtencionCliente]",
+                new
+                {
+                    request.FechaInicio,
+                    request.FechaFin,
+                    IdsAsesores = (request.IdsAsesores != null && request.IdsAsesores.Any())
+                        ? JsonConvert.SerializeObject(request.IdsAsesores)
+                        : null,
+                    request.IdCentroCosto,
+                    request.IdFaseI,
+                    request.IdFaseD,
+                    request.EstadoActividadCabecera
+                }
+            );
+
+            // Parsear resultado JSON (igual que el método existente)
+            string payload;
+            var token = JToken.Parse(resultado);
+
+            if (token.Type == JTokenType.Array)
+            {
+                var arr = (JArray)token;
+                var first = arr.FirstOrDefault() as JObject;
+                payload = (string?)first?["JsonResult"] ?? string.Empty;
+            }
+            else if (token.Type == JTokenType.Object)
+            {
+                var obj = (JObject)token;
+                payload = (string?)obj["JsonResult"] ?? resultado;
+            }
+            else
+            {
+                payload = resultado;
+            }
+
+            if (string.IsNullOrWhiteSpace(payload))
+                return Enumerable.Empty<LlamadaCalificadaAtencionClienteRawDTO>();
+
+            var wrapper = JsonConvert.DeserializeObject<ReporteJsonWrapperAtencionCliente>(payload);
+            return wrapper?.Items ?? new List<LlamadaCalificadaAtencionClienteRawDTO>();
         }
 
         /// <summary>
@@ -1718,9 +1816,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 				             NombreCliente,
 				             Ocurrencia,
 				             IdPersonalAreaTrabajo,
-				             OcurrenciaPadre
+				             OcurrenciaPadre,
+                             IdOcurrenciaPadreAlterno,
+                             IdOcurrenciaActividadAlterno,
+                             IdOcurrenciaAlterno,
+                             OcurrenciaPadreAlterno,
+                             OcurrenciaAlterno
+
                       FROM
-                            ope.V_ObtenerHistoricoOcurrenciaAtencionCliente
+                            ope.V_EvaluacionLlamadaObtenerHistoricoOcurrenciaAtencionCliente
                       WHERE IdOportunidad = @idOportunidad
                         AND IdPersonalAreaTrabajo = @idPersonalAreaTrabajo
                       ORDER BY FechaReal DESC;";
@@ -2058,6 +2162,75 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 25/01/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Guarda calificación manual en tiempo real usando tablas temporales.
+        /// Inserta registro en T_EvaluacionLlamadaTemporal y T_EvaluacionDetalleManualTemporal.
+        /// Utiliza IdActividadDetalle + NumeroLlamada como identificadores temporales.
+        /// </summary>
+        /// <param name="calificacionTemporal">DTO con datos de calificación temporal</param>
+        /// <returns>True si la operación fue exitosa</returns>
+        public bool GuardarCalificacionLlamadaTemporal(CalificacionLlamadaManualTemporalDTO calificacionTemporal)
+        {
+            try
+            {
+                string calificacionesJson = JsonConvert.SerializeObject(calificacionTemporal.Calificaciones);
+                string calificacionesPuntoGeneralJson = JsonConvert.SerializeObject(calificacionTemporal.CalificacionesPuntosGenerales);
+
+                var parametros = new DynamicParameters();
+                parametros.Add("@idActividadDetalle", calificacionTemporal.IdActividadDetalle, DbType.Int32);
+                parametros.Add("@numeroLlamada", calificacionTemporal.NumeroLlamada, DbType.Int32);
+                parametros.Add("@idVersion", calificacionTemporal.IdVersion, DbType.Int32);
+                parametros.Add("@tipoEvaluacion", calificacionTemporal.TipoEvaluacion, DbType.Boolean);
+                parametros.Add("@calificaciones", calificacionesJson, DbType.String);
+                parametros.Add("@calificacionesPuntosGenerales", calificacionesPuntoGeneralJson, DbType.String);
+                parametros.Add("@usuario", calificacionTemporal.Usuario, DbType.String);
+
+                _dapperRepository.QuerySPDapper("[com].[SP_CalificacionLlamadaTemporal_Insertar]", parametros);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al insertar la calificación temporal de llamada: " + ex.Message);
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 25/01/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las calificaciones temporales desde T_EvaluacionLlamadaTemporal y T_EvaluacionDetalleManualTemporal.
+        /// Utiliza IdActividadDetalle + NumeroLlamada para identificar la llamada en tiempo real.
+        /// </summary>
+        /// <param name="idActividadDetalle">ID de la actividad detalle</param>
+        /// <param name="numeroLlamada">Número secuencial de la llamada</param>
+        /// <returns>Lista de calificaciones temporales</returns>
+        public IEnumerable<CalificacionLlamadaDTO> ObtenerNotaCalificacionLineamientoTemporal(int idActividadDetalle, int numeroLlamada)
+        {
+            try
+            {
+                var calificaciones = new List<CalificacionLlamadaDTO>();
+                var resultado = _dapperRepository.QuerySPDapper(
+                    "[com].[SP_CalificacionLlamadaTemporal_Obtener]",
+                    new { IdActividadDetalle = idActividadDetalle, NumeroLlamada = numeroLlamada }
+                );
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                {
+                    calificaciones = JsonConvert.DeserializeObject<List<CalificacionLlamadaDTO>>(resultado);
+                }
+
+                return calificaciones;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al obtener las calificaciones temporales: " + ex.Message);
             }
         }
 

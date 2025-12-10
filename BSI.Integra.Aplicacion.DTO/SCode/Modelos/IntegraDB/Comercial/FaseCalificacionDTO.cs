@@ -18,7 +18,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public DateTime FechaCreacion { get; set; }
         public DateTime FechaModificacion { get; set; }
         public byte[] RowVersion { get; set; } = null!;
-        public int? IdMigracion { get; set; }
+        public int? IdPersonalAreaTrabajo { get; set; }
     }
 
        
@@ -32,6 +32,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int? Orden { get; set; }
         public string? Descripcion { get; set; }
         public string Usuario { get; set; }
+        public int? IdPersonalAreaTrabajo { get; set; }
     }
 
 }

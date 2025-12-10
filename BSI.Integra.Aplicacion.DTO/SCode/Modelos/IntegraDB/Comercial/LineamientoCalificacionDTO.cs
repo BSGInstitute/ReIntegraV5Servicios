@@ -91,6 +91,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
     {
         public int IdVersion { get; set; }
         public string Usuario { get; set; }
+        public int? IdPersonalAreaTrabajo {get; set;}
     }
     public class ConfiguracionEsquemaCalificacionLlamdaDTO
     {
@@ -426,6 +427,9 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public string? UserName { get; set; }
         [JsonPropertyName("contacto")]
         public string? contacto { get; set; }
+        [JsonPropertyName("idPersonalAreaTrabajo")]
+        public int IdPersonalAreaTrabajo { get; set; }
+
 
     }
 
@@ -581,6 +585,11 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public List<LlamadaCalificadaRawDTO> Items { get; set; }
         public int TotalRegistros { get; set; }
     }
+    public class ReporteJsonWrapperAtencionCliente
+    {
+        public List<LlamadaCalificadaAtencionClienteRawDTO> Items { get; set; }
+        public int TotalRegistros { get; set; }
+    }
 
     public class LlamadaCalificadaRawDTO
     {
@@ -620,12 +629,53 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public string? ComentarioConsistenciaCambioFase { get; set; }
         public string? InterrupcionLlamada { get; set; }
         public string? PuntoCritico { get; set; }
+    }
 
+    public class LlamadaCalificadaAtencionClienteRawDTO
+    {
+        public int IdLlamada { get; set; }
+        public int IdOportunidad { get; set; }
+        public DateTime FechaInicioLlamadaCentral { get; set; }
+        public int DuracionContestoCentral { get; set; }
 
+        public int IdAlumno { get; set; }
+        public string NombreCliente { get; set; }
 
+        public int IdAsesor { get; set; }
+        public string NombreAsesor { get; set; }
 
+        public int IdCentroCosto { get; set; }
+        public string NombreCentroCosto { get; set; }
 
+        public string NombreFaseI { get; set; }
+        public string CodigoFaseI { get; set; }
+        public string NombreFaseD { get; set; }
+        public string CodigoFaseD { get; set; }
 
+        public decimal PuntajePromedio { get; set; }
+
+        public int TipoCalificacion { get; set; }
+
+        public int IdCalificacionLlamada { get; set; }
+
+        public string Comentario { get; set; }
+
+        public int? IdOcurrenciaPadre { get; set; }
+        public int? IdOcurrenciaActividad { get; set; }
+        public int? IdOcurrencia { get; set; }
+
+        public string? OcurrenciaPadre { get; set; }
+        public string? Ocurrencia { get; set; }
+        public string? EstadoOcurrencia { get; set; }
+
+        public bool? OcurrenciaConsistente { get; set; }
+        public string? ComentarioConsistenciaOcurrencia { get; set; }
+
+        public bool? CambioFaseConsistente { get; set; }
+        public string? ComentarioConsistenciaCambioFase { get; set; }
+
+        public string? InterrupcionLlamada { get; set; }
+        public string? PuntoCritico { get; set; }
     }
 
     public class LlamadaCalificadaDTO
@@ -675,6 +725,51 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
 
         public List<string> PuntosCriticos { get; set; }
     }
+    public class LlamadaCalificadaAtencionClienteDTO
+    {
+        public int IdLlamada { get; set; }
+        public int IdOportunidad { get; set; }
+        public DateTime FechaInicioLlamadaCentral { get; set; }
+        public int? DuracionContestoCentral { get; set; }
+
+        public int IdAlumno { get; set; }
+        public string NombreCliente { get; set; }
+
+        public int IdAsesor { get; set; }
+        public string NombreAsesor { get; set; }
+
+        public int IdCentroCosto { get; set; }
+        public string NombreCentroCosto { get; set; }
+
+        public string NombreFaseI { get; set; }
+        public string CodigoFaseI { get; set; }
+        public string NombreFaseD { get; set; }
+        public string CodigoFaseD { get; set; }
+
+        public decimal? Promedio { get; set; }
+
+        // Cambios: se reemplazan los campos *Alterno* por los nombres reales del SP
+        public int? IdOcurrenciaPadre { get; set; }
+        public int? IdOcurrenciaActividad { get; set; }
+        public int? IdOcurrencia { get; set; }
+
+        public string? OcurrenciaPadre { get; set; }
+        public string? Ocurrencia { get; set; }
+        public string? EstadoOcurrencia { get; set; }
+
+        public string? ComentarioLlamadaNoCalificada { get; set; }
+
+        public bool? OcurrenciaConsistente { get; set; }
+        public string? ComentarioConsistenciaOcurrencia { get; set; }
+
+        public bool? CambioFaseConsistente { get; set; }
+        public string? ComentarioConsistenciaCambioFase { get; set; }
+
+        public string? InterrupcionLlamada { get; set; }
+
+        public List<string> PuntosCriticos { get; set; }
+    }
+
     public class PuntoCriticoDTO
     {
         public decimal? Nota { get; set; }
@@ -685,6 +780,11 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
     {
         public int TotalRegistros { get; set; }
         public IEnumerable<LlamadaCalificadaDTO> Data { get; set; }
+    }
+    public class ReporteCalificacionAtencionClienteResponse
+    {
+        public int TotalRegistros { get; set; }
+        public IEnumerable<LlamadaCalificadaAtencionClienteDTO> Data { get; set; }
     }
 
 
@@ -832,15 +932,15 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int IdLlamada { get; set; }
         public string EstadoOcurrencia { get; set; }
         public int IdAlumno { get; set; }
-        public int IdOcurrencia { get; set; }
-        public int IdOcurrenciaActividad { get; set; }
-        public int IdOcurrenciaPadre { get; set; }
+        public int? IdOcurrencia { get; set; }
+        public int? IdOcurrenciaActividad { get; set; }
+        public int? IdOcurrenciaPadre { get; set; }
         public int IdOportunidad { get; set; }
         public DateTime FechaReal { get; set; }
         public string NombreCliente { get; set; }
-        public string Ocurrencia { get; set; }
+        public string? Ocurrencia { get; set; }
         public int IdPersonalAreaTrabajo { get; set; }
-        public string OcurrenciaPadre { get; set; }
+        public string? OcurrenciaPadre { get; set; }
     }
 
 
@@ -1187,6 +1287,48 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
     public class VersionConfiguracionPorLlamadaDTO
     {
         public int IdVersionConfiguracionCalificacionLlamada { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para calificación manual en tiempo real usando tablas temporales.
+    /// Utiliza IdActividadDetalle + NumeroLlamada en lugar de IdLlamada.
+    /// </summary>
+    public class CalificacionLlamadaManualTemporalDTO
+    {
+        /// <summary>
+        /// ID de la actividad detalle (usado temporalmente hasta obtener IdLlamada definitivo)
+        /// </summary>
+        public int IdActividadDetalle { get; set; }
+
+        /// <summary>
+        /// Número secuencial de la llamada dentro de la actividad (1, 2, 3, etc.)
+        /// </summary>
+        public int NumeroLlamada { get; set; }
+
+        /// <summary>
+        /// ID de la versión de configuración de calificación
+        /// </summary>
+        public int IdVersion { get; set; }
+
+        /// <summary>
+        /// Tipo de evaluación: false=Manual, true=Automática
+        /// </summary>
+        public bool TipoEvaluacion { get; set; }
+
+        /// <summary>
+        /// Lista de calificaciones por criterio
+        /// </summary>
+        public List<DetalleCalificacionMualDTO> Calificaciones { get; set; }
+
+        /// <summary>
+        /// Lista de calificaciones de puntos generales
+        /// </summary>
+        public List<DetalleCalificacionPuntoGeneralDTO> CalificacionesPuntosGenerales { get; set; }
+
+        /// <summary>
+        /// Usuario que realiza la calificación
+        /// </summary>
+        public string Usuario { get; set; }
     }
 
 }
