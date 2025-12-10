@@ -2184,131 +2184,287 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             return brochure;
         }
 
-        private async Task<object> BuildBrochureClientesAsync(LlamadaProcesoAutoDTO item, InformacionProgramaService
-  serviceInformacionPrograma, SolicitudOperacionesService solicitudOperacionesService, AlumnoService alumnoService)
+        private async Task<object> BuildBrochureClientesAsync(LlamadaProcesoAutoDTO item, InformacionProgramaService serviceInformacionPrograma, SolicitudOperacionesService solicitudOperacionesService, AlumnoService alumnoService)
         {
-            CargarInformacionProgramaAutomaticoRespuestaDTO InformacionPrograma =
-        serviceInformacionPrograma.CargarInformacionProgramaAutomatico(item.IdCentroCosto, item.IdCodigoPais, 0, 0);
+            // Validar que item no sea null
+            if (item == null)
+            {
+                return new { };
+            }
 
-            CargarInformacionProgramaAutomaticoRespuestaDTO PresentacionPrograma =
-        serviceInformacionPrograma.CargarInformacionProgramaAutomaticoSpeech(item.IdCentroCosto, item.IdCodigoPais, 0, 0);
-
-            List<CronogramaPagoDetalleFinalDTO> CronogramaFinanzas = new List<CronogramaPagoDetalleFinalDTO>();
-            object InformacionBeneficioSolicitado = null;
-            object BeneficiosPorMatricula = null;
-            object OportunidadMontoComplementarios = null;
-
-            List<DatosSolicitudOperacionesDTO> operacionesPendientes =
-        solicitudOperacionesService.ObtenerSolicitudOperaciones(item.IdOportunidad);
-            List<DatosSolicitudOperacionesDTO> operacionesRealizadas =
-        solicitudOperacionesService.ObtenerSolicitudOperacionesRealizadas(item.IdOportunidad);
-            AvanceAonlineAlumnoDTO AvanceAonline = alumnoService.obtenerDatosAvanceAonline(item.idMatricula);
-            AvanceAonlineAlumnoDTO AvanceOnline = alumnoService.obtenerDatosAvanceOnline(item.idMatricula);
-            List<HistorialAsesoraDTO> HistorialAsesoria =
-        solicitudOperacionesService.ObtenerHistorialAsesora(item.idMatricula);
-
+            // Inicializar TODAS las variables con listas vacías por defecto
+            object InformacionPrograma = new List<object>();
+            object PresentacionPrograma = new List<object>();
+            List<object> CronogramaFinanzas = new List<object>();
+            List<object> InformacionBeneficioSolicitado = new List<object>();
+            List<object> BeneficiosPorMatricula = new List<object>();
+            List<object> OportunidadMontoComplementarios = new List<object>();
+            List<object> operacionesPendientes = new List<object>();
+            List<object> operacionesRealizadas = new List<object>();
+            object AvanceAonline = new List<object>();
+            object AvanceOnline = new List<object>();
+            List<object> HistorialAsesoria = new List<object>();
             List<object> listadoNotas = new List<object>();
 
-            if (!string.IsNullOrEmpty(item.CodignoMatricula))
+            // Solo llamar si los parámetros son válidos
+            if (item.IdCentroCosto > 0 && item.IdCodigoPais > 0 && serviceInformacionPrograma != null)
+            {
+                try
+                {
+                    var info = serviceInformacionPrograma.CargarInformacionProgramaAutomatico(item.IdCentroCosto, item.IdCodigoPais, 0, 0);
+                    if (info != null)
+                    {
+                        InformacionPrograma = info;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[ERROR] Error al obtener InformacionPrograma: {ex.Message}");
+                }
+
+                try
+                {
+                    var presentacion = serviceInformacionPrograma.CargarInformacionProgramaAutomaticoSpeech(item.IdCentroCosto, item.IdCodigoPais, 0, 0);
+                    if (presentacion != null)
+                    {
+                        PresentacionPrograma = presentacion;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[ERROR] Error al obtener PresentacionPrograma: {ex.Message}");
+                }
+            }
+
+            // Solo llamar si IdOportunidad es válido
+            if (item.IdOportunidad > 0 && solicitudOperacionesService != null)
+            {
+                try
+                {
+                    var ops = solicitudOperacionesService.ObtenerSolicitudOperaciones(item.IdOportunidad);
+                    if (ops != null)
+                    {
+                        operacionesPendientes = ops.Cast<object>().ToList();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[ERROR] Error al obtener operaciones pendientes: {ex.Message}");
+                }
+
+                try
+                {
+                    var opsRealizadas = solicitudOperacionesService.ObtenerSolicitudOperacionesRealizadas(item.IdOportunidad);
+                    if (opsRealizadas != null)
+                    {
+                        operacionesRealizadas = opsRealizadas.Cast<object>().ToList();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[ERROR] Error al obtener operaciones realizadas: {ex.Message}");
+                }
+            }
+
+            // Solo llamar si IdMatriculaCabecera tiene valor válido
+            if (item.IdMatriculaCabecera.HasValue && item.IdMatriculaCabecera.Value > 0 && alumnoService != null)
+            {
+                try
+                {
+                    var avanceA = alumnoService.obtenerDatosAvanceAonline(item.IdMatriculaCabecera.Value);
+                    if (avanceA != null)
+                    {
+                        AvanceAonline = avanceA;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[ERROR] Error al obtener AvanceAonline: {ex.Message}");
+                }
+
+                try
+                {
+                    var avanceO = alumnoService.obtenerDatosAvanceOnline(item.IdMatriculaCabecera.Value);
+                    if (avanceO != null)
+                    {
+                        AvanceOnline = avanceO;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[ERROR] Error al obtener AvanceOnline: {ex.Message}");
+                }
+            }
+
+            // Solo llamar si IdMatriculaCabecera tiene valor válido para historial asesoria
+            if (item.IdMatriculaCabecera.HasValue && item.IdMatriculaCabecera.Value > 0 && solicitudOperacionesService != null)
+            {
+                try
+                {
+                    var historial = solicitudOperacionesService.ObtenerHistorialAsesora(item.IdMatriculaCabecera.Value);
+                    if (historial != null)
+                    {
+                        HistorialAsesoria = historial.Cast<object>().ToList();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[ERROR] Error al obtener HistorialAsesoria: {ex.Message}");
+                }
+            }
+
+            // Procesar información de matrícula solo si CodigoMatricula tiene valor
+            if (!string.IsNullOrEmpty(item.CodigoMatricula))
             {
                 try
                 {
                     var cronogramaPagoService = new CronogramaPagoDetalleFinalService(_unitOfWork);
                     var matriculaCabeceraService = new MatriculaCabeceraService(_unitOfWork);
 
-                    var matricula = matriculaCabeceraService.ObtenerPorCodigoMatricula(
-                        item.CodigoMatricula
-                    );
+                    var matricula = matriculaCabeceraService.ObtenerPorCodigoMatricula(item.CodigoMatricula);
 
-                    // Obtener información de beneficios solicitados
-                    InformacionBeneficioSolicitado =
-        matriculaCabeceraService.ObtenerBeneficiosSolicitadosPorMatricula(item.CodigoMatricula);
-
-                    // Obtener beneficios por matrícula
-                    BeneficiosPorMatricula = matriculaCabeceraService.ObtenerBeneficiosPorMatricula(item.CodigoMatricula);
-
-                    // Obtener TipoPersonal para montos complementarios
-                    string tipoPersonal = "Coordinador";
-
-                    // Obtener oportunidad montos complementarios
-                    var montoPagoCronogramaService = new MontoPagoCronogramaService(_unitOfWork);
-                    OportunidadMontoComplementarios = montoPagoCronogramaService.ObtenerOportunidadMontoComplementarios(
-                        item.IdOportunidad,
-                        tipoPersonal,
-                        matricula.Id
-                    );
-
-                    var versionAprobada = cronogramaPagoService
-                        .ObtenerCronograma(matricula.Id)
-                        .FirstOrDefault();
-
-                    if (versionAprobada?.Version != null)
+                    if (matricula != null && matricula.Id > 0)
                     {
-                        CronogramaFinanzas = cronogramaPagoService.ObtenerCronogramaFinanzas(
-                            versionAprobada.Version.Value,
-                            matricula.Id
-                        );
-
-                        var moras = cronogramaPagoService.ObtenerMorasCalculadas(matricula.Id);
-                        moras?.ForEach(m =>
+                        // Obtener información de beneficios solicitados
+                        try
                         {
-                            var cuota = CronogramaFinanzas.Find(c => c.Id == m.IdCuota);
-                            if (cuota != null)
+                            var beneficiosSolicitados = matriculaCabeceraService.ObtenerBeneficiosSolicitadosPorMatricula(item.CodigoMatricula);
+                            if (beneficiosSolicitados != null)
                             {
-                                cuota.MoraCalculada = m.MoraCalculada;
-                                cuota.Cuota = m.Cuota;
+                                InformacionBeneficioSolicitado = new List<object> { beneficiosSolicitados };
                             }
-                        });
-                    }
-                }
-                catch { }
-            }
-
-            // Obtener listado de notas desde API
-            try
-            {
-                int idMatriculaCabecera = 0;  // PENDIENTE DE AJUSTE
-                int idPespecifico = 0;        // PENDIENTE DE AJUSTE
-                int grupo = 1;                // PENDIENTE DE AJUSTE
-
-                string urlApi = $"https://api-portalweb.bsginstitute.com/api/Nota/ListadoNotaProcesarSincronico?idMatriculaCabecera ={ idMatriculaCabecera}&idPespecifico ={ idPespecifico}&grupo ={ grupo}";
-      
-          using (var client = new HttpClient())
-                {
-                    client.DefaultRequestHeaders.Accept.Clear();
-                    client.DefaultRequestHeaders.Accept.Add(new
-        System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-
-                    var response = await client.GetAsync(urlApi);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var jsonString = await response.Content.ReadAsStringAsync();
-
-                        var opciones = new System.Text.Json.JsonSerializerOptions
+                        }
+                        catch (Exception ex)
                         {
-                            PropertyNameCaseInsensitive = true
-                        };
+                            Console.WriteLine($"[ERROR] Error al obtener beneficios solicitados: {ex.Message}");
+                        }
 
-                        var resultado = System.Text.Json.JsonSerializer.Deserialize<List<object>>(jsonString, opciones);
-
-                        if (resultado != null)
+                        // Obtener beneficios por matrícula
+                        try
                         {
-                            listadoNotas = resultado;
+                            var beneficios = matriculaCabeceraService.ObtenerBeneficiosPorMatricula(item.CodigoMatricula);
+                            if (beneficios != null)
+                            {
+                                BeneficiosPorMatricula = new List<object> { beneficios };
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"[ERROR] Error al obtener beneficios por matrícula: {ex.Message}");
+                        }
+
+                        // Obtener oportunidad montos complementarios solo si IdOportunidad es válido
+                        if (item.IdOportunidad > 0)
+                        {
+                            try
+                            {
+                                string tipoPersonal = "Coordinador";
+                                var montoPagoCronogramaService = new MontoPagoCronogramaService(_unitOfWork);
+                                var montosComplementarios = montoPagoCronogramaService.ObtenerOportunidadMontoComplementarios(
+                                    item.IdOportunidad,
+                                    tipoPersonal,
+                                    matricula.Id
+                                );
+                                if (montosComplementarios != null)
+                                {
+                                    OportunidadMontoComplementarios = new List<object> { montosComplementarios };
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"[ERROR] Error al obtener montos complementarios: {ex.Message}");
+                            }
+                        }
+
+                        // Obtener cronograma de finanzas
+                        try
+                        {
+                            var versionAprobada = cronogramaPagoService.ObtenerCronograma(matricula.Id)?.FirstOrDefault();
+
+                            if (versionAprobada?.Version != null && versionAprobada.Version.Value > 0)
+                            {
+                                var cronograma = cronogramaPagoService.ObtenerCronogramaFinanzas(
+                                    versionAprobada.Version.Value,
+                                    matricula.Id
+                                );
+
+                                if (cronograma != null)
+                                {
+                                    var moras = cronogramaPagoService.ObtenerMorasCalculadas(matricula.Id);
+                                    moras?.ForEach(m =>
+                                    {
+                                        var cuota = cronograma.Find(c => c.Id == m.IdCuota);
+                                        if (cuota != null)
+                                        {
+                                            cuota.MoraCalculada = m.MoraCalculada;
+                                            cuota.Cuota = m.Cuota;
+                                        }
+                                    });
+
+                                    CronogramaFinanzas = cronograma.Cast<object>().ToList();
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"[ERROR] Error al obtener cronograma de finanzas: {ex.Message}");
                         }
                     }
-                    else
-                    {
-                        Console.WriteLine($"[WARN] La API retornó status: {response.StatusCode} para la URL: {urlApi}");
-                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[ERROR] Error al procesar información de matrícula: {ex.Message}");
                 }
             }
-            catch (Exception ex)
+
+            // Obtener listado de notas desde API solo si TODOS los parámetros necesarios tienen valor
+            if (item.IdMatriculaCabecera.HasValue && item.IdMatriculaCabecera.Value > 0 &&
+                item.IdPespecifico.HasValue && item.IdPespecifico.Value > 0)
             {
-                Console.WriteLine($"[ERROR] Falló la petición HTTP: {ex.Message}");
+                try
+                {
+                    int idMatriculaCabecera = item.IdMatriculaCabecera.Value;
+                    int idPespecifico = item.IdPespecifico.Value;
+                    int grupo = 1;
+
+                    string urlApi = $"https://api-portalweb.bsginstitute.com/api/Nota/ListadoNotaProcesarSincronico?idMatriculaCabecera={idMatriculaCabecera}&idPespecifico={idPespecifico}&grupo={grupo}";
+
+                    using (var client = new HttpClient())
+                    {
+                        client.DefaultRequestHeaders.Accept.Clear();
+                        client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                        var response = await client.GetAsync(urlApi);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var jsonString = await response.Content.ReadAsStringAsync();
+
+                            var opciones = new System.Text.Json.JsonSerializerOptions
+                            {
+                                PropertyNameCaseInsensitive = true
+                            };
+
+                            var resultado = System.Text.Json.JsonSerializer.Deserialize<List<object>>(jsonString, opciones);
+
+                            if (resultado != null && resultado.Any())
+                            {
+                                listadoNotas = resultado;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"[WARN] La API retornó status: {response.StatusCode} para la URL: {urlApi}");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[ERROR] Falló la petición HTTP para obtener notas: {ex.Message}");
+                }
             }
 
-            // Retorno del objeto combinado
+            // Retorno del objeto combinado - siempre con listas vacías si no hay datos
             var brochure = new
             {
                 InformacionPrograma = InformacionPrograma,
