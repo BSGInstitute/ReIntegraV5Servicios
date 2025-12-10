@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.Comercial.SCode.Service.Interface;
+using BSI.Integra.Aplicacion.Comercial.Service.Implementacion;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
@@ -2181,79 +2182,149 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             return brochure;
         }
 
-        private async Task<object> BuildBrochureClientesAsync(LlamadaProcesoAutoDTO item, InformacionProgramaService serviceInformacionPrograma, SolicitudOperacionesService solicitudOperacionesService, AlumnoService alumnoService)
+        private async Task<object> BuildBrochureClientesAsync(LlamadaProcesoAutoDTO item, InformacionProgramaService
+  serviceInformacionPrograma, SolicitudOperacionesService solicitudOperacionesService, AlumnoService alumnoService)
         {
-            CargarInformacionProgramaAutomaticoRespuestaDTO InformacionPrograma = serviceInformacionPrograma.CargarInformacionProgramaAutomatico(item.IdCentroCosto, item.IdCodigoPais, 0, 0);
+            CargarInformacionProgramaAutomaticoRespuestaDTO InformacionPrograma =
+        serviceInformacionPrograma.CargarInformacionProgramaAutomatico(item.IdCentroCosto, item.IdCodigoPais, 0, 0);
 
-            CargarInformacionProgramaAutomaticoRespuestaDTO PresentacionPrograma = serviceInformacionPrograma.CargarInformacionProgramaAutomaticoSpeech(item.IdCentroCosto, item.IdCodigoPais, 0, 0);
+            CargarInformacionProgramaAutomaticoRespuestaDTO PresentacionPrograma =
+        serviceInformacionPrograma.CargarInformacionProgramaAutomaticoSpeech(item.IdCentroCosto, item.IdCodigoPais, 0, 0);
 
+            List<CronogramaPagoDetalleFinalDTO> CronogramaFinanzas = new List<CronogramaPagoDetalleFinalDTO>();
+            object InformacionBeneficioSolicitado = null;
+            object BeneficiosPorMatricula = null;
+            object OportunidadMontoComplementarios = null;
 
-            List <DatosSolicitudOperacionesDTO> operacionesPendientes = solicitudOperacionesService.ObtenerSolicitudOperaciones(item.IdOportunidad);
-            List<DatosSolicitudOperacionesDTO> operacionesRealizadas = solicitudOperacionesService.ObtenerSolicitudOperacionesRealizadas(item.IdOportunidad);
-            AvanceAonlineAlumnoDTO AvanceAonline = alumnoService.obtenerDatosAvanceAonline(item.idMatricula); //Ajustar DTO
-            AvanceAonlineAlumnoDTO AvanceOnline = alumnoService.obtenerDatosAvanceOnline(item.idMatricula); //Ajustar DTO
-            List<HistorialAsesoraDTO> HistorialAsesoria = solicitudOperacionesService.ObtenerHistorialAsesora(item.idMatricula); //Ajustar DTO
-
-
+            List<DatosSolicitudOperacionesDTO> operacionesPendientes =
+        solicitudOperacionesService.ObtenerSolicitudOperaciones(item.IdOportunidad);
+            List<DatosSolicitudOperacionesDTO> operacionesRealizadas =
+        solicitudOperacionesService.ObtenerSolicitudOperacionesRealizadas(item.IdOportunidad);
+            AvanceAonlineAlumnoDTO AvanceAonline = alumnoService.obtenerDatosAvanceAonline(item.idMatricula);
+            AvanceAonlineAlumnoDTO AvanceOnline = alumnoService.obtenerDatosAvanceOnline(item.idMatricula);
+            List<HistorialAsesoraDTO> HistorialAsesoria =
+        solicitudOperacionesService.ObtenerHistorialAsesora(item.idMatricula);
 
             List<object> listadoNotas = new List<object>();
 
-            int idMatriculaCabecera = 0;  // PENDIENTE DE AJUSTE
-            int idPespecifico = 0;        // PENDIENTE DE AJUSTE
-            int grupo = 1;                // PENDIENTE DE AJUSTE
-
-            try 
-        {
-        string urlApi = $"https://api-portalweb.bsginstitute.com/api/Nota/ListadoNotaProcesarSincronico?idMatriculaCabecera={idMatriculaCabecera}&idPespecifico={idPespecifico}&grupo={grupo}";
-
-        using (var client = new HttpClient())
-        {
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-
-            var response = await client.GetAsync(urlApi);
-
-            if (response.IsSuccessStatusCode)
+            if (!string.IsNullOrEmpty(item.CodignoMatricula))
             {
-                var jsonString = await response.Content.ReadAsStringAsync();
-                
-                var opciones = new System.Text.Json.JsonSerializerOptions 
-                { 
-                    PropertyNameCaseInsensitive = true 
-                };
-
-                var resultado = System.Text.Json.JsonSerializer.Deserialize<List<object>>(jsonString, opciones);
-                
-                if (resultado != null)
+                try
                 {
-                    listadoNotas = resultado;
+                    var cronogramaPagoService = new CronogramaPagoDetalleFinalService(_unitOfWork);
+                    var matriculaCabeceraService = new MatriculaCabeceraService(_unitOfWork);
+
+                    var matricula = matriculaCabeceraService.ObtenerPorCodigoMatricula(
+                        item.CodigoMatricula
+                    );
+
+                    // Obtener información de beneficios solicitados
+                    InformacionBeneficioSolicitado =
+        matriculaCabeceraService.ObtenerBeneficiosSolicitadosPorMatricula(item.CodigoMatricula);
+
+                    // Obtener beneficios por matrícula
+                    BeneficiosPorMatricula = matriculaCabeceraService.ObtenerBeneficiosPorMatricula(item.CodigoMatricula);
+
+                    // Obtener TipoPersonal para montos complementarios
+                    var personal = _unitOfWork.PersonalRepository.ObtenerPorId(item.IdPersonal_Asignado);
+                    string tipoPersonal = personal?.TipoPersonal ?? string.Empty;
+
+                    // Obtener oportunidad montos complementarios
+                    var montoPagoCronogramaService = new MontoPagoCronogramaService(_unitOfWork);
+                    OportunidadMontoComplementarios = montoPagoCronogramaService.ObtenerOportunidadMontoComplementarios(
+                        item.IdOportunidad,
+                        tipoPersonal,
+                        matricula.Id
+                    );
+
+                    var versionAprobada = cronogramaPagoService
+                        .ObtenerCronograma(matricula.Id)
+                        .FirstOrDefault();
+
+                    if (versionAprobada?.Version != null)
+                    {
+                        CronogramaFinanzas = cronogramaPagoService.ObtenerCronogramaFinanzas(
+                            versionAprobada.Version.Value,
+                            matricula.Id
+                        );
+
+                        var moras = cronogramaPagoService.ObtenerMorasCalculadas(matricula.Id);
+                        moras?.ForEach(m =>
+                        {
+                            var cuota = CronogramaFinanzas.Find(c => c.Id == m.IdCuota);
+                            if (cuota != null)
+                            {
+                                cuota.MoraCalculada = m.MoraCalculada;
+                                cuota.Cuota = m.Cuota;
+                            }
+                        });
+                    }
+                }
+                catch { }
+            }
+
+            // Obtener listado de notas desde API
+            try
+            {
+                int idMatriculaCabecera = 0;  // PENDIENTE DE AJUSTE
+                int idPespecifico = 0;        // PENDIENTE DE AJUSTE
+                int grupo = 1;                // PENDIENTE DE AJUSTE
+
+                string urlApi = $"https://api-portalweb.bsginstitute.com/api/Nota/ListadoNotaProcesarSincronico?idMatriculaCabecera ={ idMatriculaCabecera}&idPespecifico ={ idPespecifico}&grupo ={ grupo}";
+      
+          using (var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(new
+        System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                    var response = await client.GetAsync(urlApi);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var jsonString = await response.Content.ReadAsStringAsync();
+
+                        var opciones = new System.Text.Json.JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        };
+
+                        var resultado = System.Text.Json.JsonSerializer.Deserialize<List<object>>(jsonString, opciones);
+
+                        if (resultado != null)
+                        {
+                            listadoNotas = resultado;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[WARN] La API retornó status: {response.StatusCode} para la URL: {urlApi}");
+                    }
                 }
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine($"[WARN] La API retornó status: {response.StatusCode} para la URL: {urlApi}");
+                Console.WriteLine($"[ERROR] Falló la petición HTTP: {ex.Message}");
             }
-        }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"[ERROR] Falló la petición HTTP: {ex.Message}");
-    }
 
-    // 4. Retorno del objeto combinado
-    var brochure = new
-    {
-        InformacionPrograma = InformacionPrograma,
-        PresentacionPrograma = PresentacionPrograma,
-        OperacionesPendientes = operacionesPendientes,
-        OperacionesRealizadas = operacionesRealizadas,
-        AvanceAonline = AvanceAonline,
-        AvanceOnline = AvanceOnline,
-        HistorialAsesoria = HistorialAsesoria,
-        ListadoNota = listadoNotas
-    };
+            // Retorno del objeto combinado
+            var brochure = new
+            {
+                InformacionPrograma = InformacionPrograma,
+                PresentacionPrograma = PresentacionPrograma,
+                CronogramaFinanzas = CronogramaFinanzas,
+                InformacionBeneficioSolicitado = InformacionBeneficioSolicitado,
+                BeneficiosPorMatricula = BeneficiosPorMatricula,
+                OportunidadMontoComplementarios = OportunidadMontoComplementarios,
+                OperacionesPendientes = operacionesPendientes,
+                OperacionesRealizadas = operacionesRealizadas,
+                AvanceAonline = AvanceAonline,
+                AvanceOnline = AvanceOnline,
+                HistorialAsesoria = HistorialAsesoria,
+                ListadoNota = listadoNotas
+            };
 
-    return brochure;
+            return brochure;
         }
 
         /// Autor: Jose Vega
