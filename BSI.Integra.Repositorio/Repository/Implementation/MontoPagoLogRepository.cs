@@ -306,7 +306,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     FechaFin = filtro.FechaFinal,
                     IdPGeneral = filtro.IdPGeneral,
                     IdTipoPago = filtro.IdTipoPago,
-                    IdVersion = filtro.IdVersion,
+                    VersionPrograma = filtro.IdVersion,
                     IdPais = filtro.IdPais
 
                 };
