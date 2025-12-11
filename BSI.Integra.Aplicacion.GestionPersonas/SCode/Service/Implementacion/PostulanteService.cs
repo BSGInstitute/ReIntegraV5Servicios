@@ -3092,5 +3092,62 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw new Exception($"Error en Obtener Postulante Informacion: {ex.Message}");
             }
         }
+
+
+        public IEnumerable<PostulanteProcesoFormatDTO> HabilitarExamenesEvaluaciones(PostulanteExamenesDTO parametros)
+        {
+            try
+            {
+                var resultado = _unitOfWork.PostulanteRepository.HabilitarExamenesEvaluaciones(parametros);
+                var resultadoFormat = resultado
+                    .GroupBy(x => new
+                    {
+                        IdEvaluacion = x.IdEvaluacion,
+                        NombreEvaluacion = x.NombreEvaluacion,
+                    }).Select(g => new PostulanteProcesoFormatDTO
+                    {
+                        IdEvaluacion = g.Key.IdEvaluacion,
+                        NombreEvaluacion = g.Key.NombreEvaluacion,
+                        ListaExamenes = g.Select(x => new PostulanteProcesoExamenesDTO
+                        {
+                            IdExamen = x.IdExamen,
+                            NombreExamen = x.NombreExamen,
+                            EstadoExamen = x.EstadoExamen,
+                        }).ToList()
+                    }).ToList();
+
+                var ExamEval = "";
+                if (parametros.IdEvaluacion != 0)
+                {
+                    ExamEval = $"El Id de la evaluacion fue {parametros.IdExamen}";
+                }
+                else if (parametros.IdExamen != 0)
+                {
+                    ExamEval = $"El Id del examen fue {parametros.IdExamen}";
+                }
+                else
+                {
+                    ExamEval = "Se realizo una apertura general";
+                }
+
+                TMKMailDataDTO mailDataPersonalizado = new TMKMailDataDTO
+                {
+                    Sender = "sistemenabled@bsginstitute.com",
+                    Recipient = "cquispem@bsginstitute.com",
+                    Subject = "Examenes o Evaluaciones habilitadas",
+                    Message = $"Se realizo una reaperturacion a las {DateTime.Now} del postulante:\n - IdPostulante {parametros.IdPostulante}\n - IdProcesoSeleccion {parametros.IdProcesoSeleccion}\n - {ExamEval}",
+                };
+                var mailService = new TMK_MailService();
+                mailService.SetData(mailDataPersonalizado);
+                mailService.SendMessageTask();
+                return resultadoFormat;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al obtener evaluaciones de postulante: {ex.Message}");
+            }
+        }
+
+
     }
 }
