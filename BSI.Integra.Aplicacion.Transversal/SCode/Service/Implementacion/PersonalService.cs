@@ -4916,12 +4916,16 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
 
 
-        /////////////////////////////////////
 
 
 
-
-
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 11/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// marcacion personal obtener personal por id
+        /// </summary>
         public Personal FirstById(int id)
         {
             try
@@ -4941,7 +4945,13 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             }
         }
 
-
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 11/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// marcacion personal obtener registro marcacion por filtro
+        /// </summary>
         public RegistroMarcadorFechaBO ObtenerRegistroMarcacionPersonalDNI(int idPersonal, DateTime fechaActual, string Dni)
         {
             try
@@ -4954,7 +4964,13 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             }
         }
 
-
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 11/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// marcacion personal actualizar
+        /// </summary>
         public bool Update(RegistroMarcadorFechaBO objetoBO)
         {
             try
@@ -4971,7 +4987,13 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw e;
             }
         }
-
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 11/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// marcacion personal insertar
+        /// </summary>
         public bool Insert(RegistroMarcadorFechaBO objetoBO)
         {
             try
@@ -4989,7 +5011,13 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             }
         }
 
-
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 11/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// marcacion personal
+        /// </summary>
         public ResultadoDTOv2 InsertarMarcacionPersonalV2(string Usuario, int TipoBoton, string DNI)
         {
             try
@@ -5003,7 +5031,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 var registroMarcacionPersonal = ObtenerRegistroMarcacionPersonalDNI(personal.Id, fechaActual, DNI);
                 switch (TipoBoton)
                 {
-                    case 1: //Boton entrada a la empresa
+                    case 1:
                         if (registroMarcacionPersonal == null)
                         {
                             registroMarcacionPersonal = new RegistroMarcadorFechaBO()
@@ -5039,13 +5067,21 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     case 2: 
                         if (registroMarcacionPersonal != null)
                         {
-                           
                             if (registroMarcacionPersonal.M1 == null)
                             {
                                 return new ResultadoDTOv2
                                 {
                                     Exito = false,
                                     Mensaje = "Debe marcar entrada (M1) antes de marcar salida a refrigerio"
+                                };
+                            }
+
+                            if (registroMarcacionPersonal.M4 != null)
+                            {
+                                return new ResultadoDTOv2
+                                {
+                                    Exito = false,
+                                    Mensaje = "Ya marcó salida (M4), no puede marcar salida a refrigerio"
                                 };
                             }
 
@@ -5070,16 +5106,24 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             };
                         }
                         break;
-                    case 3: 
+                    case 3:
                         if (registroMarcacionPersonal != null)
                         {
-                            
                             if (registroMarcacionPersonal.M2 == null)
                             {
                                 return new ResultadoDTOv2
                                 {
                                     Exito = false,
                                     Mensaje = "Debe marcar salida a refrigerio (M2) antes de marcar regreso de refrigerio"
+                                };
+                            }
+
+                            if (registroMarcacionPersonal.M4 != null)
+                            {
+                                return new ResultadoDTOv2
+                                {
+                                    Exito = false,
+                                    Mensaje = "Ya marcó salida (M4), no puede marcar regreso de refrigerio"
                                 };
                             }
 
@@ -5107,7 +5151,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         }
                         else
                         {
-                           
                             return new ResultadoDTOv2
                             {
                                 Exito = false,

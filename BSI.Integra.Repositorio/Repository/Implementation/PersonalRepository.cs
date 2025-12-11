@@ -2636,8 +2636,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 11/12/2025
+        /// Versión: 1.0
         /// <summary>
-        /// Inserta un nuevo registro de marcación
+        /// marcacion personal insertar registro
         /// </summary>
         public bool InsertarRegistroMarcacion(RegistroMarcadorFechaBO registro)
         {
@@ -2690,8 +2694,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 11/12/2025
+        /// Versión: 1.0
         /// <summary>
-        /// Actualiza un registro de marcación existente
+        /// marcacion personal actualizar
         /// </summary>
         public bool ActualizarRegistroMarcacion(RegistroMarcadorFechaBO registro)
         {
@@ -2741,8 +2749,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 11/12/2025
+        /// Versión: 1.0
         /// <summary>
-        /// Obtiene un registro de marcación por filtro
+        /// marcacion personal obtener por filtro
         /// </summary>
         public RegistroMarcadorFechaBO ObtenerRegistroMarcacionPorFiltro(int idPersonal, DateTime fecha, string pin)
         {
