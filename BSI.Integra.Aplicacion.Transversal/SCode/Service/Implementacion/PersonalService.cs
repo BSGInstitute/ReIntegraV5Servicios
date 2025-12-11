@@ -5184,6 +5184,15 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                 };
                             }
 
+                            if (registroMarcacionPersonalTemp.M2 != null && registroMarcacionPersonalTemp.M3 == null)
+                            {
+                                return new ResultadoDTOv2
+                                {
+                                    Exito = false,
+                                    Mensaje = "Debe marcar regreso de refrigerio (M3) antes de marcar salida"
+                                };
+                            }
+
                             registroMarcacionPersonalTemp.M4 = newFecha.TimeOfDay;
                             registroMarcacionPersonalTemp.M5 = fechaActual.Date.TimeOfDay;
                             registroMarcacionPersonalTemp.M6 = fechaActual.TimeOfDay;
@@ -5201,6 +5210,15 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                     {
                                         Exito = false,
                                         Mensaje = "Debe marcar entrada (M1) antes de marcar salida"
+                                    };
+                                }
+
+                                if (registroMarcacionPersonal.M2 != null && registroMarcacionPersonal.M3 == null)
+                                {
+                                    return new ResultadoDTOv2
+                                    {
+                                        Exito = false,
+                                        Mensaje = "Debe marcar regreso de refrigerio (M3) antes de marcar salida"
                                     };
                                 }
 
