@@ -57,6 +57,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         ResultadoInsertarPostulante InsertarPostulantePorImportacion(PostulanteProcesoSeleccionConsolidadoDTO lista);
         Postulante ObtenerPostulanteInformacion(int IdPostulante);
 
+        IEnumerable<PostulanteProcesoFormatDTO> HabilitarExamenesEvaluaciones(PostulanteExamenesDTO parametros);
+
 
 
     }

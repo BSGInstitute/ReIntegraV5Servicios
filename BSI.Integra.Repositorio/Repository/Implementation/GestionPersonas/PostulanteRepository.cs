@@ -1008,6 +1008,30 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.GestionPersonas
                 throw new Exception(e.Message);
             }
         }
+        public IEnumerable<PostulanteProcesoEvaluacionesDTO> HabilitarExamenesEvaluaciones(PostulanteExamenesDTO parametros)
+        {
+            try
+            {
+                List<PostulanteProcesoEvaluacionesDTO> resultado = new List<PostulanteProcesoEvaluacionesDTO>();
+                string query = "gp.SP_HabilitarExamenes";
+                var response = _dapperRepository.QuerySPDapper(query, new
+                {
+                    @IdExamen = parametros.IdExamen,
+                    @IdEvaluacion = parametros.IdEvaluacion,
+                    @IdPostulante = parametros.IdPostulante,
+                    @IdProcesoSeleccion = parametros.IdProcesoSeleccion
+                });
+                if (!string.IsNullOrEmpty(response) && !response.Contains("[]"))
+                {
+                    resultado = JsonConvert.DeserializeObject<List<PostulanteProcesoEvaluacionesDTO>>(response);
+                }
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
 
 
     }

@@ -78,6 +78,14 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.GestionPersonas
     //    public int? Id { get; set; }
     //}
 
+    public class PostulanteExamenesDTO
+    {
+        public int IdPostulante { get; set; }
+        public int IdProcesoSeleccion { get; set; }
+        public int IdExamen { get; set; }
+        public int IdEvaluacion { get; set; }
+    }
+
     public class InsertarPostulanteDTO
     {
         public PostulanteFormulariDTO DatosPostulanteFormulario { get; set; }
