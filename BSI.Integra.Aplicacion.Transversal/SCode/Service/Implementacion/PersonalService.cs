@@ -4913,5 +4913,306 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 return false;
             }
         }
+
+
+
+        /////////////////////////////////////
+
+
+
+
+
+        public Personal FirstById(int id)
+        {
+            try
+            {
+                var personal = _unitOfWork.PersonalRepository.ObtenerPorId(id);
+
+                if (personal == null)
+                {
+                    throw new Exception($"No se encontró el personal con Id: {id}");
+                }
+
+                return personal;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+
+        public RegistroMarcadorFechaBO ObtenerRegistroMarcacionPersonalDNI(int idPersonal, DateTime fechaActual, string Dni)
+        {
+            try
+            {
+                return _unitOfWork.PersonalRepository.ObtenerRegistroMarcacionPorFiltro(idPersonal, fechaActual, Dni);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+
+        public bool Update(RegistroMarcadorFechaBO objetoBO)
+        {
+            try
+            {
+                if (objetoBO == null)
+                {
+                    throw new ArgumentNullException("Entidad nula");
+                }
+
+                var resultado = _unitOfWork.PersonalRepository.ActualizarRegistroMarcacion(objetoBO);
+                if (resultado)
+                {
+                    _unitOfWork.Commit();
+                }
+
+                return resultado;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public bool Insert(RegistroMarcadorFechaBO objetoBO)
+        {
+            try
+            {
+                if (objetoBO == null)
+                {
+                    throw new ArgumentNullException("Entidad nula");
+                }
+
+                var resultado = _unitOfWork.PersonalRepository.InsertarRegistroMarcacion(objetoBO);
+                if (resultado)
+                {
+                    _unitOfWork.Commit();
+                }
+
+                return resultado;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+
+        public ResultadoDTOv2 InsertarMarcacionPersonalV2(string Usuario, int TipoBoton, string DNI)
+        {
+            try
+            {
+                var user = _unitOfWork.PersonalRepository.ObtenerIdentidadUsusarioDNI(Usuario, DNI);
+                var personal = FirstById(user.Id);
+                var fechaActual = DateTime.Now;
+                bool rpta = false;
+                bool yaMarcado = false;
+                bool noCumpleTiempoMinimoAlmuerzo = false;
+                var registroMarcacionPersonal = ObtenerRegistroMarcacionPersonalDNI(personal.Id, fechaActual, DNI);
+                switch (TipoBoton)
+                {
+                    case 1: //Boton entrada a la empresa
+                        if (registroMarcacionPersonal == null)
+                        {
+                            registroMarcacionPersonal = new RegistroMarcadorFechaBO()
+                            {
+                                Pin = personal.NumeroDocumento,
+                                Fecha = fechaActual.Date,
+                                IdCiudad = personal.IdCiudad == null ? 0 : personal.IdCiudad.Value,
+                                IdPersonal = personal.Id,
+                                M1 = fechaActual.TimeOfDay,
+                                Estado = true,
+                                UsuarioCreacion = Usuario,
+                                UsuarioModificacion = Usuario,
+                                FechaCreacion = DateTime.Now,
+                                FechaModificacion = DateTime.Now
+                            };
+                            rpta = Insert(registroMarcacionPersonal);
+                        }
+                        else
+                        {
+                            if (registroMarcacionPersonal.M1 != null)
+                            {
+                                yaMarcado = true;
+                            }
+                            else
+                            {
+                                registroMarcacionPersonal.M1 = fechaActual.TimeOfDay;
+                                registroMarcacionPersonal.UsuarioModificacion = Usuario;
+                                registroMarcacionPersonal.FechaModificacion = DateTime.Now;
+                                rpta = Update(registroMarcacionPersonal);
+                            }
+                        }
+                        break;
+                    case 2: //Hora salida almuerzo
+                        if (registroMarcacionPersonal != null)
+                        {
+                            if (registroMarcacionPersonal.M2 == null)
+                            {
+                                registroMarcacionPersonal.M2 = fechaActual.TimeOfDay;
+                                registroMarcacionPersonal.UsuarioModificacion = Usuario;
+                                registroMarcacionPersonal.FechaModificacion = DateTime.Now;
+                                rpta = Update(registroMarcacionPersonal);
+                            }
+                            else
+                            {
+                                yaMarcado = true;
+                            }
+                        }
+                        else
+                        {
+                            registroMarcacionPersonal = new RegistroMarcadorFechaBO()
+                            {
+                                Pin = personal.NumeroDocumento,
+                                Fecha = fechaActual.Date,
+                                IdCiudad = personal.IdCiudad == null ? 0 : personal.IdCiudad.Value,
+                                IdPersonal = personal.Id,
+                                M2 = fechaActual.TimeOfDay,
+                                Estado = true,
+                                UsuarioCreacion = Usuario,
+                                UsuarioModificacion = Usuario,
+                                FechaCreacion = DateTime.Now,
+                                FechaModificacion = DateTime.Now
+                            };
+                            rpta = Insert(registroMarcacionPersonal);
+                        }
+                        break;
+                    case 3:
+                        if (registroMarcacionPersonal != null)
+                        {
+                            if (registroMarcacionPersonal.M3 == null)
+                            {
+                                var diferencia = new TimeSpan();
+                                if (registroMarcacionPersonal.M2 != null)
+                                {
+                                    diferencia = fechaActual.TimeOfDay - registroMarcacionPersonal.M2.Value;
+                                    var horasdiferencia = diferencia.Hours * 60;
+                                    var minutosdiferencia = diferencia.Minutes + horasdiferencia;
+                                    if (minutosdiferencia < 45)
+                                    {
+                                        noCumpleTiempoMinimoAlmuerzo = true;
+                                        break;
+                                    }
+                                }
+
+
+
+                                registroMarcacionPersonal.M3 = fechaActual.TimeOfDay;
+                                registroMarcacionPersonal.UsuarioModificacion = Usuario;
+                                registroMarcacionPersonal.FechaModificacion = DateTime.Now;
+                                rpta = Update(registroMarcacionPersonal);
+                            }
+                            else
+                            {
+                                yaMarcado = true;
+                            }
+                        }
+                        else
+                        {
+                            registroMarcacionPersonal = new RegistroMarcadorFechaBO()
+                            {
+                                Pin = personal.NumeroDocumento,
+                                Fecha = fechaActual.Date,
+                                IdCiudad = personal.IdCiudad == null ? 0 : personal.IdCiudad.Value,
+                                IdPersonal = personal.Id,
+                                M3 = fechaActual.TimeOfDay,
+                                Estado = true,
+                                UsuarioCreacion = Usuario,
+                                UsuarioModificacion = Usuario,
+                                FechaCreacion = DateTime.Now,
+                                FechaModificacion = DateTime.Now
+                            };
+                            rpta = Insert(registroMarcacionPersonal);
+                        }
+                        break;
+                    case 4:
+                        if (fechaActual.Hour >= 0 && fechaActual.Hour <= 6)
+                        {
+                            //Esta de amanecida
+                            var temp = fechaActual.AddDays(-1);
+                            var newFecha = new DateTime(temp.Year, temp.Month, temp.Day, 23, 59, 59);
+                            var registroMarcacionPersonalTemp = ObtenerRegistroMarcacionPersonalDNI(personal.Id, temp, DNI);
+                            registroMarcacionPersonalTemp.M4 = newFecha.TimeOfDay;
+                            registroMarcacionPersonalTemp.M5 = fechaActual.Date.TimeOfDay;
+                            registroMarcacionPersonalTemp.M6 = fechaActual.TimeOfDay;
+                            registroMarcacionPersonalTemp.UsuarioModificacion = Usuario;
+                            registroMarcacionPersonalTemp.FechaModificacion = DateTime.Now;
+                            rpta = Update(registroMarcacionPersonalTemp);
+
+                        }
+                        else
+                        {
+                            if (registroMarcacionPersonal != null)
+                            {
+                                if (registroMarcacionPersonal.M4 == null)
+                                {
+                                    registroMarcacionPersonal.M4 = fechaActual.TimeOfDay;
+                                    registroMarcacionPersonal.UsuarioModificacion = Usuario;
+                                    registroMarcacionPersonal.FechaModificacion = DateTime.Now;
+                                    rpta = Update(registroMarcacionPersonal);
+                                }
+                                else
+                                {
+                                    yaMarcado = true;
+                                }
+                            }
+                            else
+                            {
+                                registroMarcacionPersonal = new RegistroMarcadorFechaBO()
+                                {
+                                    Pin = personal.NumeroDocumento,
+                                    Fecha = fechaActual.Date,
+                                    IdCiudad = personal.IdCiudad == null ? 0 : personal.IdCiudad.Value,
+                                    IdPersonal = personal.Id,
+                                    M4 = fechaActual.TimeOfDay,
+                                    Estado = true,
+                                    UsuarioCreacion = Usuario,
+                                    UsuarioModificacion = Usuario,
+                                    FechaCreacion = DateTime.Now,
+                                    FechaModificacion = DateTime.Now
+                                };
+                                rpta = Insert(registroMarcacionPersonal);
+                            }
+                        }
+                        break;
+                }
+
+                if (yaMarcado)
+                {
+                    return new ResultadoDTOv2
+                    {
+                        Exito = false,
+                        Mensaje = "Ya ha marcado en este horario"
+                    };
+                }
+
+                if (noCumpleTiempoMinimoAlmuerzo)
+                {
+                    return new ResultadoDTOv2
+                    {
+                        Exito = false,
+                        Mensaje = "No cumple el tiempo mínimo de almuerzo (45 minutos)"
+                    };
+                }
+
+                return new ResultadoDTOv2
+                {
+                    Exito = rpta,
+                    Mensaje = rpta ? "Marcación registrada correctamente" : "Error al registrar la marcación"
+                };
+            }
+            catch (Exception e)
+            {
+                return new ResultadoDTOv2
+                {
+                    Exito = false,
+                    Mensaje = e.Message
+                };
+            }
+        }
     }
 }

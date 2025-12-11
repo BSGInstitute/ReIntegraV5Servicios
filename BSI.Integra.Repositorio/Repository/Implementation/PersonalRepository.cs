@@ -24,9 +24,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
     public class PersonalRepository : GenericRepository<TPersonal>, IPersonalRepository
     {
         private Mapper _mapper;
+        private readonly IntegraDBContext _context;
 
         public PersonalRepository(IntegraDBContext context, IConnectionFactory connectionFactory, IDapperRepository dapperRepository) : base(context, connectionFactory, dapperRepository)
         {
+            _context = context;
             var config = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<TPersonal, Personal>(MemberList.None).ReverseMap();
@@ -2598,6 +2600,154 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 throw new Exception(e.Message);
 
+            }
+        }
+
+
+        /// Repositorio: PersonalRespository 
+        /// Autor: Junior Llerena
+        /// <summary>
+        /// Obtiene la identidad por usuarioDNI
+        /// </summary>
+        /// <param name="DNI"></param>
+        /// <returns>Usuario, DNI</returns>
+        public DatoPersonalDTO ObtenerIdentidadUsusarioDNI(string Usuario, string DNI)
+        {
+            try
+            {
+                List<DatoPersonalDTO> Usuarios = new List<DatoPersonalDTO>();
+                var _query = string.Empty;
+                _query = "EXEC [conf].[SP_ObtenerIdNombresPersonalPorUsernameDNI] @Usuario, @DNI";
+                var UsuariosDB = _dapperRepository.QueryDapper(_query, new { Usuario, DNI });
+                if (!string.IsNullOrEmpty(UsuariosDB) && !UsuariosDB.Contains("[]"))
+                {
+                    Usuarios = JsonConvert.DeserializeObject<List<DatoPersonalDTO>>(UsuariosDB);
+                    if (Usuarios.Count > 1) throw new Exception("Error: Existe mas de un usuario que coincide con el parametro dado");
+                    else return Usuarios[0];
+                }
+                else
+                {
+                    throw new Exception("Error: Ningun usuario coincide con el parametro dado");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Inserta un nuevo registro de marcación
+        /// </summary>
+        public bool InsertarRegistroMarcacion(RegistroMarcadorFechaBO registro)
+        {
+            try
+            {
+                var entidad = new TRegistroMarcadorFecha
+                {
+                    IdCiudad = registro.IdCiudad,
+                    IdPersonal = registro.IdPersonal,
+                    Pin = registro.Pin,
+                    Fecha = registro.Fecha,
+                    M1 = registro.M1,
+                    M2 = registro.M2,
+                    M3 = registro.M3,
+                    M4 = registro.M4,
+                    M5 = registro.M5,
+                    M6 = registro.M6,
+                    Estado = registro.Estado,
+                    UsuarioCreacion = registro.UsuarioCreacion,
+                    UsuarioModificacion = registro.UsuarioModificacion,
+                    FechaCreacion = registro.FechaCreacion,
+                    FechaModificacion = registro.FechaModificacion
+                };
+
+                _context.TRegistroMarcadorFechas.Add(entidad);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Actualiza un registro de marcación existente
+        /// </summary>
+        public bool ActualizarRegistroMarcacion(RegistroMarcadorFechaBO registro)
+        {
+            try
+            {
+                var entidad = _context.TRegistroMarcadorFechas.FirstOrDefault(x => x.Id == registro.Id);
+                if (entidad == null)
+                {
+                    throw new Exception("No se encontró el registro de marcación");
+                }
+
+                entidad.M1 = registro.M1;
+                entidad.M2 = registro.M2;
+                entidad.M3 = registro.M3;
+                entidad.M4 = registro.M4;
+                entidad.M5 = registro.M5;
+                entidad.M6 = registro.M6;
+                entidad.UsuarioModificacion = registro.UsuarioModificacion;
+                entidad.FechaModificacion = registro.FechaModificacion;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Obtiene un registro de marcación por filtro
+        /// </summary>
+        public RegistroMarcadorFechaBO ObtenerRegistroMarcacionPorFiltro(int idPersonal, DateTime fecha, string pin)
+        {
+            try
+            {
+                var query = @"SELECT * FROM gp.T_RegistroMarcadorFecha
+                             WHERE IdPersonal = @IdPersonal
+                             AND CAST(Fecha AS DATE) = CAST(@Fecha AS DATE)
+                             AND Pin = @Pin
+                             AND Estado = 1";
+
+                var resultado = _dapperRepository.FirstOrDefault(query, new { IdPersonal = idPersonal, Fecha = fecha, Pin = pin });
+
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null" && !resultado.Contains("[]"))
+                {
+                    var entidad = JsonConvert.DeserializeObject<TRegistroMarcadorFecha>(resultado);
+                    if (entidad != null)
+                    {
+                        return new RegistroMarcadorFechaBO
+                        {
+                            Id = entidad.Id,
+                            IdCiudad = entidad.IdCiudad,
+                            IdPersonal = entidad.IdPersonal,
+                            Pin = entidad.Pin,
+                            Fecha = entidad.Fecha,
+                            M1 = entidad.M1,
+                            M2 = entidad.M2,
+                            M3 = entidad.M3,
+                            M4 = entidad.M4,
+                            M5 = entidad.M5,
+                            M6 = entidad.M6,
+                            Estado = entidad.Estado,
+                            UsuarioCreacion = entidad.UsuarioCreacion,
+                            UsuarioModificacion = entidad.UsuarioModificacion,
+                            FechaCreacion = entidad.FechaCreacion,
+                            FechaModificacion = entidad.FechaModificacion
+                        };
+                    }
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
 

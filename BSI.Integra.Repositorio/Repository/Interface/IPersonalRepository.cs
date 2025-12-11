@@ -146,5 +146,12 @@ namespace BSI.Integra.Repositorio.Repository.Interface
 
         public List<PersonalDTO> ObtenerValidacionAnexo(int id, string anexo);
         PersonalInformacionCorreoDTO ObtenerNombreApellidoPorId(int id);
+
+        DatoPersonalDTO ObtenerIdentidadUsusarioDNI(string usuario, string dni);
+
+        // Métodos para RegistroMarcadorFecha
+        bool InsertarRegistroMarcacion(RegistroMarcadorFechaBO registro);
+        bool ActualizarRegistroMarcacion(RegistroMarcadorFechaBO registro);
+        RegistroMarcadorFechaBO ObtenerRegistroMarcacionPorFiltro(int idPersonal, DateTime fecha, string pin);
     }
 }
