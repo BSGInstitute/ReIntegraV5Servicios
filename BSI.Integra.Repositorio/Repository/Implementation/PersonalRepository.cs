@@ -2643,7 +2643,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                var entidad = new TRegistroMarcadorFecha
+                var query = @"INSERT INTO gp.T_RegistroMarcadorFecha
+                            (IdCiudad, IdPersonal, Pin, Fecha, M1, M2, M3, M4, M5, M6,
+                             Estado, UsuarioCreacion, UsuarioModificacion, FechaCreacion, FechaModificacion)
+                            VALUES
+                            (@IdCiudad, @IdPersonal, @Pin, @Fecha, @M1, @M2, @M3, @M4, @M5, @M6,
+                             @Estado, @UsuarioCreacion, @UsuarioModificacion, @FechaCreacion, @FechaModificacion);
+                            SELECT CAST(SCOPE_IDENTITY() as int) as Id;";
+
+                var parametros = new
                 {
                     IdCiudad = registro.IdCiudad,
                     IdPersonal = registro.IdPersonal,
@@ -2662,8 +2670,19 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     FechaModificacion = registro.FechaModificacion
                 };
 
-                _context.TRegistroMarcadorFechas.Add(entidad);
-                return true;
+                var resultado = _dapperRepository.FirstOrDefault(query, parametros);
+
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    var respuesta = JsonConvert.DeserializeObject<dynamic>(resultado);
+                    if (respuesta != null && respuesta.Id != null)
+                    {
+                        registro.Id = (int)respuesta.Id;
+                        return true;
+                    }
+                }
+
+                return false;
             }
             catch (Exception ex)
             {
@@ -2678,22 +2697,43 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                var entidad = _context.TRegistroMarcadorFechas.FirstOrDefault(x => x.Id == registro.Id);
-                if (entidad == null)
+                var query = @"UPDATE gp.T_RegistroMarcadorFecha
+                            SET M1 = @M1,
+                                M2 = @M2,
+                                M3 = @M3,
+                                M4 = @M4,
+                                M5 = @M5,
+                                M6 = @M6,
+                                UsuarioModificacion = @UsuarioModificacion,
+                                FechaModificacion = @FechaModificacion
+                            WHERE Id = @Id;
+                            SELECT @@ROWCOUNT as FilasActualizadas;";
+
+                var parametros = new
                 {
-                    throw new Exception("No se encontró el registro de marcación");
+                    Id = registro.Id,
+                    M1 = registro.M1,
+                    M2 = registro.M2,
+                    M3 = registro.M3,
+                    M4 = registro.M4,
+                    M5 = registro.M5,
+                    M6 = registro.M6,
+                    UsuarioModificacion = registro.UsuarioModificacion,
+                    FechaModificacion = registro.FechaModificacion
+                };
+
+                var resultado = _dapperRepository.FirstOrDefault(query, parametros);
+
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    var respuesta = JsonConvert.DeserializeObject<dynamic>(resultado);
+                    if (respuesta != null && respuesta.FilasActualizadas != null)
+                    {
+                        return (int)respuesta.FilasActualizadas > 0;
+                    }
                 }
 
-                entidad.M1 = registro.M1;
-                entidad.M2 = registro.M2;
-                entidad.M3 = registro.M3;
-                entidad.M4 = registro.M4;
-                entidad.M5 = registro.M5;
-                entidad.M6 = registro.M6;
-                entidad.UsuarioModificacion = registro.UsuarioModificacion;
-                entidad.FechaModificacion = registro.FechaModificacion;
-
-                return true;
+                return false;
             }
             catch (Exception ex)
             {

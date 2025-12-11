@@ -4964,13 +4964,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     throw new ArgumentNullException("Entidad nula");
                 }
 
-                var resultado = _unitOfWork.PersonalRepository.ActualizarRegistroMarcacion(objetoBO);
-                if (resultado)
-                {
-                    _unitOfWork.Commit();
-                }
-
-                return resultado;
+                return _unitOfWork.PersonalRepository.ActualizarRegistroMarcacion(objetoBO);
             }
             catch (Exception e)
             {
@@ -4987,13 +4981,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     throw new ArgumentNullException("Entidad nula");
                 }
 
-                var resultado = _unitOfWork.PersonalRepository.InsertarRegistroMarcacion(objetoBO);
-                if (resultado)
-                {
-                    _unitOfWork.Commit();
-                }
-
-                return resultado;
+                return _unitOfWork.PersonalRepository.InsertarRegistroMarcacion(objetoBO);
             }
             catch (Exception e)
             {
