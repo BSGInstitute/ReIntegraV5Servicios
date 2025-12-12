@@ -46,5 +46,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         int ObtenerPEspecificoPorPEspecificoSesion(int IdPespecificoSesion);
         public bool NotificarAlumnosPEspecificoSesionCancelacionPortal(int IdPEspecificoSesion, string Usuario);
         public bool NotificarAlumnosPEspecificoSesionReprogramacionPortal(int idPEspecificoSesion, DateTime fechaNuevaHoraInicio, string usuario);
+        bool EsWebinarPasado(int idPEspecificoSesion);
     }
 }

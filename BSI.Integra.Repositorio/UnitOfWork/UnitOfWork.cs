@@ -8037,5 +8037,14 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _paqueteTutorVirtualBeneficioRepository ?? new PaqueteTutorVirtualBeneficioRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+
+        private IConfirmacionWebinarRepository _confirmacionWebinarRepository;
+        IConfirmacionWebinarRepository IUnitOfWork.ConfirmacionWebinarRepository
+        {
+            get
+            {
+                return _confirmacionWebinarRepository ?? new ConfirmacionWebinarRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
     }
 }

@@ -26,6 +26,8 @@ using BSI.Integra.Repositorio.Repository.Interface.Marketing.Messenger;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Configurations;
 using BSI.Integra.Servicios.Helpers;
+using BSI.Integra.Servicios.Hubs;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
@@ -167,11 +169,31 @@ builder.Services.AddTransient<
 builder.Services.AddScoped<BSI.Integra.Repositorio.Repository.Interface.IAdwordsConversionRepository, BSI.Integra.Repositorio.Repository.Implementation.AdwordsConversionRepository>();
 builder.Services.AddScoped<BSI.Integra.Aplicacion.Transversal.Service.Interface.IAdwordsConversionService, BSI.Integra.Aplicacion.Transversal.Service.Implementacion.AdwordsConversionService>();
 
+
+var connectionString = builder.Configuration.GetConnectionString("IntegraDB");
+// Registrar Hangfire
+builder.Services.AddHangfire(config =>
+    config.UseSqlServerStorage(connectionString));
+builder.Services.AddHangfireServer();
+builder.Services.AddSignalR();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsSignalR", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 var app = builder.Build();
 
 
-
-
+// Dashboard opcional
+app.UseHangfireDashboard("/hangfire");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -182,7 +204,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors();
+//app.UseCors();
+app.UseCors("CorsSignalR");
+
 
 app.AddGlobalErrorHandler();
 
@@ -193,5 +217,6 @@ app.UseAuthorization();
 //app.AddGlobalJwtHandler();
 
 app.MapControllers();
+app.MapHub<WebinarHub>("/webinarHub");
 
 app.Run();
