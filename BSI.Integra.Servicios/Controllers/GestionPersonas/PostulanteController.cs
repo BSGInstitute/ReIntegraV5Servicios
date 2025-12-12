@@ -1032,5 +1032,24 @@ namespace BSI.Integra.Servicios.Controllers.GestionPersonas
         }
 
 
+        [HttpPost]
+        [Route("[Action]")]
+        public ActionResult ObtenerPostulantesInformacionV2([FromBody] int IdPostulante)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                return Ok(_postulanteService.ObtenerPostulantesInformacionV2(IdPostulante));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+
     }
 }

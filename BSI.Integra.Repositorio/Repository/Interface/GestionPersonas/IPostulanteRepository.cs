@@ -42,5 +42,12 @@ namespace BSI.Integra.Repositorio.Repository.Interface.GestionPersonas
         List<ComparacionProcesosSeleccionDTO> CompararProcesosSeleccion(int IdPostulante, int ProcesoOrigen, int ProcesoDestino);
         List<ComparacionProcesosSeleccionDTO> ActualizarProcesoPostulanteSinNota(PostulanteProcesoNuevoDTO Informacion);
         IEnumerable<PostulanteProcesoEvaluacionesDTO> HabilitarExamenesEvaluaciones(PostulanteExamenesDTO parametros);
+
+        PostulanteInformacionVisualDTO ObtenerInformacionPostulanteVisual(int idPostulante);
+        List<PostulanteFormacionDTOV2> ObtenerPostulanteFormacion(int idPostulante);
+        List<PostulanteIdiomaDTOV2> ObtenerPostulanteIdioma(int idPostulante);
+        PostulanteEquipoComputoDTOV2 ObtenerPostulanteEquipoComputo(int idPostulante);
+        List<PostulanteExperienciaDTOV2> ObtenerPostulanteExperiencia(int idPostulante);
+        PostulanteConexionInternetDTOV2 ObtenerPostulanteConexionInternet(int idPostulante);
     }
 }
