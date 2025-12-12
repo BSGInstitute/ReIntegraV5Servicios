@@ -299,7 +299,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.GestionPersonas
 	                    EsContactado
                     FROM gp.T_EtapaProcesoSeleccionCalificado
                     WHERE EsEtapaActual = 1
-                        AND IdPostulante = @IdPostulante
+                        AND IdPostulante = @IdPostulante 
+                        AND Estado=1
                     ORDER BY Id DESC";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { IdPostulante = idPostulante });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("null"))
@@ -338,6 +339,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.GestionPersonas
                     WHERE
                         IdPostulante = @IdPostulante
                         AND IdProcesoSeleccionEtapa = @IdProcesoSeleccionEtapa
+                        AND Estado =1
                     ORDER BY Id DESC";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { IdPostulante = idPostulante, IdProcesoSeleccionEtapa = idProcesoSeleccionEtapa });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("null"))
