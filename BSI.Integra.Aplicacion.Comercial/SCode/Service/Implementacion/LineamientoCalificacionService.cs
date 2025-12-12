@@ -2206,11 +2206,28 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             object AvanceOnline = new List<object>();
             List<object> HistorialAsesoria = new List<object>();
             List<object> listadoNotas = new List<object>();
-            List<object> ActividadesAgenda = new List<object>();
+            
+            //List<object> ActividadesAgenda = new List<object>();
 
-            // Validamos usando las propiedades REALES del DTO (PascalCase)
-            if (item.IdOportunidad > 0 &&
-                item.IdTabmpty(item.CodigoAreaAgenda))
+            /*
+                        ===============================================================================================
+                        Este bloque reemplaza la lógica hardcoded (18, "OP") actual. 
+                        Para activarlo, se requieren los siguientes cambios previos en la arquitectura:
+
+                        1. BASE DE DATOS (Stored Procedure):
+                           Modificar el SP correspondiente para obtener en el DTO los parametros requeridos:
+                           - Columna: IdTab (int)
+                           - Columna: CodigoAreaTrabajo (varchar)
+
+                        2. BACKEND (DTO):
+                           Actualizar el DTO 'LlamadaProcesoAutoDTO' agregando:
+                           public int? IdTab { get; set; }
+                           public string CodigoAreaTrabajo { get; set; }
+                        ===============================================================================================
+
+            if (item.IdOportunidad > 0 && 
+                item.IdTabAgenda.HasValue && item.IdTabAgenda.Value > 0 && 
+                !string.IsNullOrEmpty(item.CodigoAreaAgenda))
             {
                 try
                 {
@@ -2220,12 +2237,12 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         { "IdOportunidad", item.IdOportunidad.ToString() }
                     };
 
-                    // AQUÍ ESTÁ LA CORRECCIÓN DE NOMBRES:
+                    // Ejecución dinámica basada en datos del DTO
                     var resultadoAgenda = agendaService.CargarActividadSeleccionadaPorFiltroV2(
-                        item.idTab.Value,    // Corregido: item.idTab -> item.IdTabAgenda
-                        item.CodigoAreaAgenda,     // Corregido: item.codigoAreaTrabajo -> item.CodigoAreaAgenda
+                        item.IdTab,                 // Valor dinámico desde BD
+                        item.CodigoAreaTrabajo,     // Valor dinámico desde BD
                         filtros,
-                        0                          // Corregido: item.idAsesor no existe. Usamos 0 (System)
+                        0
                     );
 
                     if (resultadoAgenda.ActividadesAgenda != null &&
@@ -2244,9 +2261,10 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[ERROR] Error al obtener ActividadesAgenda: {ex.Message}");
+                    Console.WriteLine($"[ERROR] Error al obtener ActividadesAgenda (Dinámico): {ex.Message}");
                 }
             }
+            */
 
             // Solo llamar si los parámetros son válidos
             if (item.IdCentroCosto > 0 && item.IdCodigoPais > 0 && serviceInformacionPrograma != null)
@@ -2539,7 +2557,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 AvanceOnline = AvanceOnline,
                 HistorialAsesoria = HistorialAsesoria,
                 ListadoNota = listadoNotas,
-                ActividadesAgenda = ActividadesAgenda
+                //ActividadesAgenda = ActividadesAgenda --Pendiente de ajuste en BD y DTO
             };
 
             return brochure;
