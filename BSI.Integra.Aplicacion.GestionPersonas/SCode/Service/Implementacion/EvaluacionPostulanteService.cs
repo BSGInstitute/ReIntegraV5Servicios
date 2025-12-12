@@ -3121,8 +3121,23 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                     etapaAnterior.EsEtapaActual = false;
                     etapaAnterior.UsuarioModificacion = usuario;
                     etapaAnterior.FechaModificacion = DateTime.Now;
-                    _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(etapaAnterior);
-                    _unitOfWork.Commit();
+
+                    EtapaProcesoSeleccionCalificadoActualizarDTO etapaCalificadoUpdateV1 = new()
+                    {
+                        Id = etapaAnterior.Id,
+                        IdProcesoSeleccionEtapa = etapaAnterior.IdProcesoSeleccionEtapa,
+                        IdPostulante = etapaAnterior.IdPostulante,
+                        EsEtapaAprobada = etapaAnterior.EsEtapaAprobada,
+                        NotaCalculada = etapaAnterior.NotaCalculada,
+                        IdEstadoEtapaProcesoSeleccion = etapaAnterior.IdEstadoEtapaProcesoSeleccion,
+                        EsEtapaActual = etapaAnterior.EsEtapaActual,
+                        EsContactado = etapaAnterior.EsContactado,
+                        UsuarioModificacion = usuario,
+
+                    };
+
+                    _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ActualizarEtapaCalificada(etapaCalificadoUpdateV1);
+
                 }
                 var etapaCalificada = _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ObtenerPorIdPostulanteIdProcesoSeleccionEtapa(RespuestaTest.IdPostulanteEvaluacionEvaluador, configuracion.IdProcesoSeleccionEtapa!.Value);
                 if (etapaCalificada != null)
@@ -3170,8 +3185,6 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                     //_unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(etapaCalificada);
                     _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ActualizarEtapaCalificada(etapaCalificadoUpdate);
 
-                    _unitOfWork.Commit();
-
                     if (etapaCalificada.EsEtapaAprobada)
                     {
                         //Configurar la siguiente evaluación en estado "En Proceso" 
@@ -3188,9 +3201,23 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                                 actualizarEtapaPosterior.IdEstadoEtapaProcesoSeleccion = 3; // En Proceso
                                 actualizarEtapaPosterior.UsuarioModificacion = usuario;
                                 actualizarEtapaPosterior.FechaModificacion = DateTime.Now;
+                                EtapaProcesoSeleccionCalificadoActualizarDTO etapaCalificadoUpdateV2 = new()
+                                {
+                                    Id = actualizarEtapaPosterior.Id,
+                                    IdProcesoSeleccionEtapa = actualizarEtapaPosterior.IdProcesoSeleccionEtapa,
+                                    IdPostulante = actualizarEtapaPosterior.IdPostulante,
+                                    EsEtapaAprobada = actualizarEtapaPosterior.EsEtapaAprobada,
+                                    NotaCalculada = actualizarEtapaPosterior.NotaCalculada,
+                                    IdEstadoEtapaProcesoSeleccion = actualizarEtapaPosterior.IdEstadoEtapaProcesoSeleccion,
+                                    EsEtapaActual = actualizarEtapaPosterior.EsEtapaActual,
+                                    EsContactado = actualizarEtapaPosterior.EsContactado,
+                                    UsuarioModificacion = usuario,
 
-                                _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(actualizarEtapaPosterior);
-                                _unitOfWork.Commit();
+                                };
+                                //_unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(actualizarEtapaPosterior);
+                                _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ActualizarEtapaCalificada(etapaCalificadoUpdateV2);
+
+                               
                             }
                         }
                     }

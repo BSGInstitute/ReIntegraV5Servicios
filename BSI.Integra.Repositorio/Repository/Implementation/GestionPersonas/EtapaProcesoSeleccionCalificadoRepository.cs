@@ -424,7 +424,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.GestionPersonas
             }
             catch (Exception ex)
             {
-                throw new Exception($"#IOSF-MKT-001@Error en InsertarObjetoSerializadoCampaign() {ex.Message}", ex);
+                throw new Exception($"#IOSF-MKT-001@Error en SP_TEtapaProcesoSeleccionCalificado_Actualizar() {ex.Message}", ex);
             }
         }
     }
