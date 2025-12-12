@@ -3039,7 +3039,21 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                     etapaCalificada.UsuarioModificacion = usuario;
                     etapaCalificada.FechaModificacion = DateTime.Now;
 
-                    _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(etapaCalificada);
+                    EtapaProcesoSeleccionCalificadoActualizarDTO etapaCalificadaV1 = new()
+                    {
+                        Id = etapaCalificada.Id,
+                        IdProcesoSeleccionEtapa = etapaCalificada.IdProcesoSeleccionEtapa,
+                        IdPostulante = etapaCalificada.IdPostulante,
+                        EsEtapaAprobada = etapaCalificada.EsEtapaAprobada,
+                        NotaCalculada = etapaCalificada.NotaCalculada,
+                        IdEstadoEtapaProcesoSeleccion = etapaCalificada.IdEstadoEtapaProcesoSeleccion,
+                        EsEtapaActual = etapaCalificada.EsEtapaActual,
+                        EsContactado = etapaCalificada.EsContactado,
+                        UsuarioModificacion = usuario,
+
+                    };
+                    //_unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(etapaCalificada);
+                    _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ActualizarEtapaCalificada(etapaCalificadaV1);
                     _unitOfWork.Commit();
 
                     if (dto.IdEstadoEA == 7)// Aprobado con Observaciones
@@ -3081,7 +3095,23 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                                 actualizarEvaluador.UsuarioModificacion = usuario;
                                 actualizarEvaluador.FechaModificacion = DateTime.Now;
 
-                                _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(actualizarEvaluador);
+                                EtapaProcesoSeleccionCalificadoActualizarDTO etapaCalificadaV2 = new()
+                                {
+                                    Id = etapaCalificada.Id,
+                                    IdProcesoSeleccionEtapa = actualizarEvaluador.IdProcesoSeleccionEtapa,
+                                    IdPostulante = actualizarEvaluador.IdPostulante,
+                                    EsEtapaAprobada = actualizarEvaluador.EsEtapaAprobada,
+                                    NotaCalculada = actualizarEvaluador.NotaCalculada,
+                                    IdEstadoEtapaProcesoSeleccion = actualizarEvaluador.IdEstadoEtapaProcesoSeleccion,
+                                    EsEtapaActual = actualizarEvaluador.EsEtapaActual,
+                                    EsContactado = actualizarEvaluador.EsContactado,
+                                    UsuarioModificacion = usuario,
+
+                                };
+                               
+                                _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ActualizarEtapaCalificada(etapaCalificadaV2);
+
+                                //_unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(actualizarEvaluador);
                                 _unitOfWork.Commit();
                             }
                         }
