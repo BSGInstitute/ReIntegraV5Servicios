@@ -59,7 +59,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
 
         IEnumerable<PostulanteProcesoFormatDTO> HabilitarExamenesEvaluaciones(PostulanteExamenesDTO parametros);
 
-
+        InformacionPostulanteDTO ObtenerPostulantesInformacionV2(int idPostulante);
 
     }
 }

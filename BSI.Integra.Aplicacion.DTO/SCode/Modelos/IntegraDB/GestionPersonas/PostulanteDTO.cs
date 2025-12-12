@@ -1,4 +1,5 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.GestionPersonas;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -355,5 +356,115 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.GestionPersonas
         public PostulanteInformacionDTO DatosPostulanteImportación{ get; set; }
         public string Usuario { get; set; }
     }
+
+
+    public class PostulanteConexionInternetDTO
+    {
+        public int Id { get; set; }
+        public int IdPostulante { get; set; }
+        public string TipoConexion { get; set; }
+        public string MedioConexion { get; set; }
+        public string VelocidadInternet { get; set; }
+        public string ProveedorInternet { get; set; }
+        public string CostoInternet { get; set; }
+        public string ConexionCompartida { get; set; }
+    }
+
+
+    public class PostulanteInformacionVisualDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public string ApellidoPaterno { get; set; }
+        public string ApellidoMaterno { get; set; }
+        public int? Edad { get; set; }
+        public string Celular { get; set; }
+        public string Email { get; set; }
+        public string Ciudad { get; set; }
+        public string UrlPerfilFacebook { get; set; }
+        public string UrlPerfilLinkedin { get; set; }
+        public bool? TieneHijo { get; set; }
+        public int? CantidadHijo { get; set; }
+    }
+
+   
+
+    public class PostulanteIdiomaDTOV2
+    {
+        public int Id { get; set; }
+        public int IdPostulante { get; set; }
+        public string Idioma { get; set; }
+        public string NivelIdioma { get; set; }
+    }
+
+    public class PostulanteExperienciaDTOV2
+    {
+        public int Id { get; set; }
+        public int IdPostulante { get; set; }
+        public string Empresa { get; set; }
+        public string Cargo { get; set; }
+        public string AreaTrabajo { get; set; }
+        public string Industria { get; set; }
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaFin { get; set; }
+        public string NombreJefe { get; set; }
+        public string NumeroJefe { get; set; }
+        public bool? AlaActualidad { get; set; }
+        public bool? EsUltimoEmpleo { get; set; }
+        public string Salario { get; set; }
+        public string Funcion { get; set; }
+        public int MesesExperiencia { get; set; }
+    }
+
+    public class PostulanteEquipoComputoDTOV2
+    {
+        public int Id { get; set; }
+        public int IdPostulante { get; set; }
+        public string TipoEquipo { get; set; }
+        public string MemoriaRam { get; set; }
+        public string SistemaOperativo { get; set; }
+        public string Procesador { get; set; }
+        public bool Mouse { get; set; }
+        public bool Auricular { get; set; }
+        public bool Camara { get; set; }
+        public bool? EsEquipoTrabajo { get; set; }
+    }
+
+
+    public class PostulanteConexionInternetDTOV2
+    {
+        public int Id { get; set; }
+        public int IdPostulante { get; set; }
+        public string TipoConexion { get; set; }
+        public string MedioConexion { get; set; }
+        public string VelocidadInternet { get; set; }
+        public string ProveedorInternet { get; set; }
+        public string CostoInternet { get; set; }
+        public string ConexionCompartida { get; set; }
+    }
+    public class InformacionPostulanteDTO
+    {
+        public PostulanteInformacionVisualDTO PostulanteInformacion { get; set; }
+        public List<PostulanteFormacionDTOV2> PostulanteFormacion { get; set; }
+        public List<PostulanteIdiomaDTOV2> PostulanteIdioma { get; set; }
+        public List<PostulanteExperienciaDTOV2> PostulanteExperiencia { get; set; }
+        public PostulanteEquipoComputoDTOV2 PostulanteEquipoComputo { get; set; }
+        public PostulanteConexionInternetDTOV2 PostulanteConexionInternet { get; set; }
+
+    }
+    public class PostulanteFormacionDTOV2
+    {
+        public int Id { get; set; }
+        public int IdPostulante { get; set; }
+        public string CentroEstudio { get; set; }
+        public string TipoEstudio { get; set; }
+        public string AreaFormacion { get; set; }
+        public string EstadoEstudio { get; set; }
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaFin { get; set; }
+        public bool? AlaActualidad { get; set; }
+        public string TurnoEstudio { get; set; }
+    }
+
 
 }

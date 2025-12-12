@@ -3147,6 +3147,27 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw new Exception($"Error al obtener evaluaciones de postulante: {ex.Message}");
             }
         }
+        public InformacionPostulanteDTO ObtenerPostulantesInformacionV2(int idPostulante)
+        {
+            InformacionPostulanteDTO combos = new InformacionPostulanteDTO();
+            try
+            {
+
+                combos.PostulanteInformacion = _unitOfWork.PostulanteRepository.ObtenerInformacionPostulanteVisual(idPostulante);
+                combos.PostulanteFormacion = _unitOfWork.PostulanteRepository.ObtenerPostulanteFormacion(idPostulante);
+				combos.PostulanteIdioma = _unitOfWork.PostulanteRepository.ObtenerPostulanteIdioma(idPostulante);
+				combos.PostulanteExperiencia = _unitOfWork.PostulanteRepository.ObtenerPostulanteExperiencia(idPostulante);
+				combos.PostulanteEquipoComputo = _unitOfWork.PostulanteRepository.ObtenerPostulanteEquipoComputo(idPostulante);
+				combos.PostulanteConexionInternet = _unitOfWork.PostulanteRepository.ObtenerPostulanteConexionInternet(idPostulante);
+               
+                return combos;
+            }
+            catch
+            {
+                return null;
+            }
+
+        }
 
 
     }
