@@ -1,10 +1,14 @@
-﻿using BSI.Integra.Aplicacion.DTO;
+﻿using AutoMapper;
+using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
+using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Security.Claims;
 
 namespace BSI.Integra.Servicios.Controllers
@@ -96,7 +100,7 @@ namespace BSI.Integra.Servicios.Controllers
         /// </summary>
         /// <returns> Retorna 200 y lista de objetos o 400 y mensaje de error </returns>
         [HttpPost("InsertarMarcacionPersonal")]
-        public IActionResult InsertarMarcacionPersonal(StringDTO JsonString )
+        public IActionResult InsertarMarcacionPersonal(StringDTO JsonString)
         {
             var claimsIdentity = User.Identity as ClaimsIdentity;
             var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
@@ -116,5 +120,32 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
+
+        ////////
+        
+
+        [HttpGet]
+        [Route("[action]/{Usuario}/{TipoBoton}/{DNI}")]
+        public ActionResult InsertarMarcacionPersonalV2(string Usuario, int TipoBoton, string DNI)
+        {
+            try
+            {
+                var servicio = new PersonalService(unitOfWork);
+                var result = servicio.InsertarMarcacionPersonalV2(Usuario, TipoBoton, DNI);
+
+                if (result.Exito)
+                {
+                    return Ok(result);
+                }
+                else
+                {
+                    return BadRequest(result.Mensaje);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

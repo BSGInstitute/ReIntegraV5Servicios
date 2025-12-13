@@ -4913,5 +4913,371 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 return false;
             }
         }
+
+
+
+
+
+
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 11/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// marcacion personal obtener personal por id
+        /// </summary>
+        public Personal FirstById(int id)
+        {
+            try
+            {
+                var personal = _unitOfWork.PersonalRepository.ObtenerPorId(id);
+
+                if (personal == null)
+                {
+                    throw new Exception($"No se encontró el personal con Id: {id}");
+                }
+
+                return personal;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 11/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// marcacion personal obtener registro marcacion por filtro
+        /// </summary>
+        public RegistroMarcadorFechaBO ObtenerRegistroMarcacionPersonalDNI(int idPersonal, DateTime fechaActual, string Dni)
+        {
+            try
+            {
+                return _unitOfWork.PersonalRepository.ObtenerRegistroMarcacionPorFiltro(idPersonal, fechaActual, Dni);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 11/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// marcacion personal actualizar
+        /// </summary>
+        public bool Update(RegistroMarcadorFechaBO objetoBO)
+        {
+            try
+            {
+                if (objetoBO == null)
+                {
+                    throw new ArgumentNullException("Entidad nula");
+                }
+
+                return _unitOfWork.PersonalRepository.ActualizarRegistroMarcacion(objetoBO);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 11/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// marcacion personal insertar
+        /// </summary>
+        public bool Insert(RegistroMarcadorFechaBO objetoBO)
+        {
+            try
+            {
+                if (objetoBO == null)
+                {
+                    throw new ArgumentNullException("Entidad nula");
+                }
+
+                return _unitOfWork.PersonalRepository.InsertarRegistroMarcacion(objetoBO);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 11/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// marcacion personal
+        /// </summary>
+        public ResultadoDTOv2 InsertarMarcacionPersonalV2(string Usuario, int TipoBoton, string DNI)
+        {
+            try
+            {
+                var user = _unitOfWork.PersonalRepository.ObtenerIdentidadUsusarioDNI(Usuario, DNI);
+                var personal = FirstById(user.Id);
+                var fechaActual = DateTime.Now;
+                bool rpta = false;
+                bool yaMarcado = false;
+                bool noCumpleTiempoMinimoAlmuerzo = false;
+                var registroMarcacionPersonal = ObtenerRegistroMarcacionPersonalDNI(personal.Id, fechaActual, DNI);
+                switch (TipoBoton)
+                {
+                    case 1:
+                        if (registroMarcacionPersonal == null)
+                        {
+                            registroMarcacionPersonal = new RegistroMarcadorFechaBO()
+                            {
+                                Pin = personal.NumeroDocumento,
+                                Fecha = fechaActual.Date,
+                                IdCiudad = personal.IdCiudad == null ? 0 : personal.IdCiudad.Value,
+                                IdPersonal = personal.Id,
+                                M1 = fechaActual.TimeOfDay,
+                                Estado = true,
+                                UsuarioCreacion = Usuario,
+                                UsuarioModificacion = Usuario,
+                                FechaCreacion = DateTime.Now,
+                                FechaModificacion = DateTime.Now
+                            };
+                            rpta = Insert(registroMarcacionPersonal);
+                        }
+                        else
+                        {
+                            if (registroMarcacionPersonal.M1 != null)
+                            {
+                                yaMarcado = true;
+                            }
+                            else
+                            {
+                                registroMarcacionPersonal.M1 = fechaActual.TimeOfDay;
+                                registroMarcacionPersonal.UsuarioModificacion = Usuario;
+                                registroMarcacionPersonal.FechaModificacion = DateTime.Now;
+                                rpta = Update(registroMarcacionPersonal);
+                            }
+                        }
+                        break;
+                    case 2: 
+                        if (registroMarcacionPersonal != null)
+                        {
+                            if (registroMarcacionPersonal.M1 == null)
+                            {
+                                return new ResultadoDTOv2
+                                {
+                                    Exito = false,
+                                    Mensaje = "Debe marcar entrada (M1) antes de marcar salida a refrigerio"
+                                };
+                            }
+
+                            if (registroMarcacionPersonal.M4 != null)
+                            {
+                                return new ResultadoDTOv2
+                                {
+                                    Exito = false,
+                                    Mensaje = "Ya marcó salida (M4), no puede marcar salida a refrigerio"
+                                };
+                            }
+
+                            if (registroMarcacionPersonal.M2 == null)
+                            {
+                                registroMarcacionPersonal.M2 = fechaActual.TimeOfDay;
+                                registroMarcacionPersonal.UsuarioModificacion = Usuario;
+                                registroMarcacionPersonal.FechaModificacion = DateTime.Now;
+                                rpta = Update(registroMarcacionPersonal);
+                            }
+                            else
+                            {
+                                yaMarcado = true;
+                            }
+                        }
+                        else
+                        {
+                            return new ResultadoDTOv2
+                            {
+                                Exito = false,
+                                Mensaje = "Debe marcar entrada (M1) antes de marcar salida a refrigerio"
+                            };
+                        }
+                        break;
+                    case 3:
+                        if (registroMarcacionPersonal != null)
+                        {
+                            if (registroMarcacionPersonal.M2 == null)
+                            {
+                                return new ResultadoDTOv2
+                                {
+                                    Exito = false,
+                                    Mensaje = "Debe marcar salida a refrigerio (M2) antes de marcar regreso de refrigerio"
+                                };
+                            }
+
+                            if (registroMarcacionPersonal.M4 != null)
+                            {
+                                return new ResultadoDTOv2
+                                {
+                                    Exito = false,
+                                    Mensaje = "Ya marcó salida (M4), no puede marcar regreso de refrigerio"
+                                };
+                            }
+
+                            if (registroMarcacionPersonal.M3 == null)
+                            {
+                                var diferencia = fechaActual.TimeOfDay - registroMarcacionPersonal.M2.Value;
+                                var horasdiferencia = diferencia.Hours * 60;
+                                var minutosdiferencia = diferencia.Minutes + horasdiferencia;
+
+                                if (minutosdiferencia < 45)
+                                {
+                                    noCumpleTiempoMinimoAlmuerzo = true;
+                                    break;
+                                }
+
+                                registroMarcacionPersonal.M3 = fechaActual.TimeOfDay;
+                                registroMarcacionPersonal.UsuarioModificacion = Usuario;
+                                registroMarcacionPersonal.FechaModificacion = DateTime.Now;
+                                rpta = Update(registroMarcacionPersonal);
+                            }
+                            else
+                            {
+                                yaMarcado = true;
+                            }
+                        }
+                        else
+                        {
+                            return new ResultadoDTOv2
+                            {
+                                Exito = false,
+                                Mensaje = "Debe marcar salida a refrigerio (M2) antes de marcar regreso de refrigerio"
+                            };
+                        }
+                        break;
+                    case 4: 
+                        if (fechaActual.Hour >= 0 && fechaActual.Hour <= 6)
+                        {
+                           
+                            var temp = fechaActual.AddDays(-1);
+                            var newFecha = new DateTime(temp.Year, temp.Month, temp.Day, 23, 59, 59);
+                            var registroMarcacionPersonalTemp = ObtenerRegistroMarcacionPersonalDNI(personal.Id, temp, DNI);
+
+                            if (registroMarcacionPersonalTemp == null)
+                            {
+                                return new ResultadoDTOv2
+                                {
+                                    Exito = false,
+                                    Mensaje = "No existe registro de entrada del día anterior. Debe marcar entrada (M1) antes de marcar salida"
+                                };
+                            }
+
+                            if (registroMarcacionPersonalTemp.M1 == null)
+                            {
+                                return new ResultadoDTOv2
+                                {
+                                    Exito = false,
+                                    Mensaje = "Debe marcar entrada (M1) antes de marcar salida"
+                                };
+                            }
+
+                            if (registroMarcacionPersonalTemp.M2 != null && registroMarcacionPersonalTemp.M3 == null)
+                            {
+                                return new ResultadoDTOv2
+                                {
+                                    Exito = false,
+                                    Mensaje = "Debe marcar regreso de refrigerio (M3) antes de marcar salida"
+                                };
+                            }
+
+                            registroMarcacionPersonalTemp.M4 = newFecha.TimeOfDay;
+                            registroMarcacionPersonalTemp.M5 = fechaActual.Date.TimeOfDay;
+                            registroMarcacionPersonalTemp.M6 = fechaActual.TimeOfDay;
+                            registroMarcacionPersonalTemp.UsuarioModificacion = Usuario;
+                            registroMarcacionPersonalTemp.FechaModificacion = DateTime.Now;
+                            rpta = Update(registroMarcacionPersonalTemp);
+                        }
+                        else
+                        {
+                            if (registroMarcacionPersonal != null)
+                            {
+                                if (registroMarcacionPersonal.M1 == null)
+                                {
+                                    return new ResultadoDTOv2
+                                    {
+                                        Exito = false,
+                                        Mensaje = "Debe marcar entrada (M1) antes de marcar salida"
+                                    };
+                                }
+
+                                if (registroMarcacionPersonal.M2 != null && registroMarcacionPersonal.M3 == null)
+                                {
+                                    return new ResultadoDTOv2
+                                    {
+                                        Exito = false,
+                                        Mensaje = "Debe marcar regreso de refrigerio (M3) antes de marcar salida"
+                                    };
+                                }
+
+                                if (registroMarcacionPersonal.M4 == null)
+                                {
+                                    registroMarcacionPersonal.M4 = fechaActual.TimeOfDay;
+                                    registroMarcacionPersonal.UsuarioModificacion = Usuario;
+                                    registroMarcacionPersonal.FechaModificacion = DateTime.Now;
+                                    rpta = Update(registroMarcacionPersonal);
+                                }
+                                else
+                                {
+                                    yaMarcado = true;
+                                }
+                            }
+                            else
+                            {
+                                return new ResultadoDTOv2
+                                {
+                                    Exito = false,
+                                    Mensaje = "Debe marcar entrada (M1) antes de marcar salida"
+                                };
+                            }
+                        }
+                        break;
+                }
+
+                if (yaMarcado)
+                {
+                    return new ResultadoDTOv2
+                    {
+                        Exito = false,
+                        Mensaje = "Ya ha marcado en este horario"
+                    };
+                }
+
+                if (noCumpleTiempoMinimoAlmuerzo)
+                {
+                    return new ResultadoDTOv2
+                    {
+                        Exito = false,
+                        Mensaje = "No cumple el tiempo mínimo de almuerzo (45 minutos)"
+                    };
+                }
+
+                return new ResultadoDTOv2
+                {
+                    Exito = rpta,
+                    Mensaje = rpta ? "Marcación registrada correctamente" : "Error al registrar la marcación"
+                };
+            }
+            catch (Exception e)
+            {
+                return new ResultadoDTOv2
+                {
+                    Exito = false,
+                    Mensaje = e.Message
+                };
+            }
+        }
     }
 }

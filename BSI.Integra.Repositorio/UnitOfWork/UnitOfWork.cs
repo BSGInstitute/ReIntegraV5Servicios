@@ -8037,5 +8037,13 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _paqueteTutorVirtualBeneficioRepository ?? new PaqueteTutorVirtualBeneficioRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+        private IMontoPagoLogRepository _montoPagoLogRepository;
+        IMontoPagoLogRepository IUnitOfWork.MontoPagoLogRepository
+        {
+            get
+            {
+                return _montoPagoLogRepository ?? new MontoPagoLogRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
     }
 }

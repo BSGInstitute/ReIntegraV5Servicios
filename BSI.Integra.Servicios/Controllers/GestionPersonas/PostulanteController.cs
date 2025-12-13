@@ -12,16 +12,11 @@ using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
-using BSI.Integra.Persistencia.Entidades.IntegraDB.GestionPersonas;
-using BSI.Integra.Persistencia.Modelos.IntegraDB;
-using BSI.Integra.Repositorio.Repository.Implementation;
-using BSI.Integra.Repositorio.Repository.Implementation.GestionPersonas;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Configurations;
 using BSI.Integra.Servicios.Helpers;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualBasic;
 
 namespace BSI.Integra.Servicios.Controllers.GestionPersonas
 {
@@ -1016,6 +1011,45 @@ namespace BSI.Integra.Servicios.Controllers.GestionPersonas
                 return BadRequest(e.Message);
             }
         }
+
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult HabilitarExamenes([FromBody] PostulanteExamenesDTO ParametrosHabilitables)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var Resultado = _postulanteService.HabilitarExamenesEvaluaciones(ParametrosHabilitables);
+                return Ok(Resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpPost]
+        [Route("[Action]")]
+        public ActionResult ObtenerPostulantesInformacionV2([FromBody] int IdPostulante)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                return Ok(_postulanteService.ObtenerPostulantesInformacionV2(IdPostulante));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
 
     }
 }

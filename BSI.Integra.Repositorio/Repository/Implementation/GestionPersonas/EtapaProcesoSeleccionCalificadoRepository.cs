@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.GestionPersonas;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.GestionPersona;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.GestionPersonas;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -299,7 +301,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.GestionPersonas
 	                    EsContactado
                     FROM gp.T_EtapaProcesoSeleccionCalificado
                     WHERE EsEtapaActual = 1
-                        AND IdPostulante = @IdPostulante
+                        AND IdPostulante = @IdPostulante 
+                        AND Estado=1
                     ORDER BY Id DESC";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { IdPostulante = idPostulante });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("null"))
@@ -338,6 +341,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.GestionPersonas
                     WHERE
                         IdPostulante = @IdPostulante
                         AND IdProcesoSeleccionEtapa = @IdProcesoSeleccionEtapa
+                        AND Estado =1
                     ORDER BY Id DESC";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { IdPostulante = idPostulante, IdProcesoSeleccionEtapa = idProcesoSeleccionEtapa });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("null"))
@@ -394,6 +398,33 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.GestionPersonas
             catch (Exception e)
             {
                 throw new Exception(e.Message);
+            }
+        }
+
+
+        public void ActualizarEtapaCalificada(EtapaProcesoSeleccionCalificadoActualizarDTO etapaCalificada)
+        {
+            try
+            {
+                var query = "mkt.SP_TEtapaProcesoSeleccionCalificado_Actualizar";
+                var parametros = new
+                {
+                    Id = etapaCalificada.Id,
+                    IdProcesoSeleccionEtapa = etapaCalificada.IdProcesoSeleccionEtapa,
+                    IdPostulante = etapaCalificada.IdPostulante,
+                    EsEtapaAprobada = etapaCalificada.EsEtapaAprobada,
+                    NotaCalculada = etapaCalificada.NotaCalculada,
+                    IdEstadoEtapaProcesoSeleccion = etapaCalificada.IdEstadoEtapaProcesoSeleccion,
+                    EsEtapaActual = etapaCalificada.EsEtapaActual,
+                    EsContactado = etapaCalificada.EsContactado,
+                    UsuarioModificacion = etapaCalificada.UsuarioModificacion,
+                };
+
+                var resultado = _dapperRepository.QuerySPDapper(query, parametros);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en SP_TEtapaProcesoSeleccionCalificado_Actualizar() {ex.Message}", ex);
             }
         }
     }
