@@ -3095,23 +3095,7 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                                 actualizarEvaluador.UsuarioModificacion = usuario;
                                 actualizarEvaluador.FechaModificacion = DateTime.Now;
 
-                                EtapaProcesoSeleccionCalificadoActualizarDTO etapaCalificadaV2 = new()
-                                {
-                                    Id = etapaCalificada.Id,
-                                    IdProcesoSeleccionEtapa = actualizarEvaluador.IdProcesoSeleccionEtapa,
-                                    IdPostulante = actualizarEvaluador.IdPostulante,
-                                    EsEtapaAprobada = actualizarEvaluador.EsEtapaAprobada,
-                                    NotaCalculada = actualizarEvaluador.NotaCalculada,
-                                    IdEstadoEtapaProcesoSeleccion = actualizarEvaluador.IdEstadoEtapaProcesoSeleccion,
-                                    EsEtapaActual = actualizarEvaluador.EsEtapaActual,
-                                    EsContactado = actualizarEvaluador.EsContactado,
-                                    UsuarioModificacion = usuario,
-
-                                };
-                               
-                                _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ActualizarEtapaCalificada(etapaCalificadaV2);
-
-                                //_unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(actualizarEvaluador);
+                                _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(actualizarEvaluador);
                                 _unitOfWork.Commit();
                             }
                         }
