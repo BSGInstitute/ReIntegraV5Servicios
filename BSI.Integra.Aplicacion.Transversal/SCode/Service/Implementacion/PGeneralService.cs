@@ -3323,7 +3323,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 foreach (var item in programaGeneralDTO.DetallesProgramaGeneral.MontoPago)
                 {
 
-                    /*Borramos los detalles de MontoPago */
                     #region Detalles Monto Pago
                     var montoPagoPlataformas = _unitOfWork.MontoPagoPlataformaRepository.ObtenerPorIdMontoPago(item.Id);
                     montoPagoPlataformas.RemoveAll(x => item.PlataformasPagos.Any(y => y == x.Valor!.Value));
@@ -3359,6 +3358,81 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         montoPago.MontoDescontado = item.MontoDescontado;
                         montoPago.UsuarioModificacion = usuario;
                         montoPago.FechaModificacion = DateTime.Now;
+
+                        MontoPago montoPagoTmp = _unitOfWork.MontoPagoRepository.ObtenerPorId(item.Id);
+
+                        MontoPagoLog montoPagoLog = new MontoPagoLog();
+                        montoPagoLog.IdMontoPago = montoPagoTmp.Id;
+                        montoPagoLog.PrecioOriginal = montoPagoTmp.Precio;
+                        montoPagoLog.PrecioModificado = montoPagoTmp.Precio != item.Precio ? item.Precio : null;
+                        montoPagoLog.PrecioLetrasOriginal = montoPagoTmp.PrecioLetras;
+                        montoPagoLog.PrecioLetrasModificado = montoPagoTmp.PrecioLetras != item.PrecioLetras ? item.PrecioLetras : null;
+                        montoPagoLog.IdMonedaOriginal = montoPagoTmp.IdMoneda;
+                        montoPagoLog.IdMonedaModificado = montoPagoTmp.IdMoneda != item.IdMoneda ? item.IdMoneda : null;
+                        montoPagoLog.MatriculaOriginal = montoPagoTmp.Matricula;
+                        montoPagoLog.MatriculaModificado = montoPagoTmp.Matricula != item.Matricula ? item.Matricula : null;
+                        montoPagoLog.CuotasOriginal = montoPagoTmp.Cuotas;
+                        montoPagoLog.CuotasModificado = montoPagoTmp.Cuotas != item.Cuotas ? item.Cuotas : null;
+                        montoPagoLog.NroCuotasOriginal = montoPagoTmp.NroCuotas;
+                        montoPagoLog.NroCuotasModificado = montoPagoTmp.NroCuotas != item.NroCuotas ? item.NroCuotas : null;
+                        montoPagoLog.IdTipoDescuentoOriginal = montoPagoTmp.IdTipoDescuento;
+                        montoPagoLog.IdTipoDescuentoModificado = montoPagoTmp.IdTipoDescuento != item.IdTipoDescuento ? item.IdTipoDescuento : null;
+                        montoPagoLog.IdPgeneralOriginal = montoPagoTmp.IdPrograma;
+                        montoPagoLog.IdPgeneralModificado = montoPagoTmp.IdPrograma != item.IdPrograma ? item.IdPrograma : null;
+                        montoPagoLog.IdTipoPagoOriginal = montoPagoTmp.IdTipoPago;
+                        montoPagoLog.IdTipoPagoModificado = montoPagoTmp.IdTipoPago != item.IdTipoPago ? item.IdTipoPago : null;
+                        montoPagoLog.IdPaisOriginal = montoPagoTmp.IdPais;
+                        montoPagoLog.IdPaisModificado = montoPagoTmp.IdPais != item.IdPais ? item.IdPais : null;
+                        montoPagoLog.VencimientoOriginal = montoPagoTmp.Vencimiento;
+                        montoPagoLog.VencimientoModificado = montoPagoTmp.Vencimiento != item.Vencimiento ? item.Vencimiento : null;
+                        montoPagoLog.PrimeraCuotaOriginal = montoPagoTmp.PrimeraCuota;
+                        montoPagoLog.PrimeraCuotaModificado = montoPagoTmp.PrimeraCuota != item.PrimeraCuota ? item.PrimeraCuota : null;
+                        montoPagoLog.CuotaDobleOriginal = montoPagoTmp.CuotaDoble;
+                        montoPagoLog.CuotaDobleModificado = montoPagoTmp.CuotaDoble != item.CuotaDoble ? item.CuotaDoble : null;
+                        montoPagoLog.DescripcionOriginal = montoPagoTmp.Descripcion;
+                        montoPagoLog.DescripcionModificado = montoPagoTmp.Descripcion != item.Descripcion ? item.Descripcion : null;
+                        montoPagoLog.VisibleWebOriginal = montoPagoTmp.VisibleWeb;
+                        montoPagoLog.VisibleWebModificado = montoPagoTmp.VisibleWeb != item.VisibleWeb ? item.VisibleWeb : null;
+                        montoPagoLog.PaqueteOriginal = montoPagoTmp.Paquete;
+                        montoPagoLog.PaqueteModificado = montoPagoTmp.Paquete != item.Paquete ? item.Paquete : null;
+                        montoPagoLog.PorDefectoOriginal = montoPagoTmp.PorDefecto;
+                        montoPagoLog.PorDefectoModificado = montoPagoTmp.PorDefecto != item.PorDefecto ? item.PorDefecto : null;
+                        montoPagoLog.MontoDescontadoOriginal = montoPagoTmp.MontoDescontado;
+                        montoPagoLog.MontoDescontadoModificado = montoPagoTmp.MontoDescontado != item.MontoDescontado ? item.MontoDescontado : null;
+
+                        montoPagoLog.Accion = "UPDATE";
+                        montoPagoLog.UsuarioCreacion = montoPago.UsuarioModificacion;
+                        montoPagoLog.UsuarioModificacion = usuario;
+                        montoPagoLog.FechaCreacion = DateTime.Now;
+                        montoPagoLog.FechaModificacion = DateTime.Now;
+                        montoPagoLog.Estado = true;
+
+         
+                        bool hayCambios =
+                            (montoPagoTmp.Precio != item.Precio) ||
+                            (montoPagoTmp.PrecioLetras != item.PrecioLetras) ||
+                            (montoPagoTmp.IdMoneda != item.IdMoneda) ||
+                            (montoPagoTmp.Matricula != item.Matricula) ||
+                            (montoPagoTmp.Cuotas != item.Cuotas) ||
+                            (montoPagoTmp.NroCuotas != item.NroCuotas) ||
+                            (montoPagoTmp.IdTipoDescuento != item.IdTipoDescuento) ||
+                            (montoPagoTmp.IdPrograma != item.IdPrograma) ||
+                            (montoPagoTmp.IdTipoPago != item.IdTipoPago) ||
+                            (montoPagoTmp.IdPais != item.IdPais) ||
+                            (montoPagoTmp.Vencimiento != item.Vencimiento) ||
+                            (montoPagoTmp.PrimeraCuota != item.PrimeraCuota) ||
+                            (montoPagoTmp.CuotaDoble != item.CuotaDoble) ||
+                            (montoPagoTmp.Descripcion != item.Descripcion) ||
+                            (montoPagoTmp.VisibleWeb != item.VisibleWeb) ||
+                            (montoPagoTmp.Paquete != item.Paquete) ||
+                            (montoPagoTmp.PorDefecto != item.PorDefecto) ||
+                            (montoPagoTmp.MontoDescontado != item.MontoDescontado);
+
+                        if (hayCambios)
+                        {
+                            _unitOfWork.MontoPagoLogRepository.Add(montoPagoLog);
+                            _unitOfWork.Commit();
+                        }
                     }
                     else
                     {
@@ -3387,6 +3461,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         montoPago.FechaModificacion = DateTime.Now;
                         montoPago.FechaCreacion = DateTime.Now;
                     }
+
                     montoPago.MontoPagoPlataforma = new List<MontoPagoPlataforma>();
                     foreach (var item2 in item.PlataformasPagos)
                     {
@@ -3409,6 +3484,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             montoPago.MontoPagoPlataforma.Add(plataforma);
                         }
                     }
+
                     if (montoPago.Id == 0)
                     {
                         _unitOfWork.MontoPagoRepository.Add(montoPago);

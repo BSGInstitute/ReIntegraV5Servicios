@@ -21,5 +21,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.GestionPersonas
         EtapaProcesoSeleccionCalificado? ObtenerEtapaActualPorIdPostulante(int idPostulante);
         EtapaProcesoSeleccionCalificado? ObtenerPorIdPostulanteIdProcesoSeleccionEtapa(int idPostulante, int idProcesoSeleccionEtapa);
         List<EtapaExamenesPorPostulanteDTO> ObtenerListaEtapaExamenesPorPostulante(int idProcesoSeleccion, int idPostulante);
+        void ActualizarEtapaCalificada(EtapaProcesoSeleccionCalificadoActualizarDTO etapaCalificada);
+
     }
 }

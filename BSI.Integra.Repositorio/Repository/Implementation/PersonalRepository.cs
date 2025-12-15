@@ -24,9 +24,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
     public class PersonalRepository : GenericRepository<TPersonal>, IPersonalRepository
     {
         private Mapper _mapper;
+        private readonly IntegraDBContext _context;
 
         public PersonalRepository(IntegraDBContext context, IConnectionFactory connectionFactory, IDapperRepository dapperRepository) : base(context, connectionFactory, dapperRepository)
         {
+            _context = context;
             var config = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<TPersonal, Personal>(MemberList.None).ReverseMap();
@@ -2598,6 +2600,206 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 throw new Exception(e.Message);
 
+            }
+        }
+
+
+        /// Repositorio: PersonalRespository 
+        /// Autor: Junior Llerena
+        /// <summary>
+        /// Obtiene la identidad por usuarioDNI
+        /// </summary>
+        /// <param name="DNI"></param>
+        /// <returns>Usuario, DNI</returns>
+        public DatoPersonalDTO ObtenerIdentidadUsusarioDNI(string Usuario, string DNI)
+        {
+            try
+            {
+                List<DatoPersonalDTO> Usuarios = new List<DatoPersonalDTO>();
+                var _query = string.Empty;
+                _query = "EXEC [conf].[SP_ObtenerIdNombresPersonalPorUsernameDNI] @Usuario, @DNI";
+                var UsuariosDB = _dapperRepository.QueryDapper(_query, new { Usuario, DNI });
+                if (!string.IsNullOrEmpty(UsuariosDB) && !UsuariosDB.Contains("[]"))
+                {
+                    Usuarios = JsonConvert.DeserializeObject<List<DatoPersonalDTO>>(UsuariosDB);
+                    if (Usuarios.Count > 1) throw new Exception("Error: Existe mas de un usuario que coincide con el parametro dado");
+                    else return Usuarios[0];
+                }
+                else
+                {
+                    throw new Exception("Error: Ningun usuario coincide con el parametro dado");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 11/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// marcacion personal insertar registro
+        /// </summary>
+        public bool InsertarRegistroMarcacion(RegistroMarcadorFechaBO registro)
+        {
+            try
+            {
+                var query = @"INSERT INTO gp.T_RegistroMarcadorFecha
+                            (IdCiudad, IdPersonal, Pin, Fecha, M1, M2, M3, M4, M5, M6,
+                             Estado, UsuarioCreacion, UsuarioModificacion, FechaCreacion, FechaModificacion)
+                            VALUES
+                            (@IdCiudad, @IdPersonal, @Pin, @Fecha, @M1, @M2, @M3, @M4, @M5, @M6,
+                             @Estado, @UsuarioCreacion, @UsuarioModificacion, @FechaCreacion, @FechaModificacion);
+                            SELECT CAST(SCOPE_IDENTITY() as int) as Id;";
+
+                var parametros = new
+                {
+                    IdCiudad = registro.IdCiudad,
+                    IdPersonal = registro.IdPersonal,
+                    Pin = registro.Pin,
+                    Fecha = registro.Fecha,
+                    M1 = registro.M1,
+                    M2 = registro.M2,
+                    M3 = registro.M3,
+                    M4 = registro.M4,
+                    M5 = registro.M5,
+                    M6 = registro.M6,
+                    Estado = registro.Estado,
+                    UsuarioCreacion = registro.UsuarioCreacion,
+                    UsuarioModificacion = registro.UsuarioModificacion,
+                    FechaCreacion = registro.FechaCreacion,
+                    FechaModificacion = registro.FechaModificacion
+                };
+
+                var resultado = _dapperRepository.FirstOrDefault(query, parametros);
+
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    var respuesta = JsonConvert.DeserializeObject<dynamic>(resultado);
+                    if (respuesta != null && respuesta.Id != null)
+                    {
+                        registro.Id = (int)respuesta.Id;
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 11/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// marcacion personal actualizar
+        /// </summary>
+        public bool ActualizarRegistroMarcacion(RegistroMarcadorFechaBO registro)
+        {
+            try
+            {
+                var query = @"UPDATE gp.T_RegistroMarcadorFecha
+                            SET M1 = @M1,
+                                M2 = @M2,
+                                M3 = @M3,
+                                M4 = @M4,
+                                M5 = @M5,
+                                M6 = @M6,
+                                UsuarioModificacion = @UsuarioModificacion,
+                                FechaModificacion = @FechaModificacion
+                            WHERE Id = @Id;
+                            SELECT @@ROWCOUNT as FilasActualizadas;";
+
+                var parametros = new
+                {
+                    Id = registro.Id,
+                    M1 = registro.M1,
+                    M2 = registro.M2,
+                    M3 = registro.M3,
+                    M4 = registro.M4,
+                    M5 = registro.M5,
+                    M6 = registro.M6,
+                    UsuarioModificacion = registro.UsuarioModificacion,
+                    FechaModificacion = registro.FechaModificacion
+                };
+
+                var resultado = _dapperRepository.FirstOrDefault(query, parametros);
+
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    var respuesta = JsonConvert.DeserializeObject<dynamic>(resultado);
+                    if (respuesta != null && respuesta.FilasActualizadas != null)
+                    {
+                        return (int)respuesta.FilasActualizadas > 0;
+                    }
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 11/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// marcacion personal obtener por filtro
+        /// </summary>
+        public RegistroMarcadorFechaBO ObtenerRegistroMarcacionPorFiltro(int idPersonal, DateTime fecha, string pin)
+        {
+            try
+            {
+                var query = @"SELECT * FROM gp.T_RegistroMarcadorFecha
+                             WHERE IdPersonal = @IdPersonal
+                             AND CAST(Fecha AS DATE) = CAST(@Fecha AS DATE)
+                             AND Pin = @Pin
+                             AND Estado = 1";
+
+                var resultado = _dapperRepository.FirstOrDefault(query, new { IdPersonal = idPersonal, Fecha = fecha, Pin = pin });
+
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null" && !resultado.Contains("[]"))
+                {
+                    var entidad = JsonConvert.DeserializeObject<TRegistroMarcadorFecha>(resultado);
+                    if (entidad != null)
+                    {
+                        return new RegistroMarcadorFechaBO
+                        {
+                            Id = entidad.Id,
+                            IdCiudad = entidad.IdCiudad,
+                            IdPersonal = entidad.IdPersonal,
+                            Pin = entidad.Pin,
+                            Fecha = entidad.Fecha,
+                            M1 = entidad.M1,
+                            M2 = entidad.M2,
+                            M3 = entidad.M3,
+                            M4 = entidad.M4,
+                            M5 = entidad.M5,
+                            M6 = entidad.M6,
+                            Estado = entidad.Estado,
+                            UsuarioCreacion = entidad.UsuarioCreacion,
+                            UsuarioModificacion = entidad.UsuarioModificacion,
+                            FechaCreacion = entidad.FechaCreacion,
+                            FechaModificacion = entidad.FechaModificacion
+                        };
+                    }
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
 
