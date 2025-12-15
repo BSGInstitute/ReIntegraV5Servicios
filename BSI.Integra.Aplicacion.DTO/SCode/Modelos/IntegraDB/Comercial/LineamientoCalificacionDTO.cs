@@ -1365,4 +1365,62 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public string Usuario { get; set; }
     }
 
+
+    /// <summary>
+    /// DTO para la información detallada de matrícula de alumno
+    /// </summary>
+    public class InformacionMatriculaAlumnoDTO
+    {
+        /// <summary>
+        /// Identificador de la matrícula cabecera
+        /// </summary>
+        public int IdMatriculaCabecera { get; set; }
+
+        /// <summary>
+        /// Código único de la matrícula
+        /// </summary>
+        public string CodigoMatricula { get; set; }
+
+        /// <summary>
+        /// Identificador del programa específico
+        /// </summary>
+        public int IdPEspecifico { get; set; }
+
+        /// <summary>
+        /// Nombre del programa específico
+        /// </summary>
+        public string NombrePEspecifico { get; set; }
+
+        /// <summary>
+        /// Identificador del estado de matrícula
+        /// </summary>
+        public int IdEstado_matricula { get; set; }
+
+        /// <summary>
+        /// Identificador del sub estado de matrícula
+        /// </summary>
+        public int? IdSubEstadoMatricula { get; set; }
+
+        /// <summary>
+        /// Descripción del estado de matrícula
+        /// </summary>
+        public string EstadoMatricula { get; set; }
+
+        /// <summary>
+        /// Grupo o curso asignado
+        /// </summary>
+        public string GrupoCurso { get; set; }
+
+        /// <summary>
+        /// Versión del paquete de matrícula
+        /// </summary>
+        public string Version { get; set; }
+
+        /// <summary>
+        /// Descripción del sub estado de matrícula (calculado según reglas de negocio)
+        /// Puede ser: Pago Atrasado, Pago al Día, Seguimiento Academico, Sin Deuda, Con Deuda, Con devolucion, Sin devolucion
+        /// </summary>
+        public string SubEstadoMatricula { get; set; }
+    }
+
 }

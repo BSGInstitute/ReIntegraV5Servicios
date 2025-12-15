@@ -164,144 +164,144 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             }
         }
 
-        /// Autor: Jose Vega
-        /// Fecha: 10/12/2025
-        /// Version: 1.0
-        /// <summary>
-        /// Obtiene las Actividades para el Tab, con los filtros realizados
-        /// </summary>
-        /// <param name="idTab">Id del Tab configurado</param>
-        /// <param name="codigoAreaTrabajo">Código del área de trabajo</param>
-        /// <param name="filtros">Diccionario con los filtros de búsqueda</param>
-        /// <param name="idAsesor">Id del Asesor asignado</param>
-        /// <returns>Tupla con el diccionario de actividades y la cantidad de RN2</returns>
-        public (Dictionary<string, List<ActividadAgendaV2DTO>> ActividadesAgenda, int CantidadRN2) CargarActividadSeleccionadaPorFiltroV2(int idTab, string codigoAreaTrabajo, Dictionary<string, string>? filtros, int idAsesor)
-        {
-            try
-            {
-                var tabsActividad = _unitOfWork.AgendaTabRepository.ObtenerTabsConfiguradosPorIdTab(codigoAreaTrabajo, idTab).ToList();
-                Dictionary<string, List<ActividadAgendaV2DTO>> actividadesAgenda = new();
-                int cantidadRN2 = 0;
-                if (tabsActividad != null && tabsActividad.Count() > 0)
-                {
-                    foreach (var item in tabsActividad)
-                    {
-                        List<ActividadAgendaV2DTO> actividades = new();
+        ///// Autor: Jose Vega
+        ///// Fecha: 10/12/2025
+        ///// Version: 1.0
+        ///// <summary>
+        ///// Obtiene las Actividades para el Tab, con los filtros realizados
+        ///// </summary>
+        ///// <param name="idTab">Id del Tab configurado</param>
+        ///// <param name="codigoAreaTrabajo">Código del área de trabajo</param>
+        ///// <param name="filtros">Diccionario con los filtros de búsqueda</param>
+        ///// <param name="idAsesor">Id del Asesor asignado</param>
+        ///// <returns>Tupla con el diccionario de actividades y la cantidad de RN2</returns>
+        //public (Dictionary<string, List<ActividadAgendaV2DTO>> ActividadesAgenda, int CantidadRN2) CargarActividadSeleccionadaPorFiltroV2(int idTab, string codigoAreaTrabajo, Dictionary<string, string>? filtros, int idAsesor)
+        //{
+        //    try
+        //    {
+        //        var tabsActividad = _unitOfWork.AgendaTabRepository.ObtenerTabsConfiguradosPorIdTab(codigoAreaTrabajo, idTab).ToList();
+        //        Dictionary<string, List<ActividadAgendaV2DTO>> actividadesAgenda = new();
+        //        int cantidadRN2 = 0;
+        //        if (tabsActividad != null && tabsActividad.Count() > 0)
+        //        {
+        //            foreach (var item in tabsActividad)
+        //            {
+        //                List<ActividadAgendaV2DTO> actividades = new();
 
-                        if (idTab == 12)
-                        {
-                            item.CamposVista = item.CamposVista.Replace("TOP 10", "");
-                        }
-                        if (item.VistaBaseDatos.Contains("ActividadRealizadaLlamada"))
-                        {
-                            continue;
-                        }
-                        else if (item.VistaBaseDatos.Contains("ActividadProgramada"))
-                        {
-                            actividades = _unitOfWork.AgendaTabRepository.ObtenerActividadesProgramadaV2(item, idAsesor, filtros);
-                        }
-                        else if (item.VistaBaseDatos.Contains("ActividadNoProgramada") && item.Probabilidad.Contains("Muy Alta"))
-                        {
-                            actividades = _unitOfWork.AgendaTabRepository.ObtenerActividadesNoProgramadaV2(item, idAsesor, filtros);
-                        }
-                        else if (item.Nombre.Contains("Atraso")
-                                || item.Nombre.Contains("AlDia")
-                                || item.Nombre.Contains("Seguimiento")
-                                || item.Nombre.Contains("Manual")
-                                || item.Nombre.Contains("Reasignado")
-                                || item.Nombre == "Culminado"
-                                || item.Nombre.Contains("Culminado Deudor")
-                                || item.Nombre.Contains("Reservado Con Deuda")
-                                || item.Nombre.Contains("Reservado Sin Deuda")
-                                || item.Nombre.Contains("Retirado")
-                                || item.Nombre.Contains("Abandonado")
-                                || item.Nombre.Contains("Evaluacion")
-                                || item.Nombre.Contains("Solicitud")
-                                || item.Nombre.Contains("Certificado")
-                                || item.Nombre.Contains("1+ Cuota Atraso")
-                                || item.Nombre.Contains("PorAbandonar")
-                                || item.Nombre.Contains("Por Contactar")
-                                || item.Nombre.Contains("En Negociacion")
-                                || item.Nombre.Contains("En Cierre De Negociacion")
-                                || item.Nombre.Contains("Bic")
-                                || item.Nombre.Contains("Acceso Temporal")
-                                || item.Nombre.Contains("Pre Reporte CR")
-                                || item.Nombre.Contains("Reportado CR")
-                                || item.Nombre.Contains("Curso Pendiente")
-                                || item.Nombre.Contains("Pagos Atrasados")
-                                || item.Nombre.Contains("Compromisos De Pagos")
-                                || item.Nombre.Contains("En Recuperacion De Curso")
-                                || item.Nombre.Contains("Proyecto Aplicacion Pendiente")
-                                || item.Nombre.Contains("Notas pendientes")
-                                || item.Nombre.Contains("Beneficios Pendientes")
-                                || item.Nombre.Contains("Clases Online")
-                                || item.Nombre.Contains("Sin Contacto")
-                                || item.Nombre.Contains("Pagos del dia")
-                                || item.Nombre.Contains("Pago Atrasado(MesActual-Previo)")
-                                || item.Nombre.Contains("Contestan y Cortan")
-                                || item.Nombre.Contains("BICs con Deuda"))
-                        {
-                            actividades = _unitOfWork.AgendaTabRepository.ObtenerActividadesOperacionesV2(item, idAsesor, filtros);
-                            cantidadRN2 = _unitOfWork.AgendaTabRepository.CantidadActividadesPorTabOperaciones(item, idAsesor, filtros);
-                        }
-                        else if (item.Nombre.Contains("Profesores"))
-                        {
-                            actividades = _unitOfWork.AgendaTabRepository.ObtenerActividadesOperacionesV2(item, idAsesor, filtros);
-                            cantidadRN2 = _unitOfWork.AgendaTabRepository.CantidadActividadesPorTabOperaciones(item, idAsesor, filtros);
-                        }
-                        else
-                        {
-                            actividades = _unitOfWork.AgendaTabRepository.ObtenerActividadesV2(item, idAsesor, filtros);
-                            if (item.Nombre == "RN2-B" || item.Nombre == "RN2-A")
-                                cantidadRN2 = _unitOfWork.AgendaTabRepository.CantidadActividadesPorTab(item, idAsesor, filtros);
-                        }
-                        bool esActividadNoProgramadaMuyAlta = item.VistaBaseDatos.Contains("ActividadNoProgramada") && item.Probabilidad.Contains("Muy Alta");
-                        if (!esActividadNoProgramadaMuyAlta && item.Nombre != "Solicitud Cambio")
-                        {
-                            if (item.Nombre == "ProgramadasAutomatica")
-                            {
-                                var actividadesPorFecha = actividades.Where(x => x.ActividadesManhana == 0 && x.ActividadesTarde == 0).ToList();
-                                actividadesPorFecha = actividadesPorFecha.OrderBy(x => x.UltimaFechaProgramada).ToList();
+        //                if (idTab == 12)
+        //                {
+        //                    item.CamposVista = item.CamposVista.Replace("TOP 10", "");
+        //                }
+        //                if (item.VistaBaseDatos.Contains("ActividadRealizadaLlamada"))
+        //                {
+        //                    continue;
+        //                }
+        //                else if (item.VistaBaseDatos.Contains("ActividadProgramada"))
+        //                {
+        //                    actividades = _unitOfWork.AgendaTabRepository.ObtenerActividadesProgramadaV2(item, idAsesor, filtros);
+        //                }
+        //                else if (item.VistaBaseDatos.Contains("ActividadNoProgramada") && item.Probabilidad.Contains("Muy Alta"))
+        //                {
+        //                    actividades = _unitOfWork.AgendaTabRepository.ObtenerActividadesNoProgramadaV2(item, idAsesor, filtros);
+        //                }
+        //                else if (item.Nombre.Contains("Atraso")
+        //                        || item.Nombre.Contains("AlDia")
+        //                        || item.Nombre.Contains("Seguimiento")
+        //                        || item.Nombre.Contains("Manual")
+        //                        || item.Nombre.Contains("Reasignado")
+        //                        || item.Nombre == "Culminado"
+        //                        || item.Nombre.Contains("Culminado Deudor")
+        //                        || item.Nombre.Contains("Reservado Con Deuda")
+        //                        || item.Nombre.Contains("Reservado Sin Deuda")
+        //                        || item.Nombre.Contains("Retirado")
+        //                        || item.Nombre.Contains("Abandonado")
+        //                        || item.Nombre.Contains("Evaluacion")
+        //                        || item.Nombre.Contains("Solicitud")
+        //                        || item.Nombre.Contains("Certificado")
+        //                        || item.Nombre.Contains("1+ Cuota Atraso")
+        //                        || item.Nombre.Contains("PorAbandonar")
+        //                        || item.Nombre.Contains("Por Contactar")
+        //                        || item.Nombre.Contains("En Negociacion")
+        //                        || item.Nombre.Contains("En Cierre De Negociacion")
+        //                        || item.Nombre.Contains("Bic")
+        //                        || item.Nombre.Contains("Acceso Temporal")
+        //                        || item.Nombre.Contains("Pre Reporte CR")
+        //                        || item.Nombre.Contains("Reportado CR")
+        //                        || item.Nombre.Contains("Curso Pendiente")
+        //                        || item.Nombre.Contains("Pagos Atrasados")
+        //                        || item.Nombre.Contains("Compromisos De Pagos")
+        //                        || item.Nombre.Contains("En Recuperacion De Curso")
+        //                        || item.Nombre.Contains("Proyecto Aplicacion Pendiente")
+        //                        || item.Nombre.Contains("Notas pendientes")
+        //                        || item.Nombre.Contains("Beneficios Pendientes")
+        //                        || item.Nombre.Contains("Clases Online")
+        //                        || item.Nombre.Contains("Sin Contacto")
+        //                        || item.Nombre.Contains("Pagos del dia")
+        //                        || item.Nombre.Contains("Pago Atrasado(MesActual-Previo)")
+        //                        || item.Nombre.Contains("Contestan y Cortan")
+        //                        || item.Nombre.Contains("BICs con Deuda"))
+        //                {
+        //                    actividades = _unitOfWork.AgendaTabRepository.ObtenerActividadesOperacionesV2(item, idAsesor, filtros);
+        //                    cantidadRN2 = _unitOfWork.AgendaTabRepository.CantidadActividadesPorTabOperaciones(item, idAsesor, filtros);
+        //                }
+        //                else if (item.Nombre.Contains("Profesores"))
+        //                {
+        //                    actividades = _unitOfWork.AgendaTabRepository.ObtenerActividadesOperacionesV2(item, idAsesor, filtros);
+        //                    cantidadRN2 = _unitOfWork.AgendaTabRepository.CantidadActividadesPorTabOperaciones(item, idAsesor, filtros);
+        //                }
+        //                else
+        //                {
+        //                    actividades = _unitOfWork.AgendaTabRepository.ObtenerActividadesV2(item, idAsesor, filtros);
+        //                    if (item.Nombre == "RN2-B" || item.Nombre == "RN2-A")
+        //                        cantidadRN2 = _unitOfWork.AgendaTabRepository.CantidadActividadesPorTab(item, idAsesor, filtros);
+        //                }
+        //                bool esActividadNoProgramadaMuyAlta = item.VistaBaseDatos.Contains("ActividadNoProgramada") && item.Probabilidad.Contains("Muy Alta");
+        //                if (!esActividadNoProgramadaMuyAlta && item.Nombre != "Solicitud Cambio")
+        //                {
+        //                    if (item.Nombre == "ProgramadasAutomatica")
+        //                    {
+        //                        var actividadesPorFecha = actividades.Where(x => x.ActividadesManhana == 0 && x.ActividadesTarde == 0).ToList();
+        //                        actividadesPorFecha = actividadesPorFecha.OrderBy(x => x.UltimaFechaProgramada).ToList();
 
-                                var actividadesManhana = actividades.Where(x => x.ActividadesManhana != 0 && x.ActividadesTarde == 0).ToList();
-                                actividadesManhana = actividadesManhana.OrderBy(x => x.ActividadesManhana).ThenBy(x => x.UltimaFechaProgramada).ToList();
+        //                        var actividadesManhana = actividades.Where(x => x.ActividadesManhana != 0 && x.ActividadesTarde == 0).ToList();
+        //                        actividadesManhana = actividadesManhana.OrderBy(x => x.ActividadesManhana).ThenBy(x => x.UltimaFechaProgramada).ToList();
 
-                                var actividadesTarde = actividades.Where(x => x.ActividadesTarde != 0).ToList();
-                                actividadesTarde = actividadesTarde.OrderBy(x => x.ActividadesTarde).ThenBy(x => x.UltimaFechaProgramada).ToList();
+        //                        var actividadesTarde = actividades.Where(x => x.ActividadesTarde != 0).ToList();
+        //                        actividadesTarde = actividadesTarde.OrderBy(x => x.ActividadesTarde).ThenBy(x => x.UltimaFechaProgramada).ToList();
 
-                                var todo = actividadesPorFecha.Concat(actividadesManhana).ToList();
-                                todo = todo.Concat(actividadesTarde).ToList();
-                                actividades = todo;
-                                ////actividades = actividades.OrderBy(x =>
-                                ////    {
-                                ////        if (x.ActividadesTarde.GetValueOrDefault() == 0)
-                                ////            return x.ActividadesManhana;
-                                ////        //else if (x.ActividadesManhana < x.ActividadesTarde)
-                                ////        //    return x.ActividadesTarde;
-                                ////        else
-                                ////            return x.ActividadesTarde; // En caso de que sean iguales
-                                ////    }).ThenBy(x => x.UltimaFechaProgramada).ToList();
+        //                        var todo = actividadesPorFecha.Concat(actividadesManhana).ToList();
+        //                        todo = todo.Concat(actividadesTarde).ToList();
+        //                        actividades = todo;
+        //                        ////actividades = actividades.OrderBy(x =>
+        //                        ////    {
+        //                        ////        if (x.ActividadesTarde.GetValueOrDefault() == 0)
+        //                        ////            return x.ActividadesManhana;
+        //                        ////        //else if (x.ActividadesManhana < x.ActividadesTarde)
+        //                        ////        //    return x.ActividadesTarde;
+        //                        ////        else
+        //                        ////            return x.ActividadesTarde; // En caso de que sean iguales
+        //                        ////    }).ThenBy(x => x.UltimaFechaProgramada).ToList();
 
-                                //actividades = actividades.OrderBy(x => x.UltimaFechaProgramada).ToList();
-                            }
-                            else
-                            {
-                                actividades = actividades.OrderBy(x => x.UltimaFechaProgramada).ToList();
-                            }
-                        }
-                        if (!actividadesAgenda.ContainsKey(item.Nombre))
-                            actividadesAgenda.Add(item.Nombre, actividades);
-                        else
-                            actividadesAgenda[item.Nombre].AddRange(actividades);
-                    }
-                }
-                return (actividadesAgenda, cantidadRN2);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        //                        //actividades = actividades.OrderBy(x => x.UltimaFechaProgramada).ToList();
+        //                    }
+        //                    else
+        //                    {
+        //                        actividades = actividades.OrderBy(x => x.UltimaFechaProgramada).ToList();
+        //                    }
+        //                }
+        //                if (!actividadesAgenda.ContainsKey(item.Nombre))
+        //                    actividadesAgenda.Add(item.Nombre, actividades);
+        //                else
+        //                    actividadesAgenda[item.Nombre].AddRange(actividades);
+        //            }
+        //        }
+        //        return (actividadesAgenda, cantidadRN2);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
         /// Autor: Joseph Llanque.
         /// Fecha: 03/07/2024
         /// Version: 1.0

@@ -2349,6 +2349,24 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 throw new Exception("Error al obtener las calificaciones temporales: " + ex.Message);
             }
         }
+        public InformacionMatriculaAlumnoDTO ObtenerInformacionMatriculaAlumno(int IdMatriculaCabecera)
+        {
+            try
+            {
+                InformacionMatriculaAlumnoDTO configuracion = new InformacionMatriculaAlumnoDTO();
+                var resultado = _dapperRepository.QuerySPFirstOrDefault("[com].[SP_ObtenerInformacionMatriculaAlumno]", new { IdMatriculaCabecera = IdMatriculaCabecera });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                {
+                    configuracion = JsonConvert.DeserializeObject<InformacionMatriculaAlumnoDTO>(resultado);
+                }
+                return configuracion;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
 
 
     }

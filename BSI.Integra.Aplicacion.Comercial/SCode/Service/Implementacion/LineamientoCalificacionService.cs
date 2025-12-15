@@ -11,6 +11,7 @@ using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Comercial;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
+using DocumentFormat.OpenXml.EMMA;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -1583,12 +1584,12 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
             using var httpClient = new HttpClient
             {
-                BaseAddress = new Uri(
-                    "http://ia-analisis-llamadas-comercial-api.bsginstitute.com/"
-                ),
                 //BaseAddress = new Uri(
-                //    "http://127.0.0.1:8000/"
+                //    "http://ia-analisis-llamadas-comercial-api.bsginstitute.com/"
                 //),
+                BaseAddress = new Uri(
+                    "http://127.0.0.1:8000/"
+                ),
 
             };
             //
@@ -1790,7 +1791,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                 brochure = BuildBrochureVentas(item, serviceInformacionPrograma);
                                 break;
                             case 3: //Area Clientes
-                                brochure = BuildBrochureClientesAsync(item, serviceInformacionPrograma, solicitudOperacionesService, alumnoService);
+                                brochure = await BuildBrochureClientesAsync(item, serviceInformacionPrograma, solicitudOperacionesService, alumnoService);
                                 break;
                             default:
                                 Console.WriteLine(
@@ -2194,6 +2195,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
             // Inicializar TODAS las variables con listas vacías por defecto
             object InformacionPrograma = new List<object>();
+            object InformacionMatricula = new List<object>();
             object PresentacionPrograma = new List<object>();
             List<object> CronogramaFinanzas = new List<object>();
             List<object> InformacionBeneficioSolicitado = new List<object>();
@@ -2209,37 +2211,14 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             List<object> ActividadesAgenda = new List<object>();
 
             // Validamos usando las propiedades REALES del DTO (PascalCase)
-            if (item.IdOportunidad > 0 &&
-                item.IdTabmpty(item.CodigoAreaAgenda))
+            if (item.IdMatriculaCabecera > 0)
             {
                 try
                 {
-                    var agendaService = new AgendaService(_unitOfWork);
-                    var filtros = new Dictionary<string, string>
+                    InformacionMatriculaAlumnoDTO InformacionMatriculaAlumno = _unitOfWork.LineamientoCalificacionRepository.ObtenerInformacionMatriculaAlumno(item.IdMatriculaCabecera.Value);
+                    if (InformacionMatriculaAlumno != null)
                     {
-                        { "IdOportunidad", item.IdOportunidad.ToString() }
-                    };
-
-                    // AQUÍ ESTÁ LA CORRECCIÓN DE NOMBRES:
-                    var resultadoAgenda = agendaService.CargarActividadSeleccionadaPorFiltroV2(
-                        item.idTab.Value,    // Corregido: item.idTab -> item.IdTabAgenda
-                        item.CodigoAreaAgenda,     // Corregido: item.codigoAreaTrabajo -> item.CodigoAreaAgenda
-                        filtros,
-                        0                          // Corregido: item.idAsesor no existe. Usamos 0 (System)
-                    );
-
-                    if (resultadoAgenda.ActividadesAgenda != null &&
-                        resultadoAgenda.ActividadesAgenda.ContainsKey("Programacion Manual"))
-                    {
-                        var listaTipada = resultadoAgenda.ActividadesAgenda["Programacion Manual"];
-
-                        if (listaTipada != null && listaTipada.Any())
-                        {
-                            ActividadesAgenda = listaTipada
-                                                .OrderBy(x => x.UltimaFechaProgramada)
-                                                .Cast<object>()
-                                                .ToList();
-                        }
+                        InformacionMatricula = InformacionMatriculaAlumno;
                     }
                 }
                 catch (Exception ex)
@@ -2440,7 +2419,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         {
                             var versionAprobada = cronogramaPagoService.ObtenerCronograma(matricula.Id)?.FirstOrDefault();
 
-                            if (versionAprobada?.Version != null && versionAprobada.Version.Value > 0)
+                            if (versionAprobada?.Version != null)
                             {
                                 var cronograma = cronogramaPagoService.ObtenerCronogramaFinanzas(
                                     versionAprobada.Version.Value,
@@ -2527,6 +2506,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             var brochure = new
             {
                 InformacionPrograma = InformacionPrograma,
+                InformacionMatricula= InformacionMatricula,
                 PresentacionPrograma = PresentacionPrograma,
                 CronogramaFinanzas = CronogramaFinanzas,
                 InformacionBeneficioSolicitado = InformacionBeneficioSolicitado,
