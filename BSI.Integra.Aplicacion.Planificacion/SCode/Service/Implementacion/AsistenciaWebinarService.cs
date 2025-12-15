@@ -33,6 +33,10 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw new Exception("El webinar ya finalizó");
             }
             var webinarConfirmacion = _unitOfWork.ConfirmacionWebinarRepository.ObtenerConfirmacionWebinarPorIdMatriculaYIdSesion(asistencia.IdMatriculaCabecera, asistencia.IdPEspecificoSesion);
+            if (_unitOfWork.PEspecificoSesionRepository.ObtenerPorId(asistencia.IdPEspecificoSesion).EsWebinarConfirmado is false)
+            {
+                throw new Exception("Este webinar ya fue cancelado");
+            }
 
             if (webinarConfirmacion != null)
             {
@@ -86,6 +90,51 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 return "Su participación en este webinar ya fue cancelada.";
             }
             return "Su participación en este webinar se confirmo. Agradecemos su participación.";
+        }
+        public RptaConfirmacionWebinarAutomaticaDTO ConfirmacionWebinarAutomatica(int IdPEspecificoSesion)
+        {
+            try
+            {
+                if (_unitOfWork.PEspecificoSesionRepository.EsWebinarPasado(IdPEspecificoSesion))
+                {
+                    throw new Exception("El webinar ya finalizó");
+                }
+                var sesion = _unitOfWork.PGeneralRepository.ObtenerWebinarPorIdPEspecificoSesion(IdPEspecificoSesion);
+                if (sesion is null)
+                {
+                    throw new Exception("Webinar no encontrado");
+                }
+                var programaEspecificoSesion = _unitOfWork.PEspecificoSesionRepository.ObtenerPorId(IdPEspecificoSesion);
+                if (programaEspecificoSesion.EsWebinarConfirmado is false) {
+                    throw new Exception("Este webinar ya fue cancelado");
+                } else if (sesion.TotalParticipantesConfirmados > 0) {
+                    if (programaEspecificoSesion.EsWebinarConfirmado is true)
+                    {
+                        throw new Exception("Este webinar ya fue confirmado");
+                    }
+                    programaEspecificoSesion.EsWebinarConfirmado = true;
+                } else {
+                    programaEspecificoSesion.EsWebinarConfirmado = null;
+                }
+                programaEspecificoSesion.UsuarioModificacion = "SYSTEM";
+                programaEspecificoSesion.FechaModificacion = DateTime.Now;
+                _unitOfWork.PEspecificoSesionRepository.Update(programaEspecificoSesion);
+                _unitOfWork.Commit();
+                string msg = programaEspecificoSesion.EsWebinarConfirmado is true ? "Webinar confirmado" : "Webinar por confirmar, sin participantes";
+                return new RptaConfirmacionWebinarAutomaticaDTO
+                {
+                    Estado = true,
+                    Mensaje = msg,
+                };
+            }
+            catch (Exception ex)
+            {
+                return new RptaConfirmacionWebinarAutomaticaDTO
+                {
+                    Estado = false,
+                    Mensaje = ex.Message,
+                };
+            }
         }
     }
 }

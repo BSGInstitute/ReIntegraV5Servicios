@@ -30,28 +30,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             this.unitOfWork = unitOfWork;
             _hubContext = hubContext;
         }
-        /// Tipo Función: GET
-        /// Autor: Christopher Sandy D'Paris
-        /// Fecha: 05/12/2025
-        /// Versión: 1.0
-        /// <summary>
-        /// Obtener Cantidad de alumnos que confirmaron su particapacion en el webinar
-        /// </summary>
-        /// <returns></returns>
-        [Route("[action]/{IdPEspecifico}")]
-        [HttpGet]
-        public ActionResult ObtenerCantidadAlumnosConfirmadosWebinar(int IdPEspecifico)
-        {
-            try
-            {
-                return Ok(true);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
+        
         /// Tipo Función: POST
         /// Autor: Christopher Sandy D'Paris
         /// Fecha: 05/12/2025
@@ -59,34 +38,6 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <summary>
         /// Confirma Asistencia de alumno a el webinar seleccionado
         /// </summary>
-        [HttpPost]
-        [Route("[Action]")]
-        public ActionResult AsistenciaOriginal([FromBody] WebinarAlumnoAsistenciaDTO filtro)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                var resultado = _AsistenciaWebinarService.AsistenciaWebinar(filtro);
-                var response = new
-                {
-                    Mensaje = resultado,
-                    EsCorrecto = true
-                };
-                return Ok(response);
-            }
-            catch (Exception e)
-            {
-                var response = new
-                {
-                   Mensaje = e.Message,
-                    EsCorrecto = false
-                };
-                return BadRequest(response);
-            }
-        }
         [HttpPost]
         [Route("[Action]")]
         public async Task<ActionResult> Asistencia([FromBody] WebinarAlumnoAsistenciaDTO filtro)
@@ -103,8 +54,6 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 // Emitir evento SignalR
                 await _hubContext.Clients.All.SendAsync("AsistenciaRegistrada", new
                 {
-                    IdMatriculaCabecera = filtro.IdMatriculaCabecera,
-                    IdPEspecificoSesion = filtro.IdPEspecificoSesion,
                     Estado = filtro.EstadoAsistencia,
                     Mensaje = resultado
                 });
@@ -128,5 +77,29 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 return BadRequest(response);
             }
         }
+
+        /// Tipo Función: POST
+        /// Autor: Christopher Sandy D'Paris
+        /// Fecha: 05/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Simulacion Confirmacion Webinar Automatica
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("[Action]")]
+        public ActionResult ConfirmacionWebinarAutomatica([FromBody] ConfirmacionWebinarAutomaticaDTO body)
+        {
+            try
+            {
+                var rpta = _AsistenciaWebinarService.ConfirmacionWebinarAutomatica(body.IdPEspecificoSesion);
+                return Ok(rpta);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        
     }
 }

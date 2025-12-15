@@ -7,6 +7,15 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
 {
+    public class ConfirmacionWebinarAutomaticaDTO
+    {
+        public int IdPEspecificoSesion { get; set; }
+    }
+    public class RptaConfirmacionWebinarAutomaticaDTO
+    { 
+        public bool Estado { get; set; }
+        public string Mensaje { get; set; }
+    }
     public class WebinarAlumnoAsistenciaDTO
     {
         public int IdPEspecificoSesion { get; set; }
