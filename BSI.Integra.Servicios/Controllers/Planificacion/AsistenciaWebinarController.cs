@@ -1,4 +1,5 @@
-﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
@@ -100,6 +101,28 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 return BadRequest(e.Message);
             }
         }
-        
+
+        /// Tipo Función: POST
+        /// Autor: Christopher Sandy D'Paris
+        /// Fecha: 05/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Simulacion Envio Correo al Cancelar Webinar
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("[Action]")]
+        public ActionResult CancelarWebinarNotificacion([FromBody] CancelarWebinarDTO body)
+        {
+            try
+            {
+                var rpta = _AsistenciaWebinarService.CancelarWebinar(body,"ctumir");
+                return Ok(rpta);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

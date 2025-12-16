@@ -1,4 +1,5 @@
-﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
     {
         RptaConfirmacionWebinarAutomaticaDTO ConfirmacionWebinarAutomatica(int IdPEspecificoSesion);
         object AsistenciaWebinar(WebinarAlumnoAsistenciaDTO asistencia);
+        bool CancelarWebinar(CancelarWebinarDTO dto, string usuario);
     }
 }

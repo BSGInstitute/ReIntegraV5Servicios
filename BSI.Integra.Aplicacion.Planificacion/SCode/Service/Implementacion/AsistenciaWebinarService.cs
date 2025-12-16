@@ -1,6 +1,8 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
+using BSI.Integra.Aplicacion.Servicios.Service.Implementacion;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using iText.Layout.Properties;
 using System;
@@ -133,5 +135,77 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw;
             }
         }
+        public bool CancelarWebinar(CancelarWebinarDTO dto, string usuario)
+        {
+            try
+            {
+                PEspecificoSesion Objeto = new PEspecificoSesion();
+                var programaEspecificoSesion = _unitOfWork.PEspecificoSesionRepository.ObtenerPorId(dto.IdPEspecificoSesion);
+                programaEspecificoSesion.FechaCancelacionWebinar = DateTime.Now;
+                programaEspecificoSesion.ComentarioCancelacionWebinar = dto.ComentarioCancelacion;
+                programaEspecificoSesion.UsuarioModificacion = usuario;
+                programaEspecificoSesion.EsWebinarConfirmado = dto.Confirmo;
+                _unitOfWork.PEspecificoSesionRepository.Update(programaEspecificoSesion);
+                _unitOfWork.Commit();
+                var correos = ObtenerAlumnosCorreoInscritosWebinar(dto.IdPEspecificoSesion);
+                if (correos.Count > 0)
+                {
+                    EnviarMailWebinarCancelado(correos, dto.ComentarioCancelacion);
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+        }
+        private List<string> ObtenerAlumnosCorreoInscritosWebinar (int IdPEspecificoSesion)
+        {
+            var detalleSesionesFiltro = new SesionFiltroDTO
+            {
+                IdSesion = IdPEspecificoSesion,
+            };
+            return _unitOfWork
+                .PEspecificoSesionRepository
+                .ObtenerDetalleSesionesPorAlumnosFiltrado(detalleSesionesFiltro)?
+                .Where(x => x.Confirmo == "CONFIRMADO" && !string.IsNullOrWhiteSpace(x.Email))
+                .Select(x => x.Email)
+                .Distinct()
+                .ToList()
+                ?? new List<string>();
+        }
+        private void EnviarMailWebinarCancelado(
+            List<string> alumnosSendMail,
+            string mensajeMotivoCancelado)
+        {
+            try
+            {
+                //TODO: Cambiar configuracion
+                string mensaje = "<h3>NOTIFICACIÓN DE CANCELACIÓN Y REPROGRAMACIÓN</h3><br><br>";
+                mensaje += "Estimado participante,<br>";
+                mensaje += mensajeMotivoCancelado;
+
+                var mailDataPersonalizado = new TMKMailDataDTO
+                {
+                    Sender = "ddelcarpio@bsginstitute.com",
+                    Recipient = string.Join(",", alumnosSendMail.Distinct()),
+                    Subject = "Webinar cancelado",
+                    Message = mensaje,
+                    Cc = "",
+                    Bcc = ""
+                };
+
+                try
+                {
+                    var mailService = new TMK_MailService();
+                    mailService.SetData(mailDataPersonalizado);
+                    mailService.SendMessageTask();
+                }
+                catch { }
+            }
+            catch { }
+        }
+
+
     }
 }
