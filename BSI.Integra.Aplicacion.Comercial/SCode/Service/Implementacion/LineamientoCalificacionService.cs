@@ -1584,12 +1584,13 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
             using var httpClient = new HttpClient
             {
-                //BaseAddress = new Uri(
-                //    "http://ia-analisis-llamadas-comercial-api.bsginstitute.com/"
-                //),
                 BaseAddress = new Uri(
-                    "http://127.0.0.1:8000/"
+                    "http://ia-analisis-llamadas-comercial-api.bsginstitute.com/"
                 ),
+                //URL PRUEBA LOCAL IA
+                //BaseAddress = new Uri(
+                //    "http://127.0.0.1:8000/"
+                //),
 
             };
             //
