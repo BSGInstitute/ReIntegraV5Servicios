@@ -97,20 +97,21 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             {
                 if (_unitOfWork.PEspecificoSesionRepository.EsWebinarPasado(IdPEspecificoSesion))
                 {
-                    throw new Exception("El webinar ya finalizó");
+                    return new RptaConfirmacionWebinarAutomaticaDTO { Estado = false, Mensaje = "El webinar ya finalizó" };
                 }
                 var sesion = _unitOfWork.PGeneralRepository.ObtenerWebinarPorIdPEspecificoSesion(IdPEspecificoSesion);
                 if (sesion is null)
                 {
-                    throw new Exception("Webinar no encontrado");
+                    return new RptaConfirmacionWebinarAutomaticaDTO { Estado = false, Mensaje = "Webinar no encontrado" };
                 }
                 var programaEspecificoSesion = _unitOfWork.PEspecificoSesionRepository.ObtenerPorId(IdPEspecificoSesion);
                 if (programaEspecificoSesion.EsWebinarConfirmado is false) {
-                    throw new Exception("Este webinar ya fue cancelado");
-                } else if (sesion.TotalParticipantesConfirmados > 0) {
+                    return new RptaConfirmacionWebinarAutomaticaDTO { Estado = false, Mensaje = "Este webinar ya fue cancelado" };
+                }
+                else if (sesion.TotalParticipantesConfirmados > 0) {
                     if (programaEspecificoSesion.EsWebinarConfirmado is true)
                     {
-                        throw new Exception("Este webinar ya fue confirmado");
+                        return new RptaConfirmacionWebinarAutomaticaDTO { Estado = false, Mensaje = "Este webinar ya fue confirmado"};
                     }
                     programaEspecificoSesion.EsWebinarConfirmado = true;
                 } else {
@@ -129,11 +130,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             }
             catch (Exception ex)
             {
-                return new RptaConfirmacionWebinarAutomaticaDTO
-                {
-                    Estado = false,
-                    Mensaje = ex.Message,
-                };
+                throw;
             }
         }
     }

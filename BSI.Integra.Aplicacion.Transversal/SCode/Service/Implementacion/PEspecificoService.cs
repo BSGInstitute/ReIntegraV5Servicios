@@ -12,6 +12,7 @@ using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Google.Protobuf.WellKnownTypes;
+using iText.Layout.Properties;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.WindowsAzure.Storage;
@@ -3967,7 +3968,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw;
             }
         }
-        public bool ActualizarDuracionInsertarSesion(InformacionPespecificoSesionDTO dto, string usuario)
+        public RptaActualizarDuracionInsertarSesionDTO ActualizarDuracionInsertarSesion(InformacionPespecificoSesionDTO dto, string usuario)
         {
             try
             {
@@ -4000,9 +4001,25 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 };
 
                 _unitOfWork.PEspecificoRepository.Update(pEspecifico);
-                _unitOfWork.PEspecificoSesionRepository.Add(especificoSesion);
+                var pesesion = _unitOfWork.PEspecificoSesionRepository.Add(especificoSesion);
                 _unitOfWork.Commit();
-                return true;
+
+                int idTipoPrograma = 0;
+
+                if (pEspecifico.IdProgramaGeneral > 0)
+                {
+                    var pGeneral = _unitOfWork.PGeneralRepository
+                        .ObtenerPGeneralPorId(pEspecifico.IdProgramaGeneral.Value);
+
+                    idTipoPrograma = pGeneral?.IdTipoPrograma ?? 0;
+                }
+
+                return new RptaActualizarDuracionInsertarSesionDTO()
+                {
+                    IdTipoPrograma = idTipoPrograma,
+                    IdPEspecificoSesion = pesesion.Id,
+                    FechaSesion = pesesion.FechaHoraInicio
+                };
             }
             catch (Exception ex)
             {
