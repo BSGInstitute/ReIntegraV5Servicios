@@ -7,6 +7,7 @@ using BSI.Integra.Aplicacion.Transversal.Helper;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
+using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Helpers;
 using Microsoft.AspNetCore.Authorization;
@@ -858,8 +859,44 @@ namespace BSI.Integra.Servicios.Controllers
 
         }
 
-    }
+        [Route("[Action]")]
+        [HttpPost]
+    public async Task<ActionResult> SubirImagenCorreo([FromForm] IFormFile imagen) {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (imagen == null || imagen.Length == 0) {
+                return BadRequest("No se tiene una imagen");
+            }   
+            try
+            {
+                //Convertir imagen a bytes
+                byte[] imagenBytes;
+                using (var ms = new MemoryStream()) {
+                    await imagen.CopyToAsync(ms);
+                    imagenBytes = ms.ToArray();
+                }
+                //Generar Nombre 
+                var extension = Path.GetExtension(imagen.FileName);
+                var nombreArchivo = $"{Guid.NewGuid()}{extension}";
+                var url = await unitOfWork.GmailCorreoRepository.SubirArchivoAsync(
+                        imagenBytes,
+                        imagen.ContentType,
+                        nombreArchivo
+                    );
+                if (string.IsNullOrEmpty(url)) {
+                    return BadRequest("No se puedo subir la imagen");
+                }
+                return Ok(url);
 
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+    }
 
 }
 
