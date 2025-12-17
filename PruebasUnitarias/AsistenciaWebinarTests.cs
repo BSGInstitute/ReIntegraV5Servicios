@@ -281,7 +281,7 @@ namespace PruebasUnitarias
 
             Assert.AreEqual(
                 "Su participación en este webinar se confirmo. Agradecemos su participación.",
-                result);
+                result.Mensaje);
 
             Assert.IsTrue(confirmacionExistente.Confirmo);
             Assert.IsFalse(confirmacionExistente.Asistio);
