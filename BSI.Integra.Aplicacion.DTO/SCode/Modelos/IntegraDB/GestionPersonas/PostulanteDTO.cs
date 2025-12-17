@@ -69,15 +69,15 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.GestionPersonas
         public string? UrlPerfilFacebook { get; set; } = null!;
         public string? UrlPerfilLinkedin { get; set; } = null!;
         //SE comento por peticion de GP
-        //public List<FiltroInsertarDTO> ListaRespuestaDesaprobatoria { get; set; }
+        public List<FiltroInsertarDTO>? ListaRespuestaDesaprobatoria { get; set; }
     }
     //SE comento por peticion de GP
-    //public class FiltroInsertarDTO
-    //{
-    //    public int IdRespuestaDesaprobatoria { get; set; }
-    //    public string Nombre { get; set; }
-    //    public int? Id { get; set; }
-    //}
+    public class FiltroInsertarDTO
+    {
+        public int IdRespuestaDesaprobatoria { get; set; }
+        public string Nombre { get; set; }
+        public int? Id { get; set; }
+    }
 
     public class PostulanteExamenesDTO
     {
