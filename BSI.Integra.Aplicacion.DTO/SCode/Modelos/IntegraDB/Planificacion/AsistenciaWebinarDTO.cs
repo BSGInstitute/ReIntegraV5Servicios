@@ -16,6 +16,12 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public bool Estado { get; set; }
         public string Mensaje { get; set; }
     }
+
+    public class RptaAsistenciaWebinarDTO
+    {
+        public string Mensaje { get; set; }
+        public DetalleSesionesAlumnosDTO Alumno { get; set; }
+    }
     public class WebinarAlumnoAsistenciaDTO
     {
         public int IdPEspecificoSesion { get; set; }

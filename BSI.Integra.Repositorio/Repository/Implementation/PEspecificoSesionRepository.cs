@@ -7,6 +7,7 @@ using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
 using Newtonsoft.Json;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation
 {
@@ -952,6 +953,30 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var query = _dapperRepository.QueryDapper(_query, detalleSesionesFiltro);
                 var listado = JsonConvert.DeserializeObject<IEnumerable<DetalleSesionesAlumnosDTO>>(query);
                 return listado;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+        /// <summary>
+        /// Obtiene El id de los Pespecificos que estan en las sesiones
+        /// </summary>
+        /// <param name="idPespecifico"></param>
+        /// <returns></returns>
+        public DetalleSesionesAlumnosDTO? ObtenerDetalleSesionAlumnoPorIdSesionYIdMatriculaCabecera(int IdSesion, int IdMatriculaCabecera)
+        {
+            try
+            {
+                string _query = @"SELECT IdPGeneral, IdPEspecifico, IdSesion, IdCoordinadoraAcademica, NombreCoordinadoraAcademica, IdMatriculaCabecera, CodigoMatricula, NombreAlumno, CentroCosto, EstadoMatricula, Confirmo,EnvioCorreo, EnvioWhatsApp
+                    FROM pla.V_ObtenerDetalleSesionAlumnosWebinar WHERE IdSesion = @IdSesion AND IdMatriculaCabecera = @IdMatriculaCabecera";
+                var resultado = _dapperRepository.FirstOrDefault(_query, new { IdSesion, IdMatriculaCabecera });
+
+                if (!string.IsNullOrEmpty(resultado))
+                {
+                    return JsonConvert.DeserializeObject<DetalleSesionesAlumnosDTO>(resultado)!;
+                }
+                return null;
             }
             catch (Exception e)
             {

@@ -56,12 +56,12 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 await _hubContext.Clients.All.SendAsync("AsistenciaRegistrada", new
                 {
                     Estado = filtro.EstadoAsistencia,
-                    Mensaje = resultado
+                    Response = resultado
                 });
 
                 var response = new
                 {
-                    Mensaje = resultado,
+                    Response = resultado,
                     EsCorrecto = true
                 };
 

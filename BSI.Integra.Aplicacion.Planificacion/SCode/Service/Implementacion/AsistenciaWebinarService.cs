@@ -20,7 +20,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         {
             _unitOfWork = unitOfWork;
         }
-        public object AsistenciaWebinar(WebinarAlumnoAsistenciaDTO asistencia)
+        public RptaAsistenciaWebinarDTO AsistenciaWebinar(WebinarAlumnoAsistenciaDTO asistencia)
         {
             if(!_unitOfWork.MatriculaCabeceraRepository.Exist(asistencia.IdMatriculaCabecera))
             {
@@ -86,12 +86,21 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             {
                 var insert = _unitOfWork.ConfirmacionWebinarRepository.Insertar(webinarConfirmacion);
             }
-
+            var alumnoSesion = _unitOfWork.PEspecificoSesionRepository.ObtenerDetalleSesionAlumnoPorIdSesionYIdMatriculaCabecera(asistencia.IdPEspecificoSesion, asistencia.IdMatriculaCabecera);
+            var msg = "";
             if (!webinarConfirmacion.Confirmo)
             {
-                return "Su participación en este webinar ya fue cancelada.";
+                msg = "Su participación en este webinar ya fue cancelada.";
+            } else
+            {
+                msg = "Su participación en este webinar se confirmo. Agradecemos su participación.";
             }
-            return "Su participación en este webinar se confirmo. Agradecemos su participación.";
+
+            return new RptaAsistenciaWebinarDTO
+            {
+                Alumno = alumnoSesion,
+                Mensaje = msg
+            };
         }
         public RptaConfirmacionWebinarAutomaticaDTO ConfirmacionWebinarAutomatica(int IdPEspecificoSesion)
         {
