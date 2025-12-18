@@ -5,6 +5,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     public partial class TActividadCabecera
     {
+        public TActividadCabecera()
+        {
+            TActividadDetalleGestionContactos = new HashSet<TActividadDetalleGestionContacto>();
+        }
+
         /// <summary>
         /// Es primary key
         /// </summary>
@@ -143,5 +148,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// FK de T_TipoDato
         /// </summary>
         public int? IdTipoDato { get; set; }
+
+        public virtual ICollection<TActividadDetalleGestionContacto> TActividadDetalleGestionContactos { get; set; }
     }
 }
