@@ -4,6 +4,7 @@ using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Repositorio.UnitOfWork;
+using BSI.Integra.Servicios.Helpers;
 using BSI.Integra.Servicios.Hubs;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -22,14 +23,16 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
     [EnableCors("CorsVista")]
     public class AsistenciaWebinarController : Controller
     {
+        private ITokenManager _tokenManager;
         private IUnitOfWork unitOfWork;
         private readonly IHubContext<WebinarHub> _hubContext;
         private readonly IAsistenciaWebinarService _AsistenciaWebinarService;
-        public AsistenciaWebinarController(IUnitOfWork unitOfWork, IHubContext<WebinarHub> hubContext)
+        public AsistenciaWebinarController(IUnitOfWork unitOfWork, IHubContext<WebinarHub> hubContext, ITokenManager tokenManager)
         {
             _AsistenciaWebinarService = new AsistenciaWebinarService(unitOfWork);
             this.unitOfWork = unitOfWork;
             _hubContext = hubContext;
+            _tokenManager = tokenManager;
         }
         
         /// Tipo Función: POST
@@ -116,7 +119,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         {
             try
             {
-                var rpta = _AsistenciaWebinarService.CancelarWebinar(body,"ctumir");
+                var rpta = _AsistenciaWebinarService.CancelarWebinar(body, _tokenManager.UserName);
                 return Ok(rpta);
             }
             catch (Exception e)

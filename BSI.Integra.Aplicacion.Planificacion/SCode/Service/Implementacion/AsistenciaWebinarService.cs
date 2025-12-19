@@ -156,11 +156,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 programaEspecificoSesion.EsWebinarConfirmado = dto.Confirmo;
                 _unitOfWork.PEspecificoSesionRepository.Update(programaEspecificoSesion);
                 _unitOfWork.Commit();
-                var correos = ObtenerAlumnosCorreoInscritosWebinar(dto.IdPEspecificoSesion);
-                if (correos.Count > 0)
-                {
-                    EnviarMailWebinarCancelado(correos, dto.ComentarioCancelacion);
-                }
+                //var correos = ObtenerAlumnosCorreoInscritosWebinar(dto.IdPEspecificoSesion);
+                //if (correos.Count > 0)
+                //{
+                //    EnviarMailWebinarCancelado(correos, dto.ComentarioCancelacion);
+                //}
                 return true;
             }
             catch (Exception e)
