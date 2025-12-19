@@ -22,6 +22,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TActividadCabeceraDiaSemana> TActividadCabeceraDiaSemanas { get; set; } = null!;
         public virtual DbSet<TActividadCrepLog> TActividadCrepLogs { get; set; } = null!;
         public virtual DbSet<TActividadDetalle> TActividadDetalles { get; set; } = null!;
+        public virtual DbSet<TActividadDetalleGestionContacto> TActividadDetalleGestionContactos { get; set; } = null!;
         public virtual DbSet<TActividadMarcadorLog> TActividadMarcadorLogs { get; set; } = null!;
         public virtual DbSet<TAdicionalProgramaGeneral> TAdicionalProgramaGenerals { get; set; } = null!;
         public virtual DbSet<TAdwordsApiPalabraClave> TAdwordsApiPalabraClaves { get; set; } = null!;
@@ -310,6 +311,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TEstadoCivil> TEstadoCivils { get; set; } = null!;
         public virtual DbSet<TEstadoConvocatorium> TEstadoConvocatoria { get; set; } = null!;
         public virtual DbSet<TEstadoEtapaProcesoSeleccion> TEstadoEtapaProcesoSeleccions { get; set; } = null!;
+        public virtual DbSet<TEstadoGestionContacto> TEstadoGestionContactos { get; set; } = null!;
         public virtual DbSet<TEstadoMatricula> TEstadoMatriculas { get; set; } = null!;
         public virtual DbSet<TEstadoOcurrencium> TEstadoOcurrencia { get; set; } = null!;
         public virtual DbSet<TEstadoOportunidad> TEstadoOportunidads { get; set; } = null!;
@@ -347,6 +349,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TFacebookFormularioLeadgenLog> TFacebookFormularioLeadgenLogs { get; set; } = null!;
         public virtual DbSet<TFaseByPlantilla> TFaseByPlantillas { get; set; } = null!;
         public virtual DbSet<TFaseCalificacion> TFaseCalificacions { get; set; } = null!;
+        public virtual DbSet<TFaseGestionContacto> TFaseGestionContactos { get; set; } = null!;
         public virtual DbSet<TFaseOportunidad> TFaseOportunidads { get; set; } = null!;
         public virtual DbSet<TFeedbackConfigurar> TFeedbackConfigurars { get; set; } = null!;
         public virtual DbSet<TFeedbackConfigurarDetalle> TFeedbackConfigurarDetalles { get; set; } = null!;
@@ -397,6 +400,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TFurTipoSolicitud> TFurTipoSolicituds { get; set; } = null!;
         public virtual DbSet<TGastoFinancieroCronograma> TGastoFinancieroCronogramas { get; set; } = null!;
         public virtual DbSet<TGastoFinancieroCronogramaDetalle> TGastoFinancieroCronogramaDetalles { get; set; } = null!;
+        public virtual DbSet<TGestionContacto> TGestionContactos { get; set; } = null!;
+        public virtual DbSet<TGestionContactoLog> TGestionContactoLogs { get; set; } = null!;
         public virtual DbSet<TGmailCliente> TGmailClientes { get; set; } = null!;
         public virtual DbSet<TGmailCorreo> TGmailCorreos { get; set; } = null!;
         public virtual DbSet<TGmailCorreoArchivoAdjunto> TGmailCorreoArchivoAdjuntos { get; set; } = null!;
@@ -1426,6 +1431,94 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasForeignKey(d => d.IdOportunidad)
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_T_ActividadDetalle_T_Oportunidad");
+            });
+
+            modelBuilder.Entity<TActividadDetalleGestionContacto>(entity =>
+            {
+                entity.ToTable("T_ActividadDetalleGestionContacto", "pla");
+
+                entity.HasComment("Tabla que registra información detallada sobre las actividades de seguimiento realizadas en la gestión de contactos");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la actividad de detalle (Llave primaria)");
+
+                entity.Property(e => e.Comentario)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Comentario o nota sobre la actividad realizada");
+
+                entity.Property(e => e.DuracionReal).HasComment("Duración real de la actividad en minutos");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1: Activo, 0: Eliminado/Inactivo)");
+
+                entity.Property(e => e.EstadoSeguimientoWhatsApp).HasComment("Indica si el seguimiento se realiza por WhatsApp (1: Sí, 0: No, NULL: No aplica)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro");
+
+                entity.Property(e => e.FechaProgramada)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora programada para la actividad");
+
+                entity.Property(e => e.FechaReal)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora real en que se ejecutó la actividad");
+
+                entity.Property(e => e.IdActividadCabecera).HasComment("Foreign Key que referencia a la actividad cabecera");
+
+                entity.Property(e => e.IdEstadoActividadDetalle).HasComment("Foreign Key que referencia al estado de la actividad de detalle");
+
+                entity.Property(e => e.IdGestionContacto).HasComment("Foreign Key que referencia al registro de gestión de contacto");
+
+                entity.Property(e => e.IdOcurrenciaActividadAlterno).HasComment("Foreign Key que referencia a la ocurrencia de actividad alternativa");
+
+                entity.Property(e => e.IdOcurrenciaAlterno).HasComment("Foreign Key que referencia a la ocurrencia alternativa");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automático que guarda la versión del registro para control de concurrencia optimista");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó la última modificación del registro");
+
+                entity.HasOne(d => d.IdActividadCabeceraNavigation)
+                    .WithMany(p => p.TActividadDetalleGestionContactos)
+                    .HasForeignKey(d => d.IdActividadCabecera)
+                    .HasConstraintName("FK_T_ActividadDetalleGestionContacto_ActividadCabecera_IdActividadCabecera");
+
+                entity.HasOne(d => d.IdEstadoActividadDetalleNavigation)
+                    .WithMany(p => p.TActividadDetalleGestionContactos)
+                    .HasForeignKey(d => d.IdEstadoActividadDetalle)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_ActividadDetalleGestionContacto_EstadoActividadDetalle_IdEstadoActividadDetalle");
+
+                entity.HasOne(d => d.IdGestionContactoNavigation)
+                    .WithMany(p => p.TActividadDetalleGestionContactos)
+                    .HasForeignKey(d => d.IdGestionContacto)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_T_ActividadDetalleGestionContacto_GestionContacto_IdGestionContacto");
+
+                entity.HasOne(d => d.IdOcurrenciaActividadAlternoNavigation)
+                    .WithMany(p => p.TActividadDetalleGestionContactos)
+                    .HasForeignKey(d => d.IdOcurrenciaActividadAlterno)
+                    .HasConstraintName("FK_T_ActividadDetalleGestionContacto_OcurrenciaActividadAlterno_IdOcurrenciaActividadAlterno");
+
+                entity.HasOne(d => d.IdOcurrenciaAlternoNavigation)
+                    .WithMany(p => p.TActividadDetalleGestionContactos)
+                    .HasForeignKey(d => d.IdOcurrenciaAlterno)
+                    .HasConstraintName("FK_T_ActividadDetalleGestionContacto_OcurrenciaAlterno_IdOcurrenciaAlterno");
             });
 
             modelBuilder.Entity<TActividadMarcadorLog>(entity =>
@@ -18590,6 +18683,50 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Sistema Automatico Usuario de modificacion");
             });
 
+            modelBuilder.Entity<TEstadoGestionContacto>(entity =>
+            {
+                entity.ToTable("T_EstadoGestionContacto", "pla");
+
+                entity.HasComment("Catálogo que refleja el estado actual de los contactos en el proceso de gestión comercial");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del estado de gestión de contacto (Llave primaria)");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Descripción detallada sobre el estado del contacto en el proceso de gestión comercial");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1: Activo, 0: Eliminado/Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(80)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del estado de gestión de contacto (ej: Activo, En Seguimiento, Inactivo, Cerrado)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automático que guarda la versión del registro para control de concurrencia optimista");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó la última modificación del registro");
+            });
+
             modelBuilder.Entity<TEstadoMatricula>(entity =>
             {
                 entity.ToTable("T_EstadoMatricula", "fin");
@@ -20662,6 +20799,57 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .WithMany(p => p.TFaseCalificacions)
                     .HasForeignKey(d => d.IdPersonalAreaTrabajo)
                     .HasConstraintName("FK_T_FaseCalificacion_PersonalAreaTrabajo_IdPersonalAreaTrabajo");
+            });
+
+            modelBuilder.Entity<TFaseGestionContacto>(entity =>
+            {
+                entity.ToTable("T_FaseGestionContacto", "pla");
+
+                entity.HasComment("Catálogo que contiene las fases del proceso de gestión de contactos (Lead, Prospecto, Cliente, etc.)");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la fase de gestión de contacto (Llave primaria)");
+
+                entity.Property(e => e.Codigo)
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasComment("Código único identificador de la fase (ej: LEAD, PROSP, CLI)");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(300)
+                    .IsUnicode(false)
+                    .HasComment("Descripción detallada de la fase y sus características");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1: Activo, 0: Eliminado/Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre descriptivo de la fase del proceso de gestión de contactos");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automático que guarda la versión del registro para control de concurrencia optimista");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('SYSTEM')")
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('SYSTEM')")
+                    .HasComment("Usuario que realizó la última modificación del registro");
             });
 
             modelBuilder.Entity<TFaseOportunidad>(entity =>
@@ -24056,6 +24244,235 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TGestionContacto>(entity =>
+            {
+                entity.ToTable("T_GestionContacto", "pla");
+
+                entity.HasComment("Tabla para gestión de contactos y seguimiento de oportunidades comerciales");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del registro (Llave primaria)");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1: Activo, 0: Eliminado/Inactivo)");
+
+                entity.Property(e => e.EstadoSeguimientoWhatsApp).HasComment("Indica si el contacto está siendo seguido por WhatsApp (1: Sí, 0: No, NULL: No aplica)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro");
+
+                entity.Property(e => e.IdCentroCosto).HasComment("Foreign Key que referencia al centro de costo");
+
+                entity.Property(e => e.IdClasificacionPersona).HasComment("Foreign Key que referencia a la clasificación de la persona (Lead, Prospecto, Cliente, etc.)");
+
+                entity.Property(e => e.IdEstadoGestionContacto).HasComment("Foreign Key que referencia al estado actual del contacto en la gestión comercial");
+
+                entity.Property(e => e.IdFaseGestionContacto).HasComment("Foreign Key que referencia a la fase actual de gestión de contacto en el embudo de ventas");
+
+                entity.Property(e => e.IdOrigen).HasComment("Foreign Key que referencia al origen del contacto (web, Facebook, referido, etc.)");
+
+                entity.Property(e => e.IdPersonalAsignado)
+                    .HasColumnName("IdPersonal_Asignado")
+                    .HasComment("Foreign Key que referencia al personal asignado para seguimiento");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automático que guarda la versión del registro para control de concurrencia optimista");
+
+                entity.Property(e => e.UltimoComentario)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Último comentario o nota registrada por el asesor comercial");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó la última modificación del registro");
+
+                entity.HasOne(d => d.IdCentroCostoNavigation)
+                    .WithMany(p => p.TGestionContactos)
+                    .HasForeignKey(d => d.IdCentroCosto)
+                    .HasConstraintName("FK_T_GestionContacto_CentroCosto_IdCentroCosto");
+
+                entity.HasOne(d => d.IdClasificacionPersonaNavigation)
+                    .WithMany(p => p.TGestionContactos)
+                    .HasForeignKey(d => d.IdClasificacionPersona)
+                    .HasConstraintName("FK_T_GestionContacto_ClasificacionPersona_IdClasificacionPersona");
+
+                entity.HasOne(d => d.IdEstadoGestionContactoNavigation)
+                    .WithMany(p => p.TGestionContactos)
+                    .HasForeignKey(d => d.IdEstadoGestionContacto)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionContacto_EstadoGestionContacto_IdEstadoGestionContacto");
+
+                entity.HasOne(d => d.IdFaseGestionContactoNavigation)
+                    .WithMany(p => p.TGestionContactos)
+                    .HasForeignKey(d => d.IdFaseGestionContacto)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionContacto_FaseGestionContacto_IdFaseGestionContacto");
+
+                entity.HasOne(d => d.IdOrigenNavigation)
+                    .WithMany(p => p.TGestionContactos)
+                    .HasForeignKey(d => d.IdOrigen)
+                    .HasConstraintName("FK_T_GestionContacto_Origen_IdOrigen");
+
+                entity.HasOne(d => d.IdPersonalAsignadoNavigation)
+                    .WithMany(p => p.TGestionContactos)
+                    .HasForeignKey(d => d.IdPersonalAsignado)
+                    .HasConstraintName("FK_T_GestionContacto_Personal_IdPersonal_Asignado");
+            });
+
+            modelBuilder.Entity<TGestionContactoLog>(entity =>
+            {
+                entity.ToTable("T_GestionContactoLog", "pla");
+
+                entity.HasComment("Tabla que almacena el historial de cambios y actividades realizadas en la gestión de contactos");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del registro de log (Llave primaria)");
+
+                entity.Property(e => e.CambioFaseContacto).HasComment("Indicador de cambio de fase (1: Hubo cambio, 0: No hubo cambio)");
+
+                entity.Property(e => e.Comentario)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Comentario o descripción del cambio realizado");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro de log (1: Activo, 0: Eliminado/Inactivo)");
+
+                entity.Property(e => e.EstadoSeguimientoWhatsApp).HasComment("Snapshot del estado de seguimiento por WhatsApp en el momento del log");
+
+                entity.Property(e => e.FechaCambioAsesor)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora del cambio de asesor");
+
+                entity.Property(e => e.FechaCambioAsesorAnterior)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora del cambio de asesor anterior");
+
+                entity.Property(e => e.FechaCambioFaseContacto)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora del cambio de fase de gestión de contacto");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro de log");
+
+                entity.Property(e => e.FechaFinLog)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de finalización del periodo del log");
+
+                entity.Property(e => e.FechaLog)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en que se registró el evento en el log");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro de log");
+
+                entity.Property(e => e.IdCentroCosto).HasComment("Snapshot del centro de costo en el momento del log");
+
+                entity.Property(e => e.IdCentroCostoAnterior)
+                    .HasColumnName("IdCentroCosto_Anterior")
+                    .HasComment("Identificador del centro de costo anterior (antes del cambio)");
+
+                entity.Property(e => e.IdClasificacionPersona).HasComment("Snapshot de la clasificación de persona en el momento del log");
+
+                entity.Property(e => e.IdEstadoGestionContacto).HasComment("Snapshot del estado de gestión de contacto en el momento del log");
+
+                entity.Property(e => e.IdFaseGestionContacto).HasComment("Fase de gestión de contacto actual (después del cambio)");
+
+                entity.Property(e => e.IdFaseGestionContactoAnterior)
+                    .HasColumnName("IdFaseGestionContacto_Anterior")
+                    .HasComment("Fase de gestión de contacto anterior (antes del cambio)");
+
+                entity.Property(e => e.IdGestionContacto).HasComment("Foreign Key que referencia al registro de gestión de contacto (T_GestionContacto)");
+
+                entity.Property(e => e.IdOrigen).HasComment("Snapshot del origen del contacto en el momento del log");
+
+                entity.Property(e => e.IdPersonalAsignado)
+                    .HasColumnName("IdPersonal_Asignado")
+                    .HasComment("Snapshot del personal asignado en el momento del log");
+
+                entity.Property(e => e.IdPersonalAsignadoAnterior)
+                    .HasColumnName("IdPersonal_AsignadoAnterior")
+                    .HasComment("Identificador del personal asignado anterior (antes del cambio)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automático que guarda la versión del registro para control de concurrencia optimista");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro de log");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó la última modificación del registro de log");
+
+                entity.HasOne(d => d.IdCentroCostoNavigation)
+                    .WithMany(p => p.TGestionContactoLogIdCentroCostoNavigations)
+                    .HasForeignKey(d => d.IdCentroCosto)
+                    .HasConstraintName("FK_T_GestionContactoLog_CentroCosto_IdCentroCosto");
+
+                entity.HasOne(d => d.IdCentroCostoAnteriorNavigation)
+                    .WithMany(p => p.TGestionContactoLogIdCentroCostoAnteriorNavigations)
+                    .HasForeignKey(d => d.IdCentroCostoAnterior)
+                    .HasConstraintName("FK_T_GestionContactoLog_CentroCosto_IdCentroCosto_Anterior");
+
+                entity.HasOne(d => d.IdClasificacionPersonaNavigation)
+                    .WithMany(p => p.TGestionContactoLogs)
+                    .HasForeignKey(d => d.IdClasificacionPersona)
+                    .HasConstraintName("FK_T_GestionContactoLog_ClasificacionPersona_IdClasificacionPersona");
+
+                entity.HasOne(d => d.IdEstadoGestionContactoNavigation)
+                    .WithMany(p => p.TGestionContactoLogs)
+                    .HasForeignKey(d => d.IdEstadoGestionContacto)
+                    .HasConstraintName("FK_T_GestionContactoLog_EstadoGestionContacto_IdEstadoGestionContacto");
+
+                entity.HasOne(d => d.IdFaseGestionContactoNavigation)
+                    .WithMany(p => p.TGestionContactoLogIdFaseGestionContactoNavigations)
+                    .HasForeignKey(d => d.IdFaseGestionContacto)
+                    .HasConstraintName("FK_T_GestionContactoLog_FaseGestionContacto_IdFaseGestionContacto");
+
+                entity.HasOne(d => d.IdFaseGestionContactoAnteriorNavigation)
+                    .WithMany(p => p.TGestionContactoLogIdFaseGestionContactoAnteriorNavigations)
+                    .HasForeignKey(d => d.IdFaseGestionContactoAnterior)
+                    .HasConstraintName("FK_T_GestionContactoLog_FaseGestionContacto_IdFaseGestionContacto_Anterior");
+
+                entity.HasOne(d => d.IdGestionContactoNavigation)
+                    .WithMany(p => p.TGestionContactoLogs)
+                    .HasForeignKey(d => d.IdGestionContacto)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_T_GestionContactoLog_GestionContacto_IdGestionContacto");
+
+                entity.HasOne(d => d.IdOrigenNavigation)
+                    .WithMany(p => p.TGestionContactoLogs)
+                    .HasForeignKey(d => d.IdOrigen)
+                    .HasConstraintName("FK_T_GestionContactoLog_Origen_IdOrigen");
+
+                entity.HasOne(d => d.IdPersonalAsignadoNavigation)
+                    .WithMany(p => p.TGestionContactoLogIdPersonalAsignadoNavigations)
+                    .HasForeignKey(d => d.IdPersonalAsignado)
+                    .HasConstraintName("FK_T_GestionContactoLog_Personal_IdPersonal_Asignado");
+
+                entity.HasOne(d => d.IdPersonalAsignadoAnteriorNavigation)
+                    .WithMany(p => p.TGestionContactoLogIdPersonalAsignadoAnteriorNavigations)
+                    .HasForeignKey(d => d.IdPersonalAsignadoAnterior)
+                    .HasConstraintName("FK_T_GestionContactoLog_Personal_IdPersonal_AsignadoAnterior");
             });
 
             modelBuilder.Entity<TGmailCliente>(entity =>

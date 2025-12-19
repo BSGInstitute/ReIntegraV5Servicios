@@ -5,6 +5,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     public partial class TClasificacionPersona
     {
+        public TClasificacionPersona()
+        {
+            TGestionContactoLogs = new HashSet<TGestionContactoLog>();
+            TGestionContactos = new HashSet<TGestionContacto>();
+        }
+
         public int Id { get; set; }
         public int IdPersona { get; set; }
         public int IdTipoPersona { get; set; }
@@ -40,5 +46,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
         public virtual TPersona IdPersonaNavigation { get; set; } = null!;
         public virtual TTipoPersona IdTipoPersonaNavigation { get; set; } = null!;
+        public virtual ICollection<TGestionContactoLog> TGestionContactoLogs { get; set; }
+        public virtual ICollection<TGestionContacto> TGestionContactos { get; set; }
     }
 }

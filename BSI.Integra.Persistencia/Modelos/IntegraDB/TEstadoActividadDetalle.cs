@@ -5,6 +5,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     public partial class TEstadoActividadDetalle
     {
+        public TEstadoActividadDetalle()
+        {
+            TActividadDetalleGestionContactos = new HashSet<TActividadDetalleGestionContacto>();
+        }
+
         /// <summary>
         /// Llave Primaria
         /// </summary>
@@ -39,5 +44,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Id de la tabla Original al migrar
         /// </summary>
         public Guid? IdMigracion { get; set; }
+
+        public virtual ICollection<TActividadDetalleGestionContacto> TActividadDetalleGestionContactos { get; set; }
     }
 }
