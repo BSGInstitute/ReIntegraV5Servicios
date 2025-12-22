@@ -72,6 +72,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TBloqueHorarioProcesaOportunidad> TBloqueHorarioProcesaOportunidads { get; set; } = null!;
         public virtual DbSet<TCabeceraConfiguracionLlamadaAutomatica> TCabeceraConfiguracionLlamadaAutomaticas { get; set; } = null!;
         public virtual DbSet<TCabeceraFurConfiguracionAutomatica> TCabeceraFurConfiguracionAutomaticas { get; set; } = null!;
+        public virtual DbSet<TCabeceraGestionContacto> TCabeceraGestionContactos { get; set; } = null!;
         public virtual DbSet<TCaja> TCajas { get; set; } = null!;
         public virtual DbSet<TCajaEgreso> TCajaEgresos { get; set; } = null!;
         public virtual DbSet<TCajaEgresoAprobado> TCajaEgresoAprobados { get; set; } = null!;
@@ -307,6 +308,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TEsquemaEvaluacionPgeneralModalidad> TEsquemaEvaluacionPgeneralModalidads { get; set; } = null!;
         public virtual DbSet<TEsquemaEvaluacionPgeneralProveedor> TEsquemaEvaluacionPgeneralProveedors { get; set; } = null!;
         public virtual DbSet<TEstadoActividadDetalle> TEstadoActividadDetalles { get; set; } = null!;
+        public virtual DbSet<TEstadoCabeceraGestionContacto> TEstadoCabeceraGestionContactos { get; set; } = null!;
         public virtual DbSet<TEstadoCertificadoFisico> TEstadoCertificadoFisicos { get; set; } = null!;
         public virtual DbSet<TEstadoCivil> TEstadoCivils { get; set; } = null!;
         public virtual DbSet<TEstadoConvocatorium> TEstadoConvocatoria { get; set; } = null!;
@@ -899,6 +901,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TSubAreaParametroSeoPw> TSubAreaParametroSeoPws { get; set; } = null!;
         public virtual DbSet<TSubCargoLinkedIn> TSubCargoLinkedIns { get; set; } = null!;
         public virtual DbSet<TSubCategoriaDato> TSubCategoriaDatos { get; set; } = null!;
+        public virtual DbSet<TSubEstadoCabeceraGestionContacto> TSubEstadoCabeceraGestionContactos { get; set; } = null!;
         public virtual DbSet<TSubEstadoMatricula> TSubEstadoMatriculas { get; set; } = null!;
         public virtual DbSet<TSubNivelCc> TSubNivelCcs { get; set; } = null!;
         public virtual DbSet<TSubTipoMovimientoCaja> TSubTipoMovimientoCajas { get; set; } = null!;
@@ -4694,6 +4697,65 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TCabeceraGestionContacto>(entity =>
+            {
+                entity.ToTable("T_CabeceraGestionContacto", "pla");
+
+                entity.HasComment("Tabla cabecera de gestión de contacto");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del registro (Llave primaria)");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1: Activo, 0: Eliminado/Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro");
+
+                entity.Property(e => e.IdPespecifico)
+                    .HasColumnName("IdPEspecifico")
+                    .HasComment("Foreign Key que referencia al programa específico");
+
+                entity.Property(e => e.IdProveedor).HasComment("Foreign Key que referencia al proveedor");
+
+                entity.Property(e => e.IdSubEstadoCabeceraGestionContacto).HasComment("Foreign Key que referencia al subestado de cabecera");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automático que guarda la versión del registro para control de concurrencia optimista");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó la última modificación del registro");
+
+                entity.HasOne(d => d.IdPespecificoNavigation)
+                    .WithMany(p => p.TCabeceraGestionContactos)
+                    .HasForeignKey(d => d.IdPespecifico)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_CabeceraGestionContacto_PEspecifico_IdPEspecifico");
+
+                entity.HasOne(d => d.IdProveedorNavigation)
+                    .WithMany(p => p.TCabeceraGestionContactos)
+                    .HasForeignKey(d => d.IdProveedor)
+                    .HasConstraintName("FK_T_CabeceraGestionContacto_Proveedor_IdProveedor");
+
+                entity.HasOne(d => d.IdSubEstadoCabeceraGestionContactoNavigation)
+                    .WithMany(p => p.TCabeceraGestionContactos)
+                    .HasForeignKey(d => d.IdSubEstadoCabeceraGestionContacto)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_CabeceraGestionContacto_SubEstadoCabeceraGestionContacto_IdSubEstadoCabeceraGestionContacto");
             });
 
             modelBuilder.Entity<TCaja>(entity =>
@@ -18525,6 +18587,49 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TEstadoCabeceraGestionContacto>(entity =>
+            {
+                entity.ToTable("T_EstadoCabeceraGestionContacto", "pla");
+
+                entity.HasComment("Catálogo de estados de cabecera de gestión de contacto");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del estado (Llave primaria)");
+
+                entity.Property(e => e.Activo).HasComment("Indicador si el estado está activo para uso");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1: Activo, 0: Eliminado/Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro");
+
+                entity.Property(e => e.IdMigracion).HasComment("Identificador de migración de datos");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Descripción del estado de matrícula");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automático que guarda la versión del registro para control de concurrencia optimista");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó la última modificación del registro");
             });
 
             modelBuilder.Entity<TEstadoCertificadoFisico>(entity =>
@@ -53658,6 +53763,53 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TSubEstadoCabeceraGestionContacto>(entity =>
+            {
+                entity.ToTable("T_SubEstadoCabeceraGestionContacto", "pla");
+
+                entity.HasComment("Catálogo de subestados de cabecera de gestión de contacto");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del subestado (Llave primaria)");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1: Activo, 0: Eliminado/Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro");
+
+                entity.Property(e => e.IdEstadoCabeceraGestionContacto).HasComment("Foreign Key que referencia al estado de cabecera");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del subestado");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automático que guarda la versión del registro para control de concurrencia optimista");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó la última modificación del registro");
+
+                entity.HasOne(d => d.IdEstadoCabeceraGestionContactoNavigation)
+                    .WithMany(p => p.TSubEstadoCabeceraGestionContactos)
+                    .HasForeignKey(d => d.IdEstadoCabeceraGestionContacto)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_SubEstadoCabeceraGestionContacto_EstadoCabeceraGestionContacto_IdEstadoCabeceraGestionContacto");
             });
 
             modelBuilder.Entity<TSubEstadoMatricula>(entity =>
