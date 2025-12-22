@@ -28,6 +28,65 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// </summary>
         public async Task<int> ProcesarInsercionGestionAsync(CrearGestionContactoDTO dto)
         {
+
+            //// 1. Validar Centro de Costo
+            //if (!await _unitOfWork.GestionContactoRepository.ExisteCentroCostoAsync(dto.IdCentroCosto))
+            //{
+            //    throw new Exception($"El Centro de Costo con Id {dto.IdCentroCosto} no existe.");
+            //}
+
+            //// 2. Validar Asesor (Personal)
+            //if (!await _unitOfWork.GestionContactoRepository.ExistePersonalAsync(dto.IdPersonal_Asignado))
+            //{
+            //    throw new Exception($"El Asesor con Id {dto.IdPersonal_Asignado} no existe.");
+            //}
+
+            //// 3. Validar Clasificación Persona
+            //if (!await _unitOfWork.GestionContactoRepository.ExisteClasificacionPersonaAsync(dto.IdClasificacionPersona))
+            //{
+            //    throw new Exception($"La Clasificación de Persona con Id {dto.IdClasificacionPersona} no existe.");
+            //}
+
+            //// 4. Validar Fase Gestión
+            //if (!await _unitOfWork.GestionContactoRepository.ExisteFaseGestionAsync(dto.IdFaseGestionContacto))
+            //{
+            //    throw new Exception($"La Fase de Gestión con Id {dto.IdFaseGestionContacto} no existe.");
+            //}
+
+            //// 5. Validar Origen
+            //if (!await _unitOfWork.GestionContactoRepository.ExisteOrigenAsync(dto.IdOrigen))
+            //{
+            //    throw new Exception($"El Origen con Id {dto.IdOrigen} no existe.");
+            //}
+
+            //// Solo llegamos aquí si los IDs existen, así que es seguro consultar duplicidad(Centro Costo)
+            //bool existeDuplicado = await _unitOfWork.GestionContactoRepository
+            //                            .ExisteGestionActivaAsync(dto.IdClasificacionPersona, dto.IdCentroCosto);
+
+            //if (existeDuplicado)
+            //{
+            //    throw new Exception("Regla de Negocio: El docente ya tiene una gestión activa para este Centro de Costo.");
+            //}
+
+            // Lanzamos las 5 tareas al mismo tiempo a la BD
+            var t1 = _unitOfWork.GestionContactoRepository.ExisteCentroCostoAsync(dto.IdCentroCosto);
+            var t2 = _unitOfWork.GestionContactoRepository.ExistePersonalAsync(dto.IdPersonal_Asignado);
+            var t3 = _unitOfWork.GestionContactoRepository.ExisteClasificacionPersonaAsync(dto.IdClasificacionPersona);
+            var t4 = _unitOfWork.GestionContactoRepository.ExisteFaseGestionAsync(dto.IdFaseGestionContacto);
+            var t5 = _unitOfWork.GestionContactoRepository.ExisteOrigenAsync(dto.IdOrigen);
+
+            // Esperamos a que todas terminen
+            await Task.WhenAll(t1, t2, t3, t4, t5);
+
+            // Verificamos resultados
+            if (!await t1) throw new Exception($"El Centro de Costo {dto.IdCentroCosto} no existe.");
+            if (!await t2) throw new Exception($"El Asesor {dto.IdPersonal_Asignado} no existe.");
+            if (!await t3) throw new Exception($"La Clasificación {dto.IdClasificacionPersona} no existe.");
+            if (!await t4) throw new Exception($"La Fase {dto.IdFaseGestionContacto} no existe.");
+            if (!await t5) throw new Exception($"El Origen {dto.IdOrigen} no existe.");
+
+            // Luego la regla de negocio...
+
             try
             {
                 // 1. Configuración de Valores por Defecto
