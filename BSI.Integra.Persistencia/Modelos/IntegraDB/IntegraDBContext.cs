@@ -689,6 +689,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TPostulanteProcesoSeleccion> TPostulanteProcesoSeleccions { get; set; } = null!;
         public virtual DbSet<TPreCalculadaCambioFase> TPreCalculadaCambioFases { get; set; } = null!;
         public virtual DbSet<TPreferenciaComunicacionAcademica> TPreferenciaComunicacionAcademicas { get; set; } = null!;
+        public virtual DbSet<TPreferenciaComunicacionAcademicaHorario> TPreferenciaComunicacionAcademicaHorarios { get; set; } = null!;
         public virtual DbSet<TPreguntaCategorium> TPreguntaCategoria { get; set; } = null!;
         public virtual DbSet<TPreguntaEncuestaCategorium> TPreguntaEncuestaCategoria { get; set; } = null!;
         public virtual DbSet<TPreguntaEncuestaOnline> TPreguntaEncuestaOnlines { get; set; } = null!;
@@ -41696,8 +41697,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.IdAlumno).HasComment("Identificador del alumno al que pertenece la preferencia de comunicación.");
 
-                entity.Property(e => e.IdBloqueHorarioDetalle).HasComment("Identificador del bloque horario en el cual el alumno permite ser contactado.");
-
                 entity.Property(e => e.IdMedioComunicacion).HasComment("Identificador del medio de comunicación preferido por el alumno (WhatsApp, llamada, correo, etc.).");
 
                 entity.Property(e => e.RowVersion)
@@ -41721,17 +41720,61 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_T_PreferenciaComunicacionAcademica_TAlumno");
 
-                entity.HasOne(d => d.IdBloqueHorarioDetalleNavigation)
-                    .WithMany(p => p.TPreferenciaComunicacionAcademicas)
-                    .HasForeignKey(d => d.IdBloqueHorarioDetalle)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_T_PreferenciaComunicacionAcademica_TBloqueHorarioDetalle");
-
                 entity.HasOne(d => d.IdMedioComunicacionNavigation)
                     .WithMany(p => p.TPreferenciaComunicacionAcademicas)
                     .HasForeignKey(d => d.IdMedioComunicacion)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_T_PreferenciaComunicacionAcademica_TMedioComunicacion");
+            });
+
+            modelBuilder.Entity<TPreferenciaComunicacionAcademicaHorario>(entity =>
+            {
+                entity.ToTable("T_PreferenciaComunicacionAcademicaHorario", "mkt");
+
+                entity.HasComment("Registra las preferencias de comunicación académica de los alumnos, indicando el medio de comunicación y el bloque horario permitido.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la preferencia de comunicación académica.");
+
+                entity.Property(e => e.Estado).HasComment("Estado de la preferencia de comunicación (1 = Activa, 0 = Inactiva).");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en la que se creó el registro.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro.");
+
+                entity.Property(e => e.IdAlumno).HasComment("Identificador del alumno al que pertenece la preferencia de comunicación.");
+
+                entity.Property(e => e.IdBloqueHorarioDetalle).HasComment("Identificador del bloque horario en el cual el alumno permite ser contactado.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de versión de fila para manejo de concurrencia y control de cambios.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó la creación del registro.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó la última modificación del registro.");
+
+                entity.HasOne(d => d.IdAlumnoNavigation)
+                    .WithMany(p => p.TPreferenciaComunicacionAcademicaHorarios)
+                    .HasForeignKey(d => d.IdAlumno)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_PreferenciaComunicacionAcademicaHorario_TAlumno");
+
+                entity.HasOne(d => d.IdBloqueHorarioDetalleNavigation)
+                    .WithMany(p => p.TPreferenciaComunicacionAcademicaHorarios)
+                    .HasForeignKey(d => d.IdBloqueHorarioDetalle)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_PreferenciaComunicacionAcademicaHorario_TBloqueHorarioDetalle");
             });
 
             modelBuilder.Entity<TPreguntaCategorium>(entity =>

@@ -11,6 +11,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
             TGoogleAdsConversionQueues = new HashSet<TGoogleAdsConversionQueue>();
             TModeloDataMinings = new HashSet<TModeloDataMining>();
             TOportunidadGoogleLeads = new HashSet<TOportunidadGoogleLead>();
+            TPreferenciaComunicacionAcademicaHorarios = new HashSet<TPreferenciaComunicacionAcademicaHorario>();
             TPreferenciaComunicacionAcademicas = new HashSet<TPreferenciaComunicacionAcademica>();
         }
 
@@ -449,6 +450,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual ICollection<TGoogleAdsConversionQueue> TGoogleAdsConversionQueues { get; set; }
         public virtual ICollection<TModeloDataMining> TModeloDataMinings { get; set; }
         public virtual ICollection<TOportunidadGoogleLead> TOportunidadGoogleLeads { get; set; }
+        public virtual ICollection<TPreferenciaComunicacionAcademicaHorario> TPreferenciaComunicacionAcademicaHorarios { get; set; }
         public virtual ICollection<TPreferenciaComunicacionAcademica> TPreferenciaComunicacionAcademicas { get; set; }
     }
 }

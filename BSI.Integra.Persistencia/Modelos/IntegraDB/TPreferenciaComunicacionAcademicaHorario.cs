@@ -6,7 +6,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     /// <summary>
     /// Registra las preferencias de comunicación académica de los alumnos, indicando el medio de comunicación y el bloque horario permitido.
     /// </summary>
-    public partial class TPreferenciaComunicacionAcademica
+    public partial class TPreferenciaComunicacionAcademicaHorario
     {
         /// <summary>
         /// Identificador único de la preferencia de comunicación académica.
@@ -17,9 +17,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public int IdAlumno { get; set; }
         /// <summary>
-        /// Identificador del medio de comunicación preferido por el alumno (WhatsApp, llamada, correo, etc.).
+        /// Identificador del bloque horario en el cual el alumno permite ser contactado.
         /// </summary>
-        public int IdMedioComunicacion { get; set; }
+        public int IdBloqueHorarioDetalle { get; set; }
         /// <summary>
         /// Estado de la preferencia de comunicación (1 = Activa, 0 = Inactiva).
         /// </summary>
@@ -46,6 +46,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public byte[] RowVersion { get; set; } = null!;
 
         public virtual TAlumno IdAlumnoNavigation { get; set; } = null!;
-        public virtual TMedioComunicacion IdMedioComunicacionNavigation { get; set; } = null!;
+        public virtual TBloqueHorarioDetalle IdBloqueHorarioDetalleNavigation { get; set; } = null!;
     }
 }

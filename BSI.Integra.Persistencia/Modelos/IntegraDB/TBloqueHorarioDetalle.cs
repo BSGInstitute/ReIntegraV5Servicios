@@ -10,7 +10,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TBloqueHorarioDetalle()
         {
-            TPreferenciaComunicacionAcademicas = new HashSet<TPreferenciaComunicacionAcademica>();
+            TPreferenciaComunicacionAcademicaHorarios = new HashSet<TPreferenciaComunicacionAcademicaHorario>();
         }
 
         /// <summary>
@@ -55,6 +55,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public byte[] RowVersion { get; set; } = null!;
 
         public virtual TBloqueHorario IdBloqueHorarioNavigation { get; set; } = null!;
-        public virtual ICollection<TPreferenciaComunicacionAcademica> TPreferenciaComunicacionAcademicas { get; set; }
+        public virtual ICollection<TPreferenciaComunicacionAcademicaHorario> TPreferenciaComunicacionAcademicaHorarios { get; set; }
     }
 }
