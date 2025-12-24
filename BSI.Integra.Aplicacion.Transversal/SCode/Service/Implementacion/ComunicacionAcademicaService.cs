@@ -113,13 +113,13 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                 if (preferencia.BloqueHorario != null)
                 {
-                    var horariosExistentes = _unitOfWork.PreferenciaComunicacionAcademicaHorarioRepository.GetBy(x => x.IdAlumno == preference.IdAlumno).ToList();
+                    var horariosExistentes = _unitOfWork.PreferenciaComunicacionAcademicaHorarioRepository.GetBy(x => x.IdAlumno == preferencia.IdAlumno).ToList();
                     var idsRecibidos = preferencia.BloqueHorario.Select(x => x.Id).ToList();
                     var idsAEliminar = horariosExistentes.Where(x => !idsRecibidos.Contains(x.Id)).Select(x => x.Id).ToList();
 
                     foreach (var id in idsAEliminar)
                     {
-                        _unitOfWork.PreferenciaComunicacionAcademicaHorarioRepository.Delete(id, preferencia.Usuario);
+                        _unitOfWork.PreferenciaComunicacionAcademicaHorarioRepository.Delete(id, Usuario);
                     }
 
                     foreach (var item in preferencia.BloqueHorario)
@@ -130,12 +130,12 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             IdAlumno = preferencia.IdAlumno,
                             IdBloqueHorarioDetalle = item.IdBloqueHorarioDetalle,
                             Estado = true,
-                            UsuarioModificacion = preferencia.Usuario,
+                            UsuarioModificacion = Usuario,
                             FechaModificacion = DateTime.Now
                         };
                         if (item.Id == 0)
                         {
-                            horario.UsuarioCreacion = preferencia.Usuario;
+                            horario.UsuarioCreacion = Usuario;
                             horario.FechaCreacion = DateTime.Now;
                             _unitOfWork.PreferenciaComunicacionAcademicaHorarioRepository.Add(horario);
                         }

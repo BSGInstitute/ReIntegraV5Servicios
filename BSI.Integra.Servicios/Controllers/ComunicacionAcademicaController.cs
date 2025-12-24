@@ -16,9 +16,11 @@ namespace BSI.Integra.Servicios.Controllers
     public class ComunicacionAcademicaController : ControllerBase
     {
         private IComunicacionAcademicaService _ComunicacionAcademicaService;
+        private ITokenManager _tokenManager;
         public ComunicacionAcademicaController(IUnitOfWork unitOfWork, ITokenManager tokenManager)
         {
             _ComunicacionAcademicaService = new ComunicacionAcademicaService(unitOfWork);
+            _tokenManager = tokenManager;
         }
 
         [HttpGet("[action]/{IdAlumno}")]
@@ -40,7 +42,7 @@ namespace BSI.Integra.Servicios.Controllers
         {
             try
             {
-                var resultado = _ComunicacionAcademicaService.ActualizarPreferenciaComunicacionAlumno(dto);
+                var resultado = _ComunicacionAcademicaService.ActualizarPreferenciaComunicacionAlumno(dto, _tokenManager.UserName);
                 return Ok(resultado);
             }
             catch (Exception ex)

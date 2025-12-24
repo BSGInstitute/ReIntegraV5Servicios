@@ -6,7 +6,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
     public interface IComunicacionAcademicaService
     {
         ConfigurarPreferenciaDTO ObtenerOpcionesPreferenciaComunicacion();
-        object ActualizarPreferenciaComunicacionAlumno(PreferenciaConfiguracionDTO preferencia);
+        object ActualizarPreferenciaComunicacionAlumno(PreferenciaConfiguracionDTO preferencia, string Usuario);
         PreferenciaConfiguracionDTO ObtenerPreferenciaComunicacionAlumno(int IdAlumno);
     }
 }
