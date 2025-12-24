@@ -498,7 +498,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
 
                 foreach (var mensaje in MensajeIdDTO)
                 {
-                    var validarEmail = _unitOfWork.AlumnoRepository.ValidarEmail1Alumno(mensaje.Email);
+                    var validarEmail = _unitOfWork.AlumnoRepository.ValidarEmailProveedor(mensaje.Email);
                     int idClasificacionPersona = validarEmail == null ? 0 : validarEmail.Id;
                     var mandrilEnvioCorreoEntidad = new MandrilEnvioCorreo
                     {

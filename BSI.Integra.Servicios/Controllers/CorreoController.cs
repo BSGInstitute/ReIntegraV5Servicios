@@ -183,6 +183,47 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
+        /// TipoFuncion: POST
+        /// Autor: Jose Vega
+        /// Fecha: 23/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Enviar mensaje.
+        /// </summary>
+        /// <returns></returns>
+        [Route("[action]")]
+        [HttpPost]
+        public async Task<ActionResult> EnviarMensajePla([FromForm] ParametrosEnviarMensajePlaDTO informacionCorreo)
+        {
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+            var registroToken = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+            if (registroToken.TokenValida)
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                try
+                {
+                    IList<IFormFile> Files = new List<IFormFile>();
+                    if (informacionCorreo.Files != null && informacionCorreo.Files.Count() > 0)
+                        Files = Request.Form.Files.ToList();
+
+                    IGmailCorreoService gmailCorreoService = new GmailCorreoService(unitOfWork);
+                    var resultado = await gmailCorreoService.EnviarMensajeCorreoPla(informacionCorreo, Files, registroToken.RegistroClaimToken.UserName);
+                    return Ok(resultado);
+                }
+                catch
+                {
+                    throw;
+                }
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("No tiene acceso al Envio de Correos");
+            }
+        }
+
         /// TipoFuncion: GET
         /// Autor: Gilmer Quispe.
         /// Fecha: 26/08/2022
