@@ -3233,35 +3233,35 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                         var etapaOrden = _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ObtenerListaEtapaExamenesPorPostulante(RespuestaTest.IdProcesoSeleccionEvaluacionEvaluador, RespuestaTest.IdPostulanteEvaluacionEvaluador);
                         var ordenActual = etapaOrden.Where(x => x.Id == idEtapaCalificadaActual).OrderByDescending(x => x.NroOrden).FirstOrDefault();
                         var ordenPosterior = etapaOrden.Where(x => x.NroOrden == ordenActual.NroOrden + 1).FirstOrDefault();
-                        if (ordenPosterior != null)
-                        {
-                            var actualizarEtapaPosterior = _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ObtenerPorId(ordenPosterior.Id);
-                            if (actualizarEtapaPosterior != null)
-                            {
-                                actualizarEtapaPosterior.EsEtapaActual = true;
-                                actualizarEtapaPosterior.EsContactado = true;
-                                actualizarEtapaPosterior.IdEstadoEtapaProcesoSeleccion = 3; // En Proceso
-                                actualizarEtapaPosterior.UsuarioModificacion = usuario;
-                                actualizarEtapaPosterior.FechaModificacion = DateTime.Now;
-                                EtapaProcesoSeleccionCalificadoActualizarDTO etapaCalificadoUpdateV2 = new()
-                                {
-                                    Id = actualizarEtapaPosterior.Id,
-                                    IdProcesoSeleccionEtapa = actualizarEtapaPosterior.IdProcesoSeleccionEtapa,
-                                    IdPostulante = actualizarEtapaPosterior.IdPostulante,
-                                    EsEtapaAprobada = actualizarEtapaPosterior.EsEtapaAprobada,
-                                    NotaCalculada = actualizarEtapaPosterior.NotaCalculada,
-                                    IdEstadoEtapaProcesoSeleccion = actualizarEtapaPosterior.IdEstadoEtapaProcesoSeleccion,
-                                    EsEtapaActual = actualizarEtapaPosterior.EsEtapaActual,
-                                    EsContactado = actualizarEtapaPosterior.EsContactado,
-                                    UsuarioModificacion = usuario,
+                        //if (ordenPosterior != null)
+                        //{
+                        //    var actualizarEtapaPosterior = _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ObtenerPorId(ordenPosterior.Id);
+                        //    if (actualizarEtapaPosterior != null)
+                        //    {
+                        //        actualizarEtapaPosterior.EsEtapaActual = true;
+                        //        actualizarEtapaPosterior.EsContactado = true;
+                        //        actualizarEtapaPosterior.IdEstadoEtapaProcesoSeleccion = 3; // En Proceso
+                        //        actualizarEtapaPosterior.UsuarioModificacion = usuario;
+                        //        actualizarEtapaPosterior.FechaModificacion = DateTime.Now;
+                        //        EtapaProcesoSeleccionCalificadoActualizarDTO etapaCalificadoUpdateV2 = new()
+                        //        {
+                        //            Id = actualizarEtapaPosterior.Id,
+                        //            IdProcesoSeleccionEtapa = actualizarEtapaPosterior.IdProcesoSeleccionEtapa,
+                        //            IdPostulante = actualizarEtapaPosterior.IdPostulante,
+                        //            EsEtapaAprobada = actualizarEtapaPosterior.EsEtapaAprobada,
+                        //            NotaCalculada = actualizarEtapaPosterior.NotaCalculada,
+                        //            IdEstadoEtapaProcesoSeleccion = actualizarEtapaPosterior.IdEstadoEtapaProcesoSeleccion,
+                        //            EsEtapaActual = actualizarEtapaPosterior.EsEtapaActual,
+                        //            EsContactado = actualizarEtapaPosterior.EsContactado,
+                        //            UsuarioModificacion = usuario,
 
-                                };
-                                //_unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(actualizarEtapaPosterior);
-                                _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ActualizarEtapaCalificada(etapaCalificadoUpdateV2);
+                        //        };
+                        //        //_unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(actualizarEtapaPosterior);
+                        //        _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ActualizarEtapaCalificada(etapaCalificadoUpdateV2);
 
                                
-                            }
-                        }
+                        //    }
+                        //}
                     }
                 }
 

@@ -12,6 +12,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         {
             TActividadDetalleGestionContactos = new HashSet<TActividadDetalleGestionContacto>();
             TGestionContactoLogs = new HashSet<TGestionContactoLog>();
+            TMandrilEnvioCorreoGestions = new HashSet<TMandrilEnvioCorreoGestion>();
         }
 
         /// <summary>
@@ -83,5 +84,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual TPersonal? IdPersonalAsignadoNavigation { get; set; }
         public virtual ICollection<TActividadDetalleGestionContacto> TActividadDetalleGestionContactos { get; set; }
         public virtual ICollection<TGestionContactoLog> TGestionContactoLogs { get; set; }
+        public virtual ICollection<TMandrilEnvioCorreoGestion> TMandrilEnvioCorreoGestions { get; set; }
     }
 }
