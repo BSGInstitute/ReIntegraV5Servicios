@@ -276,6 +276,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TDetraccion> TDetraccions { get; set; } = null!;
         public virtual DbSet<TDiaSemana> TDiaSemanas { get; set; } = null!;
         public virtual DbSet<TDiferenciaHorarium> TDiferenciaHoraria { get; set; } = null!;
+        public virtual DbSet<TDocentePostulante> TDocentePostulantes { get; set; } = null!;
         public virtual DbSet<TDocumentacionComercialPw> TDocumentacionComercialPws { get; set; } = null!;
         public virtual DbSet<TDocumento> TDocumentos { get; set; } = null!;
         public virtual DbSet<TDocumentoAgendum> TDocumentoAgenda { get; set; } = null!;
@@ -16974,6 +16975,94 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario de modificacion del registro");
+            });
+
+            modelBuilder.Entity<TDocentePostulante>(entity =>
+            {
+                entity.ToTable("T_DocentePostulante", "pla");
+
+                entity.HasComment("Tabla para registro de docentes postulantes");
+
+                entity.HasIndex(e => e.Correo, "UQ_T_DocentePostulante_Correo")
+                    .IsUnique();
+
+                entity.Property(e => e.Id).HasComment("Identificador único del docente postulante (Llave primaria)");
+
+                entity.Property(e => e.ApellidoMaterno)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Apellido materno del docente postulante");
+
+                entity.Property(e => e.ApellidoPaterno)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Apellido paterno del docente postulante");
+
+                entity.Property(e => e.Celular)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasComment("Número de celular del docente postulante");
+
+                entity.Property(e => e.Correo)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Correo electrónico del docente postulante");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1: Activo, 0: Eliminado/Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro");
+
+                entity.Property(e => e.FechaNacimiento)
+                    .HasColumnType("date")
+                    .HasComment("Fecha de nacimiento del docente postulante");
+
+                entity.Property(e => e.IdCiudad).HasComment("Foreign Key que referencia a la ciudad de origen del docente postulante");
+
+                entity.Property(e => e.Nombre1)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Primer nombre del docente postulante");
+
+                entity.Property(e => e.Nombre2)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Segundo nombre del docente postulante");
+
+                entity.Property(e => e.NumeroDocumento)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasComment("Número de documento de identidad del docente postulante");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automático que guarda la versión del registro para control de concurrencia optimista");
+
+                entity.Property(e => e.Telefono)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasComment("Número de teléfono fijo del docente postulante");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó la última modificación del registro");
+
+                entity.HasOne(d => d.IdCiudadNavigation)
+                    .WithMany(p => p.TDocentePostulantes)
+                    .HasForeignKey(d => d.IdCiudad)
+                    .HasConstraintName("FK_T_DocentePostulante_Ciudad_IdCiudad");
             });
 
             modelBuilder.Entity<TDocumentacionComercialPw>(entity =>
