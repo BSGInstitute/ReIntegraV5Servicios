@@ -457,6 +457,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TLogProyeccionFur> TLogProyeccionFurs { get; set; } = null!;
         public virtual DbSet<TMandril> TMandrils { get; set; } = null!;
         public virtual DbSet<TMandrilEnvioCorreo> TMandrilEnvioCorreos { get; set; } = null!;
+        public virtual DbSet<TMandrilEnvioCorreoGestion> TMandrilEnvioCorreoGestions { get; set; } = null!;
+        public virtual DbSet<TMandrilTipoAsignacion> TMandrilTipoAsignacions { get; set; } = null!;
+        public virtual DbSet<TMandrilTipoEnvio> TMandrilTipoEnvios { get; set; } = null!;
         public virtual DbSet<TMaterialAccion> TMaterialAccions { get; set; } = null!;
         public virtual DbSet<TMaterialAdicionalAulaVirtual> TMaterialAdicionalAulaVirtuals { get; set; } = null!;
         public virtual DbSet<TMaterialAdicionalAulaVirtualPespecifico> TMaterialAdicionalAulaVirtualPespecificos { get; set; } = null!;
@@ -28133,6 +28136,180 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.Property(e => e.IdOportunidad).HasComment("FK a T_Oportunidad");
 
                 entity.Property(e => e.IdPersonal).HasComment("Fk a T_Personal");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Estado del registro (creado o eliminado)");
+            });
+
+            modelBuilder.Entity<TMandrilEnvioCorreoGestion>(entity =>
+            {
+                entity.ToTable("T_MandrilEnvioCorreoGestion", "mkt");
+
+                entity.HasComment("Esta tabla contiene informacion acerca de envios de correos");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria");
+
+                entity.Property(e => e.Asunto)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasComment("Contenido breve que describe el motivo del correo electronico enviado");
+
+                entity.Property(e => e.EsEnvioMasivo).HasComment("Indica si el correo es parte de un envio masivo");
+
+                entity.Property(e => e.Estado).HasComment("Fecha de creacion del registro");
+
+                entity.Property(e => e.EstadoEnvio).HasComment("Registro del estado de envio de correos en la base de datos");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Usuario de creacion del registro");
+
+                entity.Property(e => e.FechaEnvio)
+                    .HasColumnType("datetime")
+                    .HasComment("Registro de fechas en las que se enviaron correos electronicos");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.FkMandril)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("FK asignada por Mandril");
+
+                entity.Property(e => e.IdCentroCosto).HasComment("FK a T_CentroCosto");
+
+                entity.Property(e => e.IdClasificacionPersona).HasComment("FK a T_ClasificacionPersona");
+
+                entity.Property(e => e.IdGestionContacto).HasComment("FK a T_GestionContacto");
+
+                entity.Property(e => e.IdMandrilTipoAsignacion).HasComment("Fk a T_MandrilTipoAsignacion");
+
+                entity.Property(e => e.IdMandrilTipoEnvio).HasComment("FK a T_MandrilTipoEnvio");
+
+                entity.Property(e => e.IdPersonal).HasComment("Fk a T_Personal");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Estado del registro (creado o eliminado)");
+
+                entity.HasOne(d => d.IdCentroCostoNavigation)
+                    .WithMany(p => p.TMandrilEnvioCorreoGestions)
+                    .HasForeignKey(d => d.IdCentroCosto)
+                    .HasConstraintName("FK_T_MandrilEnvioCorreoGestion_CentroCosto_IdCentroCosto");
+
+                entity.HasOne(d => d.IdClasificacionPersonaNavigation)
+                    .WithMany(p => p.TMandrilEnvioCorreoGestions)
+                    .HasForeignKey(d => d.IdClasificacionPersona)
+                    .HasConstraintName("FK_T_MandrilEnvioCorreoGestion_ClasificacionPersona_IdClasificacionPersona");
+
+                entity.HasOne(d => d.IdGestionContactoNavigation)
+                    .WithMany(p => p.TMandrilEnvioCorreoGestions)
+                    .HasForeignKey(d => d.IdGestionContacto)
+                    .HasConstraintName("FK_T_MandrilEnvioCorreoGestion_GestionContacto_IdGestionContacto");
+
+                entity.HasOne(d => d.IdMandrilTipoAsignacionNavigation)
+                    .WithMany(p => p.TMandrilEnvioCorreoGestions)
+                    .HasForeignKey(d => d.IdMandrilTipoAsignacion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_MandrilEnvioCorreoGestion_MandrilTipoAsignacion_IdMandrilTipoAsignacion");
+
+                entity.HasOne(d => d.IdMandrilTipoEnvioNavigation)
+                    .WithMany(p => p.TMandrilEnvioCorreoGestions)
+                    .HasForeignKey(d => d.IdMandrilTipoEnvio)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_MandrilEnvioCorreoGestion_MandrilTipoEnvio_IdMandrilTipoEnvio");
+
+                entity.HasOne(d => d.IdPersonalNavigation)
+                    .WithMany(p => p.TMandrilEnvioCorreoGestions)
+                    .HasForeignKey(d => d.IdPersonal)
+                    .HasConstraintName("FK_T_MandrilEnvioCorreoGestion_Personal_IdPersonal");
+            });
+
+            modelBuilder.Entity<TMandrilTipoAsignacion>(entity =>
+            {
+                entity.ToTable("T_MandrilTipoAsignacion", "mkt");
+
+                entity.HasComment("Esta tabla clasifica los tipos de asignacion de mandriles");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria");
+
+                entity.Property(e => e.Estado).HasComment("Fecha de creacion del registro");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Usuario de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Registro del usuario para identificacion en la plataforma");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Estado del registro (creado o eliminado)");
+            });
+
+            modelBuilder.Entity<TMandrilTipoEnvio>(entity =>
+            {
+                entity.ToTable("T_MandrilTipoEnvio", "mkt");
+
+                entity.HasComment("Esta tabla contiene informacion relevante sobre los tipos de envio");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria");
+
+                entity.Property(e => e.Estado).HasComment("Fecha de creacion del registro");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Usuario de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Registra los s de los diferentes tipos de envios");
 
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
