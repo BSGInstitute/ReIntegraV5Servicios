@@ -4,6 +4,7 @@ using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface.Planificacion;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -198,5 +199,67 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 throw new Exception($"Error al validar existencia de Origen {id}", ex);
             }
         }
+
+        public TGestionContacto Update(GestionContacto entidad)
+        {
+            try
+            {
+                var gestionContactoEntidad = MapeoEntidad(entidad);
+                var entidadExistente = base.FirstBy(w => w.Id == entidad.Id, s => new { s.RowVersion });
+
+                if (entidadExistente != null)
+                {
+                    gestionContactoEntidad.RowVersion = entidadExistente.RowVersion;
+                }
+
+                base.Update(gestionContactoEntidad);
+                return gestionContactoEntidad;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al actualizar GestionContacto", ex);
+            }
+        }
+
+        public async Task<GestionContacto> ObtenerPorIdAsync(int id)
+        {
+            try
+            {
+                string query = @"
+                SELECT 
+                    Id,
+                    IdAlumno, 
+                    IdPersonalAsignado,
+                    IdCentroCosto,
+                    IdFaseGestionContacto,
+                    IdEstadoGestionContacto,
+                    IdSubEstadoGestionContacto,
+                    IdClasificacionPersona,
+                    IdOrigen,
+                    UltimoComentario,
+                    UltimaFechaProgramada,
+                    UsuarioCreacion,
+                    UsuarioModificacion,
+                    FechaCreacion,
+                    FechaModificacion,
+                    RowVersion,
+                    Estado
+                FROM com.T_GestionContacto WITH(NOLOCK)
+                WHERE Id = @Id AND Estado = 1";
+
+                var resultadoDinamico = await _dapperRepository.FirstOrDefaultAsync(query, new { Id = id });
+
+                if (resultadoDinamico == null) return null;
+                string json = JsonConvert.SerializeObject(resultadoDinamico);
+                var resultadoBO = JsonConvert.DeserializeObject<GestionContacto>(json);
+
+                return resultadoBO;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al obtener GestionContacto por ID", ex);
+            }
+        }
+
     }
 }

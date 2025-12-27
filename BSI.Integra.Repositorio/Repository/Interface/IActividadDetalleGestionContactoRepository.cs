@@ -11,5 +11,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
     public interface IActividadDetalleGestionContactoRepository
     {
         TActividadDetalleGestionContacto AddAsync(ActividadDetalleGestionContacto entidad);
+        Task<ActividadDetalleGestionContacto> ObtenerPorIdAsync(int id);
+        TActividadDetalleGestionContacto Update(ActividadDetalleGestionContacto entidad);
     }
 }
