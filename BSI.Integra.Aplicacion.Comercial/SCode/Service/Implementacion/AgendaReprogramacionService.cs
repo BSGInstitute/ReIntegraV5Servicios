@@ -55,14 +55,11 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         {
             if (dto.ActividadAntigua.IdGestionContacto == 0)
                 throw new ArgumentException("IdGestionContacto es requerido");
-
-            // Usamos TransactionScope igual que en el ejemplo
             using (TransactionScope scope = new TransactionScope(TransactionScopeOption.RequiresNew, TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
                     // 1. Obtener Gestión (Oportunidad Docente)
-                    // Asumiendo que GestionContactoRepository tiene ObtenerPorIdAsync
                     var gestionBO = await _unitOfWork.GestionContactoRepository.ObtenerPorIdAsync(dto.ActividadAntigua.IdGestionContacto);
 
                     if (gestionBO == null) throw new Exception("Gestión no encontrada");
@@ -74,10 +71,10 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                     {
                         actividadAntigua.FechaReal = DateTime.Now;
                         actividadAntigua.DuracionReal = 0;
-                        actividadAntigua.Estado = true; // O el valor que uses para cerrado
-                        actividadAntigua.IdOcurrencia = dto.ActividadAntigua.IdOcurrencia;
+                        actividadAntigua.Estado = true;
+                        //actividadAntigua.IdOcurrencia = dto.ActividadAntigua.IdOcurrencia; -- PENDIENTE DE AJUSTE
                         actividadAntigua.Comentario = dto.ActividadAntigua.Comentario;
-                        actividadAntigua.UsuarioModificacion = dto.Filtro.Usuario; // Aquí corregimos el error de acceso a Usuario
+                        actividadAntigua.UsuarioModificacion = dto.Filtro.Usuario;
                         actividadAntigua.FechaModificacion = DateTime.Now;
 
                         _unitOfWork.ActividadDetalleGestionContactoRepository.Update(actividadAntigua);
@@ -86,12 +83,12 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                     // 3. Programar Nueva Actividad
                     if (DateTime.TryParse(dto.DatosGestion.UltimaFechaProgramada, out DateTime fechaProgramada))
                     {
-                        var actividadNueva = new ActividadDetalleGestionContactoBO
+                        var actividadNueva = new ActividadDetalleGestionContacto
                         {
-                            IdGestionContacto = dto.ActividadAntigua.IdGestionContacto, // Corregido el acceso
+                            IdGestionContacto = dto.ActividadAntigua.IdGestionContacto,
                             FechaProgramada = fechaProgramada,
                             Estado = true,
-                            IdActividadCabecera = 1, // Tarea/Llamada
+                            IdActividadCabecera = 1,
                             Comentario = "Reprogramación",
                             UsuarioCreacion = dto.Filtro.Usuario,
                             UsuarioModificacion = dto.Filtro.Usuario,
@@ -99,10 +96,10 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                             FechaModificacion = DateTime.Now
                         };
 
-                        await _unitOfWork.ActividadDetalleGestionContactoRepository.AddAsync(actividadNueva);
+                        //await _unitOfWork.ActividadDetalleGestionContactoRepository.AddAsync(actividadNueva); -- PENDIENTE DE AJUSTE
 
-                        // 4. Bloqueo de Agenda (Reutilizando tabla com.T_HoraBloqueada)
-                        var horaBloqueada = new HoraBloqueadaBO
+                        // 4. Bloqueo de Agenda
+                        var horaBloqueada = new HoraBloqueada
                         {
                             IdPersonal = dto.DatosGestion.IdPersonalAsignado,
                             Fecha = fechaProgramada.Date,
@@ -114,11 +111,11 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                             FechaModificacion = DateTime.Now
                         };
 
-                        await _unitOfWork.HoraBloqueadaRepository.AddAsync(horaBloqueada);
+                        //await _unitOfWork.HoraBloqueadaRepository.AddAsync(horaBloqueada); -- PENDIENTE DE AJUSTE
                     }
 
                     // 5. Actualizar Gestión
-                    // Lógica de cambio de fase (Simplificada para compilar)
+                    // Lógica de cambio de fase
                     if (dto.DatosGestion.IdFaseGestionContacto.HasValue && dto.DatosGestion.IdFaseGestionContacto > 0)
                     {
                         gestionBO.IdFaseGestionContacto = dto.DatosGestion.IdFaseGestionContacto.Value;
@@ -130,7 +127,6 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
 
                     _unitOfWork.GestionContactoRepository.Update(gestionBO);
 
-                    // Commit final
                     await _unitOfWork.CommitAsync();
                     scope.Complete();
 
