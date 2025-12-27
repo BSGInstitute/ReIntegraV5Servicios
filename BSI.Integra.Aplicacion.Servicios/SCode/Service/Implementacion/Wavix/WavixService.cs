@@ -213,6 +213,9 @@ namespace BSI.Integra.Aplicacion.Servicios.SCode.Service.Implementacion.Wavix
                 // 2. Obtener API Key asociado al personal
                 var apiKey = _unitOfWork.WavixRepository.ObtenerApiKeyPorPersonal(idPersonal);
 
+                // 2.2.  Validar que exista un token diario
+                var tokenVigente = _unitOfWork.WavixRepository.ObtenerTokenActivo(personalConfig.Id);
+
                 // 2.1 Obtener lista de troncales 
                 var troncales = await ListarSipTrunks(apiKey,1,100);
                 var troncalEncontrada = troncales.sip_trunks.FirstOrDefault(x=>x.name == personalConfig.IdSipTrunk);
@@ -228,8 +231,13 @@ namespace BSI.Integra.Aplicacion.Servicios.SCode.Service.Implementacion.Wavix
                     ttl = 5000//43200 // 12 horas
                 };
 
-                var tokenResponse = await GenerarTokenWidget(apiKey, tokenRequest);
-                tokenUuid = tokenResponse.uuid;
+                // Validar que se tenga un token diario 
+
+                if (tokenVigente == null ) { 
+                     var tokenResponse = await GenerarTokenWidget(apiKey, tokenRequest);
+                     tokenUuid = tokenResponse.uuid;
+                }
+               
 
                 // 5. Guardar token en la base de datos
                 try
