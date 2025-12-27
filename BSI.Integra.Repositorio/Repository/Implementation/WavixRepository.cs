@@ -37,10 +37,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var query = @"
                    SELECT  Id,
                             IdPersonal,
+                            IdWavixCredencial,
                             IdSipTrunk,
-                            UrlServer 
+                            UrlServer
                     FROM conf.T_PersonalWavix
-                    WHERE IdPersonal = @IdPersonal";
+                    WHERE IdPersonal = @IdPersonal
+                      AND Estado = 1";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { IdPersonal = idPersonal });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
@@ -120,11 +122,117 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception ex)
             {
                 return null;
-                //throw new Exception($"#OR-ORCAA-001@Error en ObtenerReporteControlActividadesAgenda: {ex.Message}", ex);
             }
-
-
-
         }
+
+        /// <summary>
+        /// Obtiene el API Key de Wavix asociado al personal
+        /// </summary>
+        /// <param name="idPersonal">ID del personal</param>
+        /// <returns>API Key en texto plano</returns>
+        public string ObtenerApiKeyPorPersonal(int idPersonal)
+        {
+            try
+            {
+                var query = @"
+                    SELECT CONVERT(VARCHAR(MAX), c.ApiKey) AS ApiKey
+                    FROM conf.T_PersonalWavix pw
+                    INNER JOIN conf.T_WavixCredencial c ON pw.IdWavixCredencial = c.Id
+                    WHERE pw.IdPersonal = @IdPersonal
+                      AND pw.Estado = 1
+                      AND c.Estado = 1";
+
+                var resultado = _dapperRepository.FirstOrDefault(query, new { IdPersonal = idPersonal });
+
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    var obj = JsonConvert.DeserializeObject<dynamic>(resultado);
+                    return obj.ApiKey;
+                }
+
+                throw new Exception($"No se encontró API Key activa para el personal: {idPersonal}");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al obtener API Key por personal: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Guarda el token diario en la base de datos
+        /// TODO: Cuando esté listo el SP, cambiar por: _dapperRepository.QuerySPFirstOrDefault("conf.SP_GuardarTokenWavix", params)
+        /// </summary>
+        public int GuardarTokenDiario(int idPersonalWavix, int idWavixCredencial, string tokenUuid, string token, DateTime fechaExpiracion, string usuario)
+        {
+            try
+            {
+                // Por ahora usamos INSERT directo, luego se reemplaza por SP
+                var query = @"
+                    INSERT INTO conf.T_WavixTokenDiario(
+	    IdPersonalWavix,TokenUuid,
+	    Token,	    FechaCreacion,
+	    FechaExpiracion,	    EstaActivo,
+	    UsuarioCreacion,	    UsuarioModificacion,
+	    FechaModificacion	)
+	VALUES	(   @IdPersonalWavix,         
+	    @TokenUuid,       
+	    @Token,     
+	    GETDATE(),   
+	    @FechaExpiracion, 
+	    1,   
+	    @Usuario,     
+	    @Usuario,     
+	    GETDATE()  
+	    )";
+
+                var resultado = _dapperRepository.FirstOrDefault(query, new
+                {
+                    IdPersonalWavix = idPersonalWavix,
+                    IdWavixCredencial = idWavixCredencial,
+                    TokenUuid = tokenUuid,
+                    Token = token,
+                    FechaExpiracion = fechaExpiracion,
+                    Usuario = usuario
+                });
+
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    var obj = JsonConvert.DeserializeObject<dynamic>(resultado);
+                    return (int)obj.Id;
+                }
+
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al guardar token diario: {ex.Message}", ex);
+            }
+        }
+        public string ObtenerTokenActivo(int idPersonal)
+        {
+            try {
+                var query = @"SELECT 
+                    WTD.Token
+                    FROM 
+                    conf.T_PersonalWavix AS PW
+                    JOIN conf.T_WavixTokenDiario AS WTD ON WTD.IdPersonalWavix = PW.Id
+                    WHERE PW.IdPersonal = @IdPersonal";
+
+                var resultado = _dapperRepository.FirstOrDefault(query, new { IdPersonal = idPersonal });
+
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return resultado;
+                }
+
+                throw new Exception($"No se encontro un token del dia para del personal  {idPersonal}");
+
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
+        }
+
     }
+
 }

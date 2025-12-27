@@ -12,6 +12,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         WavixPersonalDTO? GetUserAccess(int idPersonal);
         List<NumeroAsesorWavixDTO>? GetNumberByUser(int idPersonal);
         EstadoLlamadaDTO? ObtenerEstadoUltimaLlamada(int idPersonal, int idOportunidad, int idActividadDetalle, int idAlumno, int nroIntentoLlamada);
-
+        string ObtenerApiKeyPorPersonal(int idPersonal);
+        int GuardarTokenDiario(int idPersonalWavix, int idWavixCredencial, string tokenUuid, string token, DateTime fechaExpiracion, string usuario);
+        string ObtenerTokenActivo(int idPersonal);
     }
 }
