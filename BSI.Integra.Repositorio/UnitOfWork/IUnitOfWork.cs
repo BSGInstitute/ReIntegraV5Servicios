@@ -677,6 +677,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         ICourierRepository CourierRepository { get; }
         ICourierDetalleRepository CourierDetalleRepository { get; }
         IDocentePostulanteRepository DocentePostulanteRepository { get; }
+        IFaseGestionContactoRepository FaseGestionContactoRepository { get; }
         IPlantillaPaisRepository PlantillaPaisRepository { get; }
         ISeccionTipoDetallePwRepository SeccionTipoDetallePwRepository { get; }
         IMaterialPespecificoRepository MaterialPespecificoRepository { get; }

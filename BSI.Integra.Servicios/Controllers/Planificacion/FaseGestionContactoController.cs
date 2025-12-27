@@ -8,34 +8,31 @@ using System.Security.Claims;
 
 namespace BSI.Integra.Servicios.Controllers.Planificacion
 {
-    /// Autor: Lolo Zaa
-    /// Fecha: 26/12/2025
     /// <summary>
-    /// Controlador para el manejo de docentes postulantes
+    /// Controlador para el manejo de fases de gestión de contactos
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [EnableCors("CorsVista")]
-    public class DocentePostulanteController : Controller
+    public class FaseGestionContactoController : Controller
     {
-        private IDocentePostulanteService _docentePostulanteService;
+        private IFaseGestionContactoService _faseGestionContactoService;
 
-        public DocentePostulanteController(IDocentePostulanteService docentePostulanteService)
+        public FaseGestionContactoController(IFaseGestionContactoService faseGestionContactoService)
         {
-            _docentePostulanteService = docentePostulanteService;
+            _faseGestionContactoService = faseGestionContactoService;
         }
-        /// Autor: Lolo Zaa
-        /// Fecha: 26/12/2025
+
         /// <summary>
-        /// Obtiene todos los docentes postulantes activos
+        /// Obtiene todas las fases de gestión de contacto activas
         /// </summary>
-        /// <returns>Lista de docentes postulantes</returns>
+        /// <returns>Lista de fases de gestión de contacto</returns>
         [HttpGet("[Action]")]
         public IActionResult Obtener()
         {
             try
             {
-                var resultado = _docentePostulanteService.Obtener();
+                var resultado = _faseGestionContactoService.Obtener();
                 return Ok(resultado);
             }
             catch
@@ -43,19 +40,18 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 throw;
             }
         }
-        /// Autor: Lolo Zaa
-        /// Fecha: 26/12/2025
+
         /// <summary>
-        /// Obtiene un docente postulante por su ID
+        /// Obtiene una fase de gestión de contacto por su ID
         /// </summary>
-        /// <param name="id">ID del docente postulante</param>
-        /// <returns>Datos del docente postulante</returns>
+        /// <param name="id">ID de la fase</param>
+        /// <returns>Datos de la fase de gestión de contacto</returns>
         [HttpGet("[Action]/{id}")]
         public IActionResult Obtener(int id)
         {
             try
             {
-                var resultado = _docentePostulanteService.ObtenerPorId(id);
+                var resultado = _faseGestionContactoService.ObtenerPorId(id);
                 return Ok(resultado);
             }
             catch
@@ -63,23 +59,22 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 throw;
             }
         }
-        /// Autor: Lolo Zaa
-        /// Fecha: 26/12/2025
+
         /// <summary>
-        /// Inserta un nuevo docente postulante
+        /// Inserta una nueva fase de gestión de contacto
         /// </summary>
-        /// <param name="dto">Datos del docente postulante a insertar</param>
-        /// <returns>Docente postulante creado</returns>
+        /// <param name="dto">Datos de la fase a insertar</param>
+        /// <returns>Fase de gestión de contacto creada</returns>
         [Authorize]
         [HttpPost("[Action]")]
-        public IActionResult Insertar([FromBody] DocentePostulanteDTO dto)
+        public IActionResult Insertar([FromBody] FaseGestionContactoDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             try
             {
                 var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
-                var resultado = _docentePostulanteService.Insertar(dto, registroClaimToken.UserName);
+                var resultado = _faseGestionContactoService.Insertar(dto, registroClaimToken.UserName);
                 return Ok(resultado);
             }
             catch
@@ -87,23 +82,22 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 throw;
             }
         }
-        /// Autor: Lolo Zaa
-        /// Fecha: 26/12/2025
+
         /// <summary>
-        /// Actualiza un docente postulante existente
+        /// Actualiza una fase de gestión de contacto existente
         /// </summary>
-        /// <param name="dto">Datos del docente postulante a actualizar</param>
-        /// <returns>Docente postulante actualizado</returns>
+        /// <param name="dto">Datos de la fase a actualizar</param>
+        /// <returns>Fase de gestión de contacto actualizada</returns>
         [Authorize]
         [HttpPut("[Action]")]
-        public IActionResult Actualizar([FromBody] DocentePostulanteDTO dto)
+        public IActionResult Actualizar([FromBody] FaseGestionContactoDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             try
             {
                 var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
-                var resultado = _docentePostulanteService.Actualizar(dto, registroClaimToken.UserName);
+                var resultado = _faseGestionContactoService.Actualizar(dto, registroClaimToken.UserName);
                 return Ok(resultado);
             }
             catch
@@ -111,12 +105,11 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 throw;
             }
         }
-        /// Autor: Lolo Zaa
-        /// Fecha: 26/12/2025
+
         /// <summary>
-        /// Elimina lógicamente un docente postulante
+        /// Elimina lógicamente una fase de gestión de contacto
         /// </summary>
-        /// <param name="id">ID del docente postulante a eliminar</param>
+        /// <param name="id">ID de la fase a eliminar</param>
         /// <returns>Resultado de la operación</returns>
         [Authorize]
         [HttpDelete("[Action]/{id}")]
@@ -127,7 +120,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             try
             {
                 var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
-                var resultado = _docentePostulanteService.Eliminar(id, registroClaimToken.UserName);
+                var resultado = _faseGestionContactoService.Eliminar(id, registroClaimToken.UserName);
                 return Ok(resultado);
             }
             catch

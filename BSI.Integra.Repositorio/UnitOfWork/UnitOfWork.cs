@@ -5679,6 +5679,14 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _docentePostulanteRepository ?? new DocentePostulanteRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+        private IFaseGestionContactoRepository _faseGestionContactoRepository;
+        IFaseGestionContactoRepository IUnitOfWork.FaseGestionContactoRepository
+        {
+            get
+            {
+                return _faseGestionContactoRepository ?? new FaseGestionContactoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
         private IPlantillaPaisRepository _plantillaPaisRepository;
         IPlantillaPaisRepository IUnitOfWork.PlantillaPaisRepository
         {
