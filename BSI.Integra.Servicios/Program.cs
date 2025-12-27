@@ -7,6 +7,8 @@ using BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Sendingblue;
 using BSI.Integra.Aplicacion.Marketing.Service.Interface.Sendingblue;
 using BSI.Integra.Aplicacion.Operaciones.Service.Implementacion;
 using BSI.Integra.Aplicacion.Operaciones.Service.Interface;
+using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion;
+using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
 using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
@@ -131,6 +133,7 @@ builder.Services.AddTransient<ICrucigramaProgramaCapacitacionService, Crucigrama
 builder.Services.AddTransient<IProgramaGeneralMaterialEstudioAdicionalService, ProgramaGeneralMaterialEstudioAdicionalService>();
 builder.Services.AddTransient<ICourierService, CourierService>();
 builder.Services.AddTransient<ICourierDetalleService, CourierDetalleService>();
+builder.Services.AddTransient<IDocentePostulanteService, DocentePostulanteService>();
 builder.Services.AddTransient<IMatriculaFormularioProgresivoService, MatriculaFormularioProgresivoService>();
 
 builder.Services.AddScoped<ITokenManager, TokenManager>();

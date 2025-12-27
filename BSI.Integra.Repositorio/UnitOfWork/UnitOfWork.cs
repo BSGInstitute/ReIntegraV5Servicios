@@ -5671,6 +5671,14 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _courierDetalleRepository ?? new CourierDetalleRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+        private IDocentePostulanteRepository _docentePostulanteRepository;
+        IDocentePostulanteRepository IUnitOfWork.DocentePostulanteRepository
+        {
+            get
+            {
+                return _docentePostulanteRepository ?? new DocentePostulanteRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
         private IPlantillaPaisRepository _plantillaPaisRepository;
         IPlantillaPaisRepository IUnitOfWork.PlantillaPaisRepository
         {
@@ -8045,5 +8053,11 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _montoPagoLogRepository ?? new MontoPagoLogRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+
+        public IGestionContactoRepository GestionContactoRepository => throw new NotImplementedException();
+
+        public IGestionContactoLogRepository GestionContactoLogRepository => throw new NotImplementedException();
+
+        public IActividadDetalleGestionContactoRepository ActividadDetalleGestionContactoRepository => throw new NotImplementedException();
     }
 }
