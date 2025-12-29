@@ -828,6 +828,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TRegistroLeadSubido> TRegistroLeadSubidos { get; set; } = null!;
         public virtual DbSet<TRegistroMarcadorFecha> TRegistroMarcadorFechas { get; set; } = null!;
         public virtual DbSet<TRegistroRecuperacionWhatsApp> TRegistroRecuperacionWhatsApps { get; set; } = null!;
+        public virtual DbSet<TRemarketingEmbudoEsquema> TRemarketingEmbudoEsquemas { get; set; } = null!;
+        public virtual DbSet<TRemarketingEmbudoHistorico> TRemarketingEmbudoHistoricos { get; set; } = null!;
+        public virtual DbSet<TRemarketingEmbudoNivel> TRemarketingEmbudoNivels { get; set; } = null!;
         public virtual DbSet<TRemitenteMailing> TRemitenteMailings { get; set; } = null!;
         public virtual DbSet<TRemitenteMailingAsesor> TRemitenteMailingAsesors { get; set; } = null!;
         public virtual DbSet<TReporteFlujoCongeladoPorDium> TReporteFlujoCongeladoPorDia { get; set; } = null!;
@@ -49082,6 +49085,162 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Ultimo usuario que modifico el registro");
+            });
+
+            modelBuilder.Entity<TRemarketingEmbudoEsquema>(entity =>
+            {
+                entity.ToTable("T_RemarketingEmbudoEsquema", "ia");
+
+                entity.HasComment("Catálogo maestro de esquemas para el embudo de remarketing. Cada esquema define un conjunto de niveles de clasificación.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del esquema de embudo. Clave primaria autoincremental.");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500)
+                    .HasComment("Descripción detallada del propósito y alcance del esquema de embudo.");
+
+                entity.Property(e => e.Estado).HasComment("Estado activo/inactivo del esquema.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en que se creó el registro del esquema.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación al registro del esquema.");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .HasComment("Nombre descriptivo del esquema de embudo.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro del esquema. Normalmente el usuario de sistema o administrador.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó la última modificación al registro del esquema.");
+            });
+
+            modelBuilder.Entity<TRemarketingEmbudoHistorico>(entity =>
+            {
+                entity.ToTable("T_RemarketingEmbudoHistorico", "ia");
+
+                entity.HasComment("Esta tabla almacena la clasificación de los registros del alumno según el nivel y esquema del embudo.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del nivel de embudo. Clave primaria autoincremental.");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado).");
+
+                entity.Property(e => e.FechaClasificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha del clasificación del registro en el nivel de embudo.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha creacion del registro.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha modificacion del registro.");
+
+                entity.Property(e => e.IdAlumno).HasComment("Clave foránea a [mkt].[T_Alumno].");
+
+                entity.Property(e => e.IdRemarketingEmbudoNivel).HasComment("Clave foránea a [ia].[T_RemarketingEmbudoNivel].");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario creacion del registro.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario modificacion del registro.");
+
+                entity.HasOne(d => d.IdAlumnoNavigation)
+                    .WithMany(p => p.TRemarketingEmbudoHistoricos)
+                    .HasForeignKey(d => d.IdAlumno)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_RemarketingEmbudoHistorico_Alumno_IdAlumno");
+
+                entity.HasOne(d => d.IdRemarketingEmbudoNivelNavigation)
+                    .WithMany(p => p.TRemarketingEmbudoHistoricos)
+                    .HasForeignKey(d => d.IdRemarketingEmbudoNivel)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_RemarketingEmbudoHistorico_RemarketingEmbudoNivel_IdRemarketingEmbudoNivel");
+            });
+
+            modelBuilder.Entity<TRemarketingEmbudoNivel>(entity =>
+            {
+                entity.ToTable("T_RemarketingEmbudoNivel", "ia");
+
+                entity.HasComment("Tabla para gestión de niveles para los esquemas de embudo de remarketing. Define la jerarquía y criterios de clasificación para leads/prospectos.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del nivel de embudo. Clave primaria autoincremental.");
+
+                entity.Property(e => e.Codigo)
+                    .HasMaxLength(10)
+                    .HasComment("Código único del nivel dentro del esquema.");
+
+                entity.Property(e => e.DescripcionDetalle)
+                    .HasMaxLength(1000)
+                    .HasComment("Descripción detallada del nivel.");
+
+                entity.Property(e => e.DescripcionGeneral)
+                    .HasMaxLength(200)
+                    .HasComment("Descripción general del nivel. Resumen breve de su propósito y características principales.");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha Creacion del Token");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha Modificacion del Token");
+
+                entity.Property(e => e.IdRemarketingEmbudoEsquema).HasComment("Referencia al esquema de embudo al que pertenece este nivel. Clave foránea a [ia].[T_RemarketingEmbudoEsquema].");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .HasComment("Nombre descriptivo del nivel.");
+
+                entity.Property(e => e.Orden).HasComment("Orden de secuencia del nivel dentro del esquema.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario Creacion del Token");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario Modificacion del Token");
+
+                entity.HasOne(d => d.IdRemarketingEmbudoEsquemaNavigation)
+                    .WithMany(p => p.TRemarketingEmbudoNivels)
+                    .HasForeignKey(d => d.IdRemarketingEmbudoEsquema)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_RemarketingEmbudoNivel_RemarketingEmbudoEsquema_IdRemarketingEmbudoEsquema");
             });
 
             modelBuilder.Entity<TRemitenteMailing>(entity =>
