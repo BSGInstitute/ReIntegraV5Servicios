@@ -14,6 +14,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.Wavix
         public int IdWavixCredencial { get; set; }
         public string IdSipTrunk { get; set; }
         public string UrlServer { get; set; }
+        public int versionWavix { get; set; }
 
     }
     public class NumeroAsesorWavixDTO
@@ -139,9 +140,17 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.Wavix
         public string uuid { get; set; }
         public int? ttl { get; set; }
         public string accessToken { get; set; }
+        public int versionWavix { get; set; }
     }
 
     public class TokenActivo { 
         public string tokenActivo { get; set; } 
+    }
+
+    public class TokenVigenteDTO { 
+        public int id { get; set; }
+        public int idPersonalWavix { get; set; }
+        public string tokenUuid { get; set; }
+        public string token { get; set; }
     }
 }

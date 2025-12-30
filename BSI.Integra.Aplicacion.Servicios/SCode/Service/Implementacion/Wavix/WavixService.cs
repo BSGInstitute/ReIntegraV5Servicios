@@ -5,6 +5,7 @@ using BSI.Integra.Aplicacion.Servicios.SCode.Service.Interface.Wolkbox;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
+using Google.Apis.Auth.OAuth2.Responses;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -214,7 +215,7 @@ namespace BSI.Integra.Aplicacion.Servicios.SCode.Service.Implementacion.Wavix
                 var apiKey = _unitOfWork.WavixRepository.ObtenerApiKeyPorPersonal(idPersonal);
 
                 // 2.2.  Validar que exista un token diario
-                var tokenVigente = _unitOfWork.WavixRepository.ObtenerTokenActivo(personalConfig.Id);
+                var tokenVigente = _unitOfWork.WavixRepository.ObtenerTokenVigente(personalConfig.Id);
 
                 // 2.1 Obtener lista de troncales 
                 var troncales = await ListarSipTrunks(apiKey,1,100);
@@ -228,29 +229,30 @@ namespace BSI.Integra.Aplicacion.Servicios.SCode.Service.Implementacion.Wavix
                 {
                     sip_trunk = personalConfig.IdSipTrunk,
                     payload = new { },
-                    ttl = 5000//43200 // 12 horas
+                    ttl = 36000// 10 horas
                 };
+
+
+                var configuracionCompleta = new ConfiguracionCompletaWavixDTO();
+
 
                 // Validar que se tenga un token diario 
 
                 if (tokenVigente == null ) { 
                      var tokenResponse = await GenerarTokenWidget(apiKey, tokenRequest);
                      tokenUuid = tokenResponse.uuid;
-                }
-               
 
                 // 5. Guardar token en la base de datos
                 try
                 {
-                    var fechaExpiracion = DateTime.Now.AddSeconds(tokenResponse.ttl ?? 43200);
+                    var fechaExpiracion = DateTime.Now.AddSeconds(tokenResponse.ttl ?? 36000);
 
                     _unitOfWork.WavixRepository.GuardarTokenDiario(
                         idPersonalWavix: personalConfig.Id,
-                        idWavixCredencial: personalConfig.IdWavixCredencial,
                         tokenUuid: tokenResponse.uuid,
                         token: tokenResponse.token,
                         fechaExpiracion: fechaExpiracion,
-                        usuario: "SYSTEM" // TODO: Obtener usuario actual del contexto
+                        usuario: "SYSTEM" 
                     );
                 }
                 catch (Exception exBD)
@@ -263,18 +265,36 @@ namespace BSI.Integra.Aplicacion.Servicios.SCode.Service.Implementacion.Wavix
                     // El frontend recibirá el token válido aunque no esté en BD
                 }
 
-                // 6. Construir y retornar respuesta completa
-                var configuracionCompleta = new ConfiguracionCompletaWavixDTO
+                    // 6. Construir y retornar respuesta completa
+                     configuracionCompleta = new ConfiguracionCompletaWavixDTO
+                    {
+                        id = sipTrunkConfig.id,
+                        name = sipTrunkConfig.name,
+                        urlServer = personalConfig.UrlServer,
+                        callerid = sipTrunkConfig.callerid,
+                        token = tokenResponse.token,
+                        uuid = tokenResponse.uuid,
+                        accessToken = troncalEncontrada.access_token,
+                         //ttl = tokenResponse.ttl
+                        versionWavix = personalConfig.versionWavix
+                     };
+                    return configuracionCompleta;
+
+                }
+
+                configuracionCompleta = new ConfiguracionCompletaWavixDTO
                 {
                     id = sipTrunkConfig.id,
                     name = sipTrunkConfig.name,
                     urlServer = personalConfig.UrlServer,
                     callerid = sipTrunkConfig.callerid,
-                    token = tokenResponse.token,
-                    uuid = tokenResponse.uuid,
+                    token = tokenVigente.token,
+                    uuid = tokenVigente.tokenUuid,
                     accessToken = troncalEncontrada.access_token,
-                    ttl = tokenResponse.ttl
+                    //ttl = tokenResponse.ttl
+                    versionWavix = personalConfig.versionWavix
                 };
+                
 
                 return configuracionCompleta;
             }

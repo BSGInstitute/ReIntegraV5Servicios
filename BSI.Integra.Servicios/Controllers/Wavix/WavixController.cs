@@ -13,7 +13,7 @@ namespace BSI.Integra.Servicios.Controllers.Wavix
 {
     [Route("api/Wavix")]
     [ApiController]
-    //[EnableCors("CorsVista")]
+    [EnableCors("CorsVista")]
     public class WavixController : ControllerBase
     {
         private IUnitOfWork unitOfWork;

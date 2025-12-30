@@ -2,6 +2,7 @@
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.Wolkbox;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.Wavix;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
@@ -37,9 +38,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var query = @"
                    SELECT  Id,
                             IdPersonal,
-                            IdWavixCredencial,
+                            IdWavixAPICredencial,
                             IdSipTrunk,
-                            UrlServer
+                            UrlServer,
+                            VersionWavix
                     FROM conf.T_PersonalWavix
                     WHERE IdPersonal = @IdPersonal
                       AND Estado = 1";
@@ -134,20 +136,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                var query = @"
-                    SELECT CONVERT(VARCHAR(MAX), c.ApiKey) AS ApiKey
-                    FROM conf.T_PersonalWavix pw
-                    INNER JOIN conf.T_WavixCredencial c ON pw.IdWavixCredencial = c.Id
-                    WHERE pw.IdPersonal = @IdPersonal
-                      AND pw.Estado = 1
-                      AND c.Estado = 1";
-
-                var resultado = _dapperRepository.FirstOrDefault(query, new { IdPersonal = idPersonal });
+                var resultado = _dapperRepository.QuerySPFirstOrDefault("conf.SP_ObtenerApiKeyPorPersonal", new { IdPersonal = idPersonal });
 
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
                     var obj = JsonConvert.DeserializeObject<dynamic>(resultado);
-                    return obj.ApiKey;
+                    return (string)obj.ApiKey;
                 }
 
                 throw new Exception($"No se encontró API Key activa para el personal: {idPersonal}");
@@ -162,33 +156,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// Guarda el token diario en la base de datos
         /// TODO: Cuando esté listo el SP, cambiar por: _dapperRepository.QuerySPFirstOrDefault("conf.SP_GuardarTokenWavix", params)
         /// </summary>
-        public int GuardarTokenDiario(int idPersonalWavix, int idWavixCredencial, string tokenUuid, string token, DateTime fechaExpiracion, string usuario)
+        public int GuardarTokenDiario(int idPersonalWavix, string tokenUuid, string token, DateTime fechaExpiracion, string usuario)
         {
+
             try
             {
-                // Por ahora usamos INSERT directo, luego se reemplaza por SP
-                var query = @"
-                    INSERT INTO conf.T_WavixTokenDiario(
-	    IdPersonalWavix,TokenUuid,
-	    Token,	    FechaCreacion,
-	    FechaExpiracion,	    EstaActivo,
-	    UsuarioCreacion,	    UsuarioModificacion,
-	    FechaModificacion	)
-	VALUES	(   @IdPersonalWavix,         
-	    @TokenUuid,       
-	    @Token,     
-	    GETDATE(),   
-	    @FechaExpiracion, 
-	    1,   
-	    @Usuario,     
-	    @Usuario,     
-	    GETDATE()  
-	    )";
-
-                var resultado = _dapperRepository.FirstOrDefault(query, new
+                var resultado = _dapperRepository.QuerySPDapper("conf.SP_GuardarTokenWavix", new
                 {
                     IdPersonalWavix = idPersonalWavix,
-                    IdWavixCredencial = idWavixCredencial,
                     TokenUuid = tokenUuid,
                     Token = token,
                     FechaExpiracion = fechaExpiracion,
@@ -211,18 +186,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         public string ObtenerTokenActivo(int idPersonal)
         {
             try {
-                var query = @"SELECT 
-                    WTD.Token
-                    FROM 
-                    conf.T_PersonalWavix AS PW
-                    JOIN conf.T_WavixTokenDiario AS WTD ON WTD.IdPersonalWavix = PW.Id
-                    WHERE PW.IdPersonal = @IdPersonal";
 
-                var resultado = _dapperRepository.FirstOrDefault(query, new { IdPersonal = idPersonal });
+                var resultado = _dapperRepository.QuerySPDapper("conf.ObtenerTokenActivo", new { IdPersonal = idPersonal });
 
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
-                    return resultado;
+                    return JsonConvert.DeserializeObject<string>(resultado); ;
                 }
 
                 throw new Exception($"No se encontro un token del dia para del personal  {idPersonal}");
@@ -232,6 +201,25 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+
+        public TokenVigenteDTO ObtenerTokenVigente(int idPersonalWavix)
+        {
+            try {
+                var query = @"SELECT TOP 1 * FROM conf.T_WavixTokenDiario 
+                WHERE IdPersonalWavix = @idPersonalwavix AND EstaActivo = 1  AND FechaExpiracion > GETDATE() ";
+
+                var resultado = _dapperRepository.FirstOrDefault(query, new { idPersonalwavix = idPersonalWavix });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<TokenVigenteDTO>(resultado);
+                }
+                return null;
+            } 
+            catch (Exception ex) {
+                throw ex;
+            }
+        }
+
 
     }
 
