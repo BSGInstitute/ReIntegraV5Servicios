@@ -30,7 +30,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 var tLog = MapeoEntidad(entidad);
-                base.InsertAsync(tLog);
+                base.Insert(tLog);
                 return tLog;
             }
             catch (Exception ex)

@@ -34,7 +34,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 var tGestionContacto = MapeoEntidad(entidad);
-                base.InsertAsync(tGestionContacto);
+                base.Insert(tGestionContacto);
                 return tGestionContacto;
             }
             catch (Exception ex)
@@ -95,16 +95,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                string query = "SELECT COUNT(1) FROM pla.T_CentroCosto WHERE IdCentroCosto = @Id";
+                string query = "SELECT 1 FROM pla.T_CentroCosto WHERE Id = @Id AND Estado = 1";
 
-                var cantidad = await _dapperRepository.FirstOrDefaultAsync(query, new { Id = id });
+                var resultado = await _dapperRepository.FirstOrDefaultAsync(query, new { Id = id });
 
-                if (!string.IsNullOrEmpty(cantidad) && int.TryParse(cantidad, out int count))
-                {
-                    return count > 0;
-                }
-
-                return false;
+                return !string.IsNullOrEmpty(resultado);
             }
             catch (Exception ex)
             {
@@ -117,16 +112,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                string query = "SELECT COUNT(1) FROM gp.T_Personal WHERE IdPersonal = @Id";
+                string query = "SELECT 1 FROM gp.T_Personal WHERE Id = @Id AND Estado = 1 AND Activo = 1";
 
-                var cantidad = await _dapperRepository.FirstOrDefaultAsync(query, new { Id = id });
+                var resultado = await _dapperRepository.FirstOrDefaultAsync(query, new { Id = id });
 
-                if (!string.IsNullOrEmpty(cantidad) && int.TryParse(cantidad, out int count))
-                {
-                    return count > 0;
-                }
-
-                return false;
+                return !string.IsNullOrEmpty(resultado);
             }
             catch (Exception ex)
             {
@@ -139,16 +129,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                string query = "SELECT COUNT(1) FROM conf.T_ClasificacionPersona WHERE IdClasificacionPersona = @Id";
+                string query = "SELECT 1 FROM conf.T_ClasificacionPersona WHERE Id = @Id AND Estado = 1";
 
-                var cantidad = await _dapperRepository.FirstOrDefaultAsync(query, new { Id = id });
+                var resultado = await _dapperRepository.FirstOrDefaultAsync(query, new { Id = id });
 
-                if (!string.IsNullOrEmpty(cantidad) && int.TryParse(cantidad, out int count))
-                {
-                    return count > 0;
-                }
-
-                return false;
+                return !string.IsNullOrEmpty(resultado);
             }
             catch (Exception ex)
             {
@@ -161,16 +146,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                string query = "SELECT COUNT(1) FROM pla.T_FaseGestionContacto WHERE IdFaseGestionContacto = @Id";
+                string query = "SELECT 1 FROM pla.T_FaseGestionContacto WHERE Id = @Id AND Estado = 1";
 
-                var cantidad = await _dapperRepository.FirstOrDefaultAsync(query, new { Id = id });
+                var resultado = await _dapperRepository.FirstOrDefaultAsync(query, new { Id = id });
 
-                if (!string.IsNullOrEmpty(cantidad) && int.TryParse(cantidad, out int count))
-                {
-                    return count > 0;
-                }
-
-                return false;
+                return !string.IsNullOrEmpty(resultado);
             }
             catch (Exception ex)
             {
@@ -183,16 +163,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                string query = "SELECT COUNT(1) FROM mkt.T_Origen WHERE IdOrigen = @Id";
+                string query = "SELECT 1 FROM mkt.T_Origen WHERE Id = @Id AND Estado = 1";
 
-                var cantidad = await _dapperRepository.FirstOrDefaultAsync(query, new { Id = id });
+                var resultado = await _dapperRepository.FirstOrDefaultAsync(query, new { Id = id });
 
-                if (!string.IsNullOrEmpty(cantidad) && int.TryParse(cantidad, out int count))
-                {
-                    return count > 0;
-                }
-
-                return false;
+                return !string.IsNullOrEmpty(resultado);
             }
             catch (Exception ex)
             {

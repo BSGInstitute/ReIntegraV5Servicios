@@ -65,7 +65,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// </summary>
         /// <param name="dto">Datos de la fase a insertar</param>
         /// <returns>Fase de gestión de contacto creada</returns>
-        [Authorize]
+        //[Authorize]
         [HttpPost("[Action]")]
         public IActionResult Insertar([FromBody] FaseGestionContactoDTO dto)
         {
@@ -73,8 +73,8 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 return BadRequest(ModelState);
             try
             {
-                var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
-                var resultado = _faseGestionContactoService.Insertar(dto, registroClaimToken.UserName);
+                //var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
+                var resultado = _faseGestionContactoService.Insertar(dto, "lzaafe");
                 return Ok(resultado);
             }
             catch

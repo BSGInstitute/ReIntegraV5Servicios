@@ -31,7 +31,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 var tActividad = MapeoEntidad(entidad);
-                base.InsertAsync(tActividad);
+                base.Insert(tActividad);
                 return tActividad;
             }
             catch (Exception ex)

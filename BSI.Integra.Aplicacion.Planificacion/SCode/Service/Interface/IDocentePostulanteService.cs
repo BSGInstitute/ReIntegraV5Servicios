@@ -1,5 +1,6 @@
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
 {
@@ -19,9 +20,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         DocentePostulanteDTO ObtenerPorId(int id);
 
         /// <summary>
-        /// Inserta un nuevo docente postulante
+        /// Inserta un nuevo docente postulante y crea automáticamente Persona, ClasificacionPersona y GestionContacto
         /// </summary>
-        DocentePostulanteDTO Insertar(DocentePostulanteDTO dto, string usuario);
+        Task<DocentePostulanteDTO> InsertarAsync(DocentePostulanteDTO dto, string usuario);
 
         /// <summary>
         /// Actualiza un docente postulante existente

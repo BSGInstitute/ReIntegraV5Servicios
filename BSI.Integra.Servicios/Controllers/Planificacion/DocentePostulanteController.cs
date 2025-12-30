@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace BSI.Integra.Servicios.Controllers.Planificacion
 {
@@ -66,20 +67,20 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// Autor: Lolo Zaa
         /// Fecha: 26/12/2025
         /// <summary>
-        /// Inserta un nuevo docente postulante
+        /// Inserta un nuevo docente postulante y crea automáticamente Persona, ClasificacionPersona y GestionContacto
         /// </summary>
         /// <param name="dto">Datos del docente postulante a insertar</param>
         /// <returns>Docente postulante creado</returns>
-        [Authorize]
+        //[Authorize]
         [HttpPost("[Action]")]
-        public IActionResult Insertar([FromBody] DocentePostulanteDTO dto)
+        public async Task<IActionResult> Insertar([FromBody] DocentePostulanteDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             try
             {
-                var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
-                var resultado = _docentePostulanteService.Insertar(dto, registroClaimToken.UserName);
+                //var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
+                var resultado = await _docentePostulanteService.InsertarAsync(dto,"lzaafe");
                 return Ok(resultado);
             }
             catch

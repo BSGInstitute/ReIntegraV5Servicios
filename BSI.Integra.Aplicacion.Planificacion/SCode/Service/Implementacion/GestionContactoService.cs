@@ -68,18 +68,23 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             //    throw new Exception("Regla de Negocio: El docente ya tiene una gestión activa para este Centro de Costo.");
             //}
 
-            // Lanzamos las 5 tareas al mismo tiempo a la BD
-            var t1 = _unitOfWork.GestionContactoRepository.ExisteCentroCostoAsync(dto.IdCentroCosto);
+            // Validar IdCentroCosto solo si no es NULL
+            if (dto.IdCentroCosto.HasValue)
+            {
+                bool existeCentroCosto = await _unitOfWork.GestionContactoRepository.ExisteCentroCostoAsync(dto.IdCentroCosto.Value);
+                if (!existeCentroCosto) throw new Exception($"El Centro de Costo {dto.IdCentroCosto} no existe.");
+            }
+
+            // Lanzamos las 4 tareas restantes al mismo tiempo a la BD
             var t2 = _unitOfWork.GestionContactoRepository.ExistePersonalAsync(dto.IdPersonal_Asignado);
             var t3 = _unitOfWork.GestionContactoRepository.ExisteClasificacionPersonaAsync(dto.IdClasificacionPersona);
             var t4 = _unitOfWork.GestionContactoRepository.ExisteFaseGestionAsync(dto.IdFaseGestionContacto);
             var t5 = _unitOfWork.GestionContactoRepository.ExisteOrigenAsync(dto.IdOrigen);
 
             // Esperamos a que todas terminen
-            await Task.WhenAll(t1, t2, t3, t4, t5);
+            await Task.WhenAll(t2, t3, t4, t5);
 
             // Verificamos resultados
-            if (!await t1) throw new Exception($"El Centro de Costo {dto.IdCentroCosto} no existe.");
             if (!await t2) throw new Exception($"El Asesor {dto.IdPersonal_Asignado} no existe.");
             if (!await t3) throw new Exception($"La Clasificación {dto.IdClasificacionPersona} no existe.");
             if (!await t4) throw new Exception($"La Fase {dto.IdFaseGestionContacto} no existe.");
@@ -105,7 +110,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     IdClasificacionPersona = dto.IdClasificacionPersona, // El Docente
                     IdFaseGestionContacto = dto.IdFaseGestionContacto,
                     IdOrigen = dto.IdOrigen,
-                    IdEstadoGestionContacto = 1,
+                    IdEstadoGestionContacto = 2,
                     UltimoComentario = dto.Comentario,
                     EstadoSeguimientoWhatsApp = whatsAppDefault,
                     Estado = estadoActivo,
@@ -116,7 +121,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 };
 
                 // 3. Inserción de Cabecera (Para obtener el ID)
-                _unitOfWork.GestionContactoRepository.AddAsync(nuevaGestion);
+                var tGestionContacto = _unitOfWork.GestionContactoRepository.AddAsync(nuevaGestion);
 
                 // Guardamos para materializar el ID de la nueva gestión
                 await _unitOfWork.CommitAsync();
@@ -124,14 +129,23 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 // 4. Construcción del Log (T_GestionContactoLog)
                 var nuevoLog = new GestionContactoLog
                 {
-                    IdGestionContacto = nuevaGestion.Id, // FK generada arriba
+                    IdGestionContacto = tGestionContacto.Id, // FK generada arriba
                     IdCentroCosto = dto.IdCentroCosto,
                     IdPersonalAsignado = dto.IdPersonal_Asignado,
                     IdClasificacionPersona = dto.IdClasificacionPersona,
                     IdFaseGestionContacto = dto.IdFaseGestionContacto,
+                    IdFaseGestionContactoAnterior = null,
                     IdOrigen = dto.IdOrigen,
-                    IdEstadoGestionContacto = 1, // Mismo estado inicial
+                    IdEstadoGestionContacto = 2,
+                    EstadoSeguimientoWhatsApp = null,
+                    IdPersonalAsignadoAnterior = null,
+                    IdCentroCostoAnterior = null,
                     FechaLog = fechaActual,
+                    FechaFinLog = null,
+                    FechaCambioFaseContacto = null,
+                    CambioFaseContacto = null,
+                    FechaCambioAsesor = null,
+                    FechaCambioAsesorAnterior = null,
                     Comentario = "Creación Inicial: " + dto.Comentario,
                     Estado = estadoActivo,
                     UsuarioCreacion = dto.UsuarioCreacion,
@@ -143,14 +157,17 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 // 5. Construcción de Actividad Inicial (T_ActividadDetalleGestionContacto)
                 var nuevaActividad = new ActividadDetalleGestionContacto
                 {
-                    IdGestionContacto = nuevaGestion.Id, // FK
+                    IdGestionContacto = tGestionContacto.Id, // FK
                     IdActividadCabecera = idActividadInicialDefault,
                     FechaProgramada = fechaActual, // Programada para hoy
+                    FechaReal = null,
                     IdEstadoActividadDetalle = idEstadoActividadPendiente,
                     Comentario = "Gestión iniciada. Validar docente.",
                     Estado = estadoActivo,
                     UsuarioCreacion = dto.UsuarioCreacion,
-                    FechaCreacion = fechaActual
+                    UsuarioModificacion = dto.UsuarioCreacion,
+                    FechaCreacion = fechaActual,
+                    FechaModificacion = fechaActual
                 };
 
                 // 6. Inserción de Detalle y Log
@@ -160,7 +177,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 // 7. Commit Final
                 await _unitOfWork.CommitAsync();
 
-                return nuevaGestion.Id;
+                return tGestionContacto.Id;
             }
             catch (Exception)
             {

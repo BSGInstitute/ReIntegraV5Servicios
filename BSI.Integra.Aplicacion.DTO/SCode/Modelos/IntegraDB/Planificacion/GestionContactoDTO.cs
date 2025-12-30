@@ -39,7 +39,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
     }
     public class CrearGestionContactoDTO
     {
-        public int IdCentroCosto { get; set; }
+        public int? IdCentroCosto { get; set; }
         public int IdPersonal_Asignado { get; set; }    // Asesor
         public int IdClasificacionPersona { get; set; } // Docente
         public int IdFaseGestionContacto { get; set; }

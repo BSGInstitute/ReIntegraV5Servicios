@@ -8062,10 +8062,31 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
-        public IGestionContactoRepository GestionContactoRepository => throw new NotImplementedException();
+        private IGestionContactoRepository _gestionContactoRepository;
+        IGestionContactoRepository IUnitOfWork.GestionContactoRepository
+        {
+            get
+            {
+                return _gestionContactoRepository ?? new GestionContactoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
 
-        public IGestionContactoLogRepository GestionContactoLogRepository => throw new NotImplementedException();
+        private IGestionContactoLogRepository _gestionContactoLogRepository;
+        IGestionContactoLogRepository IUnitOfWork.GestionContactoLogRepository
+        {
+            get
+            {
+                return _gestionContactoLogRepository ?? new GestionContactoLogRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
 
-        public IActividadDetalleGestionContactoRepository ActividadDetalleGestionContactoRepository => throw new NotImplementedException();
+        private IActividadDetalleGestionContactoRepository _actividadDetalleGestionContactoRepository;
+        IActividadDetalleGestionContactoRepository IUnitOfWork.ActividadDetalleGestionContactoRepository
+        {
+            get
+            {
+                return _actividadDetalleGestionContactoRepository ?? new ActividadDetalleGestionContactoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
     }
 }

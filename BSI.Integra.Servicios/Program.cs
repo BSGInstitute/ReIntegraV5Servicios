@@ -133,6 +133,7 @@ builder.Services.AddTransient<ICrucigramaProgramaCapacitacionService, Crucigrama
 builder.Services.AddTransient<IProgramaGeneralMaterialEstudioAdicionalService, ProgramaGeneralMaterialEstudioAdicionalService>();
 builder.Services.AddTransient<ICourierService, CourierService>();
 builder.Services.AddTransient<ICourierDetalleService, CourierDetalleService>();
+builder.Services.AddTransient<IGestionContactoService, GestionContactoService>();
 builder.Services.AddTransient<IDocentePostulanteService, DocentePostulanteService>();
 builder.Services.AddTransient<IFaseGestionContactoService, FaseGestionContactoService>();
 builder.Services.AddTransient<IMatriculaFormularioProgresivoService, MatriculaFormularioProgresivoService>();
