@@ -7,6 +7,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TProveedor()
         {
+            TCabeceraGestionContactos = new HashSet<TCabeceraGestionContacto>();
             TConvocatoriaPersonals = new HashSet<TConvocatoriaPersonal>();
             TEsquemaEvaluacionPgeneralDetalles = new HashSet<TEsquemaEvaluacionPgeneralDetalle>();
             TEsquemaEvaluacionPgeneralProveedors = new HashSet<TEsquemaEvaluacionPgeneralProveedor>();
@@ -92,6 +93,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public string? Alias { get; set; }
 
+        public virtual ICollection<TCabeceraGestionContacto> TCabeceraGestionContactos { get; set; }
         public virtual ICollection<TConvocatoriaPersonal> TConvocatoriaPersonals { get; set; }
         public virtual ICollection<TEsquemaEvaluacionPgeneralDetalle> TEsquemaEvaluacionPgeneralDetalles { get; set; }
         public virtual ICollection<TEsquemaEvaluacionPgeneralProveedor> TEsquemaEvaluacionPgeneralProveedors { get; set; }
