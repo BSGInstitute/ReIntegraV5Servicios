@@ -825,7 +825,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 .GroupBy(x => x.IdOportunidad)
                 .SelectMany(g => g
                     .OrderBy(x => x.IdActividadDetalle)
-                    .ThenBy(x => x.IdLlamada)
+                    .ThenBy(x => x.IdLlamadaWebphoneCruceCentralTresCx)
                 )
                 .ToList();
 
@@ -912,14 +912,14 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
                 var payload = new
                 {
-                    idLlamada = item.IdLlamada.ToString(),
+                    idLlamada = item.IdLlamadaWebphoneCruceCentralTresCx.ToString(),
                     idActividadDetalle = item.IdActividadDetalle.ToString(),
                     idPersonal = item.IdPersonal_Asignado,
                     username = "System-Auto",
                     contacto = "Generico",/*Lo recibe para enviar por signal cuando es manual el proceso*/
                     audio_url = item.UrlAudioProcesado,
                     locale = "es-ES",
-                    ocurrencia = item.Ocurrencia,
+                    ocurrencia = item.NombreOcurrencia,
                     historialReprogramaciones = historialReprogramaciones,
                     informacionFases = transicionesAgrupadas,
                     faseOrigen = item.IdFaseOportunidad_Ant,
@@ -956,7 +956,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
             var itemsOrdenados = items
                 .GroupBy(x => x.IdOportunidad)
-                .SelectMany(g => g.OrderBy(x => x.IdActividadDetalle).ThenBy(x => x.IdLlamada))
+                .SelectMany(g => g.OrderBy(x => x.IdActividadDetalle).ThenBy(x => x.IdLlamadaWebphoneCruceCentralTresCx))
                 .ToList();
 
             using var httpClient = new HttpClient();
@@ -1014,7 +1014,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         WriteIndented = true,
                         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
                     });
-                    Console.WriteLine($"[DEBUG] Payload enviado para llamada {item.IdLlamada}:");
+                    Console.WriteLine($"[DEBUG] Payload enviado para llamada {item.IdLlamadaWebphoneCruceCentralTresCx}:");
                     Console.WriteLine(payloadJson);
 
                     var response = await httpClient.PostAsJsonAsync(
@@ -1026,7 +1026,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     {
                         var errorContent = await response.Content.ReadAsStringAsync();
                         Console.WriteLine($"[ERROR] Status Code: {response.StatusCode} ({(int)response.StatusCode})");
-                        Console.WriteLine($"[ERROR] Detalle del error para llamada {item.IdLlamada}:");
+                        Console.WriteLine($"[ERROR] Detalle del error para llamada {item.IdLlamadaWebphoneCruceCentralTresCx}:");
                         Console.WriteLine(errorContent);
                         Console.WriteLine($"[ERROR] Headers de respuesta:");
                         foreach (var header in response.Headers)
@@ -1041,7 +1041,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[EXCEPTION] Error al transcribir llamada {item.IdLlamada}: {ex.Message}");
+                    Console.WriteLine($"[EXCEPTION] Error al transcribir llamada {item.IdLlamadaWebphoneCruceCentralTresCx}: {ex.Message}");
                     Console.WriteLine($"[EXCEPTION] StackTrace: {ex.StackTrace}");
                     return false;
                 }
@@ -1127,14 +1127,14 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
             var payload = new
             {
-                idLlamada = item.IdLlamada.ToString(),
+                idLlamada = item.IdLlamadaWebphoneCruceCentralTresCx.ToString(),
                 idActividadDetalle = item.IdActividadDetalle.ToString(),
                 idPersonal = item.IdPersonal_Asignado,
                 username = "System-Auto",
                 contacto = "Generico",
                 audio_url = item.UrlAudioProcesado,
                 locale = "es-ES",
-                ocurrencia = item.Ocurrencia,
+                ocurrencia = item.NombreOcurrencia,
                 historialReprogramaciones = historialReprogramaciones,
                 informacionFases = transicionesAgrupadas,
                 faseOrigen = item.IdFaseOportunidad_Ant,
@@ -1151,14 +1151,14 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         {
             var payload = new
             {
-                idLlamada = item.IdLlamada.ToString(),
+                idLlamada = item.IdLlamadaWebphoneCruceCentralTresCx.ToString(),
                 idActividadDetalle = item.IdActividadDetalle.ToString(),
                 idPersonal = item.IdPersonal_Asignado,
                 username = "System-Auto",
                 contacto = "Generico",
                 audio_url = item.UrlAudioProcesado,
                 locale = "es-ES",
-                ocurrencia = item.Ocurrencia,
+                ocurrencia = item.NombreOcurrencia,
                 historialReprogramaciones = historialReprogramaciones,
                 faseOrigen = item.IdFaseOportunidad,
                 faseDestino = item.IdFaseOportunidad_Ant,
@@ -1371,7 +1371,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         var llamadasHistoricasParaPayload = llamadasHistoricasCalificadas.ToList();
 
                         var transcripcionesParaPayload = new List<object>();
-                        var transcripcionActual = await ObtenerTranscripcion(llamadaActual.IdLlamada);
+                        var transcripcionActual = await ObtenerTranscripcion(llamadaActual.IdLlamadaWebphoneCruceCentralTresCx);
                         if (transcripcionActual != null)
                         {
                             transcripcionesParaPayload.Add(transcripcionActual);
@@ -1379,7 +1379,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
                         foreach (var llamadaHistorica in llamadasHistoricasParaPayload)
                         {
-                            var transcripcionHistorica = await ObtenerTranscripcion(llamadaHistorica.IdLlamada);
+                            var transcripcionHistorica = await ObtenerTranscripcion(llamadaHistorica.IdLlamadaWebphoneCruceCentralTresCx);
                             if (transcripcionHistorica != null)
                             {
                                 if (int.TryParse(transcripcionHistorica.IdLlamada, out int idLlamadaInt))
@@ -1481,11 +1481,11 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
                         //Prevalidacion de estado de calificacion
                         var llamadaActualizada = _unitOfWork.LineamientoCalificacionRepository
-                            .ObtenerDatosConfiguracionCalificacionPorIdLlamada(item.IdLlamada);
+                            .ObtenerDatosConfiguracionCalificacionPorIdLlamada(item.IdLlamadaWebphoneCruceCentralTresCx);
 
                         if (llamadaActualizada?.EsLlamadaCalificada == true)
                         {
-                            Console.WriteLine($"[SKIP] Llamada {item.IdLlamada} ya fue calificada por otro proceso");
+                            Console.WriteLine($"[SKIP] Llamada {item.IdLlamadaWebphoneCruceCentralTresCx} ya fue calificada por otro proceso");
                             return false;
                         }
                         // VALIDACIÓN: Verificar que la llamada actual esté en la primera posición
@@ -1494,15 +1494,15 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             var primeraTranscripcion = transcripcionesParaPayload.First();
                             var idLlamadaPrimera = primeraTranscripcion.GetType().GetProperty("IdLlamada")?.GetValue(primeraTranscripcion)?.ToString();
 
-                            if (idLlamadaPrimera != item.IdLlamada.ToString())
+                            if (idLlamadaPrimera != item.IdLlamadaWebphoneCruceCentralTresCx.ToString())
                             {
-                                Console.WriteLine($"[SKIP] La llamada actual {item.IdLlamada} no está en la primera posición del array. Primera posición: {idLlamadaPrimera}");
+                                Console.WriteLine($"[SKIP] La llamada actual {item.IdLlamadaWebphoneCruceCentralTresCx} no está en la primera posición del array. Primera posición: {idLlamadaPrimera}");
                                 return false;
                             }
                         }
                         else
                         {
-                            Console.WriteLine($"[SKIP] No hay transcripciones disponibles para la llamada {item.IdLlamada}");
+                            Console.WriteLine($"[SKIP] No hay transcripciones disponibles para la llamada {item.IdLlamadaWebphoneCruceCentralTresCx}");
                             return false; // No procesar si no hay transcripciones
                         }
 
@@ -1570,6 +1570,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
             var resultados = new List<bool>();
             var itemsAgrupadosPorOportunidad = item
+                .Where(x => x.IdPersonal_Asignado == 6571)
                 .GroupBy(x => x.IdOportunidad)
                 .Select(g => new
                 {
@@ -1679,7 +1680,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
                         var transcripcionesParaPayload = new List<object>();
                         var transcripcionActual = await ObtenerDisplayTranscripcion(
-                            llamadaActual.IdLlamada
+                            llamadaActual.IdLlamadaWebphoneCruceCentralTresCx
                         );
                         if (transcripcionActual != null)
                         {
@@ -1688,7 +1689,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         foreach (var llamadaHistorica in llamadasHistoricasParaPayload)
                         {
                             var transcripcionHistorica = await ObtenerDisplayTranscripcion(
-                                llamadaHistorica.IdLlamada
+                                llamadaHistorica.IdLlamadaWebphoneCruceCentralTresCx
                             );
                             if (transcripcionHistorica != null)
                             {
@@ -1725,12 +1726,19 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                             )
                                             .ToList();
 
-                                        var lineamientosEnriquecidos =
+                                        object lineamientosEnriquecidos =
                                             BuildLineamientosEnriquecidosFromSp(
                                                 configuracionHistorica,
                                                 detallesEvaluacionPorLlamada,
                                                 detallesPuntoGeneralesPorLlamada
                                             );
+
+                                        // Filtrar lineamientos históricos solo para Atención al Cliente
+                                        if (idPersonalAreaTrabajo == 3)
+                                        {
+                                            var configuracionLineamentoHistorico = this.ObtenerConfiguracionLineamientoATC(item.EstadoMatricula, item.SubEstadoMatricula);
+                                            lineamientosEnriquecidos = this.CalcularLineamientosATC(configuracionLineamentoHistorico, lineamientosEnriquecidos);
+                                        }
 
                                         var payloadHistorico = new
                                         {
@@ -1786,13 +1794,18 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         }
 
                         object brochure;
+                        // Inicializar con lineamientos completos (sin filtrar)
+                        object lineamientosParaPayload = lineamientos;
+
                         switch (idPersonalAreaTrabajo)
                         {
-                            case 8: //Area Ventas
+                            case 8: //Area Ventas - usa lineamientos completos sin filtrar
                                 brochure = BuildBrochureVentas(item, serviceInformacionPrograma);
                                 break;
-                            case 3: //Area Clientes
+                            case 3: //Area Clientes - filtra lineamientos según estado de matrícula
                                 brochure = await BuildBrochureClientesAsync(item, serviceInformacionPrograma, solicitudOperacionesService, alumnoService);
+                                var configuracionLineamento = this.ObtenerConfiguracionLineamientoATC(item.EstadoMatricula,item.SubEstadoMatricula);
+                                lineamientosParaPayload = this.CalcularLineamientosATC(configuracionLineamento, lineamientos);
                                 break;
                             default:
                                 Console.WriteLine(
@@ -1809,7 +1822,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             userName = "System-auto",
                             idCodigoPais = item.IdCodigoPais.ToString(),
                             transcription = transcripcionesParaPayload,
-                            lineamientos = lineamientos,
+                            lineamientos = lineamientosParaPayload,
                             brochure,
                             faseOrigen = item.FaseOportunidad_Ant,
                             faseDestino = item.FaseOportunidad,
@@ -1838,14 +1851,14 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         );
                         var llamadaActualizada =
                            _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionPorIdLlamadaV2(
-                               item.IdLlamada,
+                               item.IdLlamadaWebphoneCruceCentralTresCx,
                                idPersonalAreaTrabajo
                            );
 
                         if (llamadaActualizada?.EsLlamadaCalificada == true)
                         {
                             Console.WriteLine(
-                                $"[SKIP] Llamada {item.IdLlamada} ya fue calificada por otro proceso"
+                                $"[SKIP] Llamada {item.IdLlamadaWebphoneCruceCentralTresCx} ya fue calificada por otro proceso"
                             );
                             return false;
                         }
@@ -1859,10 +1872,10 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                 ?.GetValue(primeraTranscripcion)
                                 ?.ToString();
 
-                            if (idLlamadaPrimera != item.IdLlamada.ToString())
+                            if (idLlamadaPrimera != item.IdLlamadaWebphoneCruceCentralTresCx.ToString())
                             {
                                 Console.WriteLine(
-                                    $"[SKIP] La llamada actual {item.IdLlamada} no está en la primera posición del array. Primera posición: {idLlamadaPrimera}"
+                                    $"[SKIP] La llamada actual {item.IdLlamadaWebphoneCruceCentralTresCx} no está en la primera posición del array. Primera posición: {idLlamadaPrimera}"
                                 );
                                 return false;
                             }
@@ -1870,7 +1883,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         else
                         {
                             Console.WriteLine(
-                                $"[SKIP] No hay transcripciones disponibles para la llamada {item.IdLlamada}"
+                                $"[SKIP] No hay transcripciones disponibles para la llamada {item.IdLlamadaWebphoneCruceCentralTresCx}"
                             );
                             return false;
                         }
@@ -1904,7 +1917,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     {
                         //_logger.LogError(ex, $"Error al calificar llamada {item.IdLlamada}");
                         Console.WriteLine(
-                            $"[ERROR] Error al calificar llamada {item.IdLlamada}: {ex.Message}"
+                            $"[ERROR] Error al calificar llamada {item.IdLlamadaWebphoneCruceCentralTresCx}: {ex.Message}"
                         );
                         return false;
                     }
@@ -1966,9 +1979,12 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         })
                         .ToList();
 
-                    criteriosDict[criterio.Nombre] = new
+                    // Usar clave única: ID + Nombre para evitar colisiones
+                    var criterioKey = $"{criterio.Id}_{criterio.Nombre}";
+                    criteriosDict[criterioKey] = new
                     {
                         id = criterio.Id,
+                        nombre = criterio.Nombre,
                         orden = criterio.Orden,
                         nota = evaluacionCriterio?.Nota,
                         comentario = evaluacionCriterio?.Comentario,
@@ -1977,9 +1993,12 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     };
                 }
 
-                fasesDict[fase.Nombre] = new
+                // Usar clave única: ID + Nombre para evitar colisiones
+                var faseKey = $"{fase.Id}_{fase.Nombre}";
+                fasesDict[faseKey] = new
                 {
                     id = fase.Id,
+                    nombre = fase.Nombre,
                     orden = fase.Orden,
                     criterios = criteriosDict,
                 };
@@ -2041,17 +2060,23 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         })
                         .ToList();
 
-                    criteriosDict[criterio.Nombre] = new
+                    // Usar clave única: ID + Nombre para evitar colisiones
+                    var criterioKey = $"{criterio.Id}_{criterio.Nombre}";
+                    criteriosDict[criterioKey] = new
                     {
                         id = criterio.Id,
+                        nombre = criterio.Nombre,
                         orden = criterio.Orden,
                         lineamientos = lineamientosDeCriterio,
                     };
                 }
 
-                fasesDict[fase.Nombre] = new
+                // Usar clave única: ID + Nombre para evitar colisiones
+                var faseKey = $"{fase.Id}_{fase.Nombre}";
+                fasesDict[faseKey] = new
                 {
                     id = fase.Id,
+                    nombre = fase.Nombre,
                     orden = fase.Orden,
                     criterios = criteriosDict,
                 };
@@ -2508,9 +2533,9 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             {
                 InformacionPrograma = InformacionPrograma,
                 InformacionMatricula = InformacionMatricula,
-                PresentacionPrograma = PresentacionPrograma,
+                //PresentacionPrograma = PresentacionPrograma,
                 CronogramaFinanzas = CronogramaFinanzas,
-                InformacionBeneficioSolicitado = InformacionBeneficioSolicitado,
+                //InformacionBeneficioSolicitado = InformacionBeneficioSolicitado,
                 BeneficiosPorMatricula = BeneficiosPorMatricula,
                 OportunidadMontoComplementarios = OportunidadMontoComplementarios,
                 DatosCobranzaAlumno = DatosCobranzaAlumno,
@@ -2518,9 +2543,9 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 OperacionesRealizadas = operacionesRealizadas,
                 AvanceAonline = AvanceAonline,
                 AvanceOnline = AvanceOnline,
-                HistorialAsesoria = HistorialAsesoria,
+                //HistorialAsesoria = HistorialAsesoria,
                 ListadoNota = listadoNotas,
-                ActividadesAgenda = ActividadesAgenda
+                //ActividadesAgenda = ActividadesAgenda
             };
 
             return brochure;
@@ -2747,8 +2772,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 var llamadasHistoricas = todasLasLlamadas
                      .Where(x => x.IdActividadDetalle <= items.IdActividadDetalle)
                      .OrderByDescending(x => x.IdActividadDetalle)
-                     .ThenByDescending(x => x.IdLlamada)
-                     .Select(x => x.IdLlamada)
+                     .ThenByDescending(x => x.IdLlamadaWebphoneCruceCentralTresCx)
+                     .Select(x => x.IdLlamadaWebphoneCruceCentralTresCx)
                      .ToList();
 
                 var transcripcionesHistoricas = new List<TranscripcionCompletaResponseDisplayDTO>();
@@ -2883,7 +2908,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 var transcripcionesParaPayload = new List<object>();
 
 
-                var transcripcionActual = await ObtenerTranscripcion(llamadaActual.IdLlamada);
+                var transcripcionActual = await ObtenerTranscripcion(llamadaActual.IdLlamadaWebphoneCruceCentralTresCx);
                 if (transcripcionActual != null)
                 {
                     transcripcionesParaPayload.Add(transcripcionActual);
@@ -2892,7 +2917,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 List<Task<object?>> tareasTranscripciones = llamadasHistoricasCalificadas
                     .Select(llamadaHistorica => Task.Run<object?>(async () =>
                     {
-                        var transcripcionHistorica = await ObtenerTranscripcion(llamadaHistorica.IdLlamada);
+                        var transcripcionHistorica = await ObtenerTranscripcion(llamadaHistorica.IdLlamadaWebphoneCruceCentralTresCx);
                         if (transcripcionHistorica != null)
                         {
                             if (int.TryParse(transcripcionHistorica.IdLlamada, out int idLlamadaInt))
@@ -3081,7 +3106,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             }
 
             // Encontrar el índice de la primera llamada para calificar
-            var indicePrimeraParaCalificar = llamadasOrdenadas.FindIndex(x => x.IdLlamada == primeraLlamadaParaCalificar.IdLlamada);
+            var indicePrimeraParaCalificar = llamadasOrdenadas.FindIndex(x => x.IdLlamadaWebphoneCruceCentralTresCx == primeraLlamadaParaCalificar.IdLlamadaWebphoneCruceCentralTresCx);
 
             // Verificar que todas las llamadas anteriores estén transcritas y calificadas
             for (int i = 0; i < indicePrimeraParaCalificar; i++)
@@ -3119,7 +3144,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             }
 
             // Encontrar el índice de la primera llamada para calificar
-            var indicePrimeraParaCalificar = llamadasOrdenadas.FindIndex(x => x.IdLlamada == primeraLlamadaParaCalificar.IdLlamada);
+            var indicePrimeraParaCalificar = llamadasOrdenadas.FindIndex(x => x.IdLlamadaWebphoneCruceCentralTresCx == primeraLlamadaParaCalificar.IdLlamadaWebphoneCruceCentralTresCx);
 
             // Verificar que todas las llamadas anteriores estén transcritas y calificadas
             for (int i = 0; i < indicePrimeraParaCalificar; i++)
@@ -3837,6 +3862,9 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         FechaInicioLlamadaCentral = first.FechaInicioLlamadaCentral,
                         DuracionContestoCentral = first.DuracionContestoCentral,
                         IdAlumno = first.IdAlumno,
+                        CodigoMatricula=first.CodigoMatricula,
+                        EstadoMatricula=first.EstadoMatricula,
+                        SubEstadoMatricula=first.SubEstadoMatricula,
                         NombreCliente = first.NombreCliente,
                         IdAsesor = first.IdAsesor,
                         NombreAsesor = first.NombreAsesor,
@@ -4518,6 +4546,146 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        /// Autor: Joseph Llanque.
+        /// Fecha: 03/07/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la configuración de lineamiento para Atención al Cliente basada en el estado y sub-estado de la matrícula.
+        /// Lógica temporal para contemplar caso de urgencia. Se debe reformular la lógica de estados.
+        /// </summary>
+        /// <param name="EstadoMatricula">Estado de la matrícula del alumno</param>
+        /// <param name="SubEstadoMatricula">Sub estado de la matrícula del alumno</param>
+        /// <returns>Tipo de configuración de lineamiento: "GENERICO", "REPORTADO", "PREREPORTE" o "PAGOATRASADO"</returns>
+        private string ObtenerConfiguracionLineamientoATC(string EstadoMatricula, string SubEstadoMatricula)
+        {
+            try
+            {
+                var estado = (EstadoMatricula ?? string.Empty).Trim().ToUpperInvariant();
+                var subEstado = (SubEstadoMatricula ?? string.Empty).Trim().ToUpperInvariant();
+
+                if (estado == "REGULAR" && subEstado == "PAGO ATRASADO")
+                    return "PAGOATRASADO";
+
+                if (estado == "MOROSO" && (
+                        subEstado == "PRE REPORTE CR" ||
+                        subEstado == "PRE REPORTE CR NO CONTESTA" ||
+                        subEstado == "PRE REPORTE CR CONTESTA Y CORTA" ||
+                        subEstado == "PRE REPORTE CR NÚMERO DESACTUALIZADO" ||
+                        subEstado == "PRE REPORTE CR NUMERO DESACTUALIZADO"
+                    ))
+                    return "PREREPORTE";
+
+                if (estado == "MOROSO" && (
+                        subEstado == "REPORTADO CR" ||
+                        subEstado == "REPORTADO CR NO CONTESTA" ||
+                        subEstado == "REPORTADO CR CONTESTA Y CORTA" ||
+                        subEstado == "REPORTADO CR NÚMERO DESACTUALIZADO" ||
+                        subEstado == "REPORTADO CR NUMERO DESACTUALIZADO"
+                    ))
+                    return "REPORTADO";
+
+                return "GENERICO";
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Joseph Llanque.
+        /// Fecha: 03/07/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Filtra los lineamientos de evaluación según el tipo de configuración para Atención al Cliente.
+        /// Filtra las fases y sus criterios y lineamientos asociados según la configuración:
+        /// - GENERICO: fases 318, 319, 320
+        /// - REPORTADO: fases 321, 322, 323, 324, 325, 326
+        /// - PREREPORTE: fases 327, 328, 329, 330, 331, 332
+        /// - PAGOATRASADO: fases 333, 334, 335, 336, 337
+        /// </summary>
+        /// <param name="configuracionLineamento">Tipo de configuración: "GENERICO", "REPORTADO", "PREREPORTE" o "PAGOATRASADO"</param>
+        /// <param name="lineamientos">Objeto con la estructura de lineamientos completos (resultado de BuildLineamientosFormateadosFromSp)</param>
+        /// <returns>Objeto de lineamientos filtrado con fases, criterios y lineamientos asociados según la configuración</returns>
+        private object CalcularLineamientosATC(string configuracionLineamento, object lineamientos)
+        {
+            try
+            {
+                // Definir los IDs de fases según la configuración
+                List<int> faseIdsPermitidos;
+                switch (configuracionLineamento)
+                {
+                    case "PAGOATRASADO":
+                        faseIdsPermitidos = new List<int> {333,334,335,336,337};
+                        break;
+                    case "PREREPORTE":
+                        faseIdsPermitidos = new List<int> { 327,328,329,330,331,332 };
+                        break;
+                    case "REPORTADO":
+                        faseIdsPermitidos = new List<int> {321,322,323,324,325,326 };
+                        break;
+                    case "GENERICO":
+                    default:
+                        faseIdsPermitidos = new List<int> { 318,319,320 };
+                        break;
+                }
+
+                // Obtener el tipo dinámico del objeto lineamientos
+                var lineamientosType = lineamientos.GetType();
+
+                // Obtener la propiedad 'fases' del objeto (Dictionary<string, object>)
+                var fasesProp = lineamientosType.GetProperty("fases");
+                if (fasesProp == null)
+                    return lineamientos; // Si no tiene propiedad fases, devolver sin cambios
+
+                var fasesDict = fasesProp.GetValue(lineamientos) as IDictionary<string, object>;
+                if (fasesDict == null)
+                    return lineamientos; // Si fases no es un diccionario, devolver sin cambios
+
+                // Filtrar las fases que coincidan con los IDs permitidos
+                // Cada fase tiene: { id, orden, criterios: { nombreCriterio: { id, orden, lineamientos: [...] } } }
+                var fasesFiltradas = new Dictionary<string, object>();
+
+                foreach (var kvpFase in fasesDict)
+                {
+                    var nombreFase = kvpFase.Key;
+                    var faseObj = kvpFase.Value;
+                    var faseType = faseObj.GetType();
+
+                    // Obtener el ID de la fase
+                    var idProp = faseType.GetProperty("id");
+                    if (idProp != null)
+                    {
+                        var idValue = idProp.GetValue(faseObj);
+                        if (idValue != null && int.TryParse(idValue.ToString(), out int faseId))
+                        {
+                            // Solo incluir si el ID está en la lista permitida
+                            if (faseIdsPermitidos.Contains(faseId))
+                            {
+                                // Incluir la fase completa con todos sus criterios y lineamientos
+                                fasesFiltradas[nombreFase] = faseObj;
+                            }
+                        }
+                    }
+                }
+
+                // Obtener la propiedad 'puntosgenerales' del objeto
+                var puntosGeneralesProp = lineamientosType.GetProperty("puntosgenerales");
+                var puntosGenerales = puntosGeneralesProp?.GetValue(lineamientos);
+
+                // Crear y devolver el nuevo objeto con las fases filtradas
+                // Las fases incluyen automáticamente sus criterios y lineamientos asociados
+                return new
+                {
+                    fases = fasesFiltradas,
+                    puntosgenerales = puntosGenerales ?? new List<object>()
+                };
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 

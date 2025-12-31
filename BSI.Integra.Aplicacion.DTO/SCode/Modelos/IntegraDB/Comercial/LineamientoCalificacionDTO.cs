@@ -306,7 +306,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
     public class LlamadaProcesoAutoDTO
     {
         public int IdActividadDetalle { get; set; }
-        public int IdLlamada { get; set; }
+        public int IdLlamadaWebphoneCruceCentralTresCx { get; set; }
         public int IdOportunidad { get; set; }
         public int IdPersonalAreaTrabajo { get; set; }
         public int IdPersonal_Asignado { get; set; }
@@ -315,14 +315,18 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int? IdOcurrenciaActividadAlterno { get; set; }
         public int? IdOcurrenciaActividad { get; set; }
         public int? IdOcurrencia { get; set; }
-        public string Ocurrencia { get; set; }
-        public string OcurrenciaAlterno { get; set; }
+        public string NombreOcurrencia { get; set; }
+        public string NombreOcurrenciaAlterno { get; set; }
         public int IdOportunidadLog { get; set; }
         public int IdAlumno { get; set; }
         public string? CodigoMatricula { get; set; }
         public int? IdMatriculaCabecera { get; set; }
         public int? IdPespecifico { get; set; }
+        public int? IdEstado_matricula { get; set; }
+        public int? IdSubEstadoMatricula { get; set; }
 
+        public string? EstadoMatricula { get; set; }
+        public string? SubEstadoMatricula { get; set; }
 
         public int IdCodigoPais { get; set; }
         public int IdCentroCosto { get; set; }
@@ -331,7 +335,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int IdFaseOportunidad_Ant { get; set; }
         public int IdFaseOportunidad { get; set; }
         public string FaseOportunidad_Ant { get; set; }
-        public string FaseOportunidad{ get; set; }
+        public string FaseOportunidad { get; set; }
 
         public string UrlAudioProcesado { get; set; }
         public string Origen { get; set; }
@@ -693,6 +697,11 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
 
         public string? InterrupcionLlamada { get; set; }
         public string? PuntoCritico { get; set; }
+
+        public string? CodigoMatricula { get; set; }
+        public string? EstadoMatricula { get; set; }
+
+        public string? SubEstadoMatricula { get; set; }
     }
 
     public class LlamadaCalificadaDTO
@@ -783,6 +792,12 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public string? ComentarioConsistenciaCambioFase { get; set; }
 
         public string? InterrupcionLlamada { get; set; }
+        public string? CodigoMatricula { get; set; }
+
+        public string? EstadoMatricula { get; set; }
+
+        public string? SubEstadoMatricula { get; set; }
+
 
         public List<string> PuntosCriticos { get; set; }
     }

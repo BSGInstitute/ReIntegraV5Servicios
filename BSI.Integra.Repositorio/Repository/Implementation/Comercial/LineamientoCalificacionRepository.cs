@@ -1140,8 +1140,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
         {
             try
             {
+
+                TimeZoneInfo peruTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SA Pacific Standard Time");
+                DateTime fechaHoraPeruActual = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, peruTimeZone);
+                DateTime fechaDesde = fechaHoraPeruActual.Date.AddDays(-1);
+
                 List<LlamadaProcesoAutoDTO> configuracion = new List<LlamadaProcesoAutoDTO>();
-                var resultado = _dapperRepository.QuerySPDapper("ope.SP_EvaluacionLlamadaObtenerTranscripcionAutomaticaAtencionCliente", new {idPersonalAreaTrabajo=idPersonalAreaTrabajo});
+                var resultado = _dapperRepository.QuerySPDapper("ope.SP_EvaluacionLlamadaObtenerInformacionTranscripcionAutomatica ", new {
+                    idTipoProcesoProgramado = 2,
+                    idPersonalAreaTrabajo = idPersonalAreaTrabajo,
+                    fechaDesde = fechaDesde
+                });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
                 {
                     configuracion = JsonConvert.DeserializeObject<List<LlamadaProcesoAutoDTO>>(resultado);
@@ -1177,8 +1186,18 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
         {
             try
             {
+
+                TimeZoneInfo peruTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SA Pacific Standard Time");
+                DateTime fechaHoraPeruActual = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, peruTimeZone);
+                DateTime fechaDesde = fechaHoraPeruActual.Date.AddDays(-4);
+
                 List<LlamadaProcesoAutoDTO> configuracion = new List<LlamadaProcesoAutoDTO>();
-                var resultado = _dapperRepository.QuerySPDapper("[com].[SP_ObtenerInformacionCalificacionAutomaticaEvaluacionLlamada]", new { idPersonalAreaTrabajo = idPersonalAreaTrabajo });
+                var resultado = _dapperRepository.QuerySPDapper("ope.SP_EvaluacionLlamadaObtenerInformacionCalificacionAutomatica", new
+                {
+                    idTipoProcesoProgramado = 4,
+                    idPersonalAreaTrabajo = idPersonalAreaTrabajo,
+                    fechaDesde = fechaDesde
+                });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
                 {
                     configuracion = JsonConvert.DeserializeObject<List<LlamadaProcesoAutoDTO>>(resultado);
