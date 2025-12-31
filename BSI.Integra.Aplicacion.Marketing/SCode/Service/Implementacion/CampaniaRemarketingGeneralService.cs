@@ -31,7 +31,39 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
 
         public CombosConfiguracionCampaniaDTO ObtenerCombosConfiguracionCampania()
         {
-            return _campaniaRemarketingGeneralRepository.ObtenerCombosConfiguracionCampania();
+            var medioEnvio = _campaniaRemarketingGeneralRepository.ObtenerMediosEnvio();
+            var tipoMensaje = _campaniaRemarketingGeneralRepository.ObtenerTiposMensaje();
+            var logicaEnvio = _campaniaRemarketingGeneralRepository.ObtenerLogicasEnvio();
+            var argumento = _campaniaRemarketingGeneralRepository.ObtenerArgumentos();
+
+            return new CombosConfiguracionCampaniaDTO
+            {
+                MedioEnvio = medioEnvio,
+                TipoMensaje = tipoMensaje,
+                LogicaEnvio = logicaEnvio,
+                Argumento = argumento
+            };
+        }
+
+        public List<SegmentoCreadoDTO> ObtenerListadoSegmentosCreados()
+        {
+            return _campaniaRemarketingGeneralRepository.ObtenerListadoSegmentosCreados();
+        }
+
+        public List<ResultadoTextoGeneradoDTO> ObtenerResultadosGeneracionTextoPorCampania(int id)
+        {
+            return _campaniaRemarketingGeneralRepository.ObtenerResultadosGeneracionTextoPorCampania(id);
+        }
+
+        public bool EjecutarEnvioCampaniaRemarketing(EnvioCampaniaRemarketingDTO request, string usuario)
+        {
+            request.UsuarioCreacion = usuario;
+            if (request.FechaEnvio == null)
+                request.FechaEnvio = DateTime.Now;
+
+            var respuesta = _campaniaRemarketingGeneralRepository.InsertarCampaniaRemarketing(request);
+
+            return respuesta;
         }
 
         public DetallesCampaniaDTO VerDetallesCampania(int id)
@@ -39,14 +71,19 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
             return _campaniaRemarketingGeneralRepository.VerDetallesCampania(id);
         }
 
+        public CampaniaRemarketingIndividualDTO ObtenerCampaniaRemarketingPorId(int id)
+        {
+            return _campaniaRemarketingGeneralRepository.ObtenerCampaniaRemarketingPorId(id);
+        }
+
         public bool EditarCampania()
         {
             return _campaniaRemarketingGeneralRepository.EditarCampania();
         }
 
-        public bool EliminarCampania(int id)
+        public bool EliminarCampania(int id, string usuario)
         {
-            return _campaniaRemarketingGeneralRepository.EliminarCampania(id);
+            return _campaniaRemarketingGeneralRepository.EliminarCampania(id, usuario);
         }
 
         public MensajeGeneradoDTO ObtenerMensajeGeneradoPorId(int id)

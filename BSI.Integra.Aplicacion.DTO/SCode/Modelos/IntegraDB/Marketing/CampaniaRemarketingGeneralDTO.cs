@@ -3,11 +3,12 @@
     public class CampaniaRemarketingGeneralDTO
     {
         public int Id { get; set; }
-        public string NombreCampania { get; set; }
-        public string tipoCampania { get; set; }
-        public string usuarioCreacion { get; set; }
-        public DateTime fechaEnvio { get; set; }
-        public int cantidad { get; set; }
+        public string Nombre { get; set; }
+        public DateTime FechaEnvioProgramada { get; set; }
+        public string EnvioConfigurado { get; set; }
+        public string MedioEnvio { get; set; }
+        public string UsuarioCreacion { get; set; }
+        public DateTime FechaCreacion { get; set; }
     }
 
     public class CombosConfiguracionCampaniaDTO
@@ -23,6 +24,42 @@
         public string Nombre { get; set; }
     }
 
+    public class SegmentoCreadoDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public bool FiltroEjecutado { get; set; }
+    }
+
+    public class ResultadoTextoGeneradoDTO
+    {
+        public int Id { get; set; }
+        public int IdAlumno { get; set; }
+        public string NombreAlumno { get; set; }
+        public string Pais { get; set; }
+        public string ContenidoGenerado { get; set; }
+    }
+
+    public class EnvioCampaniaRemarketingDTO
+    {
+        public SegmentoDTO Segmento { get; set; }
+        public List<int> MediosEnvio { get; set; }
+        public int TipoMensaje { get; set; }
+        public int LogicaEnvio { get; set; }
+        public List<int> Argumentos { get; set; }
+        public string RemitenteCorreo { get; set; }
+        public string RemitenteNombre { get; set; }
+        public string Asunto { get; set; }
+        public string EnvioSeleccionado { get; set; }
+        public DateTime? FechaEnvio { get; set; }
+        public string? UsuarioCreacion { get; set; }
+    }
+
+    public class SegmentoDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+    }
 
     public class DetallesCampaniaDTO
     {
@@ -47,4 +84,26 @@
         public int Id { get; set; }
         public string Contenido { get; set; }
     }
+
+    public class CampaniaRemarketingIndividualDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public int IdFiltroSegmento { get; set; }
+        public int TipoMensaje { get; set; }
+        public int LogicaEnvio { get; set; }
+        public string RemitenteCorreo { get; set; }
+        public string RemitenteNombre { get; set; }
+        public string Asunto { get; set; }
+        public string EnvioConfigurado { get; set; }
+        public DateTime FechaEnvioProgramada { get; set; }
+        public List<int>? MediosEnvio { get; set; } = new();
+        public List<int>? Argumentos { get; set; } = new();
+    }
+
+    public class IntValueDTO
+    {
+        public int Value { get; set; }
+    }
+
 }

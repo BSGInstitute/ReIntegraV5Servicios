@@ -11,11 +11,19 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Marketing
     {
         List<CampaniaRemarketingGeneralDTO> ObtenerListadoCampania();
         List<object> ObtenerRendimientoListadoCampanias(List<int> ids);
-        CombosConfiguracionCampaniaDTO ObtenerCombosConfiguracionCampania();
+        List<SegmentoCreadoDTO> ObtenerListadoSegmentosCreados();
+        List<ResultadoTextoGeneradoDTO> ObtenerResultadosGeneracionTextoPorCampania(int id);
+        bool InsertarCampaniaRemarketing(EnvioCampaniaRemarketingDTO request);
         DetallesCampaniaDTO VerDetallesCampania(int id);
+        CampaniaRemarketingIndividualDTO ObtenerCampaniaRemarketingPorId(int id);
         bool EditarCampania();
-        bool EliminarCampania(int id);
+        bool EliminarCampania(int id, string usuario);
         MensajeGeneradoDTO ObtenerMensajeGeneradoPorId(int id);
 
+        // Métodos individuales para cada lista de CombosConfiguracionCampaniaDTO
+        List<ElementoConfiguracionCampania> ObtenerMediosEnvio();
+        List<ElementoConfiguracionCampania> ObtenerTiposMensaje();
+        List<ElementoConfiguracionCampania> ObtenerLogicasEnvio();
+        List<ElementoConfiguracionCampania> ObtenerArgumentos();
     }
 }
