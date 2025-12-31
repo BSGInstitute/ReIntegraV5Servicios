@@ -20,6 +20,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Marketing
         IEnumerable<TPreferenciaComunicacionAcademica> Update(IEnumerable<PreferenciaComunicacionAcademica> listadoEntidad);
         bool Delete(IEnumerable<int> listadoIds, string usuario);
         #endregion
-        List<PreferenciaComunicacionAcademicaDTO> ObtenerPreferenciaMedioComunicacionByIdAlumno(int IdAlumno);
+        List<VPreferenciaComunicacionAcademicaMedioComunicacionDTO> ObtenerPreferenciaMedioComunicacionByIdAlumno(int IdAlumno);
     }
 }

@@ -145,20 +145,20 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
             }
         }
         #endregion
-        public List<PreferenciaComunicacionAcademicaDTO> ObtenerPreferenciaMedioComunicacionByIdAlumno(int IdAlumno)
+        public List<VPreferenciaComunicacionAcademicaMedioComunicacionDTO> ObtenerPreferenciaMedioComunicacionByIdAlumno(int IdAlumno)
         {
             try
             {
-                List<PreferenciaComunicacionAcademicaDTO> rpta = new List<PreferenciaComunicacionAcademicaDTO>();
+                List<VPreferenciaComunicacionAcademicaMedioComunicacionDTO> rpta = new List<VPreferenciaComunicacionAcademicaMedioComunicacionDTO>();
                 var query = @"
                     SELECT
-	                    Id, IdAlumno, IdMedioComunicacion
-                    FROM mkt.T_PreferenciaComunicacionAcademica
-                    WHERE Estado = 1 AND IdAlumno = @IdAlumno";
+	                    IdPreferenciaComunicacionAcademica, IdAlumno, IdMedioComunicacion, Nombre
+                    FROM mkt.V_ObtenerPreferenciaComunicacionAcademica
+                    WHERE IdAlumno = @IdAlumno";
                 var resultado = _dapperRepository.QueryDapper(query, new { IdAlumno });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
-                    rpta = JsonConvert.DeserializeObject<List<PreferenciaComunicacionAcademicaDTO>>(resultado);
+                    rpta = JsonConvert.DeserializeObject<List<VPreferenciaComunicacionAcademicaMedioComunicacionDTO>>(resultado);
                 }
                 return rpta;
             }

@@ -42,7 +42,7 @@ namespace BSI.Integra.Servicios.Controllers
         {
             try
             {
-                var resultado = _ComunicacionAcademicaService.ActualizarPreferenciaComunicacionAlumno(dto, _tokenManager.UserName);
+                var resultado = _ComunicacionAcademicaService.ActualizarPreferenciaComunicacionAlumno(dto, "_tokenManager.UserName");
                 return Ok(resultado);
             }
             catch (Exception ex)

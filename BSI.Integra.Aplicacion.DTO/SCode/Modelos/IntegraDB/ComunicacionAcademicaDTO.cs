@@ -19,7 +19,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     public class PreferenciaConfiguracionDTO
     {
         public int IdAlumno { get; set; }
-        public List<PreferenciaComunicacionAcademicaDTO> MediosComunicacion { get; set; }
+        public List<VPreferenciaComunicacionAcademicaMedioComunicacionDTO> MediosComunicacion { get; set; }
         public List<PreferenciaComunicacionAcademicaHorarioDTO> BloqueHorario { get; set; }
     }
 }

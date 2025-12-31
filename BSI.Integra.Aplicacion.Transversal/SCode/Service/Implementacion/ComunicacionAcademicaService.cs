@@ -65,7 +65,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 if (preferencia.MediosComunicacion != null)
                 {
                     var mediosExistentes = _unitOfWork.PreferenciaComunicacionAcademicaRepository.GetBy(x => x.IdAlumno == preferencia.IdAlumno).ToList();
-                    var idsRecibidos = preferencia.MediosComunicacion.Select(x => x.Id).ToList();
+                    var idsRecibidos = preferencia.MediosComunicacion.Select(x => x.IdPreferenciaComunicacionAcademica).ToList();
                     var idsAEliminar = mediosExistentes.Where(x => !idsRecibidos.Contains(x.Id)).Select(x => x.Id).ToList();
 
                     foreach (var id in idsAEliminar)
@@ -77,14 +77,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     {
                         var medio = new PreferenciaComunicacionAcademica()
                         {
-                            Id = item.Id,
+                            Id = item.IdPreferenciaComunicacionAcademica,
                             IdAlumno = preferencia.IdAlumno,
                             IdMedioComunicacion = item.IdMedioComunicacion,
                             Estado = true,
                             UsuarioModificacion = Usuario,
                             FechaModificacion = DateTime.Now
                         };
-                        if (item.Id == 0)
+                        if (item.IdPreferenciaComunicacionAcademica == 0)
                         {
                             medio.UsuarioCreacion = Usuario;
                             medio.FechaCreacion = DateTime.Now;
@@ -92,7 +92,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         }
                         else
                         {
-                            var entidadExistente = mediosExistentes.FirstOrDefault(x => x.Id == item.Id);
+                            var entidadExistente = mediosExistentes.FirstOrDefault(x => x.Id == item.IdPreferenciaComunicacionAcademica);
                             if (entidadExistente != null)
                             {
                                 medio.UsuarioCreacion = entidadExistente.UsuarioCreacion;
@@ -159,10 +159,12 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         _unitOfWork.PreferenciaComunicacionAcademicaHorarioRepository.Delete(item.Id, Usuario);
                     }
                 }
+                _unitOfWork.Commit();
                 return true;
             }
             catch (Exception ex)
             {
+                _unitOfWork.Rollback();
                 throw new Exception(ex.Message);
             }
         }
