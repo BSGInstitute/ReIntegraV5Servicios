@@ -276,6 +276,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TDetraccion> TDetraccions { get; set; } = null!;
         public virtual DbSet<TDiaSemana> TDiaSemanas { get; set; } = null!;
         public virtual DbSet<TDiferenciaHorarium> TDiferenciaHoraria { get; set; } = null!;
+        public virtual DbSet<TDocentePostulante> TDocentePostulantes { get; set; } = null!;
         public virtual DbSet<TDocumentacionComercialPw> TDocumentacionComercialPws { get; set; } = null!;
         public virtual DbSet<TDocumento> TDocumentos { get; set; } = null!;
         public virtual DbSet<TDocumentoAgendum> TDocumentoAgenda { get; set; } = null!;
@@ -457,6 +458,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TLogProyeccionFur> TLogProyeccionFurs { get; set; } = null!;
         public virtual DbSet<TMandril> TMandrils { get; set; } = null!;
         public virtual DbSet<TMandrilEnvioCorreo> TMandrilEnvioCorreos { get; set; } = null!;
+        public virtual DbSet<TMandrilEnvioCorreoGestion> TMandrilEnvioCorreoGestions { get; set; } = null!;
+        public virtual DbSet<TMandrilTipoAsignacion> TMandrilTipoAsignacions { get; set; } = null!;
+        public virtual DbSet<TMandrilTipoEnvio> TMandrilTipoEnvios { get; set; } = null!;
         public virtual DbSet<TMaterialAccion> TMaterialAccions { get; set; } = null!;
         public virtual DbSet<TMaterialAdicionalAulaVirtual> TMaterialAdicionalAulaVirtuals { get; set; } = null!;
         public virtual DbSet<TMaterialAdicionalAulaVirtualPespecifico> TMaterialAdicionalAulaVirtualPespecificos { get; set; } = null!;
@@ -824,6 +828,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TRegistroLeadSubido> TRegistroLeadSubidos { get; set; } = null!;
         public virtual DbSet<TRegistroMarcadorFecha> TRegistroMarcadorFechas { get; set; } = null!;
         public virtual DbSet<TRegistroRecuperacionWhatsApp> TRegistroRecuperacionWhatsApps { get; set; } = null!;
+        public virtual DbSet<TRemarketingEmbudoEsquema> TRemarketingEmbudoEsquemas { get; set; } = null!;
+        public virtual DbSet<TRemarketingEmbudoHistorico> TRemarketingEmbudoHistoricos { get; set; } = null!;
+        public virtual DbSet<TRemarketingEmbudoNivel> TRemarketingEmbudoNivels { get; set; } = null!;
         public virtual DbSet<TRemitenteMailing> TRemitenteMailings { get; set; } = null!;
         public virtual DbSet<TRemitenteMailingAsesor> TRemitenteMailingAsesors { get; set; } = null!;
         public virtual DbSet<TReporteFlujoCongeladoPorDium> TReporteFlujoCongeladoPorDia { get; set; } = null!;
@@ -16973,6 +16980,94 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Usuario de modificacion del registro");
             });
 
+            modelBuilder.Entity<TDocentePostulante>(entity =>
+            {
+                entity.ToTable("T_DocentePostulante", "pla");
+
+                entity.HasComment("Tabla para registro de docentes postulantes");
+
+                entity.HasIndex(e => e.Correo, "UQ_T_DocentePostulante_Correo")
+                    .IsUnique();
+
+                entity.Property(e => e.Id).HasComment("Identificador único del docente postulante (Llave primaria)");
+
+                entity.Property(e => e.ApellidoMaterno)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Apellido materno del docente postulante");
+
+                entity.Property(e => e.ApellidoPaterno)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Apellido paterno del docente postulante");
+
+                entity.Property(e => e.Celular)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasComment("Número de celular del docente postulante");
+
+                entity.Property(e => e.Correo)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Correo electrónico del docente postulante");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1: Activo, 0: Eliminado/Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro");
+
+                entity.Property(e => e.FechaNacimiento)
+                    .HasColumnType("date")
+                    .HasComment("Fecha de nacimiento del docente postulante");
+
+                entity.Property(e => e.IdCiudad).HasComment("Foreign Key que referencia a la ciudad de origen del docente postulante");
+
+                entity.Property(e => e.Nombre1)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Primer nombre del docente postulante");
+
+                entity.Property(e => e.Nombre2)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Segundo nombre del docente postulante");
+
+                entity.Property(e => e.NumeroDocumento)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasComment("Número de documento de identidad del docente postulante");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automático que guarda la versión del registro para control de concurrencia optimista");
+
+                entity.Property(e => e.Telefono)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasComment("Número de teléfono fijo del docente postulante");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó la última modificación del registro");
+
+                entity.HasOne(d => d.IdCiudadNavigation)
+                    .WithMany(p => p.TDocentePostulantes)
+                    .HasForeignKey(d => d.IdCiudad)
+                    .HasConstraintName("FK_T_DocentePostulante_Ciudad_IdCiudad");
+            });
+
             modelBuilder.Entity<TDocumentacionComercialPw>(entity =>
             {
                 entity.ToTable("T_DocumentacionComercial_PW", "pla");
@@ -28133,6 +28228,180 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.Property(e => e.IdOportunidad).HasComment("FK a T_Oportunidad");
 
                 entity.Property(e => e.IdPersonal).HasComment("Fk a T_Personal");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Estado del registro (creado o eliminado)");
+            });
+
+            modelBuilder.Entity<TMandrilEnvioCorreoGestion>(entity =>
+            {
+                entity.ToTable("T_MandrilEnvioCorreoGestion", "mkt");
+
+                entity.HasComment("Esta tabla contiene informacion acerca de envios de correos");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria");
+
+                entity.Property(e => e.Asunto)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasComment("Contenido breve que describe el motivo del correo electronico enviado");
+
+                entity.Property(e => e.EsEnvioMasivo).HasComment("Indica si el correo es parte de un envio masivo");
+
+                entity.Property(e => e.Estado).HasComment("Fecha de creacion del registro");
+
+                entity.Property(e => e.EstadoEnvio).HasComment("Registro del estado de envio de correos en la base de datos");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Usuario de creacion del registro");
+
+                entity.Property(e => e.FechaEnvio)
+                    .HasColumnType("datetime")
+                    .HasComment("Registro de fechas en las que se enviaron correos electronicos");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.FkMandril)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("FK asignada por Mandril");
+
+                entity.Property(e => e.IdCentroCosto).HasComment("FK a T_CentroCosto");
+
+                entity.Property(e => e.IdClasificacionPersona).HasComment("FK a T_ClasificacionPersona");
+
+                entity.Property(e => e.IdGestionContacto).HasComment("FK a T_GestionContacto");
+
+                entity.Property(e => e.IdMandrilTipoAsignacion).HasComment("Fk a T_MandrilTipoAsignacion");
+
+                entity.Property(e => e.IdMandrilTipoEnvio).HasComment("FK a T_MandrilTipoEnvio");
+
+                entity.Property(e => e.IdPersonal).HasComment("Fk a T_Personal");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Estado del registro (creado o eliminado)");
+
+                entity.HasOne(d => d.IdCentroCostoNavigation)
+                    .WithMany(p => p.TMandrilEnvioCorreoGestions)
+                    .HasForeignKey(d => d.IdCentroCosto)
+                    .HasConstraintName("FK_T_MandrilEnvioCorreoGestion_CentroCosto_IdCentroCosto");
+
+                entity.HasOne(d => d.IdClasificacionPersonaNavigation)
+                    .WithMany(p => p.TMandrilEnvioCorreoGestions)
+                    .HasForeignKey(d => d.IdClasificacionPersona)
+                    .HasConstraintName("FK_T_MandrilEnvioCorreoGestion_ClasificacionPersona_IdClasificacionPersona");
+
+                entity.HasOne(d => d.IdGestionContactoNavigation)
+                    .WithMany(p => p.TMandrilEnvioCorreoGestions)
+                    .HasForeignKey(d => d.IdGestionContacto)
+                    .HasConstraintName("FK_T_MandrilEnvioCorreoGestion_GestionContacto_IdGestionContacto");
+
+                entity.HasOne(d => d.IdMandrilTipoAsignacionNavigation)
+                    .WithMany(p => p.TMandrilEnvioCorreoGestions)
+                    .HasForeignKey(d => d.IdMandrilTipoAsignacion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_MandrilEnvioCorreoGestion_MandrilTipoAsignacion_IdMandrilTipoAsignacion");
+
+                entity.HasOne(d => d.IdMandrilTipoEnvioNavigation)
+                    .WithMany(p => p.TMandrilEnvioCorreoGestions)
+                    .HasForeignKey(d => d.IdMandrilTipoEnvio)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_MandrilEnvioCorreoGestion_MandrilTipoEnvio_IdMandrilTipoEnvio");
+
+                entity.HasOne(d => d.IdPersonalNavigation)
+                    .WithMany(p => p.TMandrilEnvioCorreoGestions)
+                    .HasForeignKey(d => d.IdPersonal)
+                    .HasConstraintName("FK_T_MandrilEnvioCorreoGestion_Personal_IdPersonal");
+            });
+
+            modelBuilder.Entity<TMandrilTipoAsignacion>(entity =>
+            {
+                entity.ToTable("T_MandrilTipoAsignacion", "mkt");
+
+                entity.HasComment("Esta tabla clasifica los tipos de asignacion de mandriles");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria");
+
+                entity.Property(e => e.Estado).HasComment("Fecha de creacion del registro");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Usuario de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Registro del usuario para identificacion en la plataforma");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Estado del registro (creado o eliminado)");
+            });
+
+            modelBuilder.Entity<TMandrilTipoEnvio>(entity =>
+            {
+                entity.ToTable("T_MandrilTipoEnvio", "mkt");
+
+                entity.HasComment("Esta tabla contiene informacion relevante sobre los tipos de envio");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria");
+
+                entity.Property(e => e.Estado).HasComment("Fecha de creacion del registro");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Usuario de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Registra los s de los diferentes tipos de envios");
 
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
@@ -48816,6 +49085,162 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Ultimo usuario que modifico el registro");
+            });
+
+            modelBuilder.Entity<TRemarketingEmbudoEsquema>(entity =>
+            {
+                entity.ToTable("T_RemarketingEmbudoEsquema", "ia");
+
+                entity.HasComment("Catálogo maestro de esquemas para el embudo de remarketing. Cada esquema define un conjunto de niveles de clasificación.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del esquema de embudo. Clave primaria autoincremental.");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500)
+                    .HasComment("Descripción detallada del propósito y alcance del esquema de embudo.");
+
+                entity.Property(e => e.Estado).HasComment("Estado activo/inactivo del esquema.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en que se creó el registro del esquema.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación al registro del esquema.");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .HasComment("Nombre descriptivo del esquema de embudo.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro del esquema. Normalmente el usuario de sistema o administrador.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó la última modificación al registro del esquema.");
+            });
+
+            modelBuilder.Entity<TRemarketingEmbudoHistorico>(entity =>
+            {
+                entity.ToTable("T_RemarketingEmbudoHistorico", "ia");
+
+                entity.HasComment("Esta tabla almacena la clasificación de los registros del alumno según el nivel y esquema del embudo.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del nivel de embudo. Clave primaria autoincremental.");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado).");
+
+                entity.Property(e => e.FechaClasificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha del clasificación del registro en el nivel de embudo.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha creacion del registro.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha modificacion del registro.");
+
+                entity.Property(e => e.IdAlumno).HasComment("Clave foránea a [mkt].[T_Alumno].");
+
+                entity.Property(e => e.IdRemarketingEmbudoNivel).HasComment("Clave foránea a [ia].[T_RemarketingEmbudoNivel].");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario creacion del registro.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario modificacion del registro.");
+
+                entity.HasOne(d => d.IdAlumnoNavigation)
+                    .WithMany(p => p.TRemarketingEmbudoHistoricos)
+                    .HasForeignKey(d => d.IdAlumno)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_RemarketingEmbudoHistorico_Alumno_IdAlumno");
+
+                entity.HasOne(d => d.IdRemarketingEmbudoNivelNavigation)
+                    .WithMany(p => p.TRemarketingEmbudoHistoricos)
+                    .HasForeignKey(d => d.IdRemarketingEmbudoNivel)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_RemarketingEmbudoHistorico_RemarketingEmbudoNivel_IdRemarketingEmbudoNivel");
+            });
+
+            modelBuilder.Entity<TRemarketingEmbudoNivel>(entity =>
+            {
+                entity.ToTable("T_RemarketingEmbudoNivel", "ia");
+
+                entity.HasComment("Tabla para gestión de niveles para los esquemas de embudo de remarketing. Define la jerarquía y criterios de clasificación para leads/prospectos.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del nivel de embudo. Clave primaria autoincremental.");
+
+                entity.Property(e => e.Codigo)
+                    .HasMaxLength(10)
+                    .HasComment("Código único del nivel dentro del esquema.");
+
+                entity.Property(e => e.DescripcionDetalle)
+                    .HasMaxLength(1000)
+                    .HasComment("Descripción detallada del nivel.");
+
+                entity.Property(e => e.DescripcionGeneral)
+                    .HasMaxLength(200)
+                    .HasComment("Descripción general del nivel. Resumen breve de su propósito y características principales.");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha Creacion del Token");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha Modificacion del Token");
+
+                entity.Property(e => e.IdRemarketingEmbudoEsquema).HasComment("Referencia al esquema de embudo al que pertenece este nivel. Clave foránea a [ia].[T_RemarketingEmbudoEsquema].");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .HasComment("Nombre descriptivo del nivel.");
+
+                entity.Property(e => e.Orden).HasComment("Orden de secuencia del nivel dentro del esquema.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario Creacion del Token");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario Modificacion del Token");
+
+                entity.HasOne(d => d.IdRemarketingEmbudoEsquemaNavigation)
+                    .WithMany(p => p.TRemarketingEmbudoNivels)
+                    .HasForeignKey(d => d.IdRemarketingEmbudoEsquema)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_RemarketingEmbudoNivel_RemarketingEmbudoEsquema_IdRemarketingEmbudoEsquema");
             });
 
             modelBuilder.Entity<TRemitenteMailing>(entity =>
