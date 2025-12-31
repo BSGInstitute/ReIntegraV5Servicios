@@ -4720,8 +4720,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                var query = "com.sp_ActualizarCentroCosto";
-                var resultado = _dapperRepository.QuerySPDapper(query, new { IdCentroCosto = idCentroCosto, IdActividad = idActividad });
+                var query = "com.SP_ActualizarCentroCostoPorActividad";
+                var resultado = _dapperRepository.QuerySPDapper(query, new { IdCentroCosto = idCentroCosto, IdActividadDetalle_Ultima = idActividad });
                 return !string.IsNullOrEmpty(resultado);
             }
             catch (Exception ex)
