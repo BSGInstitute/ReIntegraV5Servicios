@@ -272,6 +272,58 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
+
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 29/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el Cronograma de Pago y relacionados asociados a una Oportunidad.
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <param name="tipoPersonal">Tipo de Personal</param>
+        /// <returns> Retorna 200 y objeto con estructura personalizada o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerOportunidadCronogramaPagoV2/{idOportunidad}/{tipoPersonal}")]
+        public IActionResult ObtenerOportunidadCronogramaPagoV2(int idOportunidad, string tipoPersonal)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                MontoPagoCronogramaService servicioCronograma = new MontoPagoCronogramaService(unitOfWork);
+                var resumenCronograma = servicioCronograma.ObtenerOportunidadCronogramaPago(idOportunidad, tipoPersonal);
+
+                if (resumenCronograma.Cronograma == null)
+                {
+                    return Ok(new { cronograma = (object)null });
+                }
+
+                var cronograma = new
+                {
+                    precio = resumenCronograma.Cronograma.Precio,
+                    precioDescuento = resumenCronograma.Cronograma.PrecioDescuento,
+                    idTipoDescuento = resumenCronograma.Cronograma.IdTipoDescuento,
+                    nombrePlural = resumenCronograma.Cronograma.NombrePlural,
+                    estadoMatricula = resumenCronograma.EstadoMatricula,
+                    detalle = resumenCronograma.Cronograma.Detalle.Select(x => new
+                    {
+                        numeroCuota = x.NumeroCuota,
+                        montoCuota = x.MontoCuotaDescuento,
+                        fechaPago = x.FechaPago,
+                        cuotaDescripcion = x.CuotaDescripcion
+                    }).ToList()
+                };
+
+                return Ok(new { cronograma });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 19/08/2022

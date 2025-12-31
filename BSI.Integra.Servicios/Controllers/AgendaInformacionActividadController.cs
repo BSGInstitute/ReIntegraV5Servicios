@@ -1294,6 +1294,53 @@ namespace BSI.Integra.Servicios.Controllers
                 return StatusCode(500, new { Error = "Error interno del servidor", Detalle = e.Message });
             }
         }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 29/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información programa todo
+        /// </summary>
+        /// <param name="request">Request</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionProgramaTodoV2")]
+        public async Task<IActionResult> ObtenerInformacionProgramaTodoV2([FromBody] CargarInformacionProgramaTodoRequestDTO request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var servicio = new InformacionProgramaService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionProgramaTodoAsync(request.idCentroCosto, request.codigoPais);
+
+                if (respuesta.Informacion == null)
+                {
+                    return Ok(new { informacion = (object)null });
+                }
+
+                dynamic info = respuesta.Informacion;
+
+                var informacion = new
+                {
+                    objetivos = info.Objetivos,
+                    estructuraCurricular = info.EstructuraCurricular,
+                    certificacion = info.Certificacion,
+                    duracionHorarios = info.DuracionHorarios,
+                    prerrequisitos = info.Prerrequisitos,
+                    beneficios = info.Beneficios
+                };
+
+                return Ok(new { informacion });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor", Detalle = e.Message });
+            }
+        }
         /// Tipo Función: POST
         /// Autor: Jose Vega
         /// Fecha: 02/10/2025
