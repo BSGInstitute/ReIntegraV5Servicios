@@ -728,4 +728,42 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string NombreCompleto { get; set; }
         public string Ciudad { get; set; }
     }
+    public class OportunidadRemarketingEmbudoDTO
+    {
+        public int IdOportunidad { get; set; }
+        public int IdAlumno { get; set; }
+        public int FaseOportunidadAnterior { get; set; }
+        public string CodigoFaseOportunidadAnterior { get; set; }
+        public int FaseOportunidadActual { get; set; }
+        public string CodigoFaseOportunidadActual { get; set; }
+        public string ClasificacionProbabilidad { get; set; }
+        public DateTime? FechaCreacionOportunidad { get; set; }
+        public DateTime? FechaCambioOportunidad { get; set; }
+    }
+    public class OportunidadCompletaDTO : OportunidadRemarketingEmbudoDTO
+    {
+        public int CantidadTotalOportunidades { get; set; }
+        public int CantidadOportunidadesCerradas { get; set; }
+        public int LlamadasEfectivas { get; set; }
+        public string Score { get; set; }
+
+        public bool TieneOportunidadesCerradas => CantidadOportunidadesCerradas > 0;
+    }
+    public class RemarketingEmbudoNivelDTO
+    {
+        public int Id { get; set; }
+        public string Codigo { get; set; }
+        public string Nombre { get; set; }
+    }
+    public class RemarketingEmbudoNivelLlamadaEfectivaDTO
+    {
+        public int IdOportunidad { get; set; }
+        public int IdAlumno { get; set; }
+        public int IdActividadDetalle { get; set; }
+    }
+    public class RemarketingEmbudoNivelLlamadaEfectivaAgrupadoDTO
+    {
+        public int IdAlumno { get; set; }
+        public int LlamadasEfectivas { get; set; }
+    }
 }

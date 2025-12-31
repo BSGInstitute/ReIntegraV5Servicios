@@ -13,6 +13,7 @@ using iText.Layout.Properties;
 using iText.StyledXmlParser.Jsoup.Nodes;
 using iText.StyledXmlParser.Jsoup.Select;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Drawing;
@@ -4706,8 +4707,90 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        public async Task<List<OportunidadRemarketingEmbudoDTO>> ObtenerInformacionOportunidadRemarketing(DateTime? FechaCorte = null)
+        {
+            try
+            {
+                List<OportunidadRemarketingEmbudoDTO> informacionOportunidad = new List<OportunidadRemarketingEmbudoDTO>();
+                string _query = "ia.SP_RemarketingEmbudoInformacionOportunidad";
+                var parametros = new { FechaCorte };
 
+                // NO usar .Result - usar await directamente
+                var resultado = await _dapperRepository.QuerySPDapperAsync(
+                    _query,
+                    parametros,
+                    timeoutMinutos: 5  // 5 minutos
+                );
 
+                if (!string.IsNullOrEmpty(resultado) && resultado != "[]" && resultado != "null")
+                {
+                    informacionOportunidad = JsonConvert.DeserializeObject<List<OportunidadRemarketingEmbudoDTO>>(resultado)!;
+                    return informacionOportunidad;
+                }
 
+                return new List<OportunidadRemarketingEmbudoDTO>();
+            }
+            catch (Exception e)
+            {
+                // No solo relanzar, agregar contexto
+                throw new Exception($"Error obteniendo información de remarketing: {e.Message}", e);
+            }
+        }
+        public List<RemarketingEmbudoNivelDTO> ObtenerInformacionRemarketingEmbudoNivel()
+        {
+            try
+            {
+                List<RemarketingEmbudoNivelDTO> informacionRemarketingEmbudoNivel = new List<RemarketingEmbudoNivelDTO>();
+                var query = @"SELECT Id,Codigo,Nombre FROM ia.T_RemarketingEmbudoNivel";
+
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    informacionRemarketingEmbudoNivel = JsonConvert.DeserializeObject<List<RemarketingEmbudoNivelDTO>>(resultado);
+                    return informacionRemarketingEmbudoNivel;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        public void RegistrarEmbudoRemarketing(int IdRemarketingEmbudoNivel, int IdAlumno)
+        {
+            try
+            {
+                var query = "ia.SP_RemarketingEmbudoHistorico_Insertar";
+
+                var parametros = new
+                {
+                    IdRemarketingEmbudoNivel = IdRemarketingEmbudoNivel,
+                    IdAlumno = IdAlumno,
+                    Usuario = "EmbudoRemarketing"
+                };
+                _dapperRepository.QuerySPDapper(query, parametros);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("❌ Error al insertar en RegistrarEmbudoRemarketing", ex);
+            }
+        }
+        public List<RemarketingEmbudoNivelLlamadaEfectivaDTO> ObtenerLlamadasEfectivasOportunidadAlumno()
+        {
+            try
+            {
+                var query = "ia.SP_RemarketingEmbudoObtenerLlamadasEfectivas";
+                var resultado = _dapperRepository.QuerySPDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && resultado != "[]")
+                {
+                    return JsonConvert.DeserializeObject<List<RemarketingEmbudoNivelLlamadaEfectivaDTO>>(resultado)!;
+                }
+                return new List<RemarketingEmbudoNivelLlamadaEfectivaDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#OR-OCPPIO@Error en ObtenerColorPerfilProgramaPorIdOportunidad: {ex.Message}", ex);
+            }
+        }
     }
 }

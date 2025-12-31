@@ -5,6 +5,7 @@ using BSI.Integra.Aplicacion.DTO.SCode;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using Google.Api.Ads.AdWords.v201809;
+using static iText.Signatures.LtvVerification;
 
 namespace BSI.Integra.Repositorio.Repository.Interface
 {
@@ -133,7 +134,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public OportunidadDetalleProbabilidadDTO ObtenerInformacionOportunidadProbabilidad(int idOportunidad);
         MetricasComparativasDiariasDTO ObtenerMetricasComparativasDiarias(int idAsesor, DateTime? fecha = null);
         AlumnoCodigosDescuentosDTO ObtenerCodigoDescuentoAlumno(int idAlumno);
-
-
+        public Task<List<OportunidadRemarketingEmbudoDTO>> ObtenerInformacionOportunidadRemarketing(DateTime? FechaCorte = null);
+        public List<RemarketingEmbudoNivelDTO> ObtenerInformacionRemarketingEmbudoNivel();
+        public void RegistrarEmbudoRemarketing(int IdRemarketingEmbudoNivel, int IdAlumno);
+        public List<RemarketingEmbudoNivelLlamadaEfectivaDTO> ObtenerLlamadasEfectivasOportunidadAlumno();
     }
 }
