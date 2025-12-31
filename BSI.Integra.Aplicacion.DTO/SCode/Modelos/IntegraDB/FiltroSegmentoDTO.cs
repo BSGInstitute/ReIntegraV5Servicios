@@ -194,6 +194,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? NroMedidaTiempoUltimaActividadEjecutada { get; set; }
         public int? EnvioAutomaticoEstadoActividadDetalle { get; set; }
         public bool? ConsiderarYaEnviados { get; set; }
+        public bool ConsiderarUltimaOportunidad { get; set; }
+
 
         //Listas
         public List<FiltroSegmentoValorTipoDTO> ListaArea { get; set; }
@@ -258,6 +260,9 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? IdConjuntoListaDetalle { get; set; }
         public int? NroListasRepeticionContacto { get; set; }
         public int? NroEjecucion { get; set; }
+        public List<FiltroSegmentoValorTipoDTO> ListaUOArea { get; set; }
+        public List<FiltroSegmentoValorTipoDTO> ListaUOSubArea { get; set; }
+        public List<FiltroSegmentoValorTipoDTO> ListaUOPGeneral { get; set; }
         public FiltroSegmentoDTO()
         {
             ListaArea = new List<FiltroSegmentoValorTipoDTO>();
@@ -310,6 +315,9 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
             ListaTarifario = new List<FiltroSegmentoValorTipoDTO>();
 
             ListaEnvioAutomaticoOportunidadFaseActual = new List<FiltroSegmentoValorTipoDTO>();
+            ListaUOArea = new List<FiltroSegmentoValorTipoDTO>();
+            ListaUOSubArea = new List<FiltroSegmentoValorTipoDTO>();
+            ListaUOPGeneral = new List<FiltroSegmentoValorTipoDTO>();
         }
     }
 

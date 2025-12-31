@@ -662,6 +662,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Valida si se excluye alumnos matriculados de los prospectos
         /// </summary>
         public bool? ExcluirMatriculados { get; set; }
+        /// <summary>
+        /// Indica si el filtro considerará la última oportunidad de los alumnos.
+        /// </summary>
+        public bool? ConsiderarUltimaOportunidad { get; set; }
+        
 
         public virtual ICollection<TCampaniaGeneral> TCampaniaGenerals { get; set; }
         public virtual ICollection<TFiltroSegmentoDetalle> TFiltroSegmentoDetalles { get; set; }

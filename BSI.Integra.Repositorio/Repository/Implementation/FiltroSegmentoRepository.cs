@@ -526,7 +526,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                        ConsiderarYaEnviados,
                        ConsiderarEnvioAutomatico,
                        AplicaSobreCreacionOportunidad,
-                       AplicaSobreUltimaActividad
+                       AplicaSobreUltimaActividad,
+                       ConsiderarUltimaOportunidad
                 FROM mkt.V_TFiltroSegmento_Panel
                 WHERE Id = @id
                       AND Estado = 1;

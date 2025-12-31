@@ -660,6 +660,10 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
 
                 filtroSegmento.ListaEnvioAutomaticoOportunidadFaseActual = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroFaseOportunidadActual).ToList();
 
+                filtroSegmento.ListaUOArea = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroUOArea).ToList();
+                filtroSegmento.ListaUOSubArea = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroUOSubArea).ToList();
+                filtroSegmento.ListaUOPGeneral = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroUOPGeneral).ToList();
+
                 return filtroSegmento;
             }
             catch (Exception e)
@@ -847,6 +851,8 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                 FiltroNuevo.NroMedidaTiempoUltimaActividadEjecutada = obj.NroMedidaTiempoUltimaActividadEjecutada;
                 FiltroNuevo.EnvioAutomaticoEstadoActividadDetalle = obj.EnvioAutomaticoEstadoActividadDetalle;
                 FiltroNuevo.ConsiderarYaEnviados = 0; //valor que no se considera  
+
+                FiltroNuevo.ConsiderarUltimaOportunidad = obj.ConsiderarUltimaOportunidad;
 
                 FiltroNuevo.UsuarioCreacion = UsuarioModificacion;
                 FiltroNuevo.UsuarioModificacion = UsuarioModificacion;
@@ -1566,6 +1572,53 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                     };
                     _unitOfWork.FiltroSegmentoValorTipoRepository.Add(_new);
                 }
+                foreach (var item in filtro.ListaUOArea)
+                {
+                    var _new = new FiltroSegmentoValorTipo
+                    {
+                        IdCategoriaObjetoFiltro = ValorEstatico.IdCategoriaObjetoFiltroUOArea,
+                        Valor = item.Valor,
+                        Estado = true,
+                        UsuarioCreacion = filtro.NombreUsuario,
+                        UsuarioModificacion = filtro.NombreUsuario,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now,
+                        IdFiltroSegmento = filtro.Id
+
+
+                    };
+                    _unitOfWork.FiltroSegmentoValorTipoRepository.Add(_new);
+                }
+                foreach (var item in filtro.ListaUOSubArea)
+                {
+                    var _new = new FiltroSegmentoValorTipo
+                    {
+                        IdCategoriaObjetoFiltro = ValorEstatico.IdCategoriaObjetoFiltroUOSubArea,
+                        Valor = item.Valor,
+                        Estado = true,
+                        UsuarioCreacion = filtro.NombreUsuario,
+                        UsuarioModificacion = filtro.NombreUsuario,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now,
+                        IdFiltroSegmento = filtro.Id
+                    };
+                    _unitOfWork.FiltroSegmentoValorTipoRepository.Add(_new);
+                }
+                foreach (var item in filtro.ListaUOPGeneral)
+                {
+                    var _new = new FiltroSegmentoValorTipo
+                    {
+                        IdCategoriaObjetoFiltro = ValorEstatico.IdCategoriaObjetoFiltroUOPGeneral,
+                        Valor = item.Valor,
+                        Estado = true,
+                        UsuarioCreacion = filtro.NombreUsuario,
+                        UsuarioModificacion = filtro.NombreUsuario,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now,
+                        IdFiltroSegmento = filtro.Id
+                    };
+                    _unitOfWork.FiltroSegmentoValorTipoRepository.Add(_new);
+                }
                 _unitOfWork.Commit();
                 ;
             }
@@ -1853,6 +1906,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                     FiltroNuevo.NroMedidaTiempoUltimaActividadEjecutada = obj.NroMedidaTiempoUltimaActividadEjecutada;
                     FiltroNuevo.EnvioAutomaticoEstadoActividadDetalle = obj.EnvioAutomaticoEstadoActividadDetalle;
                     FiltroNuevo.ConsiderarYaEnviados = 0; //valor que no se considera  
+                    FiltroNuevo.ConsiderarUltimaOportunidad = obj.ConsiderarUltimaOportunidad;
 
                     FiltroNuevo.UsuarioModificacion = UsuarioModificacion;
                     FiltroNuevo.FechaModificacion = DateTime.Now;

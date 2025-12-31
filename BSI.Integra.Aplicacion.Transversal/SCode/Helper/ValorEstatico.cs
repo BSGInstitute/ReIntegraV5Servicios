@@ -566,6 +566,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Helper
         public static int IdWhatsAppMultipleSubCategoriaDato { get; private set; }
         ///<value>Senior</value>
         public static string ParametroPrueba { get; private set; }
+        public static int IdCategoriaObjetoFiltroUltimaOportunidad { get; private set; }
+        ///<value>48</value>
+        public static int IdCategoriaObjetoFiltroUOArea { get; private set; }
+        ///<value>49</value>
+        public static int IdCategoriaObjetoFiltroUOPGeneral { get; private set; }
+        ///<value>50</value>
+        public static int IdCategoriaObjetoFiltroUOSubArea { get; private set; }
+        ///<value>51</value>
         #endregion  HardCodeoAtributos
 
         public static Dictionary<string, string> GetProperties()
