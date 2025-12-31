@@ -1933,6 +1933,377 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             return resultados.ToList();
         }
 
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 30/12/2024
+        /// Versión: 1.0
+        /// <summary>
+        /// Procesa validación de matrícula para llamadas pendientes.
+        /// Función duplicada de CalificacionAutoV2 pero usa SP_ValidacioMatriculaObtenerInformacionPendiente
+        /// que está fijo para área de Ventas (IdPersonalAreaTrabajo = 8).
+        /// </summary>
+        /// <returns>Una lista de booleanos indicando el resultado de cada validación.</returns>
+        public async Task<List<bool>> ValidacionMatricula()
+        {
+            var serviceInformacionPrograma = new InformacionProgramaService(_unitOfWork);
+            var solicitudOperacionesService = new SolicitudOperacionesService(_unitOfWork);
+            var alumnoService = new AlumnoService(_unitOfWork);
+
+            // Área de trabajo fija en Ventas (8) según el SP
+            int idPersonalAreaTrabajo = 8;
+
+            IEnumerable<LlamadaProcesoAutoDTO> item = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosValidacionMatriculaPendiente();
+
+            var configuracionVigente =
+                _unitOfWork.LineamientoCalificacionRepository.ObtenerConfiguracionVigentePorArea(
+                    idPersonalAreaTrabajo
+                );
+
+            if (
+                configuracionVigente == null
+                || !configuracionVigente.Any()
+                || item == null
+                || !item.Any()
+            )
+                return new List<bool>();
+
+            var resultados = new List<bool>();
+            var itemsAgrupadosPorOportunidad = item
+                .Where(x => x.IdPersonal_Asignado == 6571)
+                .GroupBy(x => x.IdOportunidad)
+                .Select(g => new
+                {
+                    IdOportunidad = g.Key,
+                    Llamadas = g.OrderBy(x => x.IdActividadDetalle)
+                        .ThenBy(x => x.FechaLlamada)
+                        .ToList(),
+                })
+                .ToList();
+
+            var lineamientos = BuildLineamientosFormateadosFromSp(configuracionVigente);
+
+            using var httpClient = new HttpClient
+            {
+                BaseAddress = new Uri(
+                    "http://ia-analisis-llamadas-comercial-api.bsginstitute.com/"
+                ),
+                //URL PRUEBA LOCAL IA
+                //BaseAddress = new Uri(
+                //    "http://127.0.0.1:8000/"
+                //),
+
+            };
+            //
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json")
+            );
+            httpClient.DefaultRequestHeaders.Add("Cache-Control", "no-cache");
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "PostmanRuntime/7.44.0");
+            httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
+            httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
+
+            var semaphore = new SemaphoreSlim(10);
+
+            foreach (var oportunidad in itemsAgrupadosPorOportunidad)
+            {
+                var llamadasParaCalificar = ObtenerSiguienteLlamadaParaCalificarV2(
+                    oportunidad.IdOportunidad,
+                    idPersonalAreaTrabajo
+                );
+
+                if (!llamadasParaCalificar.Any())
+                {
+                    continue;
+                }
+
+                var tasksOportunidad = llamadasParaCalificar.Select(async item =>
+                {
+                    await semaphore.WaitAsync();
+                    try
+                    {
+                        var historicos = oportunidad
+                            .Llamadas.Where(x => x.IdActividadDetalle < item.IdActividadDetalle)
+                            .ToList();
+
+                        bool historicoOk = historicos.All(h =>
+                            h.EsLlamadaTranscrita == true && h.EsLlamadaCalificada == true
+                        );
+                        bool actualOk =
+                            item.EsLlamadaTranscrita == true && item.EsLlamadaCalificada != true;
+
+                        if (!historicoOk || !actualOk)
+                            return false;
+
+                        var puntosCriticosAsesor = _unitOfWork
+                            .LineamientoCalificacionRepository.ObtenerPuntoCriticoDiario(
+                                item.IdPersonal_Asignado,
+                                DateTime.Now.Date.AddDays(-1)
+                            )
+                            .Select(x => x.PuntoCritico)
+                            .ToList();
+
+                        var todasLasLlamadas =
+                            _unitOfWork.LineamientoCalificacionRepository.ObtenerHistoricoLlamadaCompletoPorIdOportunidadV2(
+                                oportunidad.IdOportunidad,
+                                idPersonalAreaTrabajo
+                            );
+
+                        var llamadasHistoricas = todasLasLlamadas
+                            .Where(x =>
+                                x.EsLlamadaTranscrita == true
+                                && (
+                                    x.IdActividadDetalle < item.IdActividadDetalle
+                                    || (
+                                        x.IdActividadDetalle == item.IdActividadDetalle
+                                        && x.FechaLlamada <= item.FechaLlamada
+                                    )
+                                )
+                            )
+                            .OrderByDescending(x => x.IdActividadDetalle)
+                            .ThenByDescending(x => x.FechaLlamada)
+                            .ToList();
+
+                        var llamadasHistoricasCalificadas = todasLasLlamadas
+                            .Where(x =>
+                                x.IdActividadDetalle <= item.IdActividadDetalle
+                                && x.EsLlamadaTranscrita == true
+                                && x.EsLlamadaCalificada == true
+                            )
+                            .OrderByDescending(x => x.IdActividadDetalle)
+                            .ThenByDescending(x => x.FechaLlamada)
+                            .ToList();
+
+                        var llamadaActual = llamadasHistoricas.First();
+                        var llamadasHistoricasParaPayload = llamadasHistoricasCalificadas.ToList();
+
+                        var transcripcionesParaPayload = new List<object>();
+                        var transcripcionActual = await ObtenerDisplayTranscripcion(
+                            llamadaActual.IdLlamadaWebphoneCruceCentralTresCx
+                        );
+                        if (transcripcionActual != null)
+                        {
+                            transcripcionesParaPayload.Add(transcripcionActual);
+                        }
+                        foreach (var llamadaHistorica in llamadasHistoricasParaPayload)
+                        {
+                            var transcripcionHistorica = await ObtenerDisplayTranscripcion(
+                                llamadaHistorica.IdLlamadaWebphoneCruceCentralTresCx
+                            );
+                            if (transcripcionHistorica != null)
+                            {
+                                if (
+                                    int.TryParse(
+                                        transcripcionHistorica.IdLlamada,
+                                        out int idLlamadaInt
+                                    )
+                                )
+                                {
+                                    var versionHistorica = _unitOfWork
+                                        .LineamientoCalificacionRepository.HistorialVersionCalificacionPorLlamadav2(
+                                            idLlamadaInt
+                                        )
+                                        .FirstOrDefault();
+
+                                    if (versionHistorica != null)
+                                    {
+                                        var configuracionHistorica =
+                                            _unitOfWork.LineamientoCalificacionRepository.ObtenerConfiguracionPorVersion(
+                                                versionHistorica.IdVersionConfiguracionCalificacionLlamada,
+                                                idPersonalAreaTrabajo
+                                            );
+
+                                        var detallesEvaluacionPorLlamada = _unitOfWork
+                                            .LineamientoCalificacionRepository.ObtenerDetallesEvaluacionPorLlamada(
+                                                idLlamadaInt
+                                            )
+                                            .ToList();
+
+                                        var detallesPuntoGeneralesPorLlamada = _unitOfWork
+                                            .LineamientoCalificacionRepository.ObtenerDetallesEvaluacionPuntosGeneralesPorLlamada(
+                                                idLlamadaInt
+                                            )
+                                            .ToList();
+
+                                        object lineamientosEnriquecidos =
+                                            BuildLineamientosEnriquecidosFromSp(
+                                                configuracionHistorica,
+                                                detallesEvaluacionPorLlamada,
+                                                detallesPuntoGeneralesPorLlamada
+                                            );
+
+                                        // Filtrar lineamientos históricos solo para Atención al Cliente
+                                        if (idPersonalAreaTrabajo == 3)
+                                        {
+                                            var configuracionLineamentoHistorico = this.ObtenerConfiguracionLineamientoATC(item.EstadoMatricula, item.SubEstadoMatricula);
+                                            lineamientosEnriquecidos = this.CalcularLineamientosATC(configuracionLineamentoHistorico, lineamientosEnriquecidos);
+                                        }
+
+                                        var payloadHistorico = new
+                                        {
+                                            idLlamada = transcripcionHistorica.IdLlamada,
+                                            transcription = new
+                                            {
+                                                source = transcripcionHistorica
+                                                    .Transcription
+                                                    .Source,
+                                                summary = transcripcionHistorica
+                                                    .Transcription
+                                                    .Summary,
+                                            },
+                                            calificaciones = new
+                                            {
+                                                lineamientos = lineamientosEnriquecidos,
+                                            },
+                                        };
+                                        transcripcionesParaPayload.Add(payloadHistorico);
+                                    }
+                                    else
+                                    {
+                                        var payloadHistorico = new
+                                        {
+                                            idLlamada = transcripcionHistorica.IdLlamada,
+                                            transcription = new
+                                            {
+                                                source = transcripcionHistorica
+                                                    .Transcription
+                                                    .Source,
+                                                summary = transcripcionHistorica
+                                                    .Transcription
+                                                    .Summary,
+                                            },
+                                        };
+                                        transcripcionesParaPayload.Add(payloadHistorico);
+                                    }
+                                }
+                                else
+                                {
+                                    var payloadHistorico = new
+                                    {
+                                        idLlamada = transcripcionHistorica.IdLlamada,
+                                        transcription = new
+                                        {
+                                            source = transcripcionHistorica.Transcription.Source,
+                                            summary = transcripcionHistorica.Transcription.Summary,
+                                        },
+                                    };
+                                    transcripcionesParaPayload.Add(payloadHistorico);
+                                }
+                            }
+                        }
+
+                        object brochure;
+                        // Inicializar con lineamientos completos (sin filtrar)
+                        object lineamientosParaPayload = lineamientos;
+
+                        // Área Ventas - usa lineamientos completos sin filtrar
+                        brochure = BuildBrochureVentas(item, serviceInformacionPrograma);
+
+                        var payload = new
+                        {
+                            idPersonal = item.IdPersonal_Asignado,
+                            contacto = "Generico",
+                            userName = "System-auto",
+                            idCodigoPais = item.IdCodigoPais.ToString(),
+                            transcription = transcripcionesParaPayload,
+                            lineamientos = lineamientosParaPayload,
+                            brochure,
+                            faseOrigen = item.FaseOportunidad_Ant,
+                            faseDestino = item.FaseOportunidad,
+                            puntosCriticosAsesor = puntosCriticosAsesor,
+                            idPersonalAreaTrabajo = item.IdPersonalAreaTrabajo
+                        };
+
+                        Console.WriteLine(
+                            System.Text.Json.JsonSerializer.Serialize(
+                                payload,
+                                new System.Text.Json.JsonSerializerOptions
+                                {
+                                    WriteIndented = true,
+                                    PropertyNamingPolicy = System
+                                        .Text
+                                        .Json
+                                        .JsonNamingPolicy
+                                        .CamelCase,
+                                    DictionaryKeyPolicy = System
+                                        .Text
+                                        .Json
+                                        .JsonNamingPolicy
+                                        .CamelCase,
+                                }
+                            )
+                        );
+                        var llamadaActualizada =
+                           _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionPorIdLlamadaV2(
+                               item.IdLlamadaWebphoneCruceCentralTresCx,
+                               idPersonalAreaTrabajo
+                           );
+
+                        if (llamadaActualizada?.EsLlamadaCalificada == true)
+                        {
+                            Console.WriteLine(
+                                $"[SKIP] Llamada {item.IdLlamadaWebphoneCruceCentralTresCx} ya fue calificada por otro proceso"
+                            );
+                            return false;
+                        }
+
+                        if (transcripcionesParaPayload.Any())
+                        {
+                            var primeraTranscripcion = transcripcionesParaPayload.First();
+                            var idLlamadaPrimera = primeraTranscripcion
+                                .GetType()
+                                .GetProperty("IdLlamada")
+                                ?.GetValue(primeraTranscripcion)
+                                ?.ToString();
+
+                            if (idLlamadaPrimera != item.IdLlamadaWebphoneCruceCentralTresCx.ToString())
+                            {
+                                Console.WriteLine(
+                                    $"[SKIP] La llamada actual {item.IdLlamadaWebphoneCruceCentralTresCx} no está en la primera posición del array. Primera posición: {idLlamadaPrimera}"
+                                );
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine(
+                                $"[SKIP] No hay transcripciones disponibles para la llamada {item.IdLlamadaWebphoneCruceCentralTresCx}"
+                            );
+                            return false;
+                        }
+
+                        // Endpoint fijo para Ventas
+                        string endpoint = "grading/queue/batch";
+
+                        var response = await httpClient.PostAsJsonAsync(endpoint, payload);
+                        response.EnsureSuccessStatusCode();
+                        var json = await response.Content.ReadAsStringAsync();
+                        var evaluacionData = JsonSerializer.Deserialize<ResultadoEvaluacion>(
+                            json,
+                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                        );
+
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(
+                            $"[ERROR] Error al validar matrícula para llamada {item.IdLlamadaWebphoneCruceCentralTresCx}: {ex.Message}"
+                        );
+                        return false;
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                });
+
+                var resultadosOportunidad = await Task.WhenAll(tasksOportunidad);
+                resultados.AddRange(resultadosOportunidad);
+            }
+            return resultados.ToList();
+        }
+
 
 
         public object BuildLineamientosEnriquecidosFromSp(

@@ -1210,6 +1210,33 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             }
 
         }
+
+        public IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosValidacionMatriculaPendiente()
+        {
+            try
+            {
+                TimeZoneInfo peruTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SA Pacific Standard Time");
+                DateTime fechaHoraPeruActual = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, peruTimeZone);
+                DateTime fechaDesde = fechaHoraPeruActual.Date.AddDays(-4);
+
+                List<LlamadaProcesoAutoDTO> configuracion = new List<LlamadaProcesoAutoDTO>();
+                var resultado = _dapperRepository.QuerySPDapper("ope.SP_ValidacioMatriculaObtenerInformacionPendiente", new
+                {
+                    idTipoProcesoProgramado = 4,
+                    fechaDesde = fechaDesde
+                });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
+                {
+                    configuracion = JsonConvert.DeserializeObject<List<LlamadaProcesoAutoDTO>>(resultado);
+                }
+                return configuracion;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosConfiguracionCalificacionAtencionCliente()
         {
             try

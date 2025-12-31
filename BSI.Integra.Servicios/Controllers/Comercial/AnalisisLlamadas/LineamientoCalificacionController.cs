@@ -1200,6 +1200,32 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
                 return BadRequest(ex.Message);
             }
         }
+
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 30/12/2024
+        /// Versión: 1.0
+        /// <summary>
+        /// Ejecuta validación de matrícula para llamadas pendientes.
+        /// Usa SP_ValidacioMatriculaObtenerInformacionPendiente que está fijo para área Ventas.
+        /// </summary>
+        /// <returns> List<bool> con resultados de validaciones </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<ActionResult<List<bool>>> ValidacionMatricula()
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = await lineamientoCalificacionService.ValidacionMatricula();
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         /// Tipo Función: Post
         /// Autor: Lolo Zaa
         /// Fecha: 25/09/2025
