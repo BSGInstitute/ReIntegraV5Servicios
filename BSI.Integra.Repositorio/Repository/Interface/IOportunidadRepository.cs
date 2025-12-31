@@ -134,6 +134,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public OportunidadDetalleProbabilidadDTO ObtenerInformacionOportunidadProbabilidad(int idOportunidad);
         MetricasComparativasDiariasDTO ObtenerMetricasComparativasDiarias(int idAsesor, DateTime? fecha = null);
         AlumnoCodigosDescuentosDTO ObtenerCodigoDescuentoAlumno(int idAlumno);
+        bool ActualizarCentroCosto(int idCentroCosto, int idActividad);
+
         public Task<List<OportunidadRemarketingEmbudoDTO>> ObtenerInformacionOportunidadRemarketing(DateTime? FechaCorte = null);
         public List<RemarketingEmbudoNivelDTO> ObtenerInformacionRemarketingEmbudoNivel();
         public void RegistrarEmbudoRemarketing(int IdRemarketingEmbudoNivel, int IdAlumno);
