@@ -133,7 +133,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public OportunidadDetalleProbabilidadDTO ObtenerInformacionOportunidadProbabilidad(int idOportunidad);
         MetricasComparativasDiariasDTO ObtenerMetricasComparativasDiarias(int idAsesor, DateTime? fecha = null);
         AlumnoCodigosDescuentosDTO ObtenerCodigoDescuentoAlumno(int idAlumno);
-
+        bool ActualizarCentroCosto(int idCentroCosto, int idActividad);
 
     }
 }
