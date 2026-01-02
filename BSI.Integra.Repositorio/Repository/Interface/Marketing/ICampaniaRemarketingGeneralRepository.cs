@@ -14,9 +14,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Marketing
         List<SegmentoCreadoDTO> ObtenerListadoSegmentosCreados();
         List<ResultadoTextoGeneradoDTO> ObtenerResultadosGeneracionTextoPorCampania(int id);
         bool InsertarCampaniaRemarketing(EnvioCampaniaRemarketingDTO request);
+        bool ActualizarCampaniaRemarketing(EnvioCampaniaRemarketingDTO request);
         DetallesCampaniaDTO VerDetallesCampania(int id);
         CampaniaRemarketingIndividualDTO ObtenerCampaniaRemarketingPorId(int id);
-        bool EditarCampania();
         bool EliminarCampania(int id, string usuario);
         MensajeGeneradoDTO ObtenerMensajeGeneradoPorId(int id);
 

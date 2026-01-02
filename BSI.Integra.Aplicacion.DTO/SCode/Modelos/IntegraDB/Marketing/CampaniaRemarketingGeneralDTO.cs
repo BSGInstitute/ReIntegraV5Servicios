@@ -42,6 +42,7 @@
 
     public class EnvioCampaniaRemarketingDTO
     {
+        public int? Id { get; set; }
         public SegmentoDTO Segmento { get; set; }
         public List<int> MediosEnvio { get; set; }
         public int TipoMensaje { get; set; }

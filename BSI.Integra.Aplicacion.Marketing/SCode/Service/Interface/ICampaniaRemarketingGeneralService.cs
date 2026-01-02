@@ -14,10 +14,10 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface
         CombosConfiguracionCampaniaDTO ObtenerCombosConfiguracionCampania();
         List<SegmentoCreadoDTO> ObtenerListadoSegmentosCreados();
         List<ResultadoTextoGeneradoDTO> ObtenerResultadosGeneracionTextoPorCampania(int id);
-        bool EjecutarEnvioCampaniaRemarketing(EnvioCampaniaRemarketingDTO request, string usuario);
+        bool GuardarEjecutarEnvioCampaniaRemarketing(EnvioCampaniaRemarketingDTO request, string usuario);
+        bool EditarEjecutarEnvioCampaniaRemarketing(EnvioCampaniaRemarketingDTO request, string usuario);
         DetallesCampaniaDTO VerDetallesCampania(int id);
         CampaniaRemarketingIndividualDTO ObtenerCampaniaRemarketingPorId(int id);
-        bool EditarCampania();
         bool EliminarCampania(int id, string usuario);
         MensajeGeneradoDTO ObtenerMensajeGeneradoPorId(int id);
         bool ReenviarMensajeGenerado(int id);

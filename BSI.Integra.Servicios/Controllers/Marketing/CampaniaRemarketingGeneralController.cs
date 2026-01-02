@@ -132,12 +132,12 @@ namespace BSI.Integra.Servicios.Controllers.Marketing
         /// Fecha: 26/12/2025
         /// Versión: 1.0
         /// <summary>
-        /// Ejecuta una campaña remarketing general de acuerdo a lo programado
+        /// Guarda y ejecuta una campaña remarketing general de acuerdo a lo programado
         /// </summary>
         /// <returns>Estado de la programacion y/o ejecucion</returns>
         [HttpPost]
         [Route("[action]")]
-        public IActionResult EjecutarEnvioCampaniaRemarketing(EnvioCampaniaRemarketingDTO request)
+        public IActionResult GuardarEjecutarEnvioCampaniaRemarketing(EnvioCampaniaRemarketingDTO request)
         {
             try
             {
@@ -145,7 +145,34 @@ namespace BSI.Integra.Servicios.Controllers.Marketing
                 var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
                 var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
 
-                var listado = _campaniaRemarketingGeneralService.EjecutarEnvioCampaniaRemarketing(request, usuario);
+                var listado = _campaniaRemarketingGeneralService.GuardarEjecutarEnvioCampaniaRemarketing(request, usuario);
+                return Ok(listado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Humberto Oscata
+        /// Fecha: 26/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Edita y ejecuta una campaña remarketing general de acuerdo a lo programado
+        /// </summary>
+        /// <returns>Estado de la programacion y/o ejecucion</returns>
+        [HttpPost]
+        [Route("[action]")]
+        public IActionResult EditarEjecutarEnvioCampaniaRemarketing(EnvioCampaniaRemarketingDTO request)
+        {
+            try
+            {
+                var claimsIdentity = User.Identity as ClaimsIdentity;
+                var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+                var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
+
+                var listado = _campaniaRemarketingGeneralService.EditarEjecutarEnvioCampaniaRemarketing(request, usuario);
                 return Ok(listado);
             }
             catch (Exception ex)
@@ -192,21 +219,6 @@ namespace BSI.Integra.Servicios.Controllers.Marketing
             try
             {
                 var listado = _campaniaRemarketingGeneralService.ObtenerCampaniaRemarketingPorId(id);
-                return Ok(listado);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpPost]
-        [Route("[action]")]
-        public IActionResult EditarCampania()
-        {
-            try
-            {
-                var listado = _campaniaRemarketingGeneralService.EditarCampania();
                 return Ok(listado);
             }
             catch (Exception ex)

@@ -55,13 +55,24 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
             return _campaniaRemarketingGeneralRepository.ObtenerResultadosGeneracionTextoPorCampania(id);
         }
 
-        public bool EjecutarEnvioCampaniaRemarketing(EnvioCampaniaRemarketingDTO request, string usuario)
+        public bool GuardarEjecutarEnvioCampaniaRemarketing(EnvioCampaniaRemarketingDTO request, string usuario)
         {
             request.UsuarioCreacion = usuario;
             if (request.FechaEnvio == null)
                 request.FechaEnvio = DateTime.Now;
 
             var respuesta = _campaniaRemarketingGeneralRepository.InsertarCampaniaRemarketing(request);
+
+            return respuesta;
+        }
+
+        public bool EditarEjecutarEnvioCampaniaRemarketing(EnvioCampaniaRemarketingDTO request, string usuario)
+        {
+            request.UsuarioCreacion = usuario;
+            if (request.FechaEnvio == null)
+                request.FechaEnvio = DateTime.Now;
+
+            var respuesta = _campaniaRemarketingGeneralRepository.ActualizarCampaniaRemarketing(request);
 
             return respuesta;
         }
@@ -74,11 +85,6 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
         public CampaniaRemarketingIndividualDTO ObtenerCampaniaRemarketingPorId(int id)
         {
             return _campaniaRemarketingGeneralRepository.ObtenerCampaniaRemarketingPorId(id);
-        }
-
-        public bool EditarCampania()
-        {
-            return _campaniaRemarketingGeneralRepository.EditarCampania();
         }
 
         public bool EliminarCampania(int id, string usuario)

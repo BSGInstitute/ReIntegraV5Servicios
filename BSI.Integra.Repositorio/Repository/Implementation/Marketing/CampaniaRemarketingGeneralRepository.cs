@@ -229,6 +229,38 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
             }
         }
 
+        public bool ActualizarCampaniaRemarketing(EnvioCampaniaRemarketingDTO request)
+        {
+            try
+            {
+                var querySP = "[mkt].[SP_ActualizarCampaniaRemarketing]";
+
+                var parameters = new DynamicParameters();
+
+                parameters.Add("@IdRemarketingCampaniaGeneral", request.Id);
+                parameters.Add("@NombreCampania", request.Segmento.Nombre);
+                parameters.Add("@IdFiltroSegmento", request.Segmento.Id);
+                parameters.Add("@IdRemarketingTipoMensaje", request.TipoMensaje);
+                parameters.Add("@IdRemarketingLogicaEnvio", request.LogicaEnvio);
+                parameters.Add("@RemitenteCorreo", request.RemitenteCorreo);
+                parameters.Add("@RemitenteNombre", request.RemitenteNombre);
+                parameters.Add("@Asunto", request.Asunto);
+                parameters.Add("@EnvioConfigurado", request.EnvioSeleccionado);
+                parameters.Add("@FechaEnvioProgramada", request.FechaEnvio);
+                parameters.Add("@UsuarioModificacion", request.UsuarioCreacion);
+                parameters.Add("@MediosEnvio", string.Join(",", request.MediosEnvio));
+                parameters.Add("@Argumentos", string.Join(",", request.Argumentos));
+
+                var result = _dapperRepository.QuerySPFirstOrDefault(querySP, parameters);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public DetallesCampaniaDTO VerDetallesCampania(int id)
         {
             try
@@ -330,18 +362,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
                 }
 
                 return resultado;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public bool EditarCampania()
-        {
-            try
-            {
-                return true;
             }
             catch (Exception ex)
             {
