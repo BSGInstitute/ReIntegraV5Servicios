@@ -46,7 +46,7 @@ namespace BSI.Integra.PruebasUnitarias
             var bloques = new List<TBloqueHorario>
             {
                 new TBloqueHorario { Id = 2, Nombre = "Tarde", Descripcion = null, Estado = true},
-                new TBloqueHorario { Id = 3, Nombre = "Mañana", Descripcion = null, Estado = true}
+                new TBloqueHorario { Id = 3, Nombre = "Mañana", Descripcion = null, Estado = true},
             };
             var detalles = new List<TBloqueHorarioDetalle>
             {
@@ -66,7 +66,7 @@ namespace BSI.Integra.PruebasUnitarias
             Assert.AreEqual("WhatsApp", result.MediosComunicacion[0].Nombre);
 
             Assert.AreEqual(2, result.BloqueHorario.Count);
-            Assert.AreEqual("Tarde", result.BloqueHorario[0].Nombre);
+            Assert.AreEqual("Tarde", result.BloqueHorario[1].Nombre);
 
             Assert.AreEqual(2, result.BloqueHorarioDetalle.Count);
             Assert.AreEqual(1, result.BloqueHorarioDetalle[0].Id);

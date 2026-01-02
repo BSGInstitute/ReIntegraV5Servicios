@@ -39,6 +39,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     HoraInicio = x.HoraInicio,
                     HoraFin = x.HoraFin
                 })
+                .OrderBy(x => x.Nombre)
                 .ToList();
             var bloqueHorarioDetalle = _unitOfWork.BloqueHorarioDetalleRepository.GetAll()
                 .Where(x => x.Estado == true)
@@ -171,7 +172,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         public PreferenciaConfiguracionDTO ObtenerPreferenciaComunicacionAlumno(int IdAlumno)
         {
             var preferenciaMC = _unitOfWork.PreferenciaComunicacionAcademicaRepository.ObtenerPreferenciaMedioComunicacionByIdAlumno(IdAlumno);
-            var preferenciaHC = _unitOfWork.PreferenciaComunicacionAcademicaHorarioRepository.ObtenerPreferenciaHorarioComunicacionByIdAlumno(IdAlumno);
+            var preferenciaHC = _unitOfWork.PreferenciaComunicacionAcademicaHorarioRepository.ObtenerPreferenciaHorarioComunicacionByIdAlumno(IdAlumno).OrderBy(x => x.IdBloqueHorarioDetalle).ToList();
             return new PreferenciaConfiguracionDTO
             {
                 MediosComunicacion = preferenciaMC,
