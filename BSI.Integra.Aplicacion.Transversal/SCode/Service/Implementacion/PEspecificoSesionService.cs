@@ -226,7 +226,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         /// <param name="dto"></param>
         /// <param name="usuario"></param>
         /// <returns> DTO - ActualizarPEspecificoSesionDTO - respuesta </returns>
-        public (bool EstadoCruce, IEnumerable<CruceSesionPEspecificoDTO?> Cruces, string? Detalle) ActualizarDatosCronogramaSesiones(InformacionCronogramaSesionesDTO dto, string usuario)
+        public RptaActualizarDatosCronogramaSesionesDTO ActualizarDatosCronogramaSesiones(InformacionCronogramaSesionesDTO dto, string usuario)
         {
             try
             {
@@ -239,7 +239,11 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 var fechasCruces = _unitOfWork.PEspecificoSesionRepository.ValidarCrucesSesiones(dto, duracion);
                 if (fechasCruces.Count() > 0)
                 {
-                    return (true, fechasCruces, null);
+                    return new RptaActualizarDatosCronogramaSesionesDTO { 
+                        EstadoCruce = true,
+                        Cruces = fechasCruces,
+                        Detalle = null
+                    };
                 }
                 else
                 {
@@ -298,7 +302,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     sesion.FechaModificacion = DateTime.Now;
                     if (sesion.FechaHoraInicio != dto.FechaHoraInicio)
                     {
-
                         if (dto.AplicarCambios)
                         {
                             var furs = _unitOfWork.FurRepository.ObtenerFurProgramaEspecifico(sesion.IdPespecifico, false);
@@ -324,7 +327,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                 }
                             }
                         }
-                        EnviarNotificacionCambioFechaSesion(dto, sesion, usuario);
+                        //EnviarNotificacionCambioFechaSesion(dto, sesion, usuario);
                         sesion.UrlWebex = string.Empty;
                         sesion.CuentaWebex = null;
                     }
@@ -371,7 +374,29 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         _unitOfWork.PespecificoParticipacionExpositorRepository.Update(pEspecificoParticipacionExpositor);
                         _unitOfWork.Commit();
                     }
-                    return (false, null, detalle);
+                    int idTipoPrograma = 0;
+                    if (sesion.IdPespecifico > 0)
+                    {
+                        var pespecifico = _unitOfWork.PEspecificoRepository
+                            .FirstBy(x => x.Id == sesion.IdPespecifico);
+
+                        if (pespecifico?.IdProgramaGeneral > 0)
+                        {
+                            var pGeneral = _unitOfWork.PGeneralRepository
+                                .FirstBy(x => x.Id == pespecifico.IdProgramaGeneral.Value);
+
+                            idTipoPrograma = pGeneral?.IdTipoPrograma ?? 0;
+                        }
+                    }
+                    return new RptaActualizarDatosCronogramaSesionesDTO
+                    {
+                        EstadoCruce = false,
+                        Cruces = null,
+                        Detalle = detalle,
+                        IdPEspecificoSesion = sesion.Id,
+                        IdTipoPrograma = idTipoPrograma,
+                        FechaSesion = sesion.FechaHoraInicio
+                    };
                 }
             }
             catch (Exception ex)

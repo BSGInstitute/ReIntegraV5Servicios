@@ -1099,5 +1099,16 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception($"#PEPHR-OIPH-001@Error en NotificacionAlumnosPEspecificoSesionPortal: {ex.Message}", ex);
             }
         }
+        public bool EsWebinarPasado(int idPEspecificoSesion)
+        {
+            try
+            {
+                return this.Exist(x => x.Id == idPEspecificoSesion && x.FechaHoraInicio < DateTime.Now);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
     }
 }

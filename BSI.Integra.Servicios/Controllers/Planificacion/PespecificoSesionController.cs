@@ -1,10 +1,13 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
+using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Implementation;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Helpers;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -25,10 +28,12 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
     public class PespecificoSesionController : Controller
     {
         private IPEspecificoSesionService _pEspecificoSesionService;
+        private IAsistenciaWebinarService _asistenciaWebinarService;
 
         public PespecificoSesionController(IUnitOfWork unitOfWork)
         {
             _pEspecificoSesionService = new PEspecificoSesionService(unitOfWork);
+            _asistenciaWebinarService = new AsistenciaWebinarService(unitOfWork);
         }
         /// Tipo Función: GET
         /// Autor: Klebert Layme
@@ -70,6 +75,14 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             }
             var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
             var resultado = _pEspecificoSesionService.ActualizarDatosCronogramaSesiones(dto, registroClaimToken.UserName);
+            if (resultado.IdTipoPrograma == 3)
+            { // tipo 3 son programas webinar
+                var nuevaFecha = resultado.FechaSesion.Value.Date.AddMinutes(1);
+                var jobId = BackgroundJob.Schedule(
+                    () => _asistenciaWebinarService.ConfirmacionWebinarAutomatica(resultado.IdPEspecificoSesion.Value),
+                    nuevaFecha
+                );
+            }
             return Ok(new
             {
                 resultado.EstadoCruce,
