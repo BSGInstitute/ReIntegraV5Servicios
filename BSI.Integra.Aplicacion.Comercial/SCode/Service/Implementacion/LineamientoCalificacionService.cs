@@ -1941,22 +1941,25 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
         /// Procesa validación de matrícula para llamadas pendientes.
         /// Función duplicada de CalificacionAutoV2 pero usa SP_ValidacioMatriculaObtenerInformacionPendiente
         /// que está fijo para área de Ventas (IdPersonalAreaTrabajo = 8).
+        /// Separa el procesamiento en dos tipos de payload:
+        /// - Convenio de Voz: IdOcurrenciaAlterno = 404
+        /// - Proceso de Venta: IdOcurrenciaAlterno != 404
         /// </summary>
         /// <returns>Una lista de booleanos indicando el resultado de cada validación.</returns>
         public async Task<List<bool>> ValidacionMatricula()
         {
-            var serviceInformacionPrograma = new InformacionProgramaService(_unitOfWork);
-            var solicitudOperacionesService = new SolicitudOperacionesService(_unitOfWork);
-            var alumnoService = new AlumnoService(_unitOfWork);
-
             // Área de trabajo fija en Ventas (8) según el SP
             int idPersonalAreaTrabajo = 8;
+            int idPersonalCalidad = 6;
+
+            // Constante para identificar Convenio de Voz
+            const int ID_OCURRENCIA_CONVENIO_VOZ = 404;
 
             IEnumerable<LlamadaProcesoAutoDTO> item = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosValidacionMatriculaPendiente();
 
             var configuracionVigente =
                 _unitOfWork.LineamientoCalificacionRepository.ObtenerConfiguracionVigentePorArea(
-                    idPersonalAreaTrabajo
+                    idPersonalCalidad
                 );
 
             if (
@@ -1969,7 +1972,6 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
             var resultados = new List<bool>();
             var itemsAgrupadosPorOportunidad = item
-                .Where(x => x.IdPersonal_Asignado == 6571)
                 .GroupBy(x => x.IdOportunidad)
                 .Select(g => new
                 {
@@ -1982,66 +1984,50 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
             var lineamientos = BuildLineamientosFormateadosFromSp(configuracionVigente);
 
-            using var httpClient = new HttpClient
-            {
-                BaseAddress = new Uri(
-                    "http://ia-analisis-llamadas-comercial-api.bsginstitute.com/"
-                ),
-                //URL PRUEBA LOCAL IA
-                //BaseAddress = new Uri(
-                //    "http://127.0.0.1:8000/"
-                //),
+            //using var httpClient = new HttpClient
+            //{
+            //    BaseAddress = new Uri(
+            //        "http://ia-analisis-llamadas-comercial-api.bsginstitute.com/"
+            //    ),
+            //    //URL PRUEBA LOCAL IA
+            //    //BaseAddress = new Uri(
+            //    //    "http://127.0.0.1:8000/"
+            //    //),
 
-            };
-            //
-            httpClient.DefaultRequestHeaders.Accept.Clear();
-            httpClient.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("application/json")
-            );
-            httpClient.DefaultRequestHeaders.Add("Cache-Control", "no-cache");
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "PostmanRuntime/7.44.0");
-            httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
-            httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
+            //};
+            ////
+            //httpClient.DefaultRequestHeaders.Accept.Clear();
+            //httpClient.DefaultRequestHeaders.Accept.Add(
+            //    new MediaTypeWithQualityHeaderValue("application/json")
+            //);
+            //httpClient.DefaultRequestHeaders.Add("Cache-Control", "no-cache");
+            //httpClient.DefaultRequestHeaders.Add("User-Agent", "PostmanRuntime/7.44.0");
+            //httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
+            //httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
 
             var semaphore = new SemaphoreSlim(10);
 
             foreach (var oportunidad in itemsAgrupadosPorOportunidad)
             {
-                var llamadasParaCalificar = ObtenerSiguienteLlamadaParaCalificarV2(
-                    oportunidad.IdOportunidad,
-                    idPersonalAreaTrabajo
-                );
-
-                if (!llamadasParaCalificar.Any())
+                // Validar que haya llamadas en la oportunidad
+                if (oportunidad.Llamadas == null || !oportunidad.Llamadas.Any())
                 {
                     continue;
                 }
 
-                var tasksOportunidad = llamadasParaCalificar.Select(async item =>
+                var tasksOportunidad = oportunidad.Llamadas.Select(async item =>
                 {
                     await semaphore.WaitAsync();
                     try
                     {
-                        var historicos = oportunidad
-                            .Llamadas.Where(x => x.IdActividadDetalle < item.IdActividadDetalle)
-                            .ToList();
+                    
 
-                        bool historicoOk = historicos.All(h =>
-                            h.EsLlamadaTranscrita == true && h.EsLlamadaCalificada == true
-                        );
-                        bool actualOk =
-                            item.EsLlamadaTranscrita == true && item.EsLlamadaCalificada != true;
+                       
+                        // Determinar el tipo de validación según IdOcurrenciaAlterno
+                        bool esConvenioVoz = item.IdOcurrenciaAlterno == ID_OCURRENCIA_CONVENIO_VOZ;
+                        string tipoValidacion = esConvenioVoz ? "Convenio de Voz" : "Proceso de Venta";
 
-                        if (!historicoOk || !actualOk)
-                            return false;
-
-                        var puntosCriticosAsesor = _unitOfWork
-                            .LineamientoCalificacionRepository.ObtenerPuntoCriticoDiario(
-                                item.IdPersonal_Asignado,
-                                DateTime.Now.Date.AddDays(-1)
-                            )
-                            .Select(x => x.PuntoCritico)
-                            .ToList();
+                        Console.WriteLine($"[INFO] Procesando llamada {item.IdLlamadaWebphoneCruceCentralTresCx} - Tipo: {tipoValidacion} (IdOcurrenciaAlterno: {item.IdOcurrenciaAlterno})");
 
                         var todasLasLlamadas =
                             _unitOfWork.LineamientoCalificacionRepository.ObtenerHistoricoLlamadaCompletoPorIdOportunidadV2(
@@ -2049,168 +2035,166 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                 idPersonalAreaTrabajo
                             );
 
-                        var llamadasHistoricas = todasLasLlamadas
-                            .Where(x =>
-                                x.EsLlamadaTranscrita == true
-                                && (
-                                    x.IdActividadDetalle < item.IdActividadDetalle
-                                    || (
-                                        x.IdActividadDetalle == item.IdActividadDetalle
-                                        && x.FechaLlamada <= item.FechaLlamada
-                                    )
-                                )
-                            )
-                            .OrderByDescending(x => x.IdActividadDetalle)
-                            .ThenByDescending(x => x.FechaLlamada)
-                            .ToList();
-
-                        var llamadasHistoricasCalificadas = todasLasLlamadas
-                            .Where(x =>
-                                x.IdActividadDetalle <= item.IdActividadDetalle
-                                && x.EsLlamadaTranscrita == true
-                                && x.EsLlamadaCalificada == true
-                            )
-                            .OrderByDescending(x => x.IdActividadDetalle)
-                            .ThenByDescending(x => x.FechaLlamada)
-                            .ToList();
-
-                        var llamadaActual = llamadasHistoricas.First();
-                        var llamadasHistoricasParaPayload = llamadasHistoricasCalificadas.ToList();
-
-                        var transcripcionesParaPayload = new List<object>();
-                        var transcripcionActual = await ObtenerDisplayTranscripcion(
-                            llamadaActual.IdLlamadaWebphoneCruceCentralTresCx
-                        );
-                        if (transcripcionActual != null)
+                        // Validar que todasLasLlamadas no sea null
+                        if (todasLasLlamadas == null || !todasLasLlamadas.Any())
                         {
-                            transcripcionesParaPayload.Add(transcripcionActual);
+                            Console.WriteLine($"[SKIP] No hay llamadas disponibles para la oportunidad {oportunidad.IdOportunidad}");
+                            return false;
                         }
-                        foreach (var llamadaHistorica in llamadasHistoricasParaPayload)
+
+                        // Separar llamadas por tipo de ocurrencia
+                        // Convenio de Voz (404): Llamada actual para calificar
+                        var llamadasConvenioVoz = todasLasLlamadas
+                            .Where(x => x.IdOcurrenciaAlterno == ID_OCURRENCIA_CONVENIO_VOZ
+                                && x.EsLlamadaTranscrita == true)
+                            .OrderBy(x => x.IdActividadDetalle)
+                            .ThenBy(x => x.FechaLlamada)
+                            .ToList();
+
+                        // Proceso de Venta (!=404): Histórico de llamadas como contexto
+                        var llamadasProcesoVenta = todasLasLlamadas
+                            .Where(x => x.IdOcurrenciaAlterno != ID_OCURRENCIA_CONVENIO_VOZ
+                                && x.EsLlamadaTranscrita == true
+                                && x.EsLlamadaCalificada == true)
+                            .OrderBy(x => x.IdActividadDetalle)
+                            .ThenBy(x => x.FechaLlamada)
+                            .ToList();
+
+                        // Construir transcripciones para Convenio de Voz
+                        var transcripcionesConvenioVoz = new List<object>();
+                        foreach (var llamadaConvenio in llamadasConvenioVoz)
+                        {
+                            var transcripcionConvenio = await ObtenerDisplayTranscripcion(
+                                llamadaConvenio.IdLlamadaWebphoneCruceCentralTresCx
+                            );
+                            if (transcripcionConvenio != null)
+                            {
+                                transcripcionesConvenioVoz.Add(transcripcionConvenio);
+                            }
+                        }
+
+                        // Construir transcripciones para Proceso de Venta (histórico)
+                        var transcripcionesProcesoVenta = new List<object>();
+                        foreach (var llamadaHistorica in llamadasProcesoVenta)
                         {
                             var transcripcionHistorica = await ObtenerDisplayTranscripcion(
                                 llamadaHistorica.IdLlamadaWebphoneCruceCentralTresCx
                             );
                             if (transcripcionHistorica != null)
                             {
-                                if (
-                                    int.TryParse(
-                                        transcripcionHistorica.IdLlamada,
-                                        out int idLlamadaInt
-                                    )
-                                )
-                                {
-                                    var versionHistorica = _unitOfWork
-                                        .LineamientoCalificacionRepository.HistorialVersionCalificacionPorLlamadav2(
-                                            idLlamadaInt
-                                        )
-                                        .FirstOrDefault();
-
-                                    if (versionHistorica != null)
-                                    {
-                                        var configuracionHistorica =
-                                            _unitOfWork.LineamientoCalificacionRepository.ObtenerConfiguracionPorVersion(
-                                                versionHistorica.IdVersionConfiguracionCalificacionLlamada,
-                                                idPersonalAreaTrabajo
-                                            );
-
-                                        var detallesEvaluacionPorLlamada = _unitOfWork
-                                            .LineamientoCalificacionRepository.ObtenerDetallesEvaluacionPorLlamada(
-                                                idLlamadaInt
-                                            )
-                                            .ToList();
-
-                                        var detallesPuntoGeneralesPorLlamada = _unitOfWork
-                                            .LineamientoCalificacionRepository.ObtenerDetallesEvaluacionPuntosGeneralesPorLlamada(
-                                                idLlamadaInt
-                                            )
-                                            .ToList();
-
-                                        object lineamientosEnriquecidos =
-                                            BuildLineamientosEnriquecidosFromSp(
-                                                configuracionHistorica,
-                                                detallesEvaluacionPorLlamada,
-                                                detallesPuntoGeneralesPorLlamada
-                                            );
-
-                                        // Filtrar lineamientos históricos solo para Atención al Cliente
-                                        if (idPersonalAreaTrabajo == 3)
-                                        {
-                                            var configuracionLineamentoHistorico = this.ObtenerConfiguracionLineamientoATC(item.EstadoMatricula, item.SubEstadoMatricula);
-                                            lineamientosEnriquecidos = this.CalcularLineamientosATC(configuracionLineamentoHistorico, lineamientosEnriquecidos);
-                                        }
-
-                                        var payloadHistorico = new
-                                        {
-                                            idLlamada = transcripcionHistorica.IdLlamada,
-                                            transcription = new
-                                            {
-                                                source = transcripcionHistorica
-                                                    .Transcription
-                                                    .Source,
-                                                summary = transcripcionHistorica
-                                                    .Transcription
-                                                    .Summary,
-                                            },
-                                            calificaciones = new
-                                            {
-                                                lineamientos = lineamientosEnriquecidos,
-                                            },
-                                        };
-                                        transcripcionesParaPayload.Add(payloadHistorico);
-                                    }
-                                    else
-                                    {
-                                        var payloadHistorico = new
-                                        {
-                                            idLlamada = transcripcionHistorica.IdLlamada,
-                                            transcription = new
-                                            {
-                                                source = transcripcionHistorica
-                                                    .Transcription
-                                                    .Source,
-                                                summary = transcripcionHistorica
-                                                    .Transcription
-                                                    .Summary,
-                                            },
-                                        };
-                                        transcripcionesParaPayload.Add(payloadHistorico);
-                                    }
-                                }
-                                else
-                                {
-                                    var payloadHistorico = new
-                                    {
-                                        idLlamada = transcripcionHistorica.IdLlamada,
-                                        transcription = new
-                                        {
-                                            source = transcripcionHistorica.Transcription.Source,
-                                            summary = transcripcionHistorica.Transcription.Summary,
-                                        },
-                                    };
-                                    transcripcionesParaPayload.Add(payloadHistorico);
-                                }
+                                transcripcionesProcesoVenta.Add(transcripcionHistorica);
                             }
                         }
 
-                        object brochure;
-                        // Inicializar con lineamientos completos (sin filtrar)
-                        object lineamientosParaPayload = lineamientos;
+                        object payload;
 
-                        // Área Ventas - usa lineamientos completos sin filtrar
-                        brochure = BuildBrochureVentas(item, serviceInformacionPrograma);
+                        // TipoPersonal hardcodeado
+                        string tipoPersonal = "Coordinador";
 
-                        var payload = new
+                        // Obtener información del programa y cronograma de pago desde servicios
+                        object informacionPrograma = null;
+                        object cronogramaPago = null;
+
+                        try
                         {
+                            // Llamada 1: Obtener información del programa
+                            var servicioInformacionPrograma = new InformacionProgramaService(_unitOfWork);
+                            var respuestaPrograma = await servicioInformacionPrograma.CargarInformacionProgramaTodoAsync(item.IdCentroCosto, item.IdCodigoPais.ToString());
+
+                            if (respuestaPrograma.Informacion != null)
+                            {
+                                dynamic info = respuestaPrograma.Informacion;
+                                informacionPrograma = new
+                                {
+                                    objetivos = info.Objetivos,
+                                    estructuraCurricular = info.EstructuraCurricular,
+                                    certificacion = info.Certificacion,
+                                    duracionHorarios = info.DuracionHorarios,
+                                    prerrequisitos = info.Prerrequisitos,
+                                    beneficios = info.Beneficios
+                                };
+                            }
+                            else
+                            {
+                                informacionPrograma = null;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            informacionPrograma = null;
+                        }
+
+                        try
+                        {
+                            // Llamada 2: Obtener cronograma de pago de la oportunidad
+                            var servicioCronograma = new MontoPagoCronogramaService(_unitOfWork);
+                            var resumenCronograma = servicioCronograma.ObtenerOportunidadCronogramaPago(item.IdOportunidad, tipoPersonal);
+
+                            if (resumenCronograma?.Cronograma != null)
+                            {
+                                object detalleList = null;
+                                if (resumenCronograma.Cronograma.Detalle != null)
+                                {
+                                    detalleList = resumenCronograma.Cronograma.Detalle.Select(x => new
+                                    {
+                                        numeroCuota = x.NumeroCuota,
+                                        montoCuota = x.MontoCuotaDescuento,
+                                        fechaPago = x.FechaPago,
+                                        cuotaDescripcion = x.CuotaDescripcion
+                                    }).ToList();
+                                }
+
+                                cronogramaPago = new
+                                {
+                                    precio = resumenCronograma.Cronograma.Precio,
+                                    precioDescuento = resumenCronograma.Cronograma.PrecioDescuento,
+                                    idTipoDescuento = resumenCronograma.Cronograma.IdTipoDescuento,
+                                    nombrePlural = resumenCronograma.Cronograma.NombrePlural,
+                                    estadoMatricula = resumenCronograma.EstadoMatricula,
+                                    detalle = detalleList
+                                };
+                            }
+                            else
+                            {
+                                cronogramaPago = null;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            cronogramaPago = null;
+                        }
+
+                        // Filtrar lineamientos según tipo de validación
+                        // Convenio de Voz - Fase 339
+                        var configuracionConvenioVoz = this.ObtenerConfiguracionLineamientoValidacionMatricula(ID_OCURRENCIA_CONVENIO_VOZ);
+                        var lineamientosConvenioVoz = this.CalcularLineamientosValidacionMatricula(configuracionConvenioVoz, lineamientos);
+
+                        // Proceso de Venta - Fase 338
+                        var configuracionProcesoVenta = this.ObtenerConfiguracionLineamientoValidacionMatricula(null); // null = cualquier valor != 404
+                        var lineamientosProcesoVenta = this.CalcularLineamientosValidacionMatricula(configuracionProcesoVenta, lineamientos);
+
+                        // Construir payload con dos cuerpos separados
+                        payload = new
+                        {
+                            idOportunidad = item.IdOportunidad,
                             idPersonal = item.IdPersonal_Asignado,
                             contacto = "Generico",
                             userName = "System-auto",
                             idCodigoPais = item.IdCodigoPais.ToString(),
-                            transcription = transcripcionesParaPayload,
-                            lineamientos = lineamientosParaPayload,
-                            brochure,
+                            convenioVoz = new
+                            {
+                                transcriptions = transcripcionesConvenioVoz,
+                                lineamientos = lineamientosConvenioVoz
+                            },
+                            procesoVenta = new
+                            {
+                                transcriptions = transcripcionesProcesoVenta,
+                                lineamientos = lineamientosProcesoVenta
+                            },
+                            informacionPrograma = informacionPrograma,
+                            cronogramaPago = cronogramaPago,
                             faseOrigen = item.FaseOportunidad_Ant,
                             faseDestino = item.FaseOportunidad,
-                            puntosCriticosAsesor = puntosCriticosAsesor,
                             idPersonalAreaTrabajo = item.IdPersonalAreaTrabajo
                         };
 
@@ -2233,55 +2217,54 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                 }
                             )
                         );
-                        var llamadaActualizada =
-                           _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionPorIdLlamadaV2(
-                               item.IdLlamadaWebphoneCruceCentralTresCx,
-                               idPersonalAreaTrabajo
-                           );
-
-                        if (llamadaActualizada?.EsLlamadaCalificada == true)
-                        {
-                            Console.WriteLine(
-                                $"[SKIP] Llamada {item.IdLlamadaWebphoneCruceCentralTresCx} ya fue calificada por otro proceso"
-                            );
-                            return false;
-                        }
-
-                        if (transcripcionesParaPayload.Any())
-                        {
-                            var primeraTranscripcion = transcripcionesParaPayload.First();
-                            var idLlamadaPrimera = primeraTranscripcion
-                                .GetType()
-                                .GetProperty("IdLlamada")
-                                ?.GetValue(primeraTranscripcion)
-                                ?.ToString();
-
-                            if (idLlamadaPrimera != item.IdLlamadaWebphoneCruceCentralTresCx.ToString())
+                        var jsonPayload = System.Text.Json.JsonSerializer.Serialize(
+                            payload,
+                            new System.Text.Json.JsonSerializerOptions
                             {
-                                Console.WriteLine(
-                                    $"[SKIP] La llamada actual {item.IdLlamadaWebphoneCruceCentralTresCx} no está en la primera posición del array. Primera posición: {idLlamadaPrimera}"
-                                );
-                                return false;
+                                WriteIndented = true,
+                                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+                                DictionaryKeyPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
                             }
-                        }
-                        else
-                        {
-                            Console.WriteLine(
-                                $"[SKIP] No hay transcripciones disponibles para la llamada {item.IdLlamadaWebphoneCruceCentralTresCx}"
-                            );
-                            return false;
-                        }
-
-                        // Endpoint fijo para Ventas
-                        string endpoint = "grading/queue/batch";
-
-                        var response = await httpClient.PostAsJsonAsync(endpoint, payload);
-                        response.EnsureSuccessStatusCode();
-                        var json = await response.Content.ReadAsStringAsync();
-                        var evaluacionData = JsonSerializer.Deserialize<ResultadoEvaluacion>(
-                            json,
-                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
                         );
+                        var json = JsonSerializer.Serialize(payload);
+
+                        //var llamadaActualizada =
+                        //   _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionCalificacionPorIdLlamadaV2(
+                        //       item.IdLlamadaWebphoneCruceCentralTresCx,
+                        //       idPersonalAreaTrabajo
+                        //   );
+
+                        //if (llamadaActualizada?.EsLlamadaCalificada == true)
+                        //{
+                        //    Console.WriteLine(
+                        //        $"[SKIP] Llamada {item.IdLlamadaWebphoneCruceCentralTresCx} ya fue calificada por otro proceso"
+                        //    );
+                        //    return false;
+                        //}
+
+                        //// Validar que haya al menos una transcripción de Convenio de Voz (llamada a calificar)
+                        //if (!transcripcionesConvenioVoz.Any())
+                        //{
+                        //    Console.WriteLine(
+                        //        $"[SKIP] No hay transcripciones de Convenio de Voz disponibles para la llamada {item.IdLlamadaWebphoneCruceCentralTresCx}"
+                        //    );
+                        //    return false;
+                        //}
+
+                        //// Log de información
+                        //Console.WriteLine($"[INFO] Transcripciones Convenio de Voz: {transcripcionesConvenioVoz.Count} (Lineamientos Fase 339)");
+                        //Console.WriteLine($"[INFO] Transcripciones Proceso de Venta: {transcripcionesProcesoVenta.Count} (Lineamientos Fase 338)");
+
+                        //// Endpoint fijo para Ventas
+                        //string endpoint = "grading/queue/batch";
+
+                        //var response = await httpClient.PostAsJsonAsync(endpoint, payload);
+                        //response.EnsureSuccessStatusCode();
+                        //var json = await response.Content.ReadAsStringAsync();
+                        //var evaluacionData = JsonSerializer.Deserialize<ResultadoEvaluacion>(
+                        //    json,
+                        //    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                        //);
 
                         return true;
                     }
@@ -5052,6 +5035,113 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 {
                     fases = fasesFiltradas,
                     puntosgenerales = puntosGenerales ?? new List<object>()
+                };
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/01/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Determina el tipo de configuración de lineamiento para Validación de Matrícula.
+        /// Se basa en el IdOcurrenciaAlterno para determinar si es Convenio de Voz o Proceso de Venta.
+        /// </summary>
+        /// <param name="idOcurrenciaAlterno">ID de ocurrencia alterno de la llamada</param>
+        /// <returns>Tipo de configuración de lineamiento: "CONVENIOVOZ" o "PROCESOVENTA"</returns>
+        private string ObtenerConfiguracionLineamientoValidacionMatricula(int? idOcurrenciaAlterno)
+        {
+            try
+            {
+                const int ID_OCURRENCIA_CONVENIO_VOZ = 404;
+
+                if (idOcurrenciaAlterno == ID_OCURRENCIA_CONVENIO_VOZ)
+                    return "CONVENIOVOZ";
+
+                return "PROCESOVENTA";
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/01/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Filtra los lineamientos de evaluación según el tipo de configuración para Validación de Matrícula.
+        /// Filtra las fases y sus criterios y lineamientos asociados según la configuración:
+        /// - PROCESOVENTA: fase 338
+        /// - CONVENIOVOZ: fase 339
+        /// </summary>
+        /// <param name="configuracionLineamento">Tipo de configuración: "PROCESOVENTA" o "CONVENIOVOZ"</param>
+        /// <param name="lineamientos">Objeto con la estructura de lineamientos completos (resultado de BuildLineamientosFormateadosFromSp)</param>
+        /// <returns>Objeto de lineamientos filtrado con fases, criterios y lineamientos asociados según la configuración</returns>
+        private object CalcularLineamientosValidacionMatricula(string configuracionLineamento, object lineamientos)
+        {
+            try
+            {
+                // Definir los IDs de fases según la configuración
+                List<int> faseIdsPermitidos;
+                switch (configuracionLineamento)
+                {
+                    case "CONVENIOVOZ":
+                        faseIdsPermitidos = new List<int> { 339 };
+                        break;
+                    case "PROCESOVENTA":
+                    default:
+                        faseIdsPermitidos = new List<int> { 338 };
+                        break;
+                }
+
+                // Obtener el tipo dinámico del objeto lineamientos
+                var lineamientosType = lineamientos.GetType();
+
+                // Obtener la propiedad 'fases' del objeto (Dictionary<string, object>)
+                var fasesProp = lineamientosType.GetProperty("fases");
+                if (fasesProp == null)
+                    return lineamientos; // Si no tiene propiedad fases, devolver sin cambios
+
+                var fasesDict = fasesProp.GetValue(lineamientos) as IDictionary<string, object>;
+                if (fasesDict == null)
+                    return lineamientos; // Si fases no es un diccionario, devolver sin cambios
+
+                // Filtrar las fases que coincidan con los IDs permitidos
+                // Cada fase tiene: { id, orden, criterios: { nombreCriterio: { id, orden, lineamientos: [...] } } }
+                var fasesFiltradas = new Dictionary<string, object>();
+
+                foreach (var kvpFase in fasesDict)
+                {
+                    var nombreFase = kvpFase.Key;
+                    var faseObj = kvpFase.Value;
+                    var faseType = faseObj.GetType();
+
+                    // Obtener el ID de la fase
+                    var idProp = faseType.GetProperty("id");
+                    if (idProp != null)
+                    {
+                        var idValue = idProp.GetValue(faseObj);
+                        if (idValue != null && int.TryParse(idValue.ToString(), out int faseId))
+                        {
+                            // Solo incluir si el ID está en la lista permitida
+                            if (faseIdsPermitidos.Contains(faseId))
+                            {
+                                // Incluir la fase completa con todos sus criterios y lineamientos
+                                fasesFiltradas[nombreFase] = faseObj;
+                            }
+                        }
+                    }
+                }
+
+                // Crear y devolver el nuevo objeto con las fases filtradas (sin puntosgenerales)
+                // Las fases incluyen automáticamente sus criterios y lineamientos asociados
+                return new
+                {
+                    fases = fasesFiltradas
                 };
             }
             catch (Exception)

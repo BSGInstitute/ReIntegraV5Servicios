@@ -112,5 +112,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
         // Métodos para tablas temporales - Calificación en tiempo real
         bool GuardarCalificacionLlamadaTemporal(CalificacionLlamadaManualTemporalDTO calificacionTemporal);
         IEnumerable<CalificacionLlamadaDTO> ObtenerNotaCalificacionLineamientoTemporal(int idActividadDetalle, int numeroLlamada);
+        IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosValidacionMatriculaPendiente();
     }
 }
