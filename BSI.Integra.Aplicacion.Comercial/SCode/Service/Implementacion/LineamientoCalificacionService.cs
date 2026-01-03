@@ -2159,6 +2159,39 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             .ThenBy(x => x.FechaLlamada)
                             .ToList();
 
+                        // Obtener la última llamada de Convenio de Voz con mayor duración y fecha más vigente
+                        LlamadaProcesoAutoDTO ultimaLlamadaConvenioVoz = null;
+                        ConvenioDeVozPlantillaDTO convenioDeVozPlantilla = null;
+
+                        if (llamadasConvenioVoz.Any())
+                        {
+                            // Obtener la llamada con mayor duración y, en caso de empate, la más reciente
+                            ultimaLlamadaConvenioVoz = llamadasConvenioVoz
+                                .OrderByDescending(x => x.DuracionContestoCentral ?? 0)
+                                .ThenByDescending(x => x.FechaLlamada ?? DateTime.MinValue)
+                                .FirstOrDefault();
+
+                            // Obtener la plantilla de Speech Bienvenida para esta llamada
+                            if (ultimaLlamadaConvenioVoz != null)
+                            {
+                                try
+                                {
+                                    var agendaActividadService = new AgendaActividadService(_unitOfWork);
+                                    convenioDeVozPlantilla = agendaActividadService.ObtenerPlantillaConvenioDeVoz(
+                                        ultimaLlamadaConvenioVoz.IdFaseOportunidad,
+                                        ultimaLlamadaConvenioVoz.IdActividadDetalle
+                                    );
+
+                                    Console.WriteLine($"[INFO] Plantilla obtenida para Convenio de Voz - IdPlantilla: {convenioDeVozPlantilla.IdPlantilla}, IdFase: {ultimaLlamadaConvenioVoz.IdFaseOportunidad}");
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine($"[WARNING] No se pudo obtener plantilla para Convenio de Voz: {ex.Message}");
+                                    convenioDeVozPlantilla = null;
+                                }
+                            }
+                        }
+
                         // Proceso de Venta (!=404): Histórico de llamadas como contexto
                         var llamadasProcesoVenta = todasLasLlamadas
                             .Where(x => x.IdOcurrenciaAlterno != ID_OCURRENCIA_CONVENIO_VOZ
@@ -2317,7 +2350,17 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             convenioVoz = new
                             {
                                 transcriptions = transcripcionesConvenioVoz,
-                                lineamientos = lineamientosConvenioVoz
+                                lineamientos = lineamientosConvenioVoz,
+                                plantilla = convenioDeVozPlantilla != null ? new
+                                {
+                                    idPlantilla = convenioDeVozPlantilla.IdPlantilla,
+                                    idPlantillaClaveValor = convenioDeVozPlantilla.IdPlantillaClaveValor,
+                                    clave = convenioDeVozPlantilla.Clave,
+                                    valor = convenioDeVozPlantilla.Valor,
+                                    idAreaEtiqueta = convenioDeVozPlantilla.IdAreaEtiqueta,
+                                    idFaseOportunidad = convenioDeVozPlantilla.IdFaseOportunidad,
+                                    idActividadDetalle = convenioDeVozPlantilla.IdActividadDetalle
+                                } : null
                             },
                             procesoVenta = new
                             {
@@ -2328,7 +2371,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             cronogramaPago = cronogramaPago,
                             faseOrigen = item.FaseOportunidad_Ant,
                             faseDestino = item.FaseOportunidad,
-                            idPersonalAreaTrabajo = item.IdPersonalAreaTrabajo
+                            idPersonalAreaTrabajo = item.IdPersonalAreaTrabajo,
+                            convenioVozPlantilla = convenioDeVozPlantilla
                         };
 
                         Console.WriteLine(

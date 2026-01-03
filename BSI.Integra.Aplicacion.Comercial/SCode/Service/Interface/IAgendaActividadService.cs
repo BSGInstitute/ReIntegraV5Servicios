@@ -57,6 +57,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         List<ComboDTO> ObtenerCompetidores();
         List<DocumentoOportunidadInsertadoDTO> ObtenerDocumentosPorIdOportunidad(int idOportunidad);
         SpeechBienvenidaDespedidaDTO ObtenerIdSpeechBienvenidaDespedida(int idActividadDetalle);
+        ConvenioDeVozPlantillaDTO ObtenerPlantillaConvenioDeVoz(int idFaseOportunidad, int idActividadDetalle);
         ContactoConfiguracionDTO ObtenerConfiguracionContacto(int idTipoDato);
         ReferidoConfiguracionDTO ObtenerConfiguracionReferidos();
         string? ObtenerFechaFinalizacionMatricula(int idMatriculaCabecera);
