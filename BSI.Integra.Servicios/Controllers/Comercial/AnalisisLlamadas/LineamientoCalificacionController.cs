@@ -1226,6 +1226,36 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
             }
         }
 
+        /// Tipo Función: POST
+        /// Autor: Lolo Zaa
+        /// Fecha: 03/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Transcribe llamadas sin transcripción para el proceso de validación de matrícula.
+        /// Solo procesa llamadas del área de Ventas.
+        /// </summary>
+        /// <param name="llamadasSinTranscripcion">Lista de llamadas sin transcripción</param>
+        /// <returns> List<bool> con resultados de transcripciones </returns>
+        [HttpPost("[Action]")]
+        public async Task<IActionResult> TranscripcionValidacionMatricula([FromBody] List<LlamadaProcesoAutoDTO> llamadasSinTranscripcion)
+        {
+            if (llamadasSinTranscripcion == null)
+            {
+                return BadRequest("La lista de llamadas no puede ser nula.");
+            }
+
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = await lineamientoCalificacionService.TranscripcionValidacionMatricula(llamadasSinTranscripcion);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al procesar las transcripciones: {ex.Message}");
+            }
+        }
+
         /// Tipo Función: Post
         /// Autor: Lolo Zaa
         /// Fecha: 25/09/2025

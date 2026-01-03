@@ -1055,6 +1055,114 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             return resultados;
         }
 
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/01/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Transcribe automáticamente llamadas sin transcripción para Validación de Matrícula.
+        /// Función duplicada de TranscripcionAutoV2 pero específica para llamadas de Ventas
+        /// del proceso de Validación de Matrícula.
+        /// </summary>
+        /// <param name="llamadasSinTranscripcion">Lista de llamadas sin transcripción</param>
+        /// <returns>Una lista de booleanos indicando el resultado de cada transcripción.</returns>
+        public async Task<List<bool>> TranscripcionValidacionMatricula(List<LlamadaProcesoAutoDTO> llamadasSinTranscripcion)
+        {
+            var resultados = new List<bool>();
+
+            if (llamadasSinTranscripcion == null || !llamadasSinTranscripcion.Any())
+            {
+                return resultados;
+            }
+
+            var itemsOrdenados = llamadasSinTranscripcion
+                .GroupBy(x => x.IdOportunidad)
+                .SelectMany(g => g.OrderBy(x => x.IdActividadDetalle).ThenBy(x => x.IdLlamadaWebphoneCruceCentralTresCx))
+                .ToList();
+
+            using var httpClient = new HttpClient();
+            httpClient.BaseAddress = new Uri("http://ia-analisis-llamadas-comercial-api.bsginstitute.com/");
+
+            // Configurar headers
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json")
+            );
+            httpClient.DefaultRequestHeaders.Add("Cache-Control", "no-cache");
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "PostmanRuntime/7.44.0");
+            httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
+            httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
+            httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
+
+            var semaphore = new SemaphoreSlim(6); // 6 llamadas concurrentes
+
+            var tasks = itemsOrdenados.Select(async item =>
+            {
+                var historialReprogramaciones = _unitOfWork
+                    .LineamientoCalificacionRepository.ObtenerOcurrenciaRegistradaV2(item.IdOportunidad, item.IdPersonalAreaTrabajo)
+                    .Select(oc => new
+                    {
+                        IdLlamada = oc.IdLlamada,
+                        EstadoOcurrencia = oc.EstadoOcurrencia,
+                        ocurrencia = oc.Ocurrencia,
+                        Fecha = oc.FechaReal,
+                    })
+                    .ToList();
+
+                // Solo para Ventas
+                object payload = PayloadVentas(item, historialReprogramaciones);
+                string endpoint = "transcriptions/transcribe";
+
+                await semaphore.WaitAsync();
+                try
+                {
+                    // Serializar payload para debugging
+                    var payloadJson = JsonSerializer.Serialize(payload, new JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                    });
+                    Console.WriteLine($"[DEBUG] Payload enviado para llamada {item.IdLlamadaWebphoneCruceCentralTresCx}:");
+                    Console.WriteLine(payloadJson);
+
+                    var response = await httpClient.PostAsJsonAsync(
+                        endpoint,
+                        payload
+                    );
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        var errorContent = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine($"[ERROR] Status Code: {response.StatusCode} ({(int)response.StatusCode})");
+                        Console.WriteLine($"[ERROR] Detalle del error para llamada {item.IdLlamadaWebphoneCruceCentralTresCx}:");
+                        Console.WriteLine(errorContent);
+                        Console.WriteLine($"[ERROR] Headers de respuesta:");
+                        foreach (var header in response.Headers)
+                        {
+                            Console.WriteLine($"  {header.Key}: {string.Join(", ", header.Value)}");
+                        }
+                        return false;
+                    }
+
+                    response.EnsureSuccessStatusCode();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[EXCEPTION] Error al transcribir llamada {item.IdLlamadaWebphoneCruceCentralTresCx}: {ex.Message}");
+                    Console.WriteLine($"[EXCEPTION] StackTrace: {ex.StackTrace}");
+                    return false;
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            });
+
+            resultados = (await Task.WhenAll(tasks)).ToList();
+            return resultados;
+        }
+
         private object PayloadVentas<T>(
         LlamadaProcesoAutoDTO item,
         List<T> historialReprogramaciones
@@ -2059,6 +2167,31 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             .OrderBy(x => x.IdActividadDetalle)
                             .ThenBy(x => x.FechaLlamada)
                             .ToList();
+
+                        // Detectar llamadas sin transcripción y enviarlas a transcribir
+                        var llamadasSinTranscripcion = todasLasLlamadas
+                            .Where(x => x.EsLlamadaTranscrita != true)
+                            .ToList();
+
+                        if (llamadasSinTranscripcion.Any())
+                        {
+                            Console.WriteLine($"[INFO] Se encontraron {llamadasSinTranscripcion.Count} llamadas sin transcripción para la oportunidad {oportunidad.IdOportunidad}");
+                            Console.WriteLine($"[INFO] Enviando a transcribir...");
+
+                            var resultadosTranscripcion = await TranscripcionValidacionMatricula(llamadasSinTranscripcion);
+
+                            var exitosas = resultadosTranscripcion.Count(x => x == true);
+                            var fallidas = resultadosTranscripcion.Count(x => x == false);
+
+                            Console.WriteLine($"[INFO] Transcripciones completadas: {exitosas} exitosas, {fallidas} fallidas");
+
+                            // Si hay transcripciones exitosas, saltar esta iteración para que se procesen en la siguiente ejecución
+                            if (exitosas > 0)
+                            {
+                                Console.WriteLine($"[INFO] Se procesarán en la siguiente ejecución una vez estén transcritas");
+                                return false;
+                            }
+                        }
 
                         // Construir transcripciones para Convenio de Voz
                         var transcripcionesConvenioVoz = new List<object>();
