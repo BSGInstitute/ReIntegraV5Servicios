@@ -1660,6 +1660,57 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 throw e;
             }
         }
+
+        /// Autor: Sistema
+        /// Fecha: 02/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la plantilla de Speech Bienvenida para Convenio de Voz
+        /// basándose en la información de la fase de oportunidad y actividad detalle
+        /// </summary>
+        /// <param name="idFaseOportunidad">Id de la Fase Oportunidad</param>
+        /// <param name="idActividadDetalle">Id de la Actividad Detalle</param>
+        /// <returns>ConvenioDeVozPlantillaDTO con la plantilla de Speech Bienvenida</returns>
+        public ConvenioDeVozPlantillaDTO ObtenerPlantillaConvenioDeVoz(int idFaseOportunidad, int idActividadDetalle)
+        {
+            try
+            {
+                // Paso 1: Obtener el ID de la plantilla de bienvenida
+                IPlantillaBaseService plantillaBaseService = new PlantillaBaseService(_unitOfWork);
+                var idSpeechBienvenida = plantillaBaseService.ObtenerIdPorNombre("speech");
+                var speechBienvenidaDespedida = plantillaBaseService.ObtenerIdPlantillaSpeechBienvenida(idActividadDetalle, idSpeechBienvenida.Id);
+
+                // Paso 2: Obtener todas las plantillas de la fase de oportunidad
+                var plantillas = _unitOfWork.PlantillaClaveValorRepository.ObtenerPlantillasPorIdFaseOportunidad(idFaseOportunidad);
+
+                // Paso 3: Buscar la plantilla que coincide con el ID de bienvenida
+                var plantillaBienvenida = plantillas.FirstOrDefault(p => p.IdPlantilla == speechBienvenidaDespedida.IdPlantillaBienvenida);
+
+                if (plantillaBienvenida == null)
+                {
+                    throw new BadRequestException($"No se encontró plantilla de bienvenida con ID {speechBienvenidaDespedida.IdPlantillaBienvenida} para la fase {idFaseOportunidad}");
+                }
+
+                // Paso 4: Construir el DTO de respuesta
+                var resultado = new ConvenioDeVozPlantillaDTO
+                {
+                    IdPlantilla = plantillaBienvenida.IdPlantilla,
+                    IdPlantillaClaveValor = plantillaBienvenida.IdPlantillaClaveValor,
+                    Clave = plantillaBienvenida.Clave,
+                    Valor = plantillaBienvenida.Valor,
+                    IdAreaEtiqueta = plantillaBienvenida.IdAreaEtiqueta,
+                    IdFaseOportunidad = idFaseOportunidad,
+                    IdActividadDetalle = idActividadDetalle
+                };
+
+                return resultado;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         /// Autor: Gilmer Quispe
         /// Fecha: 14/09/2022
         /// Versión: 1.0
