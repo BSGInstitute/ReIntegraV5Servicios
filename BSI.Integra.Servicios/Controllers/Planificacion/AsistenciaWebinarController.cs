@@ -4,10 +4,9 @@ using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Repositorio.UnitOfWork;
-using BSI.Integra.Servicios.Hubs;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace BSI.Integra.Servicios.Controllers.Planificacion
 {
@@ -23,13 +22,11 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
     public class AsistenciaWebinarController : Controller
     {
         private IUnitOfWork unitOfWork;
-        private readonly IHubContext<WebinarHub> _hubContext;
         private readonly IAsistenciaWebinarService _AsistenciaWebinarService;
-        public AsistenciaWebinarController(IUnitOfWork unitOfWork, IHubContext<WebinarHub> hubContext)
+        public AsistenciaWebinarController(IUnitOfWork unitOfWork)
         {
             _AsistenciaWebinarService = new AsistenciaWebinarService(unitOfWork);
             this.unitOfWork = unitOfWork;
-            _hubContext = hubContext;
         }
         
         /// Tipo Función: POST
@@ -52,12 +49,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             {
                 var resultado = _AsistenciaWebinarService.AsistenciaWebinar(filtro);
 
-                // Emitir evento SignalR
-                await _hubContext.Clients.All.SendAsync("AsistenciaRegistrada", new
-                {
-                    Estado = filtro.EstadoAsistencia,
-                    Mensaje = resultado
-                });
+                NotificarAsistenciaWebinarWS(filtro.EstadoAsistencia, "resultado");
 
                 var response = new
                 {
@@ -76,6 +68,24 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 };
 
                 return BadRequest(response);
+            }
+        }
+
+        public async void NotificarAsistenciaWebinarWS(bool EstadoAsistencia, string participante)
+        {
+            try
+            {
+                //var url2 = "https://integrav4-signalrcore.bsginstitute.com/";
+                var url2 = "https://localhost:7120/";
+
+                var connection = new HubConnectionBuilder()
+                .WithUrl(url2 + "hubIntegraHub?idUsuario=WebHook&&usuarioNombre=WebHook&&rooms=''")
+                .Build();
+                await connection.StartAsync();
+                await connection.InvokeAsync("AsistenciaRegistradaWebinar", EstadoAsistencia, participante);
+            }
+            catch (Exception ex)
+            {
             }
         }
 

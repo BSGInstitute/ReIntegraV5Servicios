@@ -20,7 +20,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         {
             _unitOfWork = unitOfWork;
         }
-        public object AsistenciaWebinar(WebinarAlumnoAsistenciaDTO asistencia)
+        public string AsistenciaWebinar(WebinarAlumnoAsistenciaDTO asistencia)
         {
             if(!_unitOfWork.MatriculaCabeceraRepository.Exist(asistencia.IdMatriculaCabecera))
             {
