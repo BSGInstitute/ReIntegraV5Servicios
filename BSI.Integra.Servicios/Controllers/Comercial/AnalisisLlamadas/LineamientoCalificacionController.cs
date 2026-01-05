@@ -1401,7 +1401,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
             {
                 var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
 
-                var resultado = lineamientoCalificacionService.ObtenerReporteVentas(request);
+                var resultado = lineamientoCalificacionService.ValidacionMatriculaReporte(request);
                 return Ok(resultado);
             }
             catch (Exception ex)
