@@ -327,7 +327,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                 }
                             }
                         }
-                        //EnviarNotificacionCambioFechaSesion(dto, sesion, usuario);
+                        EnviarNotificacionCambioFechaSesion(dto, sesion, usuario);
                         sesion.UrlWebex = string.Empty;
                         sesion.CuentaWebex = null;
                     }

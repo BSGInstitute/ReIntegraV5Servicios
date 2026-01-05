@@ -21,6 +21,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
     [EnableCors("CorsVista")]
     public class AsistenciaWebinarController : Controller
     {
+        private ITokenManager _tokenManager;
         private IUnitOfWork unitOfWork;
         private readonly IAsistenciaWebinarService _AsistenciaWebinarService;
         public AsistenciaWebinarController(IUnitOfWork unitOfWork)
@@ -53,7 +54,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
 
                 var response = new
                 {
-                    Mensaje = resultado,
+                    Response = resultado,
                     EsCorrecto = true
                 };
 
@@ -126,7 +127,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         {
             try
             {
-                var rpta = _AsistenciaWebinarService.CancelarWebinar(body,"ctumir");
+                var rpta = _AsistenciaWebinarService.CancelarWebinar(body, _tokenManager.UserName);
                 return Ok(rpta);
             }
             catch (Exception e)

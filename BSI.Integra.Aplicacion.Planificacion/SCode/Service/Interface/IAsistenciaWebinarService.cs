@@ -11,7 +11,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
     public interface IAsistenciaWebinarService
     {
         RptaConfirmacionWebinarAutomaticaDTO ConfirmacionWebinarAutomatica(int IdPEspecificoSesion);
-        string AsistenciaWebinar(WebinarAlumnoAsistenciaDTO asistencia);
+        RptaAsistenciaWebinarDTO AsistenciaWebinar(WebinarAlumnoAsistenciaDTO asistencia);
         bool CancelarWebinar(CancelarWebinarDTO dto, string usuario);
     }
 }
