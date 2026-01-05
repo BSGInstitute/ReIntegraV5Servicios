@@ -5327,6 +5327,24 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             }
         }
 
+        /// <summary>
+        /// Obtiene las observaciones de lineamientos evaluados por IA para una validación de matrícula
+        /// </summary>
+        /// <param name="idOportunidad">ID de la oportunidad</param>
+        /// <param name="tipoValidacionMatricula">Tipo de validación: 1=Proceso Enrollment, 2=Contrato Voz</param>
+        /// <returns>Lista de lineamientos con sus observaciones</returns>
+        public IEnumerable<ValidacionMatriculaLineamientoDTO> ObtenerValidacionMatriculaLineamiento(int idOportunidad, int tipoValidacionMatricula)
+        {
+            try
+            {
+                return _unitOfWork.LineamientoCalificacionRepository.ObtenerValidacionMatriculaLineamiento(idOportunidad, tipoValidacionMatricula);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }
 

@@ -1256,6 +1256,33 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
             }
         }
 
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 05/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene las observaciones de lineamientos evaluados por IA para una validación de matrícula.
+        /// TipoValidacionMatricula: 1=Validación Proceso Enrollment, 2=Validación Contrato Voz
+        /// </summary>
+        /// <param name="idOportunidad">ID de la oportunidad</param>
+        /// <param name="tipoValidacionMatricula">Tipo de validación (1 o 2)</param>
+        /// <returns> List<ValidacionMatriculaLineamientoDTO> con las observaciones </returns>
+        [Route("[action]/{idOportunidad}/{tipoValidacionMatricula}")]
+        [HttpGet]
+        public ActionResult<IEnumerable<ValidacionMatriculaLineamientoDTO>> ObtenerValidacionMatriculaLineamiento(int idOportunidad, int tipoValidacionMatricula)
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ObtenerValidacionMatriculaLineamiento(idOportunidad, tipoValidacionMatricula);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         /// Tipo Función: Post
         /// Autor: Lolo Zaa
         /// Fecha: 25/09/2025

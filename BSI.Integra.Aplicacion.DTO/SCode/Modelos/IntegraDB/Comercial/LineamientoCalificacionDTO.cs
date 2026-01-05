@@ -1480,4 +1480,41 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int IdActividadDetalle { get; set; }
     }
 
+    /// <summary>
+    /// DTO para obtener observaciones de lineamientos evaluados por IA en validación de matrícula
+    /// Fuente: com.SP_ValidacionMatriculaObtenerObservacion
+    /// </summary>
+    public class ValidacionMatriculaLineamientoDTO
+    {
+        /// <summary>
+        /// Identificador de la oportunidad
+        /// </summary>
+        public int IdOportunidad { get; set; }
+
+        /// <summary>
+        /// Identificador de la versión de configuración de evaluación de llamada
+        /// </summary>
+        public int IdEvaluacionLlamadaConfiguracionVersion { get; set; }
+
+        /// <summary>
+        /// Identificador de la llamada webphone
+        /// </summary>
+        public int IdLlamadaWebphoneCruceCentralTresCx { get; set; }
+
+        /// <summary>
+        /// Identificador de la versión del lineamiento de calificación
+        /// </summary>
+        public int IdVersionLineamientoCalificacion { get; set; }
+
+        /// <summary>
+        /// Indica si cumple o no el lineamiento
+        /// </summary>
+        public bool Cumple { get; set; }
+
+        /// <summary>
+        /// Observación detallada del lineamiento evaluado
+        /// </summary>
+        public string Observacion { get; set; }
+    }
+
 }
