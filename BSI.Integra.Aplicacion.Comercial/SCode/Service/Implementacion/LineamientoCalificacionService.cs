@@ -2162,6 +2162,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         // Obtener la última llamada de Convenio de Voz con mayor duración y fecha más vigente
                         LlamadaProcesoAutoDTO ultimaLlamadaConvenioVoz = null;
                         ConvenioDeVozPlantillaDTO convenioDeVozPlantilla = null;
+                        SpeechBienvenidaProcesadoDTO speechProcesado = null;
 
                         if (llamadasConvenioVoz.Any())
                         {
@@ -2176,6 +2177,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             {
                                 try
                                 {
+                                    // Obtener plantilla sin procesar (para metadata)
                                     var agendaActividadService = new AgendaActividadService(_unitOfWork);
                                     convenioDeVozPlantilla = agendaActividadService.ObtenerPlantillaConvenioDeVoz(
                                         ultimaLlamadaConvenioVoz.IdFaseOportunidad,
@@ -2183,11 +2185,20 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                     );
 
                                     Console.WriteLine($"[INFO] Plantilla obtenida para Convenio de Voz - IdPlantilla: {convenioDeVozPlantilla.IdPlantilla}, IdFase: {ultimaLlamadaConvenioVoz.IdFaseOportunidad}");
+
+                                    // Procesar plantilla con reemplazo de etiquetas
+                                    var speechBienvenidaService = new SpeechBienvenidaService(_unitOfWork);
+                                    speechProcesado = speechBienvenidaService.ObtenerSpeechBienvenidaProcesado(
+                                        ultimaLlamadaConvenioVoz.IdActividadDetalle
+                                    );
+
+                                    Console.WriteLine($"[INFO] Speech procesado con etiquetas reemplazadas - IdCodigoPais: {speechProcesado.IdCodigoPais}");
                                 }
                                 catch (Exception ex)
                                 {
                                     Console.WriteLine($"[WARNING] No se pudo obtener plantilla para Convenio de Voz: {ex.Message}");
                                     convenioDeVozPlantilla = null;
+                                    speechProcesado = null;
                                 }
                             }
                         }
@@ -2356,10 +2367,13 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                     idPlantilla = convenioDeVozPlantilla.IdPlantilla,
                                     idPlantillaClaveValor = convenioDeVozPlantilla.IdPlantillaClaveValor,
                                     clave = convenioDeVozPlantilla.Clave,
-                                    valor = convenioDeVozPlantilla.Valor,
+                                    // ✅ Usar speech procesado con etiquetas reemplazadas
+                                    valor = speechProcesado != null ? speechProcesado.SpeechBienvenida : convenioDeVozPlantilla.Valor,
+                                    valorDespedida = speechProcesado?.SpeechDespedida,
                                     idAreaEtiqueta = convenioDeVozPlantilla.IdAreaEtiqueta,
                                     idFaseOportunidad = convenioDeVozPlantilla.IdFaseOportunidad,
-                                    idActividadDetalle = convenioDeVozPlantilla.IdActividadDetalle
+                                    idActividadDetalle = convenioDeVozPlantilla.IdActividadDetalle,
+                                    idCodigoPais = speechProcesado?.IdCodigoPais
                                 } : null
                             },
                             procesoVenta = new
