@@ -5574,6 +5574,58 @@ namespace BSI.Integra.Servicios.Controllers
 
         }
 
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 05/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el speech de bienvenida y despedida procesado con etiquetas reemplazadas
+        /// Endpoint consolidado que realiza todo el flujo:
+        /// 1. Obtiene información de oportunidad y alumno (con país)
+        /// 2. Obtiene cabecera del programa
+        /// 3. Obtiene y filtra plantillas por fase y país
+        /// 4. Reemplaza todas las etiquetas con datos reales
+        /// 5. Retorna speech listo para usar
+        /// </summary>
+        /// <param name="idActividadDetalle">ID de la actividad detalle</param>
+        /// <returns>Speech de bienvenida y despedida procesado</returns>
+        [HttpGet("ObtenerSpeechBienvenidaProcesado/{idActividadDetalle}")]
+        public IActionResult ObtenerSpeechBienvenidaProcesado(int idActividadDetalle)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (idActividadDetalle <= 0)
+            {
+                return BadRequest("El ID de actividad detalle debe ser mayor a 0");
+            }
+
+            try
+            {
+                var speechBienvenidaService = new SpeechBienvenidaService(_unitOfWork);
+                var resultado = speechBienvenidaService.ObtenerSpeechBienvenidaProcesado(idActividadDetalle);
+                return Ok(resultado);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    mensaje = "Error interno al procesar el speech de bienvenida",
+                    detalle = ex.Message
+                });
+            }
+        }
+
     }
-    
+
 }

@@ -70,4 +70,72 @@
         /// </summary>
         public int IdActividadDetalle { get; set; }
     }
+
+    /// <summary>
+    /// DTO para el speech de bienvenida y despedida procesado con etiquetas reemplazadas
+    /// Consolida todo el flujo: obtención de datos, filtrado por país, y reemplazo de etiquetas
+    /// Autor: Joseph Llanque
+    /// Fecha: 05/01/2026
+    /// </summary>
+    public class SpeechBienvenidaProcesadoDTO
+    {
+        /// <summary>
+        /// Texto del speech de bienvenida con todas las etiquetas reemplazadas
+        /// </summary>
+        public string SpeechBienvenida { get; set; }
+
+        /// <summary>
+        /// Texto del speech de despedida con todas las etiquetas reemplazadas
+        /// </summary>
+        public string SpeechDespedida { get; set; }
+
+        /// <summary>
+        /// ID de la plantilla de bienvenida utilizada
+        /// </summary>
+        public int IdPlantillaBienvenida { get; set; }
+
+        /// <summary>
+        /// ID de la plantilla de despedida utilizada
+        /// </summary>
+        public int IdPlantillaDespedida { get; set; }
+
+        /// <summary>
+        /// ID de la fase de oportunidad utilizada
+        /// </summary>
+        public int IdFaseOportunidad { get; set; }
+
+        /// <summary>
+        /// ID del código de país del alumno (51=Perú, 57=Colombia, etc.)
+        /// </summary>
+        public int? IdCodigoPais { get; set; }
+    }
+
+    /// <summary>
+    /// DTO que encapsula todos los datos necesarios para el reemplazo de etiquetas en templates
+    /// Utilizado internamente por el servicio de procesamiento de speech
+    /// Autor: Joseph Llanque
+    /// Fecha: 05/01/2026
+    /// </summary>
+    public class DatosReemplazoEtiquetaDTO
+    {
+        // Datos del Alumno
+        public string Nombre1 { get; set; }
+        public string Nombre2 { get; set; }
+        public string ApellidoPaterno { get; set; }
+        public string ApellidoMaterno { get; set; }
+        public string Email1 { get; set; }
+        public int? IdCodigoPais { get; set; }
+
+        // Datos del Personal
+        public string NombresPersonal { get; set; }
+        public string ApellidosPersonal { get; set; }
+
+        // Datos del Programa
+        public string ProgramaGeneral { get; set; }
+
+        // Datos adicionales para procesamiento
+        public int IdCentroCosto { get; set; }
+        public int? IdOportunidad { get; set; }
+        public int IdAlumno { get; set; }
+    }
 }

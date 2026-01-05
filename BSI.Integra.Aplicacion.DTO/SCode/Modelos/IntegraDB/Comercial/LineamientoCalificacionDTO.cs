@@ -652,6 +652,43 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public string? PuntoCritico { get; set; }
     }
 
+    public class MatriculaValidadaDTO
+    {
+        public int IdLlamada { get; set; }
+        public int IdOportunidad { get; set; }
+        public DateTime FechaInicioLlamadaCentral { get; set; }
+        public int DuracionContestoCentral { get; set; }
+        public int IdAlumno { get; set; }
+        public string NombreCliente { get; set; }
+        public int IdAsesor { get; set; }
+        public string NombreAsesor { get; set; }
+        public int IdCentroCosto { get; set; }
+        public string NombreCentroCosto { get; set; }
+        public string NombreFaseI { get; set; }
+        public string CodigoFaseI { get; set; }
+        public string NombreFaseD { get; set; }
+        public string CodigoFaseD { get; set; }
+        public decimal PuntajePromedio { get; set; }
+        public bool TipoCalificacion { get; set; }
+        public int IdCalificacionLlamada { get; set; }
+        public int? IdCriterioCalificacion { get; set; }
+        public string Comentario { get; set; }
+        public int? IdOcurrenciaPadreAlterno { get; set; }
+        public int? IdOcurrenciaActividadAlterno { get; set; }
+        public int? IdOcurrenciaAlterno { get; set; }
+        public int? IdVersionConfiguracionCalificacionLlamada { get; set; }
+
+        public string? OcurrenciaPadreAlterno { get; set; }
+        public string? OcurrenciaAlterno { get; set; }
+        public string? EstadoOcurrenciaAlterno { get; set; }
+        public string? ComentarioLlamadaNoCalificada { get; set; }
+        public bool? OcurrenciaConsistente { get; set; }
+
+        public string? ComentarioConsistenciaOcurrencia { get; set; }
+        public bool? CambioFaseConsistente { get; set; }
+
+        public string? ComentarioConsistenciaCambioFase { get; set; }
+    }
     public class LlamadaCalificadaAtencionClienteRawDTO
     {
         public int IdLlamada { get; set; }
