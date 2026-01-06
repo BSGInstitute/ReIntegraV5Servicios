@@ -2367,7 +2367,6 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                     idPlantilla = convenioDeVozPlantilla.IdPlantilla,
                                     idPlantillaClaveValor = convenioDeVozPlantilla.IdPlantillaClaveValor,
                                     clave = convenioDeVozPlantilla.Clave,
-                                    // ✅ Usar speech procesado con etiquetas reemplazadas
                                     valor = speechProcesado != null ? speechProcesado.SpeechBienvenida : convenioDeVozPlantilla.Valor,
                                     valorDespedida = speechProcesado?.SpeechDespedida,
                                     idAreaEtiqueta = convenioDeVozPlantilla.IdAreaEtiqueta,
@@ -4369,6 +4368,65 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             {
                 TotalRegistros = total,
                 Data = agrupado
+            };
+        }
+
+        /// <summary>
+        /// Obtiene el reporte de validación de matrícula agrupado por oportunidad.
+        /// Cada oportunidad puede tener múltiples validaciones (tipo 1, tipo 2, etc.)
+        /// </summary>
+        /// <param name="req">Filtros del reporte</param>
+        /// <returns>Reporte con oportunidades y sus validaciones asociadas</returns>
+        public ReporteValidacionMatriculaResponseV2 ValidacionMatriculaReporte(ReporteCalificacionRequestV2 req)
+        {
+            var (items, total) = _unitOfWork.LineamientoCalificacionRepository.ValidacionMatriculaReporte(req);
+
+            // Agrupar por IdOportunidad
+            var oportunidadesAgrupadas = items
+                .GroupBy(f => f.IdOportunidad)
+                .Select(g =>
+                {
+                    var primerRegistro = g.First();
+
+                    return new OportunidadValidacionMatriculaDTO
+                    {
+                        IdOportunidad = primerRegistro.IdOportunidad,
+                        IdAlumno = primerRegistro.IdAlumno,
+                        NombreCliente = primerRegistro.NombreCliente,
+                        IdAsesor = primerRegistro.IdAsesor,
+                        NombreAsesor = primerRegistro.NombreAsesor,
+                        IdCentroCosto = primerRegistro.IdCentroCosto,
+                        NombreCentroCosto = primerRegistro.NombreCentroCosto,
+                        CantidadLlamadas = primerRegistro.CantidadLlamadas,
+
+                        // Mapear las validaciones (tipo 1 y tipo 2) - Agrupar por IdTipoValidacion para evitar duplicados
+                        Validaciones = g
+                            .GroupBy(v => v.IdTipoValidacion)
+                            .Select(vg => vg.OrderByDescending(v => v.FechaValidacion).First()) // Tomar el más reciente de cada tipo
+                            .Select(validacion => new ValidacionMatriculaItemDTO
+                            {
+                                IdValidacionMatricula = validacion.IdValidacionMatricula,
+                                IdTipoValidacion = validacion.IdTipoValidacion,
+                                NombreTipoValidacion = validacion.NombreTipoValidacion,
+                                DescripcionTipoValidacion = validacion.DescripcionTipoValidacion,
+                                IdEstadoObservacion = validacion.IdEstadoObservacion,
+                                NombreEstadoObservacion = validacion.NombreEstadoObservacion,
+                                DescripcionEstadoObservacion = validacion.DescripcionEstadoObservacion,
+                                FechaValidacion = validacion.FechaValidacion,
+                                DetalleObservacion = validacion.DetalleObservacion,
+                                MensajeError = validacion.MensajeError,
+                            })
+                            .OrderBy(v => v.IdTipoValidacion) // Ordenar por tipo 1 primero, luego tipo 2
+                            .ToList()
+                    };
+                })
+                .OrderByDescending(o => o.Validaciones.Max(v => v.FechaValidacion)) 
+                .ToList();
+
+            return new ReporteValidacionMatriculaResponseV2
+            {
+                Items = oportunidadesAgrupadas,
+                Total = total
             };
         }
 

@@ -1542,6 +1542,65 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             return (items, total);
         }
 
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 28/11/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Ejecuta [com].[SP_ReporteCalificacionClientes] y mapea:
+        ///   - ResultSet1: detalle (calificaciones por llamada)
+        ///   - ResultSet2: total de registros
+        /// </summary>
+        public (IEnumerable<ValidacionMatriculaDTO> Items, int Total) ValidacionMatriculaReporte(ReporteCalificacionRequestV2 req)
+        {
+            // Paso 1: Obtener el total llamando al SP de Total
+            var totalJson = _dapperRepository.QuerySPFirstOrDefault(
+                "[com].[SP_ReporteValidacionMatriculaObtenerTotal]",
+                new
+                {
+                    req.FechaInicio,
+                    req.FechaFin,
+                    IdPersonal_Asignados = (req.IdPersonal_Asignados != null && req.IdPersonal_Asignados.Any())
+                    ? string.Join(",", req.IdPersonal_Asignados)
+                    : null,
+                    req.IdCentroCosto,
+                    req.IdFaseOportunidad_Ant,
+                    req.IdFaseOportunidad,
+                    req.EstadoActividadCabecera,
+                }
+            );
+
+            // Deserializar para obtener el TotalRegistros
+            var totalObj = JsonConvert.DeserializeObject<dynamic>(totalJson);
+            int total = (int)(totalObj?.TotalRegistros ?? 0);
+
+            // Paso 2: Obtener los items llamando al SP de Detalle
+            var itemsJson = _dapperRepository.QuerySPDapper(
+                "[com].[SP_ReporteValidacionMatriculaObtenerDetalle]",
+                new
+                {
+                    req.FechaInicio,
+                    req.FechaFin,
+                    IdPersonal_Asignados = (req.IdPersonal_Asignados != null && req.IdPersonal_Asignados.Any())
+                    ? string.Join(",", req.IdPersonal_Asignados)
+                    : null,
+                    req.IdCentroCosto,
+                    req.IdFaseOportunidad_Ant,
+                    req.IdFaseOportunidad,
+                    req.EstadoActividadCabecera,
+                    req.Pagina,
+                    req.TamanioPagina,
+                }
+            );
+
+            // Deserializar directamente a la lista de DTOs
+            var items =
+                JsonConvert.DeserializeObject<List<ValidacionMatriculaDTO>>(itemsJson)
+                ?? new List<ValidacionMatriculaDTO>();
+
+            return (items, total);
+        }
+
         /// Autor: Lolo Zaa
         /// Fecha: 27/11/2025
         /// Versión: 1.0

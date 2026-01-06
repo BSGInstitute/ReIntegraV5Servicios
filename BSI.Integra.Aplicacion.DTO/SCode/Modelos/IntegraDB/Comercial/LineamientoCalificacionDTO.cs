@@ -651,10 +651,51 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public string? InterrupcionLlamada { get; set; }
         public string? PuntoCritico { get; set; }
     }
+    public class ReporteValidacionMatriculaResponse
+    {
+        public int TotalRegistros { get; set; }
+        public IEnumerable<ValidacionMatriculaDTO> Data { get; set; }
+    }
+    public class ValidacionMatriculaDTO
+    {
+        public int IdOportunidad { get; set; }
+        public int IdAlumno { get; set; }
+
+        // ===== Datos de la llamada =====
+
+        // ===== Cliente =====
+        public string NombreCliente { get; set; } = null!;
+
+        // ===== Asesor =====
+        public int IdAsesor { get; set; }
+        public string NombreAsesor { get; set; } = null!;
+
+        // ===== Centro de costo =====
+        public int? IdCentroCosto { get; set; }
+        public string? NombreCentroCosto { get; set; }
+
+        // ===== Validación =====
+        public int IdTipoValidacion { get; set; }
+        public string NombreTipoValidacion { get; set; } = null!;
+        public string DescripcionTipoValidacion { get; set; } = null!;
+
+        public int IdEstadoObservacion { get; set; }
+        public string NombreEstadoObservacion { get; set; } = null!;
+        public string DescripcionEstadoObservacion { get; set; } = null!;
+
+        public int IdValidacionMatricula { get; set; }
+        public DateTime FechaValidacion { get; set; }
+
+        // ===== Detalle validación =====
+        public string? DetalleObservacion { get; set; }
+        public string? MensajeError { get; set; }
+
+        public int CantidadLlamadas { get; set; }
+
+    }
 
     public class MatriculaValidadaDTO
     {
-        public int IdLlamada { get; set; }
         public int IdOportunidad { get; set; }
         public DateTime FechaInicioLlamadaCentral { get; set; }
         public int DuracionContestoCentral { get; set; }
@@ -1515,6 +1556,54 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         /// ID de la actividad detalle utilizada
         /// </summary>
         public int IdActividadDetalle { get; set; }
+    }
+
+
+    /// <summary>
+    /// DTO para representar una oportunidad con sus validaciones de matrícula
+    /// </summary>
+    public class OportunidadValidacionMatriculaDTO
+    {
+        public int IdOportunidad { get; set; }
+        public int IdAlumno { get; set; }
+        public string NombreCliente { get; set; }
+        public int IdAsesor { get; set; }
+        public string NombreAsesor { get; set; }
+        public int? IdCentroCosto { get; set; }
+        public string NombreCentroCosto { get; set; }
+        public int CantidadLlamadas { get; set; }
+
+        /// <summary>
+        /// Lista de validaciones (tipo 1 y tipo 2) para esta oportunidad
+        /// </summary>
+        public List<ValidacionMatriculaItemDTO> Validaciones { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para representar cada validación individual de la tabla ia.T_ValidacionMatricula
+    /// </summary>
+    public class ValidacionMatriculaItemDTO
+    {
+        public int IdValidacionMatricula { get; set; }
+        public int IdTipoValidacion { get; set; }
+        public string NombreTipoValidacion { get; set; }
+        public string DescripcionTipoValidacion { get; set; }
+        public int IdEstadoObservacion { get; set; }
+        public string NombreEstadoObservacion { get; set; }
+        public string DescripcionEstadoObservacion { get; set; }
+        public DateTime FechaValidacion { get; set; }
+        public string DetalleObservacion { get; set; }
+        public string MensajeError { get; set; }
+     
+    }
+
+    /// <summary>
+    /// Respuesta del reporte de validación de matrícula
+    /// </summary>
+    public class ReporteValidacionMatriculaResponseV2
+    {
+        public List<OportunidadValidacionMatriculaDTO> Items { get; set; }
+        public int Total { get; set; }
     }
 
     /// <summary>

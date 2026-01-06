@@ -76,6 +76,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
 
         (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporte(ReporteCalificacionRequest req);
         (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReporteVentas(ReporteCalificacionRequestV2 req);
+        (IEnumerable<ValidacionMatriculaDTO> Items, int Total) ValidacionMatriculaReporte(ReporteCalificacionRequestV2 req);
+
         (IEnumerable<LlamadaCalificadaAtencionClienteRawDTO> Items, int Total) ObtenerReporteAtencionCliente(ReporteCalificacionRequestV2 req);
         (IEnumerable<LlamadaCalificadaRawDTO> Items, int Total) ObtenerReportePorArea(ReporteCalificacionAreaRequest req);
 
