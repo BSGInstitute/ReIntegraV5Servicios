@@ -1554,4 +1554,54 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public string Observacion { get; set; }
     }
 
+    /// <summary>
+    /// DTO plano con datos raw del SP para información de llamadas de validación de matrícula
+    /// Fuente: com.SP_ValidacionMatriculaObtenerInformacionLlamada
+    /// </summary>
+    public class ValidacionMatriculaInformacionLlamadaRawDTO
+    {
+        public int IdOportunidad { get; set; }
+        public int IdValidacionMatricula { get; set; }
+        public int IdTipoValidacion { get; set; }
+        public int IdLlamadaWebphoneCruceCentralTresCx { get; set; }
+        public string UrlAudio { get; set; }
+        public string UrlAudio2 { get; set; }
+        public string UrlAudioProcesado { get; set; }
+        public string Origen { get; set; }
+        public int DuracionContestoCentral { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para representar la información de audio de una llamada
+    /// </summary>
+    public class LlamadaAudioDTO
+    {
+        public int IdLlamadaWebphoneCruceCentralTresCx { get; set; }
+        public string UrlAudio { get; set; }
+        public string UrlAudio2 { get; set; }
+        public string UrlAudioProcesado { get; set; }
+        public string Origen { get; set; }
+        public int DuracionContestoCentral { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para agrupar validación de matrícula con sus llamadas asociadas
+    /// </summary>
+    public class ValidacionMatriculaConLlamadasDTO
+    {
+        public int IdValidacionMatricula { get; set; }
+        public int IdTipoValidacion { get; set; }
+        public List<LlamadaAudioDTO> Llamadas { get; set; } = new List<LlamadaAudioDTO>();
+    }
+
+    /// <summary>
+    /// DTO de respuesta para información de llamadas de validación de matrícula agrupadas
+    /// Estructura jerárquica: Oportunidad → Validaciones → Llamadas
+    /// </summary>
+    public class ValidacionMatriculaInformacionLlamadaResponseDTO
+    {
+        public int IdOportunidad { get; set; }
+        public List<ValidacionMatriculaConLlamadasDTO> Validaciones { get; set; } = new List<ValidacionMatriculaConLlamadasDTO>();
+    }
+
 }

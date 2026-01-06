@@ -1259,6 +1259,27 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             }
         }
 
+        public IEnumerable<ValidacionMatriculaInformacionLlamadaRawDTO> ObtenerValidacionMatriculaInformacionLlamada(int idOportunidad)
+        {
+            try
+            {
+                List<ValidacionMatriculaInformacionLlamadaRawDTO> resultado = new List<ValidacionMatriculaInformacionLlamadaRawDTO>();
+                var resultadoSP = _dapperRepository.QuerySPDapper("com.SP_ValidacionMatriculaObtenerInformacionLlamada", new
+                {
+                    IdOportunidad = idOportunidad
+                });
+                if (!string.IsNullOrEmpty(resultadoSP) && !resultadoSP.Equals("[]"))
+                {
+                    resultado = JsonConvert.DeserializeObject<List<ValidacionMatriculaInformacionLlamadaRawDTO>>(resultadoSP);
+                }
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosConfiguracionCalificacionAtencionCliente()
         {
             try

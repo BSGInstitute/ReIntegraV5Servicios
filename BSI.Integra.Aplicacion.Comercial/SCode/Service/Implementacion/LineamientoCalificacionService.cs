@@ -5359,6 +5359,60 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             }
         }
 
+        /// <summary>
+        /// Obtiene la información de las llamadas asociadas a las validaciones de matrícula de una oportunidad,
+        /// agrupadas jerárquicamente: Oportunidad → Validaciones → Llamadas
+        /// </summary>
+        /// <param name="idOportunidad">ID de la oportunidad</param>
+        /// <returns>Objeto agrupado con validaciones y sus llamadas</returns>
+        public ValidacionMatriculaInformacionLlamadaResponseDTO ObtenerValidacionMatriculaInformacionLlamada(int idOportunidad)
+        {
+            try
+            {
+                // Obtener datos planos del repositorio
+                var datosPlanos = _unitOfWork.LineamientoCalificacionRepository.ObtenerValidacionMatriculaInformacionLlamada(idOportunidad);
+
+                if (datosPlanos == null || !datosPlanos.Any())
+                {
+                    return new ValidacionMatriculaInformacionLlamadaResponseDTO
+                    {
+                        IdOportunidad = idOportunidad,
+                        Validaciones = new List<ValidacionMatriculaConLlamadasDTO>()
+                    };
+                }
+
+                // Agrupar por IdValidacionMatricula
+                var validacionesAgrupadas = datosPlanos
+                    .GroupBy(d => new { d.IdValidacionMatricula, d.IdTipoValidacion })
+                    .Select(g => new ValidacionMatriculaConLlamadasDTO
+                    {
+                        IdValidacionMatricula = g.Key.IdValidacionMatricula,
+                        IdTipoValidacion = g.Key.IdTipoValidacion,
+                        Llamadas = g.Select(llamada => new LlamadaAudioDTO
+                        {
+                            IdLlamadaWebphoneCruceCentralTresCx = llamada.IdLlamadaWebphoneCruceCentralTresCx,
+                            UrlAudio = llamada.UrlAudio,
+                            UrlAudio2 = llamada.UrlAudio2,
+                            UrlAudioProcesado = llamada.UrlAudioProcesado,
+                            Origen = llamada.Origen,
+                            DuracionContestoCentral = llamada.DuracionContestoCentral
+                        }).ToList()
+                    })
+                    .ToList();
+
+                // Construir respuesta final
+                return new ValidacionMatriculaInformacionLlamadaResponseDTO
+                {
+                    IdOportunidad = idOportunidad,
+                    Validaciones = validacionesAgrupadas
+                };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }
 

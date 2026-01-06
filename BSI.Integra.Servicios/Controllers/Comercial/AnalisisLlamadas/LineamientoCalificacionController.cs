@@ -1283,6 +1283,33 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
             }
         }
 
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 06/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la información de las llamadas asociadas a las validaciones de matrícula de una oportunidad.
+        /// Retorna estructura jerárquica agrupada: Oportunidad → Validaciones → Llamadas
+        /// Incluye URLs de audio procesadas según el origen de la llamada (Wavix Saliente prioriza UrlAudio2)
+        /// </summary>
+        /// <param name="idOportunidad">ID de la oportunidad</param>
+        /// <returns> ValidacionMatriculaInformacionLlamadaResponseDTO con estructura agrupada </returns>
+        [Route("[action]/{idOportunidad}")]
+        [HttpGet]
+        public ActionResult<ValidacionMatriculaInformacionLlamadaResponseDTO> ObtenerValidacionMatriculaInformacionLlamada(int idOportunidad)
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var resultado = lineamientoCalificacionService.ObtenerValidacionMatriculaInformacionLlamada(idOportunidad);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         /// Tipo Función: Post
         /// Autor: Lolo Zaa
         /// Fecha: 25/09/2025
