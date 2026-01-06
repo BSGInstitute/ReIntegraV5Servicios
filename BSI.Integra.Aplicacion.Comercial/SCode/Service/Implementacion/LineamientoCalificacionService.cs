@@ -2367,7 +2367,6 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                     idPlantilla = convenioDeVozPlantilla.IdPlantilla,
                                     idPlantillaClaveValor = convenioDeVozPlantilla.IdPlantillaClaveValor,
                                     clave = convenioDeVozPlantilla.Clave,
-                                    // ✅ Usar speech procesado con etiquetas reemplazadas
                                     valor = speechProcesado != null ? speechProcesado.SpeechBienvenida : convenioDeVozPlantilla.Valor,
                                     valorDespedida = speechProcesado?.SpeechDespedida,
                                     idAreaEtiqueta = convenioDeVozPlantilla.IdAreaEtiqueta,
@@ -4400,22 +4399,25 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         NombreCentroCosto = primerRegistro.NombreCentroCosto,
                         CantidadLlamadas = primerRegistro.CantidadLlamadas,
 
-                        // Mapear las validaciones (tipo 1 y tipo 2)
-                        Validaciones = g.Select(validacion => new ValidacionMatriculaItemDTO
-                        {
-                            IdValidacionMatricula = validacion.IdValidacionMatricula,
-                            IdTipoValidacion = validacion.IdTipoValidacion,
-                            NombreTipoValidacion = validacion.NombreTipoValidacion,
-                            DescripcionTipoValidacion = validacion.DescripcionTipoValidacion,
-                            IdEstadoObservacion = validacion.IdEstadoObservacion,
-                            NombreEstadoObservacion = validacion.NombreEstadoObservacion,
-                            DescripcionEstadoObservacion = validacion.DescripcionEstadoObservacion,
-                            FechaValidacion = validacion.FechaValidacion,
-                            DetalleObservacion = validacion.DetalleObservacion,
-                            MensajeError = validacion.MensajeError,
-                        })
-                        .OrderBy(v => v.IdTipoValidacion) // Ordenar por tipo 1 primero, luego tipo 2
-                        .ToList()
+                        // Mapear las validaciones (tipo 1 y tipo 2) - Agrupar por IdTipoValidacion para evitar duplicados
+                        Validaciones = g
+                            .GroupBy(v => v.IdTipoValidacion)
+                            .Select(vg => vg.OrderByDescending(v => v.FechaValidacion).First()) // Tomar el más reciente de cada tipo
+                            .Select(validacion => new ValidacionMatriculaItemDTO
+                            {
+                                IdValidacionMatricula = validacion.IdValidacionMatricula,
+                                IdTipoValidacion = validacion.IdTipoValidacion,
+                                NombreTipoValidacion = validacion.NombreTipoValidacion,
+                                DescripcionTipoValidacion = validacion.DescripcionTipoValidacion,
+                                IdEstadoObservacion = validacion.IdEstadoObservacion,
+                                NombreEstadoObservacion = validacion.NombreEstadoObservacion,
+                                DescripcionEstadoObservacion = validacion.DescripcionEstadoObservacion,
+                                FechaValidacion = validacion.FechaValidacion,
+                                DetalleObservacion = validacion.DetalleObservacion,
+                                MensajeError = validacion.MensajeError,
+                            })
+                            .OrderBy(v => v.IdTipoValidacion) // Ordenar por tipo 1 primero, luego tipo 2
+                            .ToList()
                     };
                 })
                 .OrderByDescending(o => o.Validaciones.Max(v => v.FechaValidacion)) 
@@ -5394,6 +5396,24 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             catch (Exception)
             {
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene las observaciones de lineamientos evaluados por IA para una validación de matrícula
+        /// </summary>
+        /// <param name="idOportunidad">ID de la oportunidad</param>
+        /// <param name="tipoValidacionMatricula">Tipo de validación: 1=Proceso Enrollment, 2=Contrato Voz</param>
+        /// <returns>Lista de lineamientos con sus observaciones</returns>
+        public IEnumerable<ValidacionMatriculaLineamientoDTO> ObtenerValidacionMatriculaLineamiento(int idOportunidad, int tipoValidacionMatricula)
+        {
+            try
+            {
+                return _unitOfWork.LineamientoCalificacionRepository.ObtenerValidacionMatriculaLineamiento(idOportunidad, tipoValidacionMatricula);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 

@@ -115,5 +115,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
         bool GuardarCalificacionLlamadaTemporal(CalificacionLlamadaManualTemporalDTO calificacionTemporal);
         IEnumerable<CalificacionLlamadaDTO> ObtenerNotaCalificacionLineamientoTemporal(int idActividadDetalle, int numeroLlamada);
         IEnumerable<LlamadaProcesoAutoDTO> ObtenerDatosValidacionMatriculaPendiente();
+        IEnumerable<ValidacionMatriculaLineamientoDTO> ObtenerValidacionMatriculaLineamiento(int idOportunidad, int tipoValidacionMatricula);
     }
 }
