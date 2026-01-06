@@ -50,7 +50,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             {
                 var resultado = _AsistenciaWebinarService.AsistenciaWebinar(filtro);
 
-                NotificarAsistenciaWebinarWS(filtro.EstadoAsistencia, "resultado");
+                NotificarAsistenciaWebinarWS(filtro.EstadoAsistencia, resultado.Alumno.NombreAlumno);
 
                 var response = new
                 {
