@@ -5,6 +5,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     public partial class TCiudad
     {
+        public TCiudad()
+        {
+            TDocentePostulantes = new HashSet<TDocentePostulante>();
+        }
+
         /// <summary>
         /// Es primary key
         /// </summary>
@@ -58,5 +63,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public int? IdMigracion { get; set; }
         public int? LongCelularAlterno { get; set; }
+
+        public virtual ICollection<TDocentePostulante> TDocentePostulantes { get; set; }
     }
 }

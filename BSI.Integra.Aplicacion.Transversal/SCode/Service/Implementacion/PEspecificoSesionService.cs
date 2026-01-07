@@ -436,16 +436,15 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 {
                     List<string> correosPersonalizados = new List<string>
                     {
-                        "wvalencia@bsginstitute.com",
+                        "cobandot@bsginstitute.com",
                         "wruiz@bsginstitute.com",
                         "sruiz@bsginstitute.com",
                         "salarconq@bsginstitute.com",
-                        "lcarpio@bsginstitute.com"
+                        "msalazari@bsginstitute.com"
                     };
                     List<string> correosPersonalizadosCopiaOculta = new List<string>
                     {
-                        "gcanasac@bsginstitute.com",
-                        "fmamanif@bsginstitute.com"
+                        "ccrispin@bsginstitute.com"
                     };
 
                     string mensaje = "<h3> NOTIFICACIÓN MODIFICACIÓN DE SESIONES! </h3> <br>\n\n";

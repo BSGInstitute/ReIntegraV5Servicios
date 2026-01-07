@@ -17,6 +17,8 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         OportunidadInformacionDTO ObtenerOportunidadInformacion(int idAlumno, int idClasificacionPersona);
         OportunidadInformacionDTO ObtenerOportunidadInformacionPersonalizado(int idAlumno, int idClasificacionPersona);
 
+        IEnumerable<CentroCostoVentaCruzadaDTO> ObtenerCentroCostoVentaCruzada(int idPGeneral);
+
         IEnumerable<ProgramaGeneralProblemaDetalleAgendaDTO> ObtenerProgramaGeneralProblemaDetallePorIdOportunidad(int idOportunidad);
         IEnumerable<CorreoInteraccionV2AgendaDTO> ObtenerCorreoInteraccionV2EnviadosPorPersonal(int idAlumno, int idPersonal);
         IEnumerable<CompetidorOportunidadAgendaDTO> ObtenerCompetidorPorIdOportunidad(int idOportunidad);
@@ -71,9 +73,12 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         SolciitudBeneficioDTO RestablecerSolicitudBeneficio(int IdMatriculaCabeceraBeneficio, string Usuario);
         ValorEtiquetaWhatsAppDTO ObtenerValoresEtiquetaWhatsapp(int idOportunidad);
         ControlActividadAgendaDTO ObtenerReporteControlActividadesAgenda(int idAsesor);
+        MetricasComparativasDiariasDTO ObtenerMetricasComparativasDiarias(int idAsesor, DateTime? fecha = null);
         List<ResultadoBusquedaFichaAlumnoDTO> BuscarFichaPorCelular(string celular);
         int ObtenerIdSkillPorCelular(string celular);
         IEnumerable<ColorPerfilProgramaDTO> ObtenerColorPerfilProgramaPorIdOportunidad(int idOportunidad);
         IEnumerable<ProgramaGeneralPresentacionArgumentoDetalleAgendaDTO> ObtenerProgramaGeneralPresentacionArgumentoDetallePorIdOportunidad(int idOportunidad);
+        AlumnoCodigosDescuentosDTO ObtenerCodigoDescuentoAlumno(int idAlumno);
+        bool ActualizarCentroCosto(int idCentroCosto, int idActividad);
     }
 }

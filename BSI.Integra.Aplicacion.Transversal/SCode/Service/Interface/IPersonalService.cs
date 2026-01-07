@@ -113,5 +113,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
 
         public bool ResetarIp(MacDTO json);
         public bool GuardarHorario(PersonalHorarioDTO Json, string Usuario);
+
+        public ResultadoDTOv2 InsertarMarcacionPersonalV2(string Usuario, int TipoBoton, string DNI);
     }
 }

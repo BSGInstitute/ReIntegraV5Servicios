@@ -2413,6 +2413,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 pgeneral.PgeneralVersionPrograma = programaGeneralDTO.DetallesProgramaGeneral.PgeneralVersionPrograma.Select(x => new PgeneralVersionPrograma
                 {
                     Duracion = x.Duracion,
+                    CreditoDisponibleTutorVirtual = x.CreditoDisponibleTutorVirtual,
                     IdVersionPrograma = x.IdVersionPrograma,
                     UsuarioCreacion = usuario,
                     UsuarioModificacion = usuario,
@@ -3206,6 +3207,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     if (_unitOfWork.PGeneralVersionProgramaRepository.Exist(x => x.IdPgeneral == idPgeneral && x.IdVersionPrograma == itemVersion.IdVersionPrograma))
                     {
                         entidad = _unitOfWork.PGeneralVersionProgramaRepository.ObtenerPorIdPgeneralIdVersionPrograma(idPgeneral, itemVersion.IdVersionPrograma.GetValueOrDefault())!;
+                        entidad.CreditoDisponibleTutorVirtual = itemVersion.CreditoDisponibleTutorVirtual;
                         entidad.Duracion = itemVersion.Duracion;
                         entidad.UsuarioModificacion = usuario;
                         entidad.FechaModificacion = DateTime.Now;
@@ -3214,6 +3216,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     {
                         entidad = new PgeneralVersionPrograma()
                         {
+                            CreditoDisponibleTutorVirtual = itemVersion.CreditoDisponibleTutorVirtual,
                             Duracion = itemVersion.Duracion,
                             IdVersionPrograma = itemVersion.IdVersionPrograma,
                             UsuarioCreacion = usuario,
@@ -3371,7 +3374,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 foreach (var item in programaGeneralDTO.DetallesProgramaGeneral.MontoPago)
                 {
 
-                    /*Borramos los detalles de MontoPago */
                     #region Detalles Monto Pago
                     var montoPagoPlataformas = _unitOfWork.MontoPagoPlataformaRepository.ObtenerPorIdMontoPago(item.Id);
                     montoPagoPlataformas.RemoveAll(x => item.PlataformasPagos.Any(y => y == x.Valor!.Value));
@@ -3407,6 +3409,81 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         montoPago.MontoDescontado = item.MontoDescontado;
                         montoPago.UsuarioModificacion = usuario;
                         montoPago.FechaModificacion = DateTime.Now;
+
+                        MontoPago montoPagoTmp = _unitOfWork.MontoPagoRepository.ObtenerPorId(item.Id);
+
+                        MontoPagoLog montoPagoLog = new MontoPagoLog();
+                        montoPagoLog.IdMontoPago = montoPagoTmp.Id;
+                        montoPagoLog.PrecioOriginal = montoPagoTmp.Precio;
+                        montoPagoLog.PrecioModificado = montoPagoTmp.Precio != item.Precio ? item.Precio : null;
+                        montoPagoLog.PrecioLetrasOriginal = montoPagoTmp.PrecioLetras;
+                        montoPagoLog.PrecioLetrasModificado = montoPagoTmp.PrecioLetras != item.PrecioLetras ? item.PrecioLetras : null;
+                        montoPagoLog.IdMonedaOriginal = montoPagoTmp.IdMoneda;
+                        montoPagoLog.IdMonedaModificado = montoPagoTmp.IdMoneda != item.IdMoneda ? item.IdMoneda : null;
+                        montoPagoLog.MatriculaOriginal = montoPagoTmp.Matricula;
+                        montoPagoLog.MatriculaModificado = montoPagoTmp.Matricula != item.Matricula ? item.Matricula : null;
+                        montoPagoLog.CuotasOriginal = montoPagoTmp.Cuotas;
+                        montoPagoLog.CuotasModificado = montoPagoTmp.Cuotas != item.Cuotas ? item.Cuotas : null;
+                        montoPagoLog.NroCuotasOriginal = montoPagoTmp.NroCuotas;
+                        montoPagoLog.NroCuotasModificado = montoPagoTmp.NroCuotas != item.NroCuotas ? item.NroCuotas : null;
+                        montoPagoLog.IdTipoDescuentoOriginal = montoPagoTmp.IdTipoDescuento;
+                        montoPagoLog.IdTipoDescuentoModificado = montoPagoTmp.IdTipoDescuento != item.IdTipoDescuento ? item.IdTipoDescuento : null;
+                        montoPagoLog.IdPgeneralOriginal = montoPagoTmp.IdPrograma;
+                        montoPagoLog.IdPgeneralModificado = montoPagoTmp.IdPrograma != item.IdPrograma ? item.IdPrograma : null;
+                        montoPagoLog.IdTipoPagoOriginal = montoPagoTmp.IdTipoPago;
+                        montoPagoLog.IdTipoPagoModificado = montoPagoTmp.IdTipoPago != item.IdTipoPago ? item.IdTipoPago : null;
+                        montoPagoLog.IdPaisOriginal = montoPagoTmp.IdPais;
+                        montoPagoLog.IdPaisModificado = montoPagoTmp.IdPais != item.IdPais ? item.IdPais : null;
+                        montoPagoLog.VencimientoOriginal = montoPagoTmp.Vencimiento;
+                        montoPagoLog.VencimientoModificado = montoPagoTmp.Vencimiento != item.Vencimiento ? item.Vencimiento : null;
+                        montoPagoLog.PrimeraCuotaOriginal = montoPagoTmp.PrimeraCuota;
+                        montoPagoLog.PrimeraCuotaModificado = montoPagoTmp.PrimeraCuota != item.PrimeraCuota ? item.PrimeraCuota : null;
+                        montoPagoLog.CuotaDobleOriginal = montoPagoTmp.CuotaDoble;
+                        montoPagoLog.CuotaDobleModificado = montoPagoTmp.CuotaDoble != item.CuotaDoble ? item.CuotaDoble : null;
+                        montoPagoLog.DescripcionOriginal = montoPagoTmp.Descripcion;
+                        montoPagoLog.DescripcionModificado = montoPagoTmp.Descripcion != item.Descripcion ? item.Descripcion : null;
+                        montoPagoLog.VisibleWebOriginal = montoPagoTmp.VisibleWeb;
+                        montoPagoLog.VisibleWebModificado = montoPagoTmp.VisibleWeb != item.VisibleWeb ? item.VisibleWeb : null;
+                        montoPagoLog.PaqueteOriginal = montoPagoTmp.Paquete;
+                        montoPagoLog.PaqueteModificado = montoPagoTmp.Paquete != item.Paquete ? item.Paquete : null;
+                        montoPagoLog.PorDefectoOriginal = montoPagoTmp.PorDefecto;
+                        montoPagoLog.PorDefectoModificado = montoPagoTmp.PorDefecto != item.PorDefecto ? item.PorDefecto : null;
+                        montoPagoLog.MontoDescontadoOriginal = montoPagoTmp.MontoDescontado;
+                        montoPagoLog.MontoDescontadoModificado = montoPagoTmp.MontoDescontado != item.MontoDescontado ? item.MontoDescontado : null;
+
+                        montoPagoLog.Accion = "UPDATE";
+                        montoPagoLog.UsuarioCreacion = montoPago.UsuarioModificacion;
+                        montoPagoLog.UsuarioModificacion = usuario;
+                        montoPagoLog.FechaCreacion = DateTime.Now;
+                        montoPagoLog.FechaModificacion = DateTime.Now;
+                        montoPagoLog.Estado = true;
+
+         
+                        bool hayCambios =
+                            (montoPagoTmp.Precio != item.Precio) ||
+                            (montoPagoTmp.PrecioLetras != item.PrecioLetras) ||
+                            (montoPagoTmp.IdMoneda != item.IdMoneda) ||
+                            (montoPagoTmp.Matricula != item.Matricula) ||
+                            (montoPagoTmp.Cuotas != item.Cuotas) ||
+                            (montoPagoTmp.NroCuotas != item.NroCuotas) ||
+                            (montoPagoTmp.IdTipoDescuento != item.IdTipoDescuento) ||
+                            (montoPagoTmp.IdPrograma != item.IdPrograma) ||
+                            (montoPagoTmp.IdTipoPago != item.IdTipoPago) ||
+                            (montoPagoTmp.IdPais != item.IdPais) ||
+                            (montoPagoTmp.Vencimiento != item.Vencimiento) ||
+                            (montoPagoTmp.PrimeraCuota != item.PrimeraCuota) ||
+                            (montoPagoTmp.CuotaDoble != item.CuotaDoble) ||
+                            (montoPagoTmp.Descripcion != item.Descripcion) ||
+                            (montoPagoTmp.VisibleWeb != item.VisibleWeb) ||
+                            (montoPagoTmp.Paquete != item.Paquete) ||
+                            (montoPagoTmp.PorDefecto != item.PorDefecto) ||
+                            (montoPagoTmp.MontoDescontado != item.MontoDescontado);
+
+                        if (hayCambios)
+                        {
+                            _unitOfWork.MontoPagoLogRepository.Add(montoPagoLog);
+                            _unitOfWork.Commit();
+                        }
                     }
                     else
                     {
@@ -3435,6 +3512,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         montoPago.FechaModificacion = DateTime.Now;
                         montoPago.FechaCreacion = DateTime.Now;
                     }
+
                     montoPago.MontoPagoPlataforma = new List<MontoPagoPlataforma>();
                     foreach (var item2 in item.PlataformasPagos)
                     {
@@ -3457,6 +3535,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             montoPago.MontoPagoPlataforma.Add(plataforma);
                         }
                     }
+
                     if (montoPago.Id == 0)
                     {
                         _unitOfWork.MontoPagoRepository.Add(montoPago);
@@ -5473,6 +5552,84 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             catch (Exception ex)
             {
                 throw;
+            }
+        }
+        public ResultadoPVersionDTO ActualizarVersionPrograma(UpdateOnlyVersionProgramaDTO data, string usuario)
+        {
+            try
+            {
+                //if (data == null) return new ResultadoDTO { Estado = false, Mensaje = "Datos nulos" };
+                if (data.versiones == null) data.versiones = new List<PGeneralVersionProgramaDetalleDTO>();
+
+                var elements = _unitOfWork.PGeneralVersionProgramaRepository
+                    .ObtenerPorIdPGeneral(data.IdPgeneral);
+
+                if (!data.versiones.Any())
+                {
+                    if (elements.Any())
+                    {
+                        _unitOfWork.PGeneralVersionProgramaRepository.Delete(
+                            elements.Select(x => x.Id),
+                            usuario
+                        );
+                        _unitOfWork.Commit();
+                    }
+                    return new ResultadoPVersionDTO { Estado = true, Mensaje = "Versiones eliminadas correctamente" };
+                }
+
+                List<int> idsEnviado = data.versiones
+                    .Where(v => v.IdVersionPrograma.HasValue)
+                    .Select(v => v.IdVersionPrograma.Value)
+                    .ToList();
+
+                var idsEliminar = elements
+                    .Where(x => x.IdVersionPrograma.HasValue &&
+                                !idsEnviado.Contains(x.IdVersionPrograma.Value))
+                    .Select(x => x.Id);
+
+                if (idsEliminar.Any())
+                    _unitOfWork.PGeneralVersionProgramaRepository.Delete(idsEliminar, usuario);
+
+                foreach (var itemVersion in data.versiones)
+                {
+                    if (!itemVersion.IdVersionPrograma.HasValue) continue;
+
+                    var existente = elements
+                        .FirstOrDefault(x => x.IdVersionPrograma == itemVersion.IdVersionPrograma);
+
+                    if (existente != null)
+                    {
+                        existente.CreditoDisponibleTutorVirtual = itemVersion.CreditoDisponibleTutorVirtual;
+                        existente.Duracion = itemVersion.Duracion;
+                        existente.UsuarioModificacion = usuario;
+                        existente.FechaModificacion = DateTime.Now;
+
+                        _unitOfWork.PGeneralVersionProgramaRepository.Update(existente);
+                    }
+                    else
+                    {
+                        var nuevo = new PgeneralVersionPrograma()
+                        {
+                            CreditoDisponibleTutorVirtual = itemVersion.CreditoDisponibleTutorVirtual,
+                            Duracion = itemVersion.Duracion,
+                            IdVersionPrograma = itemVersion.IdVersionPrograma,
+                            IdPgeneral = data.IdPgeneral,
+                            UsuarioCreacion = usuario,
+                            UsuarioModificacion = usuario,
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now,
+                            Estado = true,
+                        };
+
+                        _unitOfWork.PGeneralVersionProgramaRepository.Add(nuevo);
+                    }
+                }
+                _unitOfWork.Commit();
+                return new ResultadoPVersionDTO { Estado = true, Mensaje = "Versiones actualizadas correctamente" };
+            }
+            catch (Exception ex)
+            {
+                return new ResultadoPVersionDTO { Estado = false, Mensaje = ex.Message };
             }
         }
     }

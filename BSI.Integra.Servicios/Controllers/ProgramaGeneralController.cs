@@ -1227,6 +1227,14 @@ namespace BSI.Integra.Servicios.Controllers
             var actualizar = _pGeneralService.Actualizar(programaGeneralDTO, _tokenManager.UserName);
             return Ok(actualizar);
         }
+
+        [Route("[Action]")]
+        [HttpPost]
+        public IActionResult ActualizarVersionPrograma([FromBody] UpdateOnlyVersionProgramaDTO jsonDTO)
+        {
+            var actualizar = _pGeneralService.ActualizarVersionPrograma(jsonDTO, "ctumir_sis");
+            return Ok(actualizar);
+        }
         /// TipoFuncion: POST
         /// Autor: Gilmer Qm.
         /// Fecha: 13/06/2023

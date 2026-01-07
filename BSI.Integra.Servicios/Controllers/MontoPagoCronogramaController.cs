@@ -395,120 +395,120 @@ namespace BSI.Integra.Servicios.Controllers
                 //Impide que el asesor pueda exceder las 2 cuotas adicionales a la la duracion del curso o programa
                 //online valida basado en la fecha fin de su ultima sesion
                 //aonline basado en la duracion en meses del programa
-                if (resultadoCodigoMatricula.PEspecificoInformacion.Tipo == "Online Sincronica" || resultadoCodigoMatricula.PEspecificoInformacion.Tipo == "Presencial")
-                {
-                    //obtengo la fecha de la ultima sesion
-                    var sesiones = servicioMontoPagoCronograma.ObtenerSesionesOnline(resultadoCodigoMatricula.PEspecificoInformacion.Id);
+                //if (resultadoCodigoMatricula.PEspecificoInformacion.Tipo == "Online Sincronica" || resultadoCodigoMatricula.PEspecificoInformacion.Tipo == "Presencial")
+                //{
+                //    //obtengo la fecha de la ultima sesion
+                //    var sesiones = servicioMontoPagoCronograma.ObtenerSesionesOnline(resultadoCodigoMatricula.PEspecificoInformacion.Id);
 
-                    if (sesiones.Count > 0)
-                    {
-                        var ultimaSesion = sesiones.OrderByDescending(s => s.FechaInicio).First();
+                //    if (sesiones.Count > 0)
+                //    {
+                //        var ultimaSesion = sesiones.OrderByDescending(s => s.FechaInicio).First();
 
-                        var listamatriculasdivididas = cronogramaDTO.ListaDetalleCuotas.Where(w => w.CuotaDescripcion.Contains("matricula")).ToList();
+                //        var listamatriculasdivididas = cronogramaDTO.ListaDetalleCuotas.Where(w => w.CuotaDescripcion.Contains("matricula")).ToList();
                         
-                        //si la matricula se partio en mas de 3 se le da 1 mes mas (3)
-                        var fechaLimite = new DateTime();
-                        if (listamatriculasdivididas.Count >= 2)
-                        {
-                            fechaLimite = ultimaSesion.FechaInicio.AddMonths(3);
-                        }
-                        else 
-                        {
-                            fechaLimite = ultimaSesion.FechaInicio.AddMonths(2);
-                        }
+                //        //si la matricula se partio en mas de 3 se le da 1 mes mas (3)
+                //        var fechaLimite = new DateTime();
+                //        if (listamatriculasdivididas.Count >= 2)
+                //        {
+                //            fechaLimite = ultimaSesion.FechaInicio.AddMonths(3);
+                //        }
+                //        else 
+                //        {
+                //            fechaLimite = ultimaSesion.FechaInicio.AddMonths(2);
+                //        }
 
 
-                        var ultimaCuota = cronogramaDTO.ListaDetalleCuotas.OrderByDescending(l => l.FechaPago).First();
+                //        var ultimaCuota = cronogramaDTO.ListaDetalleCuotas.OrderByDescending(l => l.FechaPago).First();
 
-                        if (ultimaCuota.FechaPago.Year == fechaLimite.Year)
-                        {
+                //        if (ultimaCuota.FechaPago.Year == fechaLimite.Year)
+                //        {
 
-                            //SE PASO DE LA FECHA LIMITE LA ULTIMA CUOTA
-                            if (ultimaCuota.FechaPago.Month > fechaLimite.Month)
-                            {
-                                return BadRequest("Excede el limite de fechas de 2 cuotas adicionales a la duracion del curso y/o programa");
-                            }
+                //            //SE PASO DE LA FECHA LIMITE LA ULTIMA CUOTA
+                //            if (ultimaCuota.FechaPago.Month > fechaLimite.Month)
+                //            {
+                //                return BadRequest("Excede el limite de fechas de 2 cuotas adicionales a la duracion del curso y/o programa");
+                //            }
 
-                        }
-                        else //son años diferentes
-                        {
+                //        }
+                //        else //son años diferentes
+                //        {
 
-                            //si el año de la ultima cuota es mayor
-                            if (ultimaCuota.FechaPago.Year > fechaLimite.Year)
-                            {
-                                return BadRequest("Excede el limite de fechas de 2 cuotas adicionales a la duracion del curso y/o programa");
-                            }
-                            // el año de la ultima cuota es menor continua sin problemas
-                        }
-                    }
-
-
-
-                }
-                else if (resultadoCodigoMatricula.PEspecificoInformacion.Tipo == "Online Asincronica")
-                {
+                //            //si el año de la ultima cuota es mayor
+                //            if (ultimaCuota.FechaPago.Year > fechaLimite.Year)
+                //            {
+                //                return BadRequest("Excede el limite de fechas de 2 cuotas adicionales a la duracion del curso y/o programa");
+                //            }
+                //            // el año de la ultima cuota es menor continua sin problemas
+                //        }
+                //    }
 
 
-                    var montoPago = servicioMontoPago.ObtenerPorId(cronogramaDTO.IdMontoPago.Value);
-                    var duraciones = servicioPGeneral.ObtenerDuracionProgramas(resultadoCodigoMatricula.PEspecificoInformacion.IdProgramaGeneral);
 
-                    ///obtengo la version seleccionada
+                //}
+                //else if (resultadoCodigoMatricula.PEspecificoInformacion.Tipo == "Online Asincronica")
+                //{
 
-                    if (duraciones.Count() > 0)
-                    {
-                        var seleccionado = duraciones.Where(w => w.IdVersionPrograma == montoPago.Paquete).FirstOrDefault();
-                        if (seleccionado != null)
-                        {
-                            ///basado en la cantidad de horas se calcula la cantidad de meses 12.5 horas cada mes aprox
-                            var duracionMeses = Math.Round(seleccionado.Duracion.Value / 12.5, 0, MidpointRounding.ToEven);
-                            var fechaLimite = DateTime.Now.AddMonths(Convert.ToInt32(duracionMeses));
-                            //fechaLimite = fechaLimite.AddMonths(2);
-                            var listamatriculasdivididas = cronogramaDTO.ListaDetalleCuotas.Where(w => w.CuotaDescripcion.Contains("matricula")).ToList();
 
-                            //si la matricula se partio en mas de 3 se le da 1 mes mas (3)
-                            if (listamatriculasdivididas.Count >= 2)
-                            {
-                                fechaLimite = fechaLimite.AddMonths(3);
-                            }
-                            else
-                            {
-                                fechaLimite = fechaLimite.AddMonths(2);
-                            }
+                //    var montoPago = servicioMontoPago.ObtenerPorId(cronogramaDTO.IdMontoPago.Value);
+                //    var duraciones = servicioPGeneral.ObtenerDuracionProgramas(resultadoCodigoMatricula.PEspecificoInformacion.IdProgramaGeneral);
 
-                            var ultimaCuota = cronogramaDTO.ListaDetalleCuotas.OrderByDescending(l => l.FechaPago).First();
+                //    ///obtengo la version seleccionada
 
-                            if (ultimaCuota.FechaPago.Year == fechaLimite.Year)
-                            {
+                //    if (duraciones.Count() > 0)
+                //    {
+                //        var seleccionado = duraciones.Where(w => w.IdVersionPrograma == montoPago.Paquete).FirstOrDefault();
+                //        if (seleccionado != null)
+                //        {
+                //            ///basado en la cantidad de horas se calcula la cantidad de meses 12.5 horas cada mes aprox
+                //            var duracionMeses = Math.Round(seleccionado.Duracion.Value / 12.5, 0, MidpointRounding.ToEven);
+                //            var fechaLimite = DateTime.Now.AddMonths(Convert.ToInt32(duracionMeses));
+                //            //fechaLimite = fechaLimite.AddMonths(2);
+                //            var listamatriculasdivididas = cronogramaDTO.ListaDetalleCuotas.Where(w => w.CuotaDescripcion.Contains("matricula")).ToList();
 
-                                //SE PASO DE LA FECHA LIMITE LA ULTIMA CUOTA
-                                if (ultimaCuota.FechaPago.Month > fechaLimite.Month)
-                                {
-                                    return BadRequest("Excede el limite de fechas de 2 cuotas adicionales a la duracion del curso y/o programa");
-                                }
+                //            //si la matricula se partio en mas de 3 se le da 1 mes mas (3)
+                //            if (listamatriculasdivididas.Count >= 2)
+                //            {
+                //                fechaLimite = fechaLimite.AddMonths(3);
+                //            }
+                //            else
+                //            {
+                //                fechaLimite = fechaLimite.AddMonths(2);
+                //            }
 
-                            }
-                            else //son años diferentes
-                            {
+                //            var ultimaCuota = cronogramaDTO.ListaDetalleCuotas.OrderByDescending(l => l.FechaPago).First();
 
-                                //si el año de la ultima cuota es mayor
-                                if (ultimaCuota.FechaPago.Year > fechaLimite.Year)
-                                {
-                                    return BadRequest("Excede el limite de fechas de 2 cuotas adicionales a la duracion del curso y/o programa");
-                                }
-                                // el año de la ultima cuota es menor continua sin problemas
-                            }
-                        }
-                        else
-                        {
-                            return BadRequest("No se puede calcular la fecha limite de AOnline porque no hace match el monto pago seleccionado con la lista de version con duracion");
-                        }
+                //            if (ultimaCuota.FechaPago.Year == fechaLimite.Year)
+                //            {
 
-                    }
-                    else
-                    {
-                        return BadRequest("No se puede calcular la fecha limite de AOnline porque no tiene configurado duraciones");
-                    }
-                }
+                //                //SE PASO DE LA FECHA LIMITE LA ULTIMA CUOTA
+                //                if (ultimaCuota.FechaPago.Month > fechaLimite.Month)
+                //                {
+                //                    return BadRequest("Excede el limite de fechas de 2 cuotas adicionales a la duracion del curso y/o programa");
+                //                }
+
+                //            }
+                //            else //son años diferentes
+                //            {
+
+                //                //si el año de la ultima cuota es mayor
+                //                if (ultimaCuota.FechaPago.Year > fechaLimite.Year)
+                //                {
+                //                    return BadRequest("Excede el limite de fechas de 2 cuotas adicionales a la duracion del curso y/o programa");
+                //                }
+                //                // el año de la ultima cuota es menor continua sin problemas
+                //            }
+                //        }
+                //        else
+                //        {
+                //            return BadRequest("No se puede calcular la fecha limite de AOnline porque no hace match el monto pago seleccionado con la lista de version con duracion");
+                //        }
+
+                //    }
+                //    else
+                //    {
+                //        return BadRequest("No se puede calcular la fecha limite de AOnline porque no tiene configurado duraciones");
+                //    }
+                //}
 
                 GuardarCronograma(idOportunidad, idAlumno, ref cronograma);
                 var datosUsuario = new DatosUsuarioPortalDTO();

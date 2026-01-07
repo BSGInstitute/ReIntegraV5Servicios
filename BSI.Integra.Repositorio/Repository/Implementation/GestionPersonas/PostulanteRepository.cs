@@ -611,7 +611,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.GestionPersonas
                 }
                 return resultado;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
@@ -1008,7 +1008,146 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.GestionPersonas
                 throw new Exception(e.Message);
             }
         }
+        public IEnumerable<PostulanteProcesoEvaluacionesDTO> HabilitarExamenesEvaluaciones(PostulanteExamenesDTO parametros)
+        {
+            try
+            {
+                List<PostulanteProcesoEvaluacionesDTO> resultado = new List<PostulanteProcesoEvaluacionesDTO>();
+                string query = "gp.SP_HabilitarExamenes";
+                var response = _dapperRepository.QuerySPDapper(query, new
+                {
+                    @IdExamen = parametros.IdExamen,
+                    @IdEvaluacion = parametros.IdEvaluacion,
+                    @IdPostulante = parametros.IdPostulante,
+                    @IdProcesoSeleccion = parametros.IdProcesoSeleccion
+                });
+                if (!string.IsNullOrEmpty(response) && !response.Contains("[]"))
+                {
+                    resultado = JsonConvert.DeserializeObject<List<PostulanteProcesoEvaluacionesDTO>>(response);
+                }
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public PostulanteInformacionVisualDTO ObtenerInformacionPostulanteVisual(int idPostulante)
+        {
+            try
+            {
+                PostulanteInformacionVisualDTO lista = new PostulanteInformacionVisualDTO();
+                var query = "SELECT Id, Nombre, ApellidoPaterno, ApellidoMaterno ,Edad, Celular, Email, Ciudad, UrlPerfilFacebook, UrlPerfilLinkedin, TieneHijo, CantidadHijo FROM [gp].[V_TPostulante_ObtenerInformacionPostulante] WHERE Id = @idPostulante AND Estado = 1";
+                var res = _dapperRepository.FirstOrDefault(query, new { idPostulante });
+
+                if (!string.IsNullOrEmpty(res) && !res.Contains("[]"))
+                {
+                    lista = JsonConvert.DeserializeObject<PostulanteInformacionVisualDTO>(res);
+                }
+                return lista;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public List<PostulanteFormacionDTOV2> ObtenerPostulanteFormacion(int idPostulante)
+        {
+            try
+            {
+                List<PostulanteFormacionDTOV2> lista = new List<PostulanteFormacionDTOV2>();
+                string query = "SELECT Id, IdPostulante, CentroEstudio, TipoEstudio, AreaFormacion, EstadoEstudio, FechaInicio, FechaFin, AlaActualidad, TurnoEstudio FROM gp.V_TPostulanteFormacion_ObtenerInformacion WHERE Estado = 1 AND IdPostulante = @IdPOstulante ORDER BY AlaActualidad DESC, FechaFin DESC, FechaInicio DESC";
+                var res = _dapperRepository.QueryDapper(query, new { IdPostulante = idPostulante });
+                if (!string.IsNullOrEmpty(res) && !res.Contains("[]"))
+                {
+                    lista = JsonConvert.DeserializeObject<List<PostulanteFormacionDTOV2>>(res);
+                }
+                return lista;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
 
 
+
+
+        public List<PostulanteIdiomaDTOV2> ObtenerPostulanteIdioma(int idPostulante)
+        {
+            try
+            {
+                List<PostulanteIdiomaDTOV2> lista = new List<PostulanteIdiomaDTOV2>();
+                string query = "SELECT Id, IdPostulante, Idioma, NivelIdioma FROM gp.V_TPostulanteIdioma_ObtenerInformacion WHERE Estado = 1 AND IdPostulante = @IdPOstulante";
+                var res = _dapperRepository.QueryDapper(query, new { IdPostulante = idPostulante });
+                if (!string.IsNullOrEmpty(res) && !res.Contains("[]"))
+                {
+                    lista = JsonConvert.DeserializeObject<List<PostulanteIdiomaDTOV2>>(res);
+                }
+                return lista;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public List<PostulanteExperienciaDTOV2> ObtenerPostulanteExperiencia(int idPostulante)
+        {
+            try
+            {
+                List<PostulanteExperienciaDTOV2> lista = new List<PostulanteExperienciaDTOV2>();
+                string query = "SELECT Id, IdPostulante, Empresa, Cargo, AreaTrabajo, Industria, FechaInicio, FechaFin, NombreJefe, NumeroJefe, AlaActualidad, EsUltimoEmpleo, Salario, Funcion, MesesExperiencia FROM gp.V_TPostulanteExperiencia_ObtenerInformacion WHERE Estado = 1 AND IdPostulante = @IdPOstulante ORDER BY AlaActualidad DESC, FechaFin DESC";
+                var res = _dapperRepository.QueryDapper(query, new { IdPostulante = idPostulante });
+                if (!string.IsNullOrEmpty(res) && !res.Contains("[]"))
+                {
+                    lista = JsonConvert.DeserializeObject<List<PostulanteExperienciaDTOV2>>(res);
+                }
+                return lista;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+        public PostulanteEquipoComputoDTOV2 ObtenerPostulanteEquipoComputo(int idPostulante)
+        {
+            try
+            {
+                PostulanteEquipoComputoDTOV2 objeto = new PostulanteEquipoComputoDTOV2();
+                string query = "SELECT Id, IdPostulante, TipoEquipo, MemoriaRam, SistemaOperativo, Procesador, Mouse, Auricular, Camara, EsEquipoTrabajo FROM gp.V_TPostulanteEquipoComputo_ObtenerInformacion WHERE Estado = 1 AND IdPostulante = @IdPOstulante";
+                var res = _dapperRepository.FirstOrDefault(query, new { IdPostulante = idPostulante });
+                if (!string.IsNullOrEmpty(res) && !res.Contains("[]"))
+                {
+                    objeto = JsonConvert.DeserializeObject<PostulanteEquipoComputoDTOV2>(res);
+                }
+                return objeto;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public PostulanteConexionInternetDTOV2 ObtenerPostulanteConexionInternet(int idPostulante)
+        {
+            try
+            {
+                PostulanteConexionInternetDTOV2 objeto = new PostulanteConexionInternetDTOV2();
+                string query = "SELECT Id, IdPostulante, TipoConexion, MedioConexion, VelocidadInternet, ProveedorInternet, CostoInternet, ConexionCompartida FROM gp.V_TPostulanteConexionInternet_ObtenerInformacion WHERE Estado = 1 AND IdPostulante = @IdPOstulante";
+                var res = _dapperRepository.FirstOrDefault(query, new { IdPostulante = idPostulante });
+                if (!string.IsNullOrEmpty(res) && !res.Contains("[]"))
+                {
+                    objeto = JsonConvert.DeserializeObject<PostulanteConexionInternetDTOV2>(res);
+                }
+                return objeto;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
     }
 }

@@ -2123,6 +2123,31 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         {
             return _unitOfWork.OportunidadRepository.ObtenerReporteControlActividadesAgenda(idAsesor);
         }
+
+
+
+        /// Autor: Jorge Llerenat
+        /// Fecha: 28/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene métricas comparativas diarias de un asesor
+        /// </summary>
+        /// <param name="idAsesor">ID del asesor</param>
+        /// <param name="fecha">Fecha opcional (por defecto hoy)</param>
+        /// <returns>MetricasComparativasDiariasDTO con comparación vs día anterior</returns>
+        public MetricasComparativasDiariasDTO ObtenerMetricasComparativasDiarias(int idAsesor, DateTime? fecha = null)
+        {
+            try
+            {
+                return _unitOfWork.OportunidadRepository.ObtenerMetricasComparativasDiarias(idAsesor, fecha);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#HAS-OMCD-001@Error en ObtenerMetricasComparativasDiarias: {ex.Message}", ex);
+            }
+        }
+
+
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 12/03/2024
         /// Version: 1.0
@@ -2294,6 +2319,47 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 throw ex;
             }
 
+        }
+        /// Autor: MJunior Llerena
+        /// Fecha: 02/12/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene codigos y descuentos relacionados al idAlumno
+        /// </summary>
+        /// <param name="idAlumno">Id del Alumno</param>
+        /// <returns> List<AlumnoCodigosDescuentosDTO> </returns>
+        public AlumnoCodigosDescuentosDTO ObtenerCodigoDescuentoAlumno(int idAlumno)
+        {
+            try
+            {
+                return _unitOfWork.OportunidadRepository.ObtenerCodigoDescuentoAlumno(idAlumno);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#AAS-OCDA-001@Error en ObtenerCodigoDescuentoAlumno: {ex.Message}", ex);
+            }
+        }
+
+        /// TipoFuncion: Public
+        /// Autor: Junior Llerena
+        /// Fecha: 29/12/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza el centro de costo de una actividad
+        /// </summary>
+        /// <param name="idCentroCosto">Id del Centro de Costo</param>
+        /// <param name="idActividad">Id de la Actividad</param>
+        /// <returns>True si se actualizó correctamente</returns>
+        public bool ActualizarCentroCosto(int idCentroCosto, int idActividad)
+        {
+            try
+            {
+                return _unitOfWork.OportunidadRepository.ActualizarCentroCosto(idCentroCosto, idActividad);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#AAS-ACC-001@Error en ActualizarCentroCosto: {ex.Message}", ex);
+            }
         }
 
     }

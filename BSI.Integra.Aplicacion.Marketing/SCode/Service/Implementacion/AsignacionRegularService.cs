@@ -1701,7 +1701,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
             {
                 List<string> correosAlerta = new List<string>();
                 correosAlerta.Add("balmanzam@bsginstitute.com");
-                correosAlerta.Add("mramirez@bsginstitute.com");
+                correosAlerta.Add("mvaldiviac@bsginstitute.com");
                 correosAlerta.Add("drevilla@bsginstitute.com");
 
                 var mailServiceAlerta = new TMK_MailService();

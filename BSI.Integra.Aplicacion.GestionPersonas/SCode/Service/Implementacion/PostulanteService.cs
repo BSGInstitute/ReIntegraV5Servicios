@@ -240,17 +240,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     _unitOfWork.PostulanteRepository.Insert(postulanteRegistroNuevo);
                     _unitOfWork.Commit();
 
-                    //Guardado en el T_PostulanteLOG
                     var listaPostulanteLog = GenerarListaPostulanteLogV2(postulanteRegistroNuevo, informacionPostulante, informacionPostulante.Usuario, true);
                     _unitOfWork.PostulanteLogRepository.Add(listaPostulanteLog);
                     _unitOfWork.Commit();
-
                     int? idCreacionCorrecta = _personaService.InsertarPersona(postulanteRegistroNuevo.Id, Aplicacion.Base.Enums.Enums.TipoPersona.Postulante, informacionPostulante.Usuario);
                     if (idCreacionCorrecta == null)
                     {
                         return new ResultadoInsertarPostulante { Mensaje = "No se creo clasificacion persona", Valor = false }; ;
                     }
-
 
                     if (informacionPostulante.DatosPostulanteFormulario.IdProcesoSeleccion.HasValue)
                     {
@@ -273,80 +270,78 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         var res = _unitOfWork.PostulanteProcesoSeleccionRepository.Insert(postulanteProcesoSeleccion);
                         _unitOfWork.Commit();
                         if (res)
-                        {   
-                            //SE comento por peticion de GP
-                            //var postulacion = _unitOfWork.ExamenAsignadoRepository.ObtenerPorIdProcesoSeleccionYPorIdPostulante(postulanteProcesoSeleccion.Id, postulanteRegistroNuevo.Id);
-                            //if (postulacion == null)
-                            //{
-                            //    //var procesoSeleccion = _repProcesoSeleccion.GetBy(x => x.Id == Postulante.InformacionPostulante.IdProcesoSeleccion).First();
-                            //    var procesoSeleccion = _unitOfWork.ProcesoSeleccionRepository.FirstById(informacionPostulante.DatosPostulanteFormulario.IdProcesoSeleccion.Value);
-                            //    //var examenPorProceso = _repExamenAsignado.ObtenerConfiguracionConfiguracionExamenPorProcesoSeleccionV2(postulanteProcesoSeleccion.IdProcesoSeleccion);
-                            //    var examenPorProceso = _unitOfWork.ExamenAsignadoRepository.ObtenerConfiguracionConfiguracionExamenPorProcesoSeleccionV2(postulanteProcesoSeleccion.IdProcesoSeleccion);
-                            //    var examenEvaluadorPorProceso = _unitOfWork.ExamenAsignadoEvaluadorRepository.ObtenerConfiguracionConfiguracionExamenPorProcesoSeleccionV2(postulanteProcesoSeleccion.IdProcesoSeleccion);
-                            //    foreach (var item in examenPorProceso)
-                            //    {
-                            //        TExamenAsignado examenAsignado = new TExamenAsignado();
-                            //        examenAsignado.IdPostulante = postulanteProcesoSeleccion.IdPostulante;
-                            //        examenAsignado.IdProcesoSeleccion = postulanteProcesoSeleccion.IdProcesoSeleccion;
-                            //        examenAsignado.IdExamen = item.IdExamen;
-                            //        examenAsignado.EstadoExamen = false;
-                            //        examenAsignado.Estado = true;
-                            //        examenAsignado.UsuarioCreacion = informacionPostulante.Usuario;
-                            //        examenAsignado.UsuarioModificacion = informacionPostulante.Usuario;
-                            //        examenAsignado.FechaCreacion = DateTime.Now;
-                            //        examenAsignado.FechaModificacion = DateTime.Now;
-                            //        _unitOfWork.ExamenAsignadoRepository.Insert(examenAsignado);
-                            //        _unitOfWork.Commit();
-                            //    }
-                            //    foreach (var item in examenEvaluadorPorProceso)
-                            //    {
-                            //        TExamenAsignadoEvaluador examenAsignadoEvaluador = new TExamenAsignadoEvaluador();
-                            //        examenAsignadoEvaluador.IdPersonal = personal.Id;
-                            //        examenAsignadoEvaluador.IdPostulante = postulanteProcesoSeleccion.IdPostulante;
-                            //        examenAsignadoEvaluador.IdProcesoSeleccion = postulanteProcesoSeleccion.IdProcesoSeleccion;
-                            //        examenAsignadoEvaluador.IdExamen = item.IdExamen;
-                            //        examenAsignadoEvaluador.EstadoExamen = false;
-                            //        examenAsignadoEvaluador.Estado = true;
-                            //        examenAsignadoEvaluador.UsuarioCreacion = informacionPostulante.Usuario;
-                            //        examenAsignadoEvaluador.UsuarioModificacion = informacionPostulante.Usuario;
-                            //        examenAsignadoEvaluador.FechaCreacion = DateTime.Now;
-                            //        examenAsignadoEvaluador.FechaModificacion = DateTime.Now;
+                        {
+                           
+                            var postulacion = _unitOfWork.ExamenAsignadoRepository.ObtenerPorIdProcesoSeleccionYPorIdPostulante(postulanteProcesoSeleccion.Id, postulanteRegistroNuevo.Id);
+                            if (postulacion == null)
+                            {
+                                //var procesoSeleccion = _repProcesoSeleccion.GetBy(x => x.Id == Postulante.InformacionPostulante.IdProcesoSeleccion).First();
+                                var procesoSeleccion = _unitOfWork.ProcesoSeleccionRepository.FirstById(informacionPostulante.DatosPostulanteFormulario.IdProcesoSeleccion.Value);
+                                //var examenPorProceso = _repExamenAsignado.ObtenerConfiguracionConfiguracionExamenPorProcesoSeleccionV2(postulanteProcesoSeleccion.IdProcesoSeleccion);
+                                var examenPorProceso = _unitOfWork.ExamenAsignadoRepository.ObtenerConfiguracionConfiguracionExamenPorProcesoSeleccionV2(postulanteProcesoSeleccion.IdProcesoSeleccion);
+                                var examenEvaluadorPorProceso = _unitOfWork.ExamenAsignadoEvaluadorRepository.ObtenerConfiguracionConfiguracionExamenPorProcesoSeleccionV2(postulanteProcesoSeleccion.IdProcesoSeleccion);
+                                foreach (var item in examenPorProceso)
+                                {
+                                    TExamenAsignado examenAsignado = new TExamenAsignado();
+                                    examenAsignado.IdPostulante = postulanteProcesoSeleccion.IdPostulante;
+                                    examenAsignado.IdProcesoSeleccion = postulanteProcesoSeleccion.IdProcesoSeleccion;
+                                    examenAsignado.IdExamen = item.IdExamen;
+                                    examenAsignado.EstadoExamen = false;
+                                    examenAsignado.Estado = true;
+                                    examenAsignado.UsuarioCreacion = informacionPostulante.Usuario;
+                                    examenAsignado.UsuarioModificacion = informacionPostulante.Usuario;
+                                    examenAsignado.FechaCreacion = DateTime.Now;
+                                    examenAsignado.FechaModificacion = DateTime.Now;
+                                    _unitOfWork.ExamenAsignadoRepository.Insert(examenAsignado);
+                                    _unitOfWork.Commit();
+                                }
+                                foreach (var item in examenEvaluadorPorProceso)
+                                {
+                                    TExamenAsignadoEvaluador examenAsignadoEvaluador = new TExamenAsignadoEvaluador();
+                                    examenAsignadoEvaluador.IdPersonal = personal.Id;
+                                    examenAsignadoEvaluador.IdPostulante = postulanteProcesoSeleccion.IdPostulante;
+                                    examenAsignadoEvaluador.IdProcesoSeleccion = postulanteProcesoSeleccion.IdProcesoSeleccion;
+                                    examenAsignadoEvaluador.IdExamen = item.IdExamen;
+                                    examenAsignadoEvaluador.EstadoExamen = false;
+                                    examenAsignadoEvaluador.Estado = true;
+                                    examenAsignadoEvaluador.UsuarioCreacion = informacionPostulante.Usuario;
+                                    examenAsignadoEvaluador.UsuarioModificacion = informacionPostulante.Usuario;
+                                    examenAsignadoEvaluador.FechaCreacion = DateTime.Now;
+                                    examenAsignadoEvaluador.FechaModificacion = DateTime.Now;
 
-                            //        if (examenAsignadoEvaluador.IdExamen == 111 && informacionPostulante.DatosPostulanteFormulario.ListaRespuestaDesaprobatoria != null)
-                            //        {
-                            //            examenAsignadoEvaluador.EstadoExamen = true;
-                            //        }
-                            //        _unitOfWork.ExamenAsignadoEvaluadorRepository.Insert(examenAsignadoEvaluador);
-                            //        _unitOfWork.Commit();
+                                    if (examenAsignadoEvaluador.IdExamen == 111 && informacionPostulante.DatosPostulanteFormulario.ListaRespuestaDesaprobatoria != null)
+                                    {
+                                        examenAsignadoEvaluador.EstadoExamen = true;
+                                    }
+                                    _unitOfWork.ExamenAsignadoEvaluadorRepository.Insert(examenAsignadoEvaluador);
+                                    _unitOfWork.Commit();
 
-                            //        if (examenAsignadoEvaluador.IdExamen == 111)
-                            //        {
-                            //            IdExamenAsignadoEvaluadorCriterioDesaprobatorio = examenAsignadoEvaluador.Id;
-                            //            examenAsignadoEvaluadorCriterioDesaprobatorio = examenAsignadoEvaluador;
-                            //        }
-                            //    }
+                                    if (examenAsignadoEvaluador.IdExamen == 111)
+                                    {
+                                        IdExamenAsignadoEvaluadorCriterioDesaprobatorio = examenAsignadoEvaluador.Id;
+                                        examenAsignadoEvaluadorCriterioDesaprobatorio = examenAsignadoEvaluador;
+                                    }
+                                }
+                                if (IdExamenAsignadoEvaluadorCriterioDesaprobatorio > 0 && informacionPostulante.DatosPostulanteFormulario.ListaRespuestaDesaprobatoria != null)
+                                {
+                                    foreach (var item in informacionPostulante.DatosPostulanteFormulario.ListaRespuestaDesaprobatoria)
+                                    {
+                                        TExamenRealizadoRespuestaEvaluador evaluadorExamen = new TExamenRealizadoRespuestaEvaluador();
+                                        evaluadorExamen.IdExamenAsignadoEvaluador = IdExamenAsignadoEvaluadorCriterioDesaprobatorio;
+                                        evaluadorExamen.IdPregunta = 761; // Id de Pregunta de Examen de Criterio de Desaprobacion
+                                        evaluadorExamen.IdRespuestaPregunta = item.IdRespuestaDesaprobatoria;
+                                        evaluadorExamen.TextoRespuesta = null;
+                                        evaluadorExamen.Estado = true;
+                                        evaluadorExamen.UsuarioCreacion = informacionPostulante.Usuario;
+                                        evaluadorExamen.UsuarioModificacion = informacionPostulante.Usuario;
+                                        evaluadorExamen.FechaCreacion = DateTime.Now;
+                                        evaluadorExamen.FechaModificacion = DateTime.Now;
 
-                            //    if (IdExamenAsignadoEvaluadorCriterioDesaprobatorio > 0 && informacionPostulante.DatosPostulanteFormulario.ListaRespuestaDesaprobatoria != null)
-                            //    {
-
-                            //        foreach (var item in informacionPostulante.DatosPostulanteFormulario.ListaRespuestaDesaprobatoria)
-                            //        {
-                            //            TExamenRealizadoRespuestaEvaluador evaluadorExamen = new TExamenRealizadoRespuestaEvaluador();
-                            //            evaluadorExamen.IdExamenAsignadoEvaluador = IdExamenAsignadoEvaluadorCriterioDesaprobatorio;
-                            //            evaluadorExamen.IdPregunta = 761; // Id de Pregunta de Examen de Criterio de Desaprobacion
-                            //            evaluadorExamen.IdRespuestaPregunta = item.IdRespuestaDesaprobatoria;
-                            //            evaluadorExamen.TextoRespuesta = null;
-                            //            evaluadorExamen.Estado = true;
-                            //            evaluadorExamen.UsuarioCreacion = informacionPostulante.Usuario;
-                            //            evaluadorExamen.UsuarioModificacion = informacionPostulante.Usuario;
-                            //            evaluadorExamen.FechaCreacion = DateTime.Now;
-                            //            evaluadorExamen.FechaModificacion = DateTime.Now;
-
-                            //            _unitOfWork.ExamenRealizadoRespuestaEvaluadorRepository.Insert(evaluadorExamen);
-                            //        }
-                            //        _unitOfWork.Commit();
-                            //    }
-                            //}
+                                        _unitOfWork.ExamenRealizadoRespuestaEvaluadorRepository.Insert(evaluadorExamen);
+                                    }
+                                    _unitOfWork.Commit();
+                                }
+                            }
 
                             //Se asignan todas las etapas del proceso al postulante
                             //var EtapasProceso =  _repProcesoSeleccionEtapa.GetBy(x => x.IdProcesoSeleccion == Postulante.InformacionPostulante.IdProcesoSeleccion && x.Estado == true);
@@ -537,7 +532,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                     if (postulacion == null)
                                     {
                                         var examenPorProceso = _unitOfWork.ExamenAsignadoRepository.ObtenerConfiguracionConfiguracionExamenPorProcesoSeleccionV2(postulanteProcesoSeleccion.IdProcesoSeleccion);
-                                        var examenEvaluadorPorProceso = _unitOfWork.ExamenAsignadoRepository.ObtenerConfiguracionConfiguracionExamenPorProcesoSeleccionV2(postulanteProcesoSeleccion.IdProcesoSeleccion);
+                                        var examenEvaluadorPorProceso = _unitOfWork.ExamenAsignadoEvaluadorRepository.ObtenerConfiguracionConfiguracionExamenPorProcesoSeleccionV2(postulanteProcesoSeleccion.IdProcesoSeleccion);
                                         foreach (var item in examenPorProceso)
                                         {
                                             TExamenAsignado examenAsignado = new TExamenAsignado();
@@ -660,8 +655,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                 _unitOfWork.Commit();
                                 _unitOfWork.DetachAll();
 
-                                var EtapasProceso = _unitOfWork.ProcesoSeleccionRepository.GetBy(x => x.Estado == true && x.Id == informacionPostulante.DatosPostulanteFormulario.IdProcesoSeleccion).Select(x => x.Id).ToList();
-                                var etapaCalificada = _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ObtenerListaEtapaExamenesPorPostulante(informacionPostulante.DatosPostulanteFormulario.Id, informacionPostulante.DatosPostulanteFormulario.IdProcesoSeleccion.Value).ToList();
+                                var EtapasProceso = _unitOfWork.ProcesoSeleccionEtapaRepository.GetBy(x => x.Estado == true && x.IdProcesoSeleccion == informacionPostulante.DatosPostulanteFormulario.IdProcesoSeleccion.Value).Select(x => x.Id).ToList();
+                                var etapaCalificada = _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ObtenerListaEtapaExamenesPorPostulante(informacionPostulante.DatosPostulanteFormulario.IdProcesoSeleccion.Value,informacionPostulante.DatosPostulanteFormulario.Id).ToList();
                                 var listaEtapasCalificadas = etapaCalificada.Select(x => x.IdProcesoSeleccionEtapa).ToList();
                                 var flag1 = true;
                                 var flag2 = true;
@@ -3092,5 +3087,83 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw new Exception($"Error en Obtener Postulante Informacion: {ex.Message}");
             }
         }
+
+
+        public IEnumerable<PostulanteProcesoFormatDTO> HabilitarExamenesEvaluaciones(PostulanteExamenesDTO parametros)
+        {
+            try
+            {
+                var resultado = _unitOfWork.PostulanteRepository.HabilitarExamenesEvaluaciones(parametros);
+                var resultadoFormat = resultado
+                    .GroupBy(x => new
+                    {
+                        IdEvaluacion = x.IdEvaluacion,
+                        NombreEvaluacion = x.NombreEvaluacion,
+                    }).Select(g => new PostulanteProcesoFormatDTO
+                    {
+                        IdEvaluacion = g.Key.IdEvaluacion,
+                        NombreEvaluacion = g.Key.NombreEvaluacion,
+                        ListaExamenes = g.Select(x => new PostulanteProcesoExamenesDTO
+                        {
+                            IdExamen = x.IdExamen,
+                            NombreExamen = x.NombreExamen,
+                            EstadoExamen = x.EstadoExamen,
+                        }).ToList()
+                    }).ToList();
+
+                var ExamEval = "";
+                if (parametros.IdEvaluacion != 0)
+                {
+                    ExamEval = $"El Id de la evaluacion fue {parametros.IdExamen}";
+                }
+                else if (parametros.IdExamen != 0)
+                {
+                    ExamEval = $"El Id del examen fue {parametros.IdExamen}";
+                }
+                else
+                {
+                    ExamEval = "Se realizo una apertura general";
+                }
+
+                TMKMailDataDTO mailDataPersonalizado = new TMKMailDataDTO
+                {
+                    Sender = "sistemenabled@bsginstitute.com",
+                    Recipient = "cquispem@bsginstitute.com",
+                    Subject = "Examenes o Evaluaciones habilitadas",
+                    Message = $"Se realizo una reaperturacion a las {DateTime.Now} del postulante:\n - IdPostulante {parametros.IdPostulante}\n - IdProcesoSeleccion {parametros.IdProcesoSeleccion}\n - {ExamEval}",
+                };
+                var mailService = new TMK_MailService();
+                mailService.SetData(mailDataPersonalizado);
+                mailService.SendMessageTask();
+                return resultadoFormat;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al obtener evaluaciones de postulante: {ex.Message}");
+            }
+        }
+        public InformacionPostulanteDTO ObtenerPostulantesInformacionV2(int idPostulante)
+        {
+            InformacionPostulanteDTO combos = new InformacionPostulanteDTO();
+            try
+            {
+
+                combos.PostulanteInformacion = _unitOfWork.PostulanteRepository.ObtenerInformacionPostulanteVisual(idPostulante);
+                combos.PostulanteFormacion = _unitOfWork.PostulanteRepository.ObtenerPostulanteFormacion(idPostulante);
+				combos.PostulanteIdioma = _unitOfWork.PostulanteRepository.ObtenerPostulanteIdioma(idPostulante);
+				combos.PostulanteExperiencia = _unitOfWork.PostulanteRepository.ObtenerPostulanteExperiencia(idPostulante);
+				combos.PostulanteEquipoComputo = _unitOfWork.PostulanteRepository.ObtenerPostulanteEquipoComputo(idPostulante);
+				combos.PostulanteConexionInternet = _unitOfWork.PostulanteRepository.ObtenerPostulanteConexionInternet(idPostulante);
+               
+                return combos;
+            }
+            catch
+            {
+                return null;
+            }
+
+        }
+
+
     }
 }

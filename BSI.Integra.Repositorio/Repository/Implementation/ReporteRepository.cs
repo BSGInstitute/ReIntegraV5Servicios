@@ -7325,7 +7325,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var items = new List<ReporteLlamadaEntranteDTO>();
-                var query = "[com].[SP_ReporteLlamadaEntrante]";
+                //var query = "[com].[SP_ReporteLlamadaEntrante]";
+                var query = "[com].[SP_ReporteLlamadaEntrante_Wavix]";
+
                 var resultado = _dapperRepository.QuerySPDapper(query, new
                 {
                     filtro.Asesores,

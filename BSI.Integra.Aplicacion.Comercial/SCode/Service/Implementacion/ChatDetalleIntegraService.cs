@@ -463,6 +463,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                     request.IdChatbotPortalHiloChat,
                     request.IdVersionFormularioEvaluacionChatbot,
                     usuario,
+                    request.IdSolicitudProblema,
                     respuestasSeleccionadasJson,
                     respuestasTextoJson,
                     problemasIdentificadosJson

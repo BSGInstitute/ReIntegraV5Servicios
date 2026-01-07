@@ -589,6 +589,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             int idChatbotPortalHiloChat,
             int idVersionFormularioEvaluacionChatbot,
             string usuarioCreacion,
+            int? idSolicitudProblema,
             string respuestasSeleccionadasJson = null,
             string respuestasTextoJson = null,
             string problemasIdentificadosJson = null)
@@ -603,6 +604,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     IdChatbotPortalHiloChat = idChatbotPortalHiloChat,
                     IdVersionFormularioEvaluacionChatbot = idVersionFormularioEvaluacionChatbot,
                     UsuarioCreacion = usuarioCreacion,
+                    IdSolicitudProblema = idSolicitudProblema,
                     RespuestasSeleccionadas = respuestasSeleccionadasJson,
                     RespuestasTexto = respuestasTextoJson,
                     ProblemasIdentificados = problemasIdentificadosJson

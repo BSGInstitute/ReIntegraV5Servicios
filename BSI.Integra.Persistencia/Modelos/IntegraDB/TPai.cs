@@ -7,6 +7,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TPai()
         {
+            TMontoPagoLogIdPaisModificadoNavigations = new HashSet<TMontoPagoLog>();
+            TMontoPagoLogIdPaisOriginalNavigations = new HashSet<TMontoPagoLog>();
+            TPaqueteTutorVirtualPais = new HashSet<TPaqueteTutorVirtualPai>();
             TWhatsAppMensajeRecibidos = new HashSet<TWhatsAppMensajeRecibido>();
         }
 
@@ -87,6 +90,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public int? EstadoVisualizacion { get; set; }
 
+        public virtual ICollection<TMontoPagoLog> TMontoPagoLogIdPaisModificadoNavigations { get; set; }
+        public virtual ICollection<TMontoPagoLog> TMontoPagoLogIdPaisOriginalNavigations { get; set; }
+        public virtual ICollection<TPaqueteTutorVirtualPai> TPaqueteTutorVirtualPais { get; set; }
         public virtual ICollection<TWhatsAppMensajeRecibido> TWhatsAppMensajeRecibidos { get; set; }
     }
 }

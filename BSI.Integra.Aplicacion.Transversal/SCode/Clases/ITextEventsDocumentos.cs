@@ -99,7 +99,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Clases
             TablaTop.AddCell(cellx3);
 
             iTextSharp.text.Font _FCronogramaAlumnos = new iTextSharp.text.Font(iTextSharp.text.Font.FontFamily.HELVETICA, 12, iTextSharp.text.Font.BOLD, BaseColor.BLACK);
-            PdfPCell cellx4 = new PdfPCell(new Phrase("Sílabo-Cronograma", _FUColumnsNegrita));
+            PdfPCell cellx4 = new PdfPCell(new Phrase("Sílabo - Cursos Online sincrónicos", _FUColumnsNegrita));
             cellx4.HorizontalAlignment = 1;
             cellx4.VerticalAlignment = Element.ALIGN_MIDDLE;
             cellx4.Rowspan = 2;
@@ -107,14 +107,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Clases
             cellx4.BorderWidth = 1f;
             TablaTop.AddCell(cellx4);
 
-            PdfPCell cellx5 = new PdfPCell(new Phrase("Revisión 06", _FUColumns));
+            PdfPCell cellx5 = new PdfPCell(new Phrase("Revisión 09", _FUColumns));
             cellx5.HorizontalAlignment = 1;
             cellx5.VerticalAlignment = Element.ALIGN_MIDDLE;
             cellx5.BorderColor = BaseColor.LIGHT_GRAY;
             cellx5.BorderWidth = 1f;
             TablaTop.AddCell(cellx5);
 
-            PdfPCell cellx6 = new PdfPCell(new Phrase("03 Nov 2015", _FUColumns));
+            PdfPCell cellx6 = new PdfPCell(new Phrase("23 Jun 2021", _FUColumns));
             cellx6.HorizontalAlignment = 1;
             cellx6.VerticalAlignment = Element.ALIGN_MIDDLE;
             cellx6.BorderColor = BaseColor.LIGHT_GRAY;

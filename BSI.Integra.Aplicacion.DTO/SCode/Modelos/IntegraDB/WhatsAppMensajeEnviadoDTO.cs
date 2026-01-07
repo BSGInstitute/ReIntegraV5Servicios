@@ -298,7 +298,6 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     public class ChatWhatsAppMarketingDTO
     {
         public string? Celular { get; set; }
-        public string? CelularEncriptado { get; set; }
         public string? Mensaje { get; set; }
         public string? Alumno { get; set; }
         public int? IdAlumno { get; set; }
@@ -312,7 +311,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string? Fecha { get; set; }
         public string? Pais { get; set; }
         public string? NumeroWhatsApp { get; set; }
-        public int ? IdPersonalVentanas { get; set; }
+        public string? NumeroIdentificador { get; set; }
+        public int? IdPersonalVentanas { get; set; }
         public int? IdOportunidad { get; set; }
         public string? Rango { get; set; }
         public string? EstadoInteraccion { get; set; }
