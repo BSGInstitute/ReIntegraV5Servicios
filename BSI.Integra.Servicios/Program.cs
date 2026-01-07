@@ -6,6 +6,7 @@ using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.Messenger;
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.Messenger;
 using BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Sendingblue;
 using BSI.Integra.Aplicacion.Marketing.Service.Interface.Sendingblue;
@@ -22,10 +23,13 @@ using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDBInteraccion;
 using BSI.Integra.Repositorio.Repository;
+using BSI.Integra.Repositorio.Repository.Implementation.Marketing;
+using BSI.Integra.Repositorio.Repository.Implementation.Marketing.CampaniaMailingWhatsapp;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.Messenger;
 using BSI.Integra.Repositorio.Repository.Implementation.Comercial;
 using BSI.Integra.Repositorio.Repository.IntegraDBInteraccion.DapperRepository;
 using BSI.Integra.Repositorio.Repository.IntegraDBInteraccion.UnitOfWork;
+using BSI.Integra.Repositorio.Repository.Interface.Marketing;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.Messenger;
 using BSI.Integra.Repositorio.Repository.Interface.Comercial;
@@ -150,6 +154,8 @@ builder.Services.AddTransient<ITransicionFaseOportunidadRepository, TransicionFa
 builder.Services.AddScoped<ITokenManager, TokenManager>();
 builder.Services.AddScoped<IMessengerFacebookChatService, MessengerFacebookChatService>();
 builder.Services.AddScoped<IMessengerFacebookChatRepository, MessengerFacebookChatRepository>();
+builder.Services.AddScoped<ICampaniaRemarketingGeneralService, CampaniaRemarketingGeneralService>();
+builder.Services.AddScoped<ICampaniaRemarketingGeneralRepository, CampaniaRemarketingGeneralRepository>();
 
 builder.Services.AddHttpContextAccessor();
 

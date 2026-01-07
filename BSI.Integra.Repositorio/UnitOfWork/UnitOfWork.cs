@@ -8134,7 +8134,38 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _montoPagoLogRepository ?? new MontoPagoLogRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
-
+        private IMedioComunicacionRepository _medioComunicacionRepository;
+        IMedioComunicacionRepository IUnitOfWork.MedioComunicacionRepository
+        {
+            get
+            {
+                return _medioComunicacionRepository ?? new MedioComunicacionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IBloqueHorarioDetalleRepository _bloqueHorarioDetalleRepository;
+        IBloqueHorarioDetalleRepository IUnitOfWork.BloqueHorarioDetalleRepository
+        {
+            get
+            {
+                return _bloqueHorarioDetalleRepository ?? new BloqueHorarioDetalleRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IPreferenciaComunicacionAcademicaRepository _preferenciaComunicacionAcademicaRepository;
+        IPreferenciaComunicacionAcademicaRepository IUnitOfWork.PreferenciaComunicacionAcademicaRepository
+        {
+            get
+            {
+                return _preferenciaComunicacionAcademicaRepository ?? new PreferenciaComunicacionAcademicaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IPreferenciaComunicacionAcademicaHorarioRepository _preferenciaComunicacionAcademicaHorarioRepository;
+        IPreferenciaComunicacionAcademicaHorarioRepository IUnitOfWork.PreferenciaComunicacionAcademicaHorarioRepository
+        {
+            get
+            {
+                return _preferenciaComunicacionAcademicaHorarioRepository ?? new PreferenciaComunicacionAcademicaHorarioRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
         //TransicionFase
         private ICriterioCalificacionFaseRepository _criterioCalificacionFaseRepository;
         ICriterioCalificacionFaseRepository IUnitOfWork.CriterioCalificacionFaseRepository

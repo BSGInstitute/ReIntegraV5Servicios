@@ -977,5 +977,9 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         ITransicionFaseCriterioOportunidadRepository TransicionFaseCriterioOportunidadRepository { get; }
         ITransicionFaseOportunidadRepository TransicionFaseOportunidadRepository { get; }
         ILineamientoCalificacionFaseRepository LineamientoCalificacionFaseRepository { get; }
+        IMedioComunicacionRepository MedioComunicacionRepository { get; }
+        IBloqueHorarioDetalleRepository BloqueHorarioDetalleRepository { get; }
+        IPreferenciaComunicacionAcademicaRepository PreferenciaComunicacionAcademicaRepository { get; }
+        IPreferenciaComunicacionAcademicaHorarioRepository PreferenciaComunicacionAcademicaHorarioRepository { get; }
     }
 }
