@@ -1,7 +1,9 @@
 using BSI.Integra.Aplicacion.Comercial.Service.Implementacion;
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.Configuracion;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.Messenger;
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.Configuracion;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.Messenger;
 using BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Sendingblue;
 using BSI.Integra.Aplicacion.Marketing.Service.Interface.Sendingblue;
@@ -18,9 +20,11 @@ using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDBInteraccion;
 using BSI.Integra.Repositorio.Repository;
+using BSI.Integra.Repositorio.Repository.Implementation.Marketing.Configuracion;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.Messenger;
 using BSI.Integra.Repositorio.Repository.IntegraDBInteraccion.DapperRepository;
 using BSI.Integra.Repositorio.Repository.IntegraDBInteraccion.UnitOfWork;
+using BSI.Integra.Repositorio.Repository.Interface.Marketing.Configuracion;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.Messenger;
 using BSI.Integra.Repositorio.UnitOfWork;
@@ -136,6 +140,8 @@ builder.Services.AddTransient<IMatriculaFormularioProgresivoService, MatriculaFo
 builder.Services.AddScoped<ITokenManager, TokenManager>();
 builder.Services.AddScoped<IMessengerFacebookChatService, MessengerFacebookChatService>();
 builder.Services.AddScoped<IMessengerFacebookChatRepository, MessengerFacebookChatRepository>();
+builder.Services.AddScoped<ICategoriaArgumentosService, CategoriaArgumentosService>();
+builder.Services.AddScoped<ICategoriaArgumentosRepository, CategoriaArgumentosRepository>();
 
 builder.Services.AddHttpContextAccessor();
 
