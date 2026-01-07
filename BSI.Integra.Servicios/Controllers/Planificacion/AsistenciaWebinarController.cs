@@ -50,8 +50,23 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             try
             {
                 var resultado = _AsistenciaWebinarService.AsistenciaWebinar(filtro);
+                _ = Task.Run(async () =>
+                { 
+                    try
+                    {
+                        var url2 = "https://integrav4-signalrcore.bsginstitute.com/";
+                        //var url2 = "https://localhost:7120/";
 
-                NotificarAsistenciaWebinarWS(filtro.EstadoAsistencia, resultado.Alumno.NombreAlumno);
+                        var connection = new HubConnectionBuilder()
+                        .WithUrl(url2 + "hubIntegraHub?idUsuario=WebHook&&usuarioNombre=WebHook&&rooms=''")
+                        .Build();
+                        await connection.StartAsync();
+                        await connection.InvokeAsync("AsistenciaRegistradaWebinar", filtro.EstadoAsistencia, resultado.Alumno.NombreAlumno);
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+                });
 
                 var response = new
                 {
@@ -70,24 +85,6 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 };
 
                 return BadRequest(response);
-            }
-        }
-
-        public async void NotificarAsistenciaWebinarWS(bool EstadoAsistencia, string participante)
-        {
-            try
-            {
-                //var url2 = "https://integrav4-signalrcore.bsginstitute.com/";
-                var url2 = "https://localhost:7120/";
-
-                var connection = new HubConnectionBuilder()
-                .WithUrl(url2 + "hubIntegraHub?idUsuario=WebHook&&usuarioNombre=WebHook&&rooms=''")
-                .Build();
-                await connection.StartAsync();
-                await connection.InvokeAsync("AsistenciaRegistradaWebinar", EstadoAsistencia, participante);
-            }
-            catch (Exception ex)
-            {
             }
         }
 
