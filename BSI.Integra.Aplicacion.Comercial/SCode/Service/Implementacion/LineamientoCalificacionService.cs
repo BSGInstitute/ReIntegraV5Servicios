@@ -5356,11 +5356,11 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 switch (configuracionLineamento)
                 {
                     case "CONVENIOVOZ":
-                        faseIdsPermitidos = new List<int> { 339 };
+                        faseIdsPermitidos = new List<int> { 341 };
                         break;
                     case "PROCESOVENTA":
                     default:
-                        faseIdsPermitidos = new List<int> { 338 };
+                        faseIdsPermitidos = new List<int> { 340 };
                         break;
                 }
 
