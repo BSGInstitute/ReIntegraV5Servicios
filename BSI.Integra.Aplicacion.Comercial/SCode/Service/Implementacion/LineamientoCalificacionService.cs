@@ -2092,26 +2092,26 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
             var lineamientos = BuildLineamientosFormateadosFromSp(configuracionVigente);
 
-            //using var httpClient = new HttpClient
-            //{
-            //    BaseAddress = new Uri(
-            //        "http://ia-analisis-llamadas-comercial-api.bsginstitute.com/"
-            //    ),
-            //    //URL PRUEBA LOCAL IA
-            //    //BaseAddress = new Uri(
-            //    //    "http://127.0.0.1:8000/"
-            //    //),
+            using var httpClient = new HttpClient
+            {
+                //    BaseAddress = new Uri(
+                //        "http://ia-analisis-llamadas-comercial-api.bsginstitute.com/"
+                //    ),
+                //    //URL PRUEBA LOCAL IA
+                BaseAddress = new Uri(
+                "http://127.0.0.1:8000/"
+            ),
 
-            //};
-            ////
-            //httpClient.DefaultRequestHeaders.Accept.Clear();
-            //httpClient.DefaultRequestHeaders.Accept.Add(
-            //    new MediaTypeWithQualityHeaderValue("application/json")
-            //);
-            //httpClient.DefaultRequestHeaders.Add("Cache-Control", "no-cache");
-            //httpClient.DefaultRequestHeaders.Add("User-Agent", "PostmanRuntime/7.44.0");
-            //httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
-            //httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
+            };
+        ////
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json")
+            );
+            httpClient.DefaultRequestHeaders.Add("Cache-Control", "no-cache");
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "PostmanRuntime/7.44.0");
+            httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
+            httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
 
             var semaphore = new SemaphoreSlim(10);
 
@@ -2462,15 +2462,15 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         //Console.WriteLine($"[INFO] Transcripciones Proceso de Venta: {transcripcionesProcesoVenta.Count} (Lineamientos Fase 338)");
 
                         //// Endpoint fijo para Ventas
-                        //string endpoint = "grading/queue/batch";
+                        string endpoint = "grading/queue/batch";
 
-                        //var response = await httpClient.PostAsJsonAsync(endpoint, payload);
-                        //response.EnsureSuccessStatusCode();
-                        //var json = await response.Content.ReadAsStringAsync();
-                        //var evaluacionData = JsonSerializer.Deserialize<ResultadoEvaluacion>(
-                        //    json,
-                        //    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-                        //);
+                        var response = await httpClient.PostAsJsonAsync(endpoint, payload);
+                        response.EnsureSuccessStatusCode();
+                        var jsonres = await response.Content.ReadAsStringAsync();
+                        var evaluacionData = JsonSerializer.Deserialize<ResultadoEvaluacion>(
+                            jsonres,
+                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                        );
 
                         return true;
                     }
