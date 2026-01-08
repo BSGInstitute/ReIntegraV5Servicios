@@ -2350,6 +2350,19 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         var configuracionProcesoVenta = this.ObtenerConfiguracionLineamientoValidacionMatricula(null); // null = cualquier valor != 404
                         var lineamientosProcesoVenta = this.CalcularLineamientosValidacionMatricula(configuracionProcesoVenta, lineamientos);
 
+                        // Validar si se enviaron condiciones previo al convenio de voz
+                        bool enviaCondicionesPrevioConvenio = ValidarEnvioCondicionesPrevioConvenio(
+                            item.IdPersonal_Asignado,
+                            item.IdAlumno,
+                            llamadasConvenioVoz
+                        );
+
+                        // Obtener información del alumno
+                        var informacionAlumno = ObtenerDatosAlumnoValidacionMatricula(item.IdClasificacionPersona);
+
+                        // Validar información del alumno según país
+                        var validacionAlumno = ValidarInformacionAlumnoPorPais(informacionAlumno);
+
                         // Construir payload con dos cuerpos separados
                         payload = new
                         {
@@ -2385,7 +2398,11 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             faseOrigen = item.FaseOportunidad_Ant,
                             faseDestino = item.FaseOportunidad,
                             idPersonalAreaTrabajo = item.IdPersonalAreaTrabajo,
-                            convenioVozPlantilla = convenioDeVozPlantilla
+                            convenioVozPlantilla = convenioDeVozPlantilla,
+                            enviaCondicionesPrevioConvenio = enviaCondicionesPrevioConvenio,
+                            informacionAlumno = informacionAlumno,
+                            ValidacionInformacionAlumnoIntegra = validacionAlumno.esValido,
+                            ObservacionInformacionAlumnoIntegra = validacionAlumno.observaciones
                         };
 
                         Console.WriteLine(
@@ -5469,6 +5486,178 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             {
                 throw ex;
             }
+        }
+
+        /// <summary>
+        /// Valida si el correo de "Condiciones Previo Convenio" fue enviado ANTES de las llamadas de Convenio de Voz.
+        /// Busca correos con asunto "BSG Institute - Condiciones y Características Curso Fundamentos en Geoestadística para la Planificación Minera"
+        /// </summary>
+        /// <param name="idPersonalAsesor">ID del asesor asignado</param>
+        /// <param name="idAlumno">ID del alumno</param>
+        /// <param name="llamadasConvenioVoz">Lista de llamadas de convenio de voz para comparar fechas</param>
+        /// <returns>True si el correo fue enviado antes de la primera llamada de convenio de voz, False en caso contrario</returns>
+        private bool ValidarEnvioCondicionesPrevioConvenio(int idPersonalAsesor, int idAlumno, List<LlamadaProcesoAutoDTO> llamadasConvenioVoz)
+        {
+            try
+            {
+                // Si no hay llamadas de convenio de voz, retornar false
+                if (llamadasConvenioVoz == null || !llamadasConvenioVoz.Any())
+                {
+                    return false;
+                }
+
+                // Obtener la fecha de la primera llamada de convenio de voz
+                var primeraFechaConvenioVoz = llamadasConvenioVoz
+                    .Where(l => l.FechaLlamada.HasValue)
+                    .OrderBy(l => l.FechaLlamada.Value)
+                    .Select(l => l.FechaLlamada.Value)
+                    .FirstOrDefault();
+
+                if (primeraFechaConvenioVoz == DateTime.MinValue)
+                {
+                    return false;
+                }
+
+                // Obtener correos enviados desde Mandrill (sin conectarse a IMAP)
+                var correosEnviados = _unitOfWork.MandrilRepository.ListaInteraccionCorreoAlumnoCorreo(idAlumno, idPersonalAsesor);
+
+                if (correosEnviados == null || !correosEnviados.Any())
+                {
+                    return false;
+                }
+
+                // Frase clave que debe contener el asunto
+                const string fraseRequerida = "condiciones y características";
+
+                // Filtrar correos por asunto
+                // El asunto debe contener la frase "Condiciones y Características"
+                var correoCondiciones = correosEnviados
+                    .Where(c => c.Asunto != null
+                        && c.Asunto.Contains(fraseRequerida, StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(c => c.Fecha) // Obtener el más antiguo
+                    .FirstOrDefault();
+
+                if (correoCondiciones == null)
+                {
+                    return false;
+                }
+
+                // Comparar fechas: Si la fecha del correo es ANTES de la primera llamada de convenio de voz → true
+                return correoCondiciones.Fecha < primeraFechaConvenioVoz;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Error al validar envío de condiciones previo convenio: {ex.Message}");
+                return false; // En caso de error, retornar false
+            }
+        }
+
+        /// <summary>
+        /// Obtiene los datos del alumno para validación de matrícula
+        /// </summary>
+        /// <param name="idClasificacionPersona">ID de Clasificación Persona</param>
+        /// <returns>AlumnoInformacionDTO con datos del alumno</returns>
+        private AlumnoInformacionDTO ObtenerDatosAlumnoValidacionMatricula(int idClasificacionPersona)
+        {
+            try
+            {
+                var alumnoService = new AlumnoService(_unitOfWork);
+                return alumnoService.ObtenerInformacionAlumnoPorIdClasificacionPersona(idClasificacionPersona);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Error al obtener datos del alumno: {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Valida la información del alumno según los campos requeridos por país
+        /// </summary>
+        /// <param name="alumno">Información del alumno</param>
+        /// <returns>Tupla con (esValido, observaciones)</returns>
+        private (bool esValido, string observaciones) ValidarInformacionAlumnoPorPais(AlumnoInformacionDTO alumno)
+        {
+            if (alumno == null)
+            {
+                return (false, "No se encontró información del alumno");
+            }
+
+            var camposFaltantes = new List<string>();
+
+            // Determinar país por IdCodigoPais
+            // 1 = Perú, 2 = Colombia, 3 = México, 4 = Chile, otros = Internacional
+            switch (alumno.IdCodigoPais)
+            {
+                case 1: // 🇵🇪 Perú
+                    if (string.IsNullOrWhiteSpace(alumno.Nombre1)) camposFaltantes.Add("Nombres");
+                    if (string.IsNullOrWhiteSpace(alumno.ApellidoPaterno) && string.IsNullOrWhiteSpace(alumno.ApellidoMaterno))
+                        camposFaltantes.Add("Apellidos");
+                    if (string.IsNullOrWhiteSpace(alumno.DNI)) camposFaltantes.Add("DNI");
+                    if (string.IsNullOrWhiteSpace(alumno.Direccion)) camposFaltantes.Add("Dirección");
+                    if (string.IsNullOrWhiteSpace(alumno.NombreCiudad)) camposFaltantes.Add("Ciudad");
+                    if (string.IsNullOrWhiteSpace(alumno.Email1)) camposFaltantes.Add("Correo Electrónico");
+                    if (!alumno.FechaNacimiento.HasValue) camposFaltantes.Add("Fecha de nacimiento");
+                    if (string.IsNullOrWhiteSpace(alumno.Celular)) camposFaltantes.Add("Número de celular");
+                    break;
+
+                case 2: // 🇨🇴 Colombia
+                    if (string.IsNullOrWhiteSpace(alumno.Nombre1)) camposFaltantes.Add("Nombres");
+                    if (string.IsNullOrWhiteSpace(alumno.ApellidoPaterno) && string.IsNullOrWhiteSpace(alumno.ApellidoMaterno))
+                        camposFaltantes.Add("Apellidos");
+                    if (string.IsNullOrWhiteSpace(alumno.DNI) && string.IsNullOrWhiteSpace(alumno.NroDocumento))
+                        camposFaltantes.Add("Cédula de ciudadanía");
+                    if (!alumno.FechaNacimiento.HasValue) camposFaltantes.Add("Fecha de Nacimiento");
+                    if (string.IsNullOrWhiteSpace(alumno.Direccion)) camposFaltantes.Add("Dirección");
+                    if (string.IsNullOrWhiteSpace(alumno.NombreCiudad)) camposFaltantes.Add("Ciudad");
+                    if (string.IsNullOrWhiteSpace(alumno.Email1)) camposFaltantes.Add("Correo Electrónico");
+                    if (string.IsNullOrWhiteSpace(alumno.Celular)) camposFaltantes.Add("Número de celular");
+                    break;
+
+                case 3: // 🇲🇽 México
+                    if (string.IsNullOrWhiteSpace(alumno.Nombre1)) camposFaltantes.Add("Nombres");
+                    if (string.IsNullOrWhiteSpace(alumno.ApellidoPaterno) && string.IsNullOrWhiteSpace(alumno.ApellidoMaterno))
+                        camposFaltantes.Add("Apellidos");
+                    if (string.IsNullOrWhiteSpace(alumno.Rfc)) camposFaltantes.Add("RFC");
+                    if (!alumno.FechaNacimiento.HasValue) camposFaltantes.Add("Fecha de nacimiento");
+                    if (string.IsNullOrWhiteSpace(alumno.Direccion)) camposFaltantes.Add("Dirección");
+                    if (string.IsNullOrWhiteSpace(alumno.Colonia)) camposFaltantes.Add("Colonia o población");
+                    if (string.IsNullOrWhiteSpace(alumno.Municipio)) camposFaltantes.Add("Municipio o delegación");
+                    if (string.IsNullOrWhiteSpace(alumno.NombreCiudad)) camposFaltantes.Add("Ciudad");
+                    if (string.IsNullOrWhiteSpace(alumno.EstadoLugar)) camposFaltantes.Add("Estado");
+                    if (string.IsNullOrWhiteSpace(alumno.CodigoPostal)) camposFaltantes.Add("Código Postal");
+                    break;
+
+                case 4: // 🇨🇱 Chile
+                    if (string.IsNullOrWhiteSpace(alumno.Nombre1)) camposFaltantes.Add("Nombres");
+                    if (string.IsNullOrWhiteSpace(alumno.ApellidoPaterno) && string.IsNullOrWhiteSpace(alumno.ApellidoMaterno))
+                        camposFaltantes.Add("Apellidos");
+                    if (string.IsNullOrWhiteSpace(alumno.DNI) && string.IsNullOrWhiteSpace(alumno.NroDocumento))
+                        camposFaltantes.Add("Número de documento de identidad");
+                    if (string.IsNullOrWhiteSpace(alumno.Direccion)) camposFaltantes.Add("Dirección");
+                    if (string.IsNullOrWhiteSpace(alumno.NombreCiudad)) camposFaltantes.Add("Ciudad");
+                    if (!alumno.FechaNacimiento.HasValue) camposFaltantes.Add("Fecha de nacimiento");
+                    if (string.IsNullOrWhiteSpace(alumno.Email1)) camposFaltantes.Add("Correo Electrónico");
+                    if (string.IsNullOrWhiteSpace(alumno.Celular)) camposFaltantes.Add("Número de celular");
+                    break;
+
+                default: // 🌎 Internacional (cualquier otro país)
+                    if (string.IsNullOrWhiteSpace(alumno.Nombre1)) camposFaltantes.Add("Nombres");
+                    if (string.IsNullOrWhiteSpace(alumno.ApellidoPaterno) && string.IsNullOrWhiteSpace(alumno.ApellidoMaterno))
+                        camposFaltantes.Add("Apellidos");
+                    if (string.IsNullOrWhiteSpace(alumno.NombreCiudad)) camposFaltantes.Add("Ciudad");
+                    if (string.IsNullOrWhiteSpace(alumno.NombrePais)) camposFaltantes.Add("País");
+                    if (string.IsNullOrWhiteSpace(alumno.Email1)) camposFaltantes.Add("Correo electrónico");
+                    if (string.IsNullOrWhiteSpace(alumno.Celular)) camposFaltantes.Add("Número de celular");
+                    break;
+            }
+
+            bool esValido = camposFaltantes.Count == 0;
+            string observaciones = esValido
+                ? "Información completa"
+                : $"Campos faltantes: {string.Join(", ", camposFaltantes)}";
+
+            return (esValido, observaciones);
         }
 
     }
