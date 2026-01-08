@@ -45,6 +45,7 @@ using SI.Integra.Repositorio.Repository.IntegraDBInteraccion.DapperRepository;
 using System.Text;
 using BSI.Integra.Repositorio.Repository.Interface;
 using BSI.Integra.Repositorio.Repository.Implementation;
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion;
 
 
 
