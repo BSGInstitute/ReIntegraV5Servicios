@@ -2206,8 +2206,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         // Proceso de Venta (!=404): Histórico de llamadas como contexto
                         var llamadasProcesoVenta = todasLasLlamadas
                             .Where(x => x.IdOcurrenciaAlterno != ID_OCURRENCIA_CONVENIO_VOZ
-                                && x.EsLlamadaTranscrita == true
-                                && x.EsLlamadaCalificada == true)
+                                && x.EsLlamadaTranscrita == true)
                             .OrderBy(x => x.IdActividadDetalle)
                             .ThenBy(x => x.FechaLlamada)
                             .ToList();

@@ -1217,7 +1217,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
             {
                 TimeZoneInfo peruTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SA Pacific Standard Time");
                 DateTime fechaHoraPeruActual = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, peruTimeZone);
-                DateTime fechaDesde = fechaHoraPeruActual.Date.AddDays(-14);
+                DateTime fechaDesde = fechaHoraPeruActual.Date.AddDays(-8);
 
                 List<LlamadaProcesoAutoDTO> configuracion = new List<LlamadaProcesoAutoDTO>();
                 var resultado = _dapperRepository.QuerySPDapper("ope.SP_ValidacioMatriculaObtenerInformacionPendiente", new
