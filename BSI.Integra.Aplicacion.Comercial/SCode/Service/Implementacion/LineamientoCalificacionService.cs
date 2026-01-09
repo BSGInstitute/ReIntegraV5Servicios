@@ -1678,7 +1678,6 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
             var resultados = new List<bool>();
             var itemsAgrupadosPorOportunidad = item
-                .Where(x => x.IdPersonal_Asignado == 6571)
                 .GroupBy(x => x.IdOportunidad)
                 .Select(g => new
                 {
