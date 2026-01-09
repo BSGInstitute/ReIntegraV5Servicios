@@ -12,7 +12,6 @@ using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Google.Protobuf.WellKnownTypes;
-using iText.Layout.Properties;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.WindowsAzure.Storage;

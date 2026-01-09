@@ -5,10 +5,10 @@ using BSI.Integra.Repositorio.Repository.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Moq;
 
-namespace PruebasUnitarias;
+namespace BSI.Integra.PruebasUnitarias;
 
 [TestClass]
-public class CancelarWebinarTests
+public class CancelarWebinarTest
 {
     private AsistenciaWebinarService _service;
     private Mock<IUnitOfWork> _unitOfWorkMock;
@@ -149,7 +149,7 @@ public class CancelarWebinarTests
         sesionRepoMock
         .Setup(r => r.ObtenerPorId(It.IsAny<int>()))
         .Throws(new Exception("Error al obtener la sesión"));
-        
+
         _unitOfWorkMock.Setup(u => u.PEspecificoSesionRepository)
                        .Returns(sesionRepoMock.Object);
         var dto = new CancelarWebinarDTO
@@ -168,7 +168,7 @@ public class CancelarWebinarTests
         sesionRepoMock.Setup(r => r.ObtenerPorId(It.IsAny<int>())).Returns(new PEspecificoSesion { EsWebinarConfirmado = true });
         _unitOfWorkMock.Setup(u => u.PEspecificoSesionRepository)
                        .Returns(sesionRepoMock.Object);
-        
+
         _unitOfWorkMock
         .Setup(u => u.Commit())
         .Throws(new Exception("Error en Commit"));
@@ -179,7 +179,7 @@ public class CancelarWebinarTests
             ComentarioCancelacion = "Motivo de prueba",
             Confirmo = false
         };
-        
+
         Assert.ThrowsException<Exception>(() =>
         _service.CancelarWebinar(dto, "usuarioPrueba"));
     }

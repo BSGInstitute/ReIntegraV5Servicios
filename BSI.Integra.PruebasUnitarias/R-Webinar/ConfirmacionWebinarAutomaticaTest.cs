@@ -5,10 +5,10 @@ using BSI.Integra.Repositorio.Repository.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Moq;
 
-namespace PruebasUnitarias;
+namespace BSI.Integra.PruebasUnitarias;
 
 [TestClass]
-public class ConfirmacionWebinarAutomaticaTests
+public class ConfirmacionWebinarAutomaticaTest
 {
     private AsistenciaWebinarService _service;
     private Mock<IUnitOfWork> _unitOfWorkMock;
