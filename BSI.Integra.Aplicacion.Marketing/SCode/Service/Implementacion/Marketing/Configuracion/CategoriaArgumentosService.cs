@@ -1,4 +1,5 @@
-﻿using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing.Configuracion;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing.Configuracion;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.Configuracion;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.Configuracion;
 using System;
@@ -16,6 +17,51 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketin
         public CategoriaArgumentosService(ICategoriaArgumentosRepository _categoriaArgumentoReporitory)
         {
             categoriaArgumentoReporitory = _categoriaArgumentoReporitory;
+        }
+
+        public List<ProgramaConfigurado> ObtenerListadoProgramaConfigurado()
+        {
+            return categoriaArgumentoReporitory.ObtenerListadoProgramaConfigurado();
+        }
+
+        public int CrearProgramaConfigurado(CrearProgramaGeneralConfiguradoDTO request, string usuario)
+        {
+            return categoriaArgumentoReporitory.CrearProgramaConfigurado(request, usuario);
+        }
+
+        public bool EditarProgramaConfigurado(EditarProgramaConfiguradoDTO request, string usuario)
+        {
+            return categoriaArgumentoReporitory.EditarProgramaConfigurado(request, usuario);
+        }
+
+        public bool EliminarProgramaConfigurado(int id, string usuario)
+        {
+            return categoriaArgumentoReporitory.EliminarProgramaConfigurado(id, usuario);
+        }
+
+        public ProgramaConfiguradoDetalleDTO ObtenerProgramaConfiguradoDetalle(int id)
+        {
+            return categoriaArgumentoReporitory.ObtenerProgramaConfiguradoDetalle(id);
+        }
+
+        public bool AgregarArgumentoPorCategoria(CrearArgumentoPorCategoriaDTO request, string usuario)
+        {
+            return categoriaArgumentoReporitory.AgregarArgumentoPorCategoria(request, usuario);
+        }
+
+        public bool EditarArgumentoPorCategoria(CrearArgumentoPorCategoriaDTO request, string usuario)
+        {
+            return categoriaArgumentoReporitory.EditarArgumentoPorCategoria(request, usuario);
+        }
+
+        public bool EliminarArgumentoPorCategoria(int id, string usuario)
+        {
+            return categoriaArgumentoReporitory.EliminarArgumentoPorCategoria(id, usuario);
+        }
+
+        public List<ProgramaGeneralComboDTO> ObtenerListadoProgramaGeneralValido()
+        {
+            return categoriaArgumentoReporitory.ObtenerListadoProgramaGeneralValido();
         }
 
         public List<CategoriaArgumento> ObtenerListadoCategoriaArgumento()

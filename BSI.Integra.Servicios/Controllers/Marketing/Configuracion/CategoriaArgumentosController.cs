@@ -21,6 +21,181 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Configuracion
 
         [HttpGet]
         [Route("[action]")]
+        public IActionResult ObtenerListadoProgramaConfigurado()
+        {
+            try
+            {
+                var listado = _categoriaArgumentosService.ObtenerListadoProgramaConfigurado();
+                return Ok(listado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public IActionResult CrearProgramaConfigurado(CrearProgramaGeneralConfiguradoDTO request)
+        {
+            try
+            {
+                var claimsIdentity = User.Identity as ClaimsIdentity;
+                var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+                var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
+
+                var resultado = _categoriaArgumentosService.CrearProgramaConfigurado(request, usuario);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public IActionResult EliminarProgramaConfigurado([FromBody] int id)
+        {
+            try
+            {
+                var claimsIdentity = User.Identity as ClaimsIdentity;
+                var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+                var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
+
+                var resultado = _categoriaArgumentosService.EliminarProgramaConfigurado(id, usuario);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        //[HttpPost]
+        //[Route("[action]")]
+        //public IActionResult EditarProgramaConfigurado(EditarProgramaConfiguradoDTO request)
+        //{
+        //    try
+        //    {
+        //        var claimsIdentity = User.Identity as ClaimsIdentity;
+        //        var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+        //        var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
+
+        //        var listado = _categoriaArgumentosService.EditarProgramaConfigurado(request, usuario);
+        //        return Ok(listado);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
+
+        [HttpGet]
+        [Route("[action]/{id}")]
+        public IActionResult ObtenerProgramaConfiguradoDetalle(int id)
+        {
+            try
+            {
+                var listado = _categoriaArgumentosService.ObtenerProgramaConfiguradoDetalle(id);
+                return Ok(listado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("[action]")]
+        public IActionResult AgregarArgumentoPorCategoria(CrearArgumentoPorCategoriaDTO request)
+        {
+            try
+            {
+                var claimsIdentity = User.Identity as ClaimsIdentity;
+                var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+                var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
+
+                var listado = _categoriaArgumentosService.AgregarArgumentoPorCategoria(request, usuario);
+                return Ok(listado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        //[HttpPost]
+        //[Route("[action]")]
+        //public IActionResult EditarArgumentoPorCategoria(EditarProgramaConfiguradoDTO request)
+        //{
+        //    try
+        //    {
+        //        var claimsIdentity = User.Identity as ClaimsIdentity;
+        //        var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+        //        var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
+
+        //        var listado = _categoriaArgumentosService.EditarArgumentoPorCategoria(request, usuario);
+        //        return Ok(listado);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
+
+        //[HttpPost]
+        //[Route("[action]")]
+        //public IActionResult EliminarArgumentoPorCategoria(EditarProgramaConfiguradoDTO request)
+        //{
+        //    try
+        //    {
+        //        var claimsIdentity = User.Identity as ClaimsIdentity;
+        //        var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+        //        var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
+
+        //        var listado = _categoriaArgumentosService.EliminarArgumentoPorCategoria(request, usuario);
+        //        return Ok(listado);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
+
+
+        [HttpGet]
+        [Route("[action]")]
+        public IActionResult ObtenerListadoProgramaGeneralValido()
+        {
+            try
+            {
+                var listado = _categoriaArgumentosService.ObtenerListadoProgramaGeneralValido();
+                return Ok(listado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        //[HttpGet]
+        //[Route("[action]")]
+        //public IActionResult ObtenerListadoCategoriaArgumentoPorPrograma()
+        //{
+        //    try
+        //    {
+        //        var listado = _categoriaArgumentosService.ObtenerListadoCategoriaArgumentoPorPrograma();
+        //        return Ok(listado);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
+
+        [HttpGet]
+        [Route("[action]")]
         public IActionResult ObtenerListadoCategoriaArgumento()
         {
             try

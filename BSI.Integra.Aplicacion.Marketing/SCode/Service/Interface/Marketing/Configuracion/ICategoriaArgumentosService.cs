@@ -1,4 +1,5 @@
-﻿using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing.Configuracion;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing.Configuracion;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,21 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.Con
 {
     public interface ICategoriaArgumentosService
     {
+        List<ProgramaConfigurado> ObtenerListadoProgramaConfigurado();
+        int CrearProgramaConfigurado(CrearProgramaGeneralConfiguradoDTO request, string usuario);
+        bool EditarProgramaConfigurado(EditarProgramaConfiguradoDTO request, string usuario);
+        bool EliminarProgramaConfigurado(int id, string usuario);
+
+        ProgramaConfiguradoDetalleDTO ObtenerProgramaConfiguradoDetalle(int id);
+
+        bool AgregarArgumentoPorCategoria(CrearArgumentoPorCategoriaDTO request, string usuario);
+        bool EditarArgumentoPorCategoria(CrearArgumentoPorCategoriaDTO request, string usuario);
+        bool EliminarArgumentoPorCategoria(int id, string usuario);
+
+
+
+        List<ProgramaGeneralComboDTO> ObtenerListadoProgramaGeneralValido();
+
         List<CategoriaArgumento> ObtenerListadoCategoriaArgumento();
         bool CrearCategoriaArgumento(CrearEditarCategoriaArgumentoDTO request, string usuario);
         bool EditarCategoriaArgumento(CrearEditarCategoriaArgumentoDTO request, string usuario);

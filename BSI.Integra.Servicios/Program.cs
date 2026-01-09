@@ -1,16 +1,11 @@
 using BSI.Integra.Aplicacion.Comercial.Service.Implementacion;
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
-<<<<<<< HEAD
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.Configuracion;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.Messenger;
-using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.Configuracion;
-=======
-using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion;
-using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.FacebookLeadsRecuperacionDatos;
-using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.Messenger;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface;
->>>>>>> db38630955556b8757ebdd6f27ed37ed80948e6c
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.Configuracion;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.Messenger;
 using BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Sendingblue;
 using BSI.Integra.Aplicacion.Marketing.Service.Interface.Sendingblue;
@@ -27,20 +22,14 @@ using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDBInteraccion;
 using BSI.Integra.Repositorio.Repository;
-<<<<<<< HEAD
+using BSI.Integra.Repositorio.Repository.Implementation.Marketing;
+using BSI.Integra.Repositorio.Repository.Implementation.Marketing.CampaniaMailingWhatsapp;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.Configuracion;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.Messenger;
 using BSI.Integra.Repositorio.Repository.IntegraDBInteraccion.DapperRepository;
 using BSI.Integra.Repositorio.Repository.IntegraDBInteraccion.UnitOfWork;
-using BSI.Integra.Repositorio.Repository.Interface.Marketing.Configuracion;
-=======
-using BSI.Integra.Repositorio.Repository.Implementation.Marketing;
-using BSI.Integra.Repositorio.Repository.Implementation.Marketing.CampaniaMailingWhatsapp;
-using BSI.Integra.Repositorio.Repository.Implementation.Marketing.Messenger;
-using BSI.Integra.Repositorio.Repository.IntegraDBInteraccion.DapperRepository;
-using BSI.Integra.Repositorio.Repository.IntegraDBInteraccion.UnitOfWork;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing;
->>>>>>> db38630955556b8757ebdd6f27ed37ed80948e6c
+using BSI.Integra.Repositorio.Repository.Interface.Marketing.Configuracion;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.Messenger;
 using BSI.Integra.Repositorio.UnitOfWork;
@@ -156,13 +145,10 @@ builder.Services.AddTransient<IMatriculaFormularioProgresivoService, MatriculaFo
 builder.Services.AddScoped<ITokenManager, TokenManager>();
 builder.Services.AddScoped<IMessengerFacebookChatService, MessengerFacebookChatService>();
 builder.Services.AddScoped<IMessengerFacebookChatRepository, MessengerFacebookChatRepository>();
-<<<<<<< HEAD
-builder.Services.AddScoped<ICategoriaArgumentosService, CategoriaArgumentosService>();
-builder.Services.AddScoped<ICategoriaArgumentosRepository, CategoriaArgumentosRepository>();
-=======
 builder.Services.AddScoped<ICampaniaRemarketingGeneralService, CampaniaRemarketingGeneralService>();
 builder.Services.AddScoped<ICampaniaRemarketingGeneralRepository, CampaniaRemarketingGeneralRepository>();
->>>>>>> db38630955556b8757ebdd6f27ed37ed80948e6c
+builder.Services.AddScoped<ICategoriaArgumentosService, CategoriaArgumentosService>();
+builder.Services.AddScoped<ICategoriaArgumentosRepository, CategoriaArgumentosRepository>();
 
 builder.Services.AddHttpContextAccessor();
 
