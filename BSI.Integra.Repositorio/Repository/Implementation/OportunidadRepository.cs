@@ -4706,7 +4706,29 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-
+        /// TipoFuncion: Public
+        /// Autor: Junior Llerena
+        /// Fecha: 29/12/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza el centro de costo de una actividad
+        /// </summary>
+        /// <param name="idCentroCosto">Id del Centro de Costo</param>
+        /// <param name="idActividad">Id de la Actividad</param>
+        /// <returns>True si se actualizó correctamente</returns>
+        public bool ActualizarCentroCosto(int idCentroCosto, int idActividad)
+        {
+            try
+            {
+                var query = "com.SP_ActualizarCentroCostoPorActividad";
+                var resultado = _dapperRepository.QuerySPDapper(query, new { IdCentroCosto = idCentroCosto, IdActividadDetalle_Ultima = idActividad });
+                return !string.IsNullOrEmpty(resultado);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#OR-ACC-001@Error en ActualizarCentroCosto: {ex.Message}", ex);
+            }
+        }
 
 
     }
