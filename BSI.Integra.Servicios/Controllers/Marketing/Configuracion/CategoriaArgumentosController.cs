@@ -19,6 +19,13 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Configuracion
             _categoriaArgumentosService = categoriaArgumentosService;
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 08/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el listado de programas configurados
+        /// </summary>
+        /// <returns>Listado de programas configurados</returns>
         [HttpGet]
         [Route("[action]")]
         public IActionResult ObtenerListadoProgramaConfigurado()
@@ -34,6 +41,14 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Configuracion
             }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 08/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Crea un nuevo registro para programa configurado
+        /// </summary>
+        /// <param name="request">Cuerpo para crear nuevo programa</param>
+        /// <returns>Estado creacion</returns>
         [HttpPost]
         [Route("[action]")]
         public IActionResult CrearProgramaConfigurado(CrearProgramaGeneralConfiguradoDTO request)
@@ -53,6 +68,14 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Configuracion
             }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 09/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Elimina un programa configurado y sus detalles configurados
+        /// </summary>
+        /// <param name="id">id del programa</param>
+        /// <returns>Estado eliminacion</returns>
         [HttpPost]
         [Route("[action]")]
         public IActionResult EliminarProgramaConfigurado([FromBody] int id)
@@ -72,25 +95,14 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Configuracion
             }
         }
 
-        //[HttpPost]
-        //[Route("[action]")]
-        //public IActionResult EditarProgramaConfigurado(EditarProgramaConfiguradoDTO request)
-        //{
-        //    try
-        //    {
-        //        var claimsIdentity = User.Identity as ClaimsIdentity;
-        //        var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
-        //        var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
-
-        //        var listado = _categoriaArgumentosService.EditarProgramaConfigurado(request, usuario);
-        //        return Ok(listado);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //}
-
+        /// Autor: Humberto Oscata
+        /// Fecha: 09/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene un el detalle con jerarquia de una programa (programa, categorias y argumentos)
+        /// </summary>
+        /// <param name="id">Id del programa</param>
+        /// <returns>Objeto programa con detalles</returns>
         [HttpGet]
         [Route("[action]/{id}")]
         public IActionResult ObtenerProgramaConfiguradoDetalle(int id)
@@ -106,6 +118,14 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Configuracion
             }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 08/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Crea un nuevo registro para argumento pro categoria especifica
+        /// </summary>
+        /// <param name="request">Cuerpo para crear nuevo argumento</param>
+        /// <returns>Estado creacion</returns>
         [HttpPost]
         [Route("[action]")]
         public IActionResult AgregarArgumentoPorCategoria(CrearArgumentoPorCategoriaDTO request)
@@ -125,45 +145,67 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Configuracion
             }
         }
 
-        //[HttpPost]
-        //[Route("[action]")]
-        //public IActionResult EditarArgumentoPorCategoria(EditarProgramaConfiguradoDTO request)
-        //{
-        //    try
-        //    {
-        //        var claimsIdentity = User.Identity as ClaimsIdentity;
-        //        var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
-        //        var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
+        /// Autor: Humberto Oscata
+        /// Fecha: 09/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Editar un registro para argumento por categoria especifica
+        /// </summary>
+        /// <param name="request">Cuerpo para editar argumento</param>
+        /// <returns>Estado edicion</returns>
+        [HttpPost]
+        [Route("[action]")]
+        public IActionResult EditarArgumentoPorCategoria(EditarArgumentoPorCategoriaDTO request)
+        {
+            try
+            {
+                var claimsIdentity = User.Identity as ClaimsIdentity;
+                var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+                var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
 
-        //        var listado = _categoriaArgumentosService.EditarArgumentoPorCategoria(request, usuario);
-        //        return Ok(listado);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //}
+                var listado = _categoriaArgumentosService.EditarArgumentoPorCategoria(request, usuario);
+                return Ok(listado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
-        //[HttpPost]
-        //[Route("[action]")]
-        //public IActionResult EliminarArgumentoPorCategoria(EditarProgramaConfiguradoDTO request)
-        //{
-        //    try
-        //    {
-        //        var claimsIdentity = User.Identity as ClaimsIdentity;
-        //        var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
-        //        var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
+        /// Autor: Humberto Oscata
+        /// Fecha: 09/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Elimina un registro para argumento por categoria especifica
+        /// </summary>
+        /// <param name="request">Cuerpo para eliminar argumento</param>
+        /// <returns>Estado eliminacion</returns>
+        [HttpPost]
+        [Route("[action]")]
+        public IActionResult EliminarArgumentoPorCategoria(EliminarArgumentoPorCategoriaDTO request)
+        {
+            try
+            {
+                var claimsIdentity = User.Identity as ClaimsIdentity;
+                var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+                var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
 
-        //        var listado = _categoriaArgumentosService.EliminarArgumentoPorCategoria(request, usuario);
-        //        return Ok(listado);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //}
+                var listado = _categoriaArgumentosService.EliminarArgumentoPorCategoria(request, usuario);
+                return Ok(listado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
-
+        /// Autor: Humberto Oscata
+        /// Fecha: 08/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el listado programas generales validos para crear registros programa
+        /// </summary>
+        /// <returns>Listado de programas generasles validos</returns>
         [HttpGet]
         [Route("[action]")]
         public IActionResult ObtenerListadoProgramaGeneralValido()
@@ -179,21 +221,13 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Configuracion
             }
         }
 
-        //[HttpGet]
-        //[Route("[action]")]
-        //public IActionResult ObtenerListadoCategoriaArgumentoPorPrograma()
-        //{
-        //    try
-        //    {
-        //        var listado = _categoriaArgumentosService.ObtenerListadoCategoriaArgumentoPorPrograma();
-        //        return Ok(listado);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //}
-
+        /// Autor: Humberto Oscata
+        /// Fecha: 07/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el listado de categorias de argumento creadas
+        /// </summary>
+        /// <returns>Listado de categorias</returns>
         [HttpGet]
         [Route("[action]")]
         public IActionResult ObtenerListadoCategoriaArgumento()
@@ -209,6 +243,14 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Configuracion
             }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 07/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Crea una categoria argumento
+        /// </summary>
+        /// <param name="request">Cuerpo para crear nueva categoria</param>
+        /// <returns>Estado Creacion</returns>
         [HttpPost]
         [Route("[action]")]
         public IActionResult CrearCategoriaArgumento(CrearEditarCategoriaArgumentoDTO request)
@@ -228,6 +270,14 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Configuracion
             }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 07/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Edita una categoria argumento
+        /// </summary>
+        /// <param name="request">Cuerpo para edicion de categoria</param>
+        /// <returns>Estado edicion</returns>
         [HttpPost]
         [Route("[action]")]
         public IActionResult EditarCategoriaArgumento(CrearEditarCategoriaArgumentoDTO request)
@@ -247,6 +297,14 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Configuracion
             }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 07/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Elimina una categoria argumento
+        /// </summary>
+        /// <param name="id">id de la categoria</param>
+        /// <returns>Estado eliminacion</returns>
         [HttpPost]
         [Route("[action]")]
         public IActionResult EliminarCategoriaArgumento([FromBody] int id)

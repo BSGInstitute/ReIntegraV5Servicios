@@ -1,4 +1,6 @@
-﻿using System;
+﻿using OfficeOpenXml.Utils;
+using Org.BouncyCastle.Asn1.Ocsp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,10 +35,10 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing.Configura
         public string NombrePrograma { get; set; }
         public int CategoriaId { get; set; }
         public string NombreCategoria { get; set; }
-        public int ArgumentoId { get; set; }
+        public int? ArgumentoId { get; set; }
         public string NombreArgumento { get; set; }
         public string DescripcionArgumento { get; set; }
-        public int PrioridadArgumento { get; set; }
+        public int? PrioridadArgumento { get; set; }
     }
     public class ProgramaConfiguradoDetalleDTO
     {
@@ -68,7 +70,20 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing.Configura
         public string Descripcion { get; set; }
         public string? UsuarioCreacion { get; set; }
     }
-
+    public class EditarArgumentoPorCategoriaDTO
+    {
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+        public int Prioridad { get; set; }
+        public int IdArgumento { get; set; }
+        public string? UsuarioModificacion { get; set; }
+    }
+    public class EliminarArgumentoPorCategoriaDTO
+    {
+        public int IdProgramaConfigurado { get; set; }
+        public int IdArgumento { get; set; }
+        public string? UsuarioModificacion { get; set; }
+    }
 
     public class CategoriaArgumento
     {

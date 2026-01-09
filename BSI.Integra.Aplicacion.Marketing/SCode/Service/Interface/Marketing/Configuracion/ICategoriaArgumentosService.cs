@@ -12,16 +12,13 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.Con
     {
         List<ProgramaConfigurado> ObtenerListadoProgramaConfigurado();
         int CrearProgramaConfigurado(CrearProgramaGeneralConfiguradoDTO request, string usuario);
-        bool EditarProgramaConfigurado(EditarProgramaConfiguradoDTO request, string usuario);
         bool EliminarProgramaConfigurado(int id, string usuario);
 
         ProgramaConfiguradoDetalleDTO ObtenerProgramaConfiguradoDetalle(int id);
 
         bool AgregarArgumentoPorCategoria(CrearArgumentoPorCategoriaDTO request, string usuario);
-        bool EditarArgumentoPorCategoria(CrearArgumentoPorCategoriaDTO request, string usuario);
-        bool EliminarArgumentoPorCategoria(int id, string usuario);
-
-
+        bool EditarArgumentoPorCategoria(EditarArgumentoPorCategoriaDTO request, string usuario);
+        bool EliminarArgumentoPorCategoria(EliminarArgumentoPorCategoriaDTO request, string usuario);
 
         List<ProgramaGeneralComboDTO> ObtenerListadoProgramaGeneralValido();
 
