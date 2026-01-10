@@ -195,6 +195,14 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? EnvioAutomaticoEstadoActividadDetalle { get; set; }
         public bool? ConsiderarYaEnviados { get; set; }
         public bool ConsiderarUltimaOportunidad { get; set; }
+        public bool ConsiderarMayorProbabilidadInscripcion { get; set; }
+        public bool ConsiderarMayorProbabilidadInscripcionVentaCruzada { get; set; }
+        public bool ConsiderarProbabilidad { get; set; }
+        public bool ConsiderarProbabilidadVentaCruzada { get; set; }
+        public bool ConsiderarEmbudo { get; set; }
+        public bool? ConsiderarExcluirCampania { get; set; }
+        public DateTime? FechaInicioExclusionCampania { get; set; }
+        public DateTime? FechaFinExclusionCampania { get; set; }
 
 
         //Listas
@@ -263,6 +271,16 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public List<FiltroSegmentoValorTipoDTO> ListaUOArea { get; set; }
         public List<FiltroSegmentoValorTipoDTO> ListaUOSubArea { get; set; }
         public List<FiltroSegmentoValorTipoDTO> ListaUOPGeneral { get; set; }
+        public List<FiltroSegmentoValorTipoDTO> ListaMPIArea { get; set; }
+        public List<FiltroSegmentoValorTipoDTO> ListaMPISubArea { get; set; }
+        public List<FiltroSegmentoValorTipoDTO> ListaMPIPGeneral { get; set; }
+        public List<FiltroSegmentoValorTipoDTO> ListaProbabilidadValor { get; set; }
+        public List<FiltroSegmentoValorTipoDTO> ListaProbabilidadArea { get; set; }
+        public List<FiltroSegmentoValorTipoDTO> ListaProbabilidadSubArea { get; set; }
+        public List<FiltroSegmentoValorTipoDTO> ListaProbabilidadPGeneral { get; set; }
+        public List<FiltroSegmentoValorTipoDTO> ListaNivelEmbudoEsquema1 { get; set; }
+        public List<FiltroSegmentoValorTipoDTO> ListaNivelEmbudoEsquema2 { get; set; }
+
         public FiltroSegmentoDTO()
         {
             ListaArea = new List<FiltroSegmentoValorTipoDTO>();
@@ -318,6 +336,15 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
             ListaUOArea = new List<FiltroSegmentoValorTipoDTO>();
             ListaUOSubArea = new List<FiltroSegmentoValorTipoDTO>();
             ListaUOPGeneral = new List<FiltroSegmentoValorTipoDTO>();
+            ListaMPIArea = new List<FiltroSegmentoValorTipoDTO>();
+            ListaMPISubArea = new List<FiltroSegmentoValorTipoDTO>();
+            ListaMPIPGeneral = new List<FiltroSegmentoValorTipoDTO>();
+            ListaProbabilidadValor = new List<FiltroSegmentoValorTipoDTO>();
+            ListaProbabilidadArea = new List<FiltroSegmentoValorTipoDTO>();
+            ListaProbabilidadSubArea = new List<FiltroSegmentoValorTipoDTO>();
+            ListaProbabilidadPGeneral = new List<FiltroSegmentoValorTipoDTO>();
+            ListaNivelEmbudoEsquema1 = new List<FiltroSegmentoValorTipoDTO>();
+            ListaNivelEmbudoEsquema2 = new List<FiltroSegmentoValorTipoDTO>();
         }
     }
 

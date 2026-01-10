@@ -666,8 +666,38 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Indica si el filtro considerará la última oportunidad de los alumnos.
         /// </summary>
         public bool? ConsiderarUltimaOportunidad { get; set; }
-        
-
+        /// <summary>
+        /// Indica si el filtro  la última oportunidad de los alumnos.
+        /// </summary>
+        public bool? ConsiderarMayorProbabilidadInscripcion { get; set; }
+        /// <summary>
+        /// Indica si el filtro considerará la última oportunidad de los alumnos.
+        /// </summary>
+        public bool? ConsiderarMayorProbabilidadInscripcionVentaCruzada { get; set; }
+        /// <summary>
+        /// Indica si el filtro considerará la última oportunidad de los alumnos.
+        /// </summary>
+        public bool? ConsiderarProbabilidad { get; set; }
+        /// <summary>
+        /// Indica si el filtro considerará la última oportunidad de los alumnos.
+        /// </summary>
+        public bool? ConsiderarProbabilidadVentaCruzada { get; set; }
+        /// <summary>
+        /// Indica si el filtro considerará la última oportunidad de los alumnos.
+        /// </summary>
+        public bool? ConsiderarEmbudo { get; set; }
+        /// <summary>
+        /// Valida si se excluye las campañas
+        /// </summary>
+        public bool? ConsiderarExcluirCampania { get; set; }
+        /// <summary>
+        /// Almacena la fecha de inicio de la campaña a excluir para los filtros
+        /// </summary>
+        public DateTime? FechaInicioExclusionCampania { get; set; }
+        /// <summary>
+        /// Almacena la fecha de fin de la campaña a excluir para los filtros
+        /// </summary>
+        public DateTime? FechaFinExclusionCampania { get; set; }
         public virtual ICollection<TCampaniaGeneral> TCampaniaGenerals { get; set; }
         public virtual ICollection<TFiltroSegmentoDetalle> TFiltroSegmentoDetalles { get; set; }
         public virtual ICollection<TFiltroSegmentoValorTipo> TFiltroSegmentoValorTipos { get; set; }
