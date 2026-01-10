@@ -1632,6 +1632,42 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             return Ok(resultado);
         }
 
+        /// TipoFuncion: POST
+        /// Autor: Junior Llerena
+        /// Fecha: 29/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Actualiza el centro de costo de una actividad
+        /// </summary>
+        /// <param name="dto">Objeto que contiene IdCentroCosto e IdActividad</param>
+        /// <returns>Retorna 200 si se actualizó correctamente o 400 con mensaje de error</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public IActionResult UpdateCentroCosto([FromBody] ActualizarCentroCostoDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                IAgendaActividadService agendaActividadService = new AgendaActividadService(_unitOfWork);
+                var resultado = agendaActividadService.ActualizarCentroCosto(dto.IdCentroCosto, dto.IdActividad);
+
+                if (resultado)
+                {
+                    return Ok(new { success = true, message = "Centro de costo actualizado correctamente" });
+                }
+                else
+                {
+                    return BadRequest(new { success = false, message = "No se pudo actualizar el centro de costo" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
 
 
     }

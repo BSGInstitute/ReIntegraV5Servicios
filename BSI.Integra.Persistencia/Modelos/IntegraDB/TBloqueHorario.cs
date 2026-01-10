@@ -5,6 +5,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     public partial class TBloqueHorario
     {
+        public TBloqueHorario()
+        {
+            TBloqueHorarioDetalles = new HashSet<TBloqueHorarioDetalle>();
+        }
+
         /// <summary>
         /// Es primary key
         /// </summary>
@@ -57,5 +62,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Id de la tabla Original al migrar
         /// </summary>
         public Guid? IdMigracion { get; set; }
+
+        public virtual ICollection<TBloqueHorarioDetalle> TBloqueHorarioDetalles { get; set; }
     }
 }
