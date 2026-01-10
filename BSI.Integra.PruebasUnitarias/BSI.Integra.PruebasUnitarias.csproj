@@ -1,4 +1,4 @@
-<Project Sdk="MSTest.Sdk/3.6.4">
+﻿<Project Sdk="MSTest.Sdk/3.6.4">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -7,5 +7,17 @@
     <Nullable>enable</Nullable>
     <UseVSTest>true</UseVSTest>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Moq" Version="4.20.72" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BSI.Integra.Aplicacion.DTO\BSI.Integra.Aplicacion.DTO.csproj" />
+    <ProjectReference Include="..\BSI.Integra.Aplicacion.Planificacion\BSI.Integra.Aplicacion.Planificacion.csproj" />
+	<ProjectReference Include="..\BSI.Integra.Aplicacion.Transversal\BSI.Integra.Aplicacion.Transversal.csproj" />
+    <ProjectReference Include="..\BSI.Integra.Persistencia\BSI.Integra.Persistencia.csproj" />
+    <ProjectReference Include="..\BSI.Integra.Repositorio\BSI.Integra.Repositorio.csproj" />
+  </ItemGroup>
 
 </Project>

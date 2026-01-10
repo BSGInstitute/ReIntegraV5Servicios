@@ -21660,7 +21660,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.ConsiderarConWhatsAppValido).HasComment("Indica si se considerara solo alumnos con nro de WhatsApp valido");
 
+                entity.Property(e => e.ConsiderarEmbudo).HasComment("Indicador para considerar embudo en el filtro");
+
                 entity.Property(e => e.ConsiderarEnvioAutomatico).HasComment("Indica si se considerara el Tab de envio automatico");
+
+                entity.Property(e => e.ConsiderarExcluirCampania).HasComment("Indicador para excluir por campaña en el filtro");
 
                 entity.Property(e => e.ConsiderarFiltroEspecifico).HasComment("Indica si el filtro considerará el filtro especifico (tabs)");
 
@@ -21684,7 +21688,17 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.ConsiderarInteraccionWhatsApp).HasComment("Indica si se considerara el tab de interacción whatsapp para la ejecución de filtros");
 
+                entity.Property(e => e.ConsiderarMayorProbabilidadInscripcion).HasComment("Indicador para considerar la mayor probabilidad de inscripción");
+
+                entity.Property(e => e.ConsiderarMayorProbabilidadInscripcionVentaCruzada).HasComment("Indicador para considerar la mayor probabilidad de inscripción por venta cruzada");
+
                 entity.Property(e => e.ConsiderarOportunidadHistorica).HasComment("Indica si se considerara el tab de oportunidad historica para la ejecución de filtros");
+
+                entity.Property(e => e.ConsiderarProbabilidad).HasComment("Indicador para considerar probabilidad en el filtro");
+
+                entity.Property(e => e.ConsiderarProbabilidadVentaCruzada).HasComment("Indicador para considerar probabilidad de venta cruzada");
+
+                entity.Property(e => e.ConsiderarUltimaOportunidad).HasComment("Indicador para considerar la última oportunidad en el filtro");
 
                 entity.Property(e => e.ConsiderarVisualizacionVideoVistaPreviaPaginaPrograma).HasComment("Indica si se considerará que exista visualización del video de vista previa en la pagina programas");
 
@@ -21736,6 +21750,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasColumnType("date")
                     .HasComment("Fecha final para excluir por correo enviado al mismo programa general principal");
 
+                entity.Property(e => e.FechaFinExclusionCampania)
+                    .HasColumnType("date")
+                    .HasComment("Fecha de fin para excluir contactos por campaña");
+
                 entity.Property(e => e.FechaFinFormulario)
                     .HasColumnType("date")
                     .HasComment("Indica la fecha de fin a considerar para el filtro de interaccion por formularios");
@@ -21775,6 +21793,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.Property(e => e.FechaInicioExcluirPorCorreoEnviadoMismoProgramaGeneralPrincipal)
                     .HasColumnType("date")
                     .HasComment("Fecha inicio para excluir por correo enviado al mismo programa general principal");
+
+                entity.Property(e => e.FechaInicioExclusionCampania)
+                    .HasColumnType("date")
+                    .HasComment("Fecha de inicio para excluir contactos por campaña");
 
                 entity.Property(e => e.FechaInicioFormulario)
                     .HasColumnType("date")

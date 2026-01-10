@@ -663,41 +663,42 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public bool? ExcluirMatriculados { get; set; }
         /// <summary>
-        /// Indica si el filtro considerará la última oportunidad de los alumnos.
+        /// Indicador para considerar la última oportunidad en el filtro
         /// </summary>
         public bool? ConsiderarUltimaOportunidad { get; set; }
         /// <summary>
-        /// Indica si el filtro  la última oportunidad de los alumnos.
+        /// Indicador para considerar la mayor probabilidad de inscripción
         /// </summary>
         public bool? ConsiderarMayorProbabilidadInscripcion { get; set; }
         /// <summary>
-        /// Indica si el filtro considerará la última oportunidad de los alumnos.
+        /// Indicador para considerar la mayor probabilidad de inscripción por venta cruzada
         /// </summary>
         public bool? ConsiderarMayorProbabilidadInscripcionVentaCruzada { get; set; }
         /// <summary>
-        /// Indica si el filtro considerará la última oportunidad de los alumnos.
+        /// Indicador para considerar probabilidad en el filtro
         /// </summary>
         public bool? ConsiderarProbabilidad { get; set; }
         /// <summary>
-        /// Indica si el filtro considerará la última oportunidad de los alumnos.
+        /// Indicador para considerar probabilidad de venta cruzada
         /// </summary>
         public bool? ConsiderarProbabilidadVentaCruzada { get; set; }
         /// <summary>
-        /// Indica si el filtro considerará la última oportunidad de los alumnos.
+        /// Indicador para considerar embudo en el filtro
         /// </summary>
         public bool? ConsiderarEmbudo { get; set; }
         /// <summary>
-        /// Valida si se excluye las campañas
+        /// Indicador para excluir por campaña en el filtro
         /// </summary>
         public bool? ConsiderarExcluirCampania { get; set; }
         /// <summary>
-        /// Almacena la fecha de inicio de la campaña a excluir para los filtros
+        /// Fecha de inicio para excluir contactos por campaña
         /// </summary>
         public DateTime? FechaInicioExclusionCampania { get; set; }
         /// <summary>
-        /// Almacena la fecha de fin de la campaña a excluir para los filtros
+        /// Fecha de fin para excluir contactos por campaña
         /// </summary>
         public DateTime? FechaFinExclusionCampania { get; set; }
+
         public virtual ICollection<TCampaniaGeneral> TCampaniaGenerals { get; set; }
         public virtual ICollection<TFiltroSegmentoDetalle> TFiltroSegmentoDetalles { get; set; }
         public virtual ICollection<TFiltroSegmentoValorTipo> TFiltroSegmentoValorTipos { get; set; }
