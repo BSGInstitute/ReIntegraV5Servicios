@@ -568,26 +568,29 @@ namespace BSI.Integra.Aplicacion.Transversal.Helper
         public static string ParametroPrueba { get; private set; }
         ///<value>48</value>
         public static int IdCategoriaObjetoFiltroUOArea { get; private set; }
-        ///<value>49</value>
+        ///<value>48</value>
         public static int IdCategoriaObjetoFiltroUOSubArea { get; private set; }
-        ///<value>50</value>
+        ///<value>49</value>
         public static int IdCategoriaObjetoFiltroUOPGeneral { get; private set; }
+        ///<value>50</value>
         public static int IdCategoriaObjetoFiltroMPIArea { get; private set; }
-        ///<value>49</value>
-        public static int IdCategoriaObjetoFiltroMPISubArea { get; private set; }
-        ///<value>50</value>
-        public static int IdCategoriaObjetoFiltroMPIPGeneral { get; private set; }
-        public static int IdCategoriaObjetoFiltroProbabilidadValor { get; private set; }
-        ///<value>49</value>
-        public static int IdCategoriaObjetoFiltroProbabilidadArea { get; private set; }
-        ///<value>50</value>
-        public static int IdCategoriaObjetoFiltroProbabilidadSubArea { get; private set; }
-        public static int IdCategoriaObjetoFiltroProbabilidadPGeneral { get; private set; }
-        ///<value>49</value>
-        public static int IdCategoriaObjetoFiltroNivelEmbudoEsquema1 { get; private set; }
-        ///<value>50</value>
-        public static int IdCategoriaObjetoFiltroNivelEmbudoEsquema2 { get; private set; }
         ///<value>51</value>
+        public static int IdCategoriaObjetoFiltroMPISubArea { get; private set; }
+        ///<value>52</value>
+        public static int IdCategoriaObjetoFiltroMPIPGeneral { get; private set; }
+        ///<value>53</value>
+        public static int IdCategoriaObjetoFiltroProbabilidadValor { get; private set; }
+        ///<value>54</value>
+        public static int IdCategoriaObjetoFiltroProbabilidadArea { get; private set; }
+        ///<value>55</value>
+        public static int IdCategoriaObjetoFiltroProbabilidadSubArea { get; private set; }
+        ///<value>56</value>
+        public static int IdCategoriaObjetoFiltroProbabilidadPGeneral { get; private set; }
+        ///<value>57</value>
+        public static int IdCategoriaObjetoFiltroNivelEmbudoEsquema1 { get; private set; }
+        ///<value>58</value>
+        public static int IdCategoriaObjetoFiltroNivelEmbudoEsquema2 { get; private set; }
+        ///<value>59</value>
         #endregion  HardCodeoAtributos
 
         public static Dictionary<string, string> GetProperties()

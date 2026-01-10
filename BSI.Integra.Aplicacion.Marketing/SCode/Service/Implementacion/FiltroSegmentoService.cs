@@ -309,46 +309,46 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                 };
                 filtroSegmentoService.VerificarEjecución(Id, UsuarioModificacion);
 
-                //var _repIntegraAspNetUsers = new IntegraAspNetUser();
-                //var correosPersonalizados = new List<string>
-                //{
-                //    "fvaldez@bsginstitute.com",
-                //    "jvillena@bsginstitute.com",
-                //    "mramirez@bsginstitute.com"
-                //};
+                var _repIntegraAspNetUsers = new IntegraAspNetUser();
+                var correosPersonalizados = new List<string>
+                {
+                    "fvaldez@bsginstitute.com",
+                    "jvillena@bsginstitute.com",
+                    "mmantilla@bsginstitute.com"
+                };
 
-                //if (_unitOfWork.IntegraAspNetUserRepository.ExistePorNombreUsuario(UsuarioModificacion))
-                //{
-                //    try
-                //    {
-                //        correosPersonalizados.Add(_unitOfWork.IntegraAspNetUserRepository.ObtenerEmailPorNombreUsuario(UsuarioModificacion));
-                //    }
-                //    catch (Exception)
-                //    {
-                //    }
-                //}
+                if (_unitOfWork.IntegraAspNetUserRepository.ExistePorNombreUsuario(UsuarioModificacion))
+                {
+                    try
+                    {
+                        correosPersonalizados.Add(_unitOfWork.IntegraAspNetUserRepository.ObtenerEmailPorNombreUsuario(UsuarioModificacion));
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
 
 
-                //var MailservicePersonalizado = new TMK_MailService();
-                //var mailDataPersonalizado = new TMKMailDataDTO
-                //{
-                //    Sender = "wchoque@bsginstitute.com",
-                //    Recipient = string.Join(",", correosPersonalizados),
-                //    Subject = string.Concat("Procesar filtro segmento - ", _unitOfWork.FiltroSegmentoRepository.FirstById(Id).Nombre),
-                //    Message = $@"
-                //    <p style='color: red;'><strong>----Servicio de confirmación de filtro segmento----</strong></p>
-                //    <p>El filtro segmento <strong>{_unitOfWork.FiltroSegmentoRepository.FirstById(Id).Nombre}<span style='color: green;'> FINALIZO CORRECTAMENTE</span></strong></p>
-                //    <p><strong>Hora de Inicio:</strong></p>
-                //    <p><span style='color: orange;'>{horaInicio}</span></p>
-                //    <p><strong>Hora de Finalizacion:</strong></p>
-                //    <p><span style='color: orange;'>{DateTime.Now}</span></p> 
-                //    ",
-                //    Cc = "",
-                //    Bcc = "",
-                //    AttachedFiles = null
-                //};
-                //MailservicePersonalizado.SetData(mailDataPersonalizado);
-                //MailservicePersonalizado.SendMessageTask();
+                var MailservicePersonalizado = new TMK_MailService();
+                var mailDataPersonalizado = new TMKMailDataDTO
+                {
+                    Sender = "wchoque@bsginstitute.com",
+                    Recipient = string.Join(",", correosPersonalizados),
+                    Subject = string.Concat("Procesar filtro segmento - ", _unitOfWork.FiltroSegmentoRepository.FirstById(Id).Nombre),
+                    Message = $@"
+                    <p style='color: red;'><strong>----Servicio de confirmación de filtro segmento----</strong></p>
+                    <p>El filtro segmento <strong>{_unitOfWork.FiltroSegmentoRepository.FirstById(Id).Nombre}<span style='color: green;'> FINALIZO CORRECTAMENTE</span></strong></p>
+                    <p><strong>Hora de Inicio:</strong></p>
+                    <p><span style='color: orange;'>{horaInicio}</span></p>
+                    <p><strong>Hora de Finalizacion:</strong></p>
+                    <p><span style='color: orange;'>{DateTime.Now}</span></p> 
+                    ",
+                    Cc = "",
+                    Bcc = "",
+                    AttachedFiles = null
+                };
+                MailservicePersonalizado.SetData(mailDataPersonalizado);
+                MailservicePersonalizado.SendMessageTask();
                 return (true);
             }
             catch (Exception e)
