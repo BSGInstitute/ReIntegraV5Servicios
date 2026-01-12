@@ -171,7 +171,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 List<OportunidadRemarketingEmbudoDTO> informacionOportunidad = new List<OportunidadRemarketingEmbudoDTO>();
-                string _query = "ia.SP_TRemarketingEmbudoHistorico_Insertar";
+                string _query = "ia.SP_RemarketingEmbudoInformacionOportunidad  ";
                 var parametros = new { FechaCorte };
 
                 // NO usar .Result - usar await directamente
@@ -219,7 +219,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                var query = "ia.SP_RemarketingEmbudoHistorico_Insertar";
+                var query = "ia.SP_TRemarketingEmbudoHistorico_Insertar";
 
                 var parametros = new
                 {
