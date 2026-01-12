@@ -81,5 +81,10 @@
         public bool Estado { get; set; }
     }
 
+    public class ActualizarNivelAprobacionDTO
+    {
+        public int? IdTipoDescuentoNivelAprobacion { get; set; }
+    }
+
 
 }

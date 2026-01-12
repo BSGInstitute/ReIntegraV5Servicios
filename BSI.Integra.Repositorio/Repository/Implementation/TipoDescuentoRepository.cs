@@ -477,5 +477,40 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        /// Autor: Lolo Zaa
+        /// Fecha: 12/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza el nivel de aprobación de un tipo de descuento
+        /// </summary>
+        /// <param name="id">Id del tipo de descuento</param>
+        /// <param name="idTipoDescuentoNivelAprobacion">Id del nivel de aprobación</param>
+        /// <param name="usuario">Usuario que realiza la modificación</param>
+        /// <returns> bool </returns>
+        public bool ActualizarNivelAprobacion(int id, int? idTipoDescuentoNivelAprobacion, string usuario)
+        {
+            try
+            {
+                var parametros = new
+                {
+                    IdTipoDescuento = id,
+                    IdTipoDescuentoNivelAprobacion = idTipoDescuentoNivelAprobacion,
+                    Usuario = usuario
+                };
+                var resultado = _dapperRepository.QuerySPDapper("pla.SP_TipoDescuentoActualizarNivelAprobacion", parametros);
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    var filasActualizadas = JsonConvert.DeserializeObject<dynamic>(resultado);
+                    return filasActualizadas != null && filasActualizadas[0].FilasActualizadas > 0;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }

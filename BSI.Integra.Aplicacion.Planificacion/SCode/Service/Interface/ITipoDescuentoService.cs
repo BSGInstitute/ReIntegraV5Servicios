@@ -15,6 +15,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         bool Eliminar(int id, string usuario);
         IEnumerable<TipoDescuentoConNivelAprobacionDTO> ObtenerTipoDescuentoConNivelAprobacion();
         IEnumerable<TipoDescuentoNivelAprobacionDTO> ObtenerNivelesAprobacion();
+        bool ActualizarNivelAprobacion(int id, int? idTipoDescuentoNivelAprobacion, string usuario);
 
 
     }
