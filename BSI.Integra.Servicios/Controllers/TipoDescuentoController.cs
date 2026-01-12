@@ -126,7 +126,7 @@ namespace BSI.Integra.Servicios.Controllers
         }
 
         /// Tipo Función: GET
-        /// Autor: Claude Code
+        /// Autor: Lolo Zaa
         /// Fecha: 12/01/2026
         /// Versión: 1.0
         /// <summary>
@@ -137,6 +137,20 @@ namespace BSI.Integra.Servicios.Controllers
         public IActionResult ObtenerTipoDescuentoConNivelAprobacion()
         {
             return Ok(_tipoDescuentoService.ObtenerTipoDescuentoConNivelAprobacion());
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 12/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los niveles de aprobación activos
+        /// </summary>
+        /// <returns> Retorna 200 y lista de objetos TipoDescuentoNivelAprobacionDTO o 400 y mensaje de error </returns>
+        [HttpGet("[action]")]
+        public IActionResult ObtenerNivelesAprobacion()
+        {
+            return Ok(_tipoDescuentoService.ObtenerNivelesAprobacion());
         }
 
         /// Tipo Función: GET

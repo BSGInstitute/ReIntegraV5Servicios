@@ -73,5 +73,13 @@
         public int? IdTipoDescuentoNivelAprobacion { get; set; }
     }
 
+    public class TipoDescuentoNivelAprobacionDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; } = null!;
+        public string? Descripcion { get; set; }
+        public bool Estado { get; set; }
+    }
+
 
 }

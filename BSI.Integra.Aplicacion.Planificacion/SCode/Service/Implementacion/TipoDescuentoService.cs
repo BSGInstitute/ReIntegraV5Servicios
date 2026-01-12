@@ -301,7 +301,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw ex;
             }
         }
-        /// Autor: Claude Code
+        /// Autor: Lolo Zaa
         /// Fecha: 12/01/2026
         /// Version: 1.0
         /// <summary>
@@ -313,6 +313,24 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             try
             {
                 return _unitOfWork.TipoDescuentoRepository.ObtenerTipoDescuentoConNivelAprobacion();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        /// Autor: Lolo Zaa 
+        /// Fecha: 12/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los niveles de aprobación activos
+        /// </summary>
+        /// <returns> List<TipoDescuentoNivelAprobacionDTO> </returns>
+        public IEnumerable<TipoDescuentoNivelAprobacionDTO> ObtenerNivelesAprobacion()
+        {
+            try
+            {
+                return _unitOfWork.TipoDescuentoRepository.ObtenerNivelesAprobacion();
             }
             catch (Exception ex)
             {

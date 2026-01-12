@@ -403,7 +403,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        /// Autor: Claude Code
+        /// Autor: Lolo Zaa
         /// Fecha: 12/01/2026
         /// Version: 1.0
         /// <summary>
@@ -434,6 +434,40 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
                     rpta = JsonConvert.DeserializeObject<IEnumerable<TipoDescuentoConNivelAprobacionDTO>>(resultado)!;
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 12/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los niveles de aprobación activos
+        /// </summary>
+        /// <returns> List<TipoDescuentoNivelAprobacionDTO> </returns>
+        public IEnumerable<TipoDescuentoNivelAprobacionDTO> ObtenerNivelesAprobacion()
+        {
+            try
+            {
+                IEnumerable<TipoDescuentoNivelAprobacionDTO> rpta = new List<TipoDescuentoNivelAprobacionDTO>();
+                var query = @"
+                    SELECT
+                        Id,
+                        Nombre,
+                        Descripcion,
+                        Estado
+                    FROM pla.T_TipoDescuentoNivelAprobacion
+                    WHERE Estado = 1
+                    ORDER BY Id ASC";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<IEnumerable<TipoDescuentoNivelAprobacionDTO>>(resultado)!;
                 }
                 return rpta;
             }
