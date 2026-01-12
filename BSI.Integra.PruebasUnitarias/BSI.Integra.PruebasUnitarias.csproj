@@ -8,4 +8,15 @@
     <UseVSTest>true</UseVSTest>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Moq" Version="4.20.70" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BSI.Integra.Servicios\BSI.Integra.Servicios.csproj" />
+    <ProjectReference Include="..\BSI.Integra.Aplicacion.DTO\BSI.Integra.Aplicacion.DTO.csproj" />
+    <ProjectReference Include="..\BSI.Integra.Repositorio\BSI.Integra.Repositorio.csproj" />
+  </ItemGroup>
+
 </Project>
