@@ -34,6 +34,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
             TSolicitudIdPersonalSolucionNavigations = new HashSet<TSolicitud>();
             TSolicitudInternas = new HashSet<TSolicitudInterna>();
             TSolicitudTis = new HashSet<TSolicitudTi>();
+            TTipoDescuentoSolicituds = new HashSet<TTipoDescuentoSolicitud>();
             TWhatsAppConfiguracionEnvios = new HashSet<TWhatsAppConfiguracionEnvio>();
             TWhatsAppUsuarios = new HashSet<TWhatsAppUsuario>();
         }
@@ -374,6 +375,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual ICollection<TSolicitud> TSolicitudIdPersonalSolucionNavigations { get; set; }
         public virtual ICollection<TSolicitudInterna> TSolicitudInternas { get; set; }
         public virtual ICollection<TSolicitudTi> TSolicitudTis { get; set; }
+        public virtual ICollection<TTipoDescuentoSolicitud> TTipoDescuentoSolicituds { get; set; }
         public virtual ICollection<TWhatsAppConfiguracionEnvio> TWhatsAppConfiguracionEnvios { get; set; }
         public virtual ICollection<TWhatsAppUsuario> TWhatsAppUsuarios { get; set; }
     }
