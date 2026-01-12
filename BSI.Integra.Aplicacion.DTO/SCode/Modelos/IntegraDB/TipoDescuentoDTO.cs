@@ -83,6 +83,7 @@
 
     public class ActualizarNivelAprobacionDTO
     {
+        public int Id { get; set; }
         public int? IdTipoDescuentoNivelAprobacion { get; set; }
     }
 
