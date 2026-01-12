@@ -55902,6 +55902,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.IdMigracion).HasComment("Id de la tabla Original al migrar");
 
+                entity.Property(e => e.IdTipoDescuentoNivelAprobacion).HasComment("Identificador de la solicitud de descuento asociada");
+
                 entity.Property(e => e.PorcentajeCuotas).HasComment("Porcentaje a las cuotas");
 
                 entity.Property(e => e.PorcentajeGeneral).HasComment("Porcentage general");
