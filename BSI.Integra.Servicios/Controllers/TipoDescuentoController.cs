@@ -160,12 +160,11 @@ namespace BSI.Integra.Servicios.Controllers
         /// <summary>
         /// Actualiza el nivel de aprobación de un tipo de descuento
         /// </summary>
-        /// <param name="id">Id del tipo de descuento</param>
-        /// <param name="dto">DTO con el IdTipoDescuentoNivelAprobacion</param>
+        /// <param name="dto">DTO con el Id del tipo de descuento y el IdTipoDescuentoNivelAprobacion</param>
         /// <returns> Retorna 200 si se actualizó correctamente o 400 en caso de error </returns>
-        [Authorize]
-        [HttpPut("[action]/{id}")]
-        public IActionResult ActualizarNivelAprobacion(int id, [FromBody] ActualizarNivelAprobacionDTO dto)
+        //[Authorize]
+        [HttpPut("[action]")]
+        public IActionResult ActualizarNivelAprobacion([FromBody] ActualizarNivelAprobacionDTO dto)
         {
             if (!ModelState.IsValid)
             {
@@ -174,7 +173,7 @@ namespace BSI.Integra.Servicios.Controllers
             try
             {
                 var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
-                var resultado = _tipoDescuentoService.ActualizarNivelAprobacion(id, dto.IdTipoDescuentoNivelAprobacion, registroClaimToken.UserName);
+                var resultado = _tipoDescuentoService.ActualizarNivelAprobacion(dto.Id, dto.IdTipoDescuentoNivelAprobacion, registroClaimToken.UserName);
                 if (resultado)
                 {
                     return Ok(new { mensaje = "Nivel de aprobación actualizado correctamente" });
