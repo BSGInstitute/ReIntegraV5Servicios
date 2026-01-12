@@ -59,5 +59,19 @@
         public List<int> IdPgeneral { get; set; }
     }
 
+    public class TipoDescuentoConNivelAprobacionDTO
+    {
+        public int Id { get; set; }
+        public string Codigo { get; set; } = null!;
+        public string Descripcion { get; set; } = null!;
+        public int Formula { get; set; }
+        public int? PorcentajeGeneral { get; set; }
+        public int? PorcentajeMatricula { get; set; }
+        public int? FraccionesMatricula { get; set; }
+        public int? PorcentajeCuotas { get; set; }
+        public int? CuotasAdicionales { get; set; }
+        public int? IdTipoDescuentoNivelAprobacion { get; set; }
+    }
+
 
 }

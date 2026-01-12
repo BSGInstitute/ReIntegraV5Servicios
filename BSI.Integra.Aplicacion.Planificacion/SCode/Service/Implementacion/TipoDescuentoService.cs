@@ -301,5 +301,23 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw ex;
             }
         }
+        /// Autor: Claude Code
+        /// Fecha: 12/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los tipos de descuento con su nivel de aprobación asociado
+        /// </summary>
+        /// <returns> List<TipoDescuentoConNivelAprobacionDTO> </returns>
+        public IEnumerable<TipoDescuentoConNivelAprobacionDTO> ObtenerTipoDescuentoConNivelAprobacion()
+        {
+            try
+            {
+                return _unitOfWork.TipoDescuentoRepository.ObtenerTipoDescuentoConNivelAprobacion();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

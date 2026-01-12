@@ -403,5 +403,45 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        /// Autor: Claude Code
+        /// Fecha: 12/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los tipos de descuento con su nivel de aprobación asociado
+        /// </summary>
+        /// <returns> List<TipoDescuentoConNivelAprobacionDTO> </returns>
+        public IEnumerable<TipoDescuentoConNivelAprobacionDTO> ObtenerTipoDescuentoConNivelAprobacion()
+        {
+            try
+            {
+                IEnumerable<TipoDescuentoConNivelAprobacionDTO> rpta = new List<TipoDescuentoConNivelAprobacionDTO>();
+                var query = @"
+                    SELECT
+                        Id,
+                        Codigo,
+                        Descripcion,
+                        Formula,
+                        PorcentajeGeneral,
+                        PorcentajeMatricula,
+                        FraccionesMatricula,
+                        PorcentajeCuotas,
+                        CuotasAdicionales,
+                        IdTipoDescuentoNivelAprobacion
+                    FROM pla.T_TipoDescuento
+                    WHERE Estado = 1
+                    ORDER BY Id DESC";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<IEnumerable<TipoDescuentoConNivelAprobacionDTO>>(resultado)!;
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }

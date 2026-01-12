@@ -13,6 +13,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         IEnumerable<TipoDescuentoOportunidadDTO> ObtenerTipoDescuentoOportunidad(int idOportunidad, string tipoPersonal);
         IEnumerable<string> ObtenerTiposPorIdTipoDescuento(int idDescuentoAsesor);
         bool Eliminar(int id, string usuario);
+        IEnumerable<TipoDescuentoConNivelAprobacionDTO> ObtenerTipoDescuentoConNivelAprobacion();
 
 
     }
