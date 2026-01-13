@@ -2631,6 +2631,27 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
         }
+
+        public WebinarDetalleSesionDTO? ObtenerWebinarPorIdPEspecificoSesion(int IdPEspecificoSesion)
+        {
+            try
+            {
+                WebinarDetalleSesionDTO rpta = new WebinarDetalleSesionDTO();
+
+                var _query = "pla.SP_ObtenerInformacionSesionWebinarPorIdEspecificoSesion @IdPEspecificoSesion";
+                var query = _dapperRepository.FirstOrDefault(_query, new { IdPEspecificoSesion });
+
+                if (!string.IsNullOrEmpty(query) && !query.Contains("[]") && query != "null")
+                {
+                    rpta = JsonConvert.DeserializeObject<WebinarDetalleSesionDTO>(query);
+                }
+                return rpta;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 27/07/2023
         /// <summary>
