@@ -946,6 +946,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TTipoDato> TTipoDatos { get; set; } = null!;
         public virtual DbSet<TTipoDescuento> TTipoDescuentos { get; set; } = null!;
         public virtual DbSet<TTipoDescuentoAsesorCoordinadorPw> TTipoDescuentoAsesorCoordinadorPws { get; set; } = null!;
+        public virtual DbSet<TTipoDescuentoNivelAprobacion> TTipoDescuentoNivelAprobacions { get; set; } = null!;
+        public virtual DbSet<TTipoDescuentoNivelAprobacionRol> TTipoDescuentoNivelAprobacionRols { get; set; } = null!;
+        public virtual DbSet<TTipoDescuentoSolicitud> TTipoDescuentoSolicituds { get; set; } = null!;
+        public virtual DbSet<TTipoDescuentoSolicitudDetalle> TTipoDescuentoSolicitudDetalles { get; set; } = null!;
+        public virtual DbSet<TTipoDescuentoSolicitudEstado> TTipoDescuentoSolicitudEstados { get; set; } = null!;
         public virtual DbSet<TTipoDocumentacionPersonal> TTipoDocumentacionPersonals { get; set; } = null!;
         public virtual DbSet<TTipoDocumento> TTipoDocumentos { get; set; } = null!;
         public virtual DbSet<TTipoDocumentoAlumno> TTipoDocumentoAlumnos { get; set; } = null!;
@@ -991,6 +996,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TUrlContenedorPermiso> TUrlContenedorPermisos { get; set; } = null!;
         public virtual DbSet<TUrlSubContenedor> TUrlSubContenedors { get; set; } = null!;
         public virtual DbSet<TUsuario> TUsuarios { get; set; } = null!;
+        public virtual DbSet<TUsuarioRol> TUsuarioRols { get; set; } = null!;
         public virtual DbSet<TVersionCalificacionPuntoGeneral> TVersionCalificacionPuntoGenerals { get; set; } = null!;
         public virtual DbSet<TVersionCriterioCalificacion> TVersionCriterioCalificacions { get; set; } = null!;
         public virtual DbSet<TVersionCriticidadCalificacion> TVersionCriticidadCalificacions { get; set; } = null!;
@@ -55896,6 +55902,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.IdMigracion).HasComment("Id de la tabla Original al migrar");
 
+                entity.Property(e => e.IdTipoDescuentoNivelAprobacion).HasComment("Identificador de la solicitud de descuento asociada");
+
                 entity.Property(e => e.PorcentajeCuotas).HasComment("Porcentaje a las cuotas");
 
                 entity.Property(e => e.PorcentajeGeneral).HasComment("Porcentage general");
@@ -55957,6 +55965,282 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario de modificacion del registro");
+            });
+
+            modelBuilder.Entity<TTipoDescuentoNivelAprobacion>(entity =>
+            {
+                entity.ToTable("T_TipoDescuentoNivelAprobacion", "pla");
+
+                entity.HasComment("Almacena los niveles de aprobación para tipos de descuento con configuración de jerarquías de autorización multinivel");
+
+                entity.Property(e => e.Id).HasComment("Identificador único autoincremental del nivel de aprobación");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Descripción detallada del nivel de aprobación, responsabilidades, alcance de autorización y límites aplicables");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado del registro (1 = Activo, 0 = Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre descriptivo del nivel de aprobación (Supervisor, Gerente, Director, Gerente General)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de versión para concurrencia optimista");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario del sistema que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario del sistema que realizó la última modificación del registro");
+            });
+
+            modelBuilder.Entity<TTipoDescuentoNivelAprobacionRol>(entity =>
+            {
+                entity.ToTable("T_TipoDescuentoNivelAprobacionRol", "pla");
+
+                entity.HasComment("Asocia roles de usuario con niveles de aprobación para tipos de descuento. Define qué roles tienen autoridad para aprobar cada nivel");
+
+                entity.Property(e => e.Id).HasComment("Identificador único autoincremental de la relación rol-nivel de aprobación");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado del registro (1 = Activo, 0 = Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro");
+
+                entity.Property(e => e.IdTipoDescuentoNivelAprobacion).HasComment("Identificador de la configuración tipo descuento-nivel de aprobación");
+
+                entity.Property(e => e.IdUsuarioRol).HasComment("Identificador del rol de usuario con permisos de aprobación");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de versión para concurrencia optimista");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario del sistema que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario del sistema que realizó la última modificación del registro");
+
+                entity.HasOne(d => d.IdTipoDescuentoNivelAprobacionNavigation)
+                    .WithMany(p => p.TTipoDescuentoNivelAprobacionRols)
+                    .HasForeignKey(d => d.IdTipoDescuentoNivelAprobacion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_TipoDescuentoNivelAprobacionRol_TipoDescuentoNivelAprobacion_IdTipoDescuentoNivelAprobacion");
+
+                entity.HasOne(d => d.IdUsuarioRolNavigation)
+                    .WithMany(p => p.TTipoDescuentoNivelAprobacionRols)
+                    .HasForeignKey(d => d.IdUsuarioRol)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_TipoDescuentoNivelAprobacionRol_UsuarioRol_IdUsuarioRol");
+            });
+
+            modelBuilder.Entity<TTipoDescuentoSolicitud>(entity =>
+            {
+                entity.ToTable("T_TipoDescuentoSolicitud", "pla");
+
+                entity.HasComment("Almacena solicitudes de aprobación para aplicar tipos de descuento a oportunidades comerciales");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la solicitud de descuento");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado del registro (1 = Activo, 0 = Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro");
+
+                entity.Property(e => e.IdOportunidad).HasComment("Identificador de la oportunidad comercial a la que se aplica el descuento");
+
+                entity.Property(e => e.IdPersonalSolicitante).HasColumnName("IdPersonal_Solicitante");
+
+                entity.Property(e => e.IdTipoDescuento).HasComment("Identificador del tipo de descuento solicitado");
+
+                entity.Property(e => e.IdTipoDescuentoSolicitudEstado).HasComment("Identificador del estado actual de la solicitud (Pendiente, Aprobado, Rechazado)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de versión para concurrencia optimista");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario del sistema que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario del sistema que realizó la última modificación del registro");
+
+                entity.HasOne(d => d.IdOportunidadNavigation)
+                    .WithMany(p => p.TTipoDescuentoSolicituds)
+                    .HasForeignKey(d => d.IdOportunidad)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_TipoDescuentoSolicitud_Oportunidad_IdOportunidad");
+
+                entity.HasOne(d => d.IdPersonalSolicitanteNavigation)
+                    .WithMany(p => p.TTipoDescuentoSolicituds)
+                    .HasForeignKey(d => d.IdPersonalSolicitante)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_TipoDescuentoSolicitud_Personal_IdPersonal_Solicitante");
+
+                entity.HasOne(d => d.IdTipoDescuentoNavigation)
+                    .WithMany(p => p.TTipoDescuentoSolicituds)
+                    .HasForeignKey(d => d.IdTipoDescuento)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_TipoDescuentoSolicitud_TipoDescuento_IdTipoDescuento");
+
+                entity.HasOne(d => d.IdTipoDescuentoSolicitudEstadoNavigation)
+                    .WithMany(p => p.TTipoDescuentoSolicituds)
+                    .HasForeignKey(d => d.IdTipoDescuentoSolicitudEstado)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_TipoDescuentoSolicitud_TipoDescuentoSolicitudEstado_IdTipoDescuentoSolicitudEstado");
+            });
+
+            modelBuilder.Entity<TTipoDescuentoSolicitudDetalle>(entity =>
+            {
+                entity.ToTable("T_TipoDescuentoSolicitudDetalle", "pla");
+
+                entity.HasComment("Almacena comentarios, documentos adjuntos y respuestas asociadas a las solicitudes de tipos de descuento");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del detalle de solicitud");
+
+                entity.Property(e => e.ComentarioRespuesta)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasComment("Comentario de respuesta del aprobador sobre la solicitud");
+
+                entity.Property(e => e.ComentarioSolicitud)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasComment("Comentario o justificación proporcionada en la solicitud de descuento");
+
+                entity.Property(e => e.ContentTypeRespuesta)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Tipo MIME del archivo de respuesta (application/pdf, image/jpeg, etc.)");
+
+                entity.Property(e => e.ContentTypeSolicitud)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Tipo MIME del archivo de solicitud (application/pdf, image/jpeg, etc.)");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado del registro (1 = Activo, 0 = Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro");
+
+                entity.Property(e => e.IdTipoDescuentoSolicitud).HasComment("Identificador de la solicitud de descuento asociada");
+
+                entity.Property(e => e.NombreArchivoRespuesta)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del archivo adjunto en la respuesta (si aplica)");
+
+                entity.Property(e => e.NombreArchivoSolicitud)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del archivo adjunto a la solicitud (si aplica)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de versión para concurrencia optimista");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario del sistema que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario del sistema que realizó la última modificación del registro");
+
+                entity.HasOne(d => d.IdTipoDescuentoSolicitudNavigation)
+                    .WithMany(p => p.TTipoDescuentoSolicitudDetalles)
+                    .HasForeignKey(d => d.IdTipoDescuentoSolicitud)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_TipoDescuentoSolicitudDetalle_TipoDescuentoSolicitud_IdTipoDescuentoSolicitud");
+            });
+
+            modelBuilder.Entity<TTipoDescuentoSolicitudEstado>(entity =>
+            {
+                entity.ToTable("T_TipoDescuentoSolicitudEstado", "pla");
+
+                entity.HasComment("Catálogo de estados para el flujo de aprobación de solicitudes de tipos de descuento (Pendiente, Aprobado, Rechazado, etc.)");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del estado de solicitud");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Descripción detallada del estado y sus implicaciones en el flujo de aprobación");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado del registro (1 = Activo, 0 = Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del estado (Pendiente, Aprobado, Rechazado, En Revision)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de versión para concurrencia optimista");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario del sistema que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario del sistema que realizó la última modificación del registro");
             });
 
             modelBuilder.Entity<TTipoDocumentacionPersonal>(entity =>
@@ -57932,6 +58216,46 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Nombre usuario");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TUsuarioRol>(entity =>
+            {
+                entity.ToTable("T_UsuarioRol", "conf");
+
+                entity.HasComment("Esta tabla relaciona usuarios con roles asignados en el sistema");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de modificacion");
+
+                entity.Property(e => e.IdMigracion).HasComment("Id de la tabla Original al migrar");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(50)
+                    .HasComment("Nombre rol");
 
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
