@@ -62,8 +62,20 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.FiltroSegmento
 
             resultado = resultado.Select(x =>
             {
-                x.Email1Encriptado = alumnoService.EncriptarCorreoHash(x.Email1);
-                x.CelularEncriptado = alumnoService.EncriptarNumeroHash(Regex.Replace(x.Celular, @"[^\d]", ""));
+                if (!string.IsNullOrWhiteSpace(x.Email1))
+                {
+                    x.Email1Encriptado = alumnoService.EncriptarCorreoHash(x.Email1);
+                }
+
+                if (!string.IsNullOrWhiteSpace(x.Celular))
+                {
+                    var celularLimpio = Regex.Replace(x.Celular, @"[^\d]", "");
+                    if (!string.IsNullOrEmpty(celularLimpio))
+                    {
+                        x.CelularEncriptado = alumnoService.EncriptarNumeroHash(celularLimpio);
+                    }
+                }
+
                 return x;
             }).ToList();
 

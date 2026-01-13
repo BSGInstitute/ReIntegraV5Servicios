@@ -662,6 +662,42 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Valida si se excluye alumnos matriculados de los prospectos
         /// </summary>
         public bool? ExcluirMatriculados { get; set; }
+        /// <summary>
+        /// Indicador para considerar la última oportunidad en el filtro
+        /// </summary>
+        public bool? ConsiderarUltimaOportunidad { get; set; }
+        /// <summary>
+        /// Indicador para considerar la mayor probabilidad de inscripción
+        /// </summary>
+        public bool? ConsiderarMayorProbabilidadInscripcion { get; set; }
+        /// <summary>
+        /// Indicador para considerar la mayor probabilidad de inscripción por venta cruzada
+        /// </summary>
+        public bool? ConsiderarMayorProbabilidadInscripcionVentaCruzada { get; set; }
+        /// <summary>
+        /// Indicador para considerar probabilidad en el filtro
+        /// </summary>
+        public bool? ConsiderarProbabilidad { get; set; }
+        /// <summary>
+        /// Indicador para considerar probabilidad de venta cruzada
+        /// </summary>
+        public bool? ConsiderarProbabilidadVentaCruzada { get; set; }
+        /// <summary>
+        /// Indicador para considerar embudo en el filtro
+        /// </summary>
+        public bool? ConsiderarEmbudo { get; set; }
+        /// <summary>
+        /// Indicador para excluir por campaña en el filtro
+        /// </summary>
+        public bool? ConsiderarExcluirCampania { get; set; }
+        /// <summary>
+        /// Fecha de inicio para excluir contactos por campaña
+        /// </summary>
+        public DateTime? FechaInicioExclusionCampania { get; set; }
+        /// <summary>
+        /// Fecha de fin para excluir contactos por campaña
+        /// </summary>
+        public DateTime? FechaFinExclusionCampania { get; set; }
 
         public virtual ICollection<TCampaniaGeneral> TCampaniaGenerals { get; set; }
         public virtual ICollection<TFiltroSegmentoDetalle> TFiltroSegmentoDetalles { get; set; }

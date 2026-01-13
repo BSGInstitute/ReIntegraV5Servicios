@@ -8077,5 +8077,39 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _preferenciaComunicacionAcademicaHorarioRepository ?? new PreferenciaComunicacionAcademicaHorarioRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+
+        private IConfirmacionWebinarRepository _confirmacionWebinarRepository;
+        IConfirmacionWebinarRepository IUnitOfWork.ConfirmacionWebinarRepository
+        {
+            get
+            {
+                return _confirmacionWebinarRepository ?? new ConfirmacionWebinarRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private RemarketingEmbudoEsquemaRepository _remarketingEmbudoEsquemaRepository;
+        IRemarketingEmbudoEsquemaRepository IUnitOfWork.RemarketingEmbudoEsquemaRepository
+        {
+            get
+            {
+                return _remarketingEmbudoEsquemaRepository ?? new RemarketingEmbudoEsquemaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private RemarketingEmbudoNivelRepository _remarketingEmbudoNivelRepository;
+        IRemarketingEmbudoNivelRepository IUnitOfWork.RemarketingEmbudoNivelRepository
+        {
+            get
+            {
+                return _remarketingEmbudoNivelRepository ?? new RemarketingEmbudoNivelRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private RemarketingEmbudoHistoricoRepository _remarketingEmbudoHistoricoRepository;
+        IRemarketingEmbudoHistoricoRepository IUnitOfWork.RemarketingEmbudoHistoricoRepository
+        {
+            get
+            {
+                return _remarketingEmbudoHistoricoRepository ?? new RemarketingEmbudoHistoricoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
     }
 }
