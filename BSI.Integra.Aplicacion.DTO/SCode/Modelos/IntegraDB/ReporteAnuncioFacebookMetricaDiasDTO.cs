@@ -100,6 +100,11 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public AnuncioFacebookMetricaDTO[] data { get; set; }
         public PaginacionFacebookDTO paging { get; set; }
     }
+    public class RenderModelos
+    {
+        public int HoraContactabilidadManana { get; set; }
+        public int HoraContactabilidadTarde { get; set; }
+    }
 
     public class PaginacionFacebookDTO
     {
