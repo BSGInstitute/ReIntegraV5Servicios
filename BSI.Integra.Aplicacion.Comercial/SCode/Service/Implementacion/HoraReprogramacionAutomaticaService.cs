@@ -238,11 +238,22 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             if (horactual.Hour < 14) //si ahora estamos en el rango de la mañana
             {
                 fecha = new DateTime(horactual.Year, horactual.Month, horactual.Day, resultadoSinProcesar == null ? horactual.Hour : resultadoSinProcesar.HoraContactabilidadTarde, 0, 0);
+                while (horario[(int)fecha.DayOfWeek][2] == null) // es sabado
+                {
+                    fecha = fecha.AddDays(2);//hasta el lunes
+                    fecha = new DateTime(fecha.Year, fecha.Month, fecha.Day, resultadoSinProcesar == null ? horactual.Hour : resultadoSinProcesar.HoraContactabilidadManana, 0, 0);
+                }
             }
             else //si ahora estamos en el rango de la tarde
             {
                 horactual = horactual.AddDays(1);
                 fecha = new DateTime(horactual.Year, horactual.Month, horactual.Day, resultadoSinProcesar == null ? horactual.Hour : resultadoSinProcesar.HoraContactabilidadManana,0, 0);
+                while (horario[(int)fecha.DayOfWeek][0] == null) 
+                {
+                    fecha = fecha.AddDays(1);
+                }
+                //if (horario[(int)fecha.DayOfWeek][0] <= tiempo_pregun && horario[(int)fecha.DayOfWeek][1] >= tiempo_pregun)
+                
             }
 
 
