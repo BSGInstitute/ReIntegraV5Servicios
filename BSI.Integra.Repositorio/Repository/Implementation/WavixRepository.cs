@@ -154,14 +154,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
         /// <summary>
         /// Guarda el token diario en la base de datos
-        /// TODO: Cuando esté listo el SP, cambiar por: _dapperRepository.QuerySPFirstOrDefault("conf.SP_GuardarTokenWavix", params)
         /// </summary>
         public int GuardarTokenDiario(int idPersonalWavix, string tokenUuid, string token, DateTime fechaExpiracion, string usuario)
         {
 
             try
             {
-                var resultado = _dapperRepository.QuerySPDapper("conf.SP_GuardarTokenWavix", new
+                var resultado = _dapperRepository.QuerySPFirstOrDefault("conf.SP_GuardarTokenWavix", new
                 {
                     IdPersonalWavix = idPersonalWavix,
                     TokenUuid = tokenUuid,
