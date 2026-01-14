@@ -187,7 +187,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try {
 
-                var resultado = _dapperRepository.QuerySPDapper("conf.ObtenerTokenActivo", new { IdPersonal = idPersonal });
+                var resultado = _dapperRepository.QuerySPDapper("conf.SP_ObtenerTokenActivo", new { IdPersonal = idPersonal });
 
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
