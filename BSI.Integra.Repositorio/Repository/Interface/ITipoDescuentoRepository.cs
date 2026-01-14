@@ -25,6 +25,5 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<TipoDescuento> ObtenerPorIds(int idTipoDescuento);
         IEnumerable<TipoDescuentoConNivelAprobacionDTO> ObtenerTipoDescuentoConNivelAprobacion();
         IEnumerable<TipoDescuentoNivelAprobacionDTO> ObtenerNivelesAprobacion();
-        bool ActualizarNivelAprobacion(int id, int? idTipoDescuentoNivelAprobacion, string usuario);
     }
 }

@@ -169,7 +169,11 @@ builder.Services.AddTransient<
     BSI.Integra.Aplicacion.Planificacion.Service.Implementacion.MatriculaConfiguracionComunicacionAsesorService
 >();
 
-
+// TipoDescuentoSolicitud Service
+builder.Services.AddScoped<
+    BSI.Integra.Aplicacion.Planificacion.Service.Interface.ITipoDescuentoSolicitudService,
+    BSI.Integra.Aplicacion.Planificacion.Service.Implementacion.TipoDescuentoSolicitudService
+>();
 
 // Google Ads Conversion Service
 builder.Services.AddScoped<BSI.Integra.Repositorio.Repository.Interface.IAdwordsConversionRepository, BSI.Integra.Repositorio.Repository.Implementation.AdwordsConversionRepository>();
