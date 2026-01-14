@@ -29,11 +29,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                // Armar string de IDs de clasificaciones separados por coma
-                var clasificacionesIds = entidad.ClasificacionesIds != null && entidad.ClasificacionesIds.Any()
-                    ? string.Join(",", entidad.ClasificacionesIds)
-                    : null;
-
                 // Armar string de subcategorías con formato especial
                 // Formato: NombreSubcat|TieneFaseMaxima|TienePerfil|FasesIds|PerfilesIds;siguiente...
                 var subcategoriasString = entidad.Subcategorias != null && entidad.Subcategorias.Any()
@@ -56,7 +51,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     var parametros = new DynamicParameters();
                     parametros.Add("@IdEsquemaWhatsAppAsignacion", entidad.IdEsquemaWhatsAppAsignacion, DbType.Int32);
                     parametros.Add("@Nombre", entidad.Nombre, DbType.String);
-                    parametros.Add("@ClasificacionesIds", clasificacionesIds, DbType.String);
                     parametros.Add("@Subcategorias", subcategoriasString, DbType.String);
                     parametros.Add("@Usuario", usuario, DbType.String);
 
@@ -80,11 +74,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                // Armar string de IDs de clasificaciones separados por coma
-                var clasificacionesIds = entidad.ClasificacionesIds != null && entidad.ClasificacionesIds.Any()
-                    ? string.Join(",", entidad.ClasificacionesIds)
-                    : null;
-
                 // Armar string de subcategorías con formato especial
                 var subcategoriasString = entidad.Subcategorias != null && entidad.Subcategorias.Any()
                     ? string.Join(";", entidad.Subcategorias.Select(s =>
@@ -104,9 +93,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 using (var conn = _connectionFactory.GetConnection)
                 {
                     var parametros = new DynamicParameters();
-                    parametros.Add("@Id", entidad.Id, DbType.Int32);
+                    parametros.Add("@IdEsquemaWhatsAppAsignacionInterpretarInformacion", entidad.Id, DbType.Int32);
                     parametros.Add("@Nombre", entidad.Nombre, DbType.String);
-                    parametros.Add("@ClasificacionesIds", clasificacionesIds, DbType.String);
                     parametros.Add("@Subcategorias", subcategoriasString, DbType.String);
                     parametros.Add("@Usuario", usuario, DbType.String);
 
@@ -133,7 +121,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 using (var conn = _connectionFactory.GetConnection)
                 {
                     var parametros = new DynamicParameters();
-                    parametros.Add("@Id", id, DbType.Int32);
+                    parametros.Add("@IdEsquemaWhatsAppAsignacionInterpretarInformacion", id, DbType.Int32);
                     parametros.Add("@Usuario", usuario, DbType.String);
 
                     var resultado = await conn.QueryFirstOrDefaultAsync<int>(
@@ -158,14 +146,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 using (var conn = _connectionFactory.GetConnection)
                 {
                     var parametros = new DynamicParameters();
-                    parametros.Add("@Id", id, DbType.Int32);
+                    parametros.Add("@IdEsquemaWhatsAppAsignacionInterpretarInformacion", id, DbType.Int32);
 
-                    // Este SP retorna 5 result sets:
+                    // Este SP retorna 4 result sets:
                     // 1. Interpretación de información
-                    // 2. Clasificaciones asociadas
-                    // 3. Subcategorías
-                    // 4. Fases de subcategorías
-                    // 5. Perfiles de subcategorías
+                    // 2. Subcategorías
+                    // 3. Fases de subcategorías
+                    // 4. Perfiles de subcategorías
                     using (var multi = await conn.QueryMultipleAsync(
                         "[mkt].[SP_TEsquemaWhatsAppAsignacionInterpretarInformacion_ObtenerPorId]",
                         parametros,
@@ -175,7 +162,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
                         if (interpretacion != null)
                         {
-                            interpretacion.Clasificaciones = (await multi.ReadAsync<ClasificacionAsociadaDTO>()).ToList();
                             var subcategorias = (await multi.ReadAsync<SubcategoriaDetalleDTO>()).ToList();
                             var fases = (await multi.ReadAsync<FaseAsociadaDTO>()).ToList();
                             var perfiles = (await multi.ReadAsync<PerfilAsociadoDTO>()).ToList();

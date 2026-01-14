@@ -35,7 +35,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     parametros.Add("@Usuario", usuario, DbType.String);
 
                     var resultado = await conn.QueryFirstOrDefaultAsync<int>(
-                        "[mkt].[SP_TPerfil_Insertar]",
+                        "[mkt].[SP_TEsquemaWhatsAppAsignacionPerfil_Insertar]",
                         parametros,
                         commandType: CommandType.StoredProcedure
                     );
@@ -56,12 +56,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 using (var conn = _connectionFactory.GetConnection)
                 {
                     var parametros = new DynamicParameters();
-                    parametros.Add("@Id", entidad.Id, DbType.Int32);
+                    parametros.Add("@IdEsquemaWhatsAppAsignacionPerfil", entidad.Id, DbType.Int32);
                     parametros.Add("@Nombre", entidad.Nombre, DbType.String);
                     parametros.Add("@Usuario", usuario, DbType.String);
 
                     var resultado = await conn.QueryFirstOrDefaultAsync<int>(
-                        "[mkt].[SP_TPerfil_Actualizar]",
+                        "[mkt].[SP_TEsquemaWhatsAppAsignacionPerfil_Actualizar]",
                         parametros,
                         commandType: CommandType.StoredProcedure
                     );
@@ -82,11 +82,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 using (var conn = _connectionFactory.GetConnection)
                 {
                     var parametros = new DynamicParameters();
-                    parametros.Add("@Id", id, DbType.Int32);
+                    parametros.Add("@IdEsquemaWhatsAppAsignacionPerfil", id, DbType.Int32);
                     parametros.Add("@Usuario", usuario, DbType.String);
 
                     var resultado = await conn.QueryFirstOrDefaultAsync<int>(
-                        "[mkt].[SP_TPerfil_Eliminar]",
+                        "[mkt].[SP_TEsquemaWhatsAppAsignacionPerfil_Eliminar]",
                         parametros,
                         commandType: CommandType.StoredProcedure
                     );
@@ -105,7 +105,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var resultado = await _dapperRepository.QuerySPDapperAsync(
-                    "[mkt].[SP_TPerfil_Listar]",
+                    "[mkt].[SP_TEsquemaWhatsAppAsignacionPerfil_Listar]",
                     null
                 );
 

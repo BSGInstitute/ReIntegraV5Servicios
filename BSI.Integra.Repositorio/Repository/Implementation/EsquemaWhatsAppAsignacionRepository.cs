@@ -58,7 +58,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 using (var conn = _connectionFactory.GetConnection)
                 {
                     var parametros = new DynamicParameters();
-                    parametros.Add("@Id", entidad.Id, DbType.Int32);
+                    parametros.Add("@IdEsquemaWhatsAppAsignacion", entidad.Id, DbType.Int32);
                     parametros.Add("@Nombre", entidad.Nombre, DbType.String);
                     parametros.Add("@Restricciones", entidad.Restricciones, DbType.String);
                     parametros.Add("@Usuario", usuario, DbType.String);
@@ -85,7 +85,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 using (var conn = _connectionFactory.GetConnection)
                 {
                     var parametros = new DynamicParameters();
-                    parametros.Add("@Id", id, DbType.Int32);
+                    parametros.Add("@IdEsquemaWhatsAppAsignacion", id, DbType.Int32);
                     parametros.Add("@Usuario", usuario, DbType.String);
 
                     var resultado = await conn.QueryFirstOrDefaultAsync<int>(
@@ -109,7 +109,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var resultado = await _dapperRepository.QuerySPDapperAsync(
                     "[mkt].[SP_TEsquemaWhatsAppAsignacion_ObtenerPorId]",
-                    new { Id = id }
+                    new { IdEsquemaWhatsAppAsignacion = id }
                 );
 
                 if (!string.IsNullOrEmpty(resultado) && resultado != "[]")

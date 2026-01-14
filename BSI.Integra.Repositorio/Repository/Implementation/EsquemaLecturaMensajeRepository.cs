@@ -70,7 +70,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 using (var conn = _connectionFactory.GetConnection)
                 {
                     var parametros = new DynamicParameters();
-                    parametros.Add("@Id", entidad.Id, DbType.Int32);
+                    parametros.Add("@IdEsquemaWhatsAppAsignacionLecturaMensaje", entidad.Id, DbType.Int32);
                     parametros.Add("@ClasificacionTipoMensaje", entidad.ClasificacionTipoMensaje, DbType.String);
                     parametros.Add("@PromptLectura", entidad.PromptLectura, DbType.String);
                     parametros.Add("@MensajesExactosIds", mensajesExactosIds, DbType.String);
@@ -98,7 +98,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 using (var conn = _connectionFactory.GetConnection)
                 {
                     var parametros = new DynamicParameters();
-                    parametros.Add("@Id", id, DbType.Int32);
+                    parametros.Add("@IdEsquemaWhatsAppAsignacionLecturaMensaje", id, DbType.Int32);
                     parametros.Add("@Usuario", usuario, DbType.String);
 
                     var resultado = await conn.QueryFirstOrDefaultAsync<int>(
@@ -123,7 +123,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 using (var conn = _connectionFactory.GetConnection)
                 {
                     var parametros = new DynamicParameters();
-                    parametros.Add("@Id", id, DbType.Int32);
+                    parametros.Add("@IdEsquemaWhatsAppAsignacionLecturaMensaje", id, DbType.Int32);
 
                     // Este SP retorna 2 result sets: lectura de mensaje + mensajes exactos
                     using (var multi = await conn.QueryMultipleAsync(
