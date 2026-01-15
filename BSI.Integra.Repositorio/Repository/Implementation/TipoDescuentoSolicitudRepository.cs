@@ -244,5 +244,28 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
             return null;
         }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 15/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los estados de solicitud de descuento activos
+        /// </summary>
+        public IEnumerable<TipoDescuentoSolicitudEstadoDTO> ObtenerEstadosSolicitud()
+        {
+            var sql = @"SELECT Id, Nombre, Descripcion
+                        FROM pla.T_TipoDescuentoSolicitudEstado
+                        WHERE Estado = 1";
+
+            var resultado = _dapperRepository.QueryDapper(sql, null);
+
+            if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+            {
+                var estados = JsonConvert.DeserializeObject<List<TipoDescuentoSolicitudEstadoDTO>>(resultado);
+                return estados ?? new List<TipoDescuentoSolicitudEstadoDTO>();
+            }
+
+            return new List<TipoDescuentoSolicitudEstadoDTO>();
+        }
     }
 }

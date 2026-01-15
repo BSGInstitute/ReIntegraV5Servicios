@@ -166,7 +166,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 {
                     string _azureStorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=repositorioweb;AccountKey=JurvlnvFAqg4dcGqcDHEj9bkBLoLV3Z/EIxA+8QkdTcuCWTm1iZfgqUOfUOwmDMfnrmrie7Nkkho5mPyVTvIpA==;EndpointSuffix=core.windows.net";
 
-                    string _direccionBlob = @"repositorioweb/solicitudes/";
+                    string _direccionBlob = @"repositorioweb/AprobacionDescuentos/";
 
                     // Generar entrada al blob storage
                     CloudStorageAccount storageAccount = CloudStorageAccount.Parse(_azureStorageConnectionString);
@@ -348,6 +348,17 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         public TipoDescuentoSolicitudPaginadoDTO ListarSolicitudes(TipoDescuentoSolicitudFiltroDTO filtro)
         {
             return _unitOfWork.TipoDescuentoSolicitudRepository.ListarSolicitudes(filtro);
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 15/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los estados de solicitud de descuento activos
+        /// </summary>
+        public IEnumerable<TipoDescuentoSolicitudEstadoDTO> ObtenerEstadosSolicitud()
+        {
+            return _unitOfWork.TipoDescuentoSolicitudRepository.ObtenerEstadosSolicitud();
         }
     }
 }

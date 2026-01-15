@@ -46,5 +46,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         TipoDescuentoSolicitudPaginadoDTO ListarSolicitudes(TipoDescuentoSolicitudFiltroDTO filtro);
 
         int? ObtenerIdSolicitudPendiente(int idTipoDescuento, int idOportunidad);
+
+        IEnumerable<TipoDescuentoSolicitudEstadoDTO> ObtenerEstadosSolicitud();
     }
 }

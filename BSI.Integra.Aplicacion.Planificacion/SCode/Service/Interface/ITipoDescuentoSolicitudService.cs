@@ -12,6 +12,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         void AprobarSolicitudGerencia(TipoDescuentoSolicitudRespuestaEntradaDTO dto);
         void RechazarSolicitudGerencia(TipoDescuentoSolicitudRespuestaEntradaDTO dto);
         TipoDescuentoSolicitudPaginadoDTO ListarSolicitudes(TipoDescuentoSolicitudFiltroDTO filtro);
+        IEnumerable<TipoDescuentoSolicitudEstadoDTO> ObtenerEstadosSolicitud();
         string SlugNombreArchivo(string textoOriginal);
         byte[] ConvertToByte(IFormFile file);
         string SubirArchivoSolicitudTipoDescuentoRepositorio(IFormFile archivoEntrada, string tipo, string nombreArchivo);

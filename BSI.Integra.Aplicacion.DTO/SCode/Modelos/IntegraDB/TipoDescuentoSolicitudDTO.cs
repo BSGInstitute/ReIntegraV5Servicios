@@ -73,6 +73,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string NombreAlumno { get; set; } = null!;
         public string NombrePrograma { get; set; } = null!;
         public string TipoDescuento { get; set; } = null!;
+        public string PersonalSolicitante { get; set; } = null!;
         public int NivelAprobacion { get; set; }
         public int SolicitudEstado { get; set; }
         public DateTime Fecha { get; set; }
@@ -89,5 +90,13 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int NumeroPagina { get; set; }
         public int RegistrosPorPagina { get; set; }
         public int TotalPaginas => (int)Math.Ceiling((double)TotalRegistros / RegistrosPorPagina);
+    }
+
+  
+    public class TipoDescuentoSolicitudEstadoDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; } = null!;
+        public string? Descripcion { get; set; }
     }
 }
