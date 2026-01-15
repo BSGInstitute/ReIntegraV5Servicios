@@ -32,10 +32,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
         /// Autor: Lolo Zaa
         /// Fecha: 12/01/2026
-        /// Version: 1.2
+        /// Version: 1.3
         /// <summary>
         /// Inserta una nueva solicitud de aprobación para tipo de descuento
         /// Si el solicitante es Coordinador o Gerencia, auto-aprueba según corresponda
+        /// Si el tipo de descuento tiene NivelAprobacion = 3, se auto-aprueba Coordinador (estado 6)
         /// </summary>
         public void InsertarSolicitud(TipoDescuentoSolicitudEntradaDTO solicitud)
         {
@@ -57,6 +58,10 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 }
             }
 
+            // Obtener el nivel de aprobación del tipo de descuento
+            var tipoDescuento = _unitOfWork.TipoDescuentoRepository.ObtenerPorId(solicitud.IdTipoDescuento);
+            var nivelAprobacion = tipoDescuento?.IdTipoDescuentoNivelAprobacion;
+
             // Crear la solicitud
             _unitOfWork.TipoDescuentoSolicitudRepository.InsertarSolicitud(
                 solicitud.IdTipoDescuento,
@@ -68,11 +73,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 solicitud.Usuario
             );
 
-            // Auto-aprobación según rol del solicitante
+            // Determinar si requiere auto-aprobación
             var esCoordinador = IdsCoordinadores.Contains(solicitud.IdPersonalSolicitante);
             var esGerencia = IdsGerencia.Contains(solicitud.IdPersonalSolicitante);
+            var requiereAutoAprobacionCoordinador = nivelAprobacion == 3 || esCoordinador || esGerencia;
 
-            if (esCoordinador || esGerencia)
+            if (requiereAutoAprobacionCoordinador)
             {
                 // Obtener el ID de la solicitud recién creada
                 var idSolicitud = _unitOfWork.TipoDescuentoSolicitudRepository
@@ -80,10 +86,14 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
                 if (idSolicitud.HasValue)
                 {
-                    // Auto-aprobar como Coordinador
+                    // Auto-aprobar como Coordinador (estado pasa a 6 - Pendiente aprobación Gerencia)
+                    var comentarioAutoAprobacion = nivelAprobacion == 3
+                        ? "Auto-aprobación por nivel de aprobación del descuento"
+                        : "Auto-aprobación por rol de solicitante";
+
                     _unitOfWork.TipoDescuentoSolicitudRepository.AprobarSolicitudCoordinador(
                         idSolicitud.Value,
-                        "Auto-aprobación por rol de solicitante",
+                        comentarioAutoAprobacion,
                         null,
                         null,
                         solicitud.Usuario
