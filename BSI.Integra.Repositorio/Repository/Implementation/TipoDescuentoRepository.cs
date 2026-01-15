@@ -378,9 +378,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 27/07/2022
-        /// Version: 1.0
+        /// Version: 1.1
+        /// Modificado: Lolo Zaa - 15/01/2026
         /// <summary>
         /// Obtiene Tipos de Descuento asociados a una Oportunidad y un Tipo de Personal.
+        /// Incluye descuentos de la vista mkt.V_TiposDescuentos y descuentos solicitados de pla.V_TiposDescuentosSolicitud
         /// </summary>
         /// <param name="idOportunidad">Id de la Oportunidad</param>
         /// <param name="tipoPersonal">Tipo de Personal</param>
@@ -393,7 +395,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var query = @"
                     SELECT Id,Codigo,Descripcion,Formula,PorcentajeGeneral,PorcentajeMatricula,FraccionesMatricula,PorcentajeCuotas,CuotasAdicionales,Tipo
                     FROM mkt.V_TiposDescuentos
-                    WHERE  IdOportunidad = @idOportunidad AND Tipo = @tipoPersonal";
+                    WHERE IdOportunidad = @idOportunidad AND Tipo = @tipoPersonal
+                    UNION
+                    SELECT IdTipoDescuento AS Id,Codigo,Descripcion,Formula,PorcentajeGeneral,PorcentajeMatricula,FraccionesMatricula,PorcentajeCuotas,CuotasAdicionales,Tipo
+                    FROM pla.V_TiposDescuentosSolicitud
+                    WHERE IdOportunidad = @idOportunidad";
                 var resultadoQuery = _dapperRepository.QueryDapper(query, new { idOportunidad, tipoPersonal });
                 if (!string.IsNullOrEmpty(resultadoQuery) && !resultadoQuery.Contains("[]"))
                 {
