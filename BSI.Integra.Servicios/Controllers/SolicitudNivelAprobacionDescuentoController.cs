@@ -243,5 +243,28 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(new { mensaje = e.Message });
             }
         }
+
+        /// TipoFuncion: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 15/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los estados de solicitud de descuento activos
+        /// </summary>
+        /// <returns>List TipoDescuentoSolicitudEstadoDTO</returns>
+        [Route("[action]")]
+        [HttpGet]
+        public ActionResult ObtenerEstadosSolicitud()
+        {
+            try
+            {
+                var resultado = _tipoDescuentoSolicitudService.ObtenerEstadosSolicitud();
+                return Ok(resultado);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { mensaje = e.Message });
+            }
+        }
     }
 }

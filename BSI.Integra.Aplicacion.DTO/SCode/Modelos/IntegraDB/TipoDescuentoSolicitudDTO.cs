@@ -90,4 +90,12 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int RegistrosPorPagina { get; set; }
         public int TotalPaginas => (int)Math.Ceiling((double)TotalRegistros / RegistrosPorPagina);
     }
+
+  
+    public class TipoDescuentoSolicitudEstadoDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; } = null!;
+        public string? Descripcion { get; set; }
+    }
 }
