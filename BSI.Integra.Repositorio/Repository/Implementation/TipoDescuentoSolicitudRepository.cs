@@ -208,5 +208,41 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
             return respuesta;
         }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 15/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el ID de una solicitud pendiente por tipo de descuento y oportunidad
+        /// </summary>
+        public int? ObtenerIdSolicitudPendiente(int idTipoDescuento, int idOportunidad)
+        {
+            var sql = @"SELECT TOP 1 Id
+                        FROM [pla].[T_TipoDescuentoSolicitud]
+                        WHERE IdTipoDescuento = @IdTipoDescuento
+                          AND IdOportunidad = @IdOportunidad
+                          AND IdTipoDescuentoSolicitudEstado = 1
+                          AND Estado = 1
+                        ORDER BY FechaCreacion DESC";
+
+            var parametros = new
+            {
+                IdTipoDescuento = idTipoDescuento,
+                IdOportunidad = idOportunidad
+            };
+
+            var resultado = _dapperRepository.FirstOrDefault(sql, parametros);
+
+            if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("null"))
+            {
+                var data = JsonConvert.DeserializeObject<dynamic>(resultado);
+                if (data != null && data.Id != null)
+                {
+                    return (int)data.Id;
+                }
+            }
+
+            return null;
+        }
     }
 }
