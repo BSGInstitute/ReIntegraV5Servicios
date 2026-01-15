@@ -179,7 +179,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     //}
                     if (dto.TipoDescuentoAsesorCoordinadorPw != null && dto.TipoDescuentoAsesorCoordinadorPw.Count() > 0)
                     {
-                        var detalleInsertar = dto.TipoDescuentoAsesorCoordinadorPw.Where(x => detalle.Any(s => s.Tipo != x)).Select(x => new TipoDescuentoAsesorCoordinadorPw
+                        var detalleInsertar = dto.TipoDescuentoAsesorCoordinadorPw.Where(x => !detalle.Any(s => s.Tipo == x)).Select(x => new TipoDescuentoAsesorCoordinadorPw
                         {
                             Tipo = x,
                             IdTipoDescuento = tipoDescuento.Id,
