@@ -154,6 +154,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IProgramaGeneralBeneficioRepository ProgramaGeneralBeneficioRepository { get; }
         IOportunidadCompetidorRepository OportunidadCompetidorRepository { get; }
         ITipoDescuentoRepository TipoDescuentoRepository { get; }
+        ITipoDescuentoSolicitudRepository TipoDescuentoSolicitudRepository { get; }
         IMontoPagoRepository MontoPagoRepository { get; }
         IOperadorComparacionRepository OperadorComparacionRepository { get; }
         IConfiguracionFijaRepository ConfiguracionFijaRepository { get; }

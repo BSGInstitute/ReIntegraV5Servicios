@@ -153,41 +153,6 @@ namespace BSI.Integra.Servicios.Controllers
             return Ok(_tipoDescuentoService.ObtenerNivelesAprobacion());
         }
 
-        /// Tipo Función: PUT
-        /// Autor: Lolo Zaa
-        /// Fecha: 12/01/2026
-        /// Versión: 1.0
-        /// <summary>
-        /// Actualiza el nivel de aprobación de un tipo de descuento
-        /// </summary>
-        /// <param name="dto">DTO con el Id del tipo de descuento y el IdTipoDescuentoNivelAprobacion</param>
-        /// <returns> Retorna 200 si se actualizó correctamente o 400 en caso de error </returns>
-        //[Authorize]
-        [HttpPut("[action]")]
-        public IActionResult ActualizarNivelAprobacion([FromBody] ActualizarNivelAprobacionDTO dto)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
-                var resultado = _tipoDescuentoService.ActualizarNivelAprobacion(dto.Id, dto.IdTipoDescuentoNivelAprobacion, registroClaimToken.UserName);
-                if (resultado)
-                {
-                    return Ok(new { mensaje = "Nivel de aprobación actualizado correctamente" });
-                }
-                else
-                {
-                    return BadRequest(new { mensaje = "No se pudo actualizar el nivel de aprobación" });
-                }
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { mensaje = ex.Message });
-            }
-        }
 
         /// Tipo Función: GET
         /// Autor: Klebert Layme

@@ -339,26 +339,5 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw ex;
             }
         }
-        /// Autor: Lolo Zaa
-        /// Fecha: 12/01/2026
-        /// Version: 1.0
-        /// <summary>
-        /// Actualiza el nivel de aprobación de un tipo de descuento
-        /// </summary>
-        /// <param name="id">Id del tipo de descuento</param>
-        /// <param name="idTipoDescuentoNivelAprobacion">Id del nivel de aprobación</param>
-        /// <param name="usuario">Usuario que realiza la modificación</param>
-        /// <returns> bool </returns>
-        public bool ActualizarNivelAprobacion(int id, int? idTipoDescuentoNivelAprobacion, string usuario)
-        {
-            try
-            {
-                return _unitOfWork.TipoDescuentoRepository.ActualizarNivelAprobacion(id, idTipoDescuentoNivelAprobacion, usuario);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
     }
 }

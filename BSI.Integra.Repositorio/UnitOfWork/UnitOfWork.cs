@@ -1346,6 +1346,16 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private ITipoDescuentoSolicitudRepository _tipoDescuentoSolicitudRepository;
+
+        ITipoDescuentoSolicitudRepository IUnitOfWork.TipoDescuentoSolicitudRepository
+        {
+            get
+            {
+                return _tipoDescuentoSolicitudRepository ?? new TipoDescuentoSolicitudRepository(_connectionFactory, _dapperRepository);
+            }
+        }
+
         private IMontoPagoRepository _montoPagoRepository;
 
         IMontoPagoRepository IUnitOfWork.MontoPagoRepository
