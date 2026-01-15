@@ -352,5 +352,23 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public ErrorDetalleDTO Error { get; set; }
     }
 
+    /// <summary>
+    /// DTO para filtrar solicitudes por asesor/revisor asignado
+    /// </summary>
+    public class FiltroSolicitudAlumnoPorAsesorDTO
+    {
+        public int? IdPersonalRevision { get; set; }
+        public List<int> IdEstadoSolicitud { get; set; }
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaFin { get; set; }
+    }
+
+    public class FiltroSolicitudAlumnoPorAsesorReporteDTO
+    {
+        public int? IdPersonalRevision { get; set; }
+        public string IdEstadoSolicitud { get; set; }
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaFin { get; set; }
+    }
 
 }

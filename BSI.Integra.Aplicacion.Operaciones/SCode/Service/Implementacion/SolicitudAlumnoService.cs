@@ -358,13 +358,32 @@ namespace BSI.Integra.Aplicacion.Operaciones.Service.Implementacion
         /// Version: 1.0
         /// <summary>
         /// Obtiene todos las solicitudes por filtro reporte
-        /// </summary> 
+        /// </summary>
         /// <returns> IEnumerable<SolicitudAlumnoFiltradaDTO> </returns>
         public IEnumerable<SolicitudAlumnoFiltradaDTO> ObtenerSolicitudesAlumnoPorFiltroReporte(FiltroSolicitudesDTO FiltroSolicitud)
         {
             try
             {
                 return _unitOfWork.SolicitudAlumnoRepository.ObtenerSolicitudesAlumnoPorFiltroReporte(FiltroSolicitud);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Alexis Arroyo 
+        /// Fecha: 14/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todas las solicitudes filtradas por asesor/revisor asignado
+        /// </summary>
+        /// <returns> IEnumerable<SolicitudAlumnoFiltradaDTO> </returns>
+        public IEnumerable<SolicitudAlumnoFiltradaDTO> ObtenerSolicitudesPorFiltroAsesor(FiltroSolicitudAlumnoPorAsesorDTO FiltroSolicitud)
+        {
+            try
+            {
+                return _unitOfWork.SolicitudAlumnoRepository.ObtenerSolicitudesPorFiltroAsesor(FiltroSolicitud);
             }
             catch (Exception ex)
             {

@@ -943,6 +943,47 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        /// Autor: Claude
+        /// Fecha: 14/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todas las solicitudes del alumno filtradas por asesor/revisor asignado.
+        /// </summary>
+        /// <param name="FiltroSolicitud">Filtro con IdPersonalRevision y otros parámetros</param>
+        /// <returns>SolicitudAlumnoFiltradaDTO</returns>
+        public IEnumerable<SolicitudAlumnoFiltradaDTO> ObtenerSolicitudesPorFiltroAsesor(FiltroSolicitudAlumnoPorAsesorDTO FiltroSolicitud)
+        {
+            try
+            {
+                List<SolicitudAlumnoFiltradaDTO> rpta = new List<SolicitudAlumnoFiltradaDTO>();
+                FiltroSolicitudAlumnoPorAsesorReporteDTO filtroFinal = new FiltroSolicitudAlumnoPorAsesorReporteDTO();
+
+                if (FiltroSolicitud.IdEstadoSolicitud != null && FiltroSolicitud.IdEstadoSolicitud.Count() > 0)
+                {
+                    filtroFinal.IdEstadoSolicitud = String.Join(",", FiltroSolicitud.IdEstadoSolicitud);
+                }
+                if (FiltroSolicitud.FechaInicio != null)
+                {
+                    filtroFinal.FechaInicio = FiltroSolicitud.FechaInicio.Value.Date;
+                }
+                if (FiltroSolicitud.FechaFin != null)
+                {
+                    filtroFinal.FechaFin = FiltroSolicitud.FechaFin.Value.Date.AddDays(1).AddSeconds(-1);
+                }
+                filtroFinal.IdPersonalRevision = FiltroSolicitud.IdPersonalRevision;
+
+                var resultado = _dapperRepository.QuerySPDapper("ope.SP_ObtenerSolicitudAlumnoPorAsesor", new { filtroFinal.IdPersonalRevision, filtroFinal.IdEstadoSolicitud, filtroFinal.FechaInicio, filtroFinal.FechaFin });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<SolicitudAlumnoFiltradaDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
     }
 }
