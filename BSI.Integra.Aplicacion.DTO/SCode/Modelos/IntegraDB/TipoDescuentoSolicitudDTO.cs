@@ -73,6 +73,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string NombreAlumno { get; set; } = null!;
         public string NombrePrograma { get; set; } = null!;
         public string TipoDescuento { get; set; } = null!;
+        public string PersonalSolicitante { get; set; } = null!;
         public int NivelAprobacion { get; set; }
         public int SolicitudEstado { get; set; }
         public DateTime Fecha { get; set; }
