@@ -398,7 +398,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     WHERE IdOportunidad = @idOportunidad AND Tipo = @tipoPersonal
                     UNION
                     SELECT IdTipoDescuento AS Id,Codigo,Descripcion,Formula,PorcentajeGeneral,PorcentajeMatricula,FraccionesMatricula,PorcentajeCuotas,CuotasAdicionales,Tipo
-                    FROM pla.V_TiposDescuentosSolicitud
+                    FROM pla.V_TiposDescuentosSolicitudOportunidad
                     WHERE IdOportunidad = @idOportunidad";
                 var resultadoQuery = _dapperRepository.QueryDapper(query, new { idOportunidad, tipoPersonal });
                 if (!string.IsNullOrEmpty(resultadoQuery) && !resultadoQuery.Contains("[]"))
