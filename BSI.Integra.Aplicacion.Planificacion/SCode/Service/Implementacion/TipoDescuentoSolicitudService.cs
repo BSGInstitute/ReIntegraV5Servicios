@@ -20,6 +20,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
     {
         private IUnitOfWork _unitOfWork;
 
+        // IDs de personal con rol Coordinador
+        private static readonly int[] IdsCoordinadores = { 135, 259, 4094 };
+        // IDs de personal con rol Gerencia
+        private static readonly int[] IdsGerencia = { 213 };
+
         public TipoDescuentoSolicitudService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -27,9 +32,10 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
         /// Autor: Lolo Zaa
         /// Fecha: 12/01/2026
-        /// Version: 1.1
+        /// Version: 1.2
         /// <summary>
         /// Inserta una nueva solicitud de aprobación para tipo de descuento
+        /// Si el solicitante es Coordinador o Gerencia, auto-aprueba según corresponda
         /// </summary>
         public void InsertarSolicitud(TipoDescuentoSolicitudEntradaDTO solicitud)
         {
@@ -51,6 +57,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 }
             }
 
+            // Crear la solicitud
             _unitOfWork.TipoDescuentoSolicitudRepository.InsertarSolicitud(
                 solicitud.IdTipoDescuento,
                 solicitud.IdOportunidad,
@@ -60,6 +67,41 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 contentType,
                 solicitud.Usuario
             );
+
+            // Auto-aprobación según rol del solicitante
+            var esCoordinador = IdsCoordinadores.Contains(solicitud.IdPersonalSolicitante);
+            var esGerencia = IdsGerencia.Contains(solicitud.IdPersonalSolicitante);
+
+            if (esCoordinador || esGerencia)
+            {
+                // Obtener el ID de la solicitud recién creada
+                var idSolicitud = _unitOfWork.TipoDescuentoSolicitudRepository
+                    .ObtenerIdSolicitudPendiente(solicitud.IdTipoDescuento, solicitud.IdOportunidad);
+
+                if (idSolicitud.HasValue)
+                {
+                    // Auto-aprobar como Coordinador
+                    _unitOfWork.TipoDescuentoSolicitudRepository.AprobarSolicitudCoordinador(
+                        idSolicitud.Value,
+                        "Auto-aprobación por rol de solicitante",
+                        null,
+                        null,
+                        solicitud.Usuario
+                    );
+
+                    // Si es Gerencia, también auto-aprobar como Gerencia
+                    if (esGerencia)
+                    {
+                        _unitOfWork.TipoDescuentoSolicitudRepository.AprobarSolicitudGerencia(
+                            idSolicitud.Value,
+                            "Auto-aprobación por rol de solicitante",
+                            null,
+                            null,
+                            solicitud.Usuario
+                        );
+                    }
+                }
+            }
         }
 
         /// Autor: Lolo Zaa
