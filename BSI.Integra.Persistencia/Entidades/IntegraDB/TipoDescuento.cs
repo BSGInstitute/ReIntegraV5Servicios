@@ -18,6 +18,8 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
 
         //para los tipos descuento
         public string Tipo { get; set; }
+        public int? IdTipoDescuentoNivelAprobacion { get; set; }
+
 
         //Para TipoDescuentoAsesorCoordinadorPw
         public List<TipoDescuentoAsesorCoordinadorPw> TipoDescuentoAsesorCoordinadorPw { get; set; }

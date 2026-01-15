@@ -67,6 +67,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         FraccionesMatricula = dto.FraccionesMatricula,
                         PorcentajeCuotas = dto.PorcentajeCuotas,
                         CuotasAdicionales = dto.CuotasAdicionales,
+                        IdTipoDescuentoNivelAprobacion = dto.IdTipoDescuentoNivelAprobacion,
                         UsuarioCreacion = usuario,
                         UsuarioModificacion = usuario,
                         FechaCreacion = DateTime.Now,
@@ -144,6 +145,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         tipoDescuento.FraccionesMatricula = dto.FraccionesMatricula;
                         tipoDescuento.PorcentajeCuotas = dto.PorcentajeCuotas;
                         tipoDescuento.CuotasAdicionales = dto.CuotasAdicionales;
+                        tipoDescuento.IdTipoDescuentoNivelAprobacion = dto.IdTipoDescuentoNivelAprobacion;
                         tipoDescuento.UsuarioModificacion = usuario;
                         tipoDescuento.FechaModificacion = DateTime.Now;
                         tipoDescuento.Estado = true;
@@ -177,7 +179,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     //}
                     if (dto.TipoDescuentoAsesorCoordinadorPw != null && dto.TipoDescuentoAsesorCoordinadorPw.Count() > 0)
                     {
-                        var detalleInsertar = dto.TipoDescuentoAsesorCoordinadorPw.Where(x => detalle.Any(s => s.Tipo != x)).Select(x => new TipoDescuentoAsesorCoordinadorPw
+                        var detalleInsertar = dto.TipoDescuentoAsesorCoordinadorPw.Where(x => !detalle.Any(s => s.Tipo == x)).Select(x => new TipoDescuentoAsesorCoordinadorPw
                         {
                             Tipo = x,
                             IdTipoDescuento = tipoDescuento.Id,

@@ -50,6 +50,7 @@
         public int? FraccionesMatricula { get; set; }
         public int? PorcentajeCuotas { get; set; }
         public int? CuotasAdicionales { get; set; }
+        public int? IdTipoDescuentoNivelAprobacion { get; set; }
         public List<string> TipoDescuentoAsesorCoordinadorPw { get; set; }
 
     }
