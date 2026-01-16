@@ -30,5 +30,12 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         IEnumerable<DocumentoPwVersionesDTO> ObtenerIntroduccionVersionDocumento(int IdDocumentoPw);
         List<CursoHijoDuracionPdusDTO> ObtenerProgramasEstrucuraCurricularPdus(int idPGeneral);
         List<EstructuraCursoDTO> ObtenerEstructuraCurso(int idPGeneral);
+
+        IEnumerable<ModalidadPortalDTO> ObtenerModalidadPortal();
+        IEnumerable<ComboDTO> ObtenerModoFechaInicio();
+        IEnumerable<ComboDTO> ObtenerNotasTipo();
+
+        void InsertarDocumentoPwModalidad(SeccionModalidadHorarioDTO? dto, int id, string usuario);
+        IEnumerable<DocumentoPWModalidadRowVM> ObtenerDocumentoPWModalidadRows(int idDocumentoPW);
     }
 }

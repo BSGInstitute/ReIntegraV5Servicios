@@ -5585,5 +5585,10 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 return new ResultadoPVersionDTO { Estado = false, Mensaje = ex.Message };
             }
         }
+
+        public IEnumerable<ComboDTO> ObtenerPGeneralActivo()
+        {
+            return _unitOfWork.PGeneralRepository.ObtenerPGeneralActivo();
+        }
     }
 }

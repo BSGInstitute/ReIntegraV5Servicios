@@ -7,7 +7,10 @@ using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface.Planificacion;
+using Dapper;
 using Newtonsoft.Json;
+using System.Data;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 {
@@ -530,6 +533,214 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 throw new Exception($"#IOSF-MKT-001@Error en ObtenerReporteLeadsByFecha() {ex.Message}", ex);
             }
 
+        }
+
+
+        public IEnumerable<ModalidadPortalDTO> ObtenerModalidadPortal()
+        {
+            try
+            {
+                var query = @"
+                    SELECT 
+                        Id,
+                        Nombre,
+                        Propiedad
+                    FROM  pla.T_ModalidadPortal
+                    WHERE Estado = 1 ";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<IEnumerable<ModalidadPortalDTO>>(resultado)!;
+                }
+                return new List<ModalidadPortalDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#DPwR-O-001@Error en Obtener() {ex.Message}", ex);
+            }
+        }
+
+        public IEnumerable<ComboDTO> ObtenerModoFechaInicio()
+        {
+            try
+            {
+                var query = @"
+                    SELECT 
+                        Id,
+                        Nombre
+                    FROM  pla.T_DocumentoPWFechaInicioModo
+                    WHERE Estado = 1 ";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<IEnumerable<ComboDTO>>(resultado)!;
+                }
+                return new List<ComboDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#DPwR-O-001@Error en Obtener() {ex.Message}", ex);
+            }
+        }
+        public IEnumerable<ComboDTO> ObtenerNotasTipo()
+        {
+            try
+            {
+                var query = @"
+                    SELECT 
+                        Id,
+                        Nombre
+                    FROM  pla.T_DocumentoPWNotaTipo
+                    WHERE Estado = 1 ";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<IEnumerable<ComboDTO>>(resultado)!;
+                }
+                return new List<ComboDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#DPwR-O-001@Error en Obtener() {ex.Message}", ex);
+            }
+        }
+
+
+        public void InsertarDocumentoPwModalidad(SeccionModalidadHorarioDTO? dto, int idDocumentoPw, string usuario)
+        {
+            try
+            {
+                if (dto == null) return;
+
+                var spIntro = "pla.SP_TDocumentoPWModalidadIntroduccion_Insertar";
+                var parametrosIntro = new
+                {
+                    Introduccion = dto.Introduccion,
+                    Usuario = usuario
+                };
+
+                var rIntro = _dapperRepository.QuerySPDapper(spIntro, parametrosIntro);
+                if (string.IsNullOrEmpty(rIntro) || rIntro.Contains("[]"))
+                    throw new Exception("No se pudo obtener IdDocumentoPWModalidadIntroduccion.");
+
+                var tIntro = Newtonsoft.Json.Linq.JToken.Parse(rIntro);
+                var idIntroduccion =
+                    tIntro.Type == Newtonsoft.Json.Linq.JTokenType.Array
+                        ? (int)(tIntro.First?["Id"] ?? tIntro.First?["id"] ?? 0)
+                        : (int)(tIntro["Id"] ?? tIntro["id"] ?? 0);
+
+                if (idIntroduccion <= 0)
+                    throw new Exception("No se pudo obtener IdDocumentoPWModalidadIntroduccion.");
+
+                foreach (var m in dto.Modalidades ?? new List<ModalidadHorarioDTO>())
+                {
+                    var spModalidad = "pla.SP_TDocumentoPWModalidad_Insertar";
+                    var parametrosModalidad = new
+                    {
+               
+                        IdModalidadPortal = m.IdModalidad ?? 0,
+                        SubTitulo = m.SubTitulo,
+                        Descripcion = m.Descripcion,
+                        Usuario = usuario
+                    };
+
+                    var rModalidad = _dapperRepository.QuerySPDapper(spModalidad, parametrosModalidad);
+                    if (string.IsNullOrEmpty(rModalidad) || rModalidad.Contains("[]"))
+                        throw new Exception("No se pudo obtener IdDocumentoPWModalidad.");
+
+                    var tModalidad = Newtonsoft.Json.Linq.JToken.Parse(rModalidad);
+                    var idDocumentoPwModalidad =
+                        tModalidad.Type == Newtonsoft.Json.Linq.JTokenType.Array
+                            ? (int)(tModalidad.First?["Id"] ?? tModalidad.First?["id"] ?? 0)
+                            : (int)(tModalidad["Id"] ?? tModalidad["id"] ?? 0);
+
+                    if (idDocumentoPwModalidad <= 0)
+                        throw new Exception("No se pudo obtener IdDocumentoPWModalidad.");
+
+                    var detalles = (m.Detalles ?? new List<ModalidadHorarioDetalleDTO>())
+                        .OrderBy(x => x.Orden)
+                        .ToList();
+
+                    foreach (var d in detalles)
+                    {
+                        var tipo = (d.Tipo ?? "").Trim().ToUpperInvariant();
+
+                        var spDetalle = "pla.SP_TDocumentoPWModalidadDetalle_Insertar";
+                        var parametrosDetalle = new
+                        {
+                            IdDocumentoPWModalidad = idDocumentoPwModalidad,
+                            Orden = d.Orden,
+                            Tipo = tipo,
+                            IdPais = tipo == "HORA" ? d.IdPais : (int?)null,
+                            Beneficio = tipo == "BENEFICIO" ? d.Beneficio : null,
+                            Usuario = usuario
+                        };
+
+                        _dapperRepository.QuerySPDapper(spDetalle, parametrosDetalle);
+                    }
+
+                    var spConfig = "pla.SP_TDocumentoPWModalidadConfiguracion_Insertar";
+                    var parametrosConfig = new
+                    {
+                        IdDocumentoPw = idDocumentoPw,
+                        IdDocumentoPWModalidadIntroduccion = idIntroduccion,
+                        IdDocumentoPWModalidad = idDocumentoPwModalidad,
+                        Usuario = usuario
+                    };
+
+                    _dapperRepository.QuerySPDapper(spConfig, parametrosConfig);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en InsertarDocumentoPwModalidad() {ex.Message}", ex);
+            }
+        }
+
+        public IEnumerable<DocumentoPWModalidadRowVM> ObtenerDocumentoPWModalidadRows(int idDocumentoPW)
+        {
+            try
+            {
+                List<DocumentoPWModalidadRowVM> rpta = new List<DocumentoPWModalidadRowVM>();
+
+                var query = @"
+                SELECT
+                    mc.IdDocumento_PW,
+                    mi.Id AS IdDocumentoPWModalidadIntroduccion,
+                    mi.Introduccion,
+                    m.Id AS IdDocumentoPWModalidad,
+                    m.IdModalidadPortal,
+                    m.SubTitulo,
+                    m.Descripcion,
+                    md.Id AS IdDocumentoPWModalidadDetalle,
+                    md.Orden,
+                    md.Tipo,
+                    md.IdPais,
+                    md.Beneficio
+                FROM pla.T_DocumentoPWModalidadConfiguracion mc
+                INNER JOIN pla.T_DocumentoPWModalidadIntroduccion mi
+                    ON mi.Id = mc.IdDocumentoPWModalidadIntroduccion
+                INNER JOIN pla.T_DocumentoPWModalidad m
+                    ON m.Id = mc.IdDocumentoPWModalidad
+                LEFT JOIN pla.T_DocumentoPWModalidadDetalle md
+                    ON md.IdDocumentoPWModalidad = m.Id AND md.Estado = 1
+                WHERE mc.IdDocumento_PW = @IdDocumentoPW
+                  AND mc.Estado = 1
+                ORDER BY m.Id ASC, md.Orden ASC;";
+
+                var resultado = _dapperRepository.QueryDapper(query, new { IdDocumentoPW = idDocumentoPW });
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = Newtonsoft.Json.JsonConvert.DeserializeObject<List<DocumentoPWModalidadRowVM>>(resultado);
+                }
+
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ObtenerDocumentoPWModalidadRows() {ex.Message}", ex);
+            }
         }
 
     }

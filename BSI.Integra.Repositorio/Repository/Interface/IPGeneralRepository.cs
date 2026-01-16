@@ -105,5 +105,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public IEnumerable<ProgramaGeneralComboDTO> ProgramaGneralconUrlVersion();
         public int? ObtenerPdu(int idMatriculacabecera);
         public int? ObtenerPduPorIdPGeneral(int IdPgeneral);
+        IEnumerable<ComboDTO> ObtenerPGeneralActivo();
     }
 }

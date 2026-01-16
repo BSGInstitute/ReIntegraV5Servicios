@@ -2704,6 +2704,30 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        public IEnumerable<ComboDTO> ObtenerPGeneralActivo()
+        {
+            try
+            {
+                var query = @"
+                    SELECT 
+                        Id,
+                        Nombre
+                    FROM  pla.T_PGeneral
+                    WHERE Estado = 1 ";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<IEnumerable<ComboDTO>>(resultado)!;
+                }
+                return new List<ComboDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#DPwR-O-001@Error en Obtener() {ex.Message}", ex);
+            }
+        }
+
+
     }
 }
 

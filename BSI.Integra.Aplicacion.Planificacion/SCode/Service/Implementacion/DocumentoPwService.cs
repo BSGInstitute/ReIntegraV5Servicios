@@ -1,18 +1,19 @@
 ﻿using AutoMapper;
+using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Linkedin;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
-using BSI.Integra.Repositorio.Repository.Implementation.Planificacion;
 using BSI.Integra.Repositorio.Repository.Implementation;
+using BSI.Integra.Repositorio.Repository.Implementation.Planificacion;
+using BSI.Integra.Repositorio.Repository.Interface.Planificacion;
 using BSI.Integra.Repositorio.UnitOfWork;
 using System.Text;
 using System.Transactions;
-using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Linkedin;
-using BSI.Integra.Aplicacion.DTO;
-using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 
 namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 {
@@ -177,9 +178,14 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         }
 
                     }
-                    _unitOfWork.DocumentoPwRepository.Add(documento);
+                    var resultado = _unitOfWork.DocumentoPwRepository.Add(documento);
                     _unitOfWork.Commit();
+                   
+                    var id = resultado.Id;
+                    _unitOfWork.DocumentoPwRepository.InsertarDocumentoPwModalidad(dto.SeccionModalidadHorario , id , usuario);
                     scope.Complete();
+
+
                 }
                 return documento;
             }
@@ -439,6 +445,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     }
                 }
 
+
                 return documentoPw;
             }
             catch
@@ -484,5 +491,77 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw;
             }
         }
+
+
+        public IEnumerable<ModalidadPortalDTO> ObtenerModalidadPortal()
+        {
+                return _unitOfWork.DocumentoPwRepository.ObtenerModalidadPortal(); 
+        }
+
+        public IEnumerable<ComboDTO> ObtenerModoFechaInicio()
+        {
+            return _unitOfWork.DocumentoPwRepository.ObtenerModoFechaInicio();
+        }
+        public IEnumerable<ComboDTO> ObtenerNotasTipo()
+        {
+            return _unitOfWork.DocumentoPwRepository.ObtenerNotasTipo();
+        }
+
+
+
+        public SeccionModalidadHorarioResponseDTO? ObtenerDocumentoPWModalidad(int idDocumentoPW)
+        {
+            try
+            {
+                var rows = (_unitOfWork.DocumentoPwRepository.ObtenerDocumentoPWModalidadRows(idDocumentoPW) ?? Enumerable.Empty<DocumentoPWModalidadRowVM>())
+                    .ToList();
+
+                if (!rows.Any())
+                    return null;
+
+                var first = rows.First();
+
+                var response = new SeccionModalidadHorarioResponseDTO
+                {
+                    IdDocumentoPw = first.IdDocumento_PW,
+                    Introduccion = first.Introduccion,
+                    Modalidades = rows
+                        .GroupBy(x => new
+                        {
+                            x.IdDocumentoPWModalidad,
+                            x.IdModalidadPortal,
+                            x.SubTitulo,
+                            x.Descripcion
+                        })
+                        .Select(g => new ModalidadHorarioResponseDTO
+                        {
+                            Id = g.Key.IdDocumentoPWModalidad,
+                            IdModalidad = g.Key.IdModalidadPortal,
+                            SubTitulo = g.Key.SubTitulo,
+                            Descripcion = g.Key.Descripcion,
+                            Detalles = g
+                                .Where(x => (x.IdDocumentoPWModalidadDetalle ?? 0) > 0)
+                                .Select(x => new ModalidadHorarioDetalleResponseDTO
+                                {
+                                    Id = x.IdDocumentoPWModalidadDetalle ?? 0,
+                                    Orden = x.Orden ?? 0,
+                                    Tipo = x.Tipo,
+                                    IdPais = x.IdPais,
+                                    Beneficio = x.Beneficio
+                                })
+                                .OrderBy(x => x.Orden)
+                                .ToList()
+                        })
+                        .ToList()
+                };
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ObtenerDocumentoPWModalidad(service) {ex.Message}", ex);
+            }
+        }
     }
+
 }
