@@ -69,13 +69,16 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         }
 
         /// Autor: Lolo Zaa
-        /// Fecha: 14/01/2026
+        /// Fecha: 16/01/2026
         /// Version: 1.0
         /// <summary>
-        /// Aprueba una solicitud de tipo de descuento a nivel Coordinador
+        /// Aprueba una solicitud de tipo de descuento (Coordinador o Gerencia)
         /// </summary>
-        public void AprobarSolicitudCoordinador(
+        /// <param name="idSolicitud">ID de la solicitud</param>
+        /// <param name="tipoAprobacion">COORDINADOR o GERENCIA</param>
+        public void AprobarSolicitud(
             int idSolicitud,
+            string tipoAprobacion,
             string? comentarioRespuesta,
             string? nombreArchivoRespuesta,
             string? contentTypeRespuesta,
@@ -84,13 +87,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             var parametros = new
             {
                 IdTipoDescuentoSolicitud = idSolicitud,
+                TipoAprobacion = tipoAprobacion,
                 ComentarioRespuesta = comentarioRespuesta,
                 NombreArchivoRespuesta = nombreArchivoRespuesta,
                 ContentTypeRespuesta = contentTypeRespuesta,
                 Usuario = usuario
             };
 
-            _dapperRepository.QuerySPDapper("pla.SP_TipoDescuentoAprobarSolicitudCoordinador", parametros);
+            _dapperRepository.QuerySPDapper("pla.SP_TipoDescuentoAprobarSolicitud", parametros);
         }
 
         /// Autor: Lolo Zaa
@@ -116,31 +120,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             };
 
             _dapperRepository.QuerySPDapper("pla.SP_TipoDescuentoRechazarSolicitudCoordinador", parametros);
-        }
-
-        /// Autor: Lolo Zaa
-        /// Fecha: 14/01/2026
-        /// Version: 1.0
-        /// <summary>
-        /// Aprueba una solicitud de tipo de descuento a nivel Gerencia
-        /// </summary>
-        public void AprobarSolicitudGerencia(
-            int idSolicitud,
-            string? comentarioRespuesta,
-            string? nombreArchivoRespuesta,
-            string? contentTypeRespuesta,
-            string usuario)
-        {
-            var parametros = new
-            {
-                IdTipoDescuentoSolicitud = idSolicitud,
-                ComentarioRespuesta = comentarioRespuesta,
-                NombreArchivoRespuesta = nombreArchivoRespuesta,
-                ContentTypeRespuesta = contentTypeRespuesta,
-                Usuario = usuario
-            };
-
-            _dapperRepository.QuerySPDapper("pla.SP_TipoDescuentoAprobarSolicitudGerencia", parametros);
         }
 
         /// Autor: Lolo Zaa

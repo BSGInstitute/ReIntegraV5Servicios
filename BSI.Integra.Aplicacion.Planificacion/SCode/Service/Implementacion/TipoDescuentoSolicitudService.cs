@@ -25,6 +25,10 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         // IDs de personal con rol Gerencia
         private static readonly int[] IdsGerencia = { 213 };
 
+        // Constantes para tipos de aprobación
+        private const string TIPO_APROBACION_COORDINADOR = "COORDINADOR";
+        private const string TIPO_APROBACION_GERENCIA = "GERENCIA";
+
         public TipoDescuentoSolicitudService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -86,13 +90,14 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
                 if (idSolicitud.HasValue)
                 {
-                    // Auto-aprobar como Coordinador (estado pasa a 6 - Pendiente aprobación Gerencia)
+                    // Auto-aprobar como Coordinador
                     var comentarioAutoAprobacion = nivelAprobacion == 3
                         ? "Auto-aprobación por nivel de aprobación del descuento"
                         : "Auto-aprobación por rol de solicitante";
 
-                    _unitOfWork.TipoDescuentoSolicitudRepository.AprobarSolicitudCoordinador(
+                    _unitOfWork.TipoDescuentoSolicitudRepository.AprobarSolicitud(
                         idSolicitud.Value,
+                        TIPO_APROBACION_COORDINADOR,
                         comentarioAutoAprobacion,
                         null,
                         null,
@@ -102,8 +107,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     // Si es Gerencia, también auto-aprobar como Gerencia
                     if (esGerencia)
                     {
-                        _unitOfWork.TipoDescuentoSolicitudRepository.AprobarSolicitudGerencia(
+                        _unitOfWork.TipoDescuentoSolicitudRepository.AprobarSolicitud(
                             idSolicitud.Value,
+                            TIPO_APROBACION_GERENCIA,
                             "Auto-aprobación por rol de solicitante",
                             null,
                             null,
@@ -264,8 +270,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         }
 
         /// Autor: Lolo Zaa
-        /// Fecha: 14/01/2026
-        /// Version: 1.0
+        /// Fecha: 16/01/2026
+        /// Version: 1.1
         /// <summary>
         /// Aprueba una solicitud de tipo de descuento a nivel Coordinador
         /// </summary>
@@ -273,8 +279,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         {
             var (nombreArchivo, contentType) = ProcesarArchivoRespuesta(dto.Files);
 
-            _unitOfWork.TipoDescuentoSolicitudRepository.AprobarSolicitudCoordinador(
+            _unitOfWork.TipoDescuentoSolicitudRepository.AprobarSolicitud(
                 dto.IdSolicitud,
+                TIPO_APROBACION_COORDINADOR,
                 dto.ComentarioRespuesta,
                 nombreArchivo,
                 contentType,
@@ -302,8 +309,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         }
 
         /// Autor: Lolo Zaa
-        /// Fecha: 14/01/2026
-        /// Version: 1.0
+        /// Fecha: 16/01/2026
+        /// Version: 1.1
         /// <summary>
         /// Aprueba una solicitud de tipo de descuento a nivel Gerencia
         /// </summary>
@@ -311,8 +318,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         {
             var (nombreArchivo, contentType) = ProcesarArchivoRespuesta(dto.Files);
 
-            _unitOfWork.TipoDescuentoSolicitudRepository.AprobarSolicitudGerencia(
+            _unitOfWork.TipoDescuentoSolicitudRepository.AprobarSolicitud(
                 dto.IdSolicitud,
+                TIPO_APROBACION_GERENCIA,
                 dto.ComentarioRespuesta,
                 nombreArchivo,
                 contentType,

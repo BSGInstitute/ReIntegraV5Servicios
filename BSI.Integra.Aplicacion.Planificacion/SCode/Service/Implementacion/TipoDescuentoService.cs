@@ -285,9 +285,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         }
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 27/07/2022
-        /// Version: 1.0
+        /// Version: 1.1
+        /// Modificado: Lolo Zaa - 16/01/2026
         /// <summary>
         /// Obtiene Tipos de Descuento asociados a una Oportunidad y un Tipo de Personal.
+        /// Incluye los descuentos de solicitudes activas para la oportunidad.
         /// </summary>
         /// <param name="idOportunidad">Id de la Oportunidad</param>
         /// <param name="tipoPersonal">Tipo de Personal</param>
@@ -296,7 +298,20 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         {
             try
             {
-                return _unitOfWork.TipoDescuentoRepository.ObtenerTipoDescuentoOportunidad(idOportunidad, tipoPersonal);
+                // Obtener descuentos por tipo de personal
+                var descuentosPorTipo = _unitOfWork.TipoDescuentoRepository
+                    .ObtenerTipoDescuentoOportunidad(idOportunidad, tipoPersonal);
+
+                // Obtener descuentos de solicitudes activas
+                var descuentosSolicitud = _unitOfWork.TipoDescuentoRepository
+                    .ObtenerTipoDescuentoSolicitudOportunidad(idOportunidad);
+
+                // Combinar ambos resultados eliminando duplicados por Id
+                return descuentosPorTipo
+                    .Concat(descuentosSolicitud)
+                    .GroupBy(d => d.Id)
+                    .Select(g => g.First())
+                    .ToList();
             }
             catch (Exception ex)
             {

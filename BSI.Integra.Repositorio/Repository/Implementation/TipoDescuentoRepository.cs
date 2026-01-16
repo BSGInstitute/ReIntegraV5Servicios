@@ -378,11 +378,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 27/07/2022
-        /// Version: 1.1
-        /// Modificado: Lolo Zaa - 15/01/2026
+        /// Version: 1.0
         /// <summary>
         /// Obtiene Tipos de Descuento asociados a una Oportunidad y un Tipo de Personal.
-        /// Incluye descuentos de la vista mkt.V_TiposDescuentos y descuentos solicitados de pla.V_TiposDescuentosSolicitud
         /// </summary>
         /// <param name="idOportunidad">Id de la Oportunidad</param>
         /// <param name="tipoPersonal">Tipo de Personal</param>
@@ -395,12 +393,38 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var query = @"
                     SELECT Id,Codigo,Descripcion,Formula,PorcentajeGeneral,PorcentajeMatricula,FraccionesMatricula,PorcentajeCuotas,CuotasAdicionales,Tipo
                     FROM mkt.V_TiposDescuentos
-                    WHERE IdOportunidad = @idOportunidad AND Tipo = @tipoPersonal
-                    UNION
+                    WHERE IdOportunidad = @idOportunidad AND Tipo = @tipoPersonal";
+                var resultadoQuery = _dapperRepository.QueryDapper(query, new { idOportunidad, tipoPersonal });
+                if (!string.IsNullOrEmpty(resultadoQuery) && !resultadoQuery.Contains("[]"))
+                {
+                    tiposDescuento = JsonConvert.DeserializeObject<List<TipoDescuentoOportunidadDTO>>(resultadoQuery);
+                }
+                return tiposDescuento;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 16/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene Tipos de Descuento de solicitudes activas asociadas a una Oportunidad.
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <returns> List<TipoDescuentoOportunidadDTO> </returns>
+        public IEnumerable<TipoDescuentoOportunidadDTO> ObtenerTipoDescuentoSolicitudOportunidad(int idOportunidad)
+        {
+            try
+            {
+                List<TipoDescuentoOportunidadDTO> tiposDescuento = new List<TipoDescuentoOportunidadDTO>();
+                var query = @"
                     SELECT IdTipoDescuento AS Id,Codigo,Descripcion,Formula,PorcentajeGeneral,PorcentajeMatricula,FraccionesMatricula,PorcentajeCuotas,CuotasAdicionales,Tipo
                     FROM pla.V_TiposDescuentosSolicitudOportunidad
                     WHERE IdOportunidad = @idOportunidad";
-                var resultadoQuery = _dapperRepository.QueryDapper(query, new { idOportunidad, tipoPersonal });
+                var resultadoQuery = _dapperRepository.QueryDapper(query, new { idOportunidad });
                 if (!string.IsNullOrEmpty(resultadoQuery) && !resultadoQuery.Contains("[]"))
                 {
                     tiposDescuento = JsonConvert.DeserializeObject<List<TipoDescuentoOportunidadDTO>>(resultadoQuery);
