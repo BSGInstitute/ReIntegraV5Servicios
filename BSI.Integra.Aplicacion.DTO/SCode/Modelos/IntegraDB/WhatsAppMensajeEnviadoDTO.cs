@@ -339,7 +339,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string? Mensaje { get; set; }
         public string? Personal { get; set; }
         public string? FechaMensaje { get; set; }
-
+        public string? NumeroWhatsappEmpresa { get; set; }
     }
     public class ChatWhatsAppMarketingPorCelularDTO
     {
@@ -371,7 +371,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string? Mensaje { get; set; }
         public string? Personal { get; set; }
         public string? FechaMensaje { get; set; }
-
+        public string? NumeroWhatsappEmpresa { get; set; }
     }
 
 
