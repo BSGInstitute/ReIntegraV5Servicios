@@ -15,21 +15,15 @@ namespace BSI.Integra.Repositorio.Repository.Interface
 
         IEnumerable<TipoDescuentoSolicitudListadoDTO> ObtenerTodasSolicitudes();
 
-        void AprobarSolicitudCoordinador(
+        void AprobarSolicitud(
             int idSolicitud,
+            string tipoAprobacion,
             string? comentarioRespuesta,
             string? nombreArchivoRespuesta,
             string? contentTypeRespuesta,
             string usuario);
 
         void RechazarSolicitudCoordinador(
-            int idSolicitud,
-            string? comentarioRespuesta,
-            string? nombreArchivoRespuesta,
-            string? contentTypeRespuesta,
-            string usuario);
-
-        void AprobarSolicitudGerencia(
             int idSolicitud,
             string? comentarioRespuesta,
             string? nombreArchivoRespuesta,
