@@ -95,7 +95,7 @@ namespace BSI.Integra.Servicios.Controllers
         /// <param name="dto">Datos de aprobación con archivo opcional</param>
         /// <returns>Mensaje de éxito</returns>
         [Route("[action]")]
-        [HttpPut]
+        [HttpPost]
         public ActionResult AprobarSolicitudCoordinador([FromForm] TipoDescuentoSolicitudRespuestaEntradaDTO dto)
         {
             if (!ModelState.IsValid)
@@ -129,7 +129,7 @@ namespace BSI.Integra.Servicios.Controllers
         /// <param name="dto">Datos de rechazo con archivo opcional</param>
         /// <returns>Mensaje de éxito</returns>
         [Route("[action]")]
-        [HttpPut]
+        [HttpPost]
         public ActionResult RechazarSolicitudCoordinador([FromForm] TipoDescuentoSolicitudRespuestaEntradaDTO dto)
         {
             if (!ModelState.IsValid)
@@ -163,7 +163,7 @@ namespace BSI.Integra.Servicios.Controllers
         /// <param name="dto">Datos de aprobación con archivo opcional</param>
         /// <returns>Mensaje de éxito</returns>
         [Route("[action]")]
-        [HttpPut]
+        [HttpPost]
         public ActionResult AprobarSolicitudGerencia([FromForm] TipoDescuentoSolicitudRespuestaEntradaDTO dto)
         {
             if (!ModelState.IsValid)
@@ -197,7 +197,7 @@ namespace BSI.Integra.Servicios.Controllers
         /// <param name="dto">Datos de rechazo con archivo opcional</param>
         /// <returns>Mensaje de éxito</returns>
         [Route("[action]")]
-        [HttpPut]
+        [HttpPost]
         public ActionResult RechazarSolicitudGerencia([FromForm] TipoDescuentoSolicitudRespuestaEntradaDTO dto)
         {
             if (!ModelState.IsValid)

@@ -157,7 +157,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             var parametros = new
             {
-                IdTipoDescuentoSolicitudEstado = filtro.IdTipoDescuentoSolicitudEstado,
+                IdsTipoDescuentoSolicitudEstado = filtro.IdTipoDescuentoSolicitudEstado != null && filtro.IdTipoDescuentoSolicitudEstado.Any() ? string.Join(",", filtro.IdTipoDescuentoSolicitudEstado)    : null,
                 IdPersonal_Asignado = filtro.IdPersonal_Asignado,
                 FechaInicio = filtro.FechaInicio,
                 FechaFin = filtro.FechaFin,

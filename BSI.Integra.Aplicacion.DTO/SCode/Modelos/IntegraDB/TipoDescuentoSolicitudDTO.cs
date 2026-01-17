@@ -56,7 +56,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     /// </summary>
     public class TipoDescuentoSolicitudFiltroDTO
     {
-        public int? IdTipoDescuentoSolicitudEstado { get; set; }
+        public List<int>? IdTipoDescuentoSolicitudEstado { get; set; }
         public int? IdPersonal_Asignado { get; set; }
         public DateTime? FechaInicio { get; set; }
         public DateTime? FechaFin { get; set; }
