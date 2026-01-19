@@ -302,4 +302,68 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public string? InformacionExtra { get; set; }
         public int? IdPais { get; set; }
     }
+
+
+    public class DocumentoPWModalidadRowDTO
+    {
+        public int IdDocumentoPw { get; set; }
+        public int? IdDocumentoPwModalidadIntroduccion { get; set; }
+        public string? Introduccion { get; set; }
+
+        public int IdDocumentoPwModalidad { get; set; }
+        public int IdModalidadPortal { get; set; }
+        public string? SubTitulo { get; set; }
+        public string? Descripcion { get; set; }
+
+        public int? IdDocumentoPwModalidadDetalle { get; set; }
+        public int? Orden { get; set; }
+        public string? Tipo { get; set; }
+        public int? IdPais { get; set; }
+        public string? Beneficio { get; set; }
+    }
+
+    public class DocumentoPWDuracionRowDTO
+    {
+        public int IdDocumentoPw { get; set; }
+        public int? IdDocumentoPWDuracion { get; set; }
+        public string? Titulo { get; set; }
+        public string? Introduccion { get; set; }
+        public string? PieDePagina { get; set; }
+        public int? IdDocumentoPWDuracionDetalle { get; set; }
+        public int? IdVersionPrograma { get; set; }
+        public string? DetalleMes { get; set; }
+        public string? DetalleHora { get; set; }
+    }
+    public class DocumentoPWFechaInicioRowDTOV2
+    {
+        public int? IdDocumentoPw { get; set; }
+        public int? IdDocumentoPWFechaInicioCabecera { get; set; }
+        public string? Titulo { get; set; }
+        public string? SubTitulo { get; set; }
+        public bool? MostrarEnLaWeb { get; set; }
+
+        public int? IdDocumentoPWFechaInicio { get; set; }
+        public int? IdPais { get; set; }
+
+        public int? IdDocumentoPWFechaInicioDetalle { get; set; }
+        public int? IdModo { get; set; }
+        public DateTime? Fecha { get; set; }
+        public string? Horario { get; set; }
+    }
+
+    public class DocumentoPWNotaRowDTO
+    {
+        public int? IdDocumentoPw { get; set; }
+        public bool? MostrarWeb { get; set; }
+
+        public int? IdDocumentoPWNota { get; set; }
+        public int? IdDocumentoPWNotaTipo { get; set; }
+        public int? IdPGeneral { get; set; }
+        public string? Descripcion { get; set; }
+
+        public int? IdDocumentoPWNotaDetalle { get; set; }
+        public int? Orden { get; set; }
+        public string? InformacionExtra { get; set; }
+        public int? IdPais { get; set; }
+    }
 }

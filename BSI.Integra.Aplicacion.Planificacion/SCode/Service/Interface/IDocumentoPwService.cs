@@ -20,6 +20,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         SeccionDuracionDTO? ObtenerDocumentoPWDuracion(int idDocumentoPW);
         SeccionFechaInicioDTO ObtenerDocumentoPWFechaInicio(int idDocumentoPw);
         SeccionNotasDTO ObtenerDocumentoPWNotas(int idDocumentoPW);
+        void ActualizarSeccionDuracion(SeccionDuracionDTO? dto, int idDocumentoPw, string usuario);
 
     }
 }

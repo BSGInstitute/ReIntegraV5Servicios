@@ -13,6 +13,7 @@ using BSI.Integra.Repositorio.Repository.Implementation.Planificacion;
 using BSI.Integra.Repositorio.Repository.Interface.Planificacion;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Text;
 using System.Transactions;
 
@@ -406,6 +407,22 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
                     scope.Complete();
                 }
+                if (dto.SeccionModalidadHorario != null)
+                {
+                    ActualizarSeccionModalidadHorario(dto.SeccionModalidadHorario, dto.ObjetoDocumento.Id, usuario);
+                }
+                if (dto.SeccionDuracion != null)
+                {
+                    ActualizarSeccionDuracion(dto.SeccionDuracion, dto.ObjetoDocumento.Id, usuario);
+                }
+                if (dto.SeccionFechaInicio != null)
+                {
+                    ActualizarSeccionFechaInicio(dto.SeccionFechaInicio, dto.ObjetoDocumento.Id, usuario);
+                }
+                if (dto.SeccionNotas != null)
+                {
+                    ActualizarSeccionNotas(dto.SeccionNotas, dto.ObjetoDocumento.Id, usuario);
+                }
                 _unitOfWork.DocumentoPwRepository.RegularizaIntroduccionPrerrequisito(dto.ObjetoDocumento.Id, usuario);
                 if (dto.ListaIntroduccionBeneficios != null)
                 {
@@ -723,7 +740,804 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             }
         }
 
+        public void ActualizarSeccionModalidadHorario(SeccionModalidadHorarioDTO? dto, int idDocumentoPw, string usuario)
+        {
+            try
+            {
+                if (dto == null) return;
 
+                var jsonActual = _unitOfWork.DocumentoPwRepository.ObtenerDocumentoPWModalidadRowsSP(idDocumentoPw);
+                var actuales = (!string.IsNullOrWhiteSpace(jsonActual) && !jsonActual.Contains("[]"))
+                    ? JsonConvert.DeserializeObject<List<DocumentoPWModalidadRowDTO>>(jsonActual) ?? new List<DocumentoPWModalidadRowDTO>()
+                    : new List<DocumentoPWModalidadRowDTO>();
+
+                string Norm(string? s) => (s ?? "").Trim();
+
+        
+                var actualPorModalidad = actuales
+                    .Where(x => x.IdDocumentoPwModalidad > 0)
+                    .GroupBy(x => x.IdDocumentoPwModalidad)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+          
+                var idIntroActual = actuales.Select(x => x.IdDocumentoPwModalidadIntroduccion).FirstOrDefault(x => x.HasValue) ?? 0;
+                var introActual = Norm(actuales.Select(x => x.Introduccion).FirstOrDefault());
+
+  
+                var introNuevo = Norm(dto.Introduccion);
+                int idIntroUsar = idIntroActual;
+
+                if (idIntroActual <= 0)
+                {
+                    if (!string.IsNullOrEmpty(introNuevo))
+                    {
+                        var rIntro = _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWModalidadIntroduccion_Insertar(introNuevo, usuario);
+
+                        if (string.IsNullOrWhiteSpace(rIntro) || rIntro.Contains("[]"))
+                            throw new Exception("No se pudo insertar Introducción de Modalidad.");
+
+                        var arr = JArray.Parse(rIntro);
+                        idIntroUsar = arr.Count > 0 ? (int)(arr[0]["Id"] ?? 0) : 0;
+
+                        if (idIntroUsar <= 0)
+                            throw new Exception("Id de Introducción inválido (Modalidad).");
+                    }
+                }
+                else
+                {
+                    if (introActual != introNuevo)
+                    {
+                        _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWModalidadIntroduccion_Actualizar(idIntroActual, introNuevo, usuario);
+                        idIntroUsar = idIntroActual;
+                    }
+                }
+
+     
+                foreach (var idDet in (dto.DetallesEliminados ?? new List<int>()).Distinct())
+                {
+                    if (idDet > 0)
+                        _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWModalidadDetalle_Desactivar(idDet, usuario);
+                }
+
+         
+                foreach (var idModElim in (dto.ModalidadesEliminadas ?? new List<int>()).Distinct())
+                {
+                    if (idModElim <= 0) continue;
+
+
+                    if (actualPorModalidad.TryGetValue(idModElim, out var filasMod))
+                    {
+                        var idsDetalles = filasMod
+                            .Select(x => x.IdDocumentoPwModalidadDetalle ?? 0)
+                            .Where(x => x > 0)
+                            .Distinct()
+                            .ToList();
+
+                        foreach (var idDet in idsDetalles)
+                            _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWModalidadDetalle_Desactivar(idDet, usuario);
+                    }
+
+                    _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWModalidadConfiguracion_DesactivarPorModalidad(idDocumentoPw, idModElim, usuario);
+                    _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWModalidad_Desactivar(idModElim, usuario);
+                }
+
+                foreach (var m in (dto.Modalidades ?? new List<ModalidadHorarioDTO>()))
+                {
+                    var idModalidadDoc = m.Id;
+
+                    var idModalidadPortalNuevo = m.IdModalidad ?? 0;
+                    var subNuevo = Norm(m.SubTitulo);
+                    var desNuevo = Norm(m.Descripcion);
+
+                    DocumentoPWModalidadRowDTO? modActual = null;
+                    List<DocumentoPWModalidadRowDTO> filasActualesMod = new();
+
+                    if (idModalidadDoc > 0 && actualPorModalidad.TryGetValue(idModalidadDoc, out var filas))
+                    {
+                        filasActualesMod = filas;
+                        modActual = filasActualesMod.FirstOrDefault();
+                    }
+
+                    if (idModalidadDoc > 0)
+                    {
+                        if (modActual != null)
+                        {
+                            var cambio =
+                                modActual.IdModalidadPortal != idModalidadPortalNuevo ||
+                                Norm(modActual.SubTitulo) != subNuevo ||
+                                Norm(modActual.Descripcion) != desNuevo;
+
+                            if (cambio)
+                            {
+                                _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWModalidad_Actualizar(
+                                    idModalidadDoc, idModalidadPortalNuevo, subNuevo, desNuevo, usuario
+                                );
+                            }
+                        }
+                    }
+                    else
+                    {
+      
+                        var rMod = _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWModalidad_Insertar(
+                            idModalidadPortalNuevo, subNuevo, desNuevo, usuario
+                        );
+
+                        if (string.IsNullOrWhiteSpace(rMod) || rMod.Contains("[]"))
+                            throw new Exception("No se pudo insertar Modalidad.");
+
+                        var arr = JArray.Parse(rMod);
+                        idModalidadDoc = arr.Count > 0 ? (int)(arr[0]["Id"] ?? 0) : 0;
+
+                        if (idModalidadDoc <= 0)
+                            throw new Exception("IdDocumentoPWModalidad inválido (insert).");
+                    }
+
+                    if (idIntroUsar > 0)
+                    {
+                        _unitOfWork.DocumentoPwRepository.SP_DocumentoPWModalidadConfiguracion_RegistrarCambios(
+                            idDocumentoPw, idIntroUsar, idModalidadDoc, usuario
+                        );
+                    }
+
+                    var detalles = (m.Detalles ?? new List<ModalidadHorarioDetalleDTO>())
+                        .OrderBy(x => x.Orden)
+                        .ToList();
+
+                    var detActualPorId = filasActualesMod
+                        .Where(x => (x.IdDocumentoPwModalidadDetalle ?? 0) > 0)
+                        .ToDictionary(x => x.IdDocumentoPwModalidadDetalle!.Value, x => x);
+
+                    foreach (var d in detalles)
+                    {
+                        var tipo = Norm(d.Tipo).ToUpper(); // ✅ CAMBIO: tipo normalizado
+
+                        var idPaisNuevo = (tipo == "HORA") ? d.IdPais : null;
+                        var beneficioNuevo = (tipo == "BENEFICIO") ? Norm(d.Beneficio) : null;
+
+                        if (tipo != "HORA" && tipo != "BENEFICIO")
+                        {
+                            tipo = "BENEFICIO";
+                            beneficioNuevo = Norm(d.Beneficio);
+                            idPaisNuevo = null;
+                        }
+
+                        if (d.Id > 0)
+                        {
+                            if (detActualPorId.TryGetValue(d.Id, out var detActual))
+                            {
+                              
+                                var cambio =
+                                    (detActual.Orden ?? 0) != d.Orden ||
+                                    Norm(detActual.Tipo).ToUpper() != tipo ||
+                                    (detActual.IdPais ?? 0) != (idPaisNuevo ?? 0) ||
+                                    Norm(detActual.Beneficio) != Norm(beneficioNuevo);
+
+                                if (cambio)
+                                {
+                                    
+                                    _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWModalidadDetalle_Actualizar(
+                                        d.Id, idModalidadDoc, d.Orden, tipo, beneficioNuevo, idPaisNuevo, usuario
+                                    );
+                                }
+                            }
+                            else
+                            {
+                              
+                                _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWModalidadDetalle_Actualizar(
+                                    d.Id, idModalidadDoc, d.Orden, tipo, beneficioNuevo, idPaisNuevo, usuario
+                                );
+                            }
+                        }
+                        else
+                        {
+                         
+                            _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWModalidadDetalle_Insertar(
+                                idModalidadDoc, d.Orden, tipo, beneficioNuevo, idPaisNuevo, usuario
+                            );
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ActualizarSeccionModalidadHorario() {ex.Message}", ex);
+            }
+        }
+
+
+        public void ActualizarSeccionDuracion(SeccionDuracionDTO? dto, int idDocumentoPw, string usuario)
+        {
+            try
+            {
+                if (dto == null) return;
+
+                string Norm(string? s) => (s ?? "").Trim();
+
+                var jsonActual = _unitOfWork.DocumentoPwRepository.ObtenerDocumentoPWDuracionRowsSP(idDocumentoPw);
+                var actuales = (!string.IsNullOrWhiteSpace(jsonActual) && !jsonActual.Contains("[]"))
+                    ? JsonConvert.DeserializeObject<List<DocumentoPWDuracionRowDTO>>(jsonActual) ?? new List<DocumentoPWDuracionRowDTO>()
+                    : new List<DocumentoPWDuracionRowDTO>();
+
+                var idDuracionActual = actuales.Select(x => x.IdDocumentoPWDuracion).FirstOrDefault(x => x.HasValue) ?? 0;
+
+                var tituloActual = Norm(actuales.Select(x => x.Titulo).FirstOrDefault());
+                var introActual = Norm(actuales.Select(x => x.Introduccion).FirstOrDefault());
+                var pieActual = Norm(actuales.Select(x => x.PieDePagina).FirstOrDefault());
+
+                var tituloNuevo = Norm(dto.Titulo);
+                var introNuevo = Norm(dto.Introduccion);
+                var pieNuevo = Norm(dto.PieDePagina);
+
+                var detallesActuales = actuales
+                    .Where(x => (x.IdDocumentoPWDuracionDetalle ?? 0) > 0)
+                    .ToDictionary(x => x.IdDocumentoPWDuracionDetalle!.Value, x => x);
+
+                var idDuracionUsar = idDuracionActual;
+
+                if (idDuracionActual <= 0)
+                {
+                    var rIns = _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWDuracion_Insertar(tituloNuevo, introNuevo, pieNuevo, usuario);
+
+                    if (string.IsNullOrWhiteSpace(rIns) || rIns.Contains("[]"))
+                        throw new Exception("No se pudo insertar Duración.");
+
+                    var arr = JArray.Parse(rIns);
+                    idDuracionUsar = arr.Count > 0 ? (int)(arr[0]["Id"] ?? 0) : 0;
+
+                    if (idDuracionUsar <= 0)
+                        throw new Exception("IdDocumentoPWDuracion inválido (insert).");
+                }
+                else
+                {
+                    var cambioCabecera =
+                        tituloActual != tituloNuevo ||
+                        introActual != introNuevo ||
+                        pieActual != pieNuevo;
+
+                    if (cambioCabecera)
+                    {
+                        _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWDuracion_Actualizar(
+                            idDuracionActual, tituloNuevo, introNuevo, pieNuevo, usuario
+                        );
+                    }
+                }
+
+                _unitOfWork.DocumentoPwRepository.SP_DocumentoPWDuracionConfiguracion_RegistrarCambios(
+                    idDocumentoPw, idDuracionUsar, usuario
+                );
+
+                foreach (var idDetElim in (dto.DetallesEliminados ?? new List<int>()).Distinct())
+                {
+                    if (idDetElim > 0)
+                        _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWDuracionDetalle_Desactivar(idDetElim, usuario);
+                }
+
+                var detalles = (dto.Detalles ?? new List<DuracionDetalleDTO>()).ToList();
+
+                foreach (var d in detalles)
+                {
+                    var idDet = d.Id;
+                    var idVersion = d.IdVersionPrograma;
+                    var meses = Norm(d.Meses);
+                    var horas = Norm(d.Horas);
+
+                    if (idDet > 0)
+                    {
+                        if (detallesActuales.TryGetValue(idDet, out var act))
+                        {
+                            var cambio =
+                                (act.IdVersionPrograma ?? 0) != idVersion ||
+                                Norm(act.DetalleMes) != meses ||
+                                Norm(act.DetalleHora) != horas;
+
+                            if (cambio)
+                            {
+                                _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWDuracionDetalle_Actualizar(
+                                    idDet, idDuracionUsar, idVersion.Value, meses, horas, usuario
+                                );
+                            }
+                        }
+                        else
+                        {
+                            _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWDuracionDetalle_Actualizar(
+                                idDet, idDuracionUsar, idVersion.Value, meses, horas, usuario
+                            );
+                        }
+                    }
+                    else
+                    {
+                        _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWDuracionDetalle_Insertar(
+                            idDuracionUsar, idVersion.Value, meses, horas, usuario
+                        );
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ActualizarSeccionDuracion() {ex.Message}", ex);
+            }
+        }
+
+
+        private static int GetIdFromSpResult(string json, string errorIfFail)
+        {
+            if (string.IsNullOrWhiteSpace(json) || json.Contains("[]"))
+                throw new Exception(errorIfFail);
+
+            var arr = JArray.Parse(json);
+            var id = (arr.Count > 0) ? (int)(arr[0]["Id"] ?? 0) : 0;
+
+            if (id <= 0) throw new Exception(errorIfFail);
+            return id;
+        }
+
+        public string ObtenerDocumentoPWFechaInicioV2(int idDocumentoPw)
+        {
+            try
+            {
+                var json = _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicio_ObtenerRows(idDocumentoPw);
+
+                var filas = (!string.IsNullOrWhiteSpace(json) && !json.Contains("[]"))
+                    ? JsonConvert.DeserializeObject<List<DocumentoPWFechaInicioRowDTOV2>>(json) ?? new List<DocumentoPWFechaInicioRowDTOV2>()
+                    : new List<DocumentoPWFechaInicioRowDTOV2>();
+
+                var dto = new SeccionFechaInicioDTO
+                {
+                    IdDocumentoPw = idDocumentoPw
+                };
+
+                if (!filas.Any())
+                    return JsonConvert.SerializeObject(dto);
+
+                var first = filas.First();
+                dto.MostrarEnLaWeb = first.MostrarEnLaWeb ?? false;
+                dto.Titulo = first.Titulo;
+                dto.SubTitulo = first.SubTitulo;
+
+                dto.Paises = filas
+                    .Where(x => (x.IdDocumentoPWFechaInicio ?? 0) > 0)
+                    .GroupBy(x => x.IdDocumentoPWFechaInicio!.Value)
+                    .Select(g =>
+                    {
+                        var row0 = g.First();
+                        var pais = new FechaInicioPaisDTO
+                        {
+                            Id = g.Key,
+                            IdPais = row0.IdPais
+                        };
+
+                        pais.Detalles = g
+                            .Where(x => (x.IdDocumentoPWFechaInicioDetalle ?? 0) > 0)
+                            .Select(x => new FechaInicioDetalleDTO
+                            {
+                                Id = x.IdDocumentoPWFechaInicioDetalle ?? 0,
+                                IdModo = x.IdModo,
+                                Fecha = x.Fecha,
+                                Horario = x.Horario
+                            })
+                            .ToList();
+
+                        return pais;
+                    })
+                    .ToList();
+
+                return JsonConvert.SerializeObject(dto);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ObtenerDocumentoPWFechaInicio() {ex.Message}", ex);
+            }
+        }
+
+        public void InsertarDocumentoPwFechaInicio(SeccionFechaInicioDTO? dto, int idDocumentoPw, string usuario)
+        {
+            try
+            {
+                if (dto == null) return;
+
+
+                var rCab = _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicioCabecera_Insertar(
+                    dto.Titulo, dto.SubTitulo, dto.MostrarEnLaWeb, usuario
+                );
+
+                var idCabecera = GetIdFromSpResult(rCab, "No se pudo obtener IdDocumentoPWFechaInicioCabecera (insert).");
+
+    
+                foreach (var p in (dto.Paises ?? new List<FechaInicioPaisDTO>()))
+                {
+                    var rPais = _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicio_Insertar(p.IdPais, usuario);
+                    var idFechaInicio = GetIdFromSpResult(rPais, "No se pudo obtener IdDocumentoPWFechaInicio (insert).");
+
+                    _unitOfWork.DocumentoPwRepository.SP_DocumentoPWFechaInicioConfiguracion_RegistrarCambios(
+                        idCabecera, idFechaInicio, idDocumentoPw, usuario
+                    );
+
+                    foreach (var d in (p.Detalles ?? new List<FechaInicioDetalleDTO>()))
+                    {
+                        _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicioDetalle_Insertar(
+                            idFechaInicio, d.IdModo, d.Fecha, d.Horario, usuario
+                        );
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en InsertarDocumentoPwFechaInicio() {ex.Message}", ex);
+            }
+        }
+
+        public void ActualizarSeccionFechaInicio(SeccionFechaInicioDTO? dto, int idDocumentoPw, string usuario)
+        {
+            try
+            {
+                if (dto == null) return;
+
+                string Norm(string? s) => (s ?? "").Trim();
+
+
+                var jsonActual = _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicio_ObtenerRows(idDocumentoPw);
+                var actuales = (!string.IsNullOrWhiteSpace(jsonActual) && !jsonActual.Contains("[]"))
+                    ? JsonConvert.DeserializeObject<List<DocumentoPWFechaInicioRowDTOV2>>(jsonActual) ?? new List<DocumentoPWFechaInicioRowDTOV2>()
+                    : new List<DocumentoPWFechaInicioRowDTOV2>();
+
+                var idCabActual = actuales.Select(x => x.IdDocumentoPWFechaInicioCabecera).FirstOrDefault(x => x.HasValue) ?? 0;
+                var tituloActual = Norm(actuales.Select(x => x.Titulo).FirstOrDefault());
+                var subActual = Norm(actuales.Select(x => x.SubTitulo).FirstOrDefault());
+                var mostrarActual = actuales.Select(x => x.MostrarEnLaWeb).FirstOrDefault() ?? false;
+
+
+                int idCabUsar = idCabActual;
+
+                if (idCabActual <= 0)
+                {
+                    var rCab = _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicioCabecera_Insertar(
+                        dto.Titulo, dto.SubTitulo, dto.MostrarEnLaWeb, usuario
+                    );
+                    idCabUsar = GetIdFromSpResult(rCab, "No se pudo obtener IdDocumentoPWFechaInicioCabecera (insert).");
+                }
+                else
+                {
+                    var tituloNuevo = Norm(dto.Titulo);
+                    var subNuevo = Norm(dto.SubTitulo);
+                    var mostrarNuevo = dto.MostrarEnLaWeb;
+
+                    if (tituloActual != tituloNuevo || subActual != subNuevo || mostrarActual != mostrarNuevo)
+                    {
+                        _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicioCabecera_Actualizar(
+                            idCabActual, dto.Titulo, dto.SubTitulo, dto.MostrarEnLaWeb, usuario
+                        );
+                    }
+
+                    idCabUsar = idCabActual;
+                }
+
+           
+                foreach (var idDet in (dto.DetallesEliminados ?? new List<int>()).Distinct())
+                {
+                    if (idDet > 0)
+                        _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicioDetalle_Desactivar(idDet, usuario);
+                }
+
+                foreach (var idPaisElim in (dto.PaisesEliminados ?? new List<int>()).Distinct())
+                {
+                    if (idPaisElim <= 0) continue;
+
+                    _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicioDetalle_DesactivarPorFechaInicio(idPaisElim, usuario);
+                    _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicioConfiguracion_DesactivarPorFechaInicio(idDocumentoPw, idPaisElim, usuario);
+                    _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicio_Desactivar(idPaisElim, usuario);
+                }
+
+
+                var actualPorPais = actuales
+                    .Where(x => (x.IdDocumentoPWFechaInicio ?? 0) > 0)
+                    .GroupBy(x => x.IdDocumentoPWFechaInicio!.Value)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                foreach (var p in (dto.Paises ?? new List<FechaInicioPaisDTO>()))
+                {
+                    int idFechaInicio = p.Id;
+
+
+                    DocumentoPWFechaInicioRowDTOV2? paisActual = null;
+                    List<DocumentoPWFechaInicioRowDTOV2> filasPaisActual = new();
+
+                    if (idFechaInicio > 0 && actualPorPais.TryGetValue(idFechaInicio, out var filas))
+                    {
+                        filasPaisActual = filas;
+                        paisActual = filasPaisActual.FirstOrDefault();
+                    }
+
+                    if (idFechaInicio > 0)
+                    {
+           
+                        if (paisActual != null && (paisActual.IdPais ?? 0) != (p.IdPais ?? 0))
+                        {
+                            _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicio_Actualizar(idFechaInicio, p.IdPais, usuario);
+                        }
+                    }
+                    else
+                    {
+                 
+                        var rPais = _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicio_Insertar(p.IdPais, usuario);
+                        idFechaInicio = GetIdFromSpResult(rPais, "IdDocumentoPWFechaInicio inválido (insert).");
+                    }
+
+                    _unitOfWork.DocumentoPwRepository.SP_DocumentoPWFechaInicioConfiguracion_RegistrarCambios(
+                        idCabUsar, idFechaInicio, idDocumentoPw, usuario
+                    );
+
+                    var detActualPorId = filasPaisActual
+                        .Where(x => (x.IdDocumentoPWFechaInicioDetalle ?? 0) > 0)
+                        .ToDictionary(x => x.IdDocumentoPWFechaInicioDetalle!.Value, x => x);
+
+                    foreach (var d in (p.Detalles ?? new List<FechaInicioDetalleDTO>()))
+                    {
+                        var fechaNueva = d.Fecha?.Date;
+                        var horarioNuevo = Norm(d.Horario);
+
+                        if (d.Id > 0)
+                        {
+  
+                            if (detActualPorId.TryGetValue(d.Id, out var detAct))
+                            {
+                                var cambio =
+                                    (detAct.IdModo ?? 0) != (d.IdModo ?? 0) ||
+                                    (detAct.Fecha?.Date != fechaNueva) ||
+                                    Norm(detAct.Horario) != horarioNuevo;
+
+                                if (cambio)
+                                {
+                                    _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicioDetalle_Actualizar(
+                                        d.Id, idFechaInicio, d.IdModo, d.Fecha, d.Horario, usuario
+                                    );
+                                }
+                            }
+                            else
+                            {
+                       
+                                _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicioDetalle_Actualizar(
+                                    d.Id, idFechaInicio, d.IdModo, d.Fecha, d.Horario, usuario
+                                );
+                            }
+                        }
+                        else
+                        {
+                          
+                            _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicioDetalle_Insertar(
+                                idFechaInicio, d.IdModo, d.Fecha, d.Horario, usuario
+                            );
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ActualizarSeccionFechaInicio() {ex.Message}", ex);
+            }
+        }
+
+
+public void ActualizarSeccionNotas(SeccionNotasDTO? dto, int idDocumentoPw, string usuario)
+    {
+        try
+        {
+            if (dto == null) return;
+
+            string Norm(string? s) => (s ?? "").Trim();
+
+            var jsonActual = _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWNota_ObtenerRows(idDocumentoPw);
+
+            var actuales = (!string.IsNullOrWhiteSpace(jsonActual) && !jsonActual.Contains("[]"))
+                ? (JsonConvert.DeserializeObject<List<DocumentoPWNotaRowDTO>>(jsonActual) ?? new List<DocumentoPWNotaRowDTO>())
+                : new List<DocumentoPWNotaRowDTO>();
+
+
+            var actualPorNota = actuales
+                .Where(x => x.IdDocumentoPWNota > 0)
+                .GroupBy(x => x.IdDocumentoPWNota)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            var mostrarWebActual = actuales.Select(x => x.MostrarWeb).FirstOrDefault() ?? false;
+            var mostrarWebNuevo = dto.MostrarEnLaWeb;
+
+            foreach (var idDet in (dto.DetallesEliminados ?? new List<int>()).Distinct())
+            {
+                if (idDet > 0)
+                    _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWNotaDetalle_Desactivar(idDet, usuario);
+            }
+
+            foreach (var idNotaElim in (dto.NotasEliminadas ?? new List<int>()).Distinct())
+            {
+                if (idNotaElim <= 0) continue;
+
+        
+                if (actualPorNota.TryGetValue(idNotaElim, out var filasNota))
+                {
+                    var idsDetalles = filasNota
+                        .Select(x => x.IdDocumentoPWNotaDetalle ?? 0)
+                        .Where(x => x > 0)
+                        .Distinct()
+                        .ToList();
+
+                    foreach (var idDet in idsDetalles)
+                        _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWNotaDetalle_Desactivar(idDet, usuario);
+                }
+
+                _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWNotaConfiguracion_DesactivarPorNota(idDocumentoPw, idNotaElim, usuario);
+                _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWNota_Desactivar(idNotaElim, usuario);
+            }
+
+            foreach (var n in (dto.Notas ?? new List<NotaDTOV2>()))
+            {
+                var idNotaDoc = n.Id;
+
+                var idTipoNuevo = n.IdNotaTipo ?? 0;
+                var idPGeneralNuevo = n.IdPGeneral;
+                var descNuevo = Norm(n.Descripcion);
+
+                    DocumentoPWNotaRowDTO? notaActual = null;
+                List<DocumentoPWNotaRowDTO> filasActualesNota = new();
+
+                if (idNotaDoc > 0 && actualPorNota.TryGetValue(idNotaDoc, out var filas))
+                {
+                    filasActualesNota = filas;
+                    notaActual = filasActualesNota.FirstOrDefault();
+                }
+
+                // 4.1) Nota: update/insert
+                if (idNotaDoc > 0)
+                {
+                    if (notaActual != null)
+                    {
+                        var cambioNota =
+                            (notaActual.IdDocumentoPWNotaTipo ?? 0) != idTipoNuevo ||
+                            (notaActual.IdPGeneral ?? 0) != (idPGeneralNuevo ?? 0) ||
+                            Norm(notaActual.Descripcion) != descNuevo;
+
+                        if (cambioNota)
+                        {
+                            _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWNota_Actualizar(
+                                idNotaDoc,
+                                idTipoNuevo,
+                                idPGeneralNuevo,
+                                descNuevo,
+                                usuario
+                            );
+                        }
+                    }
+                    else
+                    {
+                  
+                        _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWNota_Actualizar(
+                            idNotaDoc,
+                            idTipoNuevo,
+                            idPGeneralNuevo,
+                            descNuevo,
+                            usuario
+                        );
+                    }
+                }
+                else
+                {
+                   
+                    var rNota = _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWNota_Insertar(
+                        idTipoNuevo,
+                        idPGeneralNuevo,
+                        descNuevo,
+                        usuario
+                    );
+
+                    if (string.IsNullOrWhiteSpace(rNota) || rNota.Contains("[]"))
+                        throw new Exception("No se pudo insertar Nota.");
+
+                    var arrNota = JArray.Parse(rNota);
+                    idNotaDoc = arrNota.Count > 0 ? (int)(arrNota[0]["Id"] ?? 0) : 0;
+
+                    if (idNotaDoc <= 0)
+                        throw new Exception("IdDocumentoPWNota inválido (insert nota).");
+                }
+
+    
+                if (idNotaDoc > 0 && (mostrarWebActual != mostrarWebNuevo || n.Id == 0))
+                {
+                    _unitOfWork.DocumentoPwRepository.SP_DocumentoPWNotaConfiguracion_RegistrarCambios(
+                        idDocumentoPw,
+                        idNotaDoc,
+                        mostrarWebNuevo,
+                        usuario
+                    );
+                }
+                else
+                {
+                  
+                    _unitOfWork.DocumentoPwRepository.SP_DocumentoPWNotaConfiguracion_RegistrarCambios(
+                        idDocumentoPw,
+                        idNotaDoc,
+                        mostrarWebNuevo,
+                        usuario
+                    );
+                }
+
+   
+                var detActualPorId = filasActualesNota
+                    .Where(x => (x.IdDocumentoPWNotaDetalle ?? 0) > 0)
+                    .ToDictionary(x => x.IdDocumentoPWNotaDetalle!.Value, x => x);
+
+                var detalles = (n.Detalles ?? new List<NotaDetalleDTO>())
+                    .OrderBy(x => x.Orden)
+                    .ToList();
+
+                foreach (var d in detalles)
+                {
+    
+                    var idPaisNuevo = d.IdPais;
+                    var infoNuevo = Norm(d.InformacionExtra);
+
+                    if (idPaisNuevo.HasValue && idPaisNuevo.Value > 0)
+                    {
+                     
+                        infoNuevo = null;
+                    }
+                    else
+                    {
+                     
+                        idPaisNuevo = null;
+                        if (string.IsNullOrWhiteSpace(infoNuevo)) infoNuevo = null;
+                    }
+
+                    if (d.Id > 0)
+                    {
+                        if (detActualPorId.TryGetValue(d.Id, out var detActual))
+                        {
+                            var cambioDet =
+                                (detActual.Orden ?? 0) != d.Orden ||
+                                (detActual.IdPais ?? 0) != (idPaisNuevo ?? 0) ||
+                                Norm(detActual.InformacionExtra) != Norm(infoNuevo);
+
+                            if (cambioDet)
+                            {
+                                _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWNotaDetalle_Actualizar(
+                                    d.Id,
+                                    idNotaDoc,
+                                    d.Orden,
+                                    infoNuevo,
+                                    idPaisNuevo,
+                                    usuario
+                                );
+                            }
+                        }
+                        else
+                        {
+                          
+                            _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWNotaDetalle_Actualizar(
+                                d.Id,
+                                idNotaDoc,
+                                d.Orden,
+                                infoNuevo,
+                                idPaisNuevo,
+                                usuario
+                            );
+                        }
+                    }
+                    else
+                    {
+                        _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWNotaDetalle_Insertar(
+                            idNotaDoc,
+                            d.Orden,
+                            infoNuevo,
+                            idPaisNuevo,
+                            usuario
+                        );
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"#IOSF-MKT-001@Error en ActualizarSeccionNotas() {ex.Message}", ex);
+        }
     }
+
+}
 
 }
