@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
@@ -9,6 +10,7 @@ using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface.Planificacion;
 using Dapper;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Data;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
@@ -637,7 +639,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     var spModalidad = "pla.SP_TDocumentoPWModalidad_Insertar";
                     var parametrosModalidad = new
                     {
-               
+
                         IdModalidadPortal = m.IdModalidad ?? 0,
                         SubTitulo = m.SubTitulo,
                         Descripcion = m.Descripcion,
@@ -702,39 +704,18 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 List<DocumentoPWModalidadRowVM> rpta = new List<DocumentoPWModalidadRowVM>();
+                var query = "pla.SP_DocumentoPwModalidadPorIdDocumento_PW";
+                var parametros = new
+                {
+                    @IdDocumento_PW = idDocumentoPW
+               
+                };
 
-                var query = @"
-                SELECT
-                    mc.IdDocumento_PW,
-                    mi.Id AS IdDocumentoPWModalidadIntroduccion,
-                    mi.Introduccion,
-                    m.Id AS IdDocumentoPWModalidad,
-                    m.IdModalidadPortal,
-                    m.SubTitulo,
-                    m.Descripcion,
-                    md.Id AS IdDocumentoPWModalidadDetalle,
-                    md.Orden,
-                    md.Tipo,
-                    md.IdPais,
-                    md.Beneficio
-                FROM pla.T_DocumentoPWModalidadConfiguracion mc
-                INNER JOIN pla.T_DocumentoPWModalidadIntroduccion mi
-                    ON mi.Id = mc.IdDocumentoPWModalidadIntroduccion
-                INNER JOIN pla.T_DocumentoPWModalidad m
-                    ON m.Id = mc.IdDocumentoPWModalidad
-                LEFT JOIN pla.T_DocumentoPWModalidadDetalle md
-                    ON md.IdDocumentoPWModalidad = m.Id AND md.Estado = 1
-                WHERE mc.IdDocumento_PW = @IdDocumentoPW
-                  AND mc.Estado = 1
-                ORDER BY m.Id ASC, md.Orden ASC;";
-
-                var resultado = _dapperRepository.QueryDapper(query, new { IdDocumentoPW = idDocumentoPW });
-
+                var resultado = _dapperRepository.QuerySPDapper(query, parametros);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
-                    rpta = Newtonsoft.Json.JsonConvert.DeserializeObject<List<DocumentoPWModalidadRowVM>>(resultado);
+                    rpta = JsonConvert.DeserializeObject<List<DocumentoPWModalidadRowVM>>(resultado);
                 }
-
                 return rpta;
             }
             catch (Exception ex)
@@ -743,5 +724,360 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
+        public void InsertarDocumentoPwDuracion(SeccionDuracionDTO? dto, int idDocumentoPw, string usuario)
+        {
+            try
+            {
+                if (dto == null) return;
+
+                var spDuracion = "pla.SP_TDocumentoPWDuracion_Insertar";
+                var pDuracion = new
+                {
+                    Titulo = dto.Titulo,
+                    Introduccion = dto.Introduccion,
+                    PieDePagina = dto.PieDePagina,
+                    Usuario = usuario
+                };
+
+                var rDuracion = _dapperRepository.QuerySPDapper(spDuracion, pDuracion);
+
+                int idDocumentoPwDuracion = 0;
+                if (!string.IsNullOrEmpty(rDuracion) && !rDuracion.Contains("[]"))
+                {
+                    var tmp = JsonConvert.DeserializeObject<List<dynamic>>(rDuracion);
+                    if (tmp != null && tmp.Count > 0)
+                    {
+                        idDocumentoPwDuracion = Convert.ToInt32(tmp[0].Id);
+                    }
+                }
+
+                if (idDocumentoPwDuracion <= 0)
+                    throw new Exception("No se pudo obtener IdDocumentoPWDuracion.");
+
+                var detalles = dto.Detalles ?? new List<DuracionDetalleDTO>();
+                foreach (var d in detalles)
+                {
+                    var spDetalle = "pla.SP_TDocumentoPWDuracionDetalle_Insertar";
+                    var pDetalle = new
+                    {
+                        IdDocumentoPWDuracion = idDocumentoPwDuracion,
+                        IdVersionPrograma = d.IdVersionPrograma,
+                        DetalleMes = d.Meses,
+                        DetalleHora = d.Horas,
+                        Usuario = usuario
+                    };
+
+                    _dapperRepository.QuerySPDapper(spDetalle, pDetalle);
+                }
+
+                var spConfig = "pla.SP_TDocumentoPWDuracionConfiguracion_Insertar";
+                var pConfig = new
+                {
+                    IdDocumento_PW = idDocumentoPw,
+                    IdDocumentoPWDuracion = idDocumentoPwDuracion,
+                    Usuario = usuario
+                };
+
+                _dapperRepository.QuerySPDapper(spConfig, pConfig);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en InsertarDocumentoPwDuracion() {ex.Message}", ex);
+            }
+        }
+
+        public IEnumerable<DocumentoPWDuracionRowVM> ObtenerDocumentoPWDuracionRows(int idDocumentoPW)
+        {
+            try
+            {
+                List<DocumentoPWDuracionRowVM> rpta = new List<DocumentoPWDuracionRowVM>();
+
+                var query = @"
+            SELECT
+                c.IdDocumento_PW AS IdDocumentoPW,
+                d.Id AS IdDocumentoPWDuracion,
+                d.Titulo,
+                d.Introduccion,
+                d.PieDePagina,
+                dd.Id AS IdDocumentoPWDuracionDetalle,
+                dd.IdVersionPrograma,
+                dd.DetalleMes,
+                dd.DetalleHora
+            FROM pla.T_DocumentoPWDuracionConfiguracion c
+            INNER JOIN pla.T_DocumentoPWDuracion d
+                ON d.Id = c.IdDocumentoPWDuracion AND d.Estado = 1
+            LEFT JOIN pla.T_DocumentoPWDuracionDetalle dd
+                ON dd.IdDocumentoPWDuracion = d.Id AND dd.Estado = 1
+            WHERE c.IdDocumento_PW = @IdDocumentoPW
+              AND c.Estado = 1
+            ORDER BY dd.IdVersionPrograma ASC;";
+
+                var resultado = _dapperRepository.QueryDapper(query, new { IdDocumentoPW = idDocumentoPW });
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = Newtonsoft.Json.JsonConvert.DeserializeObject<List<DocumentoPWDuracionRowVM>>(resultado);
+                }
+
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ObtenerDocumentoPWDuracionRows() {ex.Message}", ex);
+            }
+        }
+
+        public void InsertarDocumentoPwFechaInicio(SeccionFechaInicioDTO? dto, int idDocumentoPw, string usuario)
+        {
+            try
+            {
+                if (dto == null) return;
+
+                int ObtenerIdDesdeJson(string json)
+                {
+                    if (string.IsNullOrEmpty(json) || json.Contains("[]")) return 0;
+                    var tmp = JsonConvert.DeserializeObject<List<dynamic>>(json);
+                    if (tmp == null || tmp.Count == 0) return 0;
+                    return Convert.ToInt32(tmp[0].Id);
+                }
+
+                var spCab = "pla.SP_TDocumentoPWFechaInicioCabecera_Insertar";
+                var pCab = new
+                {
+                    Titulo = dto.Titulo,
+                    SubTitulo = dto.SubTitulo,
+                    MostrarEnLaWeb = dto.MostrarEnLaWeb,
+                    Usuario = usuario
+                };
+
+                var rCab = _dapperRepository.QuerySPDapper(spCab, pCab);
+                var idCabecera = ObtenerIdDesdeJson(rCab);
+
+                if (idCabecera <= 0)
+                    throw new Exception("No se pudo obtener IdDocumentoPWFechaInicioCabecera.");
+
+                foreach (var p in dto.Paises ?? new List<FechaInicioPaisDTO>())
+                {
+                    if (p.IdPais == null || p.IdPais <= 0) continue;
+
+                    var spPais = "pla.SP_TDocumentoPWFechaInicio_Insertar";
+                    var pPais = new
+                    {
+                        IdPais = p.IdPais,
+                        Usuario = usuario
+                    };
+
+                    var rPais = _dapperRepository.QuerySPDapper(spPais, pPais);
+                    var idFechaInicio = ObtenerIdDesdeJson(rPais);
+
+                    if (idFechaInicio <= 0)
+                        throw new Exception("No se pudo obtener IdDocumentoPWFechaInicio.");
+
+                    var detalles = p.Detalles ?? new List<FechaInicioDetalleDTO>();
+                    foreach (var d in detalles)
+                    {
+                        if (d.IdModo == null || d.IdModo <= 0) continue;
+
+                        var spDet = "pla.SP_TDocumentoPWFechaInicioDetalle_Insertar";
+                        var pDet = new
+                        {
+                            IdDocumentoPWFechaInicio = idFechaInicio,
+                            IdDocumentoPWFechaInicioModo = d.IdModo,
+                            Fecha = d.Fecha,
+                            Horario = d.Horario,
+                            Usuario = usuario
+                        };
+
+                        _dapperRepository.QuerySPDapper(spDet, pDet);
+                    }
+
+                    var spCfg = "pla.SP_TDocumentoPWFechaInicioConfiguracion_Insertar";
+                    var pCfg = new
+                    {
+                        IdDocumentoPWFechaInicioCabecera = idCabecera,
+                        IdDocumentoPWFechaInicio = idFechaInicio,
+                        IdDocumento_PW = idDocumentoPw,
+                        Usuario = usuario
+                    };
+
+                    _dapperRepository.QuerySPDapper(spCfg, pCfg);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en InsertarDocumentoPwFechaInicio() {ex.Message}", ex);
+            }
+        }
+
+        public List<DocumentoPWFechaInicioRowDTO> ObtenerDocumentoPWFechaInicioRows(int idDocumentoPw)
+        {
+            try
+            {
+                List<DocumentoPWFechaInicioRowDTO> rpta = new List<DocumentoPWFechaInicioRowDTO>();
+
+                var query = @"
+            SELECT
+                cab.MostrarEnLaWeb,
+                cab.Titulo,
+                cab.SubTitulo,
+                fi.Id AS IdDocumentoPWFechaInicio,
+                fi.IdPais,
+                det.Id AS IdDetalle,
+                det.IdDocumentoPWFechaInicioModo AS IdModo,
+                det.Fecha,
+                det.Horario
+            FROM pla.T_DocumentoPWFechaInicioConfiguracion cfg
+            INNER JOIN pla.T_DocumentoPWFechaInicioCabecera cab
+                ON cab.Id = cfg.IdDocumentoPWFechaInicioCabecera
+            INNER JOIN pla.T_DocumentoPWFechaInicio fi
+                ON fi.Id = cfg.IdDocumentoPWFechaInicio
+            LEFT JOIN pla.T_DocumentoPWFechaInicioDetalle det
+                ON det.IdDocumentoPWFechaInicio = fi.Id
+            WHERE cfg.IdDocumento_PW = @IdDocumentoPw
+              AND cfg.Estado = 1
+              AND cab.Estado = 1
+              AND fi.Estado = 1
+              AND (det.Id IS NULL OR det.Estado = 1)
+            ORDER BY fi.Id, det.Id;";
+
+                var parametros = new
+                {
+                    IdDocumentoPw = idDocumentoPw
+                };
+
+                var resultado = _dapperRepository.QueryDapper(query, parametros);
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<DocumentoPWFechaInicioRowDTO>>(resultado);
+                }
+
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ObtenerDocumentoPWFechaInicioRows() {ex.Message}", ex);
+            }
+        }
+
+        public void InsertarDocumentoPwNotas(SeccionNotasDTO dto, int idDocumentoPw, string usuario)
+        {
+            try
+            {
+                if (dto == null) return;
+
+                foreach (var n in (dto.Notas ?? new List<NotaDTOV2>()))
+                {
+                    var vacia =
+                        (n.IdNotaTipo == null || n.IdNotaTipo <= 0) &&
+                        (n.IdPGeneral == null || n.IdPGeneral <= 0) &&
+                        string.IsNullOrWhiteSpace(n.Descripcion) &&
+                        (n.Detalles == null || n.Detalles.Count == 0);
+
+                    if (vacia) continue;
+
+                    if (n.IdNotaTipo == null || n.IdNotaTipo <= 0)
+                        throw new Exception("Tipo de nota requerido.");
+
+                    var spNota = "pla.SP_TDocumentoPWNota_Insertar";
+                    var pNota = new
+                    {
+                        IdDocumentoPWNotaTipo = n.IdNotaTipo.Value,
+                        IdPGeneral = n.IdPGeneral,
+                        Descripcion = n.Descripcion,
+                        Usuario = usuario
+                    };
+
+                    var rNota = _dapperRepository.QuerySPDapper(spNota, pNota);
+
+                    if (string.IsNullOrWhiteSpace(rNota) || rNota.Contains("[]"))
+                        throw new Exception("No se pudo obtener IdDocumentoPWNota (insert nota).");
+
+                    var arrNota = JArray.Parse(rNota);
+                    var idDocumentoPwNota = arrNota.Count > 0 ? (int)(arrNota[0]["Id"] ?? 0) : 0;
+
+                    if (idDocumentoPwNota <= 0)
+                        throw new Exception($"IdDocumentoPWNota inválido (insert nota). Respuesta SP: {rNota}");
+
+                    var spCfg = "pla.SP_TDocumentoPWNotaConfiguracion_Insertar";
+                    var pCfg = new
+                    {
+                        IdDocumento_PW = idDocumentoPw,
+                        IdDocumentoPWNota = idDocumentoPwNota,
+                        MostrarWeb = dto.MostrarEnLaWeb,
+                        Usuario = usuario
+                    };
+
+                    _dapperRepository.QuerySPDapper(spCfg, pCfg);
+
+                    var detalles = (n.Detalles ?? new List<NotaDetalleDTO>())
+                        .OrderBy(x => x.Orden)
+                        .ToList();
+
+                    foreach (var d in detalles)
+                    {
+                        var spDet = "pla.SP_TDocumentoPWNotaDetalle_Insertar";
+                        var pDet = new
+                        {
+                            IdDocumentoPWNota = idDocumentoPwNota,
+                            Orden = d.Orden,
+                            InformacionExtra = d.InformacionExtra,
+                            IdPais = d.IdPais,
+                            Usuario = usuario
+                        };
+
+                        _dapperRepository.QuerySPDapper(spDet, pDet);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en InsertarDocumentoPwNotas() {ex.Message}", ex);
+            }
+        }
+
+
+        public List<DocumentoPWNotasRowDTO> ObtenerDocumentoPWNotasRows(int idDocumentoPW)
+        {
+            try
+            {
+                var query = @"
+            SELECT
+                c.IdDocumento_PW              AS IdDocumentoPw,
+                c.MostrarWeb                  AS MostrarWeb,
+                n.Id                          AS IdDocumentoPWNota,
+                n.IdDocumentoPWNotaTipo       AS IdDocumentoPWNotaTipo,
+                n.IdPGeneral                  AS IdPGeneral,
+                n.Descripcion                 AS Descripcion,
+                d.Id                          AS IdDocumentoPWNotaDetalle,
+                d.Orden                       AS Orden,
+                d.InformacionExtra            AS InformacionExtra,
+                d.IdPais                      AS IdPais
+            FROM pla.T_DocumentoPWNotaConfiguracion c
+            INNER JOIN pla.T_DocumentoPWNota n
+                ON n.Id = c.IdDocumentoPWNota
+               AND n.Estado = 1
+            LEFT JOIN pla.T_DocumentoPWNotaDetalle d
+                ON d.IdDocumentoPWNota = n.Id
+               AND d.Estado = 1
+            WHERE c.IdDocumento_PW = @IdDocumentoPW
+              AND c.Estado = 1
+            ORDER BY n.Id, d.Orden;
+        ";
+
+                var parametros = new { IdDocumentoPW = idDocumentoPW };
+
+                var json = _dapperRepository.QueryDapper(query, parametros);
+
+                if (string.IsNullOrEmpty(json) || json.Contains("[]"))
+                    return new List<DocumentoPWNotasRowDTO>();
+
+                return JsonConvert.DeserializeObject<List<DocumentoPWNotasRowDTO>>(json) ?? new List<DocumentoPWNotasRowDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ObtenerDocumentoPWNotasRows() {ex.Message}", ex);
+            }
+        }
     }
 }

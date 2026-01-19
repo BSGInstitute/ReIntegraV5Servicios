@@ -157,5 +157,27 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             var resultado = _documentoPwService.ObtenerDocumentoPWModalidad(idDocumentoPW);
             return Ok(resultado);
         }
+
+        [HttpGet("[action]/{idDocumentoPW}")]
+        public IActionResult ObtenerDocumentoPWDuracion(int idDocumentoPW)
+        {
+            var resultado = _documentoPwService.ObtenerDocumentoPWDuracion(idDocumentoPW);
+            return Ok(resultado);
+        }
+
+
+        [HttpGet("[action]/{idDocumentoPW}")]
+        public IActionResult ObtenerDocumentoPWFechaInicio(int idDocumentoPW)
+        {
+            var resultado = _documentoPwService.ObtenerDocumentoPWFechaInicio(idDocumentoPW);
+            return Ok(resultado);
+        }
+
+        [HttpGet("[action]/{idDocumentoPW}")]
+        public IActionResult ObtenerDocumentoPWNotas(int idDocumentoPW)
+        {
+            var resultado = _documentoPwService.ObtenerDocumentoPWNotas(idDocumentoPW);
+            return Ok(resultado);
+        }
     }
 }

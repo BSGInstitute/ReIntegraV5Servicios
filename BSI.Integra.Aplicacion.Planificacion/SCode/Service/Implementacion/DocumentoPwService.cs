@@ -12,6 +12,7 @@ using BSI.Integra.Repositorio.Repository.Implementation;
 using BSI.Integra.Repositorio.Repository.Implementation.Planificacion;
 using BSI.Integra.Repositorio.Repository.Interface.Planificacion;
 using BSI.Integra.Repositorio.UnitOfWork;
+using Newtonsoft.Json;
 using System.Text;
 using System.Transactions;
 
@@ -183,6 +184,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                    
                     var id = resultado.Id;
                     _unitOfWork.DocumentoPwRepository.InsertarDocumentoPwModalidad(dto.SeccionModalidadHorario , id , usuario);
+                    _unitOfWork.DocumentoPwRepository.InsertarDocumentoPwDuracion(dto.SeccionDuracion, id, usuario);
+                    _unitOfWork.DocumentoPwRepository.InsertarDocumentoPwFechaInicio(dto.SeccionFechaInicio, id, usuario);
+                    _unitOfWork.DocumentoPwRepository.InsertarDocumentoPwNotas(dto.SeccionNotas, id, usuario);
                     scope.Complete();
 
 
@@ -398,6 +402,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     _unitOfWork.DetachAll();
                     _unitOfWork.DocumentoPwRepository.Update(documentoPw);
                     _unitOfWork.Commit();
+
+
                     scope.Complete();
                 }
                 _unitOfWork.DocumentoPwRepository.RegularizaIntroduccionPrerrequisito(dto.ObjetoDocumento.Id, usuario);
@@ -562,6 +568,162 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw new Exception($"#IOSF-MKT-001@Error en ObtenerDocumentoPWModalidad(service) {ex.Message}", ex);
             }
         }
+
+
+        public SeccionDuracionDTO? ObtenerDocumentoPWDuracion(int idDocumentoPW)
+        {
+            try
+            {
+                var rows = (_unitOfWork.DocumentoPwRepository.ObtenerDocumentoPWDuracionRows(idDocumentoPW) ?? Enumerable.Empty<DocumentoPWDuracionRowVM>())
+                    .ToList();
+
+                if (!rows.Any())
+                    return null;
+
+                var first = rows.First();
+
+                var response = new SeccionDuracionDTO
+                {
+                    IdDocumentoPw = first.IdDocumentoPW,
+                    Titulo = first.Titulo,
+                    Introduccion = first.Introduccion,
+                    PieDePagina = first.PieDePagina,
+                    Detalles = rows
+                        .Where(x => (x.IdDocumentoPWDuracionDetalle ?? 0) > 0)
+                        .Select(x => new DuracionDetalleDTO
+                        {
+                            Id = x.IdDocumentoPWDuracionDetalle ?? 0,
+                            IdVersionPrograma = x.IdVersionPrograma,
+                            Meses = x.DetalleMes,
+                            Horas = x.DetalleHora
+                        })
+                        .ToList()
+                };
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ObtenerDocumentoPWDuracion(service) {ex.Message}", ex);
+            }
+        }
+
+
+        public SeccionFechaInicioDTO ObtenerDocumentoPWFechaInicio(int idDocumentoPw)
+        {
+            try
+            {
+                var rows = _unitOfWork.DocumentoPwRepository.ObtenerDocumentoPWFechaInicioRows(idDocumentoPw);
+
+                if (rows == null || !rows.Any())
+                {
+                    return new SeccionFechaInicioDTO
+                    {
+                        IdDocumentoPw = idDocumentoPw,
+                        MostrarEnLaWeb = false,
+                        Titulo = null,
+                        SubTitulo = null,
+                        Paises = new List<FechaInicioPaisDTO>(),
+                        PaisesEliminados = new List<int>(),
+                        DetallesEliminados = new List<int>()
+                    };
+                }
+
+                var header = rows.First();
+
+                var dto = new SeccionFechaInicioDTO
+                {
+                    IdDocumentoPw = idDocumentoPw,
+                    MostrarEnLaWeb = header.MostrarEnLaWeb,
+                    Titulo = header.Titulo,
+                    SubTitulo = header.SubTitulo,
+                    Paises = rows
+                        .GroupBy(x => x.IdDocumentoPWFechaInicio)
+                        .Select(g => new FechaInicioPaisDTO
+                        {
+                            Id = g.Key,
+                            IdPais = g.First().IdPais,
+                            Detalles = g
+                                .Where(x => x.IdDetalle.HasValue && x.IdDetalle.Value > 0)
+                                .OrderBy(x => x.IdDetalle.Value)
+                                .Select(x => new FechaInicioDetalleDTO
+                                {
+                                    Id = x.IdDetalle!.Value,
+                                    IdModo = x.IdModo,
+                                    Fecha = x.Fecha,
+                                    Horario = x.Horario
+                                })
+                                .ToList()
+                        })
+                        .ToList(),
+                    PaisesEliminados = new List<int>(),
+                    DetallesEliminados = new List<int>()
+                };
+
+                return dto;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ObtenerDocumentoPWFechaInicio() {ex.Message}", ex);
+            }
+        }
+
+
+        public SeccionNotasDTO ObtenerDocumentoPWNotas(int idDocumentoPW)
+        {
+            try
+            {
+                var rows = _unitOfWork.DocumentoPwRepository.ObtenerDocumentoPWNotasRows(idDocumentoPW) ?? new List<DocumentoPWNotasRowDTO>();
+
+                if (!rows.Any())
+                {
+                    return new SeccionNotasDTO
+                    {
+                        IdDocumentoPw = idDocumentoPW,
+                        MostrarEnLaWeb = false,
+                        Notas = new List<NotaDTOV2>()
+                    };
+                }
+
+                var mostrar = rows.First().MostrarWeb;
+
+                var notas = rows
+                    .GroupBy(r => new { r.IdDocumentoPWNota, r.IdDocumentoPWNotaTipo, r.IdPGeneral, r.Descripcion })
+                    .Select(g => new NotaDTOV2
+                    {
+                        Id = g.Key.IdDocumentoPWNota,
+                        IdNotaTipo = g.Key.IdDocumentoPWNotaTipo,
+                        IdPGeneral = g.Key.IdPGeneral,
+                        Descripcion = g.Key.Descripcion,
+                        Detalles = g
+                            .Where(x => (x.IdDocumentoPWNotaDetalle ?? 0) > 0)
+                            .Select(x => new NotaDetalleDTO
+                            {
+                                Id = x.IdDocumentoPWNotaDetalle ?? 0,
+                                Orden = x.Orden ?? 0,
+                                InformacionExtra = x.InformacionExtra,
+                                IdPais = x.IdPais
+                            })
+                            .OrderBy(x => x.Orden)
+                            .ToList()
+                    })
+                    .OrderBy(x => x.Id)
+                    .ToList();
+
+                return new SeccionNotasDTO
+                {
+                    IdDocumentoPw = idDocumentoPW,
+                    MostrarEnLaWeb = mostrar,
+                    Notas = notas
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ObtenerDocumentoPWNotas() {ex.Message}", ex);
+            }
+        }
+
+
     }
 
 }

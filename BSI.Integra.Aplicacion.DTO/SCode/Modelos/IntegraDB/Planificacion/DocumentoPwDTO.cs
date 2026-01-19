@@ -27,6 +27,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public SeccionModalidadHorarioDTO? SeccionModalidadHorario { get; set; }
         public SeccionDuracionDTO? SeccionDuracion { get; set; }
         public SeccionFechaInicioDTO? SeccionFechaInicio { get; set; }
+        public SeccionNotasDTO? SeccionNotas { get; set; }
         //public List<RevisionNivelPwFiltroIdPlantillaDTO> ListaRevision { get; set; }
         //public List<PGeneralCriterioEvaluacionDTO> ListaCriterioEvaluacionPresencial { get; set; }
         //public List<PGeneralCriterioEvaluacionDTO> ListaCriterioEvaluacionOnline { get; set; }
@@ -136,10 +137,28 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
     {
         public int IdDocumentoPw { get; set; }
         public bool MostrarEnLaWeb { get; set; }
-        public List<NotaDTO> Notas { get; set; } = new();
+        public List<NotaDTOV2> Notas { get; set; } = new();
         public List<int> NotasEliminadas { get; set; } = new();
         public List<int> DetallesEliminados { get; set; } = new();
     }
+    public class NotaDTOV2
+    {
+        public int Id { get; set; }
+        public int? IdNotaTipo { get; set; }
+        public int? IdPGeneral { get; set; }
+        public string? Descripcion { get; set; }
+        public List<NotaDetalleDTO> Detalles { get; set; } = new();
+    }
+
+    public class NotaDetalleDTO
+    {
+        public int Id { get; set; }
+        public int Orden { get; set; }
+        public string? InformacionExtra { get; set; }
+        public int? IdPais { get; set; }
+    }
+
+
     public class RevisionNivelPwFiltroIdPlantillaDTO
     {
         public int Id { get; set; }
@@ -236,4 +255,51 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public string? Beneficio { get; set; }
     }
 
+
+    public class DocumentoPWDuracionRowVM
+    {
+        public int IdDocumentoPW { get; set; }
+
+        public int IdDocumentoPWDuracion { get; set; }
+        public string? Titulo { get; set; }
+        public string? Introduccion { get; set; }
+        public string? PieDePagina { get; set; }
+
+        public int? IdDocumentoPWDuracionDetalle { get; set; }
+        public int? IdVersionPrograma { get; set; }
+        public string? DetalleMes { get; set; }
+        public string? DetalleHora { get; set; }
+    }
+
+    public class DocumentoPWFechaInicioRowDTO
+    {
+        public bool MostrarEnLaWeb { get; set; }
+        public string? Titulo { get; set; }
+        public string? SubTitulo { get; set; }
+
+        public int IdDocumentoPWFechaInicio { get; set; }
+        public int? IdPais { get; set; }
+
+        public int? IdDetalle { get; set; }
+        public int? IdModo { get; set; }
+
+        public DateTime? Fecha { get; set; }
+        public string? Horario { get; set; }
+    }
+
+    public class DocumentoPWNotasRowDTO
+    {
+        public int IdDocumentoPw { get; set; }
+        public bool MostrarWeb { get; set; }
+
+        public int IdDocumentoPWNota { get; set; }
+        public int? IdDocumentoPWNotaTipo { get; set; }
+        public int? IdPGeneral { get; set; }
+        public string? Descripcion { get; set; }
+
+        public int? IdDocumentoPWNotaDetalle { get; set; }
+        public int? Orden { get; set; }
+        public string? InformacionExtra { get; set; }
+        public int? IdPais { get; set; }
+    }
 }

@@ -37,5 +37,14 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
 
         void InsertarDocumentoPwModalidad(SeccionModalidadHorarioDTO? dto, int id, string usuario);
         IEnumerable<DocumentoPWModalidadRowVM> ObtenerDocumentoPWModalidadRows(int idDocumentoPW);
+        void InsertarDocumentoPwDuracion(SeccionDuracionDTO? dto, int idDocumentoPw, string usuario);
+        IEnumerable<DocumentoPWDuracionRowVM> ObtenerDocumentoPWDuracionRows(int idDocumentoPW);
+        void InsertarDocumentoPwFechaInicio(SeccionFechaInicioDTO? dto, int idDocumentoPw, string usuario);
+
+        List<DocumentoPWFechaInicioRowDTO> ObtenerDocumentoPWFechaInicioRows(int idDocumentoPw);
+
+        void InsertarDocumentoPwNotas(SeccionNotasDTO dto, int idDocumentoPw, string usuario);
+
+        List<DocumentoPWNotasRowDTO> ObtenerDocumentoPWNotasRows(int idDocumentoPW);
     }
 }

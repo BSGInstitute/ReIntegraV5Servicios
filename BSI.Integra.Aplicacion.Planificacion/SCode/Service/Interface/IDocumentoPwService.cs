@@ -17,5 +17,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         IEnumerable<ComboDTO> ObtenerModoFechaInicio();
         IEnumerable<ComboDTO> ObtenerNotasTipo();
         SeccionModalidadHorarioResponseDTO? ObtenerDocumentoPWModalidad(int idDocumentoPW);
+        SeccionDuracionDTO? ObtenerDocumentoPWDuracion(int idDocumentoPW);
+        SeccionFechaInicioDTO ObtenerDocumentoPWFechaInicio(int idDocumentoPw);
+        SeccionNotasDTO ObtenerDocumentoPWNotas(int idDocumentoPW);
+
     }
 }
