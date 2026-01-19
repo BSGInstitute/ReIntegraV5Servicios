@@ -390,12 +390,32 @@ namespace BSI.Integra.Aplicacion.Operaciones.Service.Implementacion
                 throw ex;
             }
         }
+
+        /// Autor: Alexis Arroyo
+        /// Fecha: 15/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene solicitudes agrupadas: Derivadas y Resueltas
+        /// </summary>
+        /// <returns>RespuestaSolicitudesAlumnoDTO</returns>
+        public RespuestaSolicitudesAlumnoDTO ObtenerSolicitudesAgrupadasPorAsesor(FiltroSolicitudAlumnoPorAsesorDTO FiltroSolicitud)
+        {
+            try
+            {
+                return _unitOfWork.SolicitudAlumnoRepository.ObtenerSolicitudesAgrupadasPorAsesor(FiltroSolicitud);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// Autor:Joseph Llanque
         /// Fecha: 02/02/2023
         /// Version: 1.0
         /// <summary>
         /// Obtiene el todas las solicitudes de alumnos
-        /// </summary> 
+        /// </summary>
         /// <returns> IEnumerable<SolicitudAlumnoFiltradaDTO> </returns>
         public IEnumerable<SolicitudAlumnoFiltradaDTO> obtenerSolicitudAlumno()
         {

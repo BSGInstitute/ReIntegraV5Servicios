@@ -246,6 +246,31 @@ namespace BSI.Integra.Servicios.Controllers
         }
 
         /// TipoFuncion: POST
+        /// Autor: Alexis Arroyo
+        /// Fecha: 15/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene Solicitudes agrupadas: Derivadas (no resueltas de Atención al Cliente) y Resueltas (de otras áreas)
+        /// </summary>
+        /// <param name="FiltroSolcitud">Filtro con IdPersonalRevision y fechas</param>
+        /// <returns>RespuestaSolicitudesAlumnoDTO con SolicitudesDerivadas y SolicitudesResueltas</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerSolicitudesAgrupadasPorAsesor([FromBody] FiltroSolicitudAlumnoPorAsesorDTO FiltroSolcitud)
+        {
+            try
+            {
+                var solicitudAlumnoService = new SolicitudAlumnoService(unitOfWork);
+                var resultado = solicitudAlumnoService.ObtenerSolicitudesAgrupadasPorAsesor(FiltroSolcitud);
+                return Ok(resultado);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        /// TipoFuncion: POST
         /// Autor: Joseph Llanque.
         /// Fecha: 08/03/2023
         /// Versión: 1.0

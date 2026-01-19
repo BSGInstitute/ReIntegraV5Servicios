@@ -74,6 +74,13 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdMatriculaCabecera { get; set; }
         public string CodigoMatricula { get; set; }
         public string NombreAlumno { get; set; }
+        public int? IdAlumno { get; set; }
+        public int? IdOportunidad { get; set; }
+        public int? IdFaseOportunidad { get; set; }
+        public int? IdPadre { get; set; }
+        public int? IdActividadCabecera { get; set; }
+        public string UltimaFechaProgramada { get; set; }
+        public int? IdClasificacionPersona { get; set; }
         public int IdPEspecifico { get; set; }
         public string NombrePEspecifico { get; set; }
         public int IdCentroCosto { get; set; }
@@ -369,6 +376,21 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string IdEstadoSolicitud { get; set; }
         public DateTime? FechaInicio { get; set; }
         public DateTime? FechaFin { get; set; }
+    }
+
+    /// <summary>
+    /// DTO de respuesta con solicitudes agrupadas por estado y área
+    /// </summary>
+    public class RespuestaSolicitudesAlumnoDTO
+    {
+        /// <summary>
+        /// Solicitudes NO resueltas del área Atención al Cliente (IdAreaSolucion = 3)
+        /// </summary>
+        public List<SolicitudAlumnoFiltradaDTO> SolicitudesDerivadas { get; set; }
+        /// <summary>
+        /// Solicitudes RESUELTAS (IdEstadoSolicitud = 7 u 8) de áreas distintas a Atención al Cliente
+        /// </summary>
+        public List<SolicitudAlumnoFiltradaDTO> SolicitudesResueltas { get; set; }
     }
 
 }

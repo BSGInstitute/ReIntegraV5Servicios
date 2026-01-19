@@ -60,5 +60,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<SolicitudAlumnoFiltradaDTO> ObtenerSolicitudesPorFiltroAsesor(
             FiltroSolicitudAlumnoPorAsesorDTO FiltroSolicitud
         );
+        RespuestaSolicitudesAlumnoDTO ObtenerSolicitudesAgrupadasPorAsesor(
+            FiltroSolicitudAlumnoPorAsesorDTO FiltroSolicitud
+        );
     }
 }
