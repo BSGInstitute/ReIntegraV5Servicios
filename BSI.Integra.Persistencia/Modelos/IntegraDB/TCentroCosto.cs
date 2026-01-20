@@ -8,6 +8,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public TCentroCosto()
         {
             TCampaniaGeneralDetalles = new HashSet<TCampaniaGeneralDetalle>();
+            TGestionContactoLogIdCentroCostoAnteriorNavigations = new HashSet<TGestionContactoLog>();
+            TGestionContactoLogIdCentroCostoNavigations = new HashSet<TGestionContactoLog>();
+            TGestionContactos = new HashSet<TGestionContacto>();
+            TMandrilEnvioCorreoGestions = new HashSet<TMandrilEnvioCorreoGestion>();
             TPespecificos = new HashSet<TPespecifico>();
         }
 
@@ -77,6 +81,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public int? IdMigracion { get; set; }
 
         public virtual ICollection<TCampaniaGeneralDetalle> TCampaniaGeneralDetalles { get; set; }
+        public virtual ICollection<TGestionContactoLog> TGestionContactoLogIdCentroCostoAnteriorNavigations { get; set; }
+        public virtual ICollection<TGestionContactoLog> TGestionContactoLogIdCentroCostoNavigations { get; set; }
+        public virtual ICollection<TGestionContacto> TGestionContactos { get; set; }
+        public virtual ICollection<TMandrilEnvioCorreoGestion> TMandrilEnvioCorreoGestions { get; set; }
         public virtual ICollection<TPespecifico> TPespecificos { get; set; }
     }
 }

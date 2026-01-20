@@ -2075,5 +2075,27 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
         }
 
+        /// TipoFuncion: Public
+        /// Autor: Junior Llerena
+        /// Fecha: 29/12/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza el centro de costo de una actividad
+        /// </summary>
+        /// <param name="idCentroCosto">Id del Centro de Costo</param>
+        /// <param name="idActividad">Id de la Actividad</param>
+        /// <returns>True si se actualizó correctamente</returns>
+        public bool ActualizarCentroCosto(int idCentroCosto, int idActividad)
+        {
+            try
+            {
+                return _unitOfWork.OportunidadRepository.ActualizarCentroCosto(idCentroCosto, idActividad);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#AAS-ACC-001@Error en ActualizarCentroCosto: {ex.Message}", ex);
+            }
+        }
+
     }
 }

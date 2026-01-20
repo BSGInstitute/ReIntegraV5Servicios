@@ -73,5 +73,6 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         IEnumerable<ColorPerfilProgramaDTO> ObtenerColorPerfilProgramaPorIdOportunidad(int idOportunidad);
         IEnumerable<ProgramaGeneralPresentacionArgumentoDetalleAgendaDTO> ObtenerProgramaGeneralPresentacionArgumentoDetallePorIdOportunidad(int idOportunidad);
         AlumnoCodigosDescuentosDTO ObtenerCodigoDescuentoAlumno(int idAlumno);
+        bool ActualizarCentroCosto(int idCentroCosto, int idActividad);
     }
 }

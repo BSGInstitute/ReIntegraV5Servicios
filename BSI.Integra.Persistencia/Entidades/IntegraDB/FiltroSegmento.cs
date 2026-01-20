@@ -321,8 +321,16 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
         public bool? AplicaSobreUltimaActividad { get; set; }
 
         public bool? ExcluirMatriculados { get; set; }
-
-        public    ICollection<CampaniaGeneral> CampaniaGenerals { get; set; }
+        public bool? ConsiderarUltimaOportunidad { get; set; }
+        public bool? ConsiderarMayorProbabilidadInscripcion { get; set; }
+        public bool? ConsiderarMayorProbabilidadInscripcionVentaCruzada { get; set; }
+        public bool? ConsiderarProbabilidad { get; set; }
+        public bool? ConsiderarProbabilidadVentaCruzada { get; set; }
+        public bool? ConsiderarEmbudo { get; set; }
+        public bool? ConsiderarExcluirCampania { get; set; }
+        public DateTime? FechaInicioExclusionCampania { get; set; }
+        public DateTime? FechaFinExclusionCampania { get; set; }
+        public ICollection<CampaniaGeneral> CampaniaGenerals { get; set; }
         public   ICollection<FiltroSegmentoValorTipo> FiltroSegmentoValorTipos { get; set; }
         public   ICollection<FiltroSegmentoDetalle> FiltroSegmentoDetalles { get; set; }
 

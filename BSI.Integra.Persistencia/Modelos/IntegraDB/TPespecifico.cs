@@ -7,6 +7,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TPespecifico()
         {
+            TCabeceraGestionContactos = new HashSet<TCabeceraGestionContacto>();
             TCarreraPreRequisitoPespecificos = new HashSet<TCarreraPreRequisitoPespecifico>();
             TConfigurarWebinars = new HashSet<TConfigurarWebinar>();
             TCursoPespecificos = new HashSet<TCursoPespecifico>();
@@ -266,6 +267,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public bool? TutorVirtualActivo { get; set; }
 
         public virtual TCentroCosto? IdCentroCostoNavigation { get; set; }
+        public virtual ICollection<TCabeceraGestionContacto> TCabeceraGestionContactos { get; set; }
         public virtual ICollection<TCarreraPreRequisitoPespecifico> TCarreraPreRequisitoPespecificos { get; set; }
         public virtual ICollection<TConfigurarWebinar> TConfigurarWebinars { get; set; }
         public virtual ICollection<TCursoPespecifico> TCursoPespecificos { get; set; }

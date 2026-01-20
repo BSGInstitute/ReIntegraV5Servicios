@@ -13,7 +13,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
             TConfiguracionAccesoPersonalIdPersonalNavigations = new HashSet<TConfiguracionAccesoPersonal>();
             TConvocatoriaPersonals = new HashSet<TConvocatoriaPersonal>();
             TExamenAsignadoEvaluadors = new HashSet<TExamenAsignadoEvaluador>();
+            TGestionContactoLogIdPersonalAsignadoAnteriorNavigations = new HashSet<TGestionContactoLog>();
+            TGestionContactoLogIdPersonalAsignadoNavigations = new HashSet<TGestionContactoLog>();
+            TGestionContactos = new HashSet<TGestionContacto>();
             THorarioGrupoPersonals = new HashSet<THorarioGrupoPersonal>();
+            TMandrilEnvioCorreoGestions = new HashSet<TMandrilEnvioCorreoGestion>();
             TModoPersonalFurs = new HashSet<TModoPersonalFur>();
             TPerfilPuestoTrabajoPersonalAprobacions = new HashSet<TPerfilPuestoTrabajoPersonalAprobacion>();
             TPersonalCertificacions = new HashSet<TPersonalCertificacion>();
@@ -30,6 +34,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
             TSolicitudIdPersonalSolucionNavigations = new HashSet<TSolicitud>();
             TSolicitudInternas = new HashSet<TSolicitudInterna>();
             TSolicitudTis = new HashSet<TSolicitudTi>();
+            TTipoDescuentoSolicituds = new HashSet<TTipoDescuentoSolicitud>();
             TWhatsAppConfiguracionEnvios = new HashSet<TWhatsAppConfiguracionEnvio>();
             TWhatsAppUsuarios = new HashSet<TWhatsAppUsuario>();
         }
@@ -349,7 +354,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual ICollection<TConfiguracionAccesoPersonal> TConfiguracionAccesoPersonalIdPersonalNavigations { get; set; }
         public virtual ICollection<TConvocatoriaPersonal> TConvocatoriaPersonals { get; set; }
         public virtual ICollection<TExamenAsignadoEvaluador> TExamenAsignadoEvaluadors { get; set; }
+        public virtual ICollection<TGestionContactoLog> TGestionContactoLogIdPersonalAsignadoAnteriorNavigations { get; set; }
+        public virtual ICollection<TGestionContactoLog> TGestionContactoLogIdPersonalAsignadoNavigations { get; set; }
+        public virtual ICollection<TGestionContacto> TGestionContactos { get; set; }
         public virtual ICollection<THorarioGrupoPersonal> THorarioGrupoPersonals { get; set; }
+        public virtual ICollection<TMandrilEnvioCorreoGestion> TMandrilEnvioCorreoGestions { get; set; }
         public virtual ICollection<TModoPersonalFur> TModoPersonalFurs { get; set; }
         public virtual ICollection<TPerfilPuestoTrabajoPersonalAprobacion> TPerfilPuestoTrabajoPersonalAprobacions { get; set; }
         public virtual ICollection<TPersonalCertificacion> TPersonalCertificacions { get; set; }
@@ -366,6 +375,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual ICollection<TSolicitud> TSolicitudIdPersonalSolucionNavigations { get; set; }
         public virtual ICollection<TSolicitudInterna> TSolicitudInternas { get; set; }
         public virtual ICollection<TSolicitudTi> TSolicitudTis { get; set; }
+        public virtual ICollection<TTipoDescuentoSolicitud> TTipoDescuentoSolicituds { get; set; }
         public virtual ICollection<TWhatsAppConfiguracionEnvio> TWhatsAppConfiguracionEnvios { get; set; }
         public virtual ICollection<TWhatsAppUsuario> TWhatsAppUsuarios { get; set; }
     }

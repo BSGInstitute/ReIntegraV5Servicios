@@ -22,6 +22,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
             TOportunidadProgramaMotivacionSeleccions = new HashSet<TOportunidadProgramaMotivacionSeleccion>();
             TProgramaGeneralProblemaFactorSolucionRespuesta = new HashSet<TProgramaGeneralProblemaFactorSolucionRespuestum>();
             TSolucionClienteByActividads = new HashSet<TSolucionClienteByActividad>();
+            TTipoDescuentoSolicituds = new HashSet<TTipoDescuentoSolicitud>();
         }
 
         /// <summary>
@@ -270,5 +271,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual ICollection<TOportunidadProgramaMotivacionSeleccion> TOportunidadProgramaMotivacionSeleccions { get; set; }
         public virtual ICollection<TProgramaGeneralProblemaFactorSolucionRespuestum> TProgramaGeneralProblemaFactorSolucionRespuesta { get; set; }
         public virtual ICollection<TSolucionClienteByActividad> TSolucionClienteByActividads { get; set; }
+        public virtual ICollection<TTipoDescuentoSolicitud> TTipoDescuentoSolicituds { get; set; }
     }
 }

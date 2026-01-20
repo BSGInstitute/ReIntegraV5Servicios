@@ -14,6 +14,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Modelos\IntegraDB\Partial\TMandrilTipoEnvio.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="11.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.1">
       <PrivateAssets>all</PrivateAssets>
@@ -38,6 +42,7 @@
 
   <ItemGroup>
     <None Include="C:\Proyectos Respaldo\IntegraV5-Servicios\BSI.Integra.Persistencia\Entidades\IntegraDB\GestionPersonas\.editorconfig" />
+    <None Include="Modelos\IntegraDB\Partial\TMandrilTipoEnvio.cs" />
   </ItemGroup>
 
 </Project>

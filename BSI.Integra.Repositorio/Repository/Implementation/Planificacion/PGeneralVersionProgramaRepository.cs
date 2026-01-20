@@ -119,7 +119,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 IEnumerable<PGeneralVersionProgramaDetalleDTO> pgeneralVersionPrograma = new List<PGeneralVersionProgramaDetalleDTO>();
-                var _query = @"SELECT IdPgeneralVersionPrograma,IdPGeneral,NombreVersion,IdVersionPrograma,Duracion,CreditoDisponibleTutorVirtual FROM pla.V_TPGeneral_VersionPrograma WHERE  Estado = 1 and IdPGeneral = @IdPgeneral";
+                var _query = @"SELECT IdPgeneralVersionPrograma,IdPGeneral,NombreVersion,IdVersionPrograma,Duracion,CreditoDisponibleTutorVirtual,CantidadWebinarAsignado,CantidadMesAccesoAdicionalWebinar FROM pla.V_TPGeneral_VersionPrograma WHERE  Estado = 1 and IdPGeneral = @IdPgeneral";
                 var respuestaDapper = _dapperRepository.QueryDapper(_query, new { IdPgeneral = idPGeneral });
                 if (!string.IsNullOrEmpty(respuestaDapper) && !respuestaDapper.Contains("[]"))
                 {
@@ -148,6 +148,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                    IdPgeneral,
                                    IdVersionPrograma,
                                    Duracion,
+                                   CreditoDisponibleTutorVirtual,
+                                   CantidadWebinarAsignado,
+                                   CantidadMesAccesoAdicionalWebinar,
                                    Estado,
                                    UsuarioCreacion,
                                    UsuarioModificacion,
@@ -186,6 +189,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                    IdPgeneral,
                                    IdVersionPrograma,
                                    Duracion,
+                                   CreditoDisponibleTutorVirtual,
+                                   CantidadWebinarAsignado,
+                                   CantidadMesAccesoAdicionalWebinar,
                                    Estado,
                                    UsuarioCreacion,
                                    UsuarioModificacion,
@@ -224,6 +230,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                    IdPgeneral,
                                    IdVersionPrograma,
                                    Duracion,
+                                   CreditoDisponibleTutorVirtual,
+                                   CantidadWebinarAsignado,
+                                   CantidadMesAccesoAdicionalWebinar,
                                    Estado,
                                    UsuarioCreacion,
                                    UsuarioModificacion,

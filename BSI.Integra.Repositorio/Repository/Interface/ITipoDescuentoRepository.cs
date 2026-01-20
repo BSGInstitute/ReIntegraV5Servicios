@@ -21,7 +21,10 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         Task<TipoDescuento> ObtenerPorIdAsync(int idTipoDescuento);
         IEnumerable<TipoDescuentoComboDTO> ObtenerCombo();
         Task<IEnumerable<TipoDescuentoComboDTO>> ObtenerComboAsync();
-        IEnumerable<TipoDescuentoOportunidadDTO> ObtenerTipoDescuentoOportunidad(int idOportunidad, string tipoPersonal); 
+        IEnumerable<TipoDescuentoOportunidadDTO> ObtenerTipoDescuentoOportunidad(int idOportunidad, string tipoPersonal);
+        IEnumerable<TipoDescuentoOportunidadDTO> ObtenerTipoDescuentoSolicitudOportunidad(int idOportunidad);
         IEnumerable<TipoDescuento> ObtenerPorIds(int idTipoDescuento);
+        IEnumerable<TipoDescuentoConNivelAprobacionDTO> ObtenerTipoDescuentoConNivelAprobacion();
+        IEnumerable<TipoDescuentoNivelAprobacionDTO> ObtenerNivelesAprobacion();
     }
 }

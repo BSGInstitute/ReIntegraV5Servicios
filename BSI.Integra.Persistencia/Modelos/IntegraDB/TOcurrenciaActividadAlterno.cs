@@ -5,6 +5,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     public partial class TOcurrenciaActividadAlterno
     {
+        public TOcurrenciaActividadAlterno()
+        {
+            TActividadDetalleGestionContactos = new HashSet<TActividadDetalleGestionContacto>();
+        }
+
         /// <summary>
         /// Es Primary Key
         /// </summary>
@@ -73,5 +78,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Roles de usuario (Asesor, Coordinador)
         /// </summary>
         public string? Roles { get; set; }
+
+        public virtual ICollection<TActividadDetalleGestionContacto> TActividadDetalleGestionContactos { get; set; }
     }
 }

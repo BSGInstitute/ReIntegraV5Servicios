@@ -70,7 +70,34 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
         {
             try
             {
-                var postulanteProceso = _unitOfWork.PostulanteRepository.ObtenerPostulantesUltimoProcesoSeleccion(filtroReporte);
+
+                bool vieneIdsPostulantes = filtroReporte.IdsPostulantes != null && filtroReporte.IdsPostulantes.Any();
+
+                bool vieneFiltrosEtapaEstado =
+                    (filtroReporte.IdsEstadoEtapa != null && filtroReporte.IdsEstadoEtapa.Any()) ||
+                    (filtroReporte.IdsProcesoEtapa != null && filtroReporte.IdsProcesoEtapa.Any());
+
+                bool modoUnion = (filtroReporte.FiltroPorPostulante == false) && vieneIdsPostulantes && vieneFiltrosEtapaEstado;
+
+                EvaluacionPostulanteFiltroReporteDTO filtroRepo = filtroReporte;
+                if (modoUnion)
+                {
+                    filtroRepo = new EvaluacionPostulanteFiltroReporteDTO
+                    {
+                        IdsPostulantes = new List<int>(), 
+                        IdProcesoSeleccion = filtroReporte.IdProcesoSeleccion,
+                        IdGrupoComparacion = filtroReporte.IdGrupoComparacion,
+                        IdsProcesoEtapa = filtroReporte.IdsProcesoEtapa,
+                        IdsEstadoEtapa = filtroReporte.IdsEstadoEtapa,
+                        FechaInicio = filtroReporte.FechaInicio,
+                        FechaFin = filtroReporte.FechaFin,
+                        FiltroPorPostulante = filtroReporte.FiltroPorPostulante,
+                        idsPostulanteGrupoComparacion = filtroReporte.idsPostulanteGrupoComparacion,
+                        IdProcesoSeleccionGrupoComparacion = filtroReporte.IdProcesoSeleccionGrupoComparacion
+                    };
+                }
+
+                var postulanteProceso = _unitOfWork.PostulanteRepository.ObtenerPostulantesUltimoProcesoSeleccion(filtroRepo);
                 if (postulanteProceso == null || postulanteProceso.Count == 0)
                     throw new ConflictException("No se encontraron postulantes en el Proceso de Seleccion");
 
@@ -82,7 +109,9 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                         {
                             if (filtroReporte.IdProcesoSeleccion != null)
                             {
-                                var idsPostulantes = _unitOfWork.ExamenAsignadoRepository.ObtenerIdsPostulantesPorIdProcesoSeleccion(filtroReporte.IdProcesoSeleccion.Value);
+                                var idsPostulantes = _unitOfWork.ExamenAsignadoRepository
+                                    .ObtenerIdsPostulantesPorIdProcesoSeleccion(filtroReporte.IdProcesoSeleccion.Value);
+
                                 filtroReporte.IdProcesoSeleccion = null;
                                 filtroReporte.IdsPostulantes = idsPostulantes;
                             }
@@ -90,13 +119,56 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                     }
                     else
                     {
-                        var resultado = _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ObtenerIdsPostulanteEtapaProcesoSeleccionActual(filtroReporte);
-                        if (resultado.Count() == 0)
+            
+                        EvaluacionPostulanteFiltroReporteDTO filtroParaObtenerIds = filtroReporte;
+                        if (modoUnion)
+                        {
+                            filtroParaObtenerIds = new EvaluacionPostulanteFiltroReporteDTO
+                            {
+                                IdsPostulantes = new List<int>(), 
+                                IdProcesoSeleccion = filtroReporte.IdProcesoSeleccion,
+                                IdGrupoComparacion = filtroReporte.IdGrupoComparacion,
+                                IdsProcesoEtapa = filtroReporte.IdsProcesoEtapa,
+                                IdsEstadoEtapa = filtroReporte.IdsEstadoEtapa,
+                                FechaInicio = filtroReporte.FechaInicio,
+                                FechaFin = filtroReporte.FechaFin,
+                                FiltroPorPostulante = filtroReporte.FiltroPorPostulante,
+                                idsPostulanteGrupoComparacion = filtroReporte.idsPostulanteGrupoComparacion,
+                                IdProcesoSeleccionGrupoComparacion = filtroReporte.IdProcesoSeleccionGrupoComparacion
+                            };
+                        }
+
+                        var resultado = _unitOfWork
+                            .EtapaProcesoSeleccionCalificadoRepository
+                            .ObtenerIdsPostulanteEtapaProcesoSeleccionActual(filtroParaObtenerIds);
+
+                        bool vienePorPostulante = filtroReporte.IdsPostulantes != null && filtroReporte.IdsPostulantes.Any();
+
+                        if (resultado.Count() == 0 && !vienePorPostulante)
                         {
                             throw new ConflictException("No se encontraron postulantes");
                         }
-                        filtroReporte.IdsPostulantes = resultado;
-                        postulanteProceso = postulanteProceso.Where(x => filtroReporte.IdsPostulantes.Contains(x.IdPostulante)).ToList();
+
+         
+                        if (vienePorPostulante && modoUnion)
+                        {
+                            filtroReporte.IdsPostulantes = resultado
+                                .Union(filtroReporte.IdsPostulantes)
+                                .Distinct()
+                                .ToList();
+                        }
+                        else
+                        {
+                        
+                            if (!vienePorPostulante)
+                            {
+                                filtroReporte.IdsPostulantes = resultado;
+                            }
+                        }
+
+                        postulanteProceso = postulanteProceso
+                            .Where(x => filtroReporte.IdsPostulantes.Contains(x.IdPostulante))
+                            .ToList();
                     }
 
                     if (filtroReporte.FechaInicio == null)
@@ -113,6 +185,8 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                     filtroReporte.FechaFin = DateTime.Now;
                     filtroReporte.FechaInicio = new DateTime(1900, 12, 31);
                 }
+
+    
                 filtroReporte.IdsPostulantes = postulanteProceso.Select(x => x.IdPostulante).ToList();
 
                 List<ValorIntDTO> matriculaPostulantes = new List<ValorIntDTO>();
@@ -126,12 +200,18 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
 
                 if (filtroReporte.IdGrupoComparacion != null && filtroReporte.IdGrupoComparacion != 0)
                 {
-                    filtroReporte.idsPostulanteGrupoComparacion = _unitOfWork.PostulanteComparacionRepository.ObtenerIdsPostulantesPorIdGrupoComparacion(filtroReporte.IdGrupoComparacion.Value);
+                    filtroReporte.idsPostulanteGrupoComparacion =
+                        _unitOfWork.PostulanteComparacionRepository
+                            .ObtenerIdsPostulantesPorIdGrupoComparacion(filtroReporte.IdGrupoComparacion.Value);
                 }
 
                 var reporte = ObtenerReporteExamenesNuevaVersion(filtroReporte);
 
-                var listaComponenteAcceso = _unitOfWork.ExamenRepository.GetBy(x => x.IdCentroCosto != null && x.CantidadDiasAcceso != null).Select(x => x.Nombre).ToList();
+                var listaComponenteAcceso = _unitOfWork.ExamenRepository
+                    .GetBy(x => x.IdCentroCosto != null && x.CantidadDiasAcceso != null)
+                    .Select(x => x.Nombre)
+                    .ToList();
+
                 var listaAgregarConfiguracion = reporte.Where(x => listaComponenteAcceso.Contains(x.Examen)).ToList();
                 foreach (var agregar in listaAgregarConfiguracion)
                 {
@@ -139,7 +219,6 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                     agregar.IdExamenAccesoTemporal = agregar.IdExamen;
                 }
 
-                //Obtenidas las calificaciones de los postulantes se ordena para que muestre en orden las evaluacion y componentes y se agrupa por cada item que exista en la lista final
                 var datosAgrupado = (from p in reporte
                                      orderby p.OrdenReal
                                      group p by new { p.OrdenReal } into grupo
@@ -165,15 +244,13 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                 {
                     clasificacionNEO = _unitOfWork.PostulanteRepository.ObtenerPostulantesUltimoProcesoSeleccion(idPostulantes);
                 }
-                List<int> listaPostulanteComparacion = new List<int>();
 
-                //se elimina de los postulantes obtenidos a los potulantes que pertenezcan al grupo de comparacion en caso se haya seleccionado en el filtro
+                List<int> listaPostulanteComparacion = new List<int>();
                 if (listaPostulanteComparacion.Count > 0)
                 {
                     reporte = reporte.Where(x => !listaPostulanteComparacion.Contains(x.IdPostulante)).ToList();
                 }
 
-                // de la lita de postulantes que hayan pasado el filtro se agrupan por proceso de seleccion los postulantes.
                 var listaProcesoSeleccionAgrupado = (from p in postulanteProceso
                                                      group p by new { p.IdProcesoSeleccion, p.ProcesoSeleccion } into grupo
                                                      select new { grupo.Key.IdProcesoSeleccion, grupo.Key.ProcesoSeleccion }).ToList();
@@ -181,7 +258,6 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                 List<ReportePruebaDetalleDTO> listaEtapas = new List<ReportePruebaDetalleDTO>();
                 List<ReportePruebaDTO> listaEtapasFinal = new List<ReportePruebaDTO>();
 
-                //Se busca todas las etapas segun el proceso de seleccion y se coloca por defecto el estado SIN RENDIR ID 9
                 foreach (var item in listaProcesoSeleccionAgrupado)
                 {
                     var etapasProcesoSeleccion = _unitOfWork.ProcesoSeleccionEtapaRepository.ObtenerEtapaPorIdProcesoSeleccion(item.IdProcesoSeleccion);
@@ -196,8 +272,7 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                         IdEstadoEtapaProceso = 9,
                         NroOrden = x.NroOrden,
                         EtapaContactado = false
-                    }
-                    ).ToList()).ToList();
+                    }).ToList()).ToList();
                 }
 
                 List<EtapaCalificadaPostulanteProcesoSeleccionDTO> listaEtapasOptimizacion = new List<EtapaCalificadaPostulanteProcesoSeleccionDTO>();
@@ -209,11 +284,9 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                     }
                     else
                     {
-                        List<int> idsProcesoSeleccion = new List<int>
-                        {
-                            filtroReporte.IdProcesoSeleccion!.Value
-                        };
-                        listaEtapasOptimizacion = _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ObtenerPorIdsPostulanteIdsProcesoSeleccion(postulanteProceso.Select(x => x.IdPostulante).ToList(), idsProcesoSeleccion);
+                        List<int> idsProcesoSeleccion = new List<int> { filtroReporte.IdProcesoSeleccion!.Value };
+                        listaEtapasOptimizacion = _unitOfWork.EtapaProcesoSeleccionCalificadoRepository
+                            .ObtenerPorIdsPostulanteIdsProcesoSeleccion(postulanteProceso.Select(x => x.IdPostulante).ToList(), idsProcesoSeleccion);
                     }
                 }
                 else
@@ -223,17 +296,21 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                     {
                         idsProcesoSeleccion = listaProcesoSeleccionAgrupado.Select(x => x.IdProcesoSeleccion).Distinct().ToList();
                     }
-                    listaEtapasOptimizacion = _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ObtenerPorIdsPostulanteIdsProcesoSeleccion(filtroReporte.IdsPostulantes, idsProcesoSeleccion);
-                }
 
+                    listaEtapasOptimizacion = _unitOfWork.EtapaProcesoSeleccionCalificadoRepository
+                        .ObtenerPorIdsPostulanteIdsProcesoSeleccion(filtroReporte.IdsPostulantes, idsProcesoSeleccion);
+                }
 
                 List<ReportePruebaDetalleDTO> etapasList;
                 ReportePruebaDetalleDTO itemEtapa;
-                //Se recorre la lista de los postulantes que cumplen el filtro y cada postulante se le asigna sus etapas correspondientes segun el proceso de seleccion que se encuentre
+
                 foreach (var item in postulanteProceso)
                 {
-                    etapasList = new List<ReportePruebaDetalleDTO>();
-                    etapasList = listaEtapas.Where(x => x.IdProcesoSeleccion == item.IdProcesoSeleccion).OrderBy(x => x.NroOrden).ToList();
+                    etapasList = listaEtapas
+                        .Where(x => x.IdProcesoSeleccion == item.IdProcesoSeleccion)
+                        .OrderBy(x => x.NroOrden)
+                        .ToList();
+
                     ReportePruebaDTO obj = new ReportePruebaDTO();
                     obj.IdPostulante = item.IdPostulante;
                     obj.Postulante = item.Postulante;
@@ -242,7 +319,9 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                     foreach (var item2 in etapasList)
                     {
                         itemEtapa = new ReportePruebaDetalleDTO();
-                        var etapaCalificada = listaEtapasOptimizacion.Where(x => x.IdPostulante == item.IdPostulante && x.IdProcesoSeleccionEtapa == item2.IdEtapa).FirstOrDefault();
+                        var etapaCalificada = listaEtapasOptimizacion
+                            .Where(x => x.IdPostulante == item.IdPostulante && x.IdProcesoSeleccionEtapa == item2.IdEtapa)
+                            .FirstOrDefault();
 
                         itemEtapa.IdEtapa = item2.IdEtapa;
                         itemEtapa.Etapa = item2.Etapa;
@@ -254,21 +333,25 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                         itemEtapa.EtapaContactado = item2.EtapaContactado;
                         itemEtapa.EsCalificadoPorPostulante = item2.EsCalificadoPorPostulante;
 
-                        if (etapaCalificada != null) // Si tiene una calificacion en la tabla gp.T_EtapaPRocesoSeleccionCalificado reemplaza lo datos, en caso no exista coloca los datos por defecto
+                        if (etapaCalificada != null)
                         {
                             itemEtapa.EstadoEtapa = etapaCalificada.EsEtapaAprobada == true ? 1 : 0;
                             itemEtapa.IdEstadoEtapaProceso = etapaCalificada.IdEstadoEtapaProcesoSeleccion;
                             itemEtapa.EtapaContactado = etapaCalificada.EsContactado == true ? true : false;
                             itemEtapa.EsCalificadoPorPostulante = etapaCalificada.EsCalificadoPorPostulante == true ? true : false;
                         }
+
                         obj.Etapas.Add(itemEtapa);
                     }
+
                     listaEtapasFinal.Add(obj);
                 }
+
                 if (listaEtapasFinal.Count > 0)
                 {
                     listaEtapasFinal = listaEtapasFinal.OrderBy(x => x.Postulante).ToList();
                 }
+
                 var resultadoFinal = new ResultadoReporteEvaluacionPostulante()
                 {
                     DatosEvaluacionAgrupado = datosAgrupado,
@@ -278,6 +361,7 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                     ClasificacionNEO = clasificacionNEO,
                     MatriculaPostulantes = matriculaPostulantes
                 };
+
                 return resultadoFinal;
             }
             catch (Exception ex)
@@ -765,7 +849,7 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                 // En esta parte se usa la configuracion del proceso para saber si se califica por centil o en forma directa, en caso se califica por centil se va a la tabla de centiles y se busca su calificacion
                 //tambien segun lo parametros configurados, se calcula si un postulante aprueba o no
 
-                
+
 
                 foreach (var item in listaNotasProcesoSeleccion)
                 {
@@ -2676,7 +2760,7 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                 foreach (var item in listaNotasProcesoSeleccionComplemento)
                 {
 
-                    var puntaje = Convert.ToDecimal(item.Registro, null);   
+                    var puntaje = Convert.ToDecimal(item.Registro, null);
 
                     if (item.CalificaPorCentil)
                     {
@@ -2731,7 +2815,7 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                     }
                 }
 
-              //finalmente se concatenan las dos listas para obtener el resultado final
+                //finalmente se concatenan las dos listas para obtener el resultado final
                 listaNotasProcesoSeleccion = listaNotasProcesoSeleccion.Concat(listaNotasProcesoSeleccionComplemento).ToList();
 
 
@@ -2789,7 +2873,7 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                         }
                     }
 
-                 
+
                 }
 
                 foreach (var notas in notasAsociadas)
@@ -2802,7 +2886,7 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                     {
                         co.NotaAprobatoria = notas.Data[0].PuntajeMinimo.ToString();
                         co.Simbolo = co.Simbolo;
-             
+
                         foreach (var i in co.ExamenCentilVersion)
                         {
                             i.NotaAprobatoria = notas.Data[0].PuntajeMinimo.ToString();
@@ -2811,7 +2895,7 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
 
                     }
 
-                    
+
                 }
 
                 return listaNotasProcesoSeleccion.OrderBy(x => x.OrdenReal.Value).ToList();
@@ -3039,8 +3123,22 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                     etapaCalificada.UsuarioModificacion = usuario;
                     etapaCalificada.FechaModificacion = DateTime.Now;
 
-                    _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(etapaCalificada);
-                    _unitOfWork.Commit();
+                    EtapaProcesoSeleccionCalificadoActualizarDTO etapaCalificadaV1 = new()
+                    {
+                        Id = etapaCalificada.Id,
+                        IdProcesoSeleccionEtapa = etapaCalificada.IdProcesoSeleccionEtapa,
+                        IdPostulante = etapaCalificada.IdPostulante,
+                        EsEtapaAprobada = etapaCalificada.EsEtapaAprobada,
+                        NotaCalculada = etapaCalificada.NotaCalculada,
+                        IdEstadoEtapaProcesoSeleccion = etapaCalificada.IdEstadoEtapaProcesoSeleccion,
+                        EsEtapaActual = etapaCalificada.EsEtapaActual,
+                        EsContactado = etapaCalificada.EsContactado,
+                        UsuarioModificacion = usuario,
+
+                    };
+                    //_unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(etapaCalificada);
+                    _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ActualizarEtapaCalificada(etapaCalificadaV1);
+                    //_unitOfWork.Commit();
 
                     if (dto.IdEstadoEA == 7)// Aprobado con Observaciones
                     {
@@ -3065,8 +3163,22 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                                 actualizar.EsContactado = true;
                                 actualizar.UsuarioModificacion = usuario;
                                 actualizar.FechaModificacion = DateTime.Now;
-                                _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(actualizar);
-                                _unitOfWork.Commit();
+                                EtapaProcesoSeleccionCalificadoActualizarDTO etapaCalificadaV2 = new()
+                                {
+                                    Id = etapaCalificada.Id,
+                                    IdProcesoSeleccionEtapa = etapaCalificada.IdProcesoSeleccionEtapa,
+                                    IdPostulante = etapaCalificada.IdPostulante,
+                                    EsEtapaAprobada = etapaCalificada.EsEtapaAprobada,
+                                    NotaCalculada = etapaCalificada.NotaCalculada,
+                                    IdEstadoEtapaProcesoSeleccion = etapaCalificada.IdEstadoEtapaProcesoSeleccion,
+                                    EsEtapaActual = etapaCalificada.EsEtapaActual,
+                                    EsContactado = etapaCalificada.EsContactado,
+                                    UsuarioModificacion = usuario,
+
+                                };
+                                //_unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(actualizar);
+                                _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ActualizarEtapaCalificada(etapaCalificadaV1);
+                                //_unitOfWork.Commit();
                             }
 
                             //Colocamos "En proceso" la evaluación de evaluador que prosigue
@@ -3081,8 +3193,22 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                                 actualizarEvaluador.UsuarioModificacion = usuario;
                                 actualizarEvaluador.FechaModificacion = DateTime.Now;
 
-                                _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(actualizarEvaluador);
-                                _unitOfWork.Commit();
+                                //_unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(actualizarEvaluador);
+                                EtapaProcesoSeleccionCalificadoActualizarDTO etapaCalificadaV3 = new()
+                                {
+                                    Id = etapaCalificada.Id,
+                                    IdProcesoSeleccionEtapa = etapaCalificada.IdProcesoSeleccionEtapa,
+                                    IdPostulante = etapaCalificada.IdPostulante,
+                                    EsEtapaAprobada = etapaCalificada.EsEtapaAprobada,
+                                    NotaCalculada = etapaCalificada.NotaCalculada,
+                                    IdEstadoEtapaProcesoSeleccion = etapaCalificada.IdEstadoEtapaProcesoSeleccion,
+                                    EsEtapaActual = etapaCalificada.EsEtapaActual,
+                                    EsContactado = etapaCalificada.EsContactado,
+                                    UsuarioModificacion = usuario,
+
+                                };
+                                _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ActualizarEtapaCalificada(etapaCalificadaV3);
+                                //_unitOfWork.Commit();
                             }
                         }
                     }
@@ -3121,8 +3247,23 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                     etapaAnterior.EsEtapaActual = false;
                     etapaAnterior.UsuarioModificacion = usuario;
                     etapaAnterior.FechaModificacion = DateTime.Now;
-                    _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(etapaAnterior);
-                    _unitOfWork.Commit();
+
+                    EtapaProcesoSeleccionCalificadoActualizarDTO etapaCalificadoUpdateV1 = new()
+                    {
+                        Id = etapaAnterior.Id,
+                        IdProcesoSeleccionEtapa = etapaAnterior.IdProcesoSeleccionEtapa,
+                        IdPostulante = etapaAnterior.IdPostulante,
+                        EsEtapaAprobada = etapaAnterior.EsEtapaAprobada,
+                        NotaCalculada = etapaAnterior.NotaCalculada,
+                        IdEstadoEtapaProcesoSeleccion = etapaAnterior.IdEstadoEtapaProcesoSeleccion,
+                        EsEtapaActual = etapaAnterior.EsEtapaActual,
+                        EsContactado = etapaAnterior.EsContactado,
+                        UsuarioModificacion = usuario,
+
+                    };
+
+                    _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ActualizarEtapaCalificada(etapaCalificadoUpdateV1);
+
                 }
                 var etapaCalificada = _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ObtenerPorIdPostulanteIdProcesoSeleccionEtapa(RespuestaTest.IdPostulanteEvaluacionEvaluador, configuracion.IdProcesoSeleccionEtapa!.Value);
                 if (etapaCalificada != null)
@@ -3154,9 +3295,21 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                     etapaCalificada.IdEstadoEtapaProcesoSeleccion = RespuestaTest.IdEstadoEvaluacionEvaluador;
                     etapaCalificada.UsuarioModificacion = usuario;
                     etapaCalificada.FechaModificacion = DateTime.Now;
+                    EtapaProcesoSeleccionCalificadoActualizarDTO etapaCalificadoUpdate = new()
+                    {
+                        Id = etapaCalificada.Id,
+                        IdProcesoSeleccionEtapa = etapaCalificada.IdProcesoSeleccionEtapa,
+                        IdPostulante = etapaCalificada.IdPostulante,
+                        EsEtapaAprobada = etapaCalificada.EsEtapaAprobada,
+                        NotaCalculada = etapaCalificada.NotaCalculada,
+                        IdEstadoEtapaProcesoSeleccion = etapaCalificada.IdEstadoEtapaProcesoSeleccion,
+                        EsEtapaActual = etapaCalificada.EsEtapaActual,
+                        EsContactado = etapaCalificada.EsContactado,
+                        UsuarioModificacion = usuario,
 
-                    _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(etapaCalificada);
-                    _unitOfWork.Commit();
+                    };
+                    //_unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(etapaCalificada);
+                    _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ActualizarEtapaCalificada(etapaCalificadoUpdate);
 
                     if (etapaCalificada.EsEtapaAprobada)
                     {
@@ -3164,21 +3317,35 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                         var etapaOrden = _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ObtenerListaEtapaExamenesPorPostulante(RespuestaTest.IdProcesoSeleccionEvaluacionEvaluador, RespuestaTest.IdPostulanteEvaluacionEvaluador);
                         var ordenActual = etapaOrden.Where(x => x.Id == idEtapaCalificadaActual).OrderByDescending(x => x.NroOrden).FirstOrDefault();
                         var ordenPosterior = etapaOrden.Where(x => x.NroOrden == ordenActual.NroOrden + 1).FirstOrDefault();
-                        if (ordenPosterior != null)
-                        {
-                            var actualizarEtapaPosterior = _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ObtenerPorId(ordenPosterior.Id);
-                            if (actualizarEtapaPosterior != null)
-                            {
-                                actualizarEtapaPosterior.EsEtapaActual = true;
-                                actualizarEtapaPosterior.EsContactado = true;
-                                actualizarEtapaPosterior.IdEstadoEtapaProcesoSeleccion = 3; // En Proceso
-                                actualizarEtapaPosterior.UsuarioModificacion = usuario;
-                                actualizarEtapaPosterior.FechaModificacion = DateTime.Now;
+                        //if (ordenPosterior != null)
+                        //{
+                        //    var actualizarEtapaPosterior = _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ObtenerPorId(ordenPosterior.Id);
+                        //    if (actualizarEtapaPosterior != null)
+                        //    {
+                        //        actualizarEtapaPosterior.EsEtapaActual = true;
+                        //        actualizarEtapaPosterior.EsContactado = true;
+                        //        actualizarEtapaPosterior.IdEstadoEtapaProcesoSeleccion = 3; // En Proceso
+                        //        actualizarEtapaPosterior.UsuarioModificacion = usuario;
+                        //        actualizarEtapaPosterior.FechaModificacion = DateTime.Now;
+                        //        EtapaProcesoSeleccionCalificadoActualizarDTO etapaCalificadoUpdateV2 = new()
+                        //        {
+                        //            Id = actualizarEtapaPosterior.Id,
+                        //            IdProcesoSeleccionEtapa = actualizarEtapaPosterior.IdProcesoSeleccionEtapa,
+                        //            IdPostulante = actualizarEtapaPosterior.IdPostulante,
+                        //            EsEtapaAprobada = actualizarEtapaPosterior.EsEtapaAprobada,
+                        //            NotaCalculada = actualizarEtapaPosterior.NotaCalculada,
+                        //            IdEstadoEtapaProcesoSeleccion = actualizarEtapaPosterior.IdEstadoEtapaProcesoSeleccion,
+                        //            EsEtapaActual = actualizarEtapaPosterior.EsEtapaActual,
+                        //            EsContactado = actualizarEtapaPosterior.EsContactado,
+                        //            UsuarioModificacion = usuario,
 
-                                _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(actualizarEtapaPosterior);
-                                _unitOfWork.Commit();
-                            }
-                        }
+                        //        };
+                        //        //_unitOfWork.EtapaProcesoSeleccionCalificadoRepository.Update(actualizarEtapaPosterior);
+                        //        _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ActualizarEtapaCalificada(etapaCalificadoUpdateV2);
+
+
+                        //    }
+                        //}
                     }
                 }
 
@@ -3358,14 +3525,35 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion
                     }
                     else
                     {
-                        var resultado = _unitOfWork.EtapaProcesoSeleccionCalificadoRepository.ObtenerIdsPostulanteEtapaProcesoSeleccionActual(filtroReporte);
-                        if (resultado.Count() == 0)
+                        var resultado =
+                                _unitOfWork.EtapaProcesoSeleccionCalificadoRepository
+                                .ObtenerIdsPostulanteEtapaProcesoSeleccionActual(filtroReporte);
+
+                        bool tieneIdsPostulantes = filtroReporte.IdsPostulantes != null
+                                                   && filtroReporte.IdsPostulantes.Any();
+
+                        if (resultado.Count == 0 && !tieneIdsPostulantes)
                         {
                             throw new ConflictException("No se encontraron postulantes");
                         }
-                        filtroReporte.IdsPostulantes = resultado;
-                        postulanteProceso = postulanteProceso.Where(x => filtroReporte.IdsPostulantes.Contains(x.IdPostulante)).ToList();
+
+                        if (tieneIdsPostulantes)
+                        {
+                            filtroReporte.IdsPostulantes = filtroReporte.IdsPostulantes
+                                .Intersect(resultado)
+                                .ToList();
+                        }
+                        else
+                        {
+
+                            filtroReporte.IdsPostulantes = resultado;
+                        }
+
+                        postulanteProceso = postulanteProceso
+                            .Where(x => filtroReporte.IdsPostulantes.Contains(x.IdPostulante))
+                            .ToList();
                     }
+
 
                     if (filtroReporte.FechaInicio == null)
                     {
