@@ -67,6 +67,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         FraccionesMatricula = dto.FraccionesMatricula,
                         PorcentajeCuotas = dto.PorcentajeCuotas,
                         CuotasAdicionales = dto.CuotasAdicionales,
+                        IdTipoDescuentoNivelAprobacion = dto.IdTipoDescuentoNivelAprobacion,
                         UsuarioCreacion = usuario,
                         UsuarioModificacion = usuario,
                         FechaCreacion = DateTime.Now,
@@ -144,6 +145,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         tipoDescuento.FraccionesMatricula = dto.FraccionesMatricula;
                         tipoDescuento.PorcentajeCuotas = dto.PorcentajeCuotas;
                         tipoDescuento.CuotasAdicionales = dto.CuotasAdicionales;
+                        tipoDescuento.IdTipoDescuentoNivelAprobacion = dto.IdTipoDescuentoNivelAprobacion;
                         tipoDescuento.UsuarioModificacion = usuario;
                         tipoDescuento.FechaModificacion = DateTime.Now;
                         tipoDescuento.Estado = true;
@@ -177,7 +179,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     //}
                     if (dto.TipoDescuentoAsesorCoordinadorPw != null && dto.TipoDescuentoAsesorCoordinadorPw.Count() > 0)
                     {
-                        var detalleInsertar = dto.TipoDescuentoAsesorCoordinadorPw.Where(x => detalle.Any(s => s.Tipo != x)).Select(x => new TipoDescuentoAsesorCoordinadorPw
+                        var detalleInsertar = dto.TipoDescuentoAsesorCoordinadorPw.Where(x => !detalle.Any(s => s.Tipo == x)).Select(x => new TipoDescuentoAsesorCoordinadorPw
                         {
                             Tipo = x,
                             IdTipoDescuento = tipoDescuento.Id,
@@ -283,9 +285,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         }
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 27/07/2022
-        /// Version: 1.0
+        /// Version: 1.1
+        /// Modificado: Lolo Zaa - 16/01/2026
         /// <summary>
         /// Obtiene Tipos de Descuento asociados a una Oportunidad y un Tipo de Personal.
+        /// Incluye los descuentos de solicitudes activas para la oportunidad.
         /// </summary>
         /// <param name="idOportunidad">Id de la Oportunidad</param>
         /// <param name="tipoPersonal">Tipo de Personal</param>
@@ -294,7 +298,56 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         {
             try
             {
-                return _unitOfWork.TipoDescuentoRepository.ObtenerTipoDescuentoOportunidad(idOportunidad, tipoPersonal);
+                // Obtener descuentos por tipo de personal
+                var descuentosPorTipo = _unitOfWork.TipoDescuentoRepository
+                    .ObtenerTipoDescuentoOportunidad(idOportunidad, tipoPersonal);
+
+                // Obtener descuentos de solicitudes activas
+                var descuentosSolicitud = _unitOfWork.TipoDescuentoRepository
+                    .ObtenerTipoDescuentoSolicitudOportunidad(idOportunidad);
+
+                // Combinar ambos resultados eliminando duplicados por Id
+                return descuentosPorTipo
+                    .Concat(descuentosSolicitud)
+                    .GroupBy(d => d.Id)
+                    .Select(g => g.First())
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        /// Autor: Lolo Zaa
+        /// Fecha: 12/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los tipos de descuento con su nivel de aprobación asociado
+        /// </summary>
+        /// <returns> List<TipoDescuentoConNivelAprobacionDTO> </returns>
+        public IEnumerable<TipoDescuentoConNivelAprobacionDTO> ObtenerTipoDescuentoConNivelAprobacion()
+        {
+            try
+            {
+                return _unitOfWork.TipoDescuentoRepository.ObtenerTipoDescuentoConNivelAprobacion();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        /// Autor: Lolo Zaa
+        /// Fecha: 12/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los niveles de aprobación activos
+        /// </summary>
+        /// <returns> List<TipoDescuentoNivelAprobacionDTO> </returns>
+        public IEnumerable<TipoDescuentoNivelAprobacionDTO> ObtenerNivelesAprobacion()
+        {
+            try
+            {
+                return _unitOfWork.TipoDescuentoRepository.ObtenerNivelesAprobacion();
             }
             catch (Exception ex)
             {

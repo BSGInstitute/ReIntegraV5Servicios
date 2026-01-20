@@ -15,10 +15,8 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
         public int? FraccionesMatricula { get; set; }
         public int? PorcentajeCuotas { get; set; }
         public int? CuotasAdicionales { get; set; }
-
-        //para los tipos descuento
-        public string Tipo { get; set; }
-
+        public int? IdTipoDescuentoNivelAprobacion { get; set; }
+        
         //Para TipoDescuentoAsesorCoordinadorPw
         public List<TipoDescuentoAsesorCoordinadorPw> TipoDescuentoAsesorCoordinadorPw { get; set; }
     }
