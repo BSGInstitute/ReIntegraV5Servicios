@@ -954,5 +954,13 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IPaqueteTutorVirtualPaisRepository PaqueteTutorVirtualPaisRepository { get; }
         IPaqueteTutorVirtualBeneficioRepository PaqueteTutorVirtualBeneficioRepository { get; }
         IMontoPagoLogRepository MontoPagoLogRepository { get; }
+        IMedioComunicacionRepository MedioComunicacionRepository { get; }
+        IBloqueHorarioDetalleRepository BloqueHorarioDetalleRepository { get; }
+        IPreferenciaComunicacionAcademicaRepository PreferenciaComunicacionAcademicaRepository { get; }
+        IPreferenciaComunicacionAcademicaHorarioRepository PreferenciaComunicacionAcademicaHorarioRepository { get; }
+        IConfirmacionWebinarRepository ConfirmacionWebinarRepository { get; }
+        IRemarketingEmbudoEsquemaRepository RemarketingEmbudoEsquemaRepository { get; }
+        IRemarketingEmbudoNivelRepository RemarketingEmbudoNivelRepository { get; }
+        IRemarketingEmbudoHistoricoRepository RemarketingEmbudoHistoricoRepository { get; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,6 +25,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public string Configuracion { get; set; }
         public string EstadoEnvioCorreo { get; set; }
         public string EstadoEnvioWhatsApp { get; set; }
+        public int TotalParticipantes { get; set; }
+        public int TotalParticipantesConfirmados { get; set; }
     }
     public class WebinarReporteFiltroDTO
     {

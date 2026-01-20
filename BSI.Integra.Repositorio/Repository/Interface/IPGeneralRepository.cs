@@ -96,6 +96,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public List<PGeneralMontoPagoPanelDTO> ListarProgramaGeneralParaMontoPago();
         bool ValidarPRogramaPadreParaProyectoAPlicacion(int idPGeneral);
         IEnumerable<WebinarDetalleSesionDTO> ObtenerWebinarPorFiltro(WebinarReporteFiltroDTO filtro);
+        WebinarDetalleSesionDTO? ObtenerWebinarPorIdPEspecificoSesion(int IdPEspecificoSesion);
         List<ProgramaGeneralSubAreaFiltroDTO> ObtenerProgramaGeneralPadre(int? tipo);
         string ObtenerNombrePorIdPespecifico(int idPespecifico);
         List<PGeneralDTO> ObtenerTodo();

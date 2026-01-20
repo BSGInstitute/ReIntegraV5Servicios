@@ -1,10 +1,13 @@
 ﻿using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
+using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Helpers;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -26,11 +29,13 @@ namespace BSI.Integra.Servicios.Controllers
         private IUnitOfWork _unitOfWork;
         private IPEspecificoService _pEspecificoService;
         private ITokenManager _tokenManager;
+        private IAsistenciaWebinarService _asistenciaWebinarService;
         public PEspecificoController(IUnitOfWork unitOfWork, ITokenManager tokenManager)
         {
             _unitOfWork = unitOfWork;
             _tokenManager = tokenManager;
             _pEspecificoService = new PEspecificoService(unitOfWork);
+            _asistenciaWebinarService = new AsistenciaWebinarService(unitOfWork);
         }
         /// Tipo Función: POST
         /// Autor: Flavio R. Mamani Fabian
@@ -641,7 +646,15 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ModelState);
             }
             var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
-            return Ok(_pEspecificoService.ActualizarDuracionInsertarSesion(dto, registroClaimToken.UserName));
+            var resultado = _pEspecificoService.ActualizarDuracionInsertarSesion(dto, registroClaimToken.UserName);
+            if (resultado.IdTipoPrograma == 3) { // tipo 3 son programas webinar
+                var nuevaFecha = resultado.FechaSesion.Date.AddMinutes(1);
+                var jobId = BackgroundJob.Schedule(
+                    () => _asistenciaWebinarService.ConfirmacionWebinarAutomatica(resultado.IdPEspecificoSesion),
+                    nuevaFecha
+                );
+            }
+            return Ok(true);
         }
         [Route("[Action]")]
         [Authorize]

@@ -13,6 +13,7 @@ using iText.Layout.Properties;
 using iText.StyledXmlParser.Jsoup.Nodes;
 using iText.StyledXmlParser.Jsoup.Select;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Drawing;
@@ -4720,16 +4721,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                var query = "com.sp_ActualizarCentroCosto";
-                var resultado = _dapperRepository.QuerySPDapper(query, new { IdCentroCosto = idCentroCosto, IdActividad = idActividad });
+                var query = "com.SP_ActualizarCentroCostoPorActividad";
+                var resultado = _dapperRepository.QuerySPDapper(query, new { IdCentroCosto = idCentroCosto, IdActividadDetalle_Ultima = idActividad });
                 return !string.IsNullOrEmpty(resultado);
             }
             catch (Exception ex)
             {
                 throw new Exception($"#OR-ACC-001@Error en ActualizarCentroCosto: {ex.Message}", ex);
             }
-        }
-
-
+        }        
     }
 }
