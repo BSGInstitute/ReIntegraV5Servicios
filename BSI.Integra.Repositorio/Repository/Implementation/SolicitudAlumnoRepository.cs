@@ -1038,5 +1038,33 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        /// Autor: Alexis Arroyo
+        /// Fecha: 20/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza el estado de una solicitud de alumno
+        /// </summary>
+        /// <param name="idSolicitud">ID de la solicitud a actualizar</param>
+        /// <returns>True si se actualizó correctamente</returns>
+        public bool ActualizarEstadoSolicitud(int idSolicitud)
+        {
+            try
+            {
+                var query = @"UPDATE ope.T_SolicitudAlumno
+                              SET Visualizado = 1
+                              WHERE Id = @idSolicitud";
+                if (idSolicitud != null ) {
+                    var resultadoMatricula = _dapperRepository.QueryDapper(query, new { idSolicitud });
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
     }
 }

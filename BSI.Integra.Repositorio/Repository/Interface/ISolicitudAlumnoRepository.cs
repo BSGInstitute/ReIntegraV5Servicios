@@ -63,5 +63,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         RespuestaSolicitudesAlumnoDTO ObtenerSolicitudesAgrupadasPorAsesor(
             FiltroSolicitudAlumnoPorAsesorDTO FiltroSolicitud
         );
+        bool ActualizarEstadoSolicitud(int idSolicitud);
     }
 }

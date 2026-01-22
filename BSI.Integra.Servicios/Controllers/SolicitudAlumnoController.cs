@@ -271,9 +271,34 @@ namespace BSI.Integra.Servicios.Controllers
         }
 
         /// TipoFuncion: POST
+        /// Autor: Alexis Arroyo
+        /// Fecha: 20/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Actualiza el estado de una solicitud de alumno
+        /// </summary>
+        /// <param name="idSolicitud">ID de la solicitud a actualizar</param>
+        /// <returns>True si se actualizó correctamente</returns>
+        [Route("[action]/{idSolicitud}")]
+        [HttpPost]
+        public ActionResult ActualizarEstadoSolicitud(int idSolicitud)
+        {
+            try
+            {
+                var solicitudAlumnoService = new SolicitudAlumnoService(unitOfWork);
+                var resultado = solicitudAlumnoService.ActualizarEstadoSolicitud(idSolicitud);
+                return Ok(resultado);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        /// TipoFuncion: POST
         /// Autor: Joseph Llanque.
         /// Fecha: 08/03/2023
-        /// Versión: 1.0
+        /// Versión: 1.0    
         /// <summary>
         /// Obteniene Solicitudes Por Filtro
         /// </summary>

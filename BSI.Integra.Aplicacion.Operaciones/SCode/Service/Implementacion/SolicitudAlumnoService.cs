@@ -816,5 +816,25 @@ namespace BSI.Integra.Aplicacion.Operaciones.Service.Implementacion
             }
         }
 
+        /// Autor: [Tu Nombre]
+        /// Fecha: 20/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza el estado de una solicitud de alumno
+        /// </summary>
+        /// <param name="idSolicitud">ID de la solicitud a actualizar</param>
+        /// <returns>True si se actualizó correctamente</returns>
+        public bool ActualizarEstadoSolicitud(int idSolicitud)
+        {
+            try
+            {
+                return _unitOfWork.SolicitudAlumnoRepository.ActualizarEstadoSolicitud(idSolicitud);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }
