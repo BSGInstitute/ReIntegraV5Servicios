@@ -2273,9 +2273,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsUnicode(false)
                     .HasComment("Parentesco con el familiar");
 
-                entity.Property(e => e.PrincipalResponsabilidadProfesional)
-                    .HasMaxLength(500)
-                    .IsUnicode(false);
+                entity.Property(e => e.PrincipalResponsabilidadProfesional).IsUnicode(false);
 
                 entity.Property(e => e.Profesion)
                     .HasMaxLength(500)
