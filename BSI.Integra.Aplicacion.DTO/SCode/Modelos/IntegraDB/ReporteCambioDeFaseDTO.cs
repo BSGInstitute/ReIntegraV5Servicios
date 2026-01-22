@@ -94,6 +94,7 @@
         public int ActividadesProgramadasAutomaticas { get; set; }
         public int ActividadesProgramadasManuales { get; set; }
         public int ActividadesContestaCorta { get; set; }
+        public int ActividadesContestaOcupado { get; set; }
         public int ProgramadasEjecutadasSinLlamada { get; set; }
         public int ProgramadasAutomaticasSinLlamada { get; set; }
         public int ProgramadasManualesSinLlamada { get; set; }
@@ -102,6 +103,7 @@
         public decimal MinPromedioEjecutadas { get; set; }
         public decimal MinPromedioprogramadasmanuales { get; set; }
         public decimal MinPromedioContestaCorta { get; set; }
+        public decimal MinPromedioContestaOcupado { get; set; }
         public decimal NumIntentoLlamadasPromedio { get; set; }
         public decimal TotalTimbradoAutomatica { get; set; }
         public decimal TiempoUtil { get; set; }
