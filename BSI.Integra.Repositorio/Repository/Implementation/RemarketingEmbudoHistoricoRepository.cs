@@ -5,6 +5,7 @@ using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
+using Google.Api.Ads.AdWords.v201809;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -166,20 +167,21 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
         #endregion
 
-        public async Task<List<OportunidadRemarketingEmbudoDTO>> ObtenerInformacionOportunidadRemarketing(DateTime? FechaCorte = null)
+        public List<OportunidadRemarketingEmbudoDTO> ObtenerInformacionOportunidadRemarketing(int Pagina, int RegistrosPorPagina, DateTime? FechaCorte = null)
         {
             try
             {
                 List<OportunidadRemarketingEmbudoDTO> informacionOportunidad = new List<OportunidadRemarketingEmbudoDTO>();
-                string _query = "ia.SP_RemarketingEmbudoInformacionOportunidad";
-                var parametros = new { FechaCorte };
 
-                // NO usar .Result - usar await directamente
-                var resultado = await _dapperRepository.QuerySPDapperAsync(
-                    _query,
-                    parametros,
-                    timeoutMinutos: 5  // 5 minutos
-                );
+                var query = "ia.SP_RemarketingEmbudoInformacionOportunidad";  // Cambié el nombre para consistencia
+                var parametros = new
+                {
+                    FechaCorte,
+                    Pagina,
+                    RegistrosPorPagina
+                };
+
+                var resultado = _dapperRepository.QuerySPDapper(query, parametros);
 
                 if (!string.IsNullOrEmpty(resultado) && resultado != "[]" && resultado != "null")
                 {
@@ -189,10 +191,33 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
                 return new List<OportunidadRemarketingEmbudoDTO>();
             }
+            catch (Exception ex)
+            {
+                throw new Exception($"#OR-OCPPIO@Error en ObtenerInformacionOportunidadRemarketing: {ex.Message}", ex);
+            }
+        }
+        public long ObtenerInformacionOportunidadRemarketingTotal(DateTime? FechaCorte = null)
+        {
+            try
+            {
+                LongTotalDTO valores = new LongTotalDTO();
+                var query = @"ia.SP_RemarketingEmbudoInformacionOportunidadTotal";
+
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(query, new
+                {
+                    FechaCorte
+                });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    valores = JsonConvert.DeserializeObject<LongTotalDTO>(resultado);
+                    return valores.Total;
+                }
+                return 0;
+            }
             catch (Exception e)
             {
                 // No solo relanzar, agregar contexto
-                throw new Exception($"Error obteniendo información de remarketing: {e.Message}", e);
+                return 0;
             }
         }
         public List<RemarketingEmbudoNivelDescripcionDTO> ObtenerInformacionRemarketingEmbudoNivel()
@@ -300,7 +325,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var todosLosScores = new List<OportunidadScoreDTO>();
                 var totalRegistros = 0;
-                var queryCount = "SELECT COUNT(*) AS Valor FROM ia.T_RemarketingIAScoreContacto WHERE estado = 1";
+                var queryCount = "SELECT COUNT(*) AS Valor FROM ia.T_RemarketingScoreContacto WHERE estado = 1";
                 var resultadoCount = _dapperRepository.FirstOrDefault(queryCount, null);
                 if (!string.IsNullOrEmpty(resultadoCount) && resultadoCount != "[]")
                 {
@@ -319,7 +344,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         RegistrosPagina = registrosPorPagina
                     };
 
-                    var query = "ia.SP_RemarketingIAObtenerScoresEnBloque";
+                    var query = "ia.SP_RemarketingObtenerScoresEnBloque";
                     var resultado = _dapperRepository.QuerySPDapper(query, parametros);
                     if (!string.IsNullOrEmpty(resultado) && resultado != "[]")
                     {

@@ -5,6 +5,7 @@ using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
+using Google.Api.Ads.AdWords.v201809;
 using RestSharp.Extensions;
 using System;
 using System.Collections.Generic;
@@ -152,8 +153,16 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         .OrderByDescending(s => s.FechaProcesamiento)
                         .First())
                     .ToDictionary(s => s.IdOportunidad, s => s.ScoreTextual);
-
-                var registrosOportunidad = await _unitOfWork.RemarketingEmbudoHistoricoRepository.ObtenerInformacionOportunidadRemarketing(FechaCorte);
+                int RegistrosPorPagina = 5000;
+                long totalRegistrosOportunidad = _unitOfWork.RemarketingEmbudoHistoricoRepository.ObtenerInformacionOportunidadRemarketingTotal(FechaCorte);
+                long totalPaginas = (totalRegistrosOportunidad + RegistrosPorPagina - 1) / RegistrosPorPagina;
+                var registrosOportunidad = new List<OportunidadRemarketingEmbudoDTO>();
+                for (int paginaActual = 1; paginaActual <= totalPaginas; paginaActual++)
+                {
+                    List < OportunidadRemarketingEmbudoDTO > registrosOportunidadPorPagina = new List<OportunidadRemarketingEmbudoDTO>();
+                    registrosOportunidadPorPagina = _unitOfWork.RemarketingEmbudoHistoricoRepository.ObtenerInformacionOportunidadRemarketing(paginaActual, RegistrosPorPagina, FechaCorte);
+                    registrosOportunidad.AddRange(registrosOportunidadPorPagina);
+                }
 
                 var oportunidadesUnicas = registrosOportunidad
                     .GroupBy(o => o.IdOportunidad)
