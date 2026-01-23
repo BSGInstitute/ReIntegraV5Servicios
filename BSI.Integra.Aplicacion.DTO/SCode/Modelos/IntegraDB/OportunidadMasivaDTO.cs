@@ -1,6 +1,6 @@
 ﻿namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 {
- 
+
 
 
     public class InformacionBaseOportunidadMasiva
@@ -20,7 +20,7 @@
         public string Asesor { get; set; }
         public string TipoDato { get; set; }
         public string FaseOportunidad { get; set; }
-        
+
     }
     public class HistorialOportunidaMasivodDTO
     {
@@ -37,8 +37,8 @@
         public string ApellidoMaterno { get; set; }
         public string NombrePais { get; set; }
         public string NombreCiudad { get; set; }
-        public string Celular { get; set; }
-        public string Email1 { get; set; }
+        public string? Celular { get; set; }
+        public string? Email1 { get; set; }
         public string NombreCargo { get; set; }
         public string NombreFormacion { get; set; }
         public string NombreAreaTrabajo { get; set; }

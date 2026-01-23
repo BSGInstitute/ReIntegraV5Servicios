@@ -112,7 +112,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     {
                         InformacionBaseOportunidadMasiva datos = new InformacionBaseOportunidadMasiva();
 
-                        datos.Nombres = worksheet.Cells[row, 1].Value?.ToString();                   
+                        datos.Nombres = worksheet.Cells[row, 1].Value?.ToString();
                         datos.Apellidos = worksheet.Cells[row, 2].Value?.ToString();
                         datos.Correo = worksheet.Cells[row, 3].Value?.ToString();
                         datos.Celular = worksheet.Cells[row, 4].Value?.ToString();
@@ -245,20 +245,16 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         }
 
                         var pais = listaPaises.FirstOrDefault(x => LimpiarCadena(x.Nombre).ToLower() == LimpiarCadena(opo.Pais).ToLower());
-                    
                         if (pais != null)
                         {
                             idPais = pais.Id;
                         }
-                      
+
                         var ciudad = listaCiudad.FirstOrDefault(x => LimpiarCadena(x.Nombre).ToLower() == LimpiarCadena(opo.Ciudad).ToLower());
-                       
-                        if (idCiudad != null)
+                        if (ciudad != null)
                         {
                             idCiudad = ciudad.Id;
                         }
-
-
 
                         var centroCosto = _unitOfWork.CentroCostoRepository.FirstBy(x => x.Nombre == opo.CentroCosto);
                         var idCentroCosto = 0;
@@ -286,7 +282,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                         var dtoOportunidad = new OportunidadFormularioDTO();
                         dtoOportunidad.Id = 0;
-
                         dtoOportunidad.IdCentroCosto = idCentroCosto;
                         dtoOportunidad.IdFaseOportunidad = ValorEstatico.IdFaseOportunidadBNC;
                         dtoOportunidad.IdOrigen = idOrigen;
@@ -336,6 +331,78 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         }
                         else
                         {
+                            //---------------
+                            //        if (BNC, IT, IP, PF, IC, IS y M )
+                            //            {
+                            //    //No procesar oportunidad
+                            //}
+
+                            //var IdFaseOportunidadBIC1 = 1;
+                            //var IdFaseOportunidadBIC2 = 14;
+                            //var IdFaseOportunidadRN1 = 9;
+                            //var IdFaseOportunidadRN5 = 27;
+                            //var IdFaseOportunidadBRM1 = 29;
+                            //var IdFaseOportunidadNS = 36;
+
+                            ////Procesar oportunidad como BNC
+                            //if (IdFaseOportunidad = ValorEstatico.IdFaseOportunidadNI || IdFaseOportunidad = ValorEstatico.IdFaseOportunidadBIC
+                            //    || IdFaseOportunidad = ValorEstatico.IdFaseOportunidadRN3 || IdFaseOportunidad = ValorEstatico.IdFaseOportunidadRN4
+                            //    || IdFaseOportunidad = ValorEstatico.IdFaseOportunidadE || IdFaseOportunidad = ValorEstatico.IdFaseOportunidadRN
+                            //    || IdFaseOportunidad = IdFaseOportunidadBIC1 || IdFaseOportunidad = IdFaseOportunidadBIC2
+                            //    || IdFaseOportunidad = IdFaseOportunidadRN1 || IdFaseOportunidad = IdFaseOportunidadRN5
+                            //    || IdFaseOportunidad = IdFaseOportunidadBRM1 || IdFaseOportunidad = IdFaseOportunidadNS)
+                            //{
+
+                            //    var IdFaseOportunidadRN2A = 41;
+                            //    var IdFaseOportunidadRN2B = 10;
+                            //    var IdFaseOportunidadRN2C = 42;
+
+                            //    if (IdFaseOportunidad = IdFaseOportunidadRN2A; IdFaseOportunidad = IdFaseOportunidadRN2B; IdFaseOportunidad = IdFaseOportunidadRN2C )
+                            //                    {
+                            //        //Modificar asesor asignado a la oportunidad
+                            //    }
+
+                            //    dtoOportunidad.IdAlumno = alumno.Id;
+                            //    var alumnoDTO = new AlumnoFormularioOportunidadDTO();
+                            //    alumnoDTO.Id = alumno.Id;
+                            //    alumnoDTO.Nombre1 = nombre1;
+                            //    alumnoDTO.Nombre2 = nombre2;
+                            //    alumnoDTO.ApellidoPaterno = apellidoPaterno;
+                            //    alumnoDTO.ApellidoMaterno = apellidoMaterno;
+                            //    alumnoDTO.DNI = alumno.Dni;
+                            //    alumnoDTO.Direccion = alumno.Direccion;
+                            //    alumnoDTO.Telefono = alumno.Telefono;
+                            //    alumnoDTO.Celular = celular;
+                            //    alumnoDTO.Email1 = alumno.Email1;
+                            //    alumnoDTO.Email2 = alumno.Email2;
+                            //    alumnoDTO.IdCargo = idCargo;
+                            //    alumnoDTO.IdAFormacion = idAFormacion;
+                            //    alumnoDTO.IdATrabajo = idATrabajo;
+                            //    alumnoDTO.IdIndustria = idIndustria;
+                            //    alumnoDTO.IdReferido = alumno.IdReferido;
+                            //    alumnoDTO.IdCodigoPais = alumno.IdPais ?? idPais;
+                            //    alumnoDTO.IdCodigoCiudad = idCiudad;
+                            //    alumnoDTO.HoraContacto = alumno.HoraContacto;
+                            //    alumnoDTO.HoraPeru = alumno.HoraPeru;
+                            //    alumnoDTO.Telefono2 = alumno.Telefono2;
+                            //    alumnoDTO.Celular2 = alumno.Celular2;
+                            //    alumnoDTO.IdEmpresa = alumno.IdEmpresa;
+                            //    alumnoDTO.Comentario = alumno.Comentario;
+
+                            //    var dto = new RegistroOportunidadAlumnoDTO()
+                            //    {
+                            //        Alumno = alumnoDTO,
+                            //        Oportunidad = dtoOportunidad,
+                            //        // FechaRegistroCampania = opo.FechaRegistroCampania,
+                            //        Usuario = usuario
+                            //    };
+                            //    ActualizarAlumnoCrearOportunidadVentas(dto);
+                            //}
+
+
+
+                            //---------------
+
                             dtoOportunidad.IdAlumno = alumno.Id;
                             var alumnoDTO = new AlumnoFormularioOportunidadDTO();
                             alumnoDTO.Id = alumno.Id;
@@ -355,7 +422,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             alumnoDTO.IdIndustria = idIndustria;
                             alumnoDTO.IdReferido = alumno.IdReferido;
                             alumnoDTO.IdCodigoPais = alumno.IdPais ?? idPais;
-                            alumnoDTO.IdCodigoCiudad =idCiudad;
+                            alumnoDTO.IdCodigoCiudad = idCiudad;
                             alumnoDTO.HoraContacto = alumno.HoraContacto;
                             alumnoDTO.HoraPeru = alumno.HoraPeru;
                             alumnoDTO.Telefono2 = alumno.Telefono2;
@@ -494,7 +561,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     // Si falla la inserción en historial, solo lo logueamos y seguimos el flujo normal
                     Console.WriteLine($"❌ Error al insertar en historial: {ex.Message}");
                 }
-               
+
 
                 // SMS
                 try
@@ -621,7 +688,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 }
                 try
                 {
-                    
+
                     _unitOfWork.OportunidadRepository.InsertarHistorialOportunidad(oportunidad.Id, formulario.Usuario);
                 }
                 catch (Exception ex)
@@ -665,7 +732,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         {
             try
             {
-                 _unitOfWork.OportunidadRepository.InsertarHistorialOportunidad(idOportunidad, usuario);
+                _unitOfWork.OportunidadRepository.InsertarHistorialOportunidad(idOportunidad, usuario);
 
             }
             catch (Exception ex)
@@ -679,13 +746,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             {
                 var resultado = _unitOfWork.OportunidadRepository.ObtenerOportunidadesMasivas();
                 var alumnoService = new AlumnoService(_unitOfWork);
-                foreach (var item in resultado)
-                {
-                    if (!string.IsNullOrWhiteSpace(item.Email1))
-                        item.Email1 = alumnoService.EncriptarCorreoHash(item.Email1);
-                    if (!string.IsNullOrWhiteSpace(item.Celular))
-                        item.Celular = alumnoService.EncriptarNumeroHash(item.Celular);
-                }
+
                 return resultado;
             }
             catch (Exception e)
