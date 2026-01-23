@@ -2480,12 +2480,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Sistema Automatico Usuario de modificacion");
 
                 entity.Property(e => e.ValorAnterior)
-                    .HasMaxLength(1000)
                     .IsUnicode(false)
                     .HasComment("Valor antes de la modificacion");
 
                 entity.Property(e => e.ValorNuevo)
-                    .HasMaxLength(1000)
                     .IsUnicode(false)
                     .HasComment("Valor despues de la modificación.");
             });
