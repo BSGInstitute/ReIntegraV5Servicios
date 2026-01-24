@@ -104,8 +104,6 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
-
-
         [Route("[Action]")]
         [HttpPost]
         public ActionResult ProcesarOportunidadedMasiva([FromForm] IFormFile file, [FromForm] string usuario)
@@ -121,6 +119,7 @@ namespace BSI.Integra.Servicios.Controllers
                 throw ex;
             }
         }
+
         [Route("[Action]")]
         [HttpPost]
         public ActionResult InsertarMasivoHistorial(HistorialOportunidaMasivodDTO datos)

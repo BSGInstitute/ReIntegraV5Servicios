@@ -5,6 +5,7 @@
 
     public class InformacionBaseOportunidadMasiva
     {
+        public int FilaExcel { get; set; }
         public string Nombres { get; set; }
         public string Apellidos { get; set; }
         public string Correo { get; set; }

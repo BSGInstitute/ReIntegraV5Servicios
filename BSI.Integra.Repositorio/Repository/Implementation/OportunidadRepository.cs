@@ -4730,5 +4730,46 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception($"#OR-ACC-001@Error en ActualizarCentroCosto: {ex.Message}", ex);
             }
         }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 23/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el IdFaseOportunidad de la ultima oportunidad para un alumno
+        /// </summary>
+        /// <param name="idAlumno">Id del alumno</param>
+        /// <returns>IdFaseOportunidad</returns>
+        public OportunidadFaseDTO ObtenerFaseUltimaOportunidadPorIdAlumno(int idAlumno)
+        {
+            try
+            {
+                OportunidadFaseDTO result = new OportunidadFaseDTO();
+
+                var query = @"SELECT IdFaseOportunidad, IdPersonal_Asignado, FechaCreacion FROM com.T_Oportunidad 
+                                    WHERE IdAlumno = @idAlumno AND Estado = 1";
+
+                var jsonResult = _dapperRepository.QueryDapper(query, new { idAlumno });
+
+                if (string.IsNullOrEmpty(jsonResult) || jsonResult == "[]")
+                    return result;
+
+                var listaOportunidades = JsonConvert.DeserializeObject<List<OportunidadFaseDTO>>(jsonResult);
+
+                if (listaOportunidades != null && listaOportunidades.Any())
+                {
+                    var ultimaOportunidad = listaOportunidades
+                        .OrderByDescending(x => x.FechaCreacion ?? DateTime.MinValue)
+                        .FirstOrDefault();
+
+                    return ultimaOportunidad;
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }
