@@ -6,6 +6,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
 {
     public interface IFlujoDocenteService
     {
-        Task<bool> RegistrarOportunidad(DocentePostulanteDTO docentePostulante, string usuario);
+        Task<bool> RegistrarOportunidad(DocentePostulanteDTO docentePostulante, string usuario, int idEstadoGestionContacto, int? idCentroCosto);
     }
 }

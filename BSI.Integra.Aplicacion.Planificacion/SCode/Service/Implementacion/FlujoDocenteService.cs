@@ -21,7 +21,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             _gestionContactoService = gestionContactoService;
         }
 
-        public async Task<bool> RegistrarOportunidad(DocentePostulanteDTO dto, string usuario)
+        public async Task<bool> RegistrarOportunidad(DocentePostulanteDTO dto, string usuario, int idEstadoGestionContacto, int? idCentroCosto)
         {
             try
             {
@@ -30,6 +30,13 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
 
                 if (string.IsNullOrWhiteSpace(dto.Correo))
                     throw new BadRequestException("El correo electrónico es obligatorio para crear el docente postulante");
+
+                // Validación de IdEstadoGestionContacto e IdCentroCosto
+                if (idEstadoGestionContacto == 1 && idCentroCosto != null)
+                    throw new BadRequestException("Para el estado 'Tipo General' (1), el IdCentroCosto debe ser nulo");
+
+                if (idEstadoGestionContacto == 2 && idCentroCosto == null)
+                    throw new BadRequestException("Para el estado 'Asignado a Curso' (2), el IdCentroCosto es obligatorio");
 
                 var fechaActual = DateTime.Now;
 
@@ -114,11 +121,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 // 4. Crear GestionContacto (pla.T_GestionContacto)
                 var gestionDTO = new CrearGestionContactoDTO
                 {
-                    IdCentroCosto = null,
+                    IdCentroCosto = idCentroCosto,
                     IdPersonal_Asignado = 6205,
                     IdClasificacionPersona = idClasificacionPersona,
                     IdFaseGestionContacto = 1,
                     IdOrigen = 1124,
+                    IdEstadoGestionContacto = idEstadoGestionContacto,
                     UsuarioCreacion = usuario,
                     Comentario = $"Registro automático desde DocentePostulante: {dto.Nombre1} {dto.ApellidoPaterno}"
                 };

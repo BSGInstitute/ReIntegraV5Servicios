@@ -110,7 +110,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     IdClasificacionPersona = dto.IdClasificacionPersona, // El Docente
                     IdFaseGestionContacto = dto.IdFaseGestionContacto,
                     IdOrigen = dto.IdOrigen,
-                    IdEstadoGestionContacto = 2,
+                    IdEstadoGestionContacto = dto.IdEstadoGestionContacto,
                     UltimoComentario = dto.Comentario,
                     EstadoSeguimientoWhatsApp = whatsAppDefault,
                     Estado = estadoActivo,
@@ -136,7 +136,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     IdFaseGestionContacto = dto.IdFaseGestionContacto,
                     IdFaseGestionContactoAnterior = null,
                     IdOrigen = dto.IdOrigen,
-                    IdEstadoGestionContacto = 2,
+                    IdEstadoGestionContacto = dto.IdEstadoGestionContacto,
                     EstadoSeguimientoWhatsApp = null,
                     IdPersonalAsignadoAnterior = null,
                     IdCentroCostoAnterior = null,
