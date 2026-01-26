@@ -94,6 +94,20 @@ namespace BSI.Integra.Servicios.Controllers
         }
         /// Tipo Función: GET
         /// Autor: Carlos H. Crispin Riquelme
+        /// Fecha: 24/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza el proceso de ejecutar bics2
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [HttpGet("[Action]/{idPaisSede}")]
+        public IActionResult EjecutarBIC2(int idPaisSede)
+        {
+            var resultado = _contadorBicService.EjecutarBIC2(idPaisSede);
+            return Ok(resultado);
+        }
+        /// Tipo Función: GET
+        /// Autor: Carlos H. Crispin Riquelme
         /// Fecha: 23/10/2024
         /// Versión: 1.0
         /// <summary>
