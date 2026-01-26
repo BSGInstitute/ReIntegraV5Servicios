@@ -18,6 +18,7 @@
 	<ProjectReference Include="..\BSI.Integra.Aplicacion.Transversal\BSI.Integra.Aplicacion.Transversal.csproj" />
     <ProjectReference Include="..\BSI.Integra.Persistencia\BSI.Integra.Persistencia.csproj" />
     <ProjectReference Include="..\BSI.Integra.Repositorio\BSI.Integra.Repositorio.csproj" />
+    <ProjectReference Include="..\BSI.Integra.Servicios\BSI.Integra.Servicios.csproj" />
   </ItemGroup>
 
 </Project>

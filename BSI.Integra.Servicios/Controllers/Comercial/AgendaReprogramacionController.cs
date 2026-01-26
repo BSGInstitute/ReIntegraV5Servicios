@@ -228,9 +228,11 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         {
             try
             {
-                IAgendaReprogramacionService servicio = new AgendaReprogramacionService(_unitOfWork);
-                var resultado = servicio.RealizarCambioCentroCosto(idOportunidad, idCentroCosto, _tokenManager.UserName);
-                return Ok(resultado);
+                //Se comenta para evitar el cambio de centro de costo desde V5 
+                //IAgendaReprogramacionService servicio = new AgendaReprogramacionService(_unitOfWork);
+                //var resultado = servicio.RealizarCambioCentroCosto(idOportunidad, idCentroCosto, _tokenManager.UserName);
+                //return Ok(resultado);
+                return BadRequest("El cambio de Centro de Costo solo se puede hacer desve la Agenda V6");
             }
             catch
             {
