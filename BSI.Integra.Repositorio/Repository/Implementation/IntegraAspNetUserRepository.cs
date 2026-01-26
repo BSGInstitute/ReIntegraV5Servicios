@@ -226,6 +226,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
+                //var query = @"SELECT Id, Nombre, IpPublica, Descripcion, FechaExpira FROM conf.T_AccesoIpConfiguracion WHERE Estado = 1 ";
                 var query = @"SELECT Id, Nombre, IpPublica, Descripcion, FechaExpira FROM conf.T_AccesoIpConfiguracion WHERE Estado = 1 AND IpPublica = @ipPublica";
                 //var query = @"SELECT TOP 1 Id, Nombre, @ipPublica as IpPublica, Descripcion, FechaExpira 
                 //     FROM conf.T_AccesoIpConfiguracion 

@@ -90,7 +90,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.Configurac
             {
                 var query = "[mkt].[SP_EliminarDetalleProgramaConfigurado]";
 
-                var jsonResult = _dapperRepository.QuerySPDapper(query, new { IdProgramaConfigurado = id, UsuarioModificacion = usuario });
+                var jsonResult = _dapperRepository.QuerySPDapper(query, new { IdProgramaGeneralConfigurado = id, UsuarioModificacion = usuario });
 
                 return true;
             }
@@ -174,7 +174,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.Configurac
                 request.UsuarioCreacion = usuario;
                 var query = "[mkt].[SP_InsertarConfiguracionCategoriaArgumento]";
 
-                var jsonResult = _dapperRepository.QuerySPDapper(query, request);
+                var jsonResult = _dapperRepository.QuerySPDapper(query, new
+                {
+                    IdProgramaGeneralConfigurado = request.IdProgramaConfigurado,
+                    IdCategoriaArgumentoConfigurado = request.IdCategoria,
+                    request.Nombre,
+                    request.Prioridad,
+                    request.Descripcion,
+                    request.UsuarioCreacion
+                });
 
                 return true;
             }
@@ -229,7 +237,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.Configurac
                 request.UsuarioModificacion = usuario;
                 var query = "[mkt].[SP_EliminarArgumentoPorCategoria]";
 
-                var jsonResult = _dapperRepository.QuerySPDapper(query, request);
+                var jsonResult = _dapperRepository.QuerySPDapper(query, new { IdProgramaGeneralConfigurado = request.IdProgramaConfigurado, IdRemarketingArgumento = request.IdArgumento, request.UsuarioModificacion });
 
                 return true;
             }

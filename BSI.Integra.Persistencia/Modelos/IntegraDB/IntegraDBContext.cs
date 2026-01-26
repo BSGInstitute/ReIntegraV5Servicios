@@ -2273,9 +2273,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsUnicode(false)
                     .HasComment("Parentesco con el familiar");
 
-                entity.Property(e => e.PrincipalResponsabilidadProfesional)
-                    .HasMaxLength(500)
-                    .IsUnicode(false);
+                entity.Property(e => e.PrincipalResponsabilidadProfesional).IsUnicode(false);
 
                 entity.Property(e => e.Profesion)
                     .HasMaxLength(500)
@@ -2482,12 +2480,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Sistema Automatico Usuario de modificacion");
 
                 entity.Property(e => e.ValorAnterior)
-                    .HasMaxLength(1000)
                     .IsUnicode(false)
                     .HasComment("Valor antes de la modificacion");
 
                 entity.Property(e => e.ValorNuevo)
-                    .HasMaxLength(1000)
                     .IsUnicode(false)
                     .HasComment("Valor despues de la modificación.");
             });

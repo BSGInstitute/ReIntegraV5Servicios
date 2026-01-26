@@ -163,6 +163,28 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient(); // Si no lo tienes ya
 builder.Services.AddScoped<IFacebookLeadsRecuperacionDatosService, FacebookLeadsRecuperacionDatosService>();
 
+// ============= INYECCIÓN DE DEPENDENCIAS - SISTEMA DE ESQUEMAS BOT IA WHATSAPP =============
+// Repositories
+builder.Services.AddTransient<BSI.Integra.Repositorio.Repository.Interface.IMensajeExactoRepository, BSI.Integra.Repositorio.Repository.Implementation.MensajeExactoRepository>();
+builder.Services.AddTransient<BSI.Integra.Repositorio.Repository.Interface.IFaseRepository, BSI.Integra.Repositorio.Repository.Implementation.FaseRepository>();
+builder.Services.AddTransient<BSI.Integra.Repositorio.Repository.Interface.IPerfilRepository, BSI.Integra.Repositorio.Repository.Implementation.PerfilRepository>();
+builder.Services.AddTransient<BSI.Integra.Repositorio.Repository.Interface.IEsquemaWhatsAppAsignacionRepository, BSI.Integra.Repositorio.Repository.Implementation.EsquemaWhatsAppAsignacionRepository>();
+builder.Services.AddTransient<BSI.Integra.Repositorio.Repository.Interface.IEsquemaLecturaMensajeRepository, BSI.Integra.Repositorio.Repository.Implementation.EsquemaLecturaMensajeRepository>();
+builder.Services.AddTransient<BSI.Integra.Repositorio.Repository.Interface.IEsquemaInterpretarInformacionRepository, BSI.Integra.Repositorio.Repository.Implementation.EsquemaInterpretarInformacionRepository>();
+builder.Services.AddTransient<BSI.Integra.Repositorio.Repository.Interface.IEsquemaRespuestaRepository, BSI.Integra.Repositorio.Repository.Implementation.EsquemaRespuestaRepository>();
+builder.Services.AddTransient<BSI.Integra.Repositorio.Repository.Interface.IEsquemaActividadRepository, BSI.Integra.Repositorio.Repository.Implementation.EsquemaActividadRepository>();
+
+// Services
+builder.Services.AddScoped<BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.IMensajeExactoService, BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.MensajeExactoService>();
+builder.Services.AddScoped<BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.IFaseService, BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.FaseService>();
+builder.Services.AddScoped<BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.IPerfilService, BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.PerfilService>();
+builder.Services.AddScoped<BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.IEsquemaWhatsAppAsignacionService, BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.EsquemaWhatsAppAsignacionService>();
+builder.Services.AddScoped<BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.IEsquemaLecturaMensajeService, BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.EsquemaLecturaMensajeService>();
+builder.Services.AddScoped<BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.IEsquemaInterpretarInformacionService, BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.EsquemaInterpretarInformacionService>();
+builder.Services.AddScoped<BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.IEsquemaRespuestaService, BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.EsquemaRespuestaService>();
+builder.Services.AddScoped<BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.IEsquemaActividadService, BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.EsquemaActividadService>();
+// ===========================================================================================
+
 
 builder.Services.AddTransient<
     BSI.Integra.Repositorio.Repository.Interface.IMatriculaConfiguracionComunicacionAsesorRepository,
@@ -175,7 +197,11 @@ builder.Services.AddTransient<
     BSI.Integra.Aplicacion.Planificacion.Service.Implementacion.MatriculaConfiguracionComunicacionAsesorService
 >();
 
-
+// TipoDescuentoSolicitud Service
+builder.Services.AddScoped<
+    BSI.Integra.Aplicacion.Planificacion.Service.Interface.ITipoDescuentoSolicitudService,
+    BSI.Integra.Aplicacion.Planificacion.Service.Implementacion.TipoDescuentoSolicitudService
+>();
 
 // Google Ads Conversion Service
 builder.Services.AddScoped<BSI.Integra.Repositorio.Repository.Interface.IAdwordsConversionRepository, BSI.Integra.Repositorio.Repository.Implementation.AdwordsConversionRepository>();
