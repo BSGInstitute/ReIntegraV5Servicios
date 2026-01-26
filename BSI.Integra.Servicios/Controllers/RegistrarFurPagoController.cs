@@ -322,7 +322,48 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 return Unauthorized();
             }
-            
+
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Miguel Valdivia
+        /// Fecha: 24/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Convierte un monto de una moneda origen a una moneda destino usando el tipo de cambio mas reciente
+        /// </summary>
+        /// <param name="idMonedaOrigen">Id de la moneda de origen (ej: 19=USD, 20=PEN, 9=CLP)</param>
+        /// <param name="idMonedaDestino">Id de la moneda de destino</param>
+        /// <param name="monto">Monto a convertir</param>
+        /// <returns>Retorna 200 con ConversionMonedaDTO o 400 con mensaje de error</returns>
+        [AllowAnonymous] // TODO: Remover después de las pruebas
+        [HttpGet("ConvertirMoneda/{idMonedaOrigen}/{idMonedaDestino}/{monto}")]
+        public IActionResult ConvertirMoneda(int idMonedaOrigen, int idMonedaDestino, decimal monto)
+        {
+            // TODO: Descomentar después de las pruebas
+            //var claimsIdentity = User.Identity as ClaimsIdentity;
+            //var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+
+            //if (_respuestaCorrecta.TokenValida)
+            //{
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                try
+                {
+                    var servicio = new FurPagoService(unitOfWork);
+                    return Ok(servicio.ConvertirMoneda(idMonedaOrigen, idMonedaDestino, monto));
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            //}
+            //else
+            //{
+            //    return Unauthorized();
+            //}
         }
 
     }

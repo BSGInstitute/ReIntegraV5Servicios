@@ -484,5 +484,27 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Implementacion
             }
         }
 
+        /// Autor: Miguel Valdivia
+        /// Fecha: 24/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Convierte un monto de una moneda origen a una moneda destino
+        /// </summary>
+        /// <param name="idMonedaOrigen">Id de la moneda de origen</param>
+        /// <param name="idMonedaDestino">Id de la moneda de destino</param>
+        /// <param name="monto">Monto a convertir</param>
+        /// <returns>ConversionMonedaDTO con el resultado de la conversion</returns>
+        public ConversionMonedaDTO ConvertirMoneda(int idMonedaOrigen, int idMonedaDestino, decimal monto)
+        {
+            try
+            {
+                return _unitOfWork.FurPagoRepository.ConvertirMoneda(idMonedaOrigen, idMonedaDestino, monto);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }
