@@ -15,9 +15,12 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         bool Delete(IEnumerable<int> listadoIds, string usuario);
         #endregion
         List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasPeru();
+        List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasPeruBic1();
         List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasContador();
         List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasChile();
+        List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasChileBic1();
         List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasMexico();
+        List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasMexicoBic1();
         List<ConfiguracionBICDTO> ObtenerConfiguracionBicAplicada();
         List<PersonalBicConfiguracionDTO> ObtenerConfiguracionBicPersonal();
         List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasPorIdOportunida(int idOportunidad);
