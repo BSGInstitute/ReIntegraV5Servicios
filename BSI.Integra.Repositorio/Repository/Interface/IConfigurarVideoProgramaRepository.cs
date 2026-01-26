@@ -1,5 +1,7 @@
 ﻿
+using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 
@@ -25,5 +27,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<ConfigurarVideoPrograma> ObtenerPorVideoId(string videoId);
         IEnumerable<PreEstructuraCapituloProgramaDTO> ObtenerPreConfigurarVideoProgramaDescargaSinDatos(int idPGeneral);
         IEnumerable<PreEstructuraCapituloProgramaDTO> ObtenerPreConfigurarVideoProgramaDescarga(int idPGeneral);
+        List<PreEstructuraCapituloProgramaTutorVirtualDTO> ObtenerPreConfigurarVideoProgramaTutorVirtual(int idPGeneral);
+        List<ProcesamientoTranscripcionVideoOnlineDTO> ObtenerProcesamientoVideosAonline();
+        string ObtenerNombreCursoProcesamientoVideosAonline(VideoInfoDTO Video);
+
     }
 }

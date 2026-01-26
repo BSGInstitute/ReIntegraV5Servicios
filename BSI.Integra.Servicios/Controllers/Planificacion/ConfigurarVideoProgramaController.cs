@@ -1,5 +1,6 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.Operaciones.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface.Planificacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
@@ -481,7 +482,82 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             var resultado = _configurarVideoProgramaService.ObtenerConteosdeVideosTipo(idPGeneral);
             return Ok(resultado);
         }
-
+        /// Tipo Función: GET
+        /// Autor: Max Mantilla
+        /// Fecha: 2026-01-23
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la configuracion video programa por el IdPGeneral para Tutor Virtual
+        /// </summary>
+        /// <param name="idPGeneral"> (PK) de T_PGeneral </param> 
+        /// <returns> List<EstructuraCapituloProgramaAlternoDTO> </returns>
+        [Route("[Action]/{idPGeneral}")]
+        [HttpGet]
+        public ActionResult ObtenerConfiguracionTutorVirtualAonline(int idPGeneral)
+        {
+            try
+            {
+                var respuesta = _configurarVideoProgramaService.ObtenerConfiguracionTutorVirtualAonline(idPGeneral);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// TipoFuncion: POST
+        /// Autor: Max Mantilla
+        /// Fecha: 2026-01-26
+        /// Version: 1.0
+        /// <summary>
+        /// Proceso para generar base de conocimiento en Tutor Virtual
+        /// </summary>
+        /// <param IniciarProcesoResumenGrabacionesDTO> Parametros de entrada </param>
+        /// <returns> Task<(string resultado, HttpStatusCode statusCode)> </returns>
+        [HttpPost("[action]")]
+        public async Task<IActionResult> ProcesarTutorVirtualAonline(ProcesamientoVideosAonlineEnvioDTO datos)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
+                var resultado = await _configurarVideoProgramaService.ProcesarTutorVirtualAonline(datos, registroClaimToken.UserName);
+                return StatusCode((int)resultado.statusCode, resultado.resultado);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        /// TipoFuncion: POST
+        /// Autor: Max Mantilla
+        /// Fecha: 2026-01-26
+        /// Version: 1.0
+        /// <summary>
+        /// Envio de correo cuando culmina el procesamiento de videos para Tutor Virtual
+        /// </summary>
+        /// <param IniciarProcesoResumenGrabacionesDTO> Parametros de entrada </param>
+        /// <returns> Task<(string resultado, HttpStatusCode statusCode)> </returns>
+        [HttpPost("[action]")]
+        public ActionResult EnviarCorreoProcesamientoVideosTutorAonline(ProcesamientoVideosAonlineEnvioCorreoDTO datos)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var resultado = _configurarVideoProgramaService.EnviarCorreoProcesamientoVideosTutorAonline(datos);
+                return Ok(resultado);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
 
     }
 }

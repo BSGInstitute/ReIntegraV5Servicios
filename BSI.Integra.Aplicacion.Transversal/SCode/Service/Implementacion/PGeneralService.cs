@@ -3255,6 +3255,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 pgeneral.NombreCorto = programaGeneralDTO.PGeneral.NombreCorto;
                 pgeneral.IdPagina = programaGeneralDTO.PGeneral.IdPagina;
                 pgeneral.ChatActivo = programaGeneralDTO.PGeneral.ChatActivo;
+                pgeneral.TutorVirtualActivo = programaGeneralDTO.PGeneral.TutorVirtualActivo;
                 pgeneral.PwDescripcionGeneral = programaGeneralDTO.PGeneral.PwDescripcionGeneral;
                 pgeneral.TieneProyectoDeAplicacion = programaGeneralDTO.PGeneral.TieneProyectoDeAplicacion;
                 pgeneral.TieneCertificadoModular = programaGeneralDTO.PGeneral.TieneCertificadoModular;
