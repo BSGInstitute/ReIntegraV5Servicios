@@ -822,7 +822,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             {
                                 try
                                 {
-                                    ProcesoConvertiBic1(itemOportunidad.IdOportunidad, "CerradoBIC1");
+                                    //ProcesoConvertiBic1(itemOportunidad.IdOportunidad, "CerradoBIC1");//comentado temporalmente para validar por Marco Kilimajer
                                     idsOportunidadesACerrar.Add(itemOportunidad.IdOportunidad);
                                 }
                                 catch (Exception)
@@ -931,15 +931,15 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 List<OportunidadesNoEjecutadasDTO> listaOportunidades = new();
                 if (idPaisSede == 0)
                 {
-                    listaOportunidades = _unitOfWork.ContadorBicRepository.ObtenerOportunidadesNoEjecutadasPeruBic1();
+                    listaOportunidades = _unitOfWork.ContadorBicRepository.ObtenerOportunidadesNoEjecutadasPeruBic2();
                 }
                 else if (idPaisSede == 56)
                 {
-                    listaOportunidades = _unitOfWork.ContadorBicRepository.ObtenerOportunidadesNoEjecutadasChileBic1();
+                    listaOportunidades = _unitOfWork.ContadorBicRepository.ObtenerOportunidadesNoEjecutadasChileBic2();
                 }
                 else if (idPaisSede == 52)
                 {
-                    listaOportunidades = _unitOfWork.ContadorBicRepository.ObtenerOportunidadesNoEjecutadasMexicoBic1();
+                    listaOportunidades = _unitOfWork.ContadorBicRepository.ObtenerOportunidadesNoEjecutadasMexicoBic2();
                 }
                 var oportunidadesAgrupadas = listaOportunidades.GroupBy(o => new
                 {
@@ -1108,7 +1108,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             {
                                 try
                                 {
-                                    ProcesoConvertiBic2(itemOportunidad.IdOportunidad, "CerradoBIC2");
+                                    //ProcesoConvertiBic2(itemOportunidad.IdOportunidad, "CerradoBIC2");//comentado temporalmente para validar por Marco Kilimajer
                                     idsOportunidadesACerrar.Add(itemOportunidad.IdOportunidad);
                                 }
                                 catch (Exception)

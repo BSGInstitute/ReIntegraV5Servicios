@@ -16,11 +16,14 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         #endregion
         List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasPeru();
         List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasPeruBic1();
+        List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasPeruBic2();
         List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasContador();
         List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasChile();
         List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasChileBic1();
+        List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasChileBic2();
         List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasMexico();
         List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasMexicoBic1();
+        List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasMexicoBic2();
         List<ConfiguracionBICDTO> ObtenerConfiguracionBicAplicada();
         List<PersonalBicConfiguracionDTO> ObtenerConfiguracionBicPersonal();
         List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasPorIdOportunida(int idOportunidad);

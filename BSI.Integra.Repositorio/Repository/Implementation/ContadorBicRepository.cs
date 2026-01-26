@@ -191,6 +191,31 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         }
 
         /// Autor: Carlos H. Crispin Riquelme
+        /// Fecha: 24/01/2026
+        /// Version: 1.0        
+        /// <summary> 
+        /// Obtiene las Fechas de las Actividades que fueron trabajadas con contesta y corta
+        /// </summary>
+        /// <returns></returns>
+        public List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasPeruBic2()
+        {
+            try
+            {
+                List<OportunidadesNoEjecutadasDTO> rpta = new List<OportunidadesNoEjecutadasDTO>();
+                var resultado = _dapperRepository.QuerySPDapper("com.SP_ObtenerOportunidadesNoEjecutadasPeruBic2", null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<OportunidadesNoEjecutadasDTO>>(resultado)!;
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#CBR-OONE-001@Error en ObtenerOportunidadesNoEjecutadas(), {ex.Message}");
+            }
+        }
+
+        /// Autor: Carlos H. Crispin Riquelme
         /// Fecha: 23/10/2024
         /// Version: 1.0        
         /// <summary> 
@@ -287,6 +312,30 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception($"#CBR-OONE-001@Error en ObtenerOportunidadesNoEjecutadasMexico(), {ex.Message}");
             }
         }
+        /// Autor: Carlos H. Crispin Riquelme
+        /// Fecha: 25/01/2026
+        /// Version: 1.0        
+        /// <summary> 
+        /// Obtiene las Fechas de las Actividades que no hubo contacto con el cliente
+        /// </summary>
+        /// <returns></returns>
+        public List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasMexicoBic2()
+        {
+            try
+            {
+                List<OportunidadesNoEjecutadasDTO> rpta = new List<OportunidadesNoEjecutadasDTO>();
+                var resultado = _dapperRepository.QuerySPDapper("com.SP_ObtenerOportunidadesNoEjecutadasMexicoBic2", null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<OportunidadesNoEjecutadasDTO>>(resultado)!;
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#CBR-OONE-001@Error en ObtenerOportunidadesNoEjecutadasMexico(), {ex.Message}");
+            }
+        }
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 29/08/2023
         /// Version: 1.0        
@@ -324,6 +373,30 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 List<OportunidadesNoEjecutadasDTO> rpta = new List<OportunidadesNoEjecutadasDTO>();
                 var resultado = _dapperRepository.QuerySPDapper("com.SP_ObtenerOportunidadesNoEjecutadasChileBic1", null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<OportunidadesNoEjecutadasDTO>>(resultado)!;
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#CBR-OONE-001@Error en ObtenerOportunidadesNoEjecutadasChile(), {ex.Message}");
+            }
+        }
+        /// Autor: Carlos H. Crispin Riquelme
+        /// Fecha: 25/01/2026
+        /// Version: 1.0        
+        /// <summary> 
+        /// Obtiene las Fechas de las Actividades que no hubo contacto con el cliente
+        /// </summary>
+        /// <returns></returns>
+        public List<OportunidadesNoEjecutadasDTO> ObtenerOportunidadesNoEjecutadasChileBic2()
+        {
+            try
+            {
+                List<OportunidadesNoEjecutadasDTO> rpta = new List<OportunidadesNoEjecutadasDTO>();
+                var resultado = _dapperRepository.QuerySPDapper("com.SP_ObtenerOportunidadesNoEjecutadasChileBic2", null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
                     rpta = JsonConvert.DeserializeObject<List<OportunidadesNoEjecutadasDTO>>(resultado)!;
