@@ -219,7 +219,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             LlamadasEfectivas = llamadasEfectivas,
                             Score = scoreTexto,
                             IdCentroCosto = masReciente.IdCentroCosto,
-                            UltimoEnvio = masReciente.UltimoEnvio,
                             UltimaInteraccionProgresivo = ultimaInteraccionProgresivo
                         };
                     })
@@ -276,7 +275,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             DateTime fechaLimite = DateTime.Now.AddMonths(-6);
 
                             if (nivel.CantidadOportunidadesCerradas >= 1
-                                && ConvertirStringAMeses(nivel.UltimoEnvio) > 6
+                                && (nivel.FechaRegistroEnvioWhatsapp ?? DateTime.MaxValue) < fechaLimite
                                 && nivel.FechaCreacionOportunidad < fechaLimite
                                 && nivel.UltimaInteraccionProgresivo?.Date < fechaLimite.Date
                                 && _probabilidadesValidas.Contains(nivel.ClasificacionProbabilidad))
@@ -399,38 +398,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 Console.WriteLine($"Error en ObtenerNivelEsquemaEmbudoRemarketing: {ex.Message}");
                 return null;
             }
-        }
-        public int ConvertirStringAMeses(string textoFecha)
-        {
-            if (textoFecha == null)
-                return 10;
-
-            textoFecha = textoFecha.ToLower().Trim();
-
-            if (string.IsNullOrEmpty(textoFecha))
-                return 10;
-
-            if (textoFecha.Contains("último envio") || textoFecha.Contains("ultimo envio"))
-                return 0;
-
-            if (textoFecha.Contains("ultimo mes") || textoFecha.Contains("último mes"))
-                return 1;
-
-            if (textoFecha.Contains("hace mas de 9 meses"))
-                return 10;
-
-            var match = Regex.Match(textoFecha, @"\d+");
-            if (match.Success)
-            {
-                int meses = int.Parse(match.Value);
-
-                if (textoFecha.Contains("mas de") || textoFecha.Contains("más de"))
-                    return meses + 1;
-
-                return meses;
-            }
-
-            return 10;
         }
     }
 }
