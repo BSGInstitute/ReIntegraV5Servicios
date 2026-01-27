@@ -44,5 +44,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         List<ActividadAgendaDTO> ObtenerMensajesRecibidosComercial(int idPersonal);
         List<ActividadAgendaDTO> ObtenerMensajesRecibidosChatPortal(int idPersonal);
         List<ActividadAgendaDTO> ObtenerCorreosAgendaComercial(int idPersonal);
+        List<ActividadAgendaDTO> ObtenerActividadesSolicitudesAgrupadas(AgendaTabConfiguracionAlternoDTO tabAgenda, int idAsesor, Dictionary<string, string> filtros);
     }
 }

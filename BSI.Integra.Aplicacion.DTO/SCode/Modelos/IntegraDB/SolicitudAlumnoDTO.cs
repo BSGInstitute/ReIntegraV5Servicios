@@ -73,6 +73,9 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int id { get; set; }
         public int IdMatriculaCabecera { get; set; }
         public string CodigoMatricula { get; set; }
+        public int? IdEstadoMatricula { get; set; }
+        public string EstadoMatricula { get; set; }
+        public string SubEstadoMatricula { get; set; }
         public string NombreAlumno { get; set; }
         public int? IdAlumno { get; set; }
         public int? IdOportunidad { get; set; }
@@ -391,6 +394,14 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         /// Solicitudes RESUELTAS (IdEstadoSolicitud = 7 u 8) de áreas distintas a Atención al Cliente
         /// </summary>
         public List<SolicitudAlumnoFiltradaDTO> SolicitudesResueltas { get; set; }
+    }
+
+    /// <summary>
+    /// DTO request para actualizar estado de solicitud
+    /// </summary>
+    public class ActualizarEstadoSolicitudRequest
+    {
+        public int IdSolicitud { get; set; }
     }
 
 }

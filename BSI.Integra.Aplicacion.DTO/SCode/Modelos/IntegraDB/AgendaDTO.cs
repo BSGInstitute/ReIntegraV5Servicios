@@ -69,6 +69,45 @@
         public int? TipoRegistro { get; set; }
         public bool? EsOnline { get; set; }
         public Dictionary<string, List<ActividadAgendaDTO>> ActividadesAgenda { get; set; }
+
+        // --- Campos adicionales para Solicitudes Agrupadas ---
+        // Campos de Programa
+        public int? IdPEspecifico { get; set; }
+        public int? IdPGeneral { get; set; }
+        public string? PGeneral { get; set; }
+
+        // Campos de Solicitud
+        public string? Prioridad { get; set; }
+        public string? NombreSolicitud { get; set; }
+        public int? IdTipoReporte { get; set; }
+        public string? TipoReporte { get; set; }
+        public int? IdSolicitudCategoria { get; set; }
+        public int? IdSubCategoria { get; set; }
+        public int? IdEstadoSolicitud { get; set; }
+
+        // Campos de Solicitante
+        public int? IdSolicitante { get; set; }
+        public string? NombreSolicitante { get; set; }
+        public int? IdAreaSolicitante { get; set; }
+        public string? AreaSolicitante { get; set; }
+
+        // Campos de Revisión
+        public int? IdAreaRevision { get; set; }
+        public string? AreaRevision { get; set; }
+        public string? NombreArchivoSolicitante { get; set; }
+
+        // Campos de Solución
+        public int? IdAreaSolucion { get; set; }
+        public string? AreaSolucion { get; set; }
+        public int? IdPersonalSolucion { get; set; }
+        public string? PersonalSolucion { get; set; }
+        public string? ComentarioSolucion { get; set; }
+        public string? NombreArchivoSolucion { get; set; }
+
+        // Otros campos de solicitud
+        public DateTime? FechaModificacionSolicitud { get; set; }
+        public int? IdControlSolicitudOrigen { get; set; }
+        public string? ControlSolicitudOrigen { get; set; }
     }
 
     public class ActividadAgendaV2DTO

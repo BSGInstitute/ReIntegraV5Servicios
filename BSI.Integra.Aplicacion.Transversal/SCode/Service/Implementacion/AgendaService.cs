@@ -65,6 +65,15 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         {
                             actividades = _unitOfWork.AgendaTabRepository.ObtenerActividadesNoProgramada(item, idAsesor, filtros);
                         }
+                        else if (item.Nombre.Contains("Solicitudes Agrupadas"))
+                        {
+                            int idAsesorFiltro = 0;
+                            if (filtros != null && filtros.ContainsKey("idAsesor") && !string.IsNullOrEmpty(filtros["idAsesor"]))
+                            {
+                                int.TryParse(filtros["idAsesor"], out idAsesorFiltro);
+                            }
+                            actividades = _unitOfWork.AgendaTabRepository.ObtenerActividadesSolicitudesAgrupadas(item, idAsesorFiltro, filtros);
+                        }
                         else if (item.Nombre.Contains("Atraso")
                                 || item.Nombre.Contains("AlDia")
                                 || item.Nombre.Contains("Seguimiento")

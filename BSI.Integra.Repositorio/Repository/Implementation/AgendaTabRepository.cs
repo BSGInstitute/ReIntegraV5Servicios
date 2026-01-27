@@ -741,6 +741,147 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
         }
+        /// Autor: Alexis Arroyo
+        /// Fecha: 26/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene solicitudes agrupadas por asesor (Derivadas y Resueltas)
+        /// </summary>
+        /// <param name="tabAgenda">Objeto de tipo AgendaTabConfiguracionAlternoDTO</param>
+        /// <param name="idAsesor">Id del asesor (PK de la tabla gp.T_Personal)</param>
+        /// <param name="filtros">Objeto de tipo diccionario (string, string)</param>
+        /// <returns>List<ActividadAgendaDTO></returns>
+        public List<ActividadAgendaDTO> ObtenerActividadesSolicitudesAgrupadas(AgendaTabConfiguracionAlternoDTO tabAgenda, int idAsesor, Dictionary<string, string> filtros)
+        {
+            try
+            {
+                const int ID_AREA_ATENCION_CLIENTE = 3;
+                var estadosResueltos = new List<int> { 7, 8 };
+
+                // 1. Construir parámetros para el SP
+                int? idPersonalRevision = idAsesor > 0 ? idAsesor : (int?)null;
+                //string? idEstadoSolicitud = null;
+                //DateTime? fechaInicio = filtros != null && filtros.ContainsKey("FechaInicio") && !string.IsNullOrEmpty(filtros["FechaInicio"])
+                //    ? DateTime.Parse(filtros["FechaInicio"]).Date
+                //    : (DateTime?)null;
+                //DateTime? fechaFin = filtros != null && filtros.ContainsKey("FechaFin") && !string.IsNullOrEmpty(filtros["FechaFin"])
+                //    ? DateTime.Parse(filtros["FechaFin"]).Date.AddDays(1).AddSeconds(-1)
+                //    : (DateTime?)null;
+
+                // 2. Llamar al SP de SolicitudAlumno
+                List<SolicitudAlumnoFiltradaDTO> todasLasSolicitudes = new();
+                var resultado = _dapperRepository.QuerySPDapper("ope.SP_ObtenerSolicitudAlumnoPorAsesor",
+                    new { IdPersonalRevision = idPersonalRevision});
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    todasLasSolicitudes = JsonConvert.DeserializeObject<List<SolicitudAlumnoFiltradaDTO>>(resultado);
+                }
+
+                // 3. Filtrar y agrupar solicitudes
+                var solicitudesDerivadas = todasLasSolicitudes
+                    .Where(s => !estadosResueltos.Contains(s.IdEstadoSolicitud) && s.IdAreaSolucion == ID_AREA_ATENCION_CLIENTE)
+                    .ToList();
+
+                var solicitudesResueltas = todasLasSolicitudes
+                    .Where(s => estadosResueltos.Contains(s.IdEstadoSolicitud) && s.IdAreaSolucion != ID_AREA_ATENCION_CLIENTE)
+                    .ToList();
+
+                // 4. Mapear SolicitudAlumnoFiltradaDTO → ActividadAgendaDTO
+                List<ActividadAgendaDTO> actividades = new();
+
+                actividades.AddRange(solicitudesDerivadas.Select(s => MapearSolicitudAActividad(s, "Derivada")));
+                actividades.AddRange(solicitudesResueltas.Select(s => MapearSolicitudAActividad(s, "Resuelta")));
+
+                return actividades;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Mapea un objeto SolicitudAlumnoFiltradaDTO a ActividadAgendaDTO
+        /// </summary>
+        private ActividadAgendaDTO MapearSolicitudAActividad(SolicitudAlumnoFiltradaDTO solicitud, string tipoSolicitud)
+        {
+            return new ActividadAgendaDTO
+            {
+                // Campos base existentes
+                Id = solicitud.id,
+                IdMatriculaCabecera = solicitud.IdMatriculaCabecera,
+                CodigoMatricula = solicitud.CodigoMatricula,
+                IdEstadoMatricula = solicitud.IdEstadoMatricula,
+                EstadoMatricula = solicitud.EstadoMatricula,
+                SubEstadoMatricula = solicitud.SubEstadoMatricula,
+                Contacto = solicitud.NombreAlumno,
+                IdAlumno = solicitud.IdAlumno ?? 0,
+                IdOportunidad = solicitud.IdOportunidad ?? 0,
+                IdFaseOportunidad = solicitud.IdFaseOportunidad,
+                IdPadre = solicitud.IdPadre,
+                IdActividadCabecera = solicitud.IdActividadCabecera ?? 0,
+                UltimaFechaProgramada = !string.IsNullOrEmpty(solicitud.UltimaFechaProgramada)
+                    ? DateTime.Parse(solicitud.UltimaFechaProgramada)
+                    : (DateTime?)null,
+                IdClasificacionPersona = solicitud.IdClasificacionPersona ?? 0,
+                PEspecifico = solicitud.NombrePEspecifico,
+                IdCentroCosto = solicitud.IdCentroCosto,
+                CentroCosto = solicitud.CentroCosto,
+                UltimoComentario = solicitud.DetalleSolicitud,
+                TipoSolicitudOperaciones = tipoSolicitud,
+                Email1 = solicitud.Email,
+                Asesor = solicitud.PersonalRevision,
+                IdPersonal_Asignado = solicitud.IdPersonalRevision,
+                EstadoHoja = solicitud.EstadoSolicitud,
+                Origen = solicitud.TipoSolicitud,
+                CategoriaNombre = solicitud.NombreSolicitudCategoria,
+                CategoriaDescripcion = solicitud.NombreSubCategoria,
+                FechaSolicitud = !string.IsNullOrEmpty(solicitud.FechaRegistro)
+                    ? DateTime.Parse(solicitud.FechaRegistro)
+                    : (DateTime?)null,
+
+                // Campos de Programa
+                IdPEspecifico = solicitud.IdPEspecifico,
+                IdPGeneral = solicitud.IdPGeneral,
+                PGeneral = solicitud.PGeneral,
+
+                // Campos de Solicitud
+                Prioridad = solicitud.Prioridad,
+                NombreSolicitud = solicitud.NombreSolicitud,
+                IdTipoReporte = solicitud.IdTipoReporte,
+                TipoReporte = solicitud.Tipo,
+                IdSolicitudCategoria = solicitud.IdSolicitudCategoria,
+                IdSubCategoria = solicitud.IdSubCategoria,
+                IdEstadoSolicitud = solicitud.IdEstadoSolicitud,
+
+                // Campos de Solicitante
+                IdSolicitante = solicitud.IdSolicitante,
+                NombreSolicitante = solicitud.NombreSolicitante,
+                IdAreaSolicitante = solicitud.IdAreaSolicitante,
+                AreaSolicitante = solicitud.AreaSolicitante,
+
+                // Campos de Revisión
+                IdAreaRevision = solicitud.IdAreaRevision,
+                AreaRevision = solicitud.AreaRevision,
+                NombreArchivoSolicitante = solicitud.NombreArchivoSolicitante,
+
+                // Campos de Solución
+                IdAreaSolucion = solicitud.IdAreaSolucion,
+                AreaSolucion = solicitud.AreaSolucion,
+                IdPersonalSolucion = solicitud.IdPersonalSolucion,
+                PersonalSolucion = solicitud.PersonalSolucion,
+                ComentarioSolucion = solicitud.ComentarioSolucion,
+                NombreArchivoSolucion = solicitud.NombreArchivoSolucion,
+
+                // Otros campos
+                FechaModificacionSolicitud = !string.IsNullOrEmpty(solicitud.FechaModificacion)
+                    ? DateTime.Parse(solicitud.FechaModificacion)
+                    : (DateTime?)null,
+                IdControlSolicitudOrigen = solicitud.IdControlSolicitudOrigen,
+                ControlSolicitudOrigen = solicitud.ControlSolicitudOrigen
+            };
+        }
         /// Autor: Jose Vega
         /// Fecha: 10/12/2025
         /// Version: 1.0

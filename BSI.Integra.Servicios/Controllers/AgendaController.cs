@@ -140,7 +140,7 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 throw;
             }
-        }
+            }
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 12/08/2022

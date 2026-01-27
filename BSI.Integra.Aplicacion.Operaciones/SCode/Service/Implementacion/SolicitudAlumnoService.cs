@@ -816,7 +816,7 @@ namespace BSI.Integra.Aplicacion.Operaciones.Service.Implementacion
             }
         }
 
-        /// Autor: [Tu Nombre]
+        /// Autor: Alexis Arroyo
         /// Fecha: 20/01/2026
         /// Version: 1.0
         /// <summary>

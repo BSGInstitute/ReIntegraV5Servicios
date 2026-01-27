@@ -274,19 +274,24 @@ namespace BSI.Integra.Servicios.Controllers
         /// Autor: Alexis Arroyo
         /// Fecha: 20/01/2026
         /// Versión: 1.0
-        /// <summary>
+        /// <summary> 
         /// Actualiza el estado de una solicitud de alumno
         /// </summary>
-        /// <param name="idSolicitud">ID de la solicitud a actualizar</param>
+        /// <param name="request">Objeto con el ID de la solicitud a actualizar</param>
         /// <returns>True si se actualizó correctamente</returns>
-        [Route("[action]/{idSolicitud}")]
+        [Route("[action]")]
         [HttpPost]
-        public ActionResult ActualizarEstadoSolicitud(int idSolicitud)
+        public ActionResult ActualizarEstadoSolicitud([FromBody] ActualizarEstadoSolicitudRequest request)
         {
             try
             {
+                if (request == null || request.IdSolicitud <= 0)
+                {
+                    return BadRequest("El IdSolicitud es requerido y debe ser mayor a 0");
+                }
+
                 var solicitudAlumnoService = new SolicitudAlumnoService(unitOfWork);
-                var resultado = solicitudAlumnoService.ActualizarEstadoSolicitud(idSolicitud);
+                var resultado = solicitudAlumnoService.ActualizarEstadoSolicitud(request.IdSolicitud);
                 return Ok(resultado);
             }
             catch (Exception e)
