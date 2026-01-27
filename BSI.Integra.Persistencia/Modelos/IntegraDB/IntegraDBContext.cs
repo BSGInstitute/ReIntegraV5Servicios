@@ -38673,6 +38673,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.TieneProyectoDeAplicacion).HasComment("Indica si el programa tiene proyecto de aplicacion practica");
 
+                entity.Property(e => e.TutorVirtualActivo).HasComment("(1: Habilitado, 0: Deshabilitado) - Indica si el registro debe tener habilitado Tutor Virtual");
+
                 entity.Property(e => e.UrlBrochurePrograma)
                     .HasMaxLength(255)
                     .IsUnicode(false)
