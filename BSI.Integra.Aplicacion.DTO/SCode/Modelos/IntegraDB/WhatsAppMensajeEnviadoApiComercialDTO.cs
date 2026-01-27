@@ -38,5 +38,21 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
             public int IdAlumno { get; set; }
             public int? IdPersonal { get; set; }
         }
+
+
+        //Asistente Comercial
+
+        public class AsistenteComercialMensajeTextoComDTO
+        {
+            public string EntradaUsuario { get; set; }
+            public string NombrePrograma { get; set; }
+            public string NombreAsesor { get; set; }
+            public int CodigoPais { get; set; }
+            public int IdAlumno { get; set; }
+            public int IdOportunidad { get; set; }
+            public int IdPGeneral { get; set; }
+            public int IdCentroCosto { get; set; }
+
+        }
     }
 }

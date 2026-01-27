@@ -64,6 +64,23 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex);
             }
         }
+
+        [Authorize]
+        [JwtExpirationValidation]
+        [Route("[action]")]
+        [HttpPost]
+        public IActionResult AsistenteComercialMensajeTexto(AsistenteComercialMensajeTextoComDTO json)
+        {
+            try
+            {
+                return Ok();
+                //return Ok(new WhatsAppMensajeEnviadoApiComercialService(_unitOfWork).EnvioMensajePorTexto(json, _tokenManager.UserName, (json.IdPersonal == null ? _tokenManager.IdPersonal : json.IdPersonal.Value)));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
         [Authorize]
         [JwtExpirationValidation]
         [Route("[action]")]
