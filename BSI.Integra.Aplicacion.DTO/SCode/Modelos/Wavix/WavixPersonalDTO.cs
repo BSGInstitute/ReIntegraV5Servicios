@@ -147,10 +147,42 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.Wavix
         public string tokenActivo { get; set; } 
     }
 
-    public class TokenVigenteDTO { 
+    public class TokenVigenteDTO {
         public int id { get; set; }
         public int idPersonalWavix { get; set; }
         public string tokenUuid { get; set; }
         public string token { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para listar tokens activos
+    /// </summary>
+    public class TokenActivoListDTO
+    {
+        public int Id { get; set; }
+        public int IdPersonalWavix { get; set; }
+        public string TokenUuid { get; set; }
+        public string Token { get; set; }
+        public DateTime FechaCreacion { get; set; }
+        public DateTime FechaExpiracion { get; set; }
+        public bool EstaActivo { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para actualizar el payload de un token
+    /// </summary>
+    public class ActualizarTokenPayloadRequestDTO
+    {
+        public object Payload { get; set; }
+    }
+
+    /// <summary>
+    /// DTO de respuesta para operaciones de token
+    /// </summary>
+    public class TokenOperacionResponseDTO
+    {
+        public bool Exito { get; set; }
+        public string Mensaje { get; set; }
+        public string TokenUuid { get; set; }
     }
 }
