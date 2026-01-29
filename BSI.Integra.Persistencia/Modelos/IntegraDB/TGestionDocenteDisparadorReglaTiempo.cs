@@ -4,28 +4,28 @@ using System.Collections.Generic;
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     /// <summary>
-    /// Catálogo de medios de comunicación disponibles para contacto con estudiantes (WhatsApp, Llamada, Correo, etc.)
+    /// Tabla base para reglas de tiempo (FIJO o RELATIVO)
     /// </summary>
-    public partial class TMedioComunicacion
+    public partial class TGestionDocenteDisparadorReglaTiempo
     {
-        public TMedioComunicacion()
+        public TGestionDocenteDisparadorReglaTiempo()
         {
-            TPlantillaMedioComunicacions = new HashSet<TPlantillaMedioComunicacion>();
-            TPreferenciaComunicacionAcademicas = new HashSet<TPreferenciaComunicacionAcademica>();
+            TGestionDocenteDisparadorReglaTiempoFijos = new HashSet<TGestionDocenteDisparadorReglaTiempoFijo>();
+            TGestionDocenteDisparadorReglaTiempoRelativos = new HashSet<TGestionDocenteDisparadorReglaTiempoRelativo>();
         }
 
         /// <summary>
-        /// Identificador único del medio de comunicación
+        /// Identificador único de la regla de tiempo
         /// </summary>
         public int Id { get; set; }
         /// <summary>
-        /// Nombre del medio de comunicación (ej: WhatsApp, Llamada, Correo)
+        /// Tipo de regla (FIJO o RELATIVO)
         /// </summary>
-        public string Nombre { get; set; } = null!;
+        public string TipoRegla { get; set; } = null!;
         /// <summary>
         /// Estado del registro (1=Activo, 0=Inactivo)
         /// </summary>
-        public bool? Estado { get; set; }
+        public bool Estado { get; set; }
         /// <summary>
         /// Usuario que creó el registro
         /// </summary>
@@ -47,7 +47,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
 
-        public virtual ICollection<TPlantillaMedioComunicacion> TPlantillaMedioComunicacions { get; set; }
-        public virtual ICollection<TPreferenciaComunicacionAcademica> TPreferenciaComunicacionAcademicas { get; set; }
+        public virtual ICollection<TGestionDocenteDisparadorReglaTiempoFijo> TGestionDocenteDisparadorReglaTiempoFijos { get; set; }
+        public virtual ICollection<TGestionDocenteDisparadorReglaTiempoRelativo> TGestionDocenteDisparadorReglaTiempoRelativos { get; set; }
     }
 }

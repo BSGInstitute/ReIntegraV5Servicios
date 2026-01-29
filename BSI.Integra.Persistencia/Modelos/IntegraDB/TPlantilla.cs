@@ -11,6 +11,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
             TFaseByPlantillas = new HashSet<TFaseByPlantilla>();
             TPlantillaAsociacionModuloSistemas = new HashSet<TPlantillaAsociacionModuloSistema>();
             TPlantillaClaveValors = new HashSet<TPlantillaClaveValor>();
+            TPlantillaMedioComunicacions = new HashSet<TPlantillaMedioComunicacion>();
             TSmsConfiguracionEnvios = new HashSet<TSmsConfiguracionEnvio>();
             TWhatsAppConfiguracionEnvios = new HashSet<TWhatsAppConfiguracionEnvio>();
         }
@@ -80,6 +81,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual ICollection<TFaseByPlantilla> TFaseByPlantillas { get; set; }
         public virtual ICollection<TPlantillaAsociacionModuloSistema> TPlantillaAsociacionModuloSistemas { get; set; }
         public virtual ICollection<TPlantillaClaveValor> TPlantillaClaveValors { get; set; }
+        public virtual ICollection<TPlantillaMedioComunicacion> TPlantillaMedioComunicacions { get; set; }
         public virtual ICollection<TSmsConfiguracionEnvio> TSmsConfiguracionEnvios { get; set; }
         public virtual ICollection<TWhatsAppConfiguracionEnvio> TWhatsAppConfiguracionEnvios { get; set; }
     }

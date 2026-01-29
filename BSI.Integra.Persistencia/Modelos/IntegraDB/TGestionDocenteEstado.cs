@@ -4,28 +4,32 @@ using System.Collections.Generic;
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     /// <summary>
-    /// Catálogo de medios de comunicación disponibles para contacto con estudiantes (WhatsApp, Llamada, Correo, etc.)
+    /// Catálogo de estados aplicables a flujos y actividades de gestión docente
     /// </summary>
-    public partial class TMedioComunicacion
+    public partial class TGestionDocenteEstado
     {
-        public TMedioComunicacion()
+        public TGestionDocenteEstado()
         {
-            TPlantillaMedioComunicacions = new HashSet<TPlantillaMedioComunicacion>();
-            TPreferenciaComunicacionAcademicas = new HashSet<TPreferenciaComunicacionAcademica>();
+            TGestionDocenteActividadCabeceras = new HashSet<TGestionDocenteActividadCabecera>();
+            TGestionDocenteFlujos = new HashSet<TGestionDocenteFlujo>();
         }
 
         /// <summary>
-        /// Identificador único del medio de comunicación
+        /// Identificador único del estado
         /// </summary>
         public int Id { get; set; }
         /// <summary>
-        /// Nombre del medio de comunicación (ej: WhatsApp, Llamada, Correo)
+        /// Nombre del estado (ej: Activo, Inactivo, En Proceso)
         /// </summary>
         public string Nombre { get; set; } = null!;
         /// <summary>
+        /// Descripción detallada del estado
+        /// </summary>
+        public string? Descripcion { get; set; }
+        /// <summary>
         /// Estado del registro (1=Activo, 0=Inactivo)
         /// </summary>
-        public bool? Estado { get; set; }
+        public bool Estado { get; set; }
         /// <summary>
         /// Usuario que creó el registro
         /// </summary>
@@ -47,7 +51,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
 
-        public virtual ICollection<TPlantillaMedioComunicacion> TPlantillaMedioComunicacions { get; set; }
-        public virtual ICollection<TPreferenciaComunicacionAcademica> TPreferenciaComunicacionAcademicas { get; set; }
+        public virtual ICollection<TGestionDocenteActividadCabecera> TGestionDocenteActividadCabeceras { get; set; }
+        public virtual ICollection<TGestionDocenteFlujo> TGestionDocenteFlujos { get; set; }
     }
 }

@@ -4,28 +4,27 @@ using System.Collections.Generic;
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     /// <summary>
-    /// Catálogo de medios de comunicación disponibles para contacto con estudiantes (WhatsApp, Llamada, Correo, etc.)
+    /// Catálogo de niveles de confianza para clasificación por IA
     /// </summary>
-    public partial class TMedioComunicacion
+    public partial class TGestionDocenteConfianzaUmbralNivel
     {
-        public TMedioComunicacion()
+        public TGestionDocenteConfianzaUmbralNivel()
         {
-            TPlantillaMedioComunicacions = new HashSet<TPlantillaMedioComunicacion>();
-            TPreferenciaComunicacionAcademicas = new HashSet<TPreferenciaComunicacionAcademica>();
+            TGestionDocenteOcurrenciaIaConfiguracions = new HashSet<TGestionDocenteOcurrenciaIaConfiguracion>();
         }
 
         /// <summary>
-        /// Identificador único del medio de comunicación
+        /// Identificador único del nivel de confianza
         /// </summary>
         public int Id { get; set; }
         /// <summary>
-        /// Nombre del medio de comunicación (ej: WhatsApp, Llamada, Correo)
+        /// Nombre del nivel de confianza
         /// </summary>
         public string Nombre { get; set; } = null!;
         /// <summary>
         /// Estado del registro (1=Activo, 0=Inactivo)
         /// </summary>
-        public bool? Estado { get; set; }
+        public bool Estado { get; set; }
         /// <summary>
         /// Usuario que creó el registro
         /// </summary>
@@ -47,7 +46,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
 
-        public virtual ICollection<TPlantillaMedioComunicacion> TPlantillaMedioComunicacions { get; set; }
-        public virtual ICollection<TPreferenciaComunicacionAcademica> TPreferenciaComunicacionAcademicas { get; set; }
+        public virtual ICollection<TGestionDocenteOcurrenciaIaConfiguracion> TGestionDocenteOcurrenciaIaConfiguracions { get; set; }
     }
 }

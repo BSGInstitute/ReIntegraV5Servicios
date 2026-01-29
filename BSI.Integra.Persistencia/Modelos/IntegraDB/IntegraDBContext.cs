@@ -406,6 +406,30 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TGastoFinancieroCronogramaDetalle> TGastoFinancieroCronogramaDetalles { get; set; } = null!;
         public virtual DbSet<TGestionContacto> TGestionContactos { get; set; } = null!;
         public virtual DbSet<TGestionContactoLog> TGestionContactoLogs { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteActividadCabecera> TGestionDocenteActividadCabeceras { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteActividadDetalle> TGestionDocenteActividadDetalles { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteActividadDetalleTipo> TGestionDocenteActividadDetalleTipos { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteCategoriaGeneralTiempo> TGestionDocenteCategoriaGeneralTiempos { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteCategorium> TGestionDocenteCategoria { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteConfianzaUmbralNivel> TGestionDocenteConfianzaUmbralNivels { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteDisparadorDetalle> TGestionDocenteDisparadorDetalles { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteDisparadorEventoTipo> TGestionDocenteDisparadorEventoTipos { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteDisparadorFlujoTipo> TGestionDocenteDisparadorFlujoTipos { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteDisparadorOcurrenciaDetalle> TGestionDocenteDisparadorOcurrenciaDetalles { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteDisparadorReglaTiempo> TGestionDocenteDisparadorReglaTiempos { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteDisparadorReglaTiempoFijo> TGestionDocenteDisparadorReglaTiempoFijos { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteDisparadorReglaTiempoRelativo> TGestionDocenteDisparadorReglaTiempoRelativos { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteDisparadorReglaTiempoRelativoReferencium> TGestionDocenteDisparadorReglaTiempoRelativoReferencia { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteEstado> TGestionDocenteEstados { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteFlujo> TGestionDocenteFlujos { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteIaEntrenamientoClasificacionTipo> TGestionDocenteIaEntrenamientoClasificacionTipos { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteIaEntrenamientoEjemplo> TGestionDocenteIaEntrenamientoEjemplos { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteModoMarcado> TGestionDocenteModoMarcados { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteOcurrenciaIaConfiguracion> TGestionDocenteOcurrenciaIaConfiguracions { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteOcurrenciaTipo> TGestionDocenteOcurrenciaTipos { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteOcurrencium> TGestionDocenteOcurrencia { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteReferenciaTiempo> TGestionDocenteReferenciaTiempos { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteUnidadTiempo> TGestionDocenteUnidadTiempos { get; set; } = null!;
         public virtual DbSet<TGmailCliente> TGmailClientes { get; set; } = null!;
         public virtual DbSet<TGmailCorreo> TGmailCorreos { get; set; } = null!;
         public virtual DbSet<TGmailCorreoArchivoAdjunto> TGmailCorreoArchivoAdjuntos { get; set; } = null!;
@@ -662,6 +686,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TPlantillaClaveValor> TPlantillaClaveValors { get; set; } = null!;
         public virtual DbSet<TPlantillaEstilo> TPlantillaEstilos { get; set; } = null!;
         public virtual DbSet<TPlantillaMaestroPw> TPlantillaMaestroPws { get; set; } = null!;
+        public virtual DbSet<TPlantillaMedioComunicacion> TPlantillaMedioComunicacions { get; set; } = null!;
         public virtual DbSet<TPlantillaPai> TPlantillaPais { get; set; } = null!;
         public virtual DbSet<TPlantillaPw> TPlantillaPws { get; set; } = null!;
         public virtual DbSet<TPlantillaRevisionPw> TPlantillaRevisionPws { get; set; } = null!;
@@ -24749,6 +24774,1179 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasConstraintName("FK_T_GestionContactoLog_Personal_IdPersonal_AsignadoAnterior");
             });
 
+            modelBuilder.Entity<TGestionDocenteActividadCabecera>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteActividadCabecera", "pla");
+
+                entity.HasComment("Agrupa actividades relacionadas dentro de un flujo de gestión docente");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la cabecera de actividad");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasComment("Descripción de la actividad cabecera");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.IdGestionDocenteCategoria).HasComment("Llave foránea a la tabla T_GestionDocenteCategoria");
+
+                entity.Property(e => e.IdGestionDocenteEstado).HasComment("Llave foránea a la tabla T_GestionDocenteEstado");
+
+                entity.Property(e => e.IdGestionDocenteFlujo).HasComment("Llave foránea a la tabla T_GestionDocenteFlujo");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(300)
+                    .IsUnicode(false)
+                    .HasComment("Nombre de la actividad cabecera");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdGestionDocenteCategoriaNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadCabeceras)
+                    .HasForeignKey(d => d.IdGestionDocenteCategoria)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadCabeceras)
+                    .HasForeignKey(d => d.IdGestionDocenteEstado)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteFlujoNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadCabeceras)
+                    .HasForeignKey(d => d.IdGestionDocenteFlujo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionDocenteActividadDetalle>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteActividadDetalle", "pla");
+
+                entity.HasComment("Bitácora de ejecución de actividades específicas dentro de un flujo");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la actividad detalle");
+
+                entity.Property(e => e.Estado)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Estado de la actividad (PENDIENTE, EJECUTADO, MARCADO, CANCELADO)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.IdGestionDocenteActividadCabecera).HasComment("Llave foránea a la tabla T_GestionDocenteActividadCabecera");
+
+                entity.Property(e => e.IdGestionDocenteActividadDetalleTipo).HasComment("Llave foránea a la tabla T_GestionDocenteActividadDetalleTipo");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorDetalle).HasComment("Llave foránea a la tabla T_GestionDocenteDisparadorDetalle");
+
+                entity.Property(e => e.IdPlantillaMedioComunicacion).HasComment("Llave foránea a la tabla T_PlantillaMedioComunicacion");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(300)
+                    .IsUnicode(false)
+                    .HasComment("Nombre de la actividad detalle");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdGestionDocenteActividadCabeceraNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadDetalles)
+                    .HasForeignKey(d => d.IdGestionDocenteActividadCabecera)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteActividadDetalleTipoNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadDetalles)
+                    .HasForeignKey(d => d.IdGestionDocenteActividadDetalleTipo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorDetalleNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadDetalles)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorDetalle)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdPlantillaMedioComunicacionNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadDetalles)
+                    .HasForeignKey(d => d.IdPlantillaMedioComunicacion)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionDocenteActividadDetalleTipo>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteActividadDetalleTipo", "pla");
+
+                entity.HasComment("Catálogo de tipos de actividad (Automática, Manual, etc.)");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del tipo de actividad");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del tipo de actividad (ej: Automática, Manual)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+            });
+
+            modelBuilder.Entity<TGestionDocenteCategoriaGeneralTiempo>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteCategoriaGeneralTiempo", "pla");
+
+                entity.HasComment("Registra fechas y tiempos asociados a categorías de gestión docente");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del registro de tiempo");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.Fecha)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora asociada a la categoría");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.IdGestionDocenteCategoria).HasComment("Llave foránea a la tabla T_GestionDocenteCategoria");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdGestionDocenteCategoriaNavigation)
+                    .WithMany(p => p.TGestionDocenteCategoriaGeneralTiempos)
+                    .HasForeignKey(d => d.IdGestionDocenteCategoria)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionDocenteCategorium>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteCategoria", "pla");
+
+                entity.HasComment("Catálogo de categorías para clasificar flujos y actividades de gestión docente (ej: Académico, Administrativo)");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la categoría");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Descripción de la categoría");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre de la categoría");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+            });
+
+            modelBuilder.Entity<TGestionDocenteConfianzaUmbralNivel>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteConfianzaUmbralNivel", "pla");
+
+                entity.HasComment("Catálogo de niveles de confianza para clasificación por IA");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del nivel de confianza");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del nivel de confianza");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+            });
+
+            modelBuilder.Entity<TGestionDocenteDisparadorDetalle>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteDisparadorDetalle", "pla");
+
+                entity.HasComment("Almacena la configuración base de disparadores de actividades");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del disparador");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorFlujoTipo).HasComment("Llave foránea a la tabla T_GestionDocenteTipoDisparadorFlujo");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorFlujoTipoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorDetalles)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorFlujoTipo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteDisparadorDetalle_T_GestionDocenteTipoDisparadorFlujo_IdGestionDocenteDisparadorFlujoTipo");
+            });
+
+            modelBuilder.Entity<TGestionDocenteDisparadorEventoTipo>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteDisparadorEventoTipo", "pla");
+
+                entity.HasComment("Define eventos específicos del sistema que pueden disparar actividades (ej: Finalización de Sesión, Creación de Curso)");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del evento");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Descripción del evento");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorDetalle).HasComment("Llave foránea a la tabla T_GestionDocenteDisparadorDetalle");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del evento (ej: Finalización de Sesión)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorDetalleNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorEventoTipos)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorDetalle)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionDocenteDisparadorFlujoTipo>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteDisparadorFlujoTipo", "pla");
+
+                entity.HasComment("Catálogo de tipos de disparador (Evento del Sistema, Fecha Fija, Recurrente)");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del tipo de disparador");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del tipo de disparador (ej: Evento del Sistema, Fecha Fija)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+            });
+
+            modelBuilder.Entity<TGestionDocenteDisparadorOcurrenciaDetalle>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteDisparadorOcurrenciaDetalle", "pla");
+
+                entity.HasComment("Tabla relacional que vincula disparadores con ocurrencias previas que los activan");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la relación");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorDetalle).HasComment("Llave foránea a la tabla T_GestionDocenteDisparadorDetalle");
+
+                entity.Property(e => e.IdGestionDocenteOcurrenciaPrevia)
+                    .HasColumnName("IdGestionDocenteOcurrencia_Previa")
+                    .HasComment("Llave foránea a la tabla T_GestionDocenteOcurrencia que actúa como disparador previo");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorDetalleNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorOcurrenciaDetalles)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorDetalle)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteDetalleDisparadorOcurrencia_T_GestionDocenteDisparadorDetalle_IdGestionDocenteDisparadorDetalle");
+
+                entity.HasOne(d => d.IdGestionDocenteOcurrenciaPreviaNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorOcurrenciaDetalles)
+                    .HasForeignKey(d => d.IdGestionDocenteOcurrenciaPrevia)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteDetalleDisparadorOcurrencia_T_GestionDocenteOcurrencia_IdGestionDocenteOcurrencia_Previa");
+            });
+
+            modelBuilder.Entity<TGestionDocenteDisparadorReglaTiempo>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteDisparadorReglaTiempo", "pla");
+
+                entity.HasComment("Tabla base para reglas de tiempo (FIJO o RELATIVO)");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la regla de tiempo");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.TipoRegla)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasComment("Tipo de regla (FIJO o RELATIVO)");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+            });
+
+            modelBuilder.Entity<TGestionDocenteDisparadorReglaTiempoFijo>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteDisparadorReglaTiempoFijo", "pla");
+
+                entity.HasComment("Define disparadores con fecha y hora específica");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la regla de tiempo fijo");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.Fecha)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora específica del disparador");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorDetalle).HasComment("Llave foránea a la tabla T_GestionDocenteDisparadorDetalle");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorReglaTiempo).HasComment("Llave foránea a la tabla T_GestionDocenteDisparadorReglaTiempo");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorDetalleNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoFijos)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorDetalle)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorReglaTiempoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoFijos)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorReglaTiempo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionDocenteDisparadorReglaTiempoRelativo>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteDisparadorReglaTiempoRelativo", "pla");
+
+                entity.HasComment("Define disparadores relativos a eventos (X horas antes o después de una sesión)");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la regla de tiempo relativo");
+
+                entity.Property(e => e.Cantidad).HasComment("Cantidad de unidades de tiempo (ej: 24)");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorDetalle).HasComment("Llave foránea a la tabla T_GestionDocenteDetalleDisparador");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorReglaTiempo).HasComment("Llave foránea a la tabla T_GestionDocenteDisparadorReglaTiempo");
+
+                entity.Property(e => e.IdGestionDocenteUnidadTiempo).HasComment("Llave foránea a la tabla T_GestionDocenteUnidadTiempo");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorDetalleNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoRelativos)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorDetalle)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorReglaTiempoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoRelativos)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorReglaTiempo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteUnidadTiempoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoRelativos)
+                    .HasForeignKey(d => d.IdGestionDocenteUnidadTiempo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionDocenteDisparadorReglaTiempoRelativoReferencium>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteDisparadorReglaTiempoRelativoReferencia", "pla");
+
+                entity.HasComment("Define disparadores relativos a eventos (X horas antes o después de una sesión)");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la regla de tiempo relativo");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorReglaTiempoRelativo).HasComment("Llave foránea a la tabla T_GestionDocenteDisparadorReglaTiempo");
+
+                entity.Property(e => e.IdGestionDocenteReferenciaTiempo).HasComment("Llave foránea a la tabla T_GestionDocenteDetalleDisparador");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorReglaTiempoRelativoNavigation)
+                    .WithMany(p => p.InverseIdGestionDocenteDisparadorReglaTiempoRelativoNavigation)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorReglaTiempoRelativo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteDisparadorReglaTiempoRelativoReferencia_IdGestionDocenteDisparadorReglaTiempoRelativo");
+
+                entity.HasOne(d => d.IdGestionDocenteReferenciaTiempoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoRelativoReferencia)
+                    .HasForeignKey(d => d.IdGestionDocenteReferenciaTiempo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionDocenteEstado>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteEstado", "pla");
+
+                entity.HasComment("Catálogo de estados aplicables a flujos y actividades de gestión docente");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del estado");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Descripción detallada del estado");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del estado (ej: Activo, Inactivo, En Proceso)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+            });
+
+            modelBuilder.Entity<TGestionDocenteFlujo>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteFlujo", "pla");
+
+                entity.HasComment("Tabla principal que define flujos de trabajo para gestión docente (ej: Email Recordatorio Subir Notas)");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del flujo");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasComment("Descripción detallada del flujo");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.IdGestionDocenteCategoria).HasComment("Llave foránea a la tabla T_GestionDocenteCategoria");
+
+                entity.Property(e => e.IdGestionDocenteEstado).HasComment("Llave foránea a la tabla T_GestionDocenteEstado");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(300)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del flujo (ej: Email Recordatorio Subir Notas)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdGestionDocenteCategoriaNavigation)
+                    .WithMany(p => p.TGestionDocenteFlujos)
+                    .HasForeignKey(d => d.IdGestionDocenteCategoria)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoNavigation)
+                    .WithMany(p => p.TGestionDocenteFlujos)
+                    .HasForeignKey(d => d.IdGestionDocenteEstado)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionDocenteIaEntrenamientoClasificacionTipo>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteIaEntrenamientoClasificacionTipo", "pla");
+
+                entity.HasComment("Catálogo de tipos de clasificación para entrenamiento de IA");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del tipo de clasificación");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del tipo de clasificación");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+            });
+
+            modelBuilder.Entity<TGestionDocenteIaEntrenamientoEjemplo>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteIaEntrenamientoEjemplo", "pla");
+
+                entity.HasComment("Almacena ejemplos de texto para entrenar el modelo de IA en clasificación de ocurrencias");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del ejemplo de entrenamiento");
+
+                entity.Property(e => e.EsPositivo).HasComment("Indica si es ejemplo positivo (1) o contraejemplo (0)");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.IdGestionDocenteIaEntrenamientoClasificacionTipo).HasComment("Llave foránea a la tabla T_GestionDocenteIaEntrenamientoClasificacionTipo");
+
+                entity.Property(e => e.IdGestionDocenteOcurrenciaIaConfiguracion).HasComment("Llave foránea a la tabla T_GestionDocenteOcurrenciaIaConfiguracion");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.TextoEjemplo)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasComment("Texto de ejemplo para entrenamiento (ej: Sí, confirmo mi asistencia)");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdGestionDocenteIaEntrenamientoClasificacionTipoNavigation)
+                    .WithMany(p => p.TGestionDocenteIaEntrenamientoEjemplos)
+                    .HasForeignKey(d => d.IdGestionDocenteIaEntrenamientoClasificacionTipo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteIaEntrenamientoEjemplo_IdGestionDocenteIaEntrenamientoClasificacionTipo");
+
+                entity.HasOne(d => d.IdGestionDocenteOcurrenciaIaConfiguracionNavigation)
+                    .WithMany(p => p.TGestionDocenteIaEntrenamientoEjemplos)
+                    .HasForeignKey(d => d.IdGestionDocenteOcurrenciaIaConfiguracion)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionDocenteModoMarcado>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteModoMarcado", "pla");
+
+                entity.HasComment("Catálogo de modos de marcado de ocurrencias (Manual, Automático, MARM)");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del modo de marcado");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Descripción del modo de marcado");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del modo (ej: Manual, Automático, MARM)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+            });
+
+            modelBuilder.Entity<TGestionDocenteOcurrenciaIaConfiguracion>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteOcurrenciaIaConfiguracion", "pla");
+
+                entity.HasComment("Configuración de inteligencia artificial para clasificación automática de ocurrencias");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la configuración de IA");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.IdGestionDocenteConfianzaUmbralNivel).HasComment("Llave foránea a la tabla T_GestionDocenteConfianzaUmbralNivel");
+
+                entity.Property(e => e.IdGestionDocenteOcurrencia).HasComment("Llave foránea a la tabla T_GestionDocenteOcurrencia");
+
+                entity.Property(e => e.Prompt)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasComment("Prompt o instrucción para el modelo de IA");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdGestionDocenteConfianzaUmbralNivelNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaIaConfiguracions)
+                    .HasForeignKey(d => d.IdGestionDocenteConfianzaUmbralNivel)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteOcurrenciaNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaIaConfiguracions)
+                    .HasForeignKey(d => d.IdGestionDocenteOcurrencia)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionDocenteOcurrenciaTipo>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteOcurrenciaTipo", "pla");
+
+                entity.HasComment("Catálogo de tipos de ocurrencia (Positivo, Negativo, Neutral)");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del tipo de ocurrencia");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Descripción del tipo de ocurrencia");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del tipo (ej: Positivo, Negativo, Neutral)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+            });
+
+            modelBuilder.Entity<TGestionDocenteOcurrencium>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteOcurrencia", "pla");
+
+                entity.HasComment("Registra ocurrencias o eventos resultantes de actividades (ej: Confirmó asistencia, Rechazó)");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la ocurrencia");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Descripción de la ocurrencia");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.IdGestionDocenteActividadDetalle).HasComment("Llave foránea a la tabla T_GestionDocenteActividadDetalle que originó esta ocurrencia");
+
+                entity.Property(e => e.IdGestionDocenteModoMarcado).HasComment("Llave foránea a la tabla T_GestionDocenteModoMarcado");
+
+                entity.Property(e => e.IdGestionDocenteOcurrenciaTipo).HasComment("Llave foránea a la tabla T_GestionDocenteOcurrenciaTipo");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Nombre de la ocurrencia");
+
+                entity.Property(e => e.RequiereComentario).HasComment("Indica si la ocurrencia requiere comentario adicional");
+
+                entity.Property(e => e.RequiereFechaHora).HasComment("Indica si la ocurrencia requiere fecha y hora específica");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdGestionDocenteActividadDetalleNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrencia)
+                    .HasForeignKey(d => d.IdGestionDocenteActividadDetalle)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteModoMarcadoNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrencia)
+                    .HasForeignKey(d => d.IdGestionDocenteModoMarcado)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteOcurrenciaTipoNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrencia)
+                    .HasForeignKey(d => d.IdGestionDocenteOcurrenciaTipo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionDocenteReferenciaTiempo>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteReferenciaTiempo", "pla");
+
+                entity.HasComment("Define puntos de referencia temporal (ANTES_SESION, DESPUES_SESION)");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la referencia de tiempo");
+
+                entity.Property(e => e.Codigo)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Código de la referencia (ej: ANTES_SESION)");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre de la referencia (ej: Antes de Sesión)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+            });
+
+            modelBuilder.Entity<TGestionDocenteUnidadTiempo>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteUnidadTiempo", "pla");
+
+                entity.HasComment("Catálogo de unidades de tiempo (Minutos, Horas, Días)");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la unidad de tiempo");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Nombre de la unidad de tiempo (ej: Minutos, Horas, Días)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+            });
+
             modelBuilder.Entity<TGmailCliente>(entity =>
             {
                 entity.ToTable("T_GmailCliente", "mkt");
@@ -40315,6 +41513,54 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario de modificacion del registro");
+            });
+
+            modelBuilder.Entity<TPlantillaMedioComunicacion>(entity =>
+            {
+                entity.ToTable("T_PlantillaMedioComunicacion", "mkt");
+
+                entity.HasComment("Tabla relacional que vincula plantillas con medios de comunicación específicos");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la relación");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.IdMedioComunicacion).HasComment("Llave foránea a la tabla T_MedioComunicacion");
+
+                entity.Property(e => e.IdPlantilla).HasComment("Llave foránea a la tabla T_Plantilla");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdMedioComunicacionNavigation)
+                    .WithMany(p => p.TPlantillaMedioComunicacions)
+                    .HasForeignKey(d => d.IdMedioComunicacion)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdPlantillaNavigation)
+                    .WithMany(p => p.TPlantillaMedioComunicacions)
+                    .HasForeignKey(d => d.IdPlantilla)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
             modelBuilder.Entity<TPlantillaPai>(entity =>
