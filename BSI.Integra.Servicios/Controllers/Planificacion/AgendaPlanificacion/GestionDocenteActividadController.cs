@@ -36,5 +36,47 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
                 return BadRequest(new { Exito = false, Mensaje = ex.Message });
             }
         }
+
+        [HttpPost("InsertarCabecera")]
+        public async Task<IActionResult> InsertarCabecera([FromBody] GestionDocenteActividadCabeceraDTO dto)
+        {
+            try
+            {
+                var id = await _gestionDocenteActividadService.InsertarCabeceraAsync(dto);
+                return Ok(new { Exito = true, Id = id });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        [HttpPost("InsertarDetalle/{idCabecera}")]
+        public async Task<IActionResult> InsertarDetalle(int idCabecera, [FromBody] GestionDocenteActividadDetalleDTO dto)
+        {
+            try
+            {
+                var id = await _gestionDocenteActividadService.InsertarDetalleAsync(idCabecera, dto);
+                return Ok(new { Exito = true, Id = id });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        [HttpPost("InsertarOcurrencia/{idDetalle}")]
+        public async Task<IActionResult> InsertarOcurrencia(int idDetalle, [FromBody] GestionDocenteOcurrenciaDTO dto)
+        {
+            try
+            {
+                var id = await _gestionDocenteActividadService.InsertarOcurrenciaAsync(idDetalle, dto);
+                return Ok(new { Exito = true, Id = id });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
     }
 }
