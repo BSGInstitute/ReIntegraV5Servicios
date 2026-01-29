@@ -269,7 +269,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.GestionPersonas
         }
         public List<AsignacionPreguntaExamen> ObtenerAsignacionesPreguntaExamenbyId(int IdPregunta)
         {
-            try {
+            try
+            {
                 var query = @"SELECT 
                                      Id,
                                      IdExamen,
@@ -290,7 +291,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.GestionPersonas
                 throw new Exception(e.Message);
             }
         }
-        public AsignacionPreguntaExamen ObtenerPorId(int idExamen) {
+        public AsignacionPreguntaExamen ObtenerPorId(int idExamen)
+        {
             try
             {
                 var query = @"SELECT idExamen,idPregunta,NroOrden,Puntaje FROM gp.T_AsignacionPreguntaExamen WHERE Estado = 1 AND IdExamen = @idExamen";

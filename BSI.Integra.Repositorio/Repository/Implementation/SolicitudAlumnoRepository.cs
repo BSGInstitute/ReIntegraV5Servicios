@@ -943,6 +943,128 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        /// Autor: Alexis Arroyo
+        /// Fecha: 14/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todas las solicitudes del alumno filtradas por asesor/revisor asignado.
+        /// </summary>
+        /// <param name="FiltroSolicitud">Filtro con IdPersonalRevision y otros parámetros</param>
+        /// <returns>SolicitudAlumnoFiltradaDTO</returns>
+        public IEnumerable<SolicitudAlumnoFiltradaDTO> ObtenerSolicitudesPorFiltroAsesor(FiltroSolicitudAlumnoPorAsesorDTO FiltroSolicitud)
+        {
+            try
+            {
+                List<SolicitudAlumnoFiltradaDTO> rpta = new List<SolicitudAlumnoFiltradaDTO>();
+                FiltroSolicitudAlumnoPorAsesorReporteDTO filtroFinal = new FiltroSolicitudAlumnoPorAsesorReporteDTO();
+
+                if (FiltroSolicitud.IdEstadoSolicitud != null && FiltroSolicitud.IdEstadoSolicitud.Count() > 0)
+                {
+                    filtroFinal.IdEstadoSolicitud = String.Join(",", FiltroSolicitud.IdEstadoSolicitud);
+                }
+                if (FiltroSolicitud.FechaInicio != null)
+                {
+                    filtroFinal.FechaInicio = FiltroSolicitud.FechaInicio.Value.Date;
+                }
+                if (FiltroSolicitud.FechaFin != null)
+                {
+                    filtroFinal.FechaFin = FiltroSolicitud.FechaFin.Value.Date.AddDays(1).AddSeconds(-1);
+                }
+                filtroFinal.IdPersonalRevision = FiltroSolicitud.IdPersonalRevision;
+
+                var resultado = _dapperRepository.QuerySPDapper("ope.SP_ObtenerSolicitudAlumnoPorAsesor", new { filtroFinal.IdPersonalRevision, filtroFinal.IdEstadoSolicitud, filtroFinal.FechaInicio, filtroFinal.FechaFin });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<SolicitudAlumnoFiltradaDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Alexis Arroyo
+        /// Fecha: 15/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene solicitudes agrupadas: Derivadas (no resueltas de Atención al Cliente) y Resueltas (de otras áreas)
+        /// </summary>
+        /// <param name="FiltroSolicitud">Filtro con IdPersonalRevision y otros parámetros</param>
+        /// <returns>RespuestaSolicitudesAlumnoDTO con solicitudes agrupadas</returns>
+        public RespuestaSolicitudesAlumnoDTO ObtenerSolicitudesAgrupadasPorAsesor(FiltroSolicitudAlumnoPorAsesorDTO FiltroSolicitud)
+        {
+            try
+            {
+                const int ID_AREA_ATENCION_CLIENTE = 3;
+                var estadosResueltos = new List<int> { 7, 8 };
+
+                var respuesta = new RespuestaSolicitudesAlumnoDTO();
+                List<SolicitudAlumnoFiltradaDTO> todasLasSolicitudes = new List<SolicitudAlumnoFiltradaDTO>();
+                FiltroSolicitudAlumnoPorAsesorReporteDTO filtroFinal = new FiltroSolicitudAlumnoPorAsesorReporteDTO();
+
+                if (FiltroSolicitud.FechaInicio != null)
+                {
+                    filtroFinal.FechaInicio = FiltroSolicitud.FechaInicio.Value.Date;
+                }
+                if (FiltroSolicitud.FechaFin != null)
+                {
+                    filtroFinal.FechaFin = FiltroSolicitud.FechaFin.Value.Date.AddDays(1).AddSeconds(-1);
+                }
+                filtroFinal.IdPersonalRevision = FiltroSolicitud.IdPersonalRevision;
+
+                var resultado = _dapperRepository.QuerySPDapper("ope.SP_ObtenerSolicitudAlumnoPorAsesor", new { filtroFinal.IdPersonalRevision, filtroFinal.IdEstadoSolicitud, filtroFinal.FechaInicio, filtroFinal.FechaFin });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    todasLasSolicitudes = JsonConvert.DeserializeObject<List<SolicitudAlumnoFiltradaDTO>>(resultado);
+                }
+
+                // Solicitudes Derivadas: NO resueltas y área de solución = Atención al Cliente (3)
+                respuesta.SolicitudesDerivadas = todasLasSolicitudes
+                    .Where(s => !estadosResueltos.Contains(s.IdEstadoSolicitud) && s.IdPersonalAreaTrabajo_Solucion == ID_AREA_ATENCION_CLIENTE)
+                    .ToList();
+
+                // Solicitudes Resueltas: Resueltas (7 u 8) y área de solución != Atención al Cliente
+                respuesta.SolicitudesResueltas = todasLasSolicitudes
+                    .Where(s => estadosResueltos.Contains(s.IdEstadoSolicitud) && s.IdPersonalAreaTrabajo_Solucion != ID_AREA_ATENCION_CLIENTE)
+                    .ToList();
+
+                return respuesta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Alexis Arroyo
+        /// Fecha: 20/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza el estado de una solicitud de alumno
+        /// </summary>
+        /// <param name="idSolicitud">ID de la solicitud a actualizar</param>
+        /// <returns>True si se actualizó correctamente</returns>
+        public bool ActualizarEstadoSolicitud(int idSolicitud)
+        {
+            try
+            {
+                var query = @"UPDATE ope.T_SolicitudAlumno
+                              SET Visualizado = 1
+                              WHERE Id = @idSolicitud";
+                if (idSolicitud != null ) {
+                    var resultadoMatricula = _dapperRepository.QueryDapper(query, new { idSolicitud });
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
     }
 }

@@ -128,7 +128,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         datos.Origen = worksheet.Cells[row, 12].Value?.ToString();
                         datos.Asesor = worksheet.Cells[row, 13].Value?.ToString();
                         datos.TipoDato = worksheet.Cells[row, 14].Value?.ToString();
-                        datos.FaseOportunidad = worksheet.Cells[row, 14].Value?.ToString();
+                        datos.FaseOportunidad = worksheet.Cells[row, 15].Value?.ToString();
 
                         listaDatos.Add(datos);
                     }
@@ -532,6 +532,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 }
                 catch (Exception e)
                 {
+
                 }
 
                 try

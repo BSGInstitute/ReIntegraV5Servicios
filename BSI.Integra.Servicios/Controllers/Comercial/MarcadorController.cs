@@ -47,6 +47,42 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             });
         }
 
+
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 30/06/2023
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la actividad siguiente del marcador
+        /// </summary>
+        /// <returns> 0 nro de dias sin contacto </returns>
+        [HttpGet("[action]/{idAsesor}")]
+        public IActionResult ObtenerActividadWavix(int idAsesor)
+        {
+            var resultado = _marcadorService.ObtenerActividadWavix(idAsesor);
+            return Ok(new
+            {
+                Actividad = resultado
+            });
+        }
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 30/06/2023
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la actividad siguiente del marcador
+        /// </summary>
+        /// <returns> 0 nro de dias sin contacto </returns>
+        [HttpGet("[action]/{idAsesor}")]
+        public IActionResult ObtenerActividadWavixATC(int idAsesor)
+        {
+            var resultado = _marcadorService.ObtenerActividadWavixATC(idAsesor);
+            return Ok(new
+            {
+                Actividad = resultado
+            });
+        }
+
         /// Tipo Función: GET
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 01/07/2023

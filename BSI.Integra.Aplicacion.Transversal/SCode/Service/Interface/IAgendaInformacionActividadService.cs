@@ -1,4 +1,5 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 
 namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
 {
@@ -9,6 +10,15 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         List<EncuestaAsignadoMatriculaDTO> ObtenerEncuestaAlumnoMatriculaCurso(int idMatricula);
         bool AgregarPEspecificoSesionEncuestaAlumno(AgregarPEspecificoSesionEncuestaAlumnoDTO data);
         bool AgregarComentarioEncuesta(EncuestaComentarioDTO Encuesta);
-
+        Task<ObjetivosResponseDTO> GetObjetivosAsync(int idPGeneral);
+        void InvalidarCache(int idPGeneral);
+        void LimpiarTodoCache();
+        Task<BeneficioProgramaResponseDTO> GetBeneficiosProgramaAsync(int idPGeneral);
+        Task<CertificacionProgramaResponseDTO> GetCertificacionesProgramaAsync(int idPGeneral);
+        Task<MetodologiaProgramaResponseDTO> GetMetodologiaProgramaAsync(int idPGeneral);
+        Task<PautasComplementariasProgramaResponseDTO> GetPautasComplementariasProgramaAsync(int idPGeneral);
+        Task<PerfilProfesionalClienteResponseDTO> GetPerfilProfesionalClienteAsync(int idAlumno);
+        Task<object> ObtenerSilaboPorIdAsync(int idPgeneral);
+        Task<ModalidadesProgramaResponseDTO> ObtenerModalidadesPorPrograma(int idPGeneral);
     }
 }

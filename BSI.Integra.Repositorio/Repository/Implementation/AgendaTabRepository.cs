@@ -342,6 +342,91 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception("Se ha producido un error al ejecutar el método ObtenerActividadesProgramada()", ex);
             }
         }
+        /// Autor: Jose Vega
+        /// Fecha: 10/12/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener las actividades programadas (Automaticas/Manuales)
+        /// </summary>
+        /// <param name="tabAgenda">Objeto de tipo AgendaTabConfiguracionAlternoDTO</param>
+        /// <param name="idAsesor">Id del asesor (PK de la tabla gp.T_Personal)</param>
+        /// <param name="filtros">Objeto de tipo diccionario (string, string)</param>
+        /// <returns>List<ActividadAgendaV2DTO></returns>
+        public List<ActividadAgendaV2DTO> ObtenerActividadesProgramadaV2(AgendaTabConfiguracionAlternoDTO tabAgenda, int idAsesor, Dictionary<string, string>? filtros)
+        {
+            try
+            {
+                List<ActividadAgendaV2DTO> rpta = new();
+                string filtro = ObtenerFiltro(filtros);
+                filtro = filtro.Trim().StartsWith("AND") ? filtro.Trim().Substring(3).Trim() : filtro.Trim();
+
+                string condicionEstadoOcurrencia = string.Empty;
+                string condicionPersonalAsignado = string.Empty;
+                int idOportunidadRemarketingAgenda;
+                bool condicionWhatsaap = false;
+
+                if (filtros != null)
+                {
+                    KeyValuePair<string, string>? filtroTemp = filtros.FirstOrDefault(x => x.Key.ToLower() == "eswhatsapp");
+                    if (filtroTemp.HasValue)
+                    {
+                        string valor = filtroTemp.Value.Value;
+                        condicionWhatsaap = valor == "SI";
+                    }
+                }
+                if (tabAgenda.Nombre.Contains("Automatica"))
+                {
+                    condicionEstadoOcurrencia = " AND (IdEstadoOcurrencia = 2 OR IdEstadoOcurrencia IS NULL)";
+                    idOportunidadRemarketingAgenda = 14;
+                }
+                else
+                {
+                    condicionEstadoOcurrencia = " AND (IdEstadoOcurrencia = 1 OR IdEstadoOcurrencia = 7)";
+                    idOportunidadRemarketingAgenda = 1;
+                }
+                condicionPersonalAsignado = idAsesor > 0 ? $" AND IdPersonal_Asignado IN ({idAsesor})" : string.Empty;
+
+                string query = $@"
+                    SELECT {tabAgenda.CamposVista}
+                    FROM (
+                        SELECT *
+                        FROM {tabAgenda.VistaBaseDatos}
+                        WHERE IdTipoCategoriaOrigen IN ({tabAgenda.IdTipoCategoriaOrigen})
+                            AND IdCategoriaOrigen IN ({tabAgenda.IdCategoriaOrigen})
+                            AND IdTipoDato IN ({tabAgenda.IdTipoDato})
+                            AND IdFaseOportunidad IN ({tabAgenda.IdFaseOportunidad})
+                            AND IdEstadoOportunidad IN ({tabAgenda.IdEstadoOportunidad})
+                            AND IdOportunidadRemarketingAgenda IS NULL
+                            {condicionEstadoOcurrencia} {condicionPersonalAsignado}
+                        UNION
+                        SELECT *
+                        FROM {tabAgenda.VistaBaseDatos}
+                        WHERE IdOportunidadRemarketingAgenda = {idOportunidadRemarketingAgenda} 
+                            {condicionPersonalAsignado}
+                    ) AS T0
+                    
+                    ";
+                if (condicionWhatsaap)
+                {
+                    query += string.IsNullOrEmpty(filtro) ? "WHERE EstadoSeguimientoWhatsApp <> 1" : $" WHERE EstadoSeguimientoWhatsApp <> 1 AND {filtro.Trim()}";
+                }
+                else
+                {
+                    query += string.IsNullOrEmpty(filtro) ? string.Empty : $"WHERE {filtro.Trim()}";
+                }
+
+                string resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ActividadAgendaV2DTO>>(resultado)!;
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Se ha producido un error al ejecutar el método ObtenerActividadesProgramada()", ex);
+            }
+        }
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 12/08/2022
         /// Version: 1.0
@@ -436,6 +521,108 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
                     rpta = JsonConvert.DeserializeObject<List<ActividadAgendaDTO>>(resultado)!;
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerActividadesNoProgramada() {ex.Message}", ex);
+            }
+        }
+        /// Autor: Jose Vega
+        /// Fecha: 10/12/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene actividades no programadas
+        /// </summary>
+        /// <param name="tabAgenda">Objeto de tipo AgendaTabConfiguracionAlternoDTO</param>
+        /// <param name="idAsesor">Id del asesor (PK de la tabla gp.T_Personal)</param>
+        /// <param name="filtros">Objeto de tipo diccionario (string, string)</param>
+        /// <returns>List<ActividadAgendaV2DTO></returns>
+        public List<ActividadAgendaV2DTO> ObtenerActividadesNoProgramadaV2(AgendaTabConfiguracionAlternoDTO tabAgenda, int idAsesor, Dictionary<string, string>? filtros)
+        {
+            try
+            {
+                List<ActividadAgendaV2DTO> rpta = new();
+                string filtro = ObtenerFiltro(filtros);
+                filtro = filtro.Trim().StartsWith("AND") ? filtro.Trim().Substring(3).Trim() : filtro.Trim();
+
+                string condicion = string.Empty;
+                string condicionPersonalAsignado = string.Empty;
+                string queryAdicional = string.Empty;
+                int idOportunidadRemarketingAgenda;
+                condicionPersonalAsignado = idAsesor > 0 ? $" AND IdPersonal_Asignado IN ({idAsesor}) " : string.Empty;
+
+
+                bool condicionWhatsaap = false;
+                if (filtros != null)
+                {
+                    KeyValuePair<string, string>? filtroTemp = filtros.FirstOrDefault(x => x.Key.ToLower() == "eswhatsapp");
+                    if (filtroTemp.HasValue)
+                    {
+                        string valor = filtroTemp.Value.Value;
+                        condicionWhatsaap = valor == "SI";
+                    }
+                }
+
+                if (tabAgenda.Nombre.Contains("1 Solicitud"))
+                {
+                    idOportunidadRemarketingAgenda = 2;
+                    condicion = " AND Total = 1 AND IdEstadoOportunidad != 8";
+                    //condicionPersonalAsignado = idAsesor > 0 ? $" AND IdPersonal_Asignado IN ({idAsesor})" : string.Empty;
+                }
+                else
+                {
+                    idOportunidadRemarketingAgenda = 11;
+                    condicion = " AND Total > 1 ";
+                    queryAdicional = $@"
+                        UNION
+                        SELECT *
+                        FROM {tabAgenda.VistaBaseDatos}
+                        WHERE IdEstadoOportunidad = 8
+							AND IdOportunidadRemarketingAgenda IS NULL
+                            AND FechaCreacion > FechaMenos_30 {condicionPersonalAsignado}";
+                }
+
+                string query = $@"
+                    SELECT {tabAgenda.CamposVista}
+                        FROM (
+                            SELECT *
+                            FROM {tabAgenda.VistaBaseDatos}
+                            WHERE IdTipoCategoriaOrigen IN ({tabAgenda.IdTipoCategoriaOrigen})
+                                AND IdCategoriaOrigen IN ({tabAgenda.IdCategoriaOrigen})
+                                AND IdTipoDato IN ({tabAgenda.IdTipoDato})
+                                AND IdFaseOportunidad IN ({tabAgenda.IdFaseOportunidad})
+                                AND IdEstadoOportunidad IN ({tabAgenda.IdEstadoOportunidad})
+                                AND ProbabilidadActualDesc IN ({tabAgenda.Probabilidad})
+                                AND IdOportunidadRemarketingAgenda IS NULL
+                                AND FechaCreacion > FechaMenos_30
+                                {condicion}
+                                {condicionPersonalAsignado}
+                            UNION
+                            SELECT *
+                            FROM {tabAgenda.VistaBaseDatos}
+                            WHERE
+                                IdOportunidadRemarketingAgenda = {idOportunidadRemarketingAgenda}
+                                AND FechaCreacion > FechaMenos_30
+                                {condicionPersonalAsignado}
+                            {queryAdicional}  
+                        ) AS T0
+                        ";
+                if (condicionWhatsaap)
+                {
+                    query += string.IsNullOrEmpty(filtro) ? "WHERE EstadoSeguimientoWhatsApp <> 1" : $" WHERE EstadoSeguimientoWhatsApp <> 1 AND {filtro.Trim()} ORDER BY Orden ASC";
+                }
+                else
+                {
+                    query += string.IsNullOrEmpty(filtro) ? string.Empty : $" WHERE {filtro.Trim()} ORDER BY Orden ASC";
+                }
+
+
+                string resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ActividadAgendaV2DTO>>(resultado)!;
                 }
                 return rpta;
             }
@@ -554,6 +741,176 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
         }
+        /// Autor: Alexis Arroyo
+        /// Fecha: 26/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene solicitudes agrupadas por asesor (Derivadas y Resueltas)
+        /// </summary>
+        /// <param name="tabAgenda">Objeto de tipo AgendaTabConfiguracionAlternoDTO</param>
+        /// <param name="idAsesor">Id del asesor (PK de la tabla gp.T_Personal)</param>
+        /// <param name="filtros">Objeto de tipo diccionario (string, string)</param>
+        /// <returns>List<ActividadAgendaDTO></returns>
+        public List<ActividadAgendaDTO> ObtenerActividadesSolicitudesAgrupadas(AgendaTabConfiguracionAlternoDTO tabAgenda, int idAsesor, Dictionary<string, string> filtros)
+        {
+            try
+            {
+                const int ID_AREA_ATENCION_CLIENTE = 3;
+                var estadosResueltos = new List<int> { 7, 8 };
+
+                // 1. Construir parámetros para el SP
+                int? idPersonalRevision = idAsesor > 0 ? idAsesor : (int?)null;
+                //string? idEstadoSolicitud = null;
+                //DateTime? fechaInicio = filtros != null && filtros.ContainsKey("FechaInicio") && !string.IsNullOrEmpty(filtros["FechaInicio"])
+                //    ? DateTime.Parse(filtros["FechaInicio"]).Date
+                //    : (DateTime?)null;
+                //DateTime? fechaFin = filtros != null && filtros.ContainsKey("FechaFin") && !string.IsNullOrEmpty(filtros["FechaFin"])
+                //    ? DateTime.Parse(filtros["FechaFin"]).Date.AddDays(1).AddSeconds(-1)
+                //    : (DateTime?)null;
+
+                // 2. Llamar al SP de SolicitudAlumno
+                List<SolicitudAlumnoFiltradaDTO> todasLasSolicitudes = new();
+                var resultado = _dapperRepository.QuerySPDapper("ope.SP_ObtenerSolicitudAlumnoPorAsesor",
+                    new { IdPersonal = idPersonalRevision});
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    todasLasSolicitudes = JsonConvert.DeserializeObject<List<SolicitudAlumnoFiltradaDTO>>(resultado);
+                }
+
+                // 3. Filtrar y agrupar solicitudes
+                var solicitudesDerivadas = todasLasSolicitudes
+                    .Where(s => !estadosResueltos.Contains(s.IdEstadoSolicitud) && s.IdPersonalAreaTrabajo_Solucion == ID_AREA_ATENCION_CLIENTE)
+                    .ToList();
+
+                var solicitudesResueltas = todasLasSolicitudes
+                    .Where(s => estadosResueltos.Contains(s.IdEstadoSolicitud) && s.IdPersonalAreaTrabajo_Solucion != ID_AREA_ATENCION_CLIENTE)
+                    .ToList();
+
+                // 4. Mapear SolicitudAlumnoFiltradaDTO → ActividadAgendaDTO
+                List<ActividadAgendaDTO> actividades = new();
+
+                actividades.AddRange(solicitudesDerivadas.Select(s => MapearSolicitudAActividad(s, "Derivada")));
+                actividades.AddRange(solicitudesResueltas.Select(s => MapearSolicitudAActividad(s, "Resuelta")));
+
+                return actividades;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Mapea un objeto SolicitudAlumnoFiltradaDTO a ActividadAgendaDTO
+        /// </summary>
+        private ActividadAgendaDTO MapearSolicitudAActividad(SolicitudAlumnoFiltradaDTO solicitud, string tipoSolicitud)
+        {
+            return new ActividadAgendaDTO
+            {
+                // Campos base existentes
+                Id = solicitud.IdSolicitudAlumno,
+                IdMatriculaCabecera = solicitud.IdMatriculaCabecera,
+                CodigoMatricula = solicitud.CodigoMatricula,
+                IdEstadoMatricula = solicitud.IdEstadoMatricula,
+                EstadoMatricula = solicitud.EstadoMatricula,
+                SubEstadoMatricula = solicitud.SubEstadoMatricula,
+                Contacto = solicitud.NombreAlumno,
+                IdAlumno = solicitud.IdAlumno ?? 0,
+                IdClasificacionPersona = solicitud.IdClasificacionPersona ?? 0,
+                IdOportunidad = solicitud.IdOportunidad ?? 0,
+                IdFaseOportunidad = solicitud.IdFaseOportunidad,
+                IdPadre = solicitud.IdOportunidadPadre,
+                IdActividadCabecera = solicitud.IdActividadCabecera ?? 0,
+                UltimaFechaProgramada = !string.IsNullOrEmpty(solicitud.FechaCreacion)
+                    ? DateTime.Parse(solicitud.FechaCreacion)
+                    : (DateTime?)null,
+                PEspecifico = solicitud.NombrePEspecifico,
+                IdCentroCosto = solicitud.IdCentroCosto,
+                CentroCosto = solicitud.NombreCentroCosto,
+                UltimoComentario = solicitud.DetalleSolicitud,
+                TipoSolicitudOperaciones = tipoSolicitud,
+                Asesor = solicitud.NombrePersonal_Revision,
+                IdPersonal_Asignado = solicitud.IdPersonal_Revision,
+                EstadoHoja = solicitud.NombreEstadoSolicitud,
+                CategoriaNombre = solicitud.NombreSolicitudCategoria,
+                CategoriaDescripcion = solicitud.NombreSubCategoria,
+                FechaSolicitud = !string.IsNullOrEmpty(solicitud.FechaRegistro)
+                    ? DateTime.Parse(solicitud.FechaRegistro)
+                    : (DateTime?)null,
+
+                // Campos de Programa
+                IdPEspecifico = solicitud.IdPEspecifico,
+                IdPGeneral = solicitud.IdPGeneral,
+                PGeneral = solicitud.NombrePGeneral,
+
+                // Campos de Solicitud
+                Prioridad = solicitud.Prioridad,
+                NombreSolicitud = solicitud.NombreSolicitud,
+                IdTipoReporte = solicitud.IdSolicitudTipoReporte,
+                TipoReporte = solicitud.NombreTipoReporte,
+                IdSolicitudCategoria = solicitud.IdSolicitudCategoria,
+                IdSubCategoria = solicitud.IdSolicitudProblema,
+                IdEstadoSolicitud = solicitud.IdEstadoSolicitud,
+
+                // Campos de Solicitante
+                IdSolicitante = solicitud.IdPersonal_Solicitante,
+                NombreSolicitante = solicitud.NombrePersonal_Solicitante,
+                IdAreaSolicitante = solicitud.IdPersonalAreaTrabajo_Solicitante,
+                AreaSolicitante = solicitud.CodigoAreaTrabajo_Solicitante,
+
+                // Campos de Revisión
+                IdAreaRevision = solicitud.IdPersonalAreaTrabajo_Revision,
+                AreaRevision = solicitud.NombreAreaTrabajo_Revision,
+                NombreArchivoSolicitante = solicitud.NombreArchivoSolicitante,
+
+                // Campos de Solución
+                IdAreaSolucion = solicitud.IdPersonalAreaTrabajo_Solucion,
+                AreaSolucion = solicitud.NombreAreaTrabajo_Solucion,
+                IdPersonalSolucion = solicitud.IdPersonal_Solucion,
+                PersonalSolucion = solicitud.NombrePersonal_Solucion,
+                ComentarioSolucion = solicitud.ComentarioSolucion,
+                NombreArchivoSolucion = solicitud.NombreArchivoSolucion,
+
+                // Otros campos
+                FechaModificacionSolicitud = !string.IsNullOrEmpty(solicitud.FechaModificacion)
+                    ? DateTime.Parse(solicitud.FechaModificacion)
+                    : (DateTime?)null,
+                IdControlSolicitudOrigen = solicitud.IdControlSolicitudOrigen
+            };
+        }
+        /// Autor: Jose Vega
+        /// Fecha: 10/12/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene una lista de actividades de todos los tabs de la agenda, excepto el tab de realizadas
+        /// </summary>
+        /// <param name="tabAgenda">Objeto de tipo AgendaTabConfiguracionAlternoDTO</param>
+        /// <param name="idAsesor">Id del asesor (PK de la tabla gp.T_Personal)</param>
+        /// <param name="filtros">Objeto de tipo diccionario (string, string)</param>
+        /// <returns>List<ActividadAgendaV2DTO></returns>
+        public List<ActividadAgendaV2DTO> ObtenerActividadesOperacionesV2(AgendaTabConfiguracionAlternoDTO tabAgenda, int idAsesor, Dictionary<string, string> filtros)
+        {
+            try
+            {
+                List<ActividadAgendaV2DTO> actividadesAgenda = new List<ActividadAgendaV2DTO>();
+                var query = string.Empty;
+                var filtro = tabAgenda.Nombre == "Solicitud Cambio" ? obtenerFiltroSolicitudes(filtros) : this.ObtenerFiltro(filtros);
+                //var filtro = this.ObtenerFiltro(filtros);
+
+                var queryConIdAsesor = "SELECT " + tabAgenda.CamposVista.ToString() + " FROM " + tabAgenda.VistaBaseDatos.ToString() + " WHERE IdEstadoOportunidad IN (" + tabAgenda.IdEstadoOportunidad.ToString() + ") AND IdPersonal_Asignado IN ( " + idAsesor.ToString() + ") " + filtro;
+                var queryConFiltros = "SELECT " + tabAgenda.CamposVista.ToString() + " FROM " + tabAgenda.VistaBaseDatos.ToString() + " WHERE IdEstadoOportunidad IN (" + tabAgenda.IdEstadoOportunidad.ToString() + ") " + filtro.ToString();
+                query = idAsesor == 0 ? queryConFiltros : queryConIdAsesor;
+                var actividadesDB = _dapperRepository.QueryDapper(query, new { });
+                actividadesAgenda = JsonConvert.DeserializeObject<List<ActividadAgendaV2DTO>>(actividadesDB);
+
+                return actividadesAgenda;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
         /// Autor: Joseph Llanque.
         /// Fecha: 03/07/2024
         /// Version: 1.0
@@ -661,6 +1018,64 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 if (!string.IsNullOrEmpty(resultado) && resultado != "[]")
                 {
                     actividadesAgenda = JsonConvert.DeserializeObject<List<ActividadAgendaDTO>>(resultado)!;
+                }
+                return actividadesAgenda;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#ATR-OA-001@Error en ObtenerActividades {ex.Message}");
+            }
+        }
+        /// Autor: Jose Vega
+        /// Fecha: 10/12/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene una lista de actividades de todos los tabs de la agenda, excepto el tab de realizadas
+        /// </summary>
+        /// <param name="filtros">Objeto de tipo diccionario (string, string)</param>
+        /// <returns>string</returns>
+        public List<ActividadAgendaV2DTO> ObtenerActividadesV2(AgendaTabConfiguracionAlternoDTO tabAgenda, int idAsesor, Dictionary<string, string>? filtros)
+        {
+            try
+            {
+                List<ActividadAgendaV2DTO> actividadesAgenda = new();
+                var condicionProbabilidad = string.Empty;
+                var condicionAsesor = idAsesor == 0 ? string.Empty : $" AND IdPersonal_Asignado IN ({idAsesor})";
+                var filtro = this.ObtenerFiltro(filtros);
+                string condicionWhatsaap = string.Empty;
+
+                if (filtros != null)
+                {
+                    KeyValuePair<string, string>? filtroTemp = filtros.FirstOrDefault(x => x.Key.ToLower() == "eswhatsapp");
+                    if (filtroTemp.HasValue)
+                    {
+                        string valor = filtroTemp.Value.Value;
+                        if (valor == "SI")
+                        {
+                            condicionWhatsaap = "EstadoSeguimientoWhatsApp <> 1 AND";
+                        }
+                    }
+                }
+                if (!tabAgenda.Probabilidad.Contains("0"))
+                {
+                    condicionProbabilidad = $" AND ProbabilidadActualDesc IN ({tabAgenda.Probabilidad}) ";
+                }
+                var query = @$"SELECT {tabAgenda.CamposVista} FROM {tabAgenda.VistaBaseDatos}
+                        WHERE 
+                            {condicionWhatsaap} 
+                            IdTipoCategoriaOrigen IN ({tabAgenda.IdTipoCategoriaOrigen})
+                            AND IdCategoriaOrigen IN ({tabAgenda.IdCategoriaOrigen})
+                            AND IdTipoDato IN ({tabAgenda.IdTipoDato})
+                            AND IdFaseOportunidad IN ({tabAgenda.IdFaseOportunidad})
+                            AND IdEstadoOportunidad IN ({tabAgenda.IdEstadoOportunidad})
+                            {condicionProbabilidad}
+                            {condicionAsesor}
+                            {filtro}
+                        ";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && resultado != "[]")
+                {
+                    actividadesAgenda = JsonConvert.DeserializeObject<List<ActividadAgendaV2DTO>>(resultado)!;
                 }
                 return actividadesAgenda;
             }

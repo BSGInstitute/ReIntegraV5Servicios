@@ -75,4 +75,57 @@
         public List<ProblemaDetalleSolucionDTO>? ProgramaGeneralProblemaModalidad { get; set; }
         public List<ProblemaModalidadVentasDTO>? programaGeneralProblemaDetalleSolucion { get; set; }
     }
+
+    public class CargarInformacionMotivacionesRespuestaDTO
+    {
+        public int IdPGeneral { get; set; }
+        public string EsProgramaOCurso { get; set; }
+        public List<MotivacionDTO> Motivaciones { get; set; }
+        public string Error { get; set; }
+    }
+
+    public class MotivacionDTO
+    {
+        public string NombreMotivacion { get; set; }
+        public List<string> Argumentos { get; set; }
+    }
+
+    public class MotivacionRawDTO
+    {
+        public int IdMotivacion { get; set; }
+        public string NombreMotivacion { get; set; }
+        public int IdArgumento { get; set; }
+        public string ContenidoArgumento { get; set; }
+    }
+
+    public class CargarInformacionObjecionesClientesRespuestaV2DTO
+    {
+        public int IdPGeneral { get; set; }
+        public string EsProgramaOCurso { get; set; }
+        public List<ObjecionClienteDTO> Objecciones { get; set; }
+        public string Error { get; set; }
+    }
+
+    public class ObjecionClienteDTO
+    {
+        public int Id { get; set; }
+        public string NombreObjecion { get; set; }
+        public List<DetalleSolucionPair> DetallesYSoluciones { get; set; }
+    }
+
+    public class DetalleSolucionPair
+    {
+        public string Detalle { get; set; }
+        public string Solucion { get; set; }
+    }
+
+    public class ObjeccionClienteRawDTO
+    {
+        public int Id { get; set; }
+        public string NombreObjecion { get; set; }
+        public int IdDetalleSolucion { get; set; }
+        public string Detalle { get; set; }
+        public string Solucion { get; set; }
+    }
+
 }

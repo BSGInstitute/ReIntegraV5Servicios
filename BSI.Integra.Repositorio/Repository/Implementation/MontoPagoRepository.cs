@@ -518,6 +518,34 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 30/09/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Retorna los paquetes, nombre paquete,precio y pais de un programa general
+        /// </summary>
+        /// <param name="idPGeneral">Id Programa General </param>
+        /// <returns> List<MontoPagoModalidadDTO> </returns>
+        public async Task<List<MontoPagoModalidadDTO>> ObtenerMontosPorIdAsync(int idPGeneral)
+        {
+            try
+            {
+                List<MontoPagoModalidadDTO> montos = new List<MontoPagoModalidadDTO>();
+                var resultado = await _dapperRepository.QuerySPDapperAsync("pla.SP_MontoPago", new { idPGeneral });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    montos = JsonConvert.DeserializeObject<List<MontoPagoModalidadDTO>>(resultado) ?? new List<MontoPagoModalidadDTO>();
+                }
+                return montos;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        
+
         /// Autor: Gilmer Quispe.
         /// Fecha: 10/11/2022
         /// Version: 1.0

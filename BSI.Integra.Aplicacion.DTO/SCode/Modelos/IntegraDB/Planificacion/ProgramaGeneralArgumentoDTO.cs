@@ -83,14 +83,21 @@
         public bool Seleccionado { get; set; }
         public int Prioridad { get; set; }
     }
+
+  
+
+
+
+
+
     public class ProgramaGeneralArgumentoDetalleMotivacionNombreDTO
     {
         public int IdProgramaGeneralArgumentoDetalleMotivacion { get; set; }
-	    public int IdProgramaGeneralArgumentoDetalle { get; set; }
-	    public int IdProgramaMotivacion { get; set; }
+        public int IdProgramaGeneralArgumentoDetalle { get; set; }
+        public int IdProgramaMotivacion { get; set; }
         public string NombreMotivacion { get; set; }
     }
-      
+
     public class FactorDTO
     {
         public int Id { get; set; }
@@ -146,6 +153,80 @@
         public bool AplicaDescripcionSolucion { get; set; }
         public bool AplicaTituloSolucion { get; set; }
         public bool AplicaSubTituloSolucion { get; set; }
+        public bool EsSeleccionado { get; set; }
+    }
+    public class RespuestaHistoricaDTO
+    {
+        public int IdProgramaGeneralProblemaFactorSolucion { get; set; }
+        public bool EsSolucionado { get; set; }
+    }
+
+    public class MotivacionSalidaDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public string Tipo { get; set; }
+        public string Descripcion { get; set; }
+        public Dictionary<string, List<ArgumentoAgrupadoDTO>> Argumentos { get; set; }
+    }
+
+    public class ArgumentoAgrupadoDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public List<DetalleSalidaDTO> Detalles { get; set; }
+    }
+
+    public class DetalleSalidaDTO
+    {
+        public int Id { get; set; }
+        public string Detalle { get; set; }
+    }
+
+    public class MotivacionRepoDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    public class DescripcionRepoDTO
+    {
+
+        public int IdEspecifico { get; set; }
+        public string NombreMotivacion { get; set; }
+        public string Descripcion { get; set; }
+        public int Orden { get; set; }
+    }
+
+    public class ArgumentoRepoDTO
+    {
+
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    public class DetalleRepoDTO
+    {
+        public int Id { get; set; }
+        public int IdProgramaGeneralArgumento { get; set; }
+        public string Detalle { get; set; }
+    }
+
+    public class ArgumentoDetalleMotivacionRepoDTO
+    {
+        public int IdProgramaGeneralArgumentoDetalle { get; set; }
+        public int IdProgramaMotivacion { get; set; }
+    }
+
+    public class PrioridadRepoDTO
+    {
+        public int IdProgramaMotivacion { get; set; }
+        public int Prioridad { get; set; }
+    }
+    public class ObtenerArgumentoMotivacionResponseDTO
+    {
+        public List<MotivacionSalidaDTO> Motivaciones { get; set; }
+        public string Error { get; set; }
     }
     public class OportunidadMotivacionSeleccionViewDTO
     {

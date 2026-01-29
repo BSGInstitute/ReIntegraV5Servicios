@@ -510,11 +510,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                        SubEstadoLlamada,
 	                        NombreGrabacion,
 	                        UrlGrabacion,
+                            UrlGrabacion2,
 	                        WebphoneGrabacion,
 	                        TelefonoDestinoReal,
 	                        TelefonoDestino,
 	                        OrigenLlamada,
-	                        AnexoCentral 
+	                        AnexoCentral,
+                            esLlamadaCalificada,
+                            esLlamadaTranscrita
 	                    FROM com.V_ObtenerOportunidadLogReporteSeguimientoV5
 	                    WHERE 
 		                    IdOportunidad = @idOportunidad

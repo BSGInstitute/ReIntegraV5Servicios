@@ -151,7 +151,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             else
             {
                 resultado.Valor = "Ya se realizó el calculo de bics para hoy.";
-            }
+        }
             return resultado;
         }
         /// Autor: Flavio R. Mamani Fabian
@@ -610,18 +610,18 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 }
                 /*Se omite nueva logica de cierre bic por ordenes de gerencia (2025-08-14)*/
                 /*_OportunidadesBic = new List<Oportunidad>();
-                 List<OportunidadContadorBicDTO> oportunidadContadorBics = _unitOfWork.ContadorBicRepository.ObtenerDatosParaBicPorPaisNuevaLogica(idPaisSede);
-                 foreach (var oportunidadContadorBic in oportunidadContadorBics)
-                 {
-                     ProcesoConvertiBic(oportunidadContadorBic.IdOportunidad, "CerradoBIC-NL");
-                     idsOportunidadesACerrar.Add(oportunidadContadorBic.IdOportunidad);
+                List<OportunidadContadorBicDTO> oportunidadContadorBics = _unitOfWork.ContadorBicRepository.ObtenerDatosParaBicPorPaisNuevaLogica(idPaisSede);
+                foreach (var oportunidadContadorBic in oportunidadContadorBics)
+                {
+                    ProcesoConvertiBic(oportunidadContadorBic.IdOportunidad, "CerradoBIC-NL");
+                    idsOportunidadesACerrar.Add(oportunidadContadorBic.IdOportunidad);
 
-                 }
-                 if (_OportunidadesBic != null && _OportunidadesBic.Count() > 0)
-                 {
-                     _unitOfWork.OportunidadRepository.Update(_OportunidadesBic);
-                     _unitOfWork.Commit();
-                 }
+                }
+                if (_OportunidadesBic != null && _OportunidadesBic.Count() > 0)
+                {
+                    _unitOfWork.OportunidadRepository.Update(_OportunidadesBic);
+                    _unitOfWork.Commit();
+                }
                 */
                 return idsOportunidadesACerrar;
             }
