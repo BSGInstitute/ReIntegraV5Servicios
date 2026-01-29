@@ -771,7 +771,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 // 2. Llamar al SP de SolicitudAlumno
                 List<SolicitudAlumnoFiltradaDTO> todasLasSolicitudes = new();
                 var resultado = _dapperRepository.QuerySPDapper("ope.SP_ObtenerSolicitudAlumnoPorAsesor",
-                    new { IdPersonalRevision = idPersonalRevision});
+                    new { IdPersonal = idPersonalRevision});
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
@@ -780,11 +780,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
                 // 3. Filtrar y agrupar solicitudes
                 var solicitudesDerivadas = todasLasSolicitudes
-                    .Where(s => !estadosResueltos.Contains(s.IdEstadoSolicitud) && s.IdAreaSolucion == ID_AREA_ATENCION_CLIENTE)
+                    .Where(s => !estadosResueltos.Contains(s.IdEstadoSolicitud) && s.IdPersonalAreaTrabajo_Solucion == ID_AREA_ATENCION_CLIENTE)
                     .ToList();
 
                 var solicitudesResueltas = todasLasSolicitudes
-                    .Where(s => estadosResueltos.Contains(s.IdEstadoSolicitud) && s.IdAreaSolucion != ID_AREA_ATENCION_CLIENTE)
+                    .Where(s => estadosResueltos.Contains(s.IdEstadoSolicitud) && s.IdPersonalAreaTrabajo_Solucion != ID_AREA_ATENCION_CLIENTE)
                     .ToList();
 
                 // 4. Mapear SolicitudAlumnoFiltradaDTO → ActividadAgendaDTO
@@ -809,7 +809,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             return new ActividadAgendaDTO
             {
                 // Campos base existentes
-                Id = solicitud.id,
+                Id = solicitud.IdSolicitudAlumno,
                 IdMatriculaCabecera = solicitud.IdMatriculaCabecera,
                 CodigoMatricula = solicitud.CodigoMatricula,
                 IdEstadoMatricula = solicitud.IdEstadoMatricula,
@@ -817,24 +817,22 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 SubEstadoMatricula = solicitud.SubEstadoMatricula,
                 Contacto = solicitud.NombreAlumno,
                 IdAlumno = solicitud.IdAlumno ?? 0,
+                IdClasificacionPersona = solicitud.IdClasificacionPersona ?? 0,
                 IdOportunidad = solicitud.IdOportunidad ?? 0,
                 IdFaseOportunidad = solicitud.IdFaseOportunidad,
-                IdPadre = solicitud.IdPadre,
+                IdPadre = solicitud.IdOportunidadPadre,
                 IdActividadCabecera = solicitud.IdActividadCabecera ?? 0,
-                UltimaFechaProgramada = !string.IsNullOrEmpty(solicitud.UltimaFechaProgramada)
-                    ? DateTime.Parse(solicitud.UltimaFechaProgramada)
+                UltimaFechaProgramada = !string.IsNullOrEmpty(solicitud.FechaCreacion)
+                    ? DateTime.Parse(solicitud.FechaCreacion)
                     : (DateTime?)null,
-                IdClasificacionPersona = solicitud.IdClasificacionPersona ?? 0,
                 PEspecifico = solicitud.NombrePEspecifico,
                 IdCentroCosto = solicitud.IdCentroCosto,
-                CentroCosto = solicitud.CentroCosto,
+                CentroCosto = solicitud.NombreCentroCosto,
                 UltimoComentario = solicitud.DetalleSolicitud,
                 TipoSolicitudOperaciones = tipoSolicitud,
-                Email1 = solicitud.Email,
-                Asesor = solicitud.PersonalRevision,
-                IdPersonal_Asignado = solicitud.IdPersonalRevision,
-                EstadoHoja = solicitud.EstadoSolicitud,
-                Origen = solicitud.TipoSolicitud,
+                Asesor = solicitud.NombrePersonal_Revision,
+                IdPersonal_Asignado = solicitud.IdPersonal_Revision,
+                EstadoHoja = solicitud.NombreEstadoSolicitud,
                 CategoriaNombre = solicitud.NombreSolicitudCategoria,
                 CategoriaDescripcion = solicitud.NombreSubCategoria,
                 FechaSolicitud = !string.IsNullOrEmpty(solicitud.FechaRegistro)
@@ -844,33 +842,33 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 // Campos de Programa
                 IdPEspecifico = solicitud.IdPEspecifico,
                 IdPGeneral = solicitud.IdPGeneral,
-                PGeneral = solicitud.PGeneral,
+                PGeneral = solicitud.NombrePGeneral,
 
                 // Campos de Solicitud
                 Prioridad = solicitud.Prioridad,
                 NombreSolicitud = solicitud.NombreSolicitud,
-                IdTipoReporte = solicitud.IdTipoReporte,
-                TipoReporte = solicitud.Tipo,
+                IdTipoReporte = solicitud.IdSolicitudTipoReporte,
+                TipoReporte = solicitud.NombreTipoReporte,
                 IdSolicitudCategoria = solicitud.IdSolicitudCategoria,
-                IdSubCategoria = solicitud.IdSubCategoria,
+                IdSubCategoria = solicitud.IdSolicitudProblema,
                 IdEstadoSolicitud = solicitud.IdEstadoSolicitud,
 
                 // Campos de Solicitante
-                IdSolicitante = solicitud.IdSolicitante,
-                NombreSolicitante = solicitud.NombreSolicitante,
-                IdAreaSolicitante = solicitud.IdAreaSolicitante,
-                AreaSolicitante = solicitud.AreaSolicitante,
+                IdSolicitante = solicitud.IdPersonal_Solicitante,
+                NombreSolicitante = solicitud.NombrePersonal_Solicitante,
+                IdAreaSolicitante = solicitud.IdPersonalAreaTrabajo_Solicitante,
+                AreaSolicitante = solicitud.CodigoAreaTrabajo_Solicitante,
 
                 // Campos de Revisión
-                IdAreaRevision = solicitud.IdAreaRevision,
-                AreaRevision = solicitud.AreaRevision,
+                IdAreaRevision = solicitud.IdPersonalAreaTrabajo_Revision,
+                AreaRevision = solicitud.NombreAreaTrabajo_Revision,
                 NombreArchivoSolicitante = solicitud.NombreArchivoSolicitante,
 
                 // Campos de Solución
-                IdAreaSolucion = solicitud.IdAreaSolucion,
-                AreaSolucion = solicitud.AreaSolucion,
-                IdPersonalSolucion = solicitud.IdPersonalSolucion,
-                PersonalSolucion = solicitud.PersonalSolucion,
+                IdAreaSolucion = solicitud.IdPersonalAreaTrabajo_Solucion,
+                AreaSolucion = solicitud.NombreAreaTrabajo_Solucion,
+                IdPersonalSolucion = solicitud.IdPersonal_Solucion,
+                PersonalSolucion = solicitud.NombrePersonal_Solucion,
                 ComentarioSolucion = solicitud.ComentarioSolucion,
                 NombreArchivoSolucion = solicitud.NombreArchivoSolucion,
 
@@ -878,8 +876,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 FechaModificacionSolicitud = !string.IsNullOrEmpty(solicitud.FechaModificacion)
                     ? DateTime.Parse(solicitud.FechaModificacion)
                     : (DateTime?)null,
-                IdControlSolicitudOrigen = solicitud.IdControlSolicitudOrigen,
-                ControlSolicitudOrigen = solicitud.ControlSolicitudOrigen
+                IdControlSolicitudOrigen = solicitud.IdControlSolicitudOrigen
             };
         }
         /// Autor: Jose Vega

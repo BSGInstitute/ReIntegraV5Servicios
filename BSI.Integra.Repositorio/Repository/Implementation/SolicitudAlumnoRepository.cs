@@ -1022,12 +1022,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
                 // Solicitudes Derivadas: NO resueltas y área de solución = Atención al Cliente (3)
                 respuesta.SolicitudesDerivadas = todasLasSolicitudes
-                    .Where(s => !estadosResueltos.Contains(s.IdEstadoSolicitud) && s.IdAreaSolucion == ID_AREA_ATENCION_CLIENTE)
+                    .Where(s => !estadosResueltos.Contains(s.IdEstadoSolicitud) && s.IdPersonalAreaTrabajo_Solucion == ID_AREA_ATENCION_CLIENTE)
                     .ToList();
 
                 // Solicitudes Resueltas: Resueltas (7 u 8) y área de solución != Atención al Cliente
                 respuesta.SolicitudesResueltas = todasLasSolicitudes
-                    .Where(s => estadosResueltos.Contains(s.IdEstadoSolicitud) && s.IdAreaSolucion != ID_AREA_ATENCION_CLIENTE)
+                    .Where(s => estadosResueltos.Contains(s.IdEstadoSolicitud) && s.IdPersonalAreaTrabajo_Solucion != ID_AREA_ATENCION_CLIENTE)
                     .ToList();
 
                 return respuesta;
