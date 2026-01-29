@@ -13,6 +13,7 @@ using iText.Layout.Properties;
 using iText.StyledXmlParser.Jsoup.Nodes;
 using iText.StyledXmlParser.Jsoup.Select;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Drawing;
@@ -4291,7 +4292,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
                 MetricaComparativaDTO CalcularMetrica(int hoy, int ayer)
                 {
-               
+
                     int porcentaje = ayer > 0 ? (int)Math.Round(((double)(hoy - ayer) / ayer) * 100) : 0;
 
                     string estado = porcentaje >= 0 ? "Positivo" : "Negativo";
@@ -4551,8 +4552,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 List<OportunidadMasivaDTO> listaOportunidades = new List<OportunidadMasivaDTO>();
 
                 var query = @"SELECT Nombre1, Nombre2, ApellidoPaterno, ApellidoMaterno, 
-                             NombrePais, NombreCiudad, Celular, Email1, 
-                             NombreCargo, NombreFormacion, NombreAreaTrabajo, 
+                             NombrePais, NombreCiudad, NombreCargo, 
+                             NombreFormacion, NombreAreaTrabajo, 
                              NombreIndustria, NombreCentroCosto, NombrePersonal, 
                              NombreTipoDato, NombreOrigen, CodigoFase
                       FROM mkt.V_ObtenerHistorialOportunidadMasiva ORDER BY IdHistorial DESC";
@@ -4589,7 +4590,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         INNER JOIN mkt.T_FacebookFormularioLeadgen AS FFL ON FFL.Id=AAT.IdFacebookFormularioLeadgen
                         WHERE AA.IdOportunidad=@idOportunidad";
 
-                var resultado = _dapperRepository.FirstOrDefault(query, new {idOportunidad});
+                var resultado = _dapperRepository.FirstOrDefault(query, new { idOportunidad });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
                     informacionConversion = JsonConvert.DeserializeObject<OportunidadConversionesDTO>(resultado);
@@ -4730,6 +4731,45 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 23/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el IdFaseOportunidad de la ultima oportunidad para un alumno
+        /// </summary>
+        /// <param name="idAlumno">Id del alumno</param>
+        /// <returns>IdFaseOportunidad</returns>
+        public OportunidadFaseDTO ObtenerFaseUltimaOportunidadPorIdAlumno(int idAlumno)
+        {
+            try
+            {
+                OportunidadFaseDTO result = new OportunidadFaseDTO();
 
+                var query = @"SELECT IdFaseOportunidad, IdPersonal_Asignado, FechaCreacion FROM com.T_Oportunidad 
+                                    WHERE IdAlumno = @idAlumno AND Estado = 1";
+
+                var jsonResult = _dapperRepository.QueryDapper(query, new { idAlumno });
+
+                if (string.IsNullOrEmpty(jsonResult) || jsonResult == "[]")
+                    return result;
+
+                var listaOportunidades = JsonConvert.DeserializeObject<List<OportunidadFaseDTO>>(jsonResult);
+
+                if (listaOportunidades != null && listaOportunidades.Any())
+                {
+                    var ultimaOportunidad = listaOportunidades
+                        .OrderByDescending(x => x.FechaCreacion ?? DateTime.MinValue)
+                        .FirstOrDefault();
+
+                    return ultimaOportunidad;
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

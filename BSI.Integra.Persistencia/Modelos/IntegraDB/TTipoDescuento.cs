@@ -9,6 +9,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         {
             TMontoPagoLogIdTipoDescuentoModificadoNavigations = new HashSet<TMontoPagoLog>();
             TMontoPagoLogIdTipoDescuentoOriginalNavigations = new HashSet<TMontoPagoLog>();
+            TTipoDescuentoSolicituds = new HashSet<TTipoDescuentoSolicitud>();
         }
 
         /// <summary>
@@ -75,8 +76,13 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Id de la tabla Original al migrar
         /// </summary>
         public Guid? IdMigracion { get; set; }
+        /// <summary>
+        /// Identificador de la solicitud de descuento asociada
+        /// </summary>
+        public int? IdTipoDescuentoNivelAprobacion { get; set; }
 
         public virtual ICollection<TMontoPagoLog> TMontoPagoLogIdTipoDescuentoModificadoNavigations { get; set; }
         public virtual ICollection<TMontoPagoLog> TMontoPagoLogIdTipoDescuentoOriginalNavigations { get; set; }
+        public virtual ICollection<TTipoDescuentoSolicitud> TTipoDescuentoSolicituds { get; set; }
     }
 }

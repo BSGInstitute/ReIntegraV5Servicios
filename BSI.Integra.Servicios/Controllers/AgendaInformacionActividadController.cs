@@ -2058,6 +2058,73 @@ namespace BSI.Integra.Servicios.Controllers
                 throw;
             }
         }
+
+        /// Tipo Función: GET
+        /// Autor: Carlos Crispin R.
+        /// Fecha: 14/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene Fecha y Hora de Reprogramación Automática Nuevo modelo de horas
+        /// </summary>
+        /// <param name="idOportunidad">Id de Oportunidad</param>
+        /// <param name="idActividadDetalle">Id de ActividadDetalle</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("[action]/{idOportunidad}/{idActividadDetalle}")]
+        public IActionResult ObtenerFechaHoraActividadReprogramacionAutomaticaV2(int idOportunidad,int idActividadDetalle)
+        {
+            try
+            {
+                var oportunidadService = new OportunidadService(_unitOfWork);
+                var personalHorarioService = new PersonalHorarioService(_unitOfWork);
+                var personalService = new PersonalService(_unitOfWork);
+                var alumnoService = new AlumnoService(_unitOfWork);
+                var servicioHoraReprogramacion = new HoraReprogramacionAutomaticaService(_unitOfWork);
+
+                var datosOportunidad = oportunidadService.ObtenerDatosOportunidad(idOportunidad);
+
+                var oportunidad = oportunidadService.ObtenerDatosParaReprogramacionAutomatica(idOportunidad);
+                var horario = personalHorarioService.ObtenerHorarioAsTable(oportunidad.IdPersonalAsignado);
+
+                var personal = personalService.ObtenerDatoPersonal(oportunidad.IdPersonalAsignado);
+                var alumno = alumnoService.ObtenerDatosAlumnoPorId(datosOportunidad == null ? 0 : datosOportunidad.IdAlumno);
+
+                try
+                {
+                    //si el asesor es de peru o colombia y el dato es de chile le resto 2 horas a la hora de salida
+                    if ((personal.CodigoPaisDiferenciaHoraria == 51 || personal.CodigoPaisDiferenciaHoraria == 57) && alumno.IdCodigoPais == 56)
+                    {
+                        foreach (var dia in horario)
+                        {
+                            if (dia[3] != null)
+                            {
+                                TimeSpan tiempo = new TimeSpan(2, 0, 0);
+                                //hora_inicio = hora_inicio.Value.Add(tiempo);
+                                dia[3] = dia[3].Value.Add(-tiempo);
+                            }
+                            else if (dia[1] != null)
+                            {
+                                TimeSpan tiempo = new TimeSpan(2, 0, 0);
+                                //hora_inicio = hora_inicio.Value.Add(tiempo);
+                                dia[1] = dia[1].Value.Add(-tiempo);
+                            }
+                        }
+                    }
+                }
+                catch (Exception e) { }
+
+                var respuesta = servicioHoraReprogramacion.ObtenerFechaHoraActividadReprogramacionAutomaticaV2(
+                    idActividadDetalle,
+                    oportunidad.IdPersonalAsignado,
+                    horario);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 12/08/2022

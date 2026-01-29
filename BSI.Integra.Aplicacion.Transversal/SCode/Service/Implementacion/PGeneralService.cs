@@ -5599,6 +5599,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                     if (existente != null)
                     {
+                        existente.CantidadMesAccesoAdicionalWebinar = itemVersion.CantidadMesAccesoAdicionalWebinar;
+                        existente.CantidadWebinarAsignado = itemVersion.CantidadWebinarAsignado;
                         existente.CreditoDisponibleTutorVirtual = itemVersion.CreditoDisponibleTutorVirtual;
                         existente.Duracion = itemVersion.Duracion;
                         existente.UsuarioModificacion = usuario;
@@ -5610,6 +5612,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     {
                         var nuevo = new PgeneralVersionPrograma()
                         {
+                            CantidadMesAccesoAdicionalWebinar = itemVersion.CantidadMesAccesoAdicionalWebinar,
+                            CantidadWebinarAsignado = itemVersion.CantidadWebinarAsignado,
                             CreditoDisponibleTutorVirtual = itemVersion.CreditoDisponibleTutorVirtual,
                             Duracion = itemVersion.Duracion,
                             IdVersionPrograma = itemVersion.IdVersionPrograma,

@@ -1,6 +1,11 @@
 ﻿using BSI.Integra.Aplicacion.Comercial.Service.Implementacion;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
+using Newtonsoft.Json;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 {
@@ -23,6 +28,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         private DateTime _fechaActualDiferencia = DateTime.Now;
         //public int IdCategoriaOrigen = 0;
         public List<List<TimeSpan?>> PersonalHorario = new List<List<TimeSpan?>>();
+        private string urlRender = "https://fp76jdh9-5000.brs.devtunnels.ms/scheduler/ejecutar-recomendacion";
 
         public HoraReprogramacionAutomaticaService(IUnitOfWork unitOfWork)
         {
@@ -40,7 +46,29 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         {
             var listRpta = GetFechaHoraReprogramacion(idActividadCabecera, idCategoriaOrigen, idPersonal, codigoFase, idOcurrencia, horario);
 
+            //version 2 , nuevo modelo de contactabilidad
+            //var listRpta = GetFechaHoraReprogramacionV2(20040165, idPersonal, horario);
+
             var Listarpta = listRpta.Year + "/" + listRpta.Month + "/" + listRpta.Day + " " + listRpta.Hour + ":" + listRpta.Minute + ":" + listRpta.Second;
+
+            return Listarpta;
+        }
+        /// Autor: Carlos Crispin R.
+        /// Fecha: 14/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener la Fecha y Hora de la Actividad Reprogramacion Automatica
+        /// </summary>
+        /// <param name="idCentroCosto">Id de Centro Costo</param>
+        /// <returns> void </returns>
+        public string ObtenerFechaHoraActividadReprogramacionAutomaticaV2(int idActividadDetalle, int idPersonal, List<List<TimeSpan?>> horario)
+        {
+            //var listRpta = GetFechaHoraReprogramacion(idActividadCabecera, idCategoriaOrigen, idPersonal, codigoFase, idOcurrencia, horario);
+
+            //version 2 , nuevo modelo de contactabilidad
+            var listRpta = GetFechaHoraReprogramacionV2(idActividadDetalle, idPersonal, horario);
+
+            var Listarpta = listRpta.Result.Year + "/" + listRpta.Result.Month + "/" + listRpta.Result.Day + " " + listRpta.Result.Hour + ":" + listRpta.Result.Minute + ":" + listRpta.Result.Second;
 
             return Listarpta;
         }
@@ -151,6 +179,90 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     }
                 }
             }
+        }
+        /// Autor: Carlos Crispin R.
+        /// Fecha: 12/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la Fecha y Hora de Reprogramacion
+        /// </summary>
+        /// <param name="idCentroCosto">Id de Centro Costo</param>
+        /// <returns> void </returns>
+        private async Task<DateTime> GetFechaHoraReprogramacionV2(int idActividadDetalle, int idPersonal, List<List<TimeSpan?>> horario)
+        {
+
+            var diferenciaHoraria = _unitOfWork.PersonalRepository.ObtenerDiferenciaHoraria(idPersonal);
+            _fechaActualDiferencia = DateTime.Now;
+            if (diferenciaHoraria != null)
+            {
+                _fechaActualDiferencia = DateTime.Now.AddHours(diferenciaHoraria.Valor!.Value);
+            }
+
+            //var fecha = CalcularProgramacionAutomaticaByAsesor(_fechaActualDiferencia.AddMinutes(reprogramacion.IntervaloSigProgramacionMin), flujoNormal, reprogramacion.IntervaloSigProgramacionMin, horario);
+            RenderModelos resultadoSinProcesar;
+            try
+            {
+
+                //using (WebClient client = new WebClient())
+                //{
+                //    //this.NoINteresaElSslEstoHaraQuePuedasEjecutarLoQueNoPodias();
+
+                //    string urlGet = $"{urlRender}/{idActividadDetalle}";
+                //    //client.Headers[HttpRequestHeader.Authorization] = "Bearer " + token;
+                //    client.Headers[HttpRequestHeader.ContentType] = "application/json";
+                //    var respuesta = client.DownloadString(urlGet);
+                //    resultadoSinProcesar = JsonConvert.DeserializeObject<RenderModelos>(respuesta);
+                //}
+
+
+                using var client = new HttpClient();
+
+                var url = $"https://modelopredictivosintegrados-2ptm.onrender.com/scheduler/ejecutar-recomendacion/{idActividadDetalle}";
+
+                var response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                var result = response.Content.ReadAsStringAsync();
+                resultadoSinProcesar = JsonConvert.DeserializeObject<RenderModelos>(result.Result);
+
+            }
+            catch (Exception ex)
+            {
+                //resultadoSinProcesar= new RenderModelos();
+                resultadoSinProcesar = new RenderModelos() { HoraContactabilidadManana = 11, HoraContactabilidadTarde = 15 };
+            }
+
+            var horactual = DateTime.Now;
+            DateTime fecha;
+
+            if (horactual.Hour < 14) //si ahora estamos en el rango de la mañana
+            {
+                fecha = new DateTime(horactual.Year, horactual.Month, horactual.Day, resultadoSinProcesar == null ? horactual.Hour : resultadoSinProcesar.HoraContactabilidadTarde, 0, 0);
+                while (horario[(int)fecha.DayOfWeek][2] == null) // es sabado
+                {
+                    fecha = fecha.AddDays(2);//hasta el lunes
+                    fecha = new DateTime(fecha.Year, fecha.Month, fecha.Day, resultadoSinProcesar == null ? horactual.Hour : resultadoSinProcesar.HoraContactabilidadManana, 0, 0);
+                }
+            }
+            else //si ahora estamos en el rango de la tarde
+            {
+                horactual = horactual.AddDays(1);
+                fecha = new DateTime(horactual.Year, horactual.Month, horactual.Day, resultadoSinProcesar == null ? horactual.Hour : resultadoSinProcesar.HoraContactabilidadManana,0, 0);
+                while (horario[(int)fecha.DayOfWeek][0] == null) 
+                {
+                    fecha = fecha.AddDays(1);
+                }
+                //if (horario[(int)fecha.DayOfWeek][0] <= tiempo_pregun && horario[(int)fecha.DayOfWeek][1] >= tiempo_pregun)
+                
+            }
+
+
+            ////aqui valido si la hora esta bien sino le trae la mas cercana
+            fecha = CalcularHorario(fecha, idPersonal, horario);
+            ////fin la validacion
+            return fecha;
+
+
         }
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 11/08/2022

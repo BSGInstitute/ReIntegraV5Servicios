@@ -7,6 +7,7 @@ using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
 using Newtonsoft.Json;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation
 {
@@ -1058,6 +1059,30 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
         }
+        /// <summary>
+        /// Obtiene El id de los Pespecificos que estan en las sesiones
+        /// </summary>
+        /// <param name="idPespecifico"></param>
+        /// <returns></returns>
+        public DetalleSesionesAlumnosDTO? ObtenerDetalleSesionAlumnoPorIdSesionYIdMatriculaCabecera(int IdSesion, int IdMatriculaCabecera)
+        {
+            try
+            {
+                string _query = @"SELECT IdPGeneral, IdPEspecifico, IdSesion, IdCoordinadoraAcademica, NombreCoordinadoraAcademica, IdMatriculaCabecera, CodigoMatricula, NombreAlumno, CentroCosto, EstadoMatricula, Confirmo,EnvioCorreo, EnvioWhatsApp
+                    FROM pla.V_ObtenerDetalleSesionAlumnosWebinar WHERE IdSesion = @IdSesion AND IdMatriculaCabecera = @IdMatriculaCabecera";
+                var resultado = _dapperRepository.FirstOrDefault(_query, new { IdSesion, IdMatriculaCabecera });
+
+                if (!string.IsNullOrEmpty(resultado))
+                {
+                    return JsonConvert.DeserializeObject<DetalleSesionesAlumnosDTO>(resultado)!;
+                }
+                return null;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
 
         /// Autor: Griselberto Huaman.
         /// Fecha: 08/02/2024
@@ -1197,6 +1222,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception ex)
             {
                 throw new Exception($"#PEPHR-OIPH-001@Error en NotificacionAlumnosPEspecificoSesionPortal: {ex.Message}", ex);
+            }
+        }
+        public bool EsWebinarPasado(int idPEspecificoSesion)
+        {
+            try
+            {
+                return this.Exist(x => x.Id == idPEspecificoSesion && x.FechaHoraInicio < DateTime.Now);
+            }
+            catch (Exception e)
+            {
+                throw e;
             }
         }
     }

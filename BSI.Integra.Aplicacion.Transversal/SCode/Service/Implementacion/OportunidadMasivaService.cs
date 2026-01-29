@@ -3,6 +3,7 @@ using Azure.Storage.Blobs;
 using BSI.Integra.Aplicacion.Base.Exceptions;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.Servicios.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Helper;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
@@ -112,7 +113,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     {
                         InformacionBaseOportunidadMasiva datos = new InformacionBaseOportunidadMasiva();
 
-                        datos.Nombres = worksheet.Cells[row, 1].Value?.ToString();                   
+                        datos.FilaExcel = row;
+                        datos.Nombres = worksheet.Cells[row, 1].Value?.ToString();
                         datos.Apellidos = worksheet.Cells[row, 2].Value?.ToString();
                         datos.Correo = worksheet.Cells[row, 3].Value?.ToString();
                         datos.Celular = worksheet.Cells[row, 4].Value?.ToString();
@@ -132,6 +134,44 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     }
                 }
                 var resultado = ProcesarInformacionOportunidades(listaDatos, usuario);
+
+                //Construccion del mensaje de respuesta
+                var sb = new StringBuilder();
+                sb.AppendLine("El proceso de creación de oportunidades masivas ha finalizado.");
+                sb.AppendLine();
+                if (resultado == null || !resultado.Any())
+                {
+                    sb.AppendLine("✅ El proceso finalizó sin errores.");
+                }
+                else
+                {
+                    sb.AppendLine($"⚠️ Se identificaron {resultado.Count} registros con error.");
+                    sb.AppendLine();
+                    sb.AppendLine("Filas del archivo Excel con error:");
+                    foreach (var fila in resultado.Select(x => x.FilaExcel).Distinct())
+                    {
+                        sb.AppendLine($"- Fila {fila}");
+                    }
+                }
+                sb.AppendLine();
+                sb.AppendLine("Este correo es unicamente informativo. No responder.");
+                string mensaje = sb.ToString();
+                mensaje = mensaje.Replace(Environment.NewLine, "<br/>").Replace("\n", "<br/>");
+
+                //Envio del correo proceso finalizado
+                List<string> correosAlerta = new List<string>();
+                correosAlerta.Add("mkilimajer@bsginstitute.com");
+                var mailServiceAlerta = new TMK_MailService();
+                TMKMailDataDTO mailDataAlerta = new TMKMailDataDTO();
+                mailDataAlerta.Sender = "loscataf@bsginstitute.com";
+                mailDataAlerta.Recipient = string.Join(",", correosAlerta);
+                mailDataAlerta.Subject = "Proceso Creacion Oportunidades Masivas - Finalizado";
+                mailDataAlerta.Message = mensaje;
+                mailDataAlerta.Bcc = string.Empty;
+                mailDataAlerta.AttachedFiles = null;
+                mailServiceAlerta.SetData(mailDataAlerta);
+                mailServiceAlerta.SendMessageTask();
+
                 return resultado;
             }
             catch (Exception ex)
@@ -157,184 +197,203 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 var listaCiudad = _unitOfWork.CiudadRepository.ObtenerCombo();
                 datos.ForEach(opo =>
                 {
-                    try
+                    var idAlumno = 0;
+                    var idPais = 0;
+                    var idCiudad = 0;
+                    //validar alumno
+                    var alumno = _unitOfWork.AlumnoRepository.FirstBy(x => !string.IsNullOrEmpty(x.Email1) && x.Email1.ToLower() == opo.Correo.Trim().ToLower());
+                    if (alumno == null)
                     {
-                        var idAlumno = 0;
-                        var idPais = 0;
-                        var idCiudad = 0;
-                        //validar alumno
-                        var alumno = _unitOfWork.AlumnoRepository.FirstBy(x => !string.IsNullOrEmpty(x.Email1) && x.Email1.ToLower() == opo.Correo.Trim().ToLower());
-                        if (alumno == null)
-                        {
-                            alumno = _unitOfWork.AlumnoRepository.FirstBy(x => !string.IsNullOrEmpty(x.Email2) && x.Email2.ToLower() == opo.Correo.Trim().ToLower());
-                            if (alumno != null)
-                            {
-                                idAlumno = alumno.Id;
-                            }
-                            else
-                            {
-                                alumno = new();
-                            }
-                        }
-                        else
+                        alumno = _unitOfWork.AlumnoRepository.FirstBy(x => !string.IsNullOrEmpty(x.Email2) && x.Email2.ToLower() == opo.Correo.Trim().ToLower());
+                        if (alumno != null)
                         {
                             idAlumno = alumno.Id;
                         }
-                        IAlumnoService alumnoService = new AlumnoService(_unitOfWork);
-
-                        var nombres = opo.Nombres.Trim().Split(" ");
-                        var nombre1 = string.Empty;
-                        var nombre2 = string.Empty;
-
-                        if (nombres.Count() > 0)
+                        else
                         {
-                            if (nombres.Count() == 1)
-                            {
-                                nombre1 = nombres.ElementAt(0);
-                            }
-                            else
-                            {
-                                nombre1 = nombres.ElementAt(0);
-                                nombre2 = string.Join(" ", nombres.Skip(1).ToList());
-                            }
+                            alumno = new();
                         }
+                    }
+                    else
+                    {
+                        idAlumno = alumno.Id;
+                    }
+                    IAlumnoService alumnoService = new AlumnoService(_unitOfWork);
 
-                        var apellidos = opo.Apellidos.Trim().Split(" ");
-                        var apellidoPaterno = string.Empty;
-                        var apellidoMaterno = string.Empty;
+                    var nombres = opo.Nombres.Trim().Split(" ");
+                    var nombre1 = string.Empty;
+                    var nombre2 = string.Empty;
 
-                        if (apellidos.Count() > 0)
+                    if (nombres.Count() > 0)
+                    {
+                        if (nombres.Count() == 1)
                         {
-                            if (apellidos.Count() == 1)
-                            {
-                                apellidoPaterno = apellidos.ElementAt(0);
-                            }
-                            else
-                            {
-                                apellidoPaterno = apellidos.ElementAt(0);
-                                apellidoMaterno = string.Join(" ", apellidos.Skip(1).ToList());
-                            }
-                        }
-
-                        var cargo = listaCargos.FirstOrDefault(x => LimpiarCadena(x.Nombre).ToLower() == LimpiarCadena(opo.Cargo).ToLower());
-                        var idCargo = 24;
-                        if (cargo != null)
-                        {
-                            idCargo = cargo.Id;
-                        }
-
-                        var aFormacion = listaAreaFormacion.FirstOrDefault(x => LimpiarCadena(x.Nombre).ToLower() == LimpiarCadena(opo.AreaFormacion).ToLower());
-                        var idAFormacion = 153;
-                        if (aFormacion != null)
-                        {
-                            idAFormacion = aFormacion.Id;
-                        }
-
-                        var aTrabajo = listaAreaTrabajo.FirstOrDefault(x => LimpiarCadena(x.Nombre).ToLower() == LimpiarCadena(opo.AreaTrabajo).ToLower());
-                        var idATrabajo = 27;
-                        if (aTrabajo != null)
-                        {
-                            idATrabajo = aTrabajo.Id;
-                        }
-
-                        var industria = listaIndustria.FirstOrDefault(x => LimpiarCadena(x.Nombre).ToLower() == LimpiarCadena(opo.Industria).ToLower());
-                        var idIndustria = 24;
-                        if (industria != null)
-                        {
-                            idIndustria = industria.Id;
-                        }
-
-                        var pais = listaPaises.FirstOrDefault(x => LimpiarCadena(x.Nombre).ToLower() == LimpiarCadena(opo.Pais).ToLower());
-                    
-                        if (pais != null)
-                        {
-                            idPais = pais.Id;
-                        }
-                      
-                        var ciudad = listaCiudad.FirstOrDefault(x => LimpiarCadena(x.Nombre).ToLower() == LimpiarCadena(opo.Ciudad).ToLower());
-                       
-                        if (idCiudad != null)
-                        {
-                            idCiudad = ciudad.Id;
-                        }
-
-
-
-                        var centroCosto = _unitOfWork.CentroCostoRepository.FirstBy(x => x.Nombre == opo.CentroCosto);
-                        var idCentroCosto = 0;
-                        if (centroCosto != null)
-                        {
-                            idCentroCosto = centroCosto.Id;
+                            nombre1 = nombres.ElementAt(0);
                         }
                         else
                         {
-                            throw new BadRequestException("No se encontro el centro costo");
+                            nombre1 = nombres.ElementAt(0);
+                            nombre2 = string.Join(" ", nombres.Skip(1).ToList());
                         }
+                    }
 
-                        var origen = _unitOfWork.OrigenRepository.FirstBy(x => x.Nombre == opo.Origen);
-                        var idOrigen = 0;
-                        if (origen != null)
+                    var apellidos = opo.Apellidos.Trim().Split(" ");
+                    var apellidoPaterno = string.Empty;
+                    var apellidoMaterno = string.Empty;
+
+                    if (apellidos.Count() > 0)
+                    {
+                        if (apellidos.Count() == 1)
                         {
-                            idOrigen = origen.Id;
+                            apellidoPaterno = apellidos.ElementAt(0);
                         }
                         else
                         {
-                            throw new BadRequestException("No se encontro el origen");
+                            apellidoPaterno = apellidos.ElementAt(0);
+                            apellidoMaterno = string.Join(" ", apellidos.Skip(1).ToList());
                         }
+                    }
 
-                        string celular = new string(opo.Celular.Where(char.IsDigit).ToArray());
+                    var cargo = listaCargos.FirstOrDefault(x => LimpiarCadena(x.Nombre).ToLower() == LimpiarCadena(opo.Cargo).ToLower());
+                    var idCargo = 24;
+                    if (cargo != null)
+                    {
+                        idCargo = cargo.Id;
+                    }
 
-                        var dtoOportunidad = new OportunidadFormularioDTO();
-                        dtoOportunidad.Id = 0;
+                    var aFormacion = listaAreaFormacion.FirstOrDefault(x => LimpiarCadena(x.Nombre).ToLower() == LimpiarCadena(opo.AreaFormacion).ToLower());
+                    var idAFormacion = 153;
+                    if (aFormacion != null)
+                    {
+                        idAFormacion = aFormacion.Id;
+                    }
 
-                        dtoOportunidad.IdCentroCosto = idCentroCosto;
-                        dtoOportunidad.IdFaseOportunidad = ValorEstatico.IdFaseOportunidadBNC;
-                        dtoOportunidad.IdOrigen = idOrigen;
-                        dtoOportunidad.IdPersonal_Asignado = ValorEstatico.IdPersonalAsignacionAutomatica;
-                        dtoOportunidad.IdTipoDato = ValorEstatico.IdTipoDatoLanzamiento;
-                        dtoOportunidad.UltimoComentario = string.Empty;
-                        dtoOportunidad.fk_id_tipointeraccion = 18;
+                    var aTrabajo = listaAreaTrabajo.FirstOrDefault(x => LimpiarCadena(x.Nombre).ToLower() == LimpiarCadena(opo.AreaTrabajo).ToLower());
+                    var idATrabajo = 27;
+                    if (aTrabajo != null)
+                    {
+                        idATrabajo = aTrabajo.Id;
+                    }
 
-                        if (idAlumno == 0)
+                    var industria = listaIndustria.FirstOrDefault(x => LimpiarCadena(x.Nombre).ToLower() == LimpiarCadena(opo.Industria).ToLower());
+                    var idIndustria = 24;
+                    if (industria != null)
+                    {
+                        idIndustria = industria.Id;
+                    }
+
+                    var pais = listaPaises.FirstOrDefault(x => LimpiarCadena(x.Nombre).ToLower() == LimpiarCadena(opo.Pais).ToLower());
+                    if (pais != null)
+                    {
+                        idPais = pais.Id;
+                    }
+
+                    var ciudad = listaCiudad.FirstOrDefault(x => LimpiarCadena(x.Nombre).ToLower() == LimpiarCadena(opo.Ciudad).ToLower());
+                    if (ciudad != null)
+                    {
+                        idCiudad = ciudad.Id;
+                    }
+
+                    var centroCosto = _unitOfWork.CentroCostoRepository.FirstBy(x => x.Nombre == opo.CentroCosto);
+                    var idCentroCosto = 0;
+                    if (centroCosto != null)
+                    {
+                        idCentroCosto = centroCosto.Id;
+                    }
+                    else
+                    {
+                        throw new BadRequestException("No se encontro el centro costo");
+                    }
+
+                    var origen = _unitOfWork.OrigenRepository.FirstBy(x => x.Nombre == opo.Origen);
+                    var idOrigen = 0;
+                    if (origen != null)
+                    {
+                        idOrigen = origen.Id;
+                    }
+                    else
+                    {
+                        throw new BadRequestException("No se encontro el origen");
+                    }
+
+                    string celular = new string(opo.Celular.Where(char.IsDigit).ToArray());
+
+                    var dtoOportunidad = new OportunidadFormularioDTO();
+                    dtoOportunidad.Id = 0;
+                    dtoOportunidad.IdCentroCosto = idCentroCosto;
+                    dtoOportunidad.IdFaseOportunidad = ValorEstatico.IdFaseOportunidadBNC;
+                    dtoOportunidad.IdOrigen = idOrigen;
+                    dtoOportunidad.IdPersonal_Asignado = ValorEstatico.IdPersonalAsignacionAutomatica;
+                    dtoOportunidad.IdTipoDato = ValorEstatico.IdTipoDatoLanzamiento;
+                    dtoOportunidad.UltimoComentario = string.Empty;
+                    dtoOportunidad.fk_id_tipointeraccion = 18;
+
+                    if (idAlumno == 0)
+                    {
+                        dtoOportunidad.IdAlumno = 0;
+
+                        var alumnoDTO = new AlumnoFormularioOportunidadDTO();
+                        alumnoDTO.Id = 0;
+                        alumnoDTO.Nombre1 = nombre1;
+                        alumnoDTO.Nombre2 = nombre2;
+                        alumnoDTO.ApellidoPaterno = apellidoPaterno;
+                        alumnoDTO.ApellidoMaterno = apellidoMaterno;
+                        alumnoDTO.DNI = string.Empty;
+                        alumnoDTO.Direccion = string.Empty;
+                        alumnoDTO.Telefono = string.Empty;
+                        alumnoDTO.Celular = celular;
+                        alumnoDTO.Email1 = opo.Correo.Trim();
+                        alumnoDTO.Email2 = string.Empty;
+                        alumnoDTO.IdCargo = idCargo;
+                        alumnoDTO.IdAFormacion = idAFormacion;
+                        alumnoDTO.IdATrabajo = idATrabajo;
+                        alumnoDTO.IdIndustria = idIndustria;
+                        alumnoDTO.IdReferido = null;
+                        alumnoDTO.IdCodigoPais = idPais;
+                        alumnoDTO.IdCodigoCiudad = idCiudad;
+                        alumnoDTO.HoraContacto = null;
+                        alumnoDTO.HoraPeru = null;
+                        alumnoDTO.Telefono2 = string.Empty;
+                        alumnoDTO.Celular2 = string.Empty;
+                        alumnoDTO.IdEmpresa = null;
+                        alumnoDTO.Comentario = string.Empty;
+
+                        var dto = new RegistroOportunidadAlumnoDTO()
                         {
-                            dtoOportunidad.IdAlumno = 0;
-
-                            var alumnoDTO = new AlumnoFormularioOportunidadDTO();
-                            alumnoDTO.Id = 0;
-                            alumnoDTO.Nombre1 = nombre1;
-                            alumnoDTO.Nombre2 = nombre2;
-                            alumnoDTO.ApellidoPaterno = apellidoPaterno;
-                            alumnoDTO.ApellidoMaterno = apellidoMaterno;
-                            alumnoDTO.DNI = string.Empty;
-                            alumnoDTO.Direccion = string.Empty;
-                            alumnoDTO.Telefono = string.Empty;
-                            alumnoDTO.Celular = celular;
-                            alumnoDTO.Email1 = opo.Correo.Trim();
-                            alumnoDTO.Email2 = string.Empty;
-                            alumnoDTO.IdCargo = idCargo;
-                            alumnoDTO.IdAFormacion = idAFormacion;
-                            alumnoDTO.IdATrabajo = idATrabajo;
-                            alumnoDTO.IdIndustria = idIndustria;
-                            alumnoDTO.IdReferido = null;
-                            alumnoDTO.IdCodigoPais = idPais;
-                            alumnoDTO.IdCodigoCiudad = idCiudad;
-                            alumnoDTO.HoraContacto = null;
-                            alumnoDTO.HoraPeru = null;
-                            alumnoDTO.Telefono2 = string.Empty;
-                            alumnoDTO.Celular2 = string.Empty;
-                            alumnoDTO.IdEmpresa = null;
-                            alumnoDTO.Comentario = string.Empty;
-
-                            var dto = new RegistroOportunidadAlumnoDTO()
-                            {
-                                Alumno = alumnoDTO,
-                                Oportunidad = dtoOportunidad,
-                                //FechaRegistroCampania = opo.FechaRegistroCampania,
-                                Usuario = usuario
-                            };
+                            Alumno = alumnoDTO,
+                            Oportunidad = dtoOportunidad,
+                            //FechaRegistroCampania = opo.FechaRegistroCampania,
+                            Usuario = usuario
+                        };
+                        try
+                        {
                             CrearOportunidadCrearAlumnoVentas(dto);
+                            datosCorrectos.Add(opo);
                         }
-                        else
+                        catch
+                        {
+                            datosIncorrectos.Add(opo);
+                        }
+
+                    }
+                    else
+                    {
+                        //Buscar ultima oportunidad por alumno
+                        OportunidadFaseDTO datosUltimaOportunidad = _unitOfWork.OportunidadRepository.ObtenerFaseUltimaOportunidadPorIdAlumno(idAlumno);
+
+                        //Fases cerradas: NI,BIC,BIC1,BIC2,RN3,RN1,RN4,RN5,BRM1,NS,E,RN
+                        int[] idsFasesCerradas = { 1, 3, 4, 6, 7, 9, 11, 14, 26, 27, 29, 36 };
+                        //Fases respuesta negativa temporal: RN2-A, RN2-B, RN2-C
+                        int[] idsFasesRespuestaNegativaTemporal = { 10, 41, 42 };
+
+                        //Cambiar asesor automatico a su asesor anterior si corresponde
+                        if (idsFasesRespuestaNegativaTemporal.Contains(datosUltimaOportunidad.IdFaseOportunidad))
+                        {
+                            dtoOportunidad.IdPersonal_Asignado = datosUltimaOportunidad.IdPersonal_Asignado;
+                        }
+
+                        //Procesar oportunidades como BNC
+                        if (idsFasesCerradas.Contains(datosUltimaOportunidad.IdFaseOportunidad) || idsFasesRespuestaNegativaTemporal.Contains(datosUltimaOportunidad.IdFaseOportunidad))
                         {
                             dtoOportunidad.IdAlumno = alumno.Id;
                             var alumnoDTO = new AlumnoFormularioOportunidadDTO();
@@ -355,7 +414,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             alumnoDTO.IdIndustria = idIndustria;
                             alumnoDTO.IdReferido = alumno.IdReferido;
                             alumnoDTO.IdCodigoPais = alumno.IdPais ?? idPais;
-                            alumnoDTO.IdCodigoCiudad =idCiudad;
+                            alumnoDTO.IdCodigoCiudad = idCiudad;
                             alumnoDTO.HoraContacto = alumno.HoraContacto;
                             alumnoDTO.HoraPeru = alumno.HoraPeru;
                             alumnoDTO.Telefono2 = alumno.Telefono2;
@@ -367,18 +426,21 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             {
                                 Alumno = alumnoDTO,
                                 Oportunidad = dtoOportunidad,
-                                // FechaRegistroCampania = opo.FechaRegistroCampania,
                                 Usuario = usuario
                             };
-                            ActualizarAlumnoCrearOportunidadVentas(dto);
+                            try
+                            {
+                                ActualizarAlumnoCrearOportunidadVentas(dto);
+                                datosCorrectos.Add(opo);
+                            }
+                            catch
+                            {
+                                datosIncorrectos.Add(opo);
+                            }
                         }
-                        datosCorrectos.Add(opo);
-                    }
-                    catch (Exception ex)
-                    {
-                        datosIncorrectos.Add(opo);
                     }
                 });
+
                 return datosIncorrectos;
             }
             catch (Exception ex)
@@ -495,7 +557,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     // Si falla la inserción en historial, solo lo logueamos y seguimos el flujo normal
                     Console.WriteLine($"❌ Error al insertar en historial: {ex.Message}");
                 }
-               
+
 
                 // SMS
                 try
@@ -622,7 +684,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 }
                 try
                 {
-                    
+
                     _unitOfWork.OportunidadRepository.InsertarHistorialOportunidad(oportunidad.Id, formulario.Usuario);
                 }
                 catch (Exception ex)
@@ -666,7 +728,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         {
             try
             {
-                 _unitOfWork.OportunidadRepository.InsertarHistorialOportunidad(idOportunidad, usuario);
+                _unitOfWork.OportunidadRepository.InsertarHistorialOportunidad(idOportunidad, usuario);
 
             }
             catch (Exception ex)
@@ -680,13 +742,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             {
                 var resultado = _unitOfWork.OportunidadRepository.ObtenerOportunidadesMasivas();
                 var alumnoService = new AlumnoService(_unitOfWork);
-                foreach (var item in resultado)
-                {
-                    if (!string.IsNullOrWhiteSpace(item.Email1))
-                        item.Email1 = alumnoService.EncriptarCorreoHash(item.Email1);
-                    if (!string.IsNullOrWhiteSpace(item.Celular))
-                        item.Celular = alumnoService.EncriptarNumeroHash(item.Celular);
-                }
+
                 return resultado;
             }
             catch (Exception e)

@@ -12,7 +12,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         IEnumerable<PespecificoSesionCompuestoDTO> ObtenerCronogramaIndividualPorPEspecificoAlterno(DatosProgramaEspecificoDTO programaEspecifico);
         VerificarFechaSesionDTO VerificarFechaSesion(int idSesion, DateTime fecha);
         bool ActualizarFechaParaSesionRecorrerFechas(PEspecificoSesion pEspecificoSesion, string usuario);
-        (bool EstadoCruce, IEnumerable<CruceSesionPEspecificoDTO?> Cruces, string? Detalle) ActualizarDatosCronogramaSesiones(InformacionCronogramaSesionesDTO dto, string usuario);
+        RptaActualizarDatosCronogramaSesionesDTO ActualizarDatosCronogramaSesiones(InformacionCronogramaSesionesDTO dto, string usuario);
         bool EstablecerSesionInicial(int idProgramaEspecificoSesion, string usuario);
         DateTime ObtenerFechaAsignar(InformacionPespecificoHijoDTO curso, DateTime fechaAsignar, byte dia, byte[] diasFrecuencia, IEnumerable<FeriadoDTO> listaFeriados);
         bool CancelarWebinar(CancelarWebinarDTO dto, string usuario);

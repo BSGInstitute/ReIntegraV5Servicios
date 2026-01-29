@@ -45,7 +45,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         bool ModificarFrecuencia(ParametrosInsertaFrecuenciaDTO dto, string usuario);
         bool EliminarCronogramaDuplicado(int PEspecificoId, int NumeroGrupo, string Usuario);
         bool InsertarEventoEspecial(FiltroSesionEspecialDTO dto, string usuario);
-        bool ActualizarDuracionInsertarSesion(InformacionPespecificoSesionDTO dto, string usuario);
+        RptaActualizarDuracionInsertarSesionDTO ActualizarDuracionInsertarSesion(InformacionPespecificoSesionDTO dto, string usuario);
         (bool EstadoCruce, List<CruceSesionPEspecificoDTO>? Cruces) ActualizarDocenteAmbienteProgramaEspecifico(DocenteAmbientePEspecificoDTO dto, string usuario);
         string GenerarPDFCronogramaModulo(FiltroObtenerPDFDTO dto, string usuario);
         string GenerarPDFCronogramaSemanal(FiltroObtenerPDFDTO dto, string usuario);
