@@ -175,6 +175,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
+        /// Autor: JoseVega
+        /// Fecha: 27/12/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza la entidad GestionContacto con control de concurrencia.
+        /// </summary>
+        /// <param name="entidad">Objeto con la informacion a actualizar</param>
+        /// <returns>Entidad actualizada de tipo TGestionContacto</returns>
         public TGestionContacto Update(GestionContacto entidad)
         {
             try
@@ -196,6 +204,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
+        /// Autor: JoseVega
+        /// Fecha: 27/12/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene un registro de GestionContacto por su Id
+        /// </summary>
+        /// <param name="id">Identificador de la gestión</param>
+        /// <returns>Objeto GestionContacto</returns>
         public async Task<GestionContacto> ObtenerPorIdAsync(int id)
         {
             try

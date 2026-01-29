@@ -5,6 +5,7 @@ using BSI.Integra.Aplicacion.DTO.SCode;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using Google.Api.Ads.AdWords.v201809;
+using static iText.Signatures.LtvVerification;
 
 namespace BSI.Integra.Repositorio.Repository.Interface
 {
@@ -116,7 +117,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
 
         ValorEtiquetaWhatsAppDTO? ObteneValoresEtiquetaWhatsApp(int idOportunidad);
         string InsertarEnviosWhatsappDiasSinContacto(int idOportunidad);
-        
+
         ControlActividadAgendaDTO ObtenerReporteControlActividadesAgenda(int idAsesor);
 
         List<ResultadoBusquedaFichaAlumnoDTO> BuscarFichaPorCelular(string celular);
@@ -133,7 +134,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public OportunidadDetalleProbabilidadDTO ObtenerInformacionOportunidadProbabilidad(int idOportunidad);
         MetricasComparativasDiariasDTO ObtenerMetricasComparativasDiarias(int idAsesor, DateTime? fecha = null);
         AlumnoCodigosDescuentosDTO ObtenerCodigoDescuentoAlumno(int idAlumno);
-
-
+        bool ActualizarCentroCosto(int idCentroCosto, int idActividad);
+        OportunidadFaseDTO ObtenerFaseUltimaOportunidadPorIdAlumno(int idAlumno);
     }
 }

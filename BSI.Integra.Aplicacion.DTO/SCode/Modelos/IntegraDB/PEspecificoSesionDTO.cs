@@ -1,5 +1,6 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
 
 namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 {
@@ -210,5 +211,21 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string PEspecifico { get; set; }
         public DateTime FechaSesion { get; set; }
         public string HoraSesion { get; set; }
+    }
+
+    public class RptaActualizarDatosCronogramaSesionesDTO
+    {
+        public bool EstadoCruce { get; set; }
+        public IEnumerable<CruceSesionPEspecificoDTO?> Cruces { get; set; }
+        public string? Detalle { get; set; }
+        public int? IdPEspecificoSesion { get; set; }
+        public int? IdTipoPrograma { get; set; }
+        public DateTime? FechaSesion { get; set; }
+    }
+    public class RptaActualizarDuracionInsertarSesionDTO
+    {
+        public int IdPEspecificoSesion { get; set; }
+        public int IdTipoPrograma { get; set; }
+        public DateTime FechaSesion { get; set; }
     }
 }

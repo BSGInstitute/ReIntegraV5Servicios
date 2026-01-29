@@ -25,5 +25,17 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<ComboDTO> ObtenerListaFormaPago();
 
         List<ReporteEstadoCuentaProveedorDTO> GenerarReporteEstadoCuentaProveedor(string? Empresa, string? Ciudad, int? Proveedor, string Comprobante, string FechaInicio, string FechaFin,string CuentaContable);
+
+        /// Autor: Miguel Valdivia
+        /// Fecha: 24/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Convierte un monto de una moneda origen a una moneda destino usando el tipo de cambio mas reciente
+        /// </summary>
+        /// <param name="idMonedaOrigen">Id de la moneda de origen</param>
+        /// <param name="idMonedaDestino">Id de la moneda de destino</param>
+        /// <param name="monto">Monto a convertir</param>
+        /// <returns>ConversionMonedaDTO con el resultado de la conversion</returns>
+        ConversionMonedaDTO ConvertirMoneda(int idMonedaOrigen, int idMonedaDestino, decimal monto);
     }
 }

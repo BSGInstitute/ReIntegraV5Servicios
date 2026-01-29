@@ -10,6 +10,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TMedioComunicacion()
         {
+            TPlantillaMedioComunicacions = new HashSet<TPlantillaMedioComunicacion>();
             TPreferenciaComunicacionAcademicas = new HashSet<TPreferenciaComunicacionAcademica>();
         }
 
@@ -46,6 +47,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
 
+        public virtual ICollection<TPlantillaMedioComunicacion> TPlantillaMedioComunicacions { get; set; }
         public virtual ICollection<TPreferenciaComunicacionAcademica> TPreferenciaComunicacionAcademicas { get; set; }
     }
 }

@@ -32,8 +32,6 @@ namespace BSI.Integra.Servicios.Controllers
         /// </summary>
         /// <param name="dto">Entidad PaqueteTutorVirtualDTO</param>
         /// <returns>Retorna 200 y objeto ingresado o 400 y mensaje de error </returns>
-        //[Authorize]
-        //[JwtExpirationValidation]
         [HttpPost("[action]")]
         public IActionResult Insertar([FromBody] PaqueteTutorVirtualGuardarDTO dto)
         {
@@ -41,7 +39,7 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var respuesta = _PaqueteTutorVirtualService.Insertar(dto, "_tokenManager.UserName");
+            var respuesta = _PaqueteTutorVirtualService.Insertar(dto, _tokenManager.UserName);
             return Ok(respuesta);
         }
         /// Tipo Función: PUT
@@ -53,8 +51,6 @@ namespace BSI.Integra.Servicios.Controllers
         /// </summary>
         /// <param name="entidad">Entidad a modificar</param>
         /// <returns>Retorna 200 y objeto actualizado o 400 y mensaje de error</returns>
-        //[Authorize]
-        //[JwtExpirationValidation]
         [HttpPut("[action]")]
         public IActionResult Actualizar([FromBody] PaqueteTutorVirtualGuardarDTO dto)
         {
@@ -62,7 +58,7 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var respuesta = _PaqueteTutorVirtualService.Actualizar(dto, "_tokenManager.UserName");
+            var respuesta = _PaqueteTutorVirtualService.Actualizar(dto, _tokenManager.UserName);
             return Ok(respuesta);
         }
         /// Tipo Función: DELETE
@@ -75,12 +71,10 @@ namespace BSI.Integra.Servicios.Controllers
         /// <param name="id">Id de la entidad a eliminar</param>
         /// <param name="usuario">Nombre del usuario que realiza la eliminacion</param>
         /// <returns>Retorna 200 y bandera de eliminacion realizada o 400 y mensaje de error</returns>
-        //[Authorize]
-        //[JwtExpirationValidation]
         [HttpDelete("[action]/{id}")]
         public IActionResult Eliminar(int id)
         {
-            var respuesta = _PaqueteTutorVirtualService.Eliminar(id, "_tokenManager.UserName");
+            var respuesta = _PaqueteTutorVirtualService.Eliminar(id, _tokenManager.UserName);
             return Ok(respuesta);
         }
 

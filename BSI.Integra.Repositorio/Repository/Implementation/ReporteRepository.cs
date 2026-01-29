@@ -313,10 +313,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                    ELSE 0
                                END), 0) AS CantidadTotalEjecutada,
                             ISNULL(SUM(CASE
-                                    WHEN IdOcurrencia in (149, 162, 163, 164, 165, 168, 207, 209) THEN 1 
+                                    WHEN IdOcurrencia in (149, 163, 164, 165, 168, 207, 209) THEN 1 
                                     ELSE 0
                                 END),0) AS CantidadTotalManual,
-                            ISNULL(SUM(CASE WHEN IdOcurrencia in(431) THEN 1 ELSE 0 END),0) AS CantidadTotalContestaCorta
+                            ISNULL(SUM(CASE WHEN IdOcurrencia in(431) THEN 1 ELSE 0 END),0) AS CantidadTotalContestaCorta,
+                            ISNULL(SUM(CASE WHEN IdOcurrencia in(162) THEN 1 ELSE 0 END),0) AS CantidadTotalContestaOcupado
                     FROM {vista} 
                     WHERE EstadoOcurrencia = 1
                         AND EstadoOportunidad = 1
@@ -377,6 +378,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     rpta.TotalLlamadasEjecutadas = datosTotal.CantidadTotalEjecutada;
                     rpta.TotalLlamadasManual = datosTotal.CantidadTotalManual;
                     rpta.TotalLlamadasContestaCorta = datosTotal.CantidadTotalContestaCorta;
+                    rpta.TotalLlamadasContestaOcupado = datosTotal.CantidadTotalContestaOcupado;
                     rpta.TotalLlamadasEjecutadasConLlamada = datosEjecutadasLlamada.Valor.GetValueOrDefault();
                 }
                 return rpta;

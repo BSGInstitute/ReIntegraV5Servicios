@@ -41,10 +41,12 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<int> ListaPespecificoSesiones(int idPespecifico);
         IEnumerable<ComboDTO> ObtenerGruposProgramaEspecificoFiltro();
         IEnumerable<DetalleSesionesAlumnosDTO> ObtenerDetalleSesionesPorAlumnosFiltrado(SesionFiltroDTO detalleSesionesFiltro);
+        DetalleSesionesAlumnosDTO? ObtenerDetalleSesionAlumnoPorIdSesionYIdMatriculaCabecera(int IdSesion, int IdMatriculaCabecera);
         public List<PEspecificoSesionesRecordatorioClases> ObtenerSesionesRecordatorioClases(int IdPEspecifico, int IdTipoModalidad);
         public List<PEspecificoSesionesRecordatorioClases> ObtenerSesionesRecordatorioWebinar(int IdPEspecifico, int IdTipoModalidad);
         int ObtenerPEspecificoPorPEspecificoSesion(int IdPespecificoSesion);
         public bool NotificarAlumnosPEspecificoSesionCancelacionPortal(int IdPEspecificoSesion, string Usuario);
         public bool NotificarAlumnosPEspecificoSesionReprogramacionPortal(int idPEspecificoSesion, DateTime fechaNuevaHoraInicio, string usuario);
+        bool EsWebinarPasado(int idPEspecificoSesion);
     }
 }

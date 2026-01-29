@@ -1346,6 +1346,16 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private ITipoDescuentoSolicitudRepository _tipoDescuentoSolicitudRepository;
+
+        ITipoDescuentoSolicitudRepository IUnitOfWork.TipoDescuentoSolicitudRepository
+        {
+            get
+            {
+                return _tipoDescuentoSolicitudRepository ?? new TipoDescuentoSolicitudRepository(_connectionFactory, _dapperRepository);
+            }
+        }
+
         private IMontoPagoRepository _montoPagoRepository;
 
         IMontoPagoRepository IUnitOfWork.MontoPagoRepository
@@ -8059,6 +8069,72 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             get
             {
                 return _montoPagoLogRepository ?? new MontoPagoLogRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IMedioComunicacionRepository _medioComunicacionRepository;
+        IMedioComunicacionRepository IUnitOfWork.MedioComunicacionRepository
+        {
+            get
+            {
+                return _medioComunicacionRepository ?? new MedioComunicacionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IBloqueHorarioDetalleRepository _bloqueHorarioDetalleRepository;
+        IBloqueHorarioDetalleRepository IUnitOfWork.BloqueHorarioDetalleRepository
+        {
+            get
+            {
+                return _bloqueHorarioDetalleRepository ?? new BloqueHorarioDetalleRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IPreferenciaComunicacionAcademicaRepository _preferenciaComunicacionAcademicaRepository;
+        IPreferenciaComunicacionAcademicaRepository IUnitOfWork.PreferenciaComunicacionAcademicaRepository
+        {
+            get
+            {
+                return _preferenciaComunicacionAcademicaRepository ?? new PreferenciaComunicacionAcademicaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IPreferenciaComunicacionAcademicaHorarioRepository _preferenciaComunicacionAcademicaHorarioRepository;
+        IPreferenciaComunicacionAcademicaHorarioRepository IUnitOfWork.PreferenciaComunicacionAcademicaHorarioRepository
+        {
+            get
+            {
+                return _preferenciaComunicacionAcademicaHorarioRepository ?? new PreferenciaComunicacionAcademicaHorarioRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IConfirmacionWebinarRepository _confirmacionWebinarRepository;
+        IConfirmacionWebinarRepository IUnitOfWork.ConfirmacionWebinarRepository
+        {
+            get
+            {
+                return _confirmacionWebinarRepository ?? new ConfirmacionWebinarRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private RemarketingEmbudoEsquemaRepository _remarketingEmbudoEsquemaRepository;
+        IRemarketingEmbudoEsquemaRepository IUnitOfWork.RemarketingEmbudoEsquemaRepository
+        {
+            get
+            {
+                return _remarketingEmbudoEsquemaRepository ?? new RemarketingEmbudoEsquemaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private RemarketingEmbudoNivelRepository _remarketingEmbudoNivelRepository;
+        IRemarketingEmbudoNivelRepository IUnitOfWork.RemarketingEmbudoNivelRepository
+        {
+            get
+            {
+                return _remarketingEmbudoNivelRepository ?? new RemarketingEmbudoNivelRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private RemarketingEmbudoHistoricoRepository _remarketingEmbudoHistoricoRepository;
+        IRemarketingEmbudoHistoricoRepository IUnitOfWork.RemarketingEmbudoHistoricoRepository
+        {
+            get
+            {
+                return _remarketingEmbudoHistoricoRepository ?? new RemarketingEmbudoHistoricoRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
 

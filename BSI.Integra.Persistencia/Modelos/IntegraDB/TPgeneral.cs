@@ -273,6 +273,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// (1: Formacion, 2: Carrera)
         /// </summary>
         public int? IdTipoProgramaCarrera { get; set; }
+        /// <summary>
+        /// (1: Habilitado, 0: Deshabilitado) - Indica si el registro debe tener habilitado Tutor Virtual
+        /// </summary>
+        public bool? TutorVirtualActivo { get; set; }
 
         public virtual TPgeneralPeriodoAsincronico? IdPgeneralPeriodoAsincronicoNavigation { get; set; }
         public virtual TTipoPrograma? IdTipoProgramaNavigation { get; set; }

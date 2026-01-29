@@ -578,7 +578,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                 throw new Exception(e.Message);
             }
         }
-     
+
         /// Autor: Edson Mayta Escobedo
         /// Fecha: 02/23/2022
         /// Version: 1.0
@@ -639,6 +639,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                 throw new Exception(e.Message);
             }
         }
+
         /// Autor: Edson Mayta Escobedo
         /// Fecha: 05/28/2023
         /// Version: 1.0
@@ -666,8 +667,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                         FechaCreacion = y.Key.FechaCreacion,
                     }).ToList(),
 
-
-                    MensajePorCelular = x.GroupBy(y => new { y.Estatus, y.Tipo, y.IdAlumnoCelular, y.Celular, y.Alumno, y.Mensaje, y.Personal, y.FechaMensaje }).Select(y => new ObtenerChatWhatsAppMarketingMensajeDTO
+                    MensajePorCelular = x.GroupBy(y => new { y.Estatus, y.Tipo, y.IdAlumnoCelular, y.Celular, y.Alumno, y.Mensaje, y.Personal, y.FechaMensaje, y.NumeroWhatsappEmpresa }).Select(y => new ObtenerChatWhatsAppMarketingMensajeDTO
                     {
                         Estatus = y.Key.Estatus,
                         Tipo = y.Key.Tipo,
@@ -677,7 +677,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                         Mensaje = y.Key.Mensaje,
                         Personal = y.Key.Personal,
                         FechaMensaje = y.Key.FechaMensaje,
-
+                        NumeroWhatsappEmpresa = y.Key.NumeroWhatsappEmpresa,
                     }).ToList(),
                 }).ToList();
                 if (resultadoAgrupado.Count() == 0)
@@ -703,10 +703,10 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
             }
             catch (Exception e)
             {
-
                 throw new Exception("No se encontraron Datos");
             }
         }
+
         /// Autor: Edson Mayta Escobedo
         /// Fecha: 05/28/2023
         /// Version: 1.0
@@ -735,7 +735,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                     }).ToList(),
 
 
-                    MensajePorCelular = x.GroupBy(y => new { y.Estatus, y.Tipo, y.IdAlumnoCelular, y.Celular, y.Alumno, y.Mensaje, y.Personal, y.FechaMensaje }).Select(y => new ObtenerChatWhatsAppMarketingMensajeDTO
+                    MensajePorCelular = x.GroupBy(y => new { y.Estatus, y.Tipo, y.IdAlumnoCelular, y.Celular, y.Alumno, y.Mensaje, y.Personal, y.FechaMensaje, y.NumeroWhatsappEmpresa }).Select(y => new ObtenerChatWhatsAppMarketingMensajeDTO
                     {
                         Estatus = y.Key.Estatus,
                         Tipo = y.Key.Tipo,
@@ -745,7 +745,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                         Mensaje = y.Key.Mensaje,
                         Personal = y.Key.Personal,
                         FechaMensaje = y.Key.FechaMensaje,
-
+                        NumeroWhatsappEmpresa = y.Key.NumeroWhatsappEmpresa,
                     }).ToList(),
                 }).ToList();
                 if (resultadoAgrupado.Count() == 0)
@@ -766,7 +766,6 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
             }
             catch (Exception e)
             {
-
                 throw new Exception("No se encontraron Datos");
             }
         }
@@ -1054,20 +1053,20 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                     {
                         _unitOfWork.WhatsAppMensajeEnviadoRepository.ActualizarDatosAlumno(AlumnoActualizar.Id, "Celular", ObtenerAtributosOriginalAlumno.Celular, AlumnoActualizar.Celular, Usuario);
                     }
-                    
+
                 }
                 if (AlumnoActualizar.Telefono != ObtenerAtributosOriginalAlumno.Telefono)
                 {
                     _unitOfWork.WhatsAppMensajeEnviadoRepository.ActualizarDatosAlumno(AlumnoActualizar.Id, "Telefono", ObtenerAtributosOriginalAlumno.Telefono, AlumnoActualizar.Telefono, Usuario);
                 }
                 var nuevoCelular2 = AlumnoActualizar.Celular2?.Trim();
-                if (AlumnoActualizar.Celular2!= ObtenerAtributosOriginalAlumno.Celular2)
+                if (AlumnoActualizar.Celular2 != ObtenerAtributosOriginalAlumno.Celular2)
                 {
-                    if(AlumnoActualizar.Celular2 != null && AlumnoActualizar.Celular2 != "" &&  !string.IsNullOrEmpty(AlumnoActualizar.Celular2) && !string.IsNullOrWhiteSpace(nuevoCelular2))
+                    if (AlumnoActualizar.Celular2 != null && AlumnoActualizar.Celular2 != "" && !string.IsNullOrEmpty(AlumnoActualizar.Celular2) && !string.IsNullOrWhiteSpace(nuevoCelular2))
                     {
                         _unitOfWork.WhatsAppMensajeEnviadoRepository.ActualizarDatosAlumno(AlumnoActualizar.Id, "Celular2", ObtenerAtributosOriginalAlumno.Celular2, AlumnoActualizar.Celular2, Usuario);
                     }
-                       
+
                 }
                 if (AlumnoActualizar.Dni != ObtenerAtributosOriginalAlumno.Dni)
                 {
@@ -1214,7 +1213,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                     catch (Exception ex)
                     {
                     }
-                
+
                     return (oportunidadReprogramacionNueva.Oportunidad.Id);
                     //return _unitOfWork.OportunidadRepository.ObtenerDatosOportunidad(oportunidadReprogramacionNueva.Oportunidad!.Id)!;
                 }
