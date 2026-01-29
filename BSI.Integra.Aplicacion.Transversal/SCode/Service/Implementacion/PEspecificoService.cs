@@ -5,6 +5,7 @@ using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion;
 using BSI.Integra.Aplicacion.Servicios.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
@@ -4118,6 +4119,66 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.Commit();
                         }
                     }
+
+                    // ========== CREAR GESTIONCONTACTO PARA ASIGNACIÓN DE DOCENTE ==========
+                    if (dto.IdProveedor != null && pEspecifico.IdCentroCosto.HasValue)
+                    {
+                        var proveedor = _unitOfWork.ProveedorRepository.ObtenerPorId(dto.IdProveedor.Value);
+                        if (proveedor == null || proveedor.Id == 0)
+                        {
+                            throw new BadRequestException("#PES-ADAPE-002@No existe el proveedor especificado");
+                        }
+
+                        var persona = _unitOfWork.PersonaRepository.ObtenerPorEmail(proveedor.Email);
+                        if (persona == null)
+                        {
+                            throw new BadRequestException($"#PES-ADAPE-003@El proveedor {proveedor.Nombre1} {proveedor.ApePaterno} no tiene una Persona asociada");
+                        }
+
+                        var clasificacionPersona = _unitOfWork.ClasificacionPersonaRepository
+                            .FirstBy(w => w.IdPersona == persona.Id
+                                       && w.IdTipoPersona == 4
+                                       && w.IdTablaOriginal == proveedor.Id
+                                       && w.Estado == true);
+
+                        if (clasificacionPersona == null)
+                        {
+                            throw new BadRequestException($"#PES-ADAPE-004@El proveedor {proveedor.Nombre1} {proveedor.ApePaterno} (ID: {proveedor.Id}) no tiene ClasificacionPersona válida");
+                        }
+
+                        // Verificar si ya existe gestión activa
+                        var gestionExistente = _unitOfWork.GestionContactoRepository
+                            .FirstBy(w => w.IdClasificacionPersona == clasificacionPersona.Id
+                                       && w.IdCentroCosto == pEspecifico.IdCentroCosto
+                                       && w.Estado == true);
+
+                        if (gestionExistente == null)
+                        {
+                            var gestionDTO = new CrearGestionContactoDTO
+                            {
+                                IdCentroCosto = pEspecifico.IdCentroCosto,
+                                IdPersonal_Asignado = 6205,
+                                IdClasificacionPersona = clasificacionPersona.Id,
+                                IdFaseGestionContacto = 1,
+                                IdOrigen = 1124,
+                                IdEstadoGestionContacto = 2,
+                                UsuarioCreacion = usuario,
+                                Comentario = $"Asignación automática de docente a curso: {pEspecifico.Nombre} - Proveedor: {proveedor.Nombre1} {proveedor.ApePaterno}"
+                            };
+
+                            try
+                            {
+                                var gestionContactoService = new GestionContactoService(_unitOfWork);
+                                await gestionContactoService.ProcesarInsercionGestionAsync(gestionDTO);
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new BadRequestException($"#PES-ADAPE-005@Error al crear GestionContacto: {ex.Message}");
+                            }
+                        }
+                    }
+                    // ========== FIN GESTIONCONTACTO ==========
+
                     var listaSesiones = _unitOfWork.PEspecificoSesionRepository.GetBy(x => x.IdPespecifico == dto.Id && x.Grupo == 1);
                     foreach (var item in listaSesiones)
                     {
