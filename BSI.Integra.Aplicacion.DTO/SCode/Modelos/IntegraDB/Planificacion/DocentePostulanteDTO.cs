@@ -69,5 +69,15 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         /// Nombre completo del docente postulante
         /// </summary>
         public string? NombreCompleto { get; set; }
+
+        /// <summary>
+        /// Estado de gestión del contacto (1 = General sin curso, 2 = Asignado a curso)
+        /// </summary>
+        public int? IdEstadoGestionContacto { get; set; }
+
+        /// <summary>
+        /// ID del centro de costo (curso) - requerido solo si IdEstadoGestionContacto = 2
+        /// </summary>
+        public int? IdCentroCosto { get; set; }
     }
 }

@@ -80,6 +80,25 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 if (string.IsNullOrWhiteSpace(dto.Correo))
                     throw new BadRequestException("El correo electrónico es obligatorio para crear el docente postulante");
 
+                // Validar IdEstadoGestionContacto (por defecto 1 si no viene)
+                int idEstadoGestionContacto = dto.IdEstadoGestionContacto ?? 1;
+
+                // Validaciones según el estado
+                if (idEstadoGestionContacto == 1) // Tipo General
+                {
+                    if (dto.IdCentroCosto.HasValue)
+                        throw new BadRequestException("Para el estado 'Tipo General' (1), el IdCentroCosto debe ser nulo");
+                }
+                else if (idEstadoGestionContacto == 2) // Asignado a Curso
+                {
+                    if (!dto.IdCentroCosto.HasValue)
+                        throw new BadRequestException("Para el estado 'Asignado a Curso' (2), el IdCentroCosto es obligatorio");
+                }
+                else
+                {
+                    throw new BadRequestException($"IdEstadoGestionContacto no válido: {idEstadoGestionContacto}. Valores permitidos: 1 (Tipo General) o 2 (Asignado a Curso)");
+                }
+
                 var fechaActual = DateTime.Now;
 
                 // 1. Crear DocentePostulante
@@ -161,15 +180,19 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 }
 
                 // 4. Crear GestionContacto (pla.T_GestionContacto)
+                // Asignar IdCentroCosto según el estado
+                int? idCentroCosto = idEstadoGestionContacto == 1 ? null : dto.IdCentroCosto;
+
                 var gestionDTO = new CrearGestionContactoDTO
                 {
-                    IdCentroCosto = null, // NULL porque el docente postulante aún no está asignado a ningún curso
+                    IdCentroCosto = idCentroCosto,
                     IdPersonal_Asignado = 6205,
                     IdClasificacionPersona = idClasificacionPersona,
                     IdFaseGestionContacto = 1, // Pre-Candidato
                     IdOrigen = 1124,
+                    IdEstadoGestionContacto = idEstadoGestionContacto,
                     UsuarioCreacion = usuario,
-                    Comentario = $"Registro automático desde DocentePostulante: {dto.Nombre1} {dto.ApellidoPaterno}"
+                    Comentario = $"Registro automático desde DocentePostulante: {dto.Nombre1} {dto.ApellidoPaterno} - Estado: {(idEstadoGestionContacto == 1 ? "Tipo General" : "Asignado a Curso")}"
                 };
 
                 try

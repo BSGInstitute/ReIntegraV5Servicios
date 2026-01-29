@@ -67,7 +67,8 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// Autor: Lolo Zaa
         /// Fecha: 26/12/2025
         /// <summary>
-        /// Inserta un nuevo docente postulante y crea automáticamente Persona, ClasificacionPersona y GestionContacto
+        /// Inserta un nuevo docente postulante y crea automáticamente Persona, ClasificacionPersona y GestionContacto.
+        /// IdEstadoGestionContacto: 1 = Tipo General (sin IdCentroCosto), 2 = Asignado a Curso (con IdCentroCosto)
         /// </summary>
         /// <param name="dto">Datos del docente postulante a insertar</param>
         /// <returns>Docente postulante creado</returns>
