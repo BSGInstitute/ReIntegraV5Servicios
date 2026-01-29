@@ -11,6 +11,8 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
 
         public int? Duracion { get; set; }
         public int? CreditoDisponibleTutorVirtual { get; set; }
+        public int? CantidadWebinarAsignado { get; set; }
+        public int? CantidadMesAccesoAdicionalWebinar { get; set; }
 
         public virtual TPgeneral IdPgeneralNavigation { get; set; } = null!;
 

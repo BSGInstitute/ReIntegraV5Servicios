@@ -16,5 +16,9 @@ namespace BSI.Integra.Aplicacion.Servicios.SCode.Service.Interface.Wolkbox
     {
 
         WavixPersonalDTO GetUserAccess(int idPersonal);
+        Task<SipTrunkListResponseDTO> ListarSipTrunks(string apiKey, int? page = null, int? perPage = null);
+        Task<SipTrunkConfigDTO> ObtenerSipTrunkPorId(string apiKey, string idSipTrunk);
+        Task<GenerarTokenWidgetResponseDTO> GenerarTokenWidget(string apiKey, GenerarTokenWidgetRequestDTO request);
+        Task<ConfiguracionCompletaWavixDTO> ObtenerConfiguracionCompletaWavix(int idPersonal);
     }
 }

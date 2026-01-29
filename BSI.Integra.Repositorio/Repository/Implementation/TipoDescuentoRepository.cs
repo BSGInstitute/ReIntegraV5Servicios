@@ -179,7 +179,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    PorcentajeMatricula,
 	                    FraccionesMatricula,
 	                    PorcentajeCuotas,
-	                    CuotasAdicionales
+	                    CuotasAdicionales,
+	                    IdTipoDescuentoNivelAprobacion
                     FROM pla.T_TipoDescuento
                     WHERE Estado = 1 ORDER BY id DESC ";
                 var resultado = _dapperRepository.QueryDapper(query, null);
@@ -217,6 +218,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    FraccionesMatricula,
 	                    PorcentajeCuotas,
 	                    CuotasAdicionales,
+	                    IdTipoDescuentoNivelAprobacion,
 	                    Estado,
 	                    FechaCreacion,
 	                    FechaModificacion,
@@ -261,6 +263,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    FraccionesMatricula,
 	                    PorcentajeCuotas,
 	                    CuotasAdicionales,
+	                    IdTipoDescuentoNivelAprobacion,
 	                    Estado,
 	                    FechaCreacion,
 	                    FechaModificacion,
@@ -306,6 +309,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    FraccionesMatricula,
 	                    PorcentajeCuotas,
 	                    CuotasAdicionales,
+	                    IdTipoDescuentoNivelAprobacion,
 	                    Estado,
 	                    FechaCreacion,
 	                    FechaModificacion,
@@ -389,7 +393,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var query = @"
                     SELECT Id,Codigo,Descripcion,Formula,PorcentajeGeneral,PorcentajeMatricula,FraccionesMatricula,PorcentajeCuotas,CuotasAdicionales,Tipo
                     FROM mkt.V_TiposDescuentos
-                    WHERE  IdOportunidad = @idOportunidad AND Tipo = @tipoPersonal";
+                    WHERE IdOportunidad = @idOportunidad AND Tipo = @tipoPersonal";
                 var resultadoQuery = _dapperRepository.QueryDapper(query, new { idOportunidad, tipoPersonal });
                 if (!string.IsNullOrEmpty(resultadoQuery) && !resultadoQuery.Contains("[]"))
                 {
@@ -402,6 +406,112 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 16/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene Tipos de Descuento de solicitudes activas asociadas a una Oportunidad.
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <returns> List<TipoDescuentoOportunidadDTO> </returns>
+        public IEnumerable<TipoDescuentoOportunidadDTO> ObtenerTipoDescuentoSolicitudOportunidad(int idOportunidad)
+        {
+            try
+            {
+                List<TipoDescuentoOportunidadDTO> tiposDescuento = new List<TipoDescuentoOportunidadDTO>();
+                var query = @"
+                    SELECT IdTipoDescuento AS Id,Codigo,Descripcion,Formula,PorcentajeGeneral,PorcentajeMatricula,FraccionesMatricula,PorcentajeCuotas,CuotasAdicionales,Tipo
+                    FROM pla.V_TiposDescuentosSolicitudOportunidad
+                    WHERE IdOportunidad = @idOportunidad";
+                var resultadoQuery = _dapperRepository.QueryDapper(query, new { idOportunidad });
+                if (!string.IsNullOrEmpty(resultadoQuery) && !resultadoQuery.Contains("[]"))
+                {
+                    tiposDescuento = JsonConvert.DeserializeObject<List<TipoDescuentoOportunidadDTO>>(resultadoQuery);
+                }
+                return tiposDescuento;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 12/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los tipos de descuento con su nivel de aprobación asociado
+        /// </summary>
+        /// <returns> List<TipoDescuentoConNivelAprobacionDTO> </returns>
+        public IEnumerable<TipoDescuentoConNivelAprobacionDTO> ObtenerTipoDescuentoConNivelAprobacion()
+        {
+            try
+            {
+                IEnumerable<TipoDescuentoConNivelAprobacionDTO> rpta = new List<TipoDescuentoConNivelAprobacionDTO>();
+                var query = @"
+                    SELECT
+                        Id,
+                        Codigo,
+                        Descripcion,
+                        Formula,
+                        PorcentajeGeneral,
+                        PorcentajeMatricula,
+                        FraccionesMatricula,
+                        PorcentajeCuotas,
+                        CuotasAdicionales,
+                        IdTipoDescuentoNivelAprobacion
+                    FROM pla.T_TipoDescuento
+                    WHERE Estado = 1
+                    ORDER BY Id DESC";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<IEnumerable<TipoDescuentoConNivelAprobacionDTO>>(resultado)!;
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 12/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los niveles de aprobación activos
+        /// </summary>
+        /// <returns> List<TipoDescuentoNivelAprobacionDTO> </returns>
+        public IEnumerable<TipoDescuentoNivelAprobacionDTO> ObtenerNivelesAprobacion()
+        {
+            try
+            {
+                IEnumerable<TipoDescuentoNivelAprobacionDTO> rpta = new List<TipoDescuentoNivelAprobacionDTO>();
+                var query = @"
+                    SELECT
+                        Id,
+                        Nombre,
+                        Descripcion,
+                        Estado
+                    FROM pla.T_TipoDescuentoNivelAprobacion
+                    WHERE Estado = 1
+                    ORDER BY Id ASC";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<IEnumerable<TipoDescuentoNivelAprobacionDTO>>(resultado)!;
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        
 
     }
 }

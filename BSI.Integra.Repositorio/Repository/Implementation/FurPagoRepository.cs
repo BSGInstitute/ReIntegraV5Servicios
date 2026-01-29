@@ -7,6 +7,8 @@ using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
 using Newtonsoft.Json;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
+using System.Drawing;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation
 {
@@ -366,6 +368,175 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
 
+        }
+
+        /// Autor: Miguel Valdivia
+        /// Fecha: 24/01/2026
+        /// Version: 1.2
+        /// <summary>
+        /// Convierte un monto de una moneda origen a una moneda destino usando el tipo de cambio mas reciente
+        /// IMPORTANTE: La BD tiene MonedaADolar y DolarAMoneda con el mismo valor (error de datos)
+        ///            Por eso calculamos MonedaADolar = 1 / DolarAMoneda
+        /// </summary>
+        /// <param name="idMonedaOrigen">Id de la moneda de origen</param>
+        /// <param name="idMonedaDestino">Id de la moneda de destino</param>
+        /// <param name="monto">Monto a convertir</param>
+        /// <returns>ConversionMonedaDTO con el resultado de la conversion</returns>
+        public ConversionMonedaDTO ConvertirMoneda(int idMonedaOrigen, int idMonedaDestino, decimal monto)
+        {
+            try
+            {
+                const int ID_DOLAR = 19;
+                ConversionMonedaDTO resultado = new ConversionMonedaDTO();
+
+                // Si las monedas son iguales, retornar el mismo monto
+                if (idMonedaOrigen == idMonedaDestino)
+                {
+                    var queryMoneda = @"SELECT NombrePlural FROM pla.T_Moneda WHERE Id = @idMoneda AND Estado = 1";
+                    var monedaDB = _dapperRepository.QueryDapper(queryMoneda, new { idMoneda = idMonedaOrigen });
+                    string nombreMoneda = "Moneda";
+                    if (!string.IsNullOrEmpty(monedaDB) && !monedaDB.Contains("[]"))
+                    {
+                        var monedaInfo = JsonConvert.DeserializeObject<List<dynamic>>(monedaDB);
+                        if (monedaInfo != null && monedaInfo.Count > 0)
+                        {
+                            nombreMoneda = monedaInfo[0].NombrePlural?.ToString() ?? "Moneda";
+                        }
+                    }
+
+                    resultado.MontoConvertido = Math.Round(monto, 2);
+                    resultado.TipoCambioUtilizado = 1;
+                    resultado.FechaTipoCambio = DateTime.Now;
+                    resultado.MonedaOrigenNombre = nombreMoneda;
+                    resultado.MonedaDestinoNombre = nombreMoneda;
+                    return resultado;
+                }
+
+                // Query para obtener tipo de cambio con nombre de moneda
+                // NOTA: Solo necesitamos DolarAMoneda porque calcularemos MonedaADolar = 1 / DolarAMoneda
+                var queryTipoCambio = @"
+            SELECT TOP 1
+                DolarAMoneda,
+                Fecha,
+                (SELECT NombrePlural FROM pla.T_Moneda WHERE Id = @idMoneda AND Estado = 1) as NombreMoneda
+            FROM fin.T_TipoCambioMoneda
+            WHERE IdMoneda = @idMoneda
+              AND Estado = 1
+            ORDER BY Fecha DESC, Id DESC";
+
+                decimal montoConvertido = 0;
+                decimal tipoCambioUtilizado = 1;
+                DateTime fechaTipoCambio = DateTime.Now;
+                string monedaOrigenNombre = string.Empty;
+                string monedaDestinoNombre = string.Empty;
+
+                // Caso 1: Origen es DÓLAR → Destino es OTRA MONEDA
+                // Fórmula: monto * DolarAMoneda_Destino
+                if (idMonedaOrigen == ID_DOLAR)
+                {
+                    var tipoCambioDestinoDB = _dapperRepository.QueryDapper(queryTipoCambio, new { idMoneda = idMonedaDestino });
+
+                    if (string.IsNullOrEmpty(tipoCambioDestinoDB) || tipoCambioDestinoDB.Contains("[]"))
+                    {
+                        throw new Exception("TIPO-CAMBIO-NO-ENCONTRADO: Tipo de cambio no actualizado para el día de hoy");
+                    }
+
+                    var tipoCambioDestino = JsonConvert.DeserializeObject<List<TipoCambioMonedaDTO>>(tipoCambioDestinoDB);
+                    if (tipoCambioDestino == null || tipoCambioDestino.Count == 0 || tipoCambioDestino[0].DolarAMoneda == 0)
+                    {
+                        throw new Exception("TIPO-CAMBIO-NO-ENCONTRADO: Tipo de cambio no actualizado para el día de hoy");
+                    }
+
+                    // Convertir DE dólares A moneda destino
+                    montoConvertido = monto * tipoCambioDestino[0].DolarAMoneda;
+                    tipoCambioUtilizado = tipoCambioDestino[0].DolarAMoneda;
+                    fechaTipoCambio = tipoCambioDestino[0].Fecha;
+                    monedaOrigenNombre = "Dólares Americanos";
+                    monedaDestinoNombre = tipoCambioDestino[0].NombreMoneda ?? "Moneda Destino";
+                }
+                // Caso 2: Origen es OTRA MONEDA → Destino es DÓLAR
+                // Fórmula: monto * (1 / DolarAMoneda_Origen) = monto / DolarAMoneda_Origen
+                else if (idMonedaDestino == ID_DOLAR)
+                {
+                    var tipoCambioOrigenDB = _dapperRepository.QueryDapper(queryTipoCambio, new { idMoneda = idMonedaOrigen });
+
+                    if (string.IsNullOrEmpty(tipoCambioOrigenDB) || tipoCambioOrigenDB.Contains("[]"))
+                    {
+                        throw new Exception("TIPO-CAMBIO-NO-ENCONTRADO: Tipo de cambio no actualizado para el día de hoy");
+                    }
+
+                    var tipoCambioOrigen = JsonConvert.DeserializeObject<List<TipoCambioMonedaDTO>>(tipoCambioOrigenDB);
+                    if (tipoCambioOrigen == null || tipoCambioOrigen.Count == 0 || tipoCambioOrigen[0].DolarAMoneda == 0)
+                    {
+                        throw new Exception("TIPO-CAMBIO-NO-ENCONTRADO: Tipo de cambio no actualizado para el día de hoy");
+                    }
+
+                    // INGENIERÍA INVERSA: MonedaADolar_Real = 1 / DolarAMoneda
+                    decimal monedaADolarReal = 1 / tipoCambioOrigen[0].DolarAMoneda;
+
+                    // Convertir DE moneda origen A dólares
+                    montoConvertido = monto * monedaADolarReal;
+                    tipoCambioUtilizado = monedaADolarReal;
+                    fechaTipoCambio = tipoCambioOrigen[0].Fecha;
+                    monedaOrigenNombre = tipoCambioOrigen[0].NombreMoneda ?? "Moneda Origen";
+                    monedaDestinoNombre = "Dólares Americanos";
+                }
+                // Caso 3: Conversión cruzada (ninguna es dólar)
+                // Paso 1: Origen → Dólares usando (1 / DolarAMoneda_Origen)
+                // Paso 2: Dólares → Destino usando DolarAMoneda_Destino
+                else
+                {
+                    var tipoCambioOrigenDB = _dapperRepository.QueryDapper(queryTipoCambio, new { idMoneda = idMonedaOrigen });
+                    var tipoCambioDestinoDB = _dapperRepository.QueryDapper(queryTipoCambio, new { idMoneda = idMonedaDestino });
+
+                    if (string.IsNullOrEmpty(tipoCambioOrigenDB) || tipoCambioOrigenDB.Contains("[]"))
+                    {
+                        throw new Exception("TIPO-CAMBIO-NO-ENCONTRADO: Tipo de cambio no actualizado para el día de hoy");
+                    }
+
+                    if (string.IsNullOrEmpty(tipoCambioDestinoDB) || tipoCambioDestinoDB.Contains("[]"))
+                    {
+                        throw new Exception("TIPO-CAMBIO-NO-ENCONTRADO: Tipo de cambio no actualizado para el día de hoy");
+                    }
+
+                    var tipoCambioOrigen = JsonConvert.DeserializeObject<List<TipoCambioMonedaDTO>>(tipoCambioOrigenDB);
+                    var tipoCambioDestino = JsonConvert.DeserializeObject<List<TipoCambioMonedaDTO>>(tipoCambioDestinoDB);
+
+                    if (tipoCambioOrigen == null || tipoCambioOrigen.Count == 0 || tipoCambioOrigen[0].DolarAMoneda == 0 ||
+                        tipoCambioDestino == null || tipoCambioDestino.Count == 0 || tipoCambioDestino[0].DolarAMoneda == 0)
+                    {
+                        throw new Exception("TIPO-CAMBIO-NO-ENCONTRADO: Tipo de cambio no actualizado para el día de hoy");
+                    }
+
+                    // INGENIERÍA INVERSA: MonedaADolar_Real = 1 / DolarAMoneda
+                    decimal monedaADolarOrigenReal = 1 / tipoCambioOrigen[0].DolarAMoneda;
+
+                    // Paso 1: Convertir origen A dólares
+                    decimal montoDolares = monto * monedaADolarOrigenReal;
+
+                    // Paso 2: Convertir DE dólares A destino
+                    montoConvertido = montoDolares * tipoCambioDestino[0].DolarAMoneda;
+
+                    tipoCambioUtilizado = monedaADolarOrigenReal * tipoCambioDestino[0].DolarAMoneda;
+                    fechaTipoCambio = tipoCambioOrigen[0].Fecha > tipoCambioDestino[0].Fecha
+                        ? tipoCambioDestino[0].Fecha
+                        : tipoCambioOrigen[0].Fecha;
+                    monedaOrigenNombre = tipoCambioOrigen[0].NombreMoneda ?? "Moneda Origen";
+                    monedaDestinoNombre = tipoCambioDestino[0].NombreMoneda ?? "Moneda Destino";
+                }
+
+                resultado.MontoConvertido = Math.Round(montoConvertido, 2);
+                resultado.TipoCambioUtilizado = Math.Round(tipoCambioUtilizado, 6);
+                resultado.FechaTipoCambio = fechaTipoCambio;
+                resultado.MonedaOrigenNombre = monedaOrigenNombre;
+                resultado.MonedaDestinoNombre = monedaDestinoNombre;
+
+                return resultado;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
 
     }

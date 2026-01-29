@@ -719,7 +719,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdFaseOportunidadActual { get; set; }
     }
     public class OportunidadConversionesDTO
-    {        
+    {
         public int IdFacebookFormularioLeadgen { get; set; }
         public string LeadId { get; set; }
         public int IdOportunidad { get; set; }
@@ -727,5 +727,12 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string Telefono { get; set; }
         public string NombreCompleto { get; set; }
         public string Ciudad { get; set; }
+    }
+
+    public class OportunidadFaseDTO
+    {
+        public int IdFaseOportunidad { get; set; }
+        public int IdPersonal_Asignado { get; set; }
+        public DateTime? FechaCreacion { get; set; }
     }
 }

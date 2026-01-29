@@ -314,7 +314,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                 {
                     "fvaldez@bsginstitute.com",
                     "jvillena@bsginstitute.com",
-                    "mramirez@bsginstitute.com"
+                    "mmantilla@bsginstitute.com"
                 };
 
                 if (_unitOfWork.IntegraAspNetUserRepository.ExistePorNombreUsuario(UsuarioModificacion))
@@ -549,6 +549,19 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
 
                 filtroSegmento.ListaEnvioAutomaticoOportunidadFaseActual = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroFaseOportunidadActual).ToList();
 
+                filtroSegmento.ListaUOArea = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroUOArea).ToList();
+                filtroSegmento.ListaUOSubArea = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroUOSubArea).ToList();
+                filtroSegmento.ListaUOPGeneral = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroUOPGeneral).ToList();
+                filtroSegmento.ListaMPIArea = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroMPIArea).ToList();
+                filtroSegmento.ListaMPISubArea = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroMPISubArea).ToList();
+                filtroSegmento.ListaMPIPGeneral = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroMPIPGeneral).ToList();
+                filtroSegmento.ListaProbabilidadValor = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroProbabilidadValor).ToList();
+                filtroSegmento.ListaProbabilidadArea = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroProbabilidadArea).ToList();
+                filtroSegmento.ListaProbabilidadSubArea = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroProbabilidadSubArea).ToList();
+                filtroSegmento.ListaProbabilidadPGeneral = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroProbabilidadPGeneral).ToList();
+                filtroSegmento.ListaNivelEmbudoEsquema1 = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroNivelEmbudoEsquema1).ToList();
+                filtroSegmento.ListaNivelEmbudoEsquema2 = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroNivelEmbudoEsquema2).ToList();
+
                 return filtroSegmento;
             }
             catch (Exception e)
@@ -659,6 +672,19 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                 filtroSegmento.ListaTarifario = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroTarifario).ToList();
 
                 filtroSegmento.ListaEnvioAutomaticoOportunidadFaseActual = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroFaseOportunidadActual).ToList();
+
+                filtroSegmento.ListaUOArea = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroUOArea).ToList();
+                filtroSegmento.ListaUOSubArea = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroUOSubArea).ToList();
+                filtroSegmento.ListaUOPGeneral = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroUOPGeneral).ToList();
+                filtroSegmento.ListaMPIArea = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroMPIArea).ToList();
+                filtroSegmento.ListaMPISubArea = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroMPISubArea).ToList();
+                filtroSegmento.ListaMPIPGeneral = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroMPIPGeneral).ToList();
+                filtroSegmento.ListaProbabilidadValor = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroProbabilidadValor).ToList();
+                filtroSegmento.ListaProbabilidadArea = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroProbabilidadArea).ToList();
+                filtroSegmento.ListaProbabilidadSubArea = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroProbabilidadSubArea).ToList();
+                filtroSegmento.ListaProbabilidadPGeneral = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroProbabilidadPGeneral).ToList();
+                filtroSegmento.ListaNivelEmbudoEsquema1 = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroNivelEmbudoEsquema1).ToList();
+                filtroSegmento.ListaNivelEmbudoEsquema2 = lista.Where(x => x.IdCategoriaObjetoFiltro == ValorEstatico.IdCategoriaObjetoFiltroNivelEmbudoEsquema2).ToList();
 
                 return filtroSegmento;
             }
@@ -847,6 +873,17 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                 FiltroNuevo.NroMedidaTiempoUltimaActividadEjecutada = obj.NroMedidaTiempoUltimaActividadEjecutada;
                 FiltroNuevo.EnvioAutomaticoEstadoActividadDetalle = obj.EnvioAutomaticoEstadoActividadDetalle;
                 FiltroNuevo.ConsiderarYaEnviados = 0; //valor que no se considera  
+
+                FiltroNuevo.ConsiderarUltimaOportunidad = obj.ConsiderarUltimaOportunidad;
+                FiltroNuevo.ConsiderarMayorProbabilidadInscripcion = obj.ConsiderarMayorProbabilidadInscripcion;
+                FiltroNuevo.ConsiderarMayorProbabilidadInscripcionVentaCruzada = obj.ConsiderarMayorProbabilidadInscripcionVentaCruzada;
+                FiltroNuevo.ConsiderarProbabilidad = obj.ConsiderarProbabilidad;
+                FiltroNuevo.ConsiderarProbabilidadVentaCruzada = obj.ConsiderarProbabilidadVentaCruzada;
+                FiltroNuevo.ConsiderarEmbudo = obj.ConsiderarEmbudo;
+                FiltroNuevo.ConsiderarExcluirCampania = obj.ConsiderarExcluirCampania;
+                FiltroNuevo.FechaInicioExclusionCampania = obj.FechaInicioExclusionCampania;
+                FiltroNuevo.FechaFinExclusionCampania = obj.FechaFinExclusionCampania;
+
 
                 FiltroNuevo.UsuarioCreacion = UsuarioModificacion;
                 FiltroNuevo.UsuarioModificacion = UsuarioModificacion;
@@ -1566,6 +1603,194 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                     };
                     _unitOfWork.FiltroSegmentoValorTipoRepository.Add(_new);
                 }
+                foreach (var item in filtro.ListaUOArea)
+                {
+                    var _new = new FiltroSegmentoValorTipo
+                    {
+                        IdCategoriaObjetoFiltro = ValorEstatico.IdCategoriaObjetoFiltroUOArea,
+                        Valor = item.Valor,
+                        Estado = true,
+                        UsuarioCreacion = filtro.NombreUsuario,
+                        UsuarioModificacion = filtro.NombreUsuario,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now,
+                        IdFiltroSegmento = filtro.Id
+
+
+                    };
+                    _unitOfWork.FiltroSegmentoValorTipoRepository.Add(_new);
+                }
+                foreach (var item in filtro.ListaUOSubArea)
+                {
+                    var _new = new FiltroSegmentoValorTipo
+                    {
+                        IdCategoriaObjetoFiltro = ValorEstatico.IdCategoriaObjetoFiltroUOSubArea,
+                        Valor = item.Valor,
+                        Estado = true,
+                        UsuarioCreacion = filtro.NombreUsuario,
+                        UsuarioModificacion = filtro.NombreUsuario,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now,
+                        IdFiltroSegmento = filtro.Id
+                    };
+                    _unitOfWork.FiltroSegmentoValorTipoRepository.Add(_new);
+                }
+                foreach (var item in filtro.ListaUOPGeneral)
+                {
+                    var _new = new FiltroSegmentoValorTipo
+                    {
+                        IdCategoriaObjetoFiltro = ValorEstatico.IdCategoriaObjetoFiltroUOPGeneral,
+                        Valor = item.Valor,
+                        Estado = true,
+                        UsuarioCreacion = filtro.NombreUsuario,
+                        UsuarioModificacion = filtro.NombreUsuario,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now,
+                        IdFiltroSegmento = filtro.Id
+                    };
+                    _unitOfWork.FiltroSegmentoValorTipoRepository.Add(_new);
+                }
+                foreach (var item in filtro.ListaMPIArea)
+                {
+                    var _new = new FiltroSegmentoValorTipo
+                    {
+                        IdCategoriaObjetoFiltro = ValorEstatico.IdCategoriaObjetoFiltroMPIArea,
+                        Valor = item.Valor,
+                        Estado = true,
+                        UsuarioCreacion = filtro.NombreUsuario,
+                        UsuarioModificacion = filtro.NombreUsuario,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now,
+                        IdFiltroSegmento = filtro.Id
+
+
+                    };
+                    _unitOfWork.FiltroSegmentoValorTipoRepository.Add(_new);
+                }
+                foreach (var item in filtro.ListaMPISubArea)
+                {
+                    var _new = new FiltroSegmentoValorTipo
+                    {
+                        IdCategoriaObjetoFiltro = ValorEstatico.IdCategoriaObjetoFiltroMPISubArea,
+                        Valor = item.Valor,
+                        Estado = true,
+                        UsuarioCreacion = filtro.NombreUsuario,
+                        UsuarioModificacion = filtro.NombreUsuario,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now,
+                        IdFiltroSegmento = filtro.Id
+                    };
+                    _unitOfWork.FiltroSegmentoValorTipoRepository.Add(_new);
+                }
+                foreach (var item in filtro.ListaMPIPGeneral)
+                {
+                    var _new = new FiltroSegmentoValorTipo
+                    {
+                        IdCategoriaObjetoFiltro = ValorEstatico.IdCategoriaObjetoFiltroMPIPGeneral,
+                        Valor = item.Valor,
+                        Estado = true,
+                        UsuarioCreacion = filtro.NombreUsuario,
+                        UsuarioModificacion = filtro.NombreUsuario,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now,
+                        IdFiltroSegmento = filtro.Id
+                    };
+                    _unitOfWork.FiltroSegmentoValorTipoRepository.Add(_new);
+                }
+                foreach (var item in filtro.ListaProbabilidadValor)
+                {
+                    var _new = new FiltroSegmentoValorTipo
+                    {
+                        IdCategoriaObjetoFiltro = ValorEstatico.IdCategoriaObjetoFiltroProbabilidadValor,
+                        Valor = item.Valor,
+                        Estado = true,
+                        UsuarioCreacion = filtro.NombreUsuario,
+                        UsuarioModificacion = filtro.NombreUsuario,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now,
+                        IdFiltroSegmento = filtro.Id
+
+
+                    };
+                    _unitOfWork.FiltroSegmentoValorTipoRepository.Add(_new);
+                }
+                foreach (var item in filtro.ListaProbabilidadArea)
+                {
+                    var _new = new FiltroSegmentoValorTipo
+                    {
+                        IdCategoriaObjetoFiltro = ValorEstatico.IdCategoriaObjetoFiltroProbabilidadArea,
+                        Valor = item.Valor,
+                        Estado = true,
+                        UsuarioCreacion = filtro.NombreUsuario,
+                        UsuarioModificacion = filtro.NombreUsuario,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now,
+                        IdFiltroSegmento = filtro.Id
+
+
+                    };
+                    _unitOfWork.FiltroSegmentoValorTipoRepository.Add(_new);
+                }
+                foreach (var item in filtro.ListaProbabilidadSubArea)
+                {
+                    var _new = new FiltroSegmentoValorTipo
+                    {
+                        IdCategoriaObjetoFiltro = ValorEstatico.IdCategoriaObjetoFiltroProbabilidadSubArea,
+                        Valor = item.Valor,
+                        Estado = true,
+                        UsuarioCreacion = filtro.NombreUsuario,
+                        UsuarioModificacion = filtro.NombreUsuario,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now,
+                        IdFiltroSegmento = filtro.Id
+                    };
+                    _unitOfWork.FiltroSegmentoValorTipoRepository.Add(_new);
+                }
+                foreach (var item in filtro.ListaProbabilidadPGeneral)
+                {
+                    var _new = new FiltroSegmentoValorTipo
+                    {
+                        IdCategoriaObjetoFiltro = ValorEstatico.IdCategoriaObjetoFiltroProbabilidadPGeneral,
+                        Valor = item.Valor,
+                        Estado = true,
+                        UsuarioCreacion = filtro.NombreUsuario,
+                        UsuarioModificacion = filtro.NombreUsuario,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now,
+                        IdFiltroSegmento = filtro.Id
+                    };
+                    _unitOfWork.FiltroSegmentoValorTipoRepository.Add(_new);
+                }
+                foreach (var item in filtro.ListaNivelEmbudoEsquema1)
+                {
+                    var _new = new FiltroSegmentoValorTipo
+                    {
+                        IdCategoriaObjetoFiltro = ValorEstatico.IdCategoriaObjetoFiltroNivelEmbudoEsquema1,
+                        Valor = item.Valor,
+                        Estado = true,
+                        UsuarioCreacion = filtro.NombreUsuario,
+                        UsuarioModificacion = filtro.NombreUsuario,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now,
+                        IdFiltroSegmento = filtro.Id
+                    };
+                    _unitOfWork.FiltroSegmentoValorTipoRepository.Add(_new);
+                }
+                foreach (var item in filtro.ListaNivelEmbudoEsquema2)
+                {
+                    var _new = new FiltroSegmentoValorTipo
+                    {
+                        IdCategoriaObjetoFiltro = ValorEstatico.IdCategoriaObjetoFiltroNivelEmbudoEsquema2,
+                        Valor = item.Valor,
+                        Estado = true,
+                        UsuarioCreacion = filtro.NombreUsuario,
+                        UsuarioModificacion = filtro.NombreUsuario,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now,
+                        IdFiltroSegmento = filtro.Id
+                    };
+                    _unitOfWork.FiltroSegmentoValorTipoRepository.Add(_new);
+                }
                 _unitOfWork.Commit();
                 ;
             }
@@ -1853,6 +2078,16 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                     FiltroNuevo.NroMedidaTiempoUltimaActividadEjecutada = obj.NroMedidaTiempoUltimaActividadEjecutada;
                     FiltroNuevo.EnvioAutomaticoEstadoActividadDetalle = obj.EnvioAutomaticoEstadoActividadDetalle;
                     FiltroNuevo.ConsiderarYaEnviados = 0; //valor que no se considera  
+
+                    FiltroNuevo.ConsiderarUltimaOportunidad = obj.ConsiderarUltimaOportunidad;
+                    FiltroNuevo.ConsiderarMayorProbabilidadInscripcion = obj.ConsiderarMayorProbabilidadInscripcion;
+                    FiltroNuevo.ConsiderarMayorProbabilidadInscripcionVentaCruzada = obj.ConsiderarMayorProbabilidadInscripcionVentaCruzada;
+                    FiltroNuevo.ConsiderarProbabilidad = obj.ConsiderarProbabilidad;
+                    FiltroNuevo.ConsiderarProbabilidadVentaCruzada = obj.ConsiderarProbabilidadVentaCruzada;
+                    FiltroNuevo.ConsiderarEmbudo = obj.ConsiderarEmbudo;
+                    FiltroNuevo.ConsiderarExcluirCampania = obj.ConsiderarExcluirCampania;
+                    FiltroNuevo.FechaInicioExclusionCampania = obj.FechaInicioExclusionCampania;
+                    FiltroNuevo.FechaFinExclusionCampania = obj.FechaFinExclusionCampania;
 
                     FiltroNuevo.UsuarioModificacion = UsuarioModificacion;
                     FiltroNuevo.FechaModificacion = DateTime.Now;
