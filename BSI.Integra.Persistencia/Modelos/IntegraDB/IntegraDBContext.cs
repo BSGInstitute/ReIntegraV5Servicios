@@ -24835,8 +24835,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.HasOne(d => d.IdGestionDocenteFlujoNavigation)
                     .WithMany(p => p.TGestionDocenteActividadCabeceras)
-                    .HasForeignKey(d => d.IdGestionDocenteFlujo)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
+                    .HasForeignKey(d => d.IdGestionDocenteFlujo);
             });
 
             modelBuilder.Entity<TGestionDocenteActividadDetalle>(entity =>
