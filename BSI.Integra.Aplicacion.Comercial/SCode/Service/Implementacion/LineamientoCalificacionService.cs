@@ -19,6 +19,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
 using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad.TranscriptionDTO;
+using FaseDTO = BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial.FaseDTO;
 using TransicionFase = BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial.TransicionFase;
 
 
