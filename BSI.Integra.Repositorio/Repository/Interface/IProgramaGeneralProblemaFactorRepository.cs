@@ -24,5 +24,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<ProgramaGeneralProblemaFactorDTO> Obtener();
         ProgramaGeneralProblemaFactor? ObtenerPorId(int id);
         Task<IEnumerable<ProgramaGeneralProblemaFactorDTO>> ObtenerAsync();
+        Task<HashSet<int>> ObtenerSolucionesMarcadasPorOportunidadAsync(IEnumerable<int> oportunidadIds);
     }
 }

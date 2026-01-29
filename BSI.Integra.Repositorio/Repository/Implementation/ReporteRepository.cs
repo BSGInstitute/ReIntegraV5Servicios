@@ -5,6 +5,7 @@ using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
+using iText.Kernel.Geom;
 using Newtonsoft.Json;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation
@@ -313,10 +314,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                    ELSE 0
                                END), 0) AS CantidadTotalEjecutada,
                             ISNULL(SUM(CASE
-                                    WHEN IdOcurrencia in (149, 162, 163, 164, 165, 168, 207, 209) THEN 1 
+                                    WHEN IdOcurrencia in (149, 163, 164, 165, 168, 207, 209) THEN 1 
                                     ELSE 0
                                 END),0) AS CantidadTotalManual,
-                            ISNULL(SUM(CASE WHEN IdOcurrencia in(431) THEN 1 ELSE 0 END),0) AS CantidadTotalContestaCorta
+                            ISNULL(SUM(CASE WHEN IdOcurrencia in(431) THEN 1 ELSE 0 END),0) AS CantidadTotalContestaCorta,
+                            ISNULL(SUM(CASE WHEN IdOcurrencia in(162) THEN 1 ELSE 0 END),0) AS CantidadTotalContestaOcupado
                     FROM {vista} 
                     WHERE EstadoOcurrencia = 1
                         AND EstadoOportunidad = 1
@@ -377,6 +379,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     rpta.TotalLlamadasEjecutadas = datosTotal.CantidadTotalEjecutada;
                     rpta.TotalLlamadasManual = datosTotal.CantidadTotalManual;
                     rpta.TotalLlamadasContestaCorta = datosTotal.CantidadTotalContestaCorta;
+                    rpta.TotalLlamadasContestaOcupado = datosTotal.CantidadTotalContestaOcupado;
                     rpta.TotalLlamadasEjecutadasConLlamada = datosEjecutadasLlamada.Valor.GetValueOrDefault();
                 }
                 return rpta;
@@ -5179,7 +5182,65 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception($"#OLR-OOLRSA3cx-001@Error en ObtenerOportunidadLogReporteSeguimientoV5, {ex.Message}");
             }
         }
-        
+
+        /// Autor: Flavio R. Mamani Fabian
+        /// Fecha: 30/05/2024
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el Detalle del Log asociado a una Oportunidad para Reporte de Seguimiento (3CX)
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <returns> Lista de OportunidadLogReporteDTO </returns>
+        public OportunidadLogReporteOperacionesDTO ObtenerOportunidadLogReporteSeguimientoV5ATC(int idAlumno, int idOportunidad, int idPadre, int diferenciaHoraria, int pageNumber, int pageSize)
+        {
+            try
+            {
+                OportunidadLogReporteOperacionesDTO oportunidadLog = new OportunidadLogReporteOperacionesDTO();
+                var query = @"ope.SP_ObtenerOportunidadLogReporteSeguimientoOperaciones";
+                var resultadoQuery = _dapperRepository.QuerySPDapper(query, new { IdAlumno = idAlumno, IdOportunidad = idOportunidad, IdPadre = idPadre, DiferenciaHoraria = diferenciaHoraria, pageNumber = pageNumber, pageSize = pageSize });
+                var jsonResult = ((dynamic)JsonConvert.DeserializeObject(resultadoQuery)!)[0].JsonResult.ToString();
+
+                if (!string.IsNullOrEmpty(jsonResult) && jsonResult != "[]")
+                {
+                    oportunidadLog = JsonConvert.DeserializeObject<OportunidadLogReporteOperacionesDTO>(jsonResult)!;
+                }
+                return oportunidadLog;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#OLR-OOLRSA3cx-001@Error en ObtenerOportunidadLogReporteSeguimientoV5, {ex.Message}");
+            }
+        }
+
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 03/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el reporte pendiente por periodo y coordinador
+        /// </summary>
+        /// <param name="filtroPendiente"></param>
+        /// <returns> Lista de DTO: List<ReportePendientePeriodoyCoordinadorDTO> </returns>
+        public IEnumerable<OportunidadLogReporteATCDTO> ObtenerOportunidadLogReporteSeguimientoV5Operaciones(int idAlumno, int idOportunidad, int idPadre, int diferenciaHoraria, int PageNumber, int PageSize)
+        {
+            try
+            {
+                List<OportunidadLogReporteATCDTO> oportunidadLog = new List<OportunidadLogReporteATCDTO>();
+                var query = "ope.SP_ObtenerOportunidadLogReporteSeguimientoV5ATC";
+                var res = _dapperRepository.QuerySPDapper(query, new { idAlumno, idOportunidad, idPadre, diferenciaHoraria, PageNumber, PageSize });
+                if (!string.IsNullOrEmpty(res) && res != "[]")
+                {
+                    oportunidadLog = JsonConvert.DeserializeObject<List<OportunidadLogReporteATCDTO>>(res)!;
+                }
+                return oportunidadLog;
+
+            }
+            catch (Exception Ex)
+            {
+                throw new Exception(Ex.Message);
+            }
+        }
+
         /// Autor: Jonathan Caipo
         /// Fecha: 16/11/2022
         /// Version: 1.0

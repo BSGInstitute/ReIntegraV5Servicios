@@ -773,7 +773,7 @@ namespace BSI.Integra.Servicios.Controllers
 
 
 
-
+      
 
         [HttpGet("AsignacionAutomatizadaAsesorWhats")]
         public IActionResult AsignacionAutomatizadaAsesorWhats()

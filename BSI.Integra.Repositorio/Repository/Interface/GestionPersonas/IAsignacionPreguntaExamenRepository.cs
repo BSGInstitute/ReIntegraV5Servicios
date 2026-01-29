@@ -12,13 +12,12 @@ namespace BSI.Integra.Repositorio.Repository.Interface.GestionPersonas
         TCentil Update(AsignacionPreguntaExamen entidad);
         IEnumerable<TCentil> Add(IEnumerable<AsignacionPreguntaExamen> listadoEntidad);
         IEnumerable<TCentil> Update(IEnumerable<AsignacionPreguntaExamen> listadoEntidad);*/
+
+        #endregion
         TAsignacionPreguntaExaman Add(AsignacionPreguntaExamen entidad);
         TAsignacionPreguntaExaman Update(AsignacionPreguntaExamen entidad);
         IEnumerable<TAsignacionPreguntaExaman> Add(IEnumerable<AsignacionPreguntaExamen> listadoEntidad);
         IEnumerable<TAsignacionPreguntaExaman> Update(IEnumerable<AsignacionPreguntaExamen> listadoEntidad);
-        bool Delete(int id, string usuario);
-        bool Delete(IEnumerable<int> listadoIds, string usuario);
-        #endregion
         int ObtenerCantidadPreguntaExamen(int idExamen);
         List<AsignacionPreguntaExamen> ObtenerAsignacionesPreguntaExamenbyId(int idPregunta);
 
@@ -26,5 +25,5 @@ namespace BSI.Integra.Repositorio.Repository.Interface.GestionPersonas
         List<AsignacionPreguntaExamen> ObtenerPorIdPregunta(int idPregunta);
 
         AsignacionPreguntaExamen ObtenerExamenPregunta(Expression<Func<TAsignacionPreguntaExaman, bool>> filter);
-}
+    }
 }

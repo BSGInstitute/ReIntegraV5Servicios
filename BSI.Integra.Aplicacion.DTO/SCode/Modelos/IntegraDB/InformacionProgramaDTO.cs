@@ -13,6 +13,12 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public List<MontoPagoModalidadV2DTO> MontosPorPais { get; set; }
         public List<BeneficioDTO> ListaBeneficios { get; set; }
     }
+
+    public class ObtenerMontos2RespuestaDTOjson
+    {
+        public List<MontoPagoModalidadDTO> MontosPorPais { get; set; }
+        public List<BeneficioDTOjson> ListaBeneficios { get; set; }
+    }
     public class CargarInformacionProgramaRespuestaDTO
     {
         public string EtiquetaFormasPago { get; set; }
@@ -22,6 +28,17 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string InformacionPrograma { get; set; }
         public string EtiquetaTarifarios { get; set; }
         public List<BeneficioDTO> ListaBeneficios { get; set; }
+    }
+
+    public class CargarInformacionProgramaRespuestaDTOjson
+    {
+        public string EtiquetaFormasPago { get; set; }
+        public string EtiquetaBeneficiosInversion { get; set; }
+        public string EtiquetaExpositores { get; set; }
+        public string EtiquetaDuracionHorarios { get; set; }
+        public string InformacionPrograma { get; set; }
+        public string EtiquetaTarifarios { get; set; }
+        public List<BeneficioDTOjson> ListaBeneficios { get; set; }
     }
 
     public class ProgramasPorCodigoPaisComboDTO
@@ -51,8 +68,34 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public List<MontoPagadoDTO> montopagado { get; set; }
         public List<VersionprogramaDTO> versionAlumno { get; set; }
     }
+    public class ResumenProgramaDTO
+    {
+        public int IdProgramaGeneral { get; set; }
+        public string Categoria { get; set; }
+        public string Tipo { get; set; }
+        public int IdCentroCosto { get; set; }
+        public string NombreCentroCosto { get; set; }
+        public string NombrePrograma { get; set; }
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaCreacion { get; set; }
+    }
+
+    public class ResumenPrograma2DTO
+    {
+            public string EsProgramaOCurso { get; set; }
+    }
 
     public class ResumenProgramaV2DTO
+    {
+        public int? IdArea { get; set; }
+        public int? IdSubArea { get; set; }
+        public string NombrePrograma { get; set; }
+        public string Duracion { get; set; }
+        public string Inversion { get; set; }
+        public string Certificacion { get; set; }
+    }
+
+    public class ResumenProgramaV2DTOjson
     {
         public int? IdArea { get; set; }
         public int? IdSubArea { get; set; }
@@ -81,6 +124,19 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string EtiquetaFormasPago { get; set; }
         public string EtiquetaTarifarios { get; set; }
         public List<BeneficioDTO> ListaBeneficios { get; set; }
+    }
+
+    public class CargarInformacionProgramaAutomaticoRespuestaDTOjson
+    {
+        public int IdPGeneral { get; set; }
+        public string InformacionPrograma { get; set; }
+        public List<ResumenProgramaV2DTOjson> ResumenProgramasV2 { get; set; }
+        public string EtiquetaDuracionHorarios { get; set; }
+        public string EtiquetaExpositores { get; set; }
+        public string EtiquetaBeneficiosInversion { get; set; }
+        public string EtiquetaFormasPago { get; set; }
+        public string EtiquetaTarifarios { get; set; }
+        public List<BeneficioDTOjson> ListaBeneficios { get; set; }
     }
 
 

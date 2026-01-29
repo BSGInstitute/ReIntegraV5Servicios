@@ -245,6 +245,57 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw ex;
             }
         }
+        /// Autor: Jose Vega
+        /// Fecha: 06/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene Publico Objetivo para Agenda Nueva V3
+        /// </summary>
+        /// <param name="idPGeneral">Id del Programa General</param>
+        /// <param name="idAlumno">Id del Alumno</param>
+        /// <returns> List<PGeneralPublicoObjetivoSalidaDTO> </returns>
+        public IEnumerable<PGeneralPublicoObjetivoSalidaDTO> ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3PorAlumno(int idOportunidad)
+        {
+            IEnumerable<PGeneralPublicoObjetivoParaAgendaDTO> datosRepo;
+            try
+            {
+                datosRepo = _unitOfWork.PGeneralRepository.ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3PorAlumno(idOportunidad);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            if (datosRepo == null)
+            {
+                return Enumerable.Empty<PGeneralPublicoObjetivoSalidaDTO>();
+            }
+
+            string ObtenerTextoRespuesta(int idRespuesta)
+            {
+                if (idRespuesta == 0) return null;
+                _mapeoRespuestas.TryGetValue(idRespuesta, out string txt);
+                return txt;
+            }
+
+            var resultadoTransformado = datosRepo.Select(prereq => new PGeneralPublicoObjetivoSalidaDTO
+            {
+                Id = prereq.Id,
+                IdPGeneral = prereq.IdPGeneral,
+                Contenido = prereq.Contenido,
+                Respuesta = ObtenerTextoRespuesta(prereq.Respuesta)
+            });
+
+            return resultadoTransformado;
+        }
+        private static readonly Dictionary<int, string> _mapeoRespuestas = new Dictionary<int, string>
+        {
+            { 1, "Cumple al 100%" },
+            { 2, "Cumple al 75%" },
+            { 3, "Cumple al 50%" },
+            { 4, "Cumple al 25%" },
+            { 5, "No cumple" }
+        };
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 04/08/2022
         /// Version: 1.0

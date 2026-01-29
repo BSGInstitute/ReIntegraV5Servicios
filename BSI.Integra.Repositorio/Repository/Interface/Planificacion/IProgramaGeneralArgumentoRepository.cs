@@ -30,12 +30,18 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         List<ProgramaGeneralArgumentoDTO> ObtenerTodo(int IdPGeneral);
         List<ProgramaGeneralArgumentoDTO> ObtenerTodoProgramaGeneral(int IdPGeneral);
         IEnumerable<ProgramaGeneralArgumentoMotivacionDTO> ObtenerMotivaciones(int IdPGeneral);
-        Task<IEnumerable<ProgramaGeneralArgumentoDTO>> ObtenerTodoProgramaGeneralAsync(int IdPGeneral);
+        Task<IEnumerable<ProgramaGeneralArgumentoDTO>> ObtenerTodoProgramaGeneralAsync(int IdOportunidad);
         Task<IEnumerable<ProgramaGeneralArgumentoModalidad>> ObtenerProgramaGeneralArgumentoModalidadAsync(int IdProgramaGeneralArgumento);
         Task<IEnumerable<ProgramaGeneralArgumentoDetalle>> ObtenerProgramaGeneralArgumentoDetalleAsync(int IdProgramaGeneralArgumento);
         Task<ProgramaGeneralArgumentoDetalleMotivacion> ObtenerProgramaGeneralArgumentoDetalleMotivacionAsync(int IdProgramaGeneralArgumentoDetalle);
         ComboDTO ObtenerMotivacionesByDiccionario(string motivacion);
         List<MotivacionDiccionarioViewDTO> ObtenerMotivacionesTodoDiccionario();
         ProgramaGeneralArgumentoDetalleMotivacionNombreDTO ObtenerProgramaGeneralArgumentoDetalleMotivacionNombre(int IdProgramaGeneralArgumentoDetalle);
+        Task<List<ProgramaGeneralArgumentoDTO>> ObtenerArgumentosAsync(int idOportunidad);
+        Task<List<DetalleRepoDTO>> ObtenerDetallesAsync(int idPGeneral);
+        Task<List<ArgumentoDetalleMotivacionRepoDTO>> ObtenerArgumentoDetalleAsync(int idPGeneral);
+        Task<List<PrioridadRepoDTO>> ObtenerPrioridadesAsync(int idOportunidad);
+        Task<List<DescripcionRepoDTO>> ObtenerDescripcionesMotivacionAsync(int idPGeneral);
+        Task<List<MotivacionRepoDTO>> ObtenerMotivacionesAsync(List<int> idsMotivacion);
     }
 }

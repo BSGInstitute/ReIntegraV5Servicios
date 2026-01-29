@@ -63,6 +63,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         ObtenerAtributosAlumnoOriginalDTO ObtenerDatosOriginalesAlumnoWhatsApp(int? IdAlumno);
         bool ActualizarDatosAlumno(int? IdAlumno, string CampoActualizado, string? ValorAnterior, string? ValorNuevo, string Usuario);
         bool InsertarMensajesLogJsonEnvios(int? IdAlumno, string Numero, string Mensaje);
+        ResultadoDTO InsertarAsistenteComercialHiloChat(int IdAlumno,int IdOportunidad);
+        ResultadoDTO InsertarAsistenteComercialHiloChatMensaje(int ChatId, string Contenido, bool EsUsuario);
         List<ProbabilidaWhatsAppDTO> ObtenerProbabilidadPorOportunidad(int idOportunidad);
         List<ProgramaPorOportunidadDTO> ObtenerProgramaPorOportunidadWhatsapp(int idOportunidad);
         public IEnumerable<OportunidadVentaCruzadaWhatsappDTO> ObtenerVentaCruzadaPorIdAlumnoWhatsapp(int idAlumno, int idArea, int idPGeneral);

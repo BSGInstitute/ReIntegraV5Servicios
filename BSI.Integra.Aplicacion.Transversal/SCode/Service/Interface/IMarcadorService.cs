@@ -5,6 +5,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
     public interface IMarcadorService
     {
         ActividadAgendaMarcadorDTO? ObtenerActividad(int idAsesor);
+        ActividadAgendaMarcadorDTO? ObtenerActividadWavix(int idAsesor);
+        ActividadAgendaMarcadorATCDTO? ObtenerActividadWavixATC(int idAsesor);
         ActividadMarcadorLogDTO GuardarActividadMarcador(ActividadMarcadorLogDTO dto, string usuario);
         ActividadMarcadorLogDTO ObtenerPorIdActividadDetalleIdOportunidad(int idActividadDetalle, int idOportunidad);
         ActividadMarcadorLogDTO GuardarNoContestadoMarcador(ActividadMarcadorLogDTO dto, string usuario);
