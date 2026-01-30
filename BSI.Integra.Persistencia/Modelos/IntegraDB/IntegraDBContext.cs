@@ -407,6 +407,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TGestionContacto> TGestionContactos { get; set; } = null!;
         public virtual DbSet<TGestionContactoLog> TGestionContactoLogs { get; set; } = null!;
         public virtual DbSet<TGestionDocenteActividadCabecera> TGestionDocenteActividadCabeceras { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteActividadCabeceraFlujo> TGestionDocenteActividadCabeceraFlujos { get; set; } = null!;
         public virtual DbSet<TGestionDocenteActividadDetalle> TGestionDocenteActividadDetalles { get; set; } = null!;
         public virtual DbSet<TGestionDocenteActividadDetalleTipo> TGestionDocenteActividadDetalleTipos { get; set; } = null!;
         public virtual DbSet<TGestionDocenteCategoriaGeneralTiempo> TGestionDocenteCategoriaGeneralTiempos { get; set; } = null!;
@@ -12284,8 +12285,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsUnicode(false)
                     .HasComment("Descripción del criterio.");
 
-                entity.Property(e => e.Estado).HasComment("Campo de auditoria Estado (eliminacion logica) del registro")
-                    .HasDefaultValue(1);
+                entity.Property(e => e.Estado).HasComment("Campo de auditoria Estado (eliminacion logica) del registro");
 
                 entity.Property(e => e.FechaCreacion)
                     .HasColumnType("datetime")
@@ -24839,6 +24839,56 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasForeignKey(d => d.IdGestionDocenteFlujo);
             });
 
+            modelBuilder.Entity<TGestionDocenteActividadCabeceraFlujo>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteActividadCabeceraFlujo", "pla");
+
+                entity.HasComment("Tabla relacional que vincula flujos con actividades cabecera");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la relación");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificación del registro");
+
+                entity.Property(e => e.IdGestionDocenteActividadCabecera).HasComment("Llave foránea a la tabla T_GestionDocenteActividadCabecera");
+
+                entity.Property(e => e.IdGestionDocenteFlujo).HasComment("Llave foránea a la tabla T_GestionDocenteFlujo");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Versión de fila para control de concurrencia");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro");
+
+                entity.HasOne(d => d.IdGestionDocenteActividadCabeceraNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadCabeceraFlujos)
+                    .HasForeignKey(d => d.IdGestionDocenteActividadCabecera)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteActividadCabeceraFlujo_T_GestionDocenteActividadCabecera");
+
+                entity.HasOne(d => d.IdGestionDocenteFlujoNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadCabeceraFlujos)
+                    .HasForeignKey(d => d.IdGestionDocenteFlujo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteActividadCabeceraFlujo_T_GestionDocenteFlujo");
+            });
+
             modelBuilder.Entity<TGestionDocenteActividadDetalle>(entity =>
             {
                 entity.ToTable("T_GestionDocenteActividadDetalle", "pla");
@@ -24847,10 +24897,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.Id).HasComment("Identificador único de la actividad detalle");
 
-                entity.Property(e => e.Estado)
-                    .HasMaxLength(50)
-                    .IsUnicode(false)
-                    .HasComment("Estado de la actividad (PENDIENTE, EJECUTADO, MARCADO, CANCELADO)");
+                entity.Property(e => e.Estado).HasComment("Estado de la actividad (PENDIENTE, EJECUTADO, MARCADO, CANCELADO)");
 
                 entity.Property(e => e.FechaCreacion)
                     .HasColumnType("datetime")
@@ -27981,8 +28028,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsUnicode(false)
                     .HasComment("Descripción del lineamiento.");
 
-                entity.Property(e => e.Estado).HasComment("Campo de auditoria Estado (eliminacion logica) del registro")
-                    .HasDefaultValue(1);
+                entity.Property(e => e.Estado).HasComment("Campo de auditoria Estado (eliminacion logica) del registro");
 
                 entity.Property(e => e.FechaCreacion)
                     .HasColumnType("datetime")
@@ -59076,8 +59122,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.Id).HasComment("Clave primaria del registro de relación.");
 
-                entity.Property(e => e.Estado).HasComment("Campo de auditoría Estado (eliminación lógica) del registro.")
-                    .HasDefaultValue(1);
+                entity.Property(e => e.Estado).HasComment("Campo de auditoría Estado (eliminación lógica) del registro.");
 
                 entity.Property(e => e.FechaCreacion)
                     .HasColumnType("datetime")
@@ -59129,8 +59174,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.Id).HasComment("Clave primaria de la transición entre fases.");
 
-                entity.Property(e => e.Estado).HasComment("Campo de auditoría Estado (eliminación lógica) del registro.")
-                    .HasDefaultValue(1);
+                entity.Property(e => e.Estado).HasComment("Campo de auditoría Estado (eliminación lógica) del registro.");
 
                 entity.Property(e => e.FechaCreacion)
                     .HasColumnType("datetime")
