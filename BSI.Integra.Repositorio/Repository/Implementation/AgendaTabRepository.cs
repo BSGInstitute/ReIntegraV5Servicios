@@ -769,13 +769,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 //    : (DateTime?)null;
 
                 // 2. Llamar al SP de SolicitudAlumno
-                List<SolicitudAlumnoFiltradaDTO> todasLasSolicitudes = new();
+                List<SolicitudAlumnoFiltradaAgendaDTO> todasLasSolicitudes = new();
                 var resultado = _dapperRepository.QuerySPDapper("ope.SP_ObtenerSolicitudAlumnoPorAsesor",
                     new { IdPersonal = idPersonalRevision});
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
-                    todasLasSolicitudes = JsonConvert.DeserializeObject<List<SolicitudAlumnoFiltradaDTO>>(resultado);
+                    todasLasSolicitudes = JsonConvert.DeserializeObject<List<SolicitudAlumnoFiltradaAgendaDTO>>(resultado);
                 }
 
                 // 3. Filtrar y agrupar solicitudes
@@ -804,7 +804,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Mapea un objeto SolicitudAlumnoFiltradaDTO a ActividadAgendaDTO
         /// </summary>
-        private ActividadAgendaDTO MapearSolicitudAActividad(SolicitudAlumnoFiltradaDTO solicitud, string tipoSolicitud)
+        private ActividadAgendaDTO MapearSolicitudAActividad(SolicitudAlumnoFiltradaAgendaDTO solicitud, string tipoSolicitud)
         {
             return new ActividadAgendaDTO
             {

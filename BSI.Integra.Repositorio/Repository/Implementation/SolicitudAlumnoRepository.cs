@@ -1001,7 +1001,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var estadosResueltos = new List<int> { 7, 8 };
 
                 var respuesta = new RespuestaSolicitudesAlumnoDTO();
-                List<SolicitudAlumnoFiltradaDTO> todasLasSolicitudes = new List<SolicitudAlumnoFiltradaDTO>();
+                List<SolicitudAlumnoFiltradaAgendaDTO> todasLasSolicitudes = new List<SolicitudAlumnoFiltradaAgendaDTO>();
                 FiltroSolicitudAlumnoPorAsesorReporteDTO filtroFinal = new FiltroSolicitudAlumnoPorAsesorReporteDTO();
 
                 if (FiltroSolicitud.FechaInicio != null)
@@ -1017,7 +1017,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var resultado = _dapperRepository.QuerySPDapper("ope.SP_ObtenerSolicitudAlumnoPorAsesor", new { filtroFinal.IdPersonalRevision, filtroFinal.IdEstadoSolicitud, filtroFinal.FechaInicio, filtroFinal.FechaFin });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
-                    todasLasSolicitudes = JsonConvert.DeserializeObject<List<SolicitudAlumnoFiltradaDTO>>(resultado);
+                    todasLasSolicitudes = JsonConvert.DeserializeObject<List<SolicitudAlumnoFiltradaAgendaDTO>>(resultado);
                 }
 
                 // Solicitudes Derivadas: NO resueltas y área de solución = Atención al Cliente (3)
