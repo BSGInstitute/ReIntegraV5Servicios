@@ -1337,11 +1337,202 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         /// <param name="idOportunidad"></param>
         /// <param name="idPadre"></param>
         /// <returns></returns>
-        public List<ReporteSeguimientoNWActividadAlternoATCDTO> ObtenerOportunidadesLogPorAlumnoATC(int idAlumno, int idOportunidad, int idPadre)
+        public ReporteSeguimientoNWActividadAlternoOperacionesDTO ObtenerOportunidadesLogPorAlumnoATC(int idAlumno, int idOportunidad, int idPadre, int pageNumber, int pageSize)
         {
             try
             {
-                var seguimientoDetalle =ObtenerReporteSeguimientoDetallePorIdOportunidadATC(idAlumno, idOportunidad, idPadre);
+                var seguimientoDetalle = ObtenerReporteSeguimientoDetallePorIdOportunidadATC(idAlumno, idOportunidad, idPadre, pageNumber, pageSize);
+                List<ReporteActividadOcurrenciaDTO> listaActividades = _unitOfWork.ReportesRepository.ReporteActividadOcurrenciaPorIdAlumno(idAlumno);
+                List<ObtenerSeguimientoPagosAlumnoComentarioDTO> listaComentarios = _unitOfWork.OportunidadRepository.ObtenerComentariosOperacionesPagosAcademicos(idOportunidad);
+
+                var reporteActividades = new List<ReporteSeguimientoNWActividadAlternoATCDTO>();
+                seguimientoDetalle.Items.ForEach(s =>
+                {
+                    var item = new ReporteSeguimientoNWActividadAlternoATCDTO()
+                    {
+                        IdActividadDetalle = s.IdActividadDetalle,
+                        FaseInicio = s.FaseInicio,
+                        FaseDestino = s.FaseDestino,
+                        FechaModificacion = s.FechaModificacion,
+                        FechaSiguienteLlamada = s.FechaSiguienteLlamada,
+                        NombreActividad = s.NombreActividad,
+                        NombreOcurrencia = s.NombreOcurrencia,
+                        ComentarioActividad = s.ComentarioActividad,
+                        ComentarioAcademico = string.Join("", (listaComentarios.Where(comentario => comentario.Fecha.Value.Date == s.FechaModificacion.Value.Date).Select(comentario => comentario.ComentariosTipoAcademico))),
+                        ComentarioPago = string.Join("", (listaComentarios.Where(comentario => comentario.Fecha.Value.Date == s.FechaModificacion.Value.Date).Select(comentario => comentario.ComentariosTipoPago))),
+                        OtroMedio = s.OtroMedio,
+                        EstadoSeguimientoWhatsApp = s.EstadoSeguimientoWhatsApp,
+                        TotalEjecutadas = listaActividades
+                            .Where(x => x.IdEstadoOcurrencia == ValorEstatico.IdEstadoOcurrenciaEjecutado
+                                && x.IdFaseActual == s.IdFaseOportunidadInicial
+                                && x.FechaReal < s.FechaModificacion!.Value).Count(),
+                        TotalNoEjecutadas = listaActividades
+                            .Where(x => x.IdEstadoOcurrencia == ValorEstatico.IdEstadoOcurrenciaNoEjecutado
+                                && x.IdFaseActual == s.IdFaseOportunidadInicial
+                                && x.FechaReal < s.FechaModificacion!.Value).Count(),
+                        TotalAsignacionManual = listaActividades
+                            .Where(x => x.IdEstadoOcurrencia == ValorEstatico.IdEstadoOcurrenciaAsignacionManual
+                                && x.IdFaseActual == s.IdFaseOportunidadInicial
+                                && x.FechaReal < s.FechaModificacion!.Value).Count(),
+                        EstadoFase = ObtenerEstadoFaseOportunidadLog(
+                                new EstadoFaseOportunidadLogDTO()
+                                {
+                                    IdFaseOportunidad = s.IdFaseOportunidad,
+                                    IdFaseOportunidadIC = s.IdFaseOportunidadIC,
+                                    IdFaseOportunidadIP = s.IdFaseOportunidadIP,
+                                    IdFaseOportunidadPF = s.IdFaseOportunidadPF
+                                }
+                            ),
+                        Estado = ObtenerEstadoActividadOportunidadLog(s.IdEstadoOcurrencia, s.IdOcurrencia),
+                        FechaEnvio = s.IdFaseOportunidad == FaseOportunidad.PF ? s.FechaEnvioFaseOportunidadPF : null,
+                        FechaPago = s.IdFaseOportunidad == FaseOportunidad.IC || s.IdFaseOportunidad == FaseOportunidad.PF ?
+                            s.FechaPagoFaseOportunidadPF ?? s.FechaPagoFaseOportunidadIC : null,
+                    };
+                    item.LlamadasIntegra3cx = s.Llamadas.OrderBy(p => p.FechaInicioLlamada).ToList();
+                    reporteActividades.Add(item);
+                });
+
+                if (pageNumber == 1)
+                {
+                    var codigoFase = _unitOfWork.ReportesRepository.ObtenerOportunidadCodigoFaseporIdAlumno(idAlumno, idOportunidad);
+                    var actividadProgramada = new ReporteSeguimientoNWActividadAlternoATCDTO()
+                    {
+                        FaseInicio = codigoFase.FaseInicio,
+                        FechaSiguienteLlamada = codigoFase.FechaSiguienteLlamada,
+                        Estado = "NO EJECUTADO",
+                        TotalEjecutadas = listaActividades
+                                .Where(x => x.IdEstadoOcurrencia == ValorEstatico.IdEstadoOcurrenciaEjecutado
+                                    && x.IdFaseActual == codigoFase.IdFaseOportunidad).Count(),
+                        TotalNoEjecutadas = listaActividades
+                                .Where(x => x.IdEstadoOcurrencia == ValorEstatico.IdEstadoOcurrenciaNoEjecutado
+                                    && x.IdFaseActual == codigoFase.IdFaseOportunidad).Count(),
+                        TotalAsignacionManual = listaActividades
+                                .Where(x => x.IdEstadoOcurrencia == ValorEstatico.IdEstadoOcurrenciaAsignacionManual
+                                    && x.IdFaseActual == codigoFase.IdFaseOportunidad).Count(),
+                    };
+                    reporteActividades.Add(actividadProgramada);
+                }
+
+                return new ReporteSeguimientoNWActividadAlternoOperacionesDTO
+                {
+                    Items = reporteActividades,
+                    TotalActividades = seguimientoDetalle.TotalActividades
+                };
+            }
+            catch (Exception Ex)
+            {
+                throw new Exception(Ex.Message);
+            }
+        }
+        /// Autor: Erick Marcelo Quispe.
+        /// Fecha: 30/07/2022
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el Historial de Comentarios asociado a una Oportunidad.
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <returns> List<OportunidadLogHistorialComentariosDTO> </returns>
+        public OportunidadLogReporteSeguimientoDetalleOperacionesDTO ObtenerReporteSeguimientoDetallePorIdOportunidadATC(int idAlumno, int idOportunidad, int idPadre, int pageNumber, int pageSize)
+        {
+            try
+            {
+                var oportunidad = _unitOfWork.OportunidadRepository.ObtenerPorId(idOportunidad);
+                var diferenciaHoraria = _unitOfWork.PersonalRepository.ObtenerDiferenciaHoraria(oportunidad.IdPersonalAsignado == null ? 0 : oportunidad.IdPersonalAsignado.Value);
+                var logSeguimientoNW = _unitOfWork.ReportesRepository.ObtenerOportunidadLogReporteSeguimientoV5ATC(idAlumno, idOportunidad, idPadre, diferenciaHoraria == null ? 0 : (diferenciaHoraria.Valor == null ? 0 : diferenciaHoraria.Valor.Value), pageNumber, pageSize);
+                var seguimientoNWDetalle = (
+                    from p in logSeguimientoNW.Items
+                    group p by new
+                    {
+                        p.IdActividadDetalle,
+                        p.FaseInicio,
+                        p.FaseDestino,
+                        p.FechaModificacion,
+                        p.FechaSiguienteLlamada,
+                        p.IdFaseOportunidad,
+                        p.IdFaseOportunidadIP,
+                        p.IdFaseOportunidadPF,
+                        p.IdFaseOportunidadIC,
+                        p.FechaEnvioFaseOportunidadPF,
+                        p.FechaPagoFaseOportunidadPF,
+                        p.FechaPagoFaseOportunidadIC,
+                        p.IdOcurrencia,
+                        p.IdEstadoOcurrencia,
+                        p.IdOportunidadLog,
+                        p.NombreActividad,
+                        p.NombreOcurrencia,
+                        p.ComentarioActividad,
+                        p.IdFaseOportunidadInicial,
+                        p.EstadoSeguimientoWhatsApp,
+                        p.OtroMedio
+                    } into g
+                    select new OportunidadLogReporteSeguimientoDetalleATCDTO
+                    {
+                        IdActividadDetalle = g.Key.IdActividadDetalle,
+                        FaseInicio = g.Key.FaseInicio,
+                        FaseDestino = g.Key.FaseDestino,
+                        FechaModificacion = g.Key.FechaModificacion,
+                        FechaSiguienteLlamada = g.Key.FechaSiguienteLlamada,
+                        IdFaseOportunidad = g.Key.IdFaseOportunidad,
+                        IdFaseOportunidadIP = g.Key.IdFaseOportunidadIP,
+                        IdFaseOportunidadPF = g.Key.IdFaseOportunidadPF,
+                        IdFaseOportunidadIC = g.Key.IdFaseOportunidadIC,
+                        FechaEnvioFaseOportunidadPF = g.Key.FechaEnvioFaseOportunidadPF,
+                        FechaPagoFaseOportunidadPF = g.Key.FechaPagoFaseOportunidadPF,
+                        FechaPagoFaseOportunidadIC = g.Key.FechaPagoFaseOportunidadIC,
+                        IdOcurrencia = g.Key.IdOcurrencia,
+                        IdEstadoOcurrencia = g.Key.IdEstadoOcurrencia,
+                        IdOportunidadLog = g.Key.IdOportunidadLog,
+                        NombreActividad = g.Key.NombreActividad,
+                        NombreOcurrencia = g.Key.NombreOcurrencia,
+                        ComentarioActividad = g.Key.ComentarioActividad,
+                        IdFaseOportunidadInicial = g.Key.IdFaseOportunidadInicial,
+                        OtroMedio = g.Key.OtroMedio,
+                        EstadoSeguimientoWhatsApp = g.Key.EstadoSeguimientoWhatsApp,
+                        Llamadas = g.Select(o => new LlamadaIntegra3cxDTO
+                        {
+                            Id = o.IdRegistroLlamada,
+                            DuracionTimbrado = o.DuracionTimbrado,
+                            DuracionContesto = o.DuracionContesto,
+                            DuracionTimbradoMinutos = ((double)(o.DuracionTimbrado.GetValueOrDefault()) / 60).ToString("0.0") + " m",
+                            DuracionContestoMinutos = ((double)(o.DuracionContesto.GetValueOrDefault()) / 60).ToString("0.0") + " m",
+                            FechaInicioLlamada = o.FechaInicioLlamada,
+                            FechaFinLlamada = o.FechaFinLlamada,
+                            EstadoLlamada = o.EstadoLlamada,
+                            SubEstadoLlamada = o.SubEstadoLlamada,
+                            UrlGrabacion = o.UrlGrabacion,
+                            NombreGrabacion = o.UrlGrabacion,
+                            Webphone = o.WebphoneGrabacion,
+                            OrigenLlamada = o.OrigenLlamada
+                        }).GroupBy(i => i.Id).Select(i => i.First()).ToList().Where(i => i.Id != null).ToList()
+                    }
+                ).ToList();
+
+                return new OportunidadLogReporteSeguimientoDetalleOperacionesDTO
+                {
+                    Items = seguimientoNWDetalle,
+                    TotalActividades = logSeguimientoNW.TotalActividades
+                };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        /// Autor: Jonathan Caipo
+        /// Fecha: 16/11/2022
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene Oportunidades Log por alumno mediante idAlumno, idOportunidad, idPadre
+        /// </summary>
+        /// <param name="idAlumno"></param>
+        /// <param name="idOportunidad"></param>
+        /// <param name="idPadre"></param>
+        /// <returns></returns>
+        public List<ReporteSeguimientoNWActividadAlternoATCDTO> ObtenerOportunidadesLogPorAlumnoOperaciones(int idAlumno, int idOportunidad, int idPadre,int numberPage,int pageSize)
+        {
+            try
+            {
+                var seguimientoDetalle = ObtenerReporteSeguimientoDetalleOportunidadATC(idAlumno, idOportunidad, idPadre,numberPage,pageSize);
                 List<ReporteActividadOcurrenciaDTO> listaActividades = _unitOfWork.ReportesRepository.ReporteActividadOcurrenciaPorIdAlumno(idAlumno);
                 List<ObtenerSeguimientoPagosAlumnoComentarioDTO> listaComentarios = _unitOfWork.OportunidadRepository.ObtenerComentariosOperacionesPagosAcademicos(idOportunidad);
 
@@ -1418,21 +1609,21 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw new Exception(Ex.Message);
             }
         }
-        /// Autor: Erick Marcelo Quispe.
-        /// Fecha: 30/07/2022
+        /// Autor: Joseph Llanque
+        /// Fecha: 30/07/2025
         /// Version: 1.0
         /// <summary>
         /// Obtiene el Historial de Comentarios asociado a una Oportunidad.
         /// </summary>
         /// <param name="idOportunidad">Id de la Oportunidad</param>
         /// <returns> List<OportunidadLogHistorialComentariosDTO> </returns>
-        public List<OportunidadLogReporteSeguimientoDetalleATCDTO> ObtenerReporteSeguimientoDetallePorIdOportunidadATC(int idAlumno,int idOportunidad,int idPadre)
+        public List<OportunidadLogReporteSeguimientoDetalleATCDTO> ObtenerReporteSeguimientoDetalleOportunidadATC(int idAlumno, int idOportunidad, int idPadre,int numberPage,int pageSize)
         {
             try
             {
                 var oportunidad = _unitOfWork.OportunidadRepository.ObtenerPorId(idOportunidad);
                 var diferenciaHoraria = _unitOfWork.PersonalRepository.ObtenerDiferenciaHoraria(oportunidad.IdPersonalAsignado == null ? 0 : oportunidad.IdPersonalAsignado.Value);
-                var logSeguimientoNW = _unitOfWork.ReportesRepository.ObtenerOportunidadLogReporteSeguimientoV5ATC(idAlumno,idOportunidad, idPadre, diferenciaHoraria == null ? 0 : (diferenciaHoraria.Valor == null ? 0 : diferenciaHoraria.Valor.Value));
+                var logSeguimientoNW = _unitOfWork.ReportesRepository.ObtenerOportunidadLogReporteSeguimientoV5Operaciones(idAlumno, idOportunidad, idPadre, diferenciaHoraria == null ? 0 : (diferenciaHoraria.Valor == null ? 0 : diferenciaHoraria.Valor.Value), numberPage,pageSize);
                 var seguimientoNWDetalle = (
                     from p in logSeguimientoNW
                     group p by new

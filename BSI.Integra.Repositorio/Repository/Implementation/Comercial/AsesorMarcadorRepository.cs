@@ -183,6 +183,27 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 throw ex;
             }
         }
+        public AsesorMarcadorDTO? ObtenerPorIdPersonal(int idPersonal)
+        {
+            try
+            {
+                var query = @"
+                    SELECT top 1
+	                   Id,IdPersonal,MarcadorActivo
+                    FROM com.T_AsesorMarcador
+                    WHERE IdPersonal=@idPersonal AND estado=1";
+                var resultado = _dapperRepository.FirstOrDefault(query, new { idPersonal });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<AsesorMarcadorDTO>(resultado)!;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#FR-OPI-001@Error en ObtenerPorId(), {ex.Message}");
+            }
+        }
 
         public AsesorMarcador? ObtenerPorId(int id)
         {

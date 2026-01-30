@@ -1,4 +1,5 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using System;
@@ -26,5 +27,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<ProblemaAgendaRow> ObtenerProblemasClienteAgendaV6(int idPGeneral, int idOportundad);
         IEnumerable<ProblemaClienteByPGeneral> ObtenerProblemaCliente(int idPGeneral);
         Task<IEnumerable<ProblemaClienteByPGeneral>> ObtenerProblemaClienteAsync(int idPGeneral);
+        Task<IEnumerable<RespuestaHistoricaDTO>> ObtenerHistorialRespuestasAsync(int idPGeneral,int? idAlumno);
     }
 }

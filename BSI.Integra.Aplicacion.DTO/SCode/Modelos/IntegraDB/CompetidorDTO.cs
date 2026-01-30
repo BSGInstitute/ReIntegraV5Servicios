@@ -41,4 +41,43 @@
         public string? ContenidoCompetidorVentajaDesventaja { get; set; }
         public int? TipoCompetidorVentajaDesventaja { get; set; }
     }
+
+    public class CargarInformacionCompetidoresRespuestaDTO
+    {
+        public int IdOportunidad { get; set; }
+        public List<Competidorv2DTO> Competidores { get; set; }
+        public string Error { get; set; }
+    }
+
+    public class Competidorv2DTO
+    {
+        public int Id { get; set; }
+        public int IdOportunidad { get; set; }
+        public string Nombre { get; set; }
+        public string DuracionCronologica { get; set; }
+        public decimal? CostoNeto { get; set; }
+        public decimal? Precio { get; set; }
+        public string Categoria { get; set; }
+        public string Empresa { get; set; }
+        public string RegionCiudad { get; set; }
+        public string Moneda { get; set; }
+        public List<string> ContenidosCompetidor { get; set; }
+    }
+
+    public class CompetidorRawDTO
+    {
+        public int Id { get; set; }
+        public int IdOportunidad { get; set; }
+        public string Nombre { get; set; }
+        public string DuracionCronologica { get; set; }
+        public decimal? CostoNeto { get; set; }
+        public decimal? Precio { get; set; }
+        public string Categoria { get; set; }
+        public string Empresa { get; set; }
+        public string RegionCiudad { get; set; }
+        public string Moneda { get; set; }
+        public int? IdCompetidorVentajaDesventaja { get; set; }
+        public string ContenidoCompetidorVentajaDesventaja { get; set; }
+        public int? TipoCompetidorVentajaDesventaja { get; set; }
+    }
 }

@@ -56,4 +56,12 @@
         public int? IdVersion { get; set; }
         public string? Nombre { get; set; }
     }
+    public class LongDTO
+    {
+        public long Valor { get; set; }
+    }
+    public class LongTotalDTO
+    {
+        public long Total { get; set; }
+    }
 }

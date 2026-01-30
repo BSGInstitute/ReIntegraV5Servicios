@@ -195,6 +195,125 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
             return listaPEspecifico;
         }
+
+        /// Autor: Erick Marcelo Quispe.
+        /// Fecha: 10/08/2022
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene en un objeto las fechas de las modalidades según la lógica del portal
+        /// </summary>
+        /// <param name="idPGeneral"> Id de Programa General </param>
+        /// <returns> List<ValorStringDTO> </returns>
+        public async Task<List<PEspecificoPorIdPGeneral>> ObtenerFechaInicioProgramaTodosAsync(int idPGeneral)
+        {
+            // Obtener los programas específicos
+            var pEspecificos = await _unitOfWork.PEspecificoRepository.ObtenerPorIdPGeneralAsync(idPGeneral);
+
+            if (pEspecificos == null || !pEspecificos.Any())
+                return null;
+
+            int IdCategoria = pEspecificos.Select(w => w.IdCategoria).FirstOrDefault();
+            List<int> idsPEspecificos = pEspecificos.Select(x => x.Id).ToList();
+            List<PEspecificoSesionFechaHoraInicioDTO> fechasHoraInicioSesion = new();
+
+            var pEspecificoSesionService = new PEspecificoSesionService(_unitOfWork);
+
+            if (IdCategoria == CategoriaPrograma.CURSOS
+                || IdCategoria == CategoriaPrograma.BOOTCAMP
+                || IdCategoria == CategoriaPrograma.CARRERA_PROFESIONAL)
+            {
+                fechasHoraInicioSesion = await pEspecificoSesionService.ObtenerFechaHoraInicioSesionPorIdPEspecificoAsync(idsPEspecificos, 2);
+            }
+            else if (IdCategoria == CategoriaPrograma.PROGRAMAS)
+            {
+                fechasHoraInicioSesion = await pEspecificoSesionService.ObtenerFechaHoraInicioSesionPorIdPEspecificoAsync(idsPEspecificos, 1);
+            }
+
+            List<PEspecificoPorIdPGeneral> listaPrevioPEspecifico = new();
+
+            foreach (var item in pEspecificos)
+            {
+                if (item.Tipo.ToLower() == "online asincronica")
+                {
+                    DateTime fechaAOnine = (DateTime.Now.Day < 25) ? DateTime.Now : DateTime.Now.AddDays(8);
+                    item.FechaInicio = fechaAOnine;
+                    item.FechaInicioTexto = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(fechaAOnine.ToString("MMMM yyyy"));
+                }
+                else
+                {
+                    if (item.FechaInicio == null)
+                    {
+                        DateTime? fechaHoraInicio = fechasHoraInicioSesion
+                            .Where(x => x.IdPEspecifico == item.Id && x.FechaHoraInicio.Value > DateTime.Now)
+                            .OrderBy(x => x.FechaHoraInicio)
+                            .Select(x => x.FechaHoraInicio)
+                            .FirstOrDefault();
+
+                        if (fechaHoraInicio != null)
+                        {
+                            item.FechaInicio = fechaHoraInicio.Value;
+                            item.FechaInicioTexto = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(item.FechaInicio.Value.ToString("dd MMMM yyyy"));
+                        }
+                        else
+                            item.FechaInicioTexto = "Por definir";
+                    }
+                    else
+                        item.FechaInicioTexto = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(item.FechaInicio.Value.ToString("dd MMMM yyyy"));
+                }
+                listaPrevioPEspecifico.Add(item);
+            }
+
+            var listaCiudades = (from x in listaPrevioPEspecifico
+                                 group x by new { x.Tipo, x.Ciudad } into gy
+                                 select new
+                                 {
+                                     gy.Key.Tipo,
+                                     gy.Key.Ciudad
+                                 }).ToList();
+
+            List<PEspecificoPorIdPGeneral> listaPEspecifico = new();
+
+            foreach (var item in listaCiudades)
+            {
+                var pEspecificoLanzamientoPorEjecucion = (from x in listaPrevioPEspecifico
+                                                          where (x.EstadoPId == EstadoPespecifico.LANZAMIENTO || x.EstadoPId == EstadoPespecifico.POR_EJECUCION)
+                                                          && x.Tipo == item.Tipo
+                                                          && x.Ciudad == item.Ciudad
+                                                          && x.IdCategoria != CategoriaPrograma.SUBCRIPCIONES
+                                                          && x.FechaInicio != null
+                                                          select x)
+                                                         .OrderBy(x => x.FechaInicio)
+                                                         .Take(3)
+                                                         .ToList();
+
+                if (pEspecificoLanzamientoPorEjecucion != null && pEspecificoLanzamientoPorEjecucion.Count > 0)
+                {
+                    foreach (var item2 in pEspecificoLanzamientoPorEjecucion)
+                        listaPEspecifico.Add(item2);
+                }
+                else
+                {
+                    var pEspecificoCiudad = listaPrevioPEspecifico
+                        .Where(x => x.Tipo == item.Tipo && x.Ciudad == item.Ciudad && x.IdCategoria != CategoriaPrograma.SUBCRIPCIONES)
+                        .OrderBy(x => x.FechaCreacion)
+                        .FirstOrDefault();
+
+                    if (pEspecificoCiudad != null)
+                        listaPEspecifico.Add(pEspecificoCiudad);
+                }
+            }
+
+            listaPEspecifico.AddRange(listaPrevioPEspecifico.Where(x => x.IdCategoria == CategoriaPrograma.SUBCRIPCIONES).ToList());
+
+            listaPEspecifico = listaPEspecifico.Select(c =>
+            {
+                c.FechaInicioTexto = (c.EstadoPId != EstadoPespecifico.LANZAMIENTO && c.EstadoPId != EstadoPespecifico.POR_EJECUCION) ? "Por definir" : c.FechaInicioTexto;
+                return c;
+            }).OrderBy(x => x.FechaInicio).ToList();
+
+            return listaPEspecifico;
+        }
+
         /// Autor: Jonathan Caipo
         /// Fecha: 20/10/2022
         /// Version: 1.0

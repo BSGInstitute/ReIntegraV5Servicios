@@ -27,6 +27,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         List<SeccionEtiquetaDTO> ObtenerSeccionEtiquetaPorIdCentroCosto(int idCentroCosto);
         Task<List<SeccionEtiquetaDTO>> ObtenerSeccionEtiquetaPorIdCentroCostoAsync(int idCentroCosto);
         List<PEspecificoPorIdPGeneral> ObtenerPorIdPGeneral(int idPGeneral);
+        Task<List<PEspecificoPorIdPGeneral>> ObtenerPorIdPGeneralAsync(int idPGeneral);
         FechaInicioProgramaEspecificoDTO FechaProgramaEspecifico(int idProgramaGeneral, int idProgramaEspecifico);
         Task<FechaInicioProgramaEspecificoDTO> FechaProgramaEspecificoAsync(int idProgramaGeneral, int idProgramaEspecifico);
         SeccionEtiquetaDTO? ObtenerContenidoTemplate(Guid IdPlantillaPW, Guid IdSeccionPW, int idCentroCosto);

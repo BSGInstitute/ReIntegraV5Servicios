@@ -55,8 +55,32 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
                 whatsAppMensajesService.ActualizarEstadoMarcador(item);
             }
             catch (Exception ex) { return Ok(respuesta); }
+
             return Ok(respuesta);
         }
+
+        [HttpPut("[action]")]
+        public IActionResult ActualizarAgenda([FromBody] AsesorMarcadorDTO dto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var item = _asesorMarcadorService.ObtenerPorIdPersonal(dto.IdPersonal);
+                dto.Id = item.Id;
+                var respuesta = _asesorMarcadorService.Actualizar(dto, _tokenManager.UserName);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         [HttpDelete("[action]/{id}")]
         public IActionResult Eliminar(int id)
         {
