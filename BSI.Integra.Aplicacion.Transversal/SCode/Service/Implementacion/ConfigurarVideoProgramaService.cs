@@ -1572,7 +1572,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         {
             try
             {
-                var urlBase = "http://ia-tutor-virtual-api.bsginstitute.com/testing/api/procesamiento/asincrono/batch";
+                var urlBase = "http://ia-tutor-virtual-api.bsginstitute.com/api/procesamiento/asincrono/batch";
 
                 var requestBody = new ProcesamientoVideosAonlineRequestDTO
                 {

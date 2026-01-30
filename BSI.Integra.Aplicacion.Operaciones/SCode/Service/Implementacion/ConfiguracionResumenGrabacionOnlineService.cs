@@ -132,16 +132,8 @@ namespace BSI.Integra.Aplicacion.Operaciones.Service.Implementacion
         {
             try
             {
-                //var idResumenExistente = ConsultaRegistroResumenPordPEspecificoSesion(datos.IdPEspecificoSesion)?.FirstOrDefault()?.Id ?? 0;
-
-                //if (idResumenExistente != 0) //Elimina registro de tablas T_ProcesamientoSesionOnline y sus outputs en T_ProcesamientoTipoGenerar por Id
-                //{
-                //    EliminaProcesamientoSesionOnlinePorIdPEspecificoSesion(idResumenExistente, datos.Usuario);
-                //    EliminaPProcesamientoTipoGenerarPorIdPEspecificoSesion(idResumenExistente, datos.Usuario);
-                //}
-
                 datos.UrlVideo = ConstruirUrlVimeo(datos.UrlVideo);
-                var urlBase = "http://ia-proceso-resumen-sesiones-api.bsginstitute.com/testing/api/v1/workflow/batch";
+                var urlBase = "http://ia-proceso-resumen-sesiones-api.bsginstitute.com/api/v1/workflow/batch";
                 var proceso = new List<IniciarProcesoResumenGrabacionesDTO>
                 {
                     new IniciarProcesoResumenGrabacionesDTO

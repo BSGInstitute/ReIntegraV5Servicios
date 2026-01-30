@@ -11,6 +11,7 @@ using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Implementation;
 using BSI.Integra.Repositorio.UnitOfWork;
+using DocumentFormat.OpenXml.Vml;
 using System.Linq;
 using System.Transactions;
 using static BSI.Integra.Aplicacion.Base.Enums.Enums;
@@ -3286,6 +3287,20 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 _unitOfWork.PGeneralRepository.Update(pgeneral);
                 _unitOfWork.Commit();
 
+                bool esPadre = _unitOfWork.PGeneralRepository.ProgramaGeneralPadre(pgeneral.Id);
+
+                if (esPadre)
+                {
+                    var cursosHijo = _unitOfWork.PGeneralRepository.ListaCursosHijoPorIdPGeneral(pgeneral.Id);
+                    foreach(var curso in cursosHijo)
+                    {
+                        PGeneral pgeneralHijo = _unitOfWork.PGeneralRepository.ObtenerPorId(curso.IdHijo);
+                        pgeneralHijo.TutorVirtualActivo = programaGeneralDTO.PGeneral.TutorVirtualActivo;
+                        _unitOfWork.PGeneralRepository.Update(pgeneralHijo);
+                        _unitOfWork.Commit();
+                    }
+
+                }
                 PgeneralCriterioEvaluacionHijo pgeneralcriterioevaluacion = new PgeneralCriterioEvaluacionHijo();
 
                 var criterioEvaluacionHijo = _unitOfWork.PgeneralCriterioEvaluacionHijoRepository.ObtenerModalidadesPorIdPGeneral(programaGeneralDTO.PGeneral.IdPgeneral.Value).ToList();//Aqui estamos recuperando que modalidades tiene el curso en la tabla de hijos

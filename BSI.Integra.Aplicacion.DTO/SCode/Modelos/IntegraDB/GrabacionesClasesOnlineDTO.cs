@@ -61,10 +61,13 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public string FechaFin { get; set; }
         public string Habilitado { get; set; }
         public string EstadoResumen { get; set; }
+        public string FechaFinalizacionResumen { get; set; }
         public string FechaCreacionProcesamientoTipoGenerar { get; set; }
         public int? PorcentajeFidelidad { get; set; }
         public bool ResumenClaseActivo { get; set; }
         public bool TutorVirtualActivo { get; set; }
+        public string EstadoTutor { get; set; }
+        public string FechaFinalizacionTutor { get; set; }
     }
 
     public class SesionesClasesOnlineDetalleResumenDTO
