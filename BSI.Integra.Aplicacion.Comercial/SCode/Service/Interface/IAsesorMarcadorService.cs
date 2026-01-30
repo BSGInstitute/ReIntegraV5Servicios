@@ -12,6 +12,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
     {
 
         IEnumerable<AsesorMarcadorDTO> Obtener();
+        AsesorMarcadorDTO ObtenerPorIdPersonal(int idPersonal);
         AsesorMarcadorDTO Actualizar(AsesorMarcadorDTO dto, string usuario);
         bool Eliminar(int id, string usuario);
         List<ReporteFinalMarcadorDTO> ObtenerReporteAsesorMarcadorAutomatico(FiltroReporteAsesorMarcadorDTO filtro);

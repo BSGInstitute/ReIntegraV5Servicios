@@ -30,6 +30,10 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         {
             return _unitOfWork.AsesorMarcadorRepository.Obtener();
         }
+        public AsesorMarcadorDTO ObtenerPorIdPersonal(int idPersonal)
+        {
+            return _unitOfWork.AsesorMarcadorRepository.ObtenerPorIdPersonal(idPersonal);
+        }
         public AsesorMarcadorDTO Actualizar(AsesorMarcadorDTO dto, string usuario)
         {
             try

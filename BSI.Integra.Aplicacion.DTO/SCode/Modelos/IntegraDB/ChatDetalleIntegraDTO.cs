@@ -290,6 +290,4 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public bool EsProblemaIdentificado { get; set; }
         public DateTime FechaCreacion { get; set; }
     }
-
-
 }

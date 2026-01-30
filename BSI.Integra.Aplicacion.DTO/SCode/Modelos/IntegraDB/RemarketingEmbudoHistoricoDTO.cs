@@ -26,7 +26,6 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public DateTime? FechaCambioOportunidad { get; set; }
         public DateTime? FechaRegistroEnvioWhatsapp { get; set; }
         public int IdCentroCosto { get; set; }
-        public string UltimoEnvio { get; set; }
         public string Correo { get; set; }
         public DateTime? UltimaInteraccionProgresivo { get; set; }
     }

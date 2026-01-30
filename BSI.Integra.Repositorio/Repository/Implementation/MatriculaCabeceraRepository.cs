@@ -1591,7 +1591,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                             }
                             else if (idPlantillaBase == 8)
                             {
-                                htmlFinal += $@"Nro. cuota {item.NroCuota} de {cantidadMaximaCuotas}\nFecha de vencimiento: {item.FechaVencimiento.ToString("dd/MM/yyyy")}\nMonto ({item.Moneda}): {item.Cuota}\n";
+                                htmlFinal += $@"Nro. cuota {item.NroCuota} de {cantidadMaximaCuotas} Fecha de vencimiento: {item.FechaVencimiento.ToString("dd/MM/yyyy")} Monto ({item.Moneda}): {item.Cuota}";
                                 if (!item.Equals(ultimo))
                                 {
                                     htmlFinal += $@"";

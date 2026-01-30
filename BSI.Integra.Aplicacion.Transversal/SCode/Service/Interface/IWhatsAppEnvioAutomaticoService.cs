@@ -12,6 +12,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         public bool EnvioCorreoMasivosMarketing(string _Subject, string _Message);
         public RespuestaMensajeHookDTO UrlPost(string UrlBase, string jsonStringResult);
         public bool EjecutarCampaniaGeneralEnvioWhatsApp();
+        public Task  EjecutarCampaniaGeneralEnvioWhatsAppAuto();
+
         public Task<bool> EjecutarCampaniaGeneralEnvioWhatsAppAsync();
         public bool EnvioWhatsappChatBot(WhatsAppChatBotDTO datos);
         public ResultadoEjecucionCampaniaDTO EjecutarCampaniaGeneralEnvioWhatsAppBoton();

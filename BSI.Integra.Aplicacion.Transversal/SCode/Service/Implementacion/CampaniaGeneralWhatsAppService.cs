@@ -708,12 +708,12 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
 
 
-            }
+                    }
             catch (Exception ex)
-            {
+                    {
                 throw ex;
             }
-        }
+                    }
         public bool EnvioMensajeArchivoFacebook(WhatsAppMensajeArchivoFacebookDTO json, int idPersonal, string usuario)
         {
             try

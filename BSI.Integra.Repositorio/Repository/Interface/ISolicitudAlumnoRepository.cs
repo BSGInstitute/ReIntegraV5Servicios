@@ -57,5 +57,12 @@ namespace BSI.Integra.Repositorio.Repository.Interface
             string ErrorDescripcion,
             string ErrorException
         ) ObtenerDatosParaSolicitudAlumno(int idAlumno, int idPEspecifico);
+        IEnumerable<SolicitudAlumnoFiltradaDTO> ObtenerSolicitudesPorFiltroAsesor(
+            FiltroSolicitudAlumnoPorAsesorDTO FiltroSolicitud
+        );
+        RespuestaSolicitudesAlumnoDTO ObtenerSolicitudesAgrupadasPorAsesor(
+            FiltroSolicitudAlumnoPorAsesorDTO FiltroSolicitud
+        );
+        bool ActualizarEstadoSolicitud(int idSolicitud);
     }
 }

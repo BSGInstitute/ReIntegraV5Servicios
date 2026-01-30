@@ -1,10 +1,14 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 
 namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
 {
     public interface IInformacionProgramaService
     {
         CargarInformacionProgramaAutomaticoRespuestaDTO CargarInformacionProgramaAutomatico(int idCentroCosto, int codigoPais, int idMatriculaCabecera, int idOportunidad);
+        Task<CargarInformacionProgramaInversionRespuestaDTO> CargarInformacionProgramaInversionAsync(int idPGeneral, int codigoPais);
+        Task<CargarInformacionProgramaPresentacionRespuestaDTO> CargarInformacionProgramaPresentacionAsync(int idPGeneral);
+        Task<CargarInformacionProgramaPublicoObjetivoRespuestaDTO> CargarInformacionProgramaPublicoObjetivoAsync(int idPGeneral);
         CargarInformacionProgramaAutomaticoRespuestaDTO CargarInformacionProgramaAutomaticoSpeech(int idCentroCosto, int codigoPais, int idMatriculaCabecera, int idOportunidad);
         CargarInformacionProgramaRespuestaDTO CargarInformacionPrograma(int idPGeneral, int codigoPais, int idMatriculaCabecera, int idOportunidad);
 

@@ -1,6 +1,6 @@
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
-using BSI.Integra.Persistencia.Modelos.IntegraDB;
+using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Repositorio.UnitOfWork;
 using System;
 using System.Collections.Generic;
@@ -18,90 +18,152 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<int> ProcesarMaestroActividadAsync(MaestroGestionDocenteActividadDTO dto)
+        public async Task<int> InsertarCabeceraAsync(GestionDocenteActividadCabeceraDTO dto)
+        {
+            try
+            {
+                var gestionDocenteActividadCabecera = new GestionDocenteActividadCabecera
+                {
+                    IdGestionDocenteFlujo = dto.IdGestionDocenteFlujo,
+                    Nombre = dto.Nombre,
+                    Descripcion = dto.Descripcion,
+                    IdGestionDocenteEstado = dto.IdGestionDocenteEstado,
+                    IdGestionDocenteCategoria = dto.IdGestionDocenteCategoria,
+                    Estado = true,
+                    UsuarioCreacion = dto.Usuario,
+                    UsuarioModificacion = dto.Usuario,
+                    FechaCreacion = DateTime.Now,
+                    FechaModificacion = DateTime.Now
+                };
+
+                var model = _unitOfWork.GestionDocenteActividadCabeceraRepository.Add(gestionDocenteActividadCabecera);
+                await _unitOfWork.CommitAsync();
+
+                return model.Id;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<int> InsertarDetalleAsync(int idCabecera, GestionDocenteActividadDetalleDTO dto)
         {
             try
             {
                 DateTime fechaActual = DateTime.Now;
 
-                // 1. Cabecera
-                var cabecera = new TGestionDocenteActividadCabecera
+                // 1. Procesar Disparador
+                var gestionDocenteDetalleDisparador = new GestionDocenteDetalleDisparador
                 {
-                    IdGestionDocenteFlujo = dto.Cabecera.IdGestionDocenteFlujo,
-                    Nombre = dto.Cabecera.Nombre,
-                    Descripcion = dto.Cabecera.Descripcion,
-                    IdGestionDocenteEstadoGeneral = dto.Cabecera.IdGestionDocenteEstadoGeneral,
-                    IdGestionDocenteCategoria = dto.Cabecera.IdGestionDocenteCategoria,
+                    IdGestionDocenteTipoDisparadorFlujo = dto.Disparador.IdGestionDocenteTipoDisparadorFlujo,
                     Estado = true,
-                    UsuarioCreacion = dto.Cabecera.Usuario,
-                    UsuarioModificacion = dto.Cabecera.Usuario,
+                    UsuarioCreacion = dto.Usuario,
+                    UsuarioModificacion = dto.Usuario,
+                    FechaCreacion = fechaActual,
+                    FechaModificacion = fechaActual
+                };
+                var disparadorModel = _unitOfWork.GestionDocenteDetalleDisparadorRepository.Add(gestionDocenteDetalleDisparador);
+                await _unitOfWork.CommitAsync();
+
+                // 2. Ocurrencias Previas del Disparador
+                if (dto.Disparador.IdsOcurrenciasPrevias != null)
+                {
+                    foreach (var idOcuPrevia in dto.Disparador.IdsOcurrenciasPrevias)
+                    {
+                        var gestionDocenteDetalleDisparadorOcurrencia = new GestionDocenteDetalleDisparadorOcurrencia
+                        {
+                            IdGestionDocenteDetalleDisparador = disparadorModel.Id,
+                            IdGestionDocenteOcurrenciaPrevia = idOcuPrevia,
+                            Estado = true,
+                            UsuarioCreacion = dto.Usuario,
+                            UsuarioModificacion = dto.Usuario,
+                            FechaCreacion = fechaActual,
+                            FechaModificacion = fechaActual
+                        };
+                        _unitOfWork.GestionDocenteDetalleDisparadorOcurrenciaRepository.Add(gestionDocenteDetalleDisparadorOcurrencia);
+                    }
+                }
+
+                // 3. Crear Detalle
+                var gestionDocenteActividadDetalle = new GestionDocenteActividadDetalle
+                {
+                    IdGestionDocenteActividadCabecera = idCabecera,
+                    IdGestionDocenteTipoActividadDetalle = dto.IdGestionDocenteTipoActividadDetalle,
+                    IdPlantillaMediaComunicacion = dto.IdPlantillaMediaComunicacion,
+                    IdGestionDocenteDetalleDisparador = disparadorModel.Id,
+                    Nombre = dto.Nombre,
+                    EstadoActividad = dto.Estado,
+                    Estado = true,
+                    UsuarioCreacion = dto.Usuario,
+                    UsuarioModificacion = dto.Usuario,
                     FechaCreacion = fechaActual,
                     FechaModificacion = fechaActual
                 };
 
-                _unitOfWork.GestionDocenteActividadCabeceraRepository.Insert(cabecera);
-                await _unitOfWork.CommitAsync(); // Necesario para el ID de cabecera
-
-                // 2. Detalles y Disparadores
-                foreach (var det in dto.Detalles)
-                {
-                    // 2.1 Procesar Disparador primero para obtener su ID
-                    var disparador = new TGestionDocenteDetalleDisparador
-                    {
-                        IdGestionDocenteTipoDisparadorFlujo = det.Disparador.IdGestionDocenteTipoDisparadorFlujo,
-                        Estado = true,
-                        UsuarioCreacion = det.Usuario,
-                        UsuarioModificacion = det.Usuario,
-                        FechaCreacion = fechaActual,
-                        FechaModificacion = fechaActual
-                    };
-                    _unitOfWork.GestionDocenteDetalleDisparadorRepository.Insert(disparador);
-                    await _unitOfWork.CommitAsync();
-
-                    // 2.2 Ocurrencias Previas del Disparador
-                    if (det.Disparador.IdsOcurrenciasPrevias != null)
-                    {
-                        foreach (var idOcuPrevia in det.Disparador.IdsOcurrenciasPrevias)
-                        {
-                            var ocuPrevia = new TGestionDocenteDetalleDisparadorOcurrencia
-                            {
-                                IdGestionDocenteDetalleDisparador = disparador.Id,
-                                IdGestionDocenteOcurrenciaPrevia = idOcuPrevia,
-                                Estado = true,
-                                UsuarioCreacion = det.Usuario,
-                                UsuarioModificacion = det.Usuario,
-                                FechaCreacion = fechaActual,
-                                FechaModificacion = fechaActual
-                            };
-                            _unitOfWork.GestionDocenteDetalleDisparadorOcurrenciaRepository.Insert(ocuPrevia);
-                        }
-                    }
-
-                    // 2.3 Detalle Actividad
-                    var detalle = new TGestionDocenteActividadDetalle
-                    {
-                        IdGestionDocenteActividadCabecera = cabecera.Id,
-                        IdGestionDocenteTipoActividadDetalle = det.IdGestionDocenteTipoActividadDetalle,
-                        IdPlantillaMediaComunicacion = det.IdPlantillaMediaComunicacion,
-                        IdGestionDocenteDetalleDisparador = disparador.Id,
-                        Nombre = det.Nombre,
-                        EstadoActividad = det.Estado,
-                        Estado = true,
-                        UsuarioCreacion = det.Usuario,
-                        UsuarioModificacion = det.Usuario,
-                        FechaCreacion = fechaActual,
-                        FechaModificacion = fechaActual
-                    };
-                    _unitOfWork.GestionDocenteActividadDetalleRepository.Insert(detalle);
-                    await _unitOfWork.CommitAsync();
-
-                    // 3. Ocurrencias (Asociadas a este detalle)
-                    var ocurrenciasDetalle = dto.Ocurrencias.Where(o => o.IdGestionDocenteActividadDetalle == 0);
-                }
-
+                var model = _unitOfWork.GestionDocenteActividadDetalleRepository.Add(gestionDocenteActividadDetalle);
                 await _unitOfWork.CommitAsync();
 
-                return cabecera.Id;
+                return model.Id;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<int> InsertarOcurrenciaAsync(int idDetalle, GestionDocenteOcurrenciaDTO dto)
+        {
+            try
+            {
+                var gestionDocenteOcurrencia = new GestionDocenteOcurrencia
+                {
+                    Nombre = dto.Nombre,
+                    Descripcion = dto.Descripcion,
+                    IdGestionDocenteOcurrenciaTipo = dto.IdGestionDocenteTipoOcurrencia,
+                    IdGestionDocenteActividadDetalle = idDetalle,
+                    IdGestionDocenteModoMarcado = dto.IdGestionDocenteModoMarcado,
+                    RequiereComentario = dto.RequiereComentario,
+                    RequiereFechaHora = dto.RequiereFechaHora,
+                    Estado = true,
+                    UsuarioCreacion = dto.Usuario,
+                    UsuarioModificacion = dto.Usuario,
+                    FechaCreacion = DateTime.Now,
+                    FechaModificacion = DateTime.Now
+                };
+
+                var model = _unitOfWork.GestionDocenteOcurrenciaRepository.Add(gestionDocenteOcurrencia);
+                await _unitOfWork.CommitAsync();
+
+                return model.Id;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<int> ProcesarMaestroActividadAsync(MaestroGestionDocenteActividadDTO dto)
+        {
+            try
+            {
+                // 1. Insertar Cabecera
+                int idCabecera = await InsertarCabeceraAsync(dto.Cabecera);
+
+                // 2. Insertar Detalles
+                foreach (var detDto in dto.Detalles)
+                {
+                    int idDetalle = await InsertarDetalleAsync(idCabecera, detDto);
+
+                    // 3. Insertar Ocurrencias asociadas a este detalle
+                    var ocurrenciasAsociadas = dto.Ocurrencias.Where(o => o.IdGestionDocenteActividadDetalle == detDto.Id);
+                    foreach (var ocuDto in ocurrenciasAsociadas)
+                    {
+                        await InsertarOcurrenciaAsync(idDetalle, ocuDto);
+                    }
+                }
+
+                return idCabecera;
             }
             catch (Exception)
             {

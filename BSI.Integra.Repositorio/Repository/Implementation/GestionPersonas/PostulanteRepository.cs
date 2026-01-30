@@ -528,7 +528,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.GestionPersonas
                 };
 
                 ResultadoDatosPostulanteDTO rpta = new ResultadoDatosPostulanteDTO();
-
+                
                 //var query = @"SELECT *  FROM gp.V_TPostulante_ObtenerDatosPostulante3";
                 string queryPostulante = "[gp].[SP_ObtenerDatosPostulante]";
                 var ListaDatosPostulante = _dapperRepository.QuerySPDapper(queryPostulante, traerDatos);
@@ -701,7 +701,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.GestionPersonas
                 var total = JsonConvert.DeserializeObject<TotalDatosPostulanteDTO>(totalCount);
 
                 rpta.data = respuesta;
-                rpta.Total = total.TotalFilas;
+                rpta.Total = total.TotalFilas;                
                 //rpta.filtrosUsado = filtroKendoGridDTO.Filter.Filters;
                 return rpta;
             }
@@ -721,7 +721,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.GestionPersonas
                 //rpta.filtrosUsado = filtroKendoGridDTO.Filter.Filters;
                 return rpta;
             }
-
+            
 
         }
 

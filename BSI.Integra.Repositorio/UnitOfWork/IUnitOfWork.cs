@@ -1,4 +1,7 @@
-﻿using BSI.Integra.Repositorio.Repository.Interface;
+﻿using BSI.Integra.Persistencia.Modelos.IntegraDB;
+using BSI.Integra.Repositorio.Repository;
+using BSI.Integra.Repositorio.Repository.Implementation;
+using BSI.Integra.Repositorio.Repository.Interface;
 using BSI.Integra.Repositorio.Repository.Interface.Comercial;
 using BSI.Integra.Repositorio.Repository.Interface.Configuracion;
 using BSI.Integra.Repositorio.Repository.Interface.Finanzas.Siigo;
@@ -900,6 +903,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IMotivoInactividadRepository MotivoInactividadRepository { get; }
         ISistemaPensionarioRepository SistemaPensionarioRepository { get; }
         IMelissaRepository MelissaRepository { get; }
+
         IFacturamaRepository FacturamaRepository { get; }
         IPersonalRemuneracionRepository PersonalRemuneracionRepository { get; }
         IPersonalCeseRepository PersonalCeseRepository { get; }
@@ -933,9 +937,22 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         ICentralLlamadaDireccionRepository CentralLlamadaDireccionRepository { get; }
         IEvaluacionCategoriaRepository EvaluacionCategoriaRepository { get; }
 
+        IFaseCalificacionRepository FaseCalificacionRepository { get; }
+        ICriterioCalificacionLlamadaRepository CriterioCalificacionLlamadaRepository { get; }
+        ILineamientoCalificacionRepository LineamientoCalificacionRepository { get; }
+        ICriticidadCalificacionRepository CriticidadCalificacionRepository { get; }
+        IPuntosGeneralesRepository PuntosGeneralesRepository { get; }
+
+
+
         IPEspecificoCodigoPartnerRepository PEspecificoCodigoPartnerRepository { get; }
         IMatriculaFormularioProgresivoRepository MatriculaFormularioProgresivoRepository { get; }
 
+        ITranscripcionLlamadaRepository TranscripcionLlamadaRepository { get; }
+        IFraseCombinadaRepository FraseCombinadaRepository { get; }
+        IFraseReconocidaRepository FraseReconocidaRepository { get; }
+        IDetalleFraseReconocidaRepository DetalleFraseReconocidaRepository { get; }
+        IRecomendacionRepository RecomendacionRepository { get; }
         IProcesoSeleccionPuntajeCalificacionRepository ProcesoSeleccionPuntajeCalificacionRepository { get; }
         IProgramaGeneralProblemaFactorRepository ProgramaGeneralProblemaFactorRepository { get; }
         IProgramaGeneralProblemaFactorDetalleRepository ProgramaGeneralProblemaFactorDetalleRepository { get; }
@@ -957,6 +974,12 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IPaqueteTutorVirtualPaisRepository PaqueteTutorVirtualPaisRepository { get; }
         IPaqueteTutorVirtualBeneficioRepository PaqueteTutorVirtualBeneficioRepository { get; }
         IMontoPagoLogRepository MontoPagoLogRepository { get; }
+
+        //TransicionFase
+        ICriterioCalificacionFaseRepository CriterioCalificacionFaseRepository { get; }
+        ITransicionFaseCriterioOportunidadRepository TransicionFaseCriterioOportunidadRepository { get; }
+        ITransicionFaseOportunidadRepository TransicionFaseOportunidadRepository { get; }
+        ILineamientoCalificacionFaseRepository LineamientoCalificacionFaseRepository { get; }
         IMedioComunicacionRepository MedioComunicacionRepository { get; }
         IBloqueHorarioDetalleRepository BloqueHorarioDetalleRepository { get; }
         IPreferenciaComunicacionAcademicaRepository PreferenciaComunicacionAcademicaRepository { get; }

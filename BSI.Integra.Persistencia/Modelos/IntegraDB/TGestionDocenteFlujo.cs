@@ -10,6 +10,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TGestionDocenteFlujo()
         {
+            TGestionDocenteActividadCabeceraFlujos = new HashSet<TGestionDocenteActividadCabeceraFlujo>();
             TGestionDocenteActividadCabeceras = new HashSet<TGestionDocenteActividadCabecera>();
         }
 
@@ -60,6 +61,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
         public virtual TGestionDocenteCategorium IdGestionDocenteCategoriaNavigation { get; set; } = null!;
         public virtual TGestionDocenteEstado IdGestionDocenteEstadoNavigation { get; set; } = null!;
+        public virtual ICollection<TGestionDocenteActividadCabeceraFlujo> TGestionDocenteActividadCabeceraFlujos { get; set; }
         public virtual ICollection<TGestionDocenteActividadCabecera> TGestionDocenteActividadCabeceras { get; set; }
     }
 }

@@ -22,7 +22,7 @@ using System.Transactions;
 
 namespace BSI.Integra.Servicios.Controllers
 {
-
+  
     /// Controlador: SolicitudTipoReporteController
     /// Autor: Jorge Gamero
     /// Fecha: 05/05/2025

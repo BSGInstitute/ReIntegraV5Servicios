@@ -247,5 +247,48 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception($"#FR-OPI-001@Error en ObtenerPorId(), {ex.Message}");
             }
         }
+
+        public async Task<HashSet<int>> ObtenerSolucionesMarcadasPorOportunidadAsync(IEnumerable<int> oportunidadIds)
+        {
+            if (oportunidadIds == null || !oportunidadIds.Any())
+            {
+                return new HashSet<int>();
+            }
+
+            try
+            {
+                var query = @"
+        SELECT DISTINCT
+            T.IdProgramaGeneralProblemaFactorSolucion
+        FROM
+            [pla].[T_ProgramaGeneralProblemaFactorSolucionRespuesta] AS T
+        WHERE
+            T.IdOportunidad IN @OportunidadIds
+            AND T.EsSolucionado = 1
+            AND T.Estado = 1";
+
+                var resultadoJson = await _dapperRepository.QueryDapperAsync(query, new { OportunidadIds = oportunidadIds });
+
+                if (string.IsNullOrEmpty(resultadoJson) || resultadoJson.Contains("[]"))
+                {
+                    return new HashSet<int>();
+                }
+
+                var listaResultados = JsonConvert.DeserializeObject<IEnumerable<dynamic>>(resultadoJson);
+
+                var setDeIds = new HashSet<int>();
+                foreach (var item in listaResultados)
+                {
+                    setDeIds.Add((int)item.IdProgramaGeneralProblemaFactorSolucion);
+                }
+
+                return setDeIds;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerSolucionesMarcadasPorOportunidadAsync() al consultar Dapper.", ex);
+            }
+        }
+
     }
 }

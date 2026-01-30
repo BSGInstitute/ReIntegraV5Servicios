@@ -1,4 +1,4 @@
-﻿using BSI.Integra.Aplicacion.Base;
+﻿using BSI.Integra.Aplicacion.Base; 
 using System;
 using System.Collections.Generic;
 using System.Linq;

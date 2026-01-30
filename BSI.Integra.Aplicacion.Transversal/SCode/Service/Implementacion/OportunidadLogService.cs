@@ -544,9 +544,12 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             EstadoLlamada = o.EstadoLlamada,
                             SubEstadoLlamada = o.SubEstadoLlamada,
                             UrlGrabacion = o.UrlGrabacion,
+                            UrlGrabacion2 = o.UrlGrabacion2,
                             NombreGrabacion = o.UrlGrabacion,
                             Webphone = o.WebphoneGrabacion,
-                            OrigenLlamada = o.OrigenLlamada
+                            OrigenLlamada = o.OrigenLlamada,
+                            esLlamadaCalificada = o.esLlamadaCalificada,
+                            esLlamadaTranscrita=o.esLlamadaTranscrita
                         }).GroupBy(i => i.Id).Select(i => i.First()).ToList().Where(i => i.Id != null).ToList()
                     }
                 ).ToList();

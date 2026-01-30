@@ -79,6 +79,14 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int OrdenBeneficio { get; set; } = 0;
         public string NombrePaquete { get; set; } = "";
     }
+
+    public class BeneficioDTOjson
+    {
+        public int Paquete { get; set; } = 0;
+        public string? Version { get; set; } = "";
+        public string Titulo { get; set; } = "";
+        public int OrdenBeneficio { get; set; } = 0;
+    }
     public class BeneficioDetalleRequisitoDTO
     {
         public string? Requisitos { get; set; }

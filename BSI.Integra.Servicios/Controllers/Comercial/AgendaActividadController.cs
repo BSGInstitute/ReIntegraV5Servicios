@@ -2,10 +2,13 @@
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
+using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
+using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace BSI.Integra.Servicios.Controllers.Comercial
 {
@@ -219,6 +222,41 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             }
         }
         /// Tipo Función: GET
+        /// Autor: Jonathan Caipo
+        /// Fecha: 30/11/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la informacion de Oportunidades asociada a una ClasificacionPersona y un Alumno.
+        /// </summary>
+        /// <param name="idClasificacionPersona">Id de Clasificacion Persona</param>
+        /// <param name="idAlumno">Id del Alumno</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerOportunidadInformacionPersonalizado/{idOportunidad}")]
+        public IActionResult ObtenerOportunidadInformacionPersonalizado(int idOportunidad)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                IOportunidadService oportunidadService = new OportunidadService(_unitOfWork);
+                var oportunidad = oportunidadService.ObtenerPorId(idOportunidad);
+
+                if (oportunidad?.IdClasificacionPersona == null)
+                {
+                    return BadRequest("La oportunidad no tiene una clasificación de persona asociada.");
+                }
+                IAgendaActividadService agendaActividadService = new AgendaActividadService(_unitOfWork);
+                return Ok(agendaActividadService.ObtenerOportunidadInformacion(oportunidad.IdAlumno.Value, oportunidad.IdClasificacionPersona.Value));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 25/07/2022
         /// Versión: 1.0
@@ -295,6 +333,41 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 14/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información de competidores
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionCompetidores")]
+        public async Task<IActionResult> ObtenerInformacionCompetidores([FromBody] Dictionary<string, string> filtro)
+        {
+            try
+            {
+                if (filtro == null || !filtro.TryGetValue("idOportunidad", out var idOportunidadStr))
+                {
+                    return BadRequest(new { Error = "El campo 'idOportunidad' es requerido." });
+                }
+
+                if (!int.TryParse(idOportunidadStr, out int idOportunidad))
+                {
+                    return BadRequest(new { Error = "El valor de 'idOportunidad' debe ser un número entero válido." });
+                }
+
+                var servicio = new AgendaActividadService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionCompetidoresAsync(idOportunidad);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
             }
         }
 
@@ -387,6 +460,61 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         {
             return Ok(_agendaActividadService.ObtenerHistorialInteraccionesPorIdOportunidad3cx(idOportunidad));
         }
+
+
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 27//12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el Historial de Interacciones de la Oportunidad por su Id con transcripciones
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerHistorialInteraccionesPorIdOportunidadAnalisisMensajePersonalizado/{idOportunidad}")]
+        public async Task<IActionResult> ObtenerHistorialInteraccionesPorIdOportunidadAnalisisMensajePersonalizado(int idOportunidad)
+        {
+            var result = await _agendaActividadService.ObtenerHistorialInteraccionesPorIdOportunidadMensajePersonalizado(idOportunidad);
+            return Ok(result);
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Erick Marcelo Quispe.
+        /// Fecha: 05/08/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los Datos del Alumno
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <returns> Retorna 200 y lista de objetos para combo o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerDatosAlumnoPersonalizado/{idOportunidad}")]
+        public IActionResult ObtenerDatosAlumnoPersonalizado(int idOportunidad)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                // Obtener idClasificacionPersona desde la oportunidad
+                IOportunidadService oportunidadService = new OportunidadService(_unitOfWork);
+                var oportunidad = oportunidadService.ObtenerPorId(idOportunidad);
+
+                if (oportunidad?.IdClasificacionPersona == null)
+                {
+                    return BadRequest("La oportunidad no tiene una clasificación de persona asociada.");
+                }
+
+                IAgendaActividadService agendaActividadService = new AgendaActividadService(_unitOfWork);
+                var result = agendaActividadService.ObtenerDatosAlumnoPersonalizado(oportunidad.IdClasificacionPersona.Value, idOportunidad);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 01/08/2022

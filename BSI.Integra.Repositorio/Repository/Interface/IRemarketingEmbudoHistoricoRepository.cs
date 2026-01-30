@@ -1,4 +1,5 @@
-﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+﻿using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using System;
@@ -21,7 +22,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         bool Delete(IEnumerable<int> listadoIds, string usuario);
         #endregion
 
-        public Task<List<OportunidadRemarketingEmbudoDTO>> ObtenerInformacionOportunidadRemarketing(DateTime? FechaCorte = null);
+        public long ObtenerInformacionOportunidadRemarketingTotal(DateTime? FechaCorte = null);
+        public List<OportunidadRemarketingEmbudoDTO> ObtenerInformacionOportunidadRemarketing(int Pagina, int RegistrosPorPagina, DateTime? FechaCorte = null);
         public List<RemarketingEmbudoNivelDescripcionDTO> ObtenerInformacionRemarketingEmbudoNivel();
         public void RegistrarEmbudoRemarketing(int IdRemarketingEmbudoNivel, int IdAlumno,DateTime FechaClasificacion);
         public List<RemarketingEmbudoNivelLlamadaEfectivaDTO> ObtenerLlamadasEfectivasOportunidadAlumno();
