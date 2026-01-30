@@ -3,9 +3,8 @@ using BSI.Integra.Aplicacion.Base.Exceptions;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
-using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
-using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Servicios.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
@@ -4170,22 +4169,32 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                         if (gestionExistente == null)
                         {
-                            var gestionDTO = new CrearGestionContactoDTO
-                            {
-                                IdCentroCosto = pEspecifico.IdCentroCosto,
-                                IdPersonal_Asignado = 6205,
-                                IdClasificacionPersona = clasificacionPersona.Id,
-                                IdFaseGestionContacto = 1,
-                                IdOrigen = 1124,
-                                IdEstadoGestionContacto = 2,
-                                UsuarioCreacion = usuario,
-                                Comentario = $"Asignación automática de docente a curso: {pEspecifico.Nombre} - Proveedor: {proveedor.Nombre1} {proveedor.ApePaterno}"
-                            };
-
                             try
                             {
-                                var gestionContactoService = new GestionContactoService(_unitOfWork);
-                                await gestionContactoService.ProcesarInsercionGestionAsync(gestionDTO);
+                                DateTime fechaActual = DateTime.Now;
+
+                                // Obtener el ID del personal que está haciendo el cambio
+                                int idPersonalAsignado = _unitOfWork.PersonalRepository.ObtenerIdPersonalPorUserName(usuario);
+
+                                var nuevaGestion = new GestionContacto
+                                {
+                                    IdCentroCosto = pEspecifico.IdCentroCosto,
+                                    IdPersonalAsignado = idPersonalAsignado,
+                                    IdClasificacionPersona = clasificacionPersona.Id,
+                                    IdFaseGestionContacto = 1,
+                                    IdOrigen = 1124,
+                                    IdEstadoGestionContacto = 2,
+                                    UltimoComentario = $"Asignación automática de docente a curso: {pEspecifico.Nombre} - Proveedor: {proveedor.Nombre1} {proveedor.ApePaterno}",
+                                    EstadoSeguimientoWhatsApp = false,
+                                    Estado = true,
+                                    UsuarioCreacion = usuario,
+                                    UsuarioModificacion = usuario,
+                                    FechaCreacion = fechaActual,
+                                    FechaModificacion = fechaActual
+                                };
+
+                                _unitOfWork.GestionContactoRepository.AddAsync(nuevaGestion);
+                                _unitOfWork.Commit();
                             }
                             catch (Exception ex)
                             {

@@ -46,5 +46,6 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int IdOrigen { get; set; }
         public string UsuarioCreacion { get; set; }
         public string Comentario { get; set; }
+        public int IdEstadoGestionContacto { get; set; }
     }
 }
