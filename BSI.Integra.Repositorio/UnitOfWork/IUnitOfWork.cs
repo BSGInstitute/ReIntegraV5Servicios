@@ -965,8 +965,6 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IRemarketingEmbudoEsquemaRepository RemarketingEmbudoEsquemaRepository { get; }
         IRemarketingEmbudoNivelRepository RemarketingEmbudoNivelRepository { get; }
         IRemarketingEmbudoHistoricoRepository RemarketingEmbudoHistoricoRepository { get; }
-    }
-
         IGestionContactoRepository GestionContactoRepository { get; }
         IGestionContactoLogRepository GestionContactoLogRepository { get; }
         IActividadDetalleGestionContactoRepository ActividadDetalleGestionContactoRepository { get; }
