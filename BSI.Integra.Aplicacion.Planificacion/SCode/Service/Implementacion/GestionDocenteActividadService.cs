@@ -24,7 +24,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             {
                 var gestionDocenteActividadCabecera = new GestionDocenteActividadCabecera
                 {
-                    IdGestionDocenteFlujo = dto.IdGestionDocenteFlujo,
                     Nombre = dto.Nombre,
                     Descripcion = dto.Descripcion,
                     IdGestionDocenteEstado = dto.IdGestionDocenteEstado,
@@ -47,7 +46,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
-        public async Task<int> InsertarDetalleAsync(int idCabecera, GestionDocenteActividadDetalleDTO dto)
+        public async Task<int> InsertarDetalleAsync(GestionDocenteActividadDetalleDTO dto)
         {
             try
             {
@@ -69,26 +68,84 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 // 2. Ocurrencias Previas del Disparador
                 if (dto.Disparador.IdsOcurrenciasPrevias != null)
                 {
-                    foreach (var idOcuPrevia in dto.Disparador.IdsOcurrenciasPrevias)
+                    if (dto.Disparador.IdGestionDocenteTipoDisparadorFlujo == 1) // FIJO
                     {
-                        var gestionDocenteDetalleDisparadorOcurrencia = new GestionDocenteDetalleDisparadorOcurrencia
+                        if (dto.Disparador.Fecha.HasValue)
                         {
-                            IdGestionDocenteDetalleDisparador = disparadorModel.Id,
-                            IdGestionDocenteOcurrenciaPrevia = idOcuPrevia,
-                            Estado = true,
-                            UsuarioCreacion = dto.Usuario,
-                            UsuarioModificacion = dto.Usuario,
-                            FechaCreacion = fechaActual,
-                            FechaModificacion = fechaActual
-                        };
-                        _unitOfWork.GestionDocenteDetalleDisparadorOcurrenciaRepository.Add(gestionDocenteDetalleDisparadorOcurrencia);
+                            var fechaFinal = dto.Disparador.Fecha.Value.Date + (dto.Disparador.Hora ?? TimeSpan.Zero);
+                            var reglaFija = new GestionDocenteDisparadorReglaTiempoFijo
+                            {
+                                IdGestionDocenteDisparadorReglaTiempo = 1, // ID Fijo existente
+                                IdGestionDocenteDisparadorDetalle = disparadorModel.Id,
+                                Fecha = fechaFinal,
+                                Estado = true,
+                                UsuarioCreacion = dto.Usuario,
+                                UsuarioModificacion = dto.Usuario,
+                                FechaCreacion = fechaActual,
+                                FechaModificacion = fechaActual
+                            };
+                            // TODO: Crear y registrar GestionDocenteDisparadorReglaTiempoFijoRepository en UnitOfWork
+                            _unitOfWork.GestionDocenteDisparadorReglaTiempoFijoRepository.Add(reglaFija);
+                        }
+                    }
+                    else if (dto.Disparador.IdGestionDocenteTipoDisparadorFlujo == 2) // RELATIVO
+                    {
+                        if (dto.Disparador.CantidadTiempo.HasValue && dto.Disparador.IdGestionDocenteUnidadTiempo.HasValue)
+                        {
+                            var reglaRelativa = new GestionDocenteDisparadorReglaTiempoRelativo
+                            {
+                                IdGestionDocenteDisparadorReglaTiempo = 2, // ID Relativo existente
+                                IdGestionDocenteDisparadorDetalle = disparadorModel.Id,
+                                Cantidad = dto.Disparador.CantidadTiempo.Value,
+                                IdGestionDocenteUnidadTiempo = dto.Disparador.IdGestionDocenteUnidadTiempo.Value,
+                                Estado = true,
+                                UsuarioCreacion = dto.Usuario,
+                                UsuarioModificacion = dto.Usuario,
+                                FechaCreacion = fechaActual,
+                                FechaModificacion = fechaActual
+                            };
+                            // TODO: Crear y registrar GestionDocenteDisparadorReglaTiempoRelativoRepository en UnitOfWork
+                            _unitOfWork.GestionDocenteDisparadorReglaTiempoRelativoRepository.Add(reglaRelativa);
+                        }
+
+                        if (dto.Disparador.IdOcurrenciaActividadAnterior.HasValue)
+                        {
+                            var gestionDocenteDetalleDisparadorOcurrencia = new GestionDocenteDetalleDisparadorOcurrencia
+                            {
+                                IdGestionDocenteDetalleDisparador = disparadorModel.Id,
+                                IdGestionDocenteOcurrenciaPrevia = dto.Disparador.IdOcurrenciaActividadAnterior.Value,
+                                Estado = true,
+                                UsuarioCreacion = dto.Usuario,
+                                UsuarioModificacion = dto.Usuario,
+                                FechaCreacion = fechaActual,
+                                FechaModificacion = fechaActual
+                            };
+                            _unitOfWork.GestionDocenteDetalleDisparadorOcurrenciaRepository.Add(gestionDocenteDetalleDisparadorOcurrencia);
+                        }
+                    }
+                    else if (dto.Disparador.IdsOcurrenciasPrevias != null && dto.Disparador.IdsOcurrenciasPrevias.Any())
+                    {
+                        foreach (var idOcuPrevia in dto.Disparador.IdsOcurrenciasPrevias)
+                        {
+                            var gestionDocenteDetalleDisparadorOcurrencia = new GestionDocenteDetalleDisparadorOcurrencia
+                            {
+                                IdGestionDocenteDetalleDisparador = disparadorModel.Id,
+                                IdGestionDocenteOcurrenciaPrevia = idOcuPrevia,
+                                Estado = true,
+                                UsuarioCreacion = dto.Usuario,
+                                UsuarioModificacion = dto.Usuario,
+                                FechaCreacion = fechaActual,
+                                FechaModificacion = fechaActual
+                            };
+                            _unitOfWork.GestionDocenteDetalleDisparadorOcurrenciaRepository.Add(gestionDocenteDetalleDisparadorOcurrencia);
+                        }
                     }
                 }
 
                 // 3. Crear Detalle
                 var gestionDocenteActividadDetalle = new GestionDocenteActividadDetalle
                 {
-                    IdGestionDocenteActividadCabecera = idCabecera,
+                    IdGestionDocenteActividadCabecera = dto.IdGestionDocenteActividadCabecera,
                     IdGestionDocenteTipoActividadDetalle = dto.IdGestionDocenteTipoActividadDetalle,
                     IdPlantillaMediaComunicacion = dto.IdPlantillaMediaComunicacion,
                     IdGestionDocenteDetalleDisparador = disparadorModel.Id,
@@ -153,7 +210,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 // 2. Insertar Detalles
                 foreach (var detDto in dto.Detalles)
                 {
-                    int idDetalle = await InsertarDetalleAsync(idCabecera, detDto);
+                    detDto.IdGestionDocenteActividadCabecera = idCabecera;
+                    int idDetalle = await InsertarDetalleAsync(detDto);
 
                     // 3. Insertar Ocurrencias asociadas a este detalle
                     var ocurrenciasAsociadas = dto.Ocurrencias.Where(o => o.IdGestionDocenteActividadDetalle == detDto.Id);
@@ -164,6 +222,69 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 }
 
                 return idCabecera;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<int> AsociarActividadAFlujoAsync(GestionDocenteActividadCabeceraFlujoDTO dto)
+        {
+            try
+            {
+                var entidad = new GestionDocenteActividadCabeceraFlujo
+                {
+                    IdGestionDocenteFlujo = dto.IdGestionDocenteFlujo,
+                    IdGestionDocenteActividadCabecera = dto.IdGestionDocenteActividadCabecera,
+                    Estado = true,
+                    UsuarioCreacion = dto.Usuario,
+                    UsuarioModificacion = dto.Usuario,
+                    FechaCreacion = DateTime.Now,
+                    FechaModificacion = DateTime.Now
+                };
+
+                var model = _unitOfWork.GestionDocenteActividadCabeceraFlujoRepository.Add(entidad);
+                await _unitOfWork.CommitAsync();
+
+                return model.Id;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> DesasociarActividadDeFlujoAsync(int id, string usuario)
+        {
+            try
+            {
+                _unitOfWork.GestionDocenteActividadCabeceraFlujoRepository.Delete(id, usuario);
+                await _unitOfWork.CommitAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<List<GestionDocenteActividadCabeceraFlujoDTO>> ObtenerActividadesPorFlujoAsync(int idFlujo)
+        {
+            try
+            {
+                var lista = _unitOfWork.GestionDocenteActividadCabeceraFlujoRepository
+                    .GetAll()
+                    .Where(x => x.IdGestionDocenteFlujo == idFlujo && x.Estado)
+                    .ToList();
+
+                return lista.Select(x => new GestionDocenteActividadCabeceraFlujoDTO
+                {
+                    Id = x.Id,
+                    IdGestionDocenteFlujo = x.IdGestionDocenteFlujo,
+                    IdGestionDocenteActividadCabecera = x.IdGestionDocenteActividadCabecera,
+                    Estado = x.Estado
+                }).ToList();
             }
             catch (Exception)
             {
