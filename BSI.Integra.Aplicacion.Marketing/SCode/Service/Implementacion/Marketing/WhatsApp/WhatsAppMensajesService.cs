@@ -1155,6 +1155,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.What
                         else
                         {
                             mensaje = "Error en credenciales de login o nrevise su conexcion de red para el servidor de whatsapp.";
+                            mensaje = "Error en credenciales de login o revise su conexion de red para el servidor de whatsapp.";
                             estadoWhatsapp = false;
                             //return ("Error en credenciales de login o nrevise su conexcion de red para el servidor de whatsapp.");
                         }
@@ -2935,6 +2936,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.What
             {
             }
         }
+       
 
         public KeyValuePair<string, AsesorSignalDTO> VerificarAsesorOnline(int IdPersonal)
         {

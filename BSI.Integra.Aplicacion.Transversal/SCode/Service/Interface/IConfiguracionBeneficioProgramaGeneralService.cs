@@ -16,9 +16,16 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         #endregion
         List<string> ObtenerDescripcionPGeneralConfiguracionBeneficios(int idPgeneral, int? idPais, int? idPaquete);
         List<BeneficioDTO> ObtenerBeneficiosPGeneralTipo1V2Internacional(int idPGeneral);
+        Task<List<BeneficioDTO>> ObtenerBeneficiosPGeneralTipo1V2InternacionalAsync(int idPGeneral);
         List<BeneficioDTO> ObtenerBeneficiosPGeneralTipo1V2(int idPGeneral, int codigoPais);
+        Task<List<BeneficioDTO>> ObtenerBeneficiosPGeneralTipo1V2Async(int idPGeneral, int codigoPais);
+        List<BeneficioDTOjson> ObtenerBeneficiosPGeneralTipo1V2json(int idPGeneral, int codigoPais);
         List<BeneficioDTO> ObtenerBeneficiosPGeneralTipo1(int idPGeneral, int codigoPais);
+        Task<List<BeneficioDTO>> ObtenerBeneficiosPGeneralTipo1Async(int idPGeneral, int codigoPais);
+        List<BeneficioDTOjson> ObtenerBeneficiosPGeneralTipo1json(int idPGeneral, int codigoPais);
         BeneficioDTO ObtenerBeneficiosPGeneralTipo2(int idPGeneral);
+        Task<BeneficioDTO> ObtenerBeneficiosPGeneralTipo2Async(int idPGeneral);
+        BeneficioDTOjson ObtenerBeneficiosPGeneralTipo2json(int idPGeneral);
         BeneficioDetalleRequisitoDTO BeneficioDetalleRequisitoPorPGeneralYBeneficio(int idBeneficio, int idPGeneral);
     }
 }

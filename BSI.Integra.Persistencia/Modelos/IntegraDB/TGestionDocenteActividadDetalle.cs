@@ -40,7 +40,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// <summary>
         /// Estado de la actividad (PENDIENTE, EJECUTADO, MARCADO, CANCELADO)
         /// </summary>
-        public string Estado { get; set; } = null!;
+        public bool Estado { get; set; }
         /// <summary>
         /// Usuario que creó el registro
         /// </summary>

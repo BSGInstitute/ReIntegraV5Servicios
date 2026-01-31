@@ -15,6 +15,8 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         IEnumerable<ProgramaGeneralCertificacionDetalleAgendaDTO> ObtenerRequisitosCertificacionProgramaPorIdOportunidad(int idOportunidad);
         IEnumerable<ProgramaGeneralMotivacionDetalleAgendaDTO> ObtenerArgumentosMotivacionProgramaPorIdOportunidad(int idOportunidad);
         OportunidadInformacionDTO ObtenerOportunidadInformacion(int idAlumno, int idClasificacionPersona);
+        OportunidadInformacionDTO ObtenerOportunidadInformacionPersonalizado(int idAlumno, int idClasificacionPersona);
+
         IEnumerable<CentroCostoVentaCruzadaDTO> ObtenerCentroCostoVentaCruzada(int idPGeneral);
 
         IEnumerable<ProgramaGeneralProblemaDetalleAgendaDTO> ObtenerProgramaGeneralProblemaDetallePorIdOportunidad(int idOportunidad);
@@ -24,6 +26,8 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         IEnumerable<OportunidadLogHistorialComentariosDTO> ObtenerHistorialComentariosPorIdOportunidad(int idOportunidad);
         List<ReporteSeguimientoNWActividadDTO?> ObtenerHistorialInteraccionesPorIdOportunidad(int idOportunidad);
         List<ReporteSeguimientoNWActividadAlternoDTO?> ObtenerHistorialInteraccionesPorIdOportunidad3cx(int idOportunidad);
+        Task<HistorialInteraccionesResponseDTO> ObtenerHistorialInteraccionesPorIdOportunidadMensajePersonalizado(int idOportunidad);
+
         (List<PreguntaFrecuenteSeccionesDTO> Data, List<PGeneralModeloCertificadoDTO> ModeloCertificado) ObtenerPreguntasFrecuentes(int idCentroCosto, int idOportunidad);
         (List<PreguntaFrecuenteSeccionesDTO> Data, List<ProgramaGeneralModeloCertificadoDTO> ModeloCertificado) ObtenerPreguntasFrecuentesCambio(int idCentroCosto, int idPrograma, int idOportunidad);
         (List<PreguntaFrecuenteSeccionesV2DTO> Data, List<ProgramaGeneralModeloCertificadoDTO> ModeloCertificado) ObtenerPreguntasFrecuentesCambioV2(int idCentroCosto, int idPrograma, int idOportunidad);
@@ -34,6 +38,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         SeguimientoAsesorDTO ObtenerSeguimientoAsesor(int idAsesor, int idCategoriaOrigen, int estadoPantalla);
         DocumentoAgendaDetalleDTO ObtenerDocumentosPorIdActividadDetalle(int idActividadDetalle);
         (AlumnoInformacionDTO, SueldoPromedioDTO, ResultadoVisualizarOportunidadDTO) ObtenerDatosAlumno(int idClasificacionPersona, int idOportunidad, int idPersonal);
+        AlumnoInformacionDTO ObtenerDatosAlumnoPersonalizado(int idClasificacionPersona, int idOportunidad);
         IEnumerable<PlantillaWhatsAppAgendaDTO> ObtenerPlantillaWhatsApp();
         StringDTO ObtenerProbabilidadSueldoOportunidad(int idOportunidad, int idPais);
         //ValorEtiquetaDTO ObtenerValorEtiqueta(int idCentroCosto, int idFaseOportunidad, int idOportunidad);
@@ -54,6 +59,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         List<ComboDTO> ObtenerCompetidores();
         List<DocumentoOportunidadInsertadoDTO> ObtenerDocumentosPorIdOportunidad(int idOportunidad);
         SpeechBienvenidaDespedidaDTO ObtenerIdSpeechBienvenidaDespedida(int idActividadDetalle);
+        ConvenioDeVozPlantillaDTO ObtenerPlantillaConvenioDeVoz(int idFaseOportunidad, int idActividadDetalle);
         ContactoConfiguracionDTO ObtenerConfiguracionContacto(int idTipoDato);
         ReferidoConfiguracionDTO ObtenerConfiguracionReferidos();
         string? ObtenerFechaFinalizacionMatricula(int idMatriculaCabecera);

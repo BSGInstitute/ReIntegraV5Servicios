@@ -229,9 +229,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
 
                 //var serializedResult = Serializer.Serialize(nuevoChatAsistente);
-                string url = $"http://ia-asistente-interno-api.bsginstitute.com/testing/api/comercial/chat/stream/postgres";
+                //string url = $"http://ia-asistente-interno-api.bsginstitute.com/testing/api/comercial/chat/stream/postgres";//develop
+                string url = $"http://ia-asistente-interno-api.bsginstitute.com/api/comercial/chat/stream";//develop
 
-                
                 using (var client = new HttpClient())
                 {
                     try

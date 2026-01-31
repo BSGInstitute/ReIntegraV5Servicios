@@ -97,7 +97,7 @@ namespace BSI.Integra.Servicios.Controllers
             }
             try
             {
-                var solicitudService = new SeguimientoAlumnoComentarioService(unitOfWork);
+                var solicitudService = new SeguimientoAlumnoComentarioService(unitOfWork);  
                 //var tipoSeguimiento = solicitudService.ObtenerPorId(tipoSeguimientoEntradaDTO.Id.Value);
                 var resultado = solicitudService.InsertarTipoSeguimiento(tipoSeguimientoEntradaDTO);
                 return Ok(resultado);

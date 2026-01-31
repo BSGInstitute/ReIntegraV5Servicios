@@ -290,6 +290,52 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex);
             }
         }
+        /// Tipo Función: GET
+        /// Autor: Gilmer Quispe.
+        /// Fecha: 01/10/2022
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene un listado de ChatDetalleIntegra filtrado por idInteraccion
+        /// </summary>
+        /// <param name="idInteraccion">Id del Personal</param>
+        /// <returns> Lista de Entidad List<ChatDetalleIntegra> </returns>
+        [Route("[action]/{idOportunidad}")]
+        [HttpGet]
+        public ActionResult ObtenerCursoOportunidad (int idOportunidad)
+        {
+            try
+            {
+                var servicioChatDetalleIntegra = new ChatDetalleIntegraService(unitOfWork);
+                return Ok(servicioChatDetalleIntegra.ObtenerCursoOportunidad(idOportunidad));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+        /// Tipo Función: GET
+        /// Autor: Gilmer Quispe.
+        /// Fecha: 01/10/2022
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene un listado de ChatDetalleIntegra filtrado por idInteraccion
+        /// </summary>
+        /// <param name="idInteraccion">Id del Personal</param>
+        /// <returns> Lista de Entidad List<ChatDetalleIntegra> </returns>
+        [Route("[action]/{idAlumno}/{idPGeneral}")]
+        [HttpGet]
+        public ActionResult ObtenerDetalleChatPorIdAlumno(int idAlumno,int idPGeneral)
+        {
+            try
+            {
+                var servicioChatDetalleIntegra = new ChatDetalleIntegraService(unitOfWork);
+                return Ok(servicioChatDetalleIntegra.DetalleChatPorIdAlumno(idAlumno , idPGeneral));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
         /// TipoFuncion: GET
         /// Autor: Jonathan Caipo
         /// Fecha: 17/10/2022
@@ -776,6 +822,29 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
+        /// Tipo Función: POST
+        /// Autor: Max Mantilla
+        /// Fecha: 2024-12-10
+        /// Versión: 1.0
+        /// <returns>Historial de Chats Academicos Online para persistencia </returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerChatsAcademicosHabilitadosCoordinadora([FromBody] HistorialChatEntradaDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerChatsAcademicosHabilitadosCoordinadora(dto.valor,dto.esOnline);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }     
     }
 }

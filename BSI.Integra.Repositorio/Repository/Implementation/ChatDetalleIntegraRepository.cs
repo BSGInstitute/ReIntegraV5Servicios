@@ -668,12 +668,69 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             var chatDetallesIntegra = new List<ChatDetalleIntegra>();
             var query = string.Empty;
-            query = @"SELECT NombreRemitente, Mensaje, Fecha, IdRemitente  FROM com.V_ObtenerChatDetallePorInteraccionChat
-                      WHERE IdInteraccionChatIntegra = @idInteraccion ORDER BY IdInteraccionChatIntegra , Fecha ASC";
+            query = @"SELECT NombreRemitente, Mensaje, Fecha, IdRemitente  FROM ia.V_ChatPortal_ObtenerDetallePorInteraccionIntegra WHERE IdInteraccionChatIntegra = @idInteraccion ORDER BY IdInteraccionChatIntegra , Fecha ASC";
             var chatDetallesIntegraDB = _dapperRepository.QueryDapper(query, new { idInteraccion });
             chatDetallesIntegra = JsonConvert.DeserializeObject<List<ChatDetalleIntegra>>(chatDetallesIntegraDB);
             return chatDetallesIntegra;
         }
+
+
+        /// Autor: Gilmer Quispe.
+        /// Fecha: 01/10/2022
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene un listado de ChatDetalleIntegra filtrado por idInteraccion
+        /// </summary>
+        /// <param name="idInteraccion"></param>
+        /// <returns> Lista de Entidad List<ChatDetalleIntegra> </returns>
+        public CursoOportunidadDTO ObtenerCursoOportunidad(int idOportunidad)
+        {
+            var cursoOportunidad = new CursoOportunidadDTO();
+            var query = string.Empty;
+            query = @"SELECT
+	                        IdOportunidad
+	                        ,IdCentroCosto
+	                        ,IdPespecifico
+	                        ,IdProgramaGeneral
+                        FROM
+	                        ia.V_ChatbotPortal_ObtenerDatosOportunidad
+                        WHERE
+	                        IdOportunidad=@idOportunidad;";
+            var resp = _dapperRepository.FirstOrDefault(query, new { idOportunidad });
+            cursoOportunidad = JsonConvert.DeserializeObject<CursoOportunidadDTO>(resp);
+            return cursoOportunidad;
+        }
+
+        /// Autor: Gilmer Quispe.
+        /// Fecha: 01/10/2022
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene un listado de ChatDetalleIntegra filtrado por idInteraccion
+        /// </summary>
+        /// <param name="idInteraccion"></param>
+        /// <returns> Lista de Entidad List<ChatDetalleIntegra> </returns>
+        public List<ChatHistorialComercialDTO> ObtenerDetalleChatPorIdAlumno(int idAlumno,int idPGeneral)
+        {
+            var chatDetallesIntegra = new List<ChatHistorialComercialDTO>();
+            var query = string.Empty;
+            query = @"SELECT IdInteraccionChatIntegra
+		                        ,NombreRemitente
+		                        ,Mensaje
+		                        ,Fecha
+		                        ,IdRemitente
+		                        ,MensajeOfensivo
+		                        ,Estado
+		                        ,IdContactoPortalSegmento
+		                        ,IdPGeneral
+		                        ,IdFaseOportunidadPortalWeb
+		                        ,IdAlumno 
+                       FROM ia.V_ChatbotPortal_ObtenerHistorialChatComercial WHERE IdAlumno=@idAlumno AND IdPGeneral=@idPGeneral ORDER BY IdInteraccionChatIntegra ASC";
+            var chatDetallesIntegraDB = _dapperRepository.QueryDapper(query, new { idAlumno, idPGeneral });
+            chatDetallesIntegra = JsonConvert.DeserializeObject<List<ChatHistorialComercialDTO>>(chatDetallesIntegraDB);
+            return chatDetallesIntegra;
+        }
+
+
         /// Autor: Gilmer Quispe.
         /// Fecha: 05/12/2022
         /// Versión: 1.0
@@ -738,7 +795,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 List<HistorialChatDetalleIntegraDTO> rpta = new List<HistorialChatDetalleIntegraDTO>();
-                var resultado = _dapperRepository.QuerySPDapper("[ope].[SP_HistorialChatSoporte]", new { idMatriculaCabecera }) ;
+                var resultado = _dapperRepository.QuerySPDapper("[ia].[SP_ChatbotPortal_HistorialChatSoporte]", new { idMatriculaCabecera }) ;
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
                     rpta = JsonConvert.DeserializeObject<List<HistorialChatDetalleIntegraDTO>>(resultado);
@@ -751,7 +808,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        /// Autor: Gilmer Quispe.
+        /// Autor: Joseph Llanque
         ///// Fecha: 05/12/2022
         ///// Versión: 1.0
         ///// <summary>
@@ -763,7 +820,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                var resultado = _dapperRepository.QuerySPDapper("[ope].[SP_UpdateChatFinalizado]", new { IdMatriculaCabecera = idMatriculaCabecera, UsuarioModificacion = username });
+                var resultado = _dapperRepository.QuerySPDapper("[ia].[SP_ChatbotPortal_FinalizarChatAtc_Actualizar]", new { IdMatriculaCabecera = idMatriculaCabecera, UsuarioModificacion = username });
                 return true;
             }
             catch
@@ -772,26 +829,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        /// Autor: Joseph Llanque.
-        ///// Fecha: 05/12/2022
-        ///// Versión: 1.0
-        ///// <summary>
-        ///// Obtiene un listado de ChatDetalleIntegra filtrado por IdAlumno
-        ///// </summary>
-        ///// <param name="idAlumno"> Id de Alumno </param>
-        ///// <returns> Lista de Objeto BO : List<ChatDetalleIntegra> </returns>
-        public bool FinalizarChatComercial(int idMatriculaCabecera, string username)
-        {
-            try
-            {
-                var resultado = _dapperRepository.QuerySPDapper("[ope].[SP_UpdateChatFinalizadoComercial]", new { IdMatriculaCabecera = idMatriculaCabecera, UsuarioModificacion = username });
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
+   
 
         /// Autor: Gilmer Quispe.
         /// Fecha: 05/12/2022
@@ -820,7 +858,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 		                         ,EsAcademico
 		                         ,EsSoporteTecnico
 		                         ,IdMatriculaCabecera
-                            FROM [ope].[V_ObtenerDatosSesionChat]
+                            FROM ia.V_ChatbotPortal_ObtenerDatosSesionChat
                             WHERE IdMatriculaCabecera = @idMatriculaCabecera
                             order by fechaInicio desc";
             var resultado = _dapperRepository.QueryDapper(query, new { idMatriculaCabecera = idMatriculaCabecera });
@@ -858,7 +896,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 		                         ,EsAcademico
 		                         ,EsSoporteTecnico
 		                         ,IdMatriculaCabecera
-                            FROM [ope].[V_ObtenerDatosSesionChat]
+                            FROM ia.V_ChatbotPortal_ObtenerDatosSesionChat
                             WHERE IdAlumno = @idAlumno
                             order by fechaInicio desc";
             var resultado = _dapperRepository.QueryDapper(query, new { idAlumno = idAlumno });
@@ -867,6 +905,56 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 respuesta = JsonConvert.DeserializeObject<List<DatosSesionChatComercialDTO>>(resultado)!;
             }
             return respuesta;
+        }
+
+
+
+        /// Autor: Joseph Llanque.
+        ///// Fecha: 05/12/2022
+        ///// Versión: 1.0
+        ///// <summary>
+        ///// Obtiene un listado de ChatDetalleIntegra filtrado por IdAlumno
+        ///// </summary>
+        ///// <param name="idAlumno"> Id de Alumno </param>
+        ///// <returns> Lista de Objeto BO : List<ChatDetalleIntegra> </returns>
+        public bool FinalizarChatComercial(int idOportunidad, string username)
+        {
+            try
+            {
+                var resultado = _dapperRepository.QuerySPDapper("[ia].[SP_ChatbotPortal_FinalizarChatVentas_Actualizar]", new { IdOportunidad = idOportunidad, UsuarioModificacion = username });
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
+        
+        /// Autor: Max Mantilla
+        /// Fecha: 2024-12-10
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todos los registros de T_ChatDetalleIntegra según el coordinador académico
+        /// </summary>
+        /// <returns> List<ChatActivoDetalleIntegraDTO> </returns>
+        public List<ChatActivoDetalleIntegraDTO> ObtenerChatsAcademicosHabilitadosCoordinadora(int IdCoordinadorAcademico, bool EsOnline)
+        {
+            try
+            {
+                List<ChatActivoDetalleIntegraDTO> rpta = new List<ChatActivoDetalleIntegraDTO>();
+                var resultado = _dapperRepository.QuerySPDapper("[ia].[SP_ChatbotPortal_ObtenerChatsAtc]", new { IdPersonal_CoordinadorChat=IdCoordinadorAcademico, EsOnline=EsOnline });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]") && resultado != "null" && resultado != null)
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ChatActivoDetalleIntegraDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

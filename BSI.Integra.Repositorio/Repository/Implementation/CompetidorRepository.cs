@@ -241,5 +241,35 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener competidores por id Oportunidad
+        /// </summary>
+        /// <param name="idOportunidad">Id de Oportunidad</param>
+        /// <returns>List<CompetidorRawDTO></returns> 
+        public async Task<List<CompetidorRawDTO>> ObtenerCompetidoresPorIdOportunidadAsync(int idOportunidad)
+        {
+            var query = @"SELECT Id, IdOportunidad, Nombre, DuracionCronologica, CostoNeto, Precio, Categoria, Empresa, RegionCiudad,
+                            Moneda, IdCompetidorVentajaDesventaja, ContenidoCompetidorVentajaDesventaja, TipoCompetidorVentajaDesventaja
+                        FROM com.V_Oportunidad_Competidores
+                        WHERE IdOportunidad = @idOportunidad AND (TipoCompetidorVentajaDesventaja IS NULL OR TipoCompetidorVentajaDesventaja = 0)";
+
+            var resultado = await _dapperRepository.QueryDapperAsync(query, new { idOportunidad });
+
+            if (string.IsNullOrEmpty(resultado) || resultado == "[]")
+                return new List<CompetidorRawDTO>();
+
+            try
+            {
+                return JsonConvert.DeserializeObject<List<CompetidorRawDTO>>(resultado) ?? new List<CompetidorRawDTO>();
+            }
+            catch
+            {
+                return new List<CompetidorRawDTO>();
+            }
+        }
     }
 }

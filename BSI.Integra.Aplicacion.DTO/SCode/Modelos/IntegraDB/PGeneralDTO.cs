@@ -132,6 +132,13 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdPGeneral { get; set; }
         public int Respuesta { get; set; }
     }
+    public class PGeneralPublicoObjetivoSalidaDTO
+    {
+        public int Id { get; set; }
+        public string? Contenido { get; set; }
+        public int IdPGeneral { get; set; }
+        public string Respuesta { get; set; }
+    }
     public class PGeneralAtributosPrincipalesDTO
     {
         public int Id { get; set; }

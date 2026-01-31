@@ -51,12 +51,12 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
             }
         }
 
-        [HttpPost("InsertarDetalle/{idCabecera}")]
-        public async Task<IActionResult> InsertarDetalle(int idCabecera, [FromBody] GestionDocenteActividadDetalleDTO dto)
+        [HttpPost("InsertarDetalle")]
+        public async Task<IActionResult> InsertarDetalle([FromBody] GestionDocenteActividadDetalleDTO dto)
         {
             try
             {
-                var id = await _gestionDocenteActividadService.InsertarDetalleAsync(idCabecera, dto);
+                var id = await _gestionDocenteActividadService.InsertarDetalleAsync(dto);
                 return Ok(new { Exito = true, Id = id });
             }
             catch (Exception ex)
@@ -72,6 +72,48 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
             {
                 var id = await _gestionDocenteActividadService.InsertarOcurrenciaAsync(idDetalle, dto);
                 return Ok(new { Exito = true, Id = id });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        [HttpPost("AsociarAFlujo")]
+        public async Task<IActionResult> AsociarAFlujo([FromBody] GestionDocenteActividadCabeceraFlujoDTO dto)
+        {
+            try
+            {
+                var id = await _gestionDocenteActividadService.AsociarActividadAFlujoAsync(dto);
+                return Ok(new { Exito = true, Id = id });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        [HttpDelete("DesasociarDeFlujo")]
+        public async Task<IActionResult> DesasociarDeFlujo(int id, string usuario)
+        {
+            try
+            {
+                var rpta = await _gestionDocenteActividadService.DesasociarActividadDeFlujoAsync(id, usuario);
+                return Ok(new { Exito = rpta });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("ObtenerPorFlujo/{idFlujo}")]
+        public async Task<IActionResult> ObtenerPorFlujo(int idFlujo)
+        {
+            try
+            {
+                var lista = await _gestionDocenteActividadService.ObtenerActividadesPorFlujoAsync(idFlujo);
+                return Ok(lista);
             }
             catch (Exception ex)
             {
