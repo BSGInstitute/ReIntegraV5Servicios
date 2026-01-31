@@ -19,10 +19,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public int Id { get; set; }
         /// <summary>
-        /// Llave foránea a la tabla T_GestionDocenteFlujo
-        /// </summary>
-        public int? IdGestionDocenteFlujo { get; set; }
-        /// <summary>
         /// Nombre de la actividad cabecera
         /// </summary>
         public string Nombre { get; set; } = null!;
@@ -65,7 +61,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
         public virtual TGestionDocenteCategorium IdGestionDocenteCategoriaNavigation { get; set; } = null!;
         public virtual TGestionDocenteEstado IdGestionDocenteEstadoNavigation { get; set; } = null!;
-        public virtual TGestionDocenteFlujo? IdGestionDocenteFlujoNavigation { get; set; }
         public virtual ICollection<TGestionDocenteActividadCabeceraFlujo> TGestionDocenteActividadCabeceraFlujos { get; set; }
         public virtual ICollection<TGestionDocenteActividadDetalle> TGestionDocenteActividadDetalles { get; set; }
     }

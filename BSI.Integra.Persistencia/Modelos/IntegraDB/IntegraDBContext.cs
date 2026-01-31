@@ -24802,8 +24802,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.IdGestionDocenteEstado).HasComment("Llave foránea a la tabla T_GestionDocenteEstado");
 
-                entity.Property(e => e.IdGestionDocenteFlujo).HasComment("Llave foránea a la tabla T_GestionDocenteFlujo");
-
                 entity.Property(e => e.Nombre)
                     .HasMaxLength(300)
                     .IsUnicode(false)
@@ -24833,10 +24831,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .WithMany(p => p.TGestionDocenteActividadCabeceras)
                     .HasForeignKey(d => d.IdGestionDocenteEstado)
                     .OnDelete(DeleteBehavior.ClientSetNull);
-
-                entity.HasOne(d => d.IdGestionDocenteFlujoNavigation)
-                    .WithMany(p => p.TGestionDocenteActividadCabeceras)
-                    .HasForeignKey(d => d.IdGestionDocenteFlujo);
             });
 
             modelBuilder.Entity<TGestionDocenteActividadCabeceraFlujo>(entity =>
