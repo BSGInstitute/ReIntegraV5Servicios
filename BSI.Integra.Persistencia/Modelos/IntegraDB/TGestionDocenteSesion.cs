@@ -4,36 +4,27 @@ using System.Collections.Generic;
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     /// <summary>
-    /// Tabla principal que define flujos de trabajo para gestión docente (ej: Email Recordatorio Subir Notas)
+    /// Catálogo de sesiones para gestión docente
     /// </summary>
-    public partial class TGestionDocenteFlujo
+    public partial class TGestionDocenteSesion
     {
-        public TGestionDocenteFlujo()
+        public TGestionDocenteSesion()
         {
-            TGestionContactoDocenteFlujos = new HashSet<TGestionContactoDocenteFlujo>();
-            TGestionDocenteActividadCabeceraFlujos = new HashSet<TGestionDocenteActividadCabeceraFlujo>();
+            TGestionContactoActividadDetalleSesions = new HashSet<TGestionContactoActividadDetalleSesion>();
         }
 
         /// <summary>
-        /// Identificador único del flujo
+        /// Identificador único de la sesión
         /// </summary>
         public int Id { get; set; }
         /// <summary>
-        /// Nombre del flujo (ej: Email Recordatorio Subir Notas)
+        /// Nombre de la sesión
         /// </summary>
         public string Nombre { get; set; } = null!;
         /// <summary>
-        /// Descripción detallada del flujo
+        /// Descripción de la sesión
         /// </summary>
         public string? Descripcion { get; set; }
-        /// <summary>
-        /// Llave foránea a la tabla T_GestionDocenteEstado
-        /// </summary>
-        public int IdGestionDocenteEstado { get; set; }
-        /// <summary>
-        /// Llave foránea a la tabla T_GestionDocenteCategoria
-        /// </summary>
-        public int IdGestionDocenteCategoria { get; set; }
         /// <summary>
         /// Estado del registro (1=Activo, 0=Inactivo)
         /// </summary>
@@ -59,9 +50,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
 
-        public virtual TGestionDocenteCategorium IdGestionDocenteCategoriaNavigation { get; set; } = null!;
-        public virtual TGestionDocenteEstado IdGestionDocenteEstadoNavigation { get; set; } = null!;
-        public virtual ICollection<TGestionContactoDocenteFlujo> TGestionContactoDocenteFlujos { get; set; }
-        public virtual ICollection<TGestionDocenteActividadCabeceraFlujo> TGestionDocenteActividadCabeceraFlujos { get; set; }
+        public virtual ICollection<TGestionContactoActividadDetalleSesion> TGestionContactoActividadDetalleSesions { get; set; }
     }
 }
