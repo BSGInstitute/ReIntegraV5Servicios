@@ -52,105 +52,30 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             {
                 DateTime fechaActual = DateTime.Now;
 
-                // 1. Procesar Disparador
-                var gestionDocenteDetalleDisparador = new GestionDocenteDetalleDisparador
+                // 1. Crear el Disparador Detalle
+                var gestionDocenteDisparadorDetalle = new GestionDocenteDisparadorDetalle
                 {
-                    IdGestionDocenteTipoDisparadorFlujo = dto.Disparador.IdGestionDocenteTipoDisparadorFlujo,
+                    IdGestionDocenteDisparadorFlujoTipo = dto.IdGestionDocenteDisparadorFlujoTipo,
                     Estado = true,
                     UsuarioCreacion = dto.Usuario,
                     UsuarioModificacion = dto.Usuario,
                     FechaCreacion = fechaActual,
                     FechaModificacion = fechaActual
                 };
-                var disparadorModel = _unitOfWork.GestionDocenteDetalleDisparadorRepository.Add(gestionDocenteDetalleDisparador);
+                var disparadorModel = _unitOfWork.GestionDocenteDisparadorDetalleRepository.Add(gestionDocenteDisparadorDetalle);
                 await _unitOfWork.CommitAsync();
 
-                // 2. Ocurrencias Previas del Disparador
-                if (dto.Disparador.IdsOcurrenciasPrevias != null)
-                {
-                    if (dto.Disparador.IdGestionDocenteTipoDisparadorFlujo == 1) // FIJO
-                    {
-                        if (dto.Disparador.Fecha.HasValue)
-                        {
-                            var fechaFinal = dto.Disparador.Fecha.Value.Date + (dto.Disparador.Hora ?? TimeSpan.Zero);
-                            var reglaFija = new GestionDocenteDisparadorReglaTiempoFijo
-                            {
-                                IdGestionDocenteDisparadorReglaTiempo = 1, // ID Fijo existente
-                                IdGestionDocenteDisparadorDetalle = disparadorModel.Id,
-                                Fecha = fechaFinal,
-                                Estado = true,
-                                UsuarioCreacion = dto.Usuario,
-                                UsuarioModificacion = dto.Usuario,
-                                FechaCreacion = fechaActual,
-                                FechaModificacion = fechaActual
-                            };
-                            // TODO: Crear y registrar GestionDocenteDisparadorReglaTiempoFijoRepository en UnitOfWork
-                            _unitOfWork.GestionDocenteDisparadorReglaTiempoFijoRepository.Add(reglaFija);
-                        }
-                    }
-                    else if (dto.Disparador.IdGestionDocenteTipoDisparadorFlujo == 2) // RELATIVO
-                    {
-                        if (dto.Disparador.CantidadTiempo.HasValue && dto.Disparador.IdGestionDocenteUnidadTiempo.HasValue)
-                        {
-                            var reglaRelativa = new GestionDocenteDisparadorReglaTiempoRelativo
-                            {
-                                IdGestionDocenteDisparadorReglaTiempo = 2, // ID Relativo existente
-                                IdGestionDocenteDisparadorDetalle = disparadorModel.Id,
-                                Cantidad = dto.Disparador.CantidadTiempo.Value,
-                                IdGestionDocenteUnidadTiempo = dto.Disparador.IdGestionDocenteUnidadTiempo.Value,
-                                Estado = true,
-                                UsuarioCreacion = dto.Usuario,
-                                UsuarioModificacion = dto.Usuario,
-                                FechaCreacion = fechaActual,
-                                FechaModificacion = fechaActual
-                            };
-                            // TODO: Crear y registrar GestionDocenteDisparadorReglaTiempoRelativoRepository en UnitOfWork
-                            _unitOfWork.GestionDocenteDisparadorReglaTiempoRelativoRepository.Add(reglaRelativa);
-                        }
+                // 2. Procesar según el tipo de disparador
+                await ProcesarTipoDisparadorAsync(dto, disparadorModel.Id, dto.Usuario, fechaActual);
 
-                        if (dto.Disparador.IdOcurrenciaActividadAnterior.HasValue)
-                        {
-                            var gestionDocenteDetalleDisparadorOcurrencia = new GestionDocenteDetalleDisparadorOcurrencia
-                            {
-                                IdGestionDocenteDetalleDisparador = disparadorModel.Id,
-                                IdGestionDocenteOcurrenciaPrevia = dto.Disparador.IdOcurrenciaActividadAnterior.Value,
-                                Estado = true,
-                                UsuarioCreacion = dto.Usuario,
-                                UsuarioModificacion = dto.Usuario,
-                                FechaCreacion = fechaActual,
-                                FechaModificacion = fechaActual
-                            };
-                            _unitOfWork.GestionDocenteDetalleDisparadorOcurrenciaRepository.Add(gestionDocenteDetalleDisparadorOcurrencia);
-                        }
-                    }
-                    else if (dto.Disparador.IdsOcurrenciasPrevias != null && dto.Disparador.IdsOcurrenciasPrevias.Any())
-                    {
-                        foreach (var idOcuPrevia in dto.Disparador.IdsOcurrenciasPrevias)
-                        {
-                            var gestionDocenteDetalleDisparadorOcurrencia = new GestionDocenteDetalleDisparadorOcurrencia
-                            {
-                                IdGestionDocenteDetalleDisparador = disparadorModel.Id,
-                                IdGestionDocenteOcurrenciaPrevia = idOcuPrevia,
-                                Estado = true,
-                                UsuarioCreacion = dto.Usuario,
-                                UsuarioModificacion = dto.Usuario,
-                                FechaCreacion = fechaActual,
-                                FechaModificacion = fechaActual
-                            };
-                            _unitOfWork.GestionDocenteDetalleDisparadorOcurrenciaRepository.Add(gestionDocenteDetalleDisparadorOcurrencia);
-                        }
-                    }
-                }
-
-                // 3. Crear Detalle
+                // 3. Crear Detalle de Actividad
                 var gestionDocenteActividadDetalle = new GestionDocenteActividadDetalle
                 {
                     IdGestionDocenteActividadCabecera = dto.IdGestionDocenteActividadCabecera,
-                    IdGestionDocenteTipoActividadDetalle = dto.IdGestionDocenteTipoActividadDetalle,
-                    IdPlantillaMediaComunicacion = dto.IdPlantillaMediaComunicacion,
-                    IdGestionDocenteDetalleDisparador = disparadorModel.Id,
+                    IdGestionDocenteActividadDetalleTipo = dto.IdGestionDocenteActividadDetalleTipo,
+                    IdPlantillaMedioComunicacion = dto.IdPlantillaMedioComunicacion,
+                    IdGestionDocenteDisparadorDetalle = disparadorModel.Id,
                     Nombre = dto.Nombre,
-                    EstadoActividad = dto.Estado,
                     Estado = true,
                     UsuarioCreacion = dto.Usuario,
                     UsuarioModificacion = dto.Usuario,
@@ -169,7 +94,152 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
-        public async Task<int> InsertarOcurrenciaAsync(int idDetalle, GestionDocenteOcurrenciaDTO dto)
+        /// <summary>
+        /// Procesa el tipo de disparador y crea los registros correspondientes según el tipo:
+        /// 1 = Primera Actividad (Tiempo Fijo)
+        /// 2 = Basado en Ocurrencia Anterior
+        /// 3 = Basado en Cronograma
+        /// </summary>
+        private async Task ProcesarTipoDisparadorAsync(GestionDocenteActividadDetalleDTO dto, int idDisparadorDetalle, string usuario, DateTime fechaActual)
+        {
+            switch (dto.IdGestionDocenteDisparadorFlujoTipo)
+            {
+                case 1: // Primera Actividad (Tiempo Fijo)
+                    await ProcesarDisparadorTiempoFijoAsync(dto, idDisparadorDetalle, usuario, fechaActual);
+                    break;
+
+                case 2: // Basado en Ocurrencia Anterior
+                    await ProcesarDisparadorOcurrenciaAnteriorAsync(dto, idDisparadorDetalle, usuario, fechaActual);
+                    break;
+
+                case 3: // Basado en Cronograma
+                    await ProcesarDisparadorCronogramaAsync(dto, idDisparadorDetalle, usuario, fechaActual);
+                    break;
+
+                default:
+                    throw new ArgumentException($"Tipo de disparador no válido: {dto.IdGestionDocenteDisparadorFlujoTipo}");
+            }
+        }
+
+        /// <summary>
+        /// Tipo 1: Primera Actividad - Tiempo Fijo
+        /// Guarda fecha y hora específica en T_GestionDocenteDisparadorReglaTiempoFijo
+        /// </summary>
+        private async Task ProcesarDisparadorTiempoFijoAsync(GestionDocenteActividadDetalleDTO dto, int idDisparadorDetalle, string usuario, DateTime fechaActual)
+        {
+            if (!dto.Fecha.HasValue)
+                throw new ArgumentException("La fecha es requerida para el disparador de tipo Primera Actividad (Tiempo Fijo)");
+
+            var fechaFinal = dto.Fecha.Value.Date + (dto.Hora ?? TimeSpan.Zero);
+
+            var reglaFija = new GestionDocenteDisparadorReglaTiempoFijo
+            {
+                IdGestionDocenteDisparadorReglaTiempo = 1, // Tipo Fijo
+                IdGestionDocenteDisparadorDetalle = idDisparadorDetalle,
+                Fecha = fechaFinal,
+                Estado = true,
+                UsuarioCreacion = usuario,
+                UsuarioModificacion = usuario,
+                FechaCreacion = fechaActual,
+                FechaModificacion = fechaActual
+            };
+
+            _unitOfWork.GestionDocenteDisparadorReglaTiempoFijoRepository.Add(reglaFija);
+            await _unitOfWork.CommitAsync();
+        }
+
+        /// <summary>
+        /// Tipo 2: Basado en Ocurrencia Anterior
+        /// Guarda cantidad y unidad de tiempo en T_GestionDocenteDisparadorReglaTiempoRelativo
+        /// y la ocurrencia anterior en T_GestionDocenteDisparadorOcurrenciaDetalle
+        /// </summary>
+        private async Task ProcesarDisparadorOcurrenciaAnteriorAsync(GestionDocenteDisparadorDetalleDTO disparador, int idDisparadorDetalle, string usuario, DateTime fechaActual)
+        {
+            if (!disparador.CantidadTiempo.HasValue || !disparador.IdGestionDocenteUnidadTiempo.HasValue)
+                throw new ArgumentException("La cantidad y unidad de tiempo son requeridas para el disparador Basado en Ocurrencia Anterior");
+
+            if (!disparador.IdOcurrenciaActividadAnterior.HasValue)
+                throw new ArgumentException("La ocurrencia anterior es requerida para el disparador Basado en Ocurrencia Anterior");
+
+            // Crear regla de tiempo relativo
+            var reglaRelativa = new GestionDocenteDisparadorReglaTiempoRelativo
+            {
+                IdGestionDocenteDisparadorReglaTiempo = 2, // Tipo Relativo
+                IdGestionDocenteDisparadorDetalle = idDisparadorDetalle,
+                Cantidad = disparador.CantidadTiempo.Value,
+                IdGestionDocenteUnidadTiempo = disparador.IdGestionDocenteUnidadTiempo.Value,
+                Estado = true,
+                UsuarioCreacion = usuario,
+                UsuarioModificacion = usuario,
+                FechaCreacion = fechaActual,
+                FechaModificacion = fechaActual
+            };
+
+            _unitOfWork.GestionDocenteDisparadorReglaTiempoRelativoRepository.Add(reglaRelativa);
+
+            // Crear referencia a ocurrencia anterior
+            var disparadorOcurrencia = new GestionDocenteDisparadorOcurrenciaDetalle
+            {
+                IdGestionDocenteDisparadorDetalle = idDisparadorDetalle,
+                IdGestionDocenteOcurrenciaPrevia = disparador.IdOcurrenciaActividadAnterior.Value,
+                Estado = true,
+                UsuarioCreacion = usuario,
+                UsuarioModificacion = usuario,
+                FechaCreacion = fechaActual,
+                FechaModificacion = fechaActual
+            };
+
+            _unitOfWork.GestionDocenteDisparadorOcurrenciaDetalleRepository.Add(disparadorOcurrencia);
+            await _unitOfWork.CommitAsync();
+        }
+
+        /// <summary>
+        /// Tipo 3: Basado en Cronograma
+        /// Guarda cantidad y unidad de tiempo en T_GestionDocenteDisparadorReglaTiempoRelativo
+        /// y la referencia de tiempo (antes/después de sesión) en T_GestionDocenteDisparadorReglaTiempoRelativoReferencia
+        /// </summary>
+        private async Task ProcesarDisparadorCronogramaAsync(GestionDocenteDisparadorDetalleDTO disparador, int idDisparadorDetalle, string usuario, DateTime fechaActual)
+        {
+            if (!disparador.CantidadTiempo.HasValue || !disparador.IdGestionDocenteUnidadTiempo.HasValue)
+                throw new ArgumentException("La cantidad y unidad de tiempo son requeridas para el disparador Basado en Cronograma");
+
+            if (!disparador.IdGestionDocenteReferenciaTiempo.HasValue)
+                throw new ArgumentException("La referencia de tiempo (antes/después) es requerida para el disparador Basado en Cronograma");
+
+            // Crear regla de tiempo relativo
+            var reglaRelativa = new GestionDocenteDisparadorReglaTiempoRelativo
+            {
+                IdGestionDocenteDisparadorReglaTiempo = 2, // Tipo Relativo
+                IdGestionDocenteDisparadorDetalle = idDisparadorDetalle,
+                Cantidad = disparador.CantidadTiempo.Value,
+                IdGestionDocenteUnidadTiempo = disparador.IdGestionDocenteUnidadTiempo.Value,
+                Estado = true,
+                UsuarioCreacion = usuario,
+                UsuarioModificacion = usuario,
+                FechaCreacion = fechaActual,
+                FechaModificacion = fechaActual
+            };
+
+            var reglaRelativaModel = _unitOfWork.GestionDocenteDisparadorReglaTiempoRelativoRepository.Add(reglaRelativa);
+            await _unitOfWork.CommitAsync();
+
+            // Crear referencia de tiempo (antes/después de sesión)
+            var referenciaRelativa = new GestionDocenteDisparadorReglaTiempoRelativoReferencia
+            {
+                IdGestionDocenteDisparadorReglaTiempoRelativo = reglaRelativaModel.Id,
+                IdGestionDocenteReferenciaTiempo = disparador.IdGestionDocenteReferenciaTiempo.Value,
+                Estado = true,
+                UsuarioCreacion = usuario,
+                UsuarioModificacion = usuario,
+                FechaCreacion = fechaActual,
+                FechaModificacion = fechaActual
+            };
+
+            _unitOfWork.GestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository.Add(referenciaRelativa);
+            await _unitOfWork.CommitAsync();
+        }
+
+        public async Task<int> InsertarOcurrenciaAsync(GestionDocenteOcurrenciaDTO dto)
         {
             try
             {
@@ -177,8 +247,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 {
                     Nombre = dto.Nombre,
                     Descripcion = dto.Descripcion,
-                    IdGestionDocenteOcurrenciaTipo = dto.IdGestionDocenteTipoOcurrencia,
-                    IdGestionDocenteActividadDetalle = idDetalle,
+                    IdGestionDocenteOcurrenciaTipo = dto.IdGestionDocenteOcurrenciaTipo,
+                    IdGestionDocenteActividadDetalle = dto.IdGestionDocenteActividadDetalle,
                     IdGestionDocenteModoMarcado = dto.IdGestionDocenteModoMarcado,
                     RequiereComentario = dto.RequiereComentario,
                     RequiereFechaHora = dto.RequiereFechaHora,
@@ -217,7 +287,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     var ocurrenciasAsociadas = dto.Ocurrencias.Where(o => o.IdGestionDocenteActividadDetalle == detDto.Id);
                     foreach (var ocuDto in ocurrenciasAsociadas)
                     {
-                        await InsertarOcurrenciaAsync(idDetalle, ocuDto);
+                        ocuDto.IdGestionDocenteActividadDetalle = idDetalle;
+                        await InsertarOcurrenciaAsync(ocuDto);
                     }
                 }
 

@@ -9,7 +9,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         Task<int> ProcesarMaestroActividadAsync(MaestroGestionDocenteActividadDTO dto);
         Task<int> InsertarCabeceraAsync(GestionDocenteActividadCabeceraDTO dto);
         Task<int> InsertarDetalleAsync(GestionDocenteActividadDetalleDTO dto);
-        Task<int> InsertarOcurrenciaAsync(int idDetalle, GestionDocenteOcurrenciaDTO dto);
+        Task<int> InsertarOcurrenciaAsync(GestionDocenteOcurrenciaDTO dto);
         Task<int> AsociarActividadAFlujoAsync(GestionDocenteActividadCabeceraFlujoDTO dto);
         Task<bool> DesasociarActividadDeFlujoAsync(int id, string usuario);
         Task<List<GestionDocenteActividadCabeceraFlujoDTO>> ObtenerActividadesPorFlujoAsync(int idFlujo);
