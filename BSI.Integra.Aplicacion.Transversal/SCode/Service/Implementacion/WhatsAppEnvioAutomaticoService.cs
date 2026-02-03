@@ -524,22 +524,28 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         catch { }
                     }
 
-                    /* Fase 2: Envio con algoritmo Round-Robin (un mensaje por prioridad por ronda) */
+                    /* Fase 2: Envio secuencial por prioridad con Round-Robin entre asesores */
                     if (prioridadesInfo.Count > 0)
                     {
-                        int totalPrioridades = prioridadesInfo.Count;
-                        int[] indices = new int[totalPrioridades];
-                        int[] cantidadEnviadosPorPrioridad = new int[totalPrioridades];
-                        bool[] prioridadActiva = new bool[totalPrioridades];
-                        for (int i = 0; i < totalPrioridades; i++) prioridadActiva[i] = true;
+                        int totalEntradas = prioridadesInfo.Count;
+                        int[] indices = new int[totalEntradas];
+                        int[] cantidadEnviadosPorPrioridad = new int[totalEntradas];
+                        bool[] entradaActiva = new bool[totalEntradas];
+                        for (int i = 0; i < totalEntradas; i++) entradaActiva[i] = true;
+
+                        // Obtener niveles de prioridad distintos en orden ascendente
+                        var nivelesDistintos = prioridadesInfo.Select(x => x.Prioridad).Distinct().OrderBy(x => x).ToList();
+                        int nivelIdx = 0;
 
                         bool hayPendientes = true;
                         while (hayPendientes)
                         {
-                            hayPendientes = false;
-                            for (int p = 0; p < totalPrioridades; p++)
+                            int nivelActual = nivelesDistintos[nivelIdx];
+                            for (int p = 0; p < totalEntradas; p++)
                             {
-                                if (!prioridadActiva[p] || indices[p] >= prioridadesPreRespuesta[p].Count)
+                                // Solo procesar entradas del nivel de prioridad actual
+                                if (prioridadesInfo[p].Prioridad != nivelActual) continue;
+                                if (!entradaActiva[p] || indices[p] >= prioridadesPreRespuesta[p].Count)
                                     continue;
 
                                 var Prioridad = prioridadesInfo[p];
@@ -822,25 +828,32 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                 }
                                 else
                                 {
-                                    prioridadActiva[p] = false;
+                                    entradaActiva[p] = false;
                                 }
 
                                 cantidadEnviadosPorPrioridad[p] = CantidadEnviados;
+                            }
 
-                                // Verificar si quedan pendientes en alguna prioridad
-                                for (int q = 0; q < totalPrioridades; q++)
+                            // Verificar si quedan pendientes entre asesores de este nivel de prioridad
+                            bool pendientesEnNivel = false;
+                            for (int q = 0; q < totalEntradas; q++)
+                            {
+                                if (prioridadesInfo[q].Prioridad == nivelActual &&
+                                    entradaActiva[q] && indices[q] < prioridadesPreRespuesta[q].Count)
                                 {
-                                    if (prioridadActiva[q] && indices[q] < prioridadesPreRespuesta[q].Count)
-                                    {
-                                        hayPendientes = true;
-                                        break;
-                                    }
+                                    pendientesEnNivel = true;
+                                    break;
                                 }
                             }
+
+                            if (!pendientesEnNivel)
+                                nivelIdx++;
+
+                            hayPendientes = nivelIdx < nivelesDistintos.Count;
                         }
 
                         /* Fase 3: Envio de correos de fin por prioridad */
-                        for (int p = 0; p < totalPrioridades; p++)
+                        for (int p = 0; p < totalEntradas; p++)
                         {
                             try
                             {
@@ -1196,11 +1209,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         {
             try
             {
-
-
                 List<AsesoresMktDTO> correosAlerta = new List<AsesoresMktDTO>();
                 List<string> correosAlerta2 = new List<string>();
-                //correosAlerta2.Add("emayta@bsginstitute.com");
                 correosAlerta2.Add("jllanque@bsginstitute.com");
                 List<string> correosAlertaCopia = new List<string>();
 
@@ -1426,7 +1436,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
         public ResultadoEjecucionCampaniaDTO EjecutarCampaniaGeneralEnvioWhatsAppBoton()
         {
-
             try
             {
                 var resultado = _unitOfWork.CampaniaGeneralRepository.ObtenerPrioridadesEnvioWhatsApp2();
@@ -1442,7 +1451,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     {
                         string Subject = "Inicio de Envio masivo " + ListaDePrioridades[0].NombreCampania + " Hora Inicio: " + ListaDePrioridades[0].HoraEnvio;
                         StringBuilder messageBuilder = new StringBuilder();
-
 
                         foreach (var Prioridad in ListaDePrioridades)
                         {
@@ -1514,22 +1522,28 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         catch { }
                     }
 
-                    /* Fase 2: Envio con algoritmo Round-Robin (un mensaje por prioridad por ronda) */
+                    /* Fase 2: Envio secuencial por prioridad con Round-Robin entre asesores */
                     if (prioridadesInfo.Count > 0)
                     {
-                        int totalPrioridades = prioridadesInfo.Count;
-                        int[] indices = new int[totalPrioridades];
-                        int[] cantidadEnviadosPorPrioridad = new int[totalPrioridades];
-                        bool[] prioridadActiva = new bool[totalPrioridades];
-                        for (int i = 0; i < totalPrioridades; i++) prioridadActiva[i] = true;
+                        int totalEntradas = prioridadesInfo.Count;
+                        int[] indices = new int[totalEntradas];
+                        int[] cantidadEnviadosPorPrioridad = new int[totalEntradas];
+                        bool[] entradaActiva = new bool[totalEntradas];
+                        for (int i = 0; i < totalEntradas; i++) entradaActiva[i] = true;
+
+                        // Obtener niveles de prioridad distintos en orden ascendente
+                        var nivelesDistintos = prioridadesInfo.Select(x => x.Prioridad).Distinct().OrderBy(x => x).ToList();
+                        int nivelIdx = 0;
 
                         bool hayPendientes = true;
                         while (hayPendientes)
                         {
-                            hayPendientes = false;
-                            for (int p = 0; p < totalPrioridades; p++)
+                            int nivelActual = nivelesDistintos[nivelIdx];
+                            for (int p = 0; p < totalEntradas; p++)
                             {
-                                if (!prioridadActiva[p] || indices[p] >= prioridadesPreRespuesta[p].Count)
+                                // Solo procesar entradas del nivel de prioridad actual
+                                if (prioridadesInfo[p].Prioridad != nivelActual) continue;
+                                if (!entradaActiva[p] || indices[p] >= prioridadesPreRespuesta[p].Count)
                                     continue;
 
                                 var Prioridad = prioridadesInfo[p];
@@ -1544,9 +1558,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                         if (_unitOfWork.WhatsAppConfiguracionPreEnvioRepository.ValidarEnvioDuplicado(item.CelularWhatsApp, item.Dias) == false)
 
                                         {
-                                            //if (_unitOfWork.WhatsAppConfiguracionPreEnvioRepository.ValidarDesuscritos(item.CelularWhatsApp) == false)
-                                            //{
-
                                             var detalle = _unitOfWork.WhatsAppConfiguracionPreEnvioRepository.ObtenerDetallePlantillaWhatsApp(item.IdPlantilla);
                                             var respuesta = new List<BotonDTO>();
 
@@ -1820,25 +1831,32 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                     }
                                     else
                                     {
-                                        prioridadActiva[p] = false;
+                                        entradaActiva[p] = false;
                                     }
 
                                 cantidadEnviadosPorPrioridad[p] = CantidadEnviados;
+                            }
 
-                                // Verificar si quedan pendientes en alguna prioridad
-                                for (int q = 0; q < totalPrioridades; q++)
+                            // Verificar si quedan pendientes entre asesores de este nivel de prioridad
+                            bool pendientesEnNivel = false;
+                            for (int q = 0; q < totalEntradas; q++)
+                            {
+                                if (prioridadesInfo[q].Prioridad == nivelActual &&
+                                    entradaActiva[q] && indices[q] < prioridadesPreRespuesta[q].Count)
                                 {
-                                    if (prioridadActiva[q] && indices[q] < prioridadesPreRespuesta[q].Count)
-                                    {
-                                        hayPendientes = true;
-                                        break;
-                                    }
+                                    pendientesEnNivel = true;
+                                    break;
                                 }
                             }
+
+                            if (!pendientesEnNivel)
+                                nivelIdx++;
+
+                            hayPendientes = nivelIdx < nivelesDistintos.Count;
                         }
 
                         /* Fase 3: Envio de correos de fin por prioridad */
-                        for (int p = 0; p < totalPrioridades; p++)
+                        for (int p = 0; p < totalEntradas; p++)
                         {
                             try
                             {
