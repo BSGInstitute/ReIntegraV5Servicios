@@ -992,5 +992,16 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IGestionContactoRepository GestionContactoRepository { get; }
         IGestionContactoLogRepository GestionContactoLogRepository { get; }
         IActividadDetalleGestionContactoRepository ActividadDetalleGestionContactoRepository { get; }
-        }
+
+        IGestionDocenteFlujoRepository GestionDocenteFlujoRepository { get; }
+        IGestionDocenteActividadCabeceraRepository GestionDocenteActividadCabeceraRepository { get; }
+        IGestionDocenteActividadCabeceraFlujoRepository GestionDocenteActividadCabeceraFlujoRepository { get; }
+        IGestionDocenteActividadDetalleRepository GestionDocenteActividadDetalleRepository { get; }
+        IGestionDocenteOcurrenciaRepository GestionDocenteOcurrenciaRepository { get; }
+        IGestionDocenteDisparadorDetalleRepository GestionDocenteDisparadorDetalleRepository { get; }
+        IGestionDocenteDisparadorOcurrenciaDetalleRepository GestionDocenteDisparadorOcurrenciaDetalleRepository { get; }
+        IGestionDocenteDisparadorReglaTiempoFijoRepository GestionDocenteDisparadorReglaTiempoFijoRepository { get; }
+        IGestionDocenteDisparadorReglaTiempoRelativoRepository GestionDocenteDisparadorReglaTiempoRelativoRepository { get; }
+        IGestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository GestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository { get; }
+    }
 }
