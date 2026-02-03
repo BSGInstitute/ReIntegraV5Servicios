@@ -25,4 +25,10 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int Id { get; set; }
         public string Nombre { get; set; }
     }
+
+    public class GestionDocenteCategoriaDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+    }
 }

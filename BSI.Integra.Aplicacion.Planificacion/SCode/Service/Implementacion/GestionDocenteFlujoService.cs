@@ -118,5 +118,17 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 throw;
             }
         }
+
+        public IEnumerable<GestionDocenteCategoriaDTO> ObtenerCategorias()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteFlujoRepository.ObtenerCategorias();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
     }
 }

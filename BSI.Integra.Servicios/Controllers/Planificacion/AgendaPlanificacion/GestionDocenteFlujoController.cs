@@ -88,5 +88,19 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
                 return BadRequest(new { Exito = false, Mensaje = ex.Message });
             }
         }
+
+        [HttpGet("ObtenerCategorias")]
+        public IActionResult ObtenerCategorias()
+        {
+            try
+            {
+                var lista = _gestionDocenteFlujoService.ObtenerCategorias();
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
     }
 }

@@ -10,5 +10,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         TGestionDocenteFlujo Add(GestionDocenteFlujo entidad);
         TGestionDocenteFlujo Update(GestionDocenteFlujo entidad);
         IEnumerable<GestionDocenteEstadoDTO> ObtenerEstadosFlujo();
+        IEnumerable<GestionDocenteCategoriaDTO> ObtenerCategorias();
     }
 }

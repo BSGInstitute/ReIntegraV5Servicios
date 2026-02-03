@@ -61,10 +61,29 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 string _query = "SELECT Id, Nombre FROM pla.T_GestionDocenteEstado WHERE Estado = 1";
                 var resultadoDB = _dapperRepository.QueryDapper(_query, null);
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
-                {   
+                {
                     estados = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteEstadoDTO>>(resultadoDB);
                 }
                 return estados;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<GestionDocenteCategoriaDTO> ObtenerCategorias()
+        {
+            try
+            {
+                IEnumerable<GestionDocenteCategoriaDTO> categorias = new List<GestionDocenteCategoriaDTO>();
+                string _query = "SELECT Id, Nombre FROM pla.T_GestionDocenteCategoria WHERE Estado = 1";
+                var resultadoDB = _dapperRepository.QueryDapper(_query, null);
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    categorias = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteCategoriaDTO>>(resultadoDB);
+                }
+                return categorias;
             }
             catch (Exception ex)
             {
