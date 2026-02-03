@@ -2894,6 +2894,39 @@ namespace BSI.Integra.Servicios.Controllers
         }
 
         /// TipoFuncion: POST
+        /// Autor: Sistema
+        /// Fecha: 03/02/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene información del programa en formato estructurado InformacionProgramaSpeechV2DTO
+        /// Combina la lógica de V2 con el formato de retorno de ByIdPGeneral
+        /// </summary>
+        /// <param name="filtros">Filtros de busqueda (idPGeneral, codigoPais)</param>
+        /// <returns> InformacionProgramaSpeechV2DTO </returns>
+        [Route("[Action]")]
+        [HttpPost]
+        public ActionResult ObtenerInformacionProgramaV3([FromBody] Dictionary<string, string> filtros)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var informacionProgramaService = new InformacionProgramaService(_unitOfWork);
+                var idPGeneral = Convert.ToInt32(filtros["idPGeneral"]);
+                var idCodigoPais = Convert.ToInt32(filtros["codigoPais"]);
+                var respuesta = informacionProgramaService.CargarInformacionProgramaV3(idPGeneral, idCodigoPais);
+
+                return Ok(new { respuesta });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        /// TipoFuncion: POST
         /// Autor: Juan D. Huanaco Quispe.
         /// Fecha: 15/04/2024
         /// Versión: 1.0
