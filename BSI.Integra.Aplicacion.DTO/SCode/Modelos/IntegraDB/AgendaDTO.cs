@@ -108,6 +108,8 @@
         public DateTime? FechaModificacionSolicitud { get; set; }
         public int? IdControlSolicitudOrigen { get; set; }
         public string? ControlSolicitudOrigen { get; set; }
+        //GrabacionCentral
+        public string? GrabacionCentral { get; set; }
     }
 
     public class ActividadAgendaV2DTO
