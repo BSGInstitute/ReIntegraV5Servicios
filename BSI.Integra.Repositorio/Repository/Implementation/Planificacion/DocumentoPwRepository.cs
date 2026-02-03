@@ -704,7 +704,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 List<DocumentoPWModalidadRowVM> rpta = new List<DocumentoPWModalidadRowVM>();
-                var query = "pla.SP_DocumentoPwModalidadPorIdDocumento_PW";
+                var query = "pla.SP_DocumentoPwModalidadPorIdDocumentoPW";
                 var parametros = new
                 {
                     @IdDocumento_PW = idDocumentoPW
@@ -917,7 +917,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
                 var query = @"
             SELECT
-                cab.MostrarEnLaWeb,
+                cab.MostrarWeb as MostrarEnLaWeb,
                 cab.Titulo,
                 cab.SubTitulo,
                 fi.Id AS IdDocumentoPWFechaInicio,
@@ -1082,7 +1082,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
         public string ObtenerDocumentoPWModalidadRowsSP(int idDocumentoPw)
         {
-            var sp = "pla.SP_DocumentoPwModalidadPorIdDocumento_PW";
+            var sp = "pla.SP_DocumentoPwModalidadPorIdDocumentoPW";
             var parametros = new { IdDocumento_PW = idDocumentoPw };
             return _dapperRepository.QuerySPDapper(sp, parametros);
         }
@@ -1096,7 +1096,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
         public string SP_TDocumentoPWModalidadIntroduccion_Actualizar(int id, string? introduccion, string usuario)
         {
-            var sp = "pla.SP_TDocumentoPWModalidadIntroduccion_Actualizar";
+            var sp = "pla.SP_TDocumentoPWModalidadIntroduccion_Insertar";
             var parametros = new { Id = id, Introduccion = introduccion, Usuario = usuario };
             return _dapperRepository.QuerySPDapper(sp, parametros);
         }
@@ -1200,7 +1200,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
         public string ObtenerDocumentoPWDuracionRowsSP(int idDocumentoPw)
         {
-            var sp = "pla.SP_TDocumentoPWDuracion_ObtenerRows";
+            var sp = "pla.SP_TDocumentoPWDuracionObtener";
             var parametros = new
             {
                 IdDocumento_PW = idDocumentoPw
@@ -1302,7 +1302,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         }
         public string SP_TDocumentoPWFechaInicio_ObtenerRows(int idDocumentoPw)
         {
-            var sp = "pla.SP_TDocumentoPWFechaInicio_ObtenerRows";
+            var sp = "pla.SP_TDocumentoPWFechaInicioObtener";
             var parametros = new { IdDocumento_PW = idDocumentoPw };
             return _dapperRepository.QuerySPDapper(sp, parametros);
         }
@@ -1328,7 +1328,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 Id = id,
                 Titulo = titulo,
                 SubTitulo = subTitulo,
-                MostrarEnLaWeb = mostrarEnLaWeb,
+                MostrarWeb = mostrarEnLaWeb,
                 Usuario = usuario
             };
             return _dapperRepository.QuerySPDapper(sp, parametros);
@@ -1425,7 +1425,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
         public string SP_TDocumentoPWNota_ObtenerRows(int idDocumentoPw)
         {
-            var sp = "pla.SP_TDocumentoPWNota_ObtenerRows";
+            var sp = "pla.SP_TDocumentoPWNotaObtener";
             var parametros = new { IdDocumento_PW = idDocumentoPw };
             return _dapperRepository.QuerySPDapper(sp, parametros);
         }
