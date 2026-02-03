@@ -18,5 +18,17 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Interface
         IEnumerable<FurPagoRealizadoDTO> ObtenerPagosRealizadosPorFur(int IdFur);
         bool InsertarFurPago(RegistrarFurPagoDTO Json);
         public bool ActualizarFurPago(RegistrarFurPagoDTO Json);
+
+        /// Autor: Miguel Valdivia
+        /// Fecha: 24/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Convierte un monto de una moneda origen a una moneda destino
+        /// </summary>
+        /// <param name="idMonedaOrigen">Id de la moneda de origen</param>
+        /// <param name="idMonedaDestino">Id de la moneda de destino</param>
+        /// <param name="monto">Monto a convertir</param>
+        /// <returns>ConversionMonedaDTO con el resultado de la conversion</returns>
+        ConversionMonedaDTO ConvertirMoneda(int idMonedaOrigen, int idMonedaDestino, decimal monto);
     }
 }

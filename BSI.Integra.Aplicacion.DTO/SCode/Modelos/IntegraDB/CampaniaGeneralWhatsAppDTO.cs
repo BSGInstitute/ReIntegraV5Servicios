@@ -1,6 +1,7 @@
 ﻿using BSI.Integra.Aplicacion.DTO.SCode;
 using Google.Api.Ads.AdWords.v201809;
 using System.Security.Policy;
+using System.Text.Json.Serialization;
 
 namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 {
@@ -425,6 +426,13 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string WaId { get; set; }
         public bool EstadoMensaje { get; set; }
         public string? NumeroEnvio { get; set; }
+
+    }
+    public class TextResponse
+    {
+        [JsonPropertyName("text")] // Para System.Text.Json
+                                   // [JsonProperty("text")] // Para Newtonsoft.Json
+        public string Text { get; set; }
 
     }
 

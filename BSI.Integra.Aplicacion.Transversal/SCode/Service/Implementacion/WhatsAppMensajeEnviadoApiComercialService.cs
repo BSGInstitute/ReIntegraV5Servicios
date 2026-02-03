@@ -203,6 +203,109 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw ex;
             }
         }
+        public async Task<ResultadoChatAsistente> EnvioMensajeAsistenteComercialPorTexto(AsistenteComercialMensajeTextoComDTO json, string usuario)
+        {
+            try
+            {
+                var Serializer = new JavaScriptSerializer();
+                List<TextResponse> datoRespuesta = new List<TextResponse>();
+                AsistenteComercialMensajeTextoComDTO nuevoChatAsistente = json;
+
+                if (json.ChatId == 0)
+                {
+                    var resultado = _unitOfWork.WhatsAppMensajeEnviadoRepository.InsertarAsistenteComercialHiloChat(json.IdAlumno, json.IdOportunidad);
+                    nuevoChatAsistente.ChatId = resultado.Resultado;
+                    nuevoChatAsistente.TiempoActual = DateTime.Now;
+                }
+                else
+                {
+                    nuevoChatAsistente.ChatId = json.ChatId;
+                    nuevoChatAsistente.TiempoActual = DateTime.Now;
+                }
+
+                //insertar mensaje en el historial del usuario
+                var resultadomensaje = _unitOfWork.WhatsAppMensajeEnviadoRepository.InsertarAsistenteComercialHiloChatMensaje(nuevoChatAsistente.ChatId, json.EntradaUsuario, true);
+
+
+
+                //var serializedResult = Serializer.Serialize(nuevoChatAsistente);
+                //string url = $"http://ia-asistente-interno-api.bsginstitute.com/testing/api/comercial/chat/stream/postgres";//develop
+                string url = $"http://ia-asistente-interno-api.bsginstitute.com/api/comercial/chat/stream";//develop
+
+                using (var client = new HttpClient())
+                {
+                    try
+                    {
+
+
+                        string jsonContent = JsonConvert.SerializeObject(nuevoChatAsistente);
+                        //Console.WriteLine("Enviando: " + jsonContent);
+
+                        var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                        var response = await client.PostAsync(url, content);
+
+                        // Leer la respuesta incluso si hay error
+                        string responseBody = await response.Content.ReadAsStringAsync();
+                        //Console.WriteLine($"Status Code: {response.StatusCode}");
+                        //Console.WriteLine($"Respuesta: {responseBody}");
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            //Console.WriteLine("Éxito!");
+                            datoRespuesta = DeserializeMultipleJsonLines(responseBody);
+
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        //Console.WriteLine($"Error: {e.Message}");
+                    }
+                }
+
+                string result = string.Join("", datoRespuesta.Select(w=>w.Text));
+
+                //insertar mensaje en el historial del modelo
+                var resultadomensaje2 = _unitOfWork.WhatsAppMensajeEnviadoRepository.InsertarAsistenteComercialHiloChatMensaje(nuevoChatAsistente.ChatId, result, false);
+
+
+                ResultadoChatAsistente  resultadoChat = new ResultadoChatAsistente();
+                resultadoChat.result = result;
+                resultadoChat.ChatId = nuevoChatAsistente.ChatId;
+
+                return resultadoChat;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public static List<TextResponse> DeserializeMultipleJsonLines(string responseBody)
+        {
+            var responses = new List<TextResponse>();
+
+            // Dividir por líneas
+            var lines = responseBody.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var line in lines)
+            {
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    try
+                    {
+                        var textResponse = JsonConvert.DeserializeObject<TextResponse>(line);
+                        responses.Add(textResponse);
+                    }
+                    catch (JsonException ex)
+                    {
+                        Console.WriteLine($"Error al deserializar línea: {line}");
+                        Console.WriteLine($"Error: {ex.Message}");
+                    }
+                }
+            }
+
+            return responses;
+        }
         public bool EnvioMensajePorArchivo(WhatsAppMensajeArchivoComDTO json, string usuario, int idPersonal)
         {
             try
@@ -311,6 +414,39 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     response.EnsureSuccessStatusCode();
                     string responseBody = await response.Content.ReadAsStringAsync();
                     respuestaMensajeHook = JsonConvert.DeserializeObject<RespuestaMensajeHookDTO>(responseBody)!;
+                }
+                return respuestaMensajeHook;
+            }
+            catch (Exception ex)
+            {
+                return respuestaMensajeHook;
+            }
+        }
+        /// Autor: Flavio R.M.F.
+        /// Fecha: 12/07/2024
+        /// Version: 1.0
+        /// <summary>
+        /// método que funciona el de asignación, manda los datos a V4 para que el dato se asigne
+        /// </summary>
+        /// <returns>bool</returns>
+        private async Task<List<TextResponse>> UrlPostAsistenteAsync(string UrlBase, string jsonStringResult)
+        {
+            List<TextResponse> respuestaMensajeHook = new List<TextResponse>();
+            try
+            {
+                var handler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+                };
+
+                using (HttpClient client = new HttpClient(handler))
+                {
+
+                    var content = new StringContent(jsonStringResult, Encoding.UTF8, "application/json");
+                    HttpResponseMessage response = await client.PostAsync(UrlBase, content);
+                    response.EnsureSuccessStatusCode();
+                    string responseBody = await response.Content.ReadAsStringAsync();
+                    respuestaMensajeHook = JsonConvert.DeserializeObject<List<TextResponse>>(responseBody)!;
                 }
                 return respuestaMensajeHook;
             }

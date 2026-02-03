@@ -62,6 +62,25 @@ namespace BSI.Integra.Aplicacion.Servicios.SCode.Service.Implementacion.Wavix
                 throw ex;
             }
         }
+        /// Autor:Joseph Llanque
+        /// Fecha: 16/03/2023
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene configuracion de numero por usuario
+        /// </summary> 
+        /// <returns> IEnumerable<WavixPersonalDTO> </returns>
+        public IEnumerable<NumeroAsesorWavixDTO>? GetConfigurationTrunks()
+        {
+            try
+            {
+                return _unitOfWork.WavixRepository.GetConfigurationTrunks();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// Autor:Carlos Crispin
         /// Fecha: 20/11/2024
         /// Version: 1.0

@@ -374,6 +374,13 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string? TelefonoDestino { get; set; }
         public string? AnexoCentral { get; set; }
         public string? OrigenLlamada { get; set; }
+        
+    }
+    public class OportunidadLogReporteOperacionesDTO
+    {
+        public List<OportunidadLogReporteATCDTO> Items { get; set; }
+        public int? TotalActividades { get; set; }
+        
     }
     public class ReporteSeguimientoOportunidadLogDTO
     {
@@ -442,7 +449,12 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public bool OtroMedio { get; set; }
         public List<LlamadaIntegra3cxDTO> Llamadas { get; set; } = new List<LlamadaIntegra3cxDTO>();
     }
-    public class ReporteSeguimientoNWActividadAlternoATCDTO
+    public class OportunidadLogReporteSeguimientoDetalleOperacionesDTO
+    {
+        public List<OportunidadLogReporteSeguimientoDetalleATCDTO> Items { get; set; }
+        public int? TotalActividades { get; set; }
+    }
+        public class ReporteSeguimientoNWActividadAlternoATCDTO
     {
         public int IdActividadDetalle { get; set; }
         public string? FaseInicio { get; set; }
@@ -466,7 +478,12 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public List<LlamadaIntegra3cxDTO> LlamadasIntegra3cx { get; set; } = new List<LlamadaIntegra3cxDTO>();
     }
 
-    public class EditarActividadLlamadaDTO
+    public class ReporteSeguimientoNWActividadAlternoOperacionesDTO
+    { 
+        public List<ReporteSeguimientoNWActividadAlternoATCDTO> Items { get; set; }
+        public int? TotalActividades { get; set; }
+    }
+        public class EditarActividadLlamadaDTO
     {
         public IFormFile File { get; set; }
         public int IdLlamada { get; set; }

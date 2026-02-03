@@ -47,13 +47,13 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         FechaModificacion = DateTime.Now,
                     };
                     var respuesta = _unitOfWork.AreaFormacionRepository.Add(entidad);
-                    _unitOfWork.Commit();
+                _unitOfWork.Commit();
                     entidad.Id = respuesta.Id;
                     var resultado = _mapper.Map<AreaFormacion>(respuesta);
 
 
                     return resultado;
-                }
+            }
                 else
                     throw new BadRequestException("Entidad Nula");
             }
@@ -79,7 +79,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                             entidad.UsuarioModificacion = usuario;
                             entidad.FechaModificacion = DateTime.Now;
                             var respuesta = _unitOfWork.AreaFormacionRepository.Update(entidad);
-                            _unitOfWork.Commit();
+                _unitOfWork.Commit();
 
 
                             return dto;
@@ -112,7 +112,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 {
                     var respuesta = _unitOfWork.AreaFormacionRepository.Delete(id, usuario);
 
-                    _unitOfWork.Commit();
+                _unitOfWork.Commit();
                     return respuesta;
                 }
                 else
@@ -208,6 +208,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         public IEnumerable<ComboDTO> Obtener()
         {
             return _unitOfWork.AreaFormacionRepository.ObtenerAreaFormacionFiltro();
-        }
+        } 
     }
 }

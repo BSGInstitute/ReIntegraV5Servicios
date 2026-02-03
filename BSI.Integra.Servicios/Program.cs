@@ -2,6 +2,10 @@ using BSI.Integra.Aplicacion.Comercial.Service.Implementacion;
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.Configuracion;
+using BSI.Integra.Aplicacion.Comercial.Service.Implementacion;
+using BSI.Integra.Aplicacion.Comercial.Service.Interface;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.Messenger;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface;
@@ -26,12 +30,15 @@ using BSI.Integra.Repositorio.Repository.Implementation.Marketing;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.CampaniaMailingWhatsapp;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.Configuracion;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.Messenger;
+using BSI.Integra.Repositorio.Repository.Implementation.Comercial;
 using BSI.Integra.Repositorio.Repository.IntegraDBInteraccion.DapperRepository;
 using BSI.Integra.Repositorio.Repository.IntegraDBInteraccion.UnitOfWork;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.Configuracion;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.Messenger;
+using BSI.Integra.Repositorio.Repository.Interface.Comercial;
+using BSI.Integra.Repositorio.Repository.Interface.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Configurations;
 using BSI.Integra.Servicios.Helpers;
@@ -42,6 +49,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SI.Integra.Repositorio.Repository.IntegraDBInteraccion.DapperRepository;
 using System.Text;
+using BSI.Integra.Repositorio.Repository.Interface;
+using BSI.Integra.Repositorio.Repository.Implementation;
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion;
 
 
 
@@ -53,7 +63,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("CorsVista",
         builder =>
         {
-            builder.WithOrigins("http://localhost:4200", "http://localhost:51260", "https://localhost:7288", "https://integrav5.bsginstitute.com", "https://integrav5-servicios.bsginstitute.com", "https://integrav5p.bsginstitute.com", "https://integrav4.bsginstitute.com", "https://integrav4-prepublicacion-interfaz.bsginstitute.com", "https://integrav5mejora.bsginstitute.com", "https://integrav5-mejora-servicios.bsginstitute.com", "https://integrav5prepublicacion.bsginstitute.com", "https://integrav5-prepublicacion-servicios.bsginstitute.com", "https://integrav5publicacion.bsginstitute.com", "https://integrav5-publicacion-servicios.bsginstitute.com", "https://integrav5pruebainterfaz.bsginstitute.com", "https://integrav5-3cx.bsginstitute.com", "https://webhook-facebook.bsginstitute.com", "http://ia-proceso-resumen-sesiones-api.bsginstitute.com", "https://integrav5-prepublicacion-eariasf.bsginstitute.com", "https://hook-whatsapp.bsginstitute.com", "https://nuevointegrav5.bsginstitute.com", "https://beta8.moontechnolabs.com", "https://prototipo.bsginstitute.com", "https://bsginstitute.com", "https://integrav5prepublicacionmarcador.bsginstitute.com", "https://integrav5-nuevaagenda.bsginstitute.com")
+            builder.WithOrigins("http://localhost:4200", "http://localhost:51260", "https://localhost:7288", "https://integrav5.bsginstitute.com", "https://integrav5-servicios.bsginstitute.com", "https://integrav5p.bsginstitute.com", "https://integrav4.bsginstitute.com", "https://integrav4-prepublicacion-interfaz.bsginstitute.com", "https://integrav5mejora.bsginstitute.com", "https://integrav5-mejora-servicios.bsginstitute.com", "https://integrav5prepublicacion.bsginstitute.com", "https://integrav5-prepublicacion-servicios.bsginstitute.com", "https://integrav5publicacion.bsginstitute.com", "https://integrav5-publicacion-servicios.bsginstitute.com", "https://integrav5pruebainterfaz.bsginstitute.com", "https://integrav5-3cx.bsginstitute.com", "https://webhook-facebook.bsginstitute.com", "http://ia-proceso-resumen-sesiones-api.bsginstitute.com", "https://integrav5-prepublicacion-eariasf.bsginstitute.com", "https://hook-whatsapp.bsginstitute.com", "https://nuevointegrav5.bsginstitute.com", "https://beta8.moontechnolabs.com", "https://prototipo.bsginstitute.com", "https://bsginstitute.com", "https://integrav5prepublicacionmarcador.bsginstitute.com", "https://integrav5-nuevaagenda.bsginstitute.com", "https://integrav5-nuevaagendaatc.bsginstitute.com")
                 .AllowAnyHeader().AllowAnyMethod();
         });
 });
@@ -142,6 +152,11 @@ builder.Services.AddTransient<IProgramaGeneralMaterialEstudioAdicionalService, P
 builder.Services.AddTransient<ICourierService, CourierService>();
 builder.Services.AddTransient<ICourierDetalleService, CourierDetalleService>();
 builder.Services.AddTransient<IMatriculaFormularioProgresivoService, MatriculaFormularioProgresivoService>();
+
+builder.Services.AddTransient<ITransicionFaseOportunidadService, TransicionFaseOportunidadService>();
+builder.Services.AddTransient<ITransicionFaseOportunidadRepository, TransicionFaseOportunidadRepository>();
+
+
 
 builder.Services.AddScoped<ITokenManager, TokenManager>();
 builder.Services.AddScoped<IMessengerFacebookChatService, MessengerFacebookChatService>();

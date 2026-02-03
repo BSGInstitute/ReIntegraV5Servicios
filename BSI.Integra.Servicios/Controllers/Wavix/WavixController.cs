@@ -393,5 +393,35 @@ namespace BSI.Integra.Servicios.Controllers.Wavix
         }
 
         #endregion
+
+        ///// Tipo Función: GET
+        ///// Autor: Joseph Llanque
+        ///// Fecha: 02/02/2023
+        ///// Versión: 1.0
+        ///// <summary>
+        ///// Obtiene  configuracion Wavix 
+        ///// </summary>
+        ///// <returns> List<WavixPersonalDTO> </returns>
+        //[Route("[action]")]
+        //[HttpGet]
+        //public ActionResult GetConfigurationTrunks()
+        //{
+        //    try
+        //    {
+        //        var wavixService = new WavixService(unitOfWork);
+        //        var resultado = wavixService.GetConfigurationTrunks();
+        //        return Ok(resultado);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
+
+
+
+
+
+
     }
 }

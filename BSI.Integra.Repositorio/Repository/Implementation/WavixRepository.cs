@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation
 {
-    public class WavixRepository : IWavixRepository
+    public class WavixRepository :IWavixRepository
     {
 
         private IDapperRepository _dapperRepository;
@@ -91,6 +91,42 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+
+
+        /// Autor:Joseph Llanque
+        /// Fecha: 21/10/2024
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene Configuracion wavix por personal
+        /// </summary>
+        /// <returns> WavixPersonalDTO </returns>
+        public IEnumerable<NumeroAsesorWavixDTO>? GetConfigurationTrunks()
+        {
+            try
+            {
+                var query = @"
+                   SELECT
+	                    IdPersonal,
+	                    NombreAsesor,
+                        IdSipTrunk,
+                        UrlServer,
+                        IdPais,
+                        Numero,
+                        Predeterminado
+                    FROM [conf].[V_ObtenerNumeroConfiguradoAsesorWavix]";
+                var resultado = _dapperRepository.QueryDapper(query, new { });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<List<NumeroAsesorWavixDTO>>(resultado)!;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
         /// Autor:Joseph Llanque
         /// Fecha: 21/10/2024
