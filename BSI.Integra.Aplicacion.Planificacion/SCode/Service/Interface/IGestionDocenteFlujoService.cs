@@ -10,5 +10,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         Task<bool> ActualizarAsync(GestionDocenteFlujoDTO dto);
         Task<bool> EliminarAsync(int id, string usuario);
         Task<List<GestionDocenteFlujoDTO>> ObtenerTodoAsync();
+        IEnumerable<GestionDocenteEstadoDTO> ObtenerEstadosFlujo();
     }
 }

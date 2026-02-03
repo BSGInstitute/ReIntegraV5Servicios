@@ -1,9 +1,12 @@
 using AutoMapper;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface.Planificacion;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 {
@@ -43,6 +46,25 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 if (existing != null) model.RowVersion = existing.RowVersion;
                 base.Update(model);
                 return model;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<GestionDocenteEstadoDTO> ObtenerEstadosFlujo()
+        {
+            try
+            {
+                IEnumerable<GestionDocenteEstadoDTO> estados = new List<GestionDocenteEstadoDTO>();
+                string _query = "SELECT Id, Nombre FROM pla.T_GestionDocenteEstado WHERE Estado = 1";
+                var resultadoDB = _dapperRepository.QueryDapper(_query, null);
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {   
+                    estados = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteEstadoDTO>>(resultadoDB);
+                }
+                return estados;
             }
             catch (Exception ex)
             {

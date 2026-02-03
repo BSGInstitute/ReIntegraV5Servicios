@@ -3,17 +3,6 @@ using System.Collections.Generic;
 
 namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 {
-    public class GestionDocenteFlujoDTO
-    {
-        public int Id { get; set; }
-        public string Nombre { get; set; }
-        public string Descripcion { get; set; }
-        public int IdGestionDocenteEstado { get; set; }
-        public int IdGestionDocenteCategoria { get; set; }
-        public bool Estado { get; set; }
-        public string Usuario { get; set; }
-    }
-
     public class GestionDocenteActividadCabeceraDTO
     {
         public int Id { get; set; }
@@ -21,15 +10,6 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string Descripcion { get; set; }
         public int IdGestionDocenteEstado { get; set; }
         public int IdGestionDocenteCategoria { get; set; }
-        public string Usuario { get; set; }
-    }
-
-    public class GestionDocenteActividadCabeceraFlujoDTO
-    {
-        public int Id { get; set; }
-        public int IdGestionDocenteFlujo { get; set; }
-        public int IdGestionDocenteActividadCabecera { get; set; }
-        public bool Estado { get; set; }
         public string Usuario { get; set; }
     }
 
@@ -50,21 +30,27 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int IdGestionDocenteDisparadorFlujoTipo { get; set; }
     }
 
-    public class GestionDocenteDisparadorReglaTiempoRelativoDTO
+    public class GestionDocenteDisparadorReglaTiempoFijoDTO
     {
         public int IdGestionDocenteDisparadorReglaTiempo { get; set; }
         public int IdGestionDocenteDisparadorDetalle { get; set; }
-        public DateTime? Fecha { get; set; }
+        public DateTime Fecha { get; set; }
     }
 
-    public class GestionDocenteDisparadorReglaTiempoFijoDTO
+    public class GestionDocenteDisparadorReglaTiempoRelativoDTO
     {
         public int IdGestionDocenteDisparadorReglaTiempo { get; set; }
         public int IdGestionDocenteDisparadorDetalle { get; set; }
         public int Cantidad { get; set; }
         public int IdGestionDocenteUnidadTiempo { get; set; }
-
     }
+
+    public class GestionDocenteDisparadorReglaTiempoRelativoReferenciaDTO
+    {
+        public int IdGestionDocenteDisparadorReglaTiempoRelativo { get; set; }
+        public int IdGestionDocenteReferenciaTiempo { get; set; }
+    }
+
     public class GestionDocenteDisparadorOcurrenciaDetalleDTO
     {
         public int IdGestionDocenteDisparadorDetalle { get; set; }
@@ -84,10 +70,20 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string Usuario { get; set; }
     }
 
+    public class InsertarActividadDetalleRequestDTO
+    {
+        public GestionDocenteActividadDetalleDTO Detalle { get; set; }
+        public GestionDocenteDisparadorDetalleDTO Disparador { get; set; }
+        public GestionDocenteDisparadorReglaTiempoFijoDTO? ReglaTiempoFijo { get; set; }
+        public GestionDocenteDisparadorReglaTiempoRelativoDTO? ReglaTiempoRelativo { get; set; }
+        public GestionDocenteDisparadorOcurrenciaDetalleDTO? OcurrenciaDetalle { get; set; }
+        public GestionDocenteDisparadorReglaTiempoRelativoReferenciaDTO? ReferenciaRelativa { get; set; }
+    }
+
     public class MaestroGestionDocenteActividadDTO
     {
         public GestionDocenteActividadCabeceraDTO Cabecera { get; set; }
-        public List<GestionDocenteActividadDetalleDTO> Detalles { get; set; }
+        public List<InsertarActividadDetalleRequestDTO> Detalles { get; set; }
         public List<GestionDocenteOcurrenciaDTO> Ocurrencias { get; set; }
     }
 }

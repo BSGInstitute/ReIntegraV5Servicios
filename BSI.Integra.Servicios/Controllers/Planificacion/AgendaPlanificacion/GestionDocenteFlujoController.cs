@@ -74,5 +74,19 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
                 return BadRequest(new { Exito = false, Mensaje = ex.Message });
             }
         }
+
+        [HttpGet("ObtenerEstadosFlujo")]
+        public IActionResult ObtenerEstadosFlujo()
+        {
+            try
+            {
+                var lista = _gestionDocenteFlujoService.ObtenerEstadosFlujo();
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
     }
 }

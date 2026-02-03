@@ -106,5 +106,17 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 throw;
             }
         }
+
+        public IEnumerable<GestionDocenteEstadoDTO> ObtenerEstadosFlujo()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteFlujoRepository.ObtenerEstadosFlujo();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
     }
 }

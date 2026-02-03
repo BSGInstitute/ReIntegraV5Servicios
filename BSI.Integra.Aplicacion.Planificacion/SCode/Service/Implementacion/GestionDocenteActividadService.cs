@@ -46,19 +46,20 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
-        public async Task<int> InsertarDetalleAsync(GestionDocenteActividadDetalleDTO dto)
+        public async Task<int> InsertarDetalleAsync(InsertarActividadDetalleRequestDTO request)
         {
             try
             {
                 DateTime fechaActual = DateTime.Now;
+                string usuario = request.Detalle.Usuario;
 
                 // 1. Crear el Disparador Detalle
                 var gestionDocenteDisparadorDetalle = new GestionDocenteDisparadorDetalle
                 {
-                    IdGestionDocenteDisparadorFlujoTipo = dto.IdGestionDocenteDisparadorFlujoTipo,
+                    IdGestionDocenteDisparadorFlujoTipo = request.Disparador.IdGestionDocenteDisparadorFlujoTipo,
                     Estado = true,
-                    UsuarioCreacion = dto.Usuario,
-                    UsuarioModificacion = dto.Usuario,
+                    UsuarioCreacion = usuario,
+                    UsuarioModificacion = usuario,
                     FechaCreacion = fechaActual,
                     FechaModificacion = fechaActual
                 };
@@ -66,19 +67,19 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 await _unitOfWork.CommitAsync();
 
                 // 2. Procesar según el tipo de disparador
-                await ProcesarTipoDisparadorAsync(dto, disparadorModel.Id, dto.Usuario, fechaActual);
+                await ProcesarTipoDisparadorAsync(request, disparadorModel.Id, usuario, fechaActual);
 
                 // 3. Crear Detalle de Actividad
                 var gestionDocenteActividadDetalle = new GestionDocenteActividadDetalle
                 {
-                    IdGestionDocenteActividadCabecera = dto.IdGestionDocenteActividadCabecera,
-                    IdGestionDocenteActividadDetalleTipo = dto.IdGestionDocenteActividadDetalleTipo,
-                    IdPlantillaMedioComunicacion = dto.IdPlantillaMedioComunicacion,
+                    IdGestionDocenteActividadCabecera = request.Detalle.IdGestionDocenteActividadCabecera,
+                    IdGestionDocenteActividadDetalleTipo = request.Detalle.IdGestionDocenteActividadDetalleTipo,
+                    IdPlantillaMedioComunicacion = request.Detalle.IdPlantillaMedioComunicacion,
                     IdGestionDocenteDisparadorDetalle = disparadorModel.Id,
-                    Nombre = dto.Nombre,
+                    Nombre = request.Detalle.Nombre,
                     Estado = true,
-                    UsuarioCreacion = dto.Usuario,
-                    UsuarioModificacion = dto.Usuario,
+                    UsuarioCreacion = usuario,
+                    UsuarioModificacion = usuario,
                     FechaCreacion = fechaActual,
                     FechaModificacion = fechaActual
                 };
@@ -100,43 +101,41 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// 2 = Basado en Ocurrencia Anterior
         /// 3 = Basado en Cronograma
         /// </summary>
-        private async Task ProcesarTipoDisparadorAsync(GestionDocenteActividadDetalleDTO dto, int idDisparadorDetalle, string usuario, DateTime fechaActual)
+        private async Task ProcesarTipoDisparadorAsync(InsertarActividadDetalleRequestDTO request, int idDisparadorDetalle, string usuario, DateTime fechaActual)
         {
-            switch (dto.IdGestionDocenteDisparadorFlujoTipo)
+            switch (request.Disparador.IdGestionDocenteDisparadorFlujoTipo)
             {
                 case 1: // Primera Actividad (Tiempo Fijo)
-                    await ProcesarDisparadorTiempoFijoAsync(dto, idDisparadorDetalle, usuario, fechaActual);
+                    await ProcesarDisparadorTiempoFijoAsync(request.ReglaTiempoFijo, idDisparadorDetalle, usuario, fechaActual);
                     break;
 
                 case 2: // Basado en Ocurrencia Anterior
-                    await ProcesarDisparadorOcurrenciaAnteriorAsync(dto, idDisparadorDetalle, usuario, fechaActual);
+                    await ProcesarDisparadorOcurrenciaAnteriorAsync(request.ReglaTiempoRelativo, request.OcurrenciaDetalle, idDisparadorDetalle, usuario, fechaActual);
                     break;
 
                 case 3: // Basado en Cronograma
-                    await ProcesarDisparadorCronogramaAsync(dto, idDisparadorDetalle, usuario, fechaActual);
+                    await ProcesarDisparadorCronogramaAsync(request.ReglaTiempoRelativo, request.ReferenciaRelativa, idDisparadorDetalle, usuario, fechaActual);
                     break;
 
                 default:
-                    throw new ArgumentException($"Tipo de disparador no válido: {dto.IdGestionDocenteDisparadorFlujoTipo}");
+                    throw new ArgumentException($"Tipo de disparador no válido: {request.Disparador.IdGestionDocenteDisparadorFlujoTipo}");
             }
         }
 
         /// <summary>
         /// Tipo 1: Primera Actividad - Tiempo Fijo
-        /// Guarda fecha y hora específica en T_GestionDocenteDisparadorReglaTiempoFijo
+        /// Guarda fecha específica en T_GestionDocenteDisparadorReglaTiempoFijo
         /// </summary>
-        private async Task ProcesarDisparadorTiempoFijoAsync(GestionDocenteActividadDetalleDTO dto, int idDisparadorDetalle, string usuario, DateTime fechaActual)
+        private async Task ProcesarDisparadorTiempoFijoAsync(GestionDocenteDisparadorReglaTiempoFijoDTO dto, int idDisparadorDetalle, string usuario, DateTime fechaActual)
         {
-            if (!dto.Fecha.HasValue)
-                throw new ArgumentException("La fecha es requerida para el disparador de tipo Primera Actividad (Tiempo Fijo)");
-
-            var fechaFinal = dto.Fecha.Value.Date + (dto.Hora ?? TimeSpan.Zero);
+            if (dto == null)
+                throw new ArgumentException("La regla de tiempo fijo es requerida para el disparador de tipo Primera Actividad");
 
             var reglaFija = new GestionDocenteDisparadorReglaTiempoFijo
             {
-                IdGestionDocenteDisparadorReglaTiempo = 1, // Tipo Fijo
+                IdGestionDocenteDisparadorReglaTiempo = dto.IdGestionDocenteDisparadorReglaTiempo,
                 IdGestionDocenteDisparadorDetalle = idDisparadorDetalle,
-                Fecha = fechaFinal,
+                Fecha = dto.Fecha,
                 Estado = true,
                 UsuarioCreacion = usuario,
                 UsuarioModificacion = usuario,
@@ -153,21 +152,21 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// Guarda cantidad y unidad de tiempo en T_GestionDocenteDisparadorReglaTiempoRelativo
         /// y la ocurrencia anterior en T_GestionDocenteDisparadorOcurrenciaDetalle
         /// </summary>
-        private async Task ProcesarDisparadorOcurrenciaAnteriorAsync(GestionDocenteDisparadorDetalleDTO disparador, int idDisparadorDetalle, string usuario, DateTime fechaActual)
+        private async Task ProcesarDisparadorOcurrenciaAnteriorAsync(GestionDocenteDisparadorReglaTiempoRelativoDTO reglaDto, GestionDocenteDisparadorOcurrenciaDetalleDTO ocurrenciaDto, int idDisparadorDetalle, string usuario, DateTime fechaActual)
         {
-            if (!disparador.CantidadTiempo.HasValue || !disparador.IdGestionDocenteUnidadTiempo.HasValue)
-                throw new ArgumentException("La cantidad y unidad de tiempo son requeridas para el disparador Basado en Ocurrencia Anterior");
+            if (reglaDto == null)
+                throw new ArgumentException("La regla de tiempo relativo es requerida para el disparador Basado en Ocurrencia Anterior");
 
-            if (!disparador.IdOcurrenciaActividadAnterior.HasValue)
+            if (ocurrenciaDto == null)
                 throw new ArgumentException("La ocurrencia anterior es requerida para el disparador Basado en Ocurrencia Anterior");
 
             // Crear regla de tiempo relativo
             var reglaRelativa = new GestionDocenteDisparadorReglaTiempoRelativo
             {
-                IdGestionDocenteDisparadorReglaTiempo = 2, // Tipo Relativo
+                IdGestionDocenteDisparadorReglaTiempo = reglaDto.IdGestionDocenteDisparadorReglaTiempo,
                 IdGestionDocenteDisparadorDetalle = idDisparadorDetalle,
-                Cantidad = disparador.CantidadTiempo.Value,
-                IdGestionDocenteUnidadTiempo = disparador.IdGestionDocenteUnidadTiempo.Value,
+                Cantidad = reglaDto.Cantidad,
+                IdGestionDocenteUnidadTiempo = reglaDto.IdGestionDocenteUnidadTiempo,
                 Estado = true,
                 UsuarioCreacion = usuario,
                 UsuarioModificacion = usuario,
@@ -181,7 +180,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             var disparadorOcurrencia = new GestionDocenteDisparadorOcurrenciaDetalle
             {
                 IdGestionDocenteDisparadorDetalle = idDisparadorDetalle,
-                IdGestionDocenteOcurrenciaPrevia = disparador.IdOcurrenciaActividadAnterior.Value,
+                IdGestionDocenteOcurrenciaPrevia = ocurrenciaDto.IdGestionDocenteOcurrenciaPrevia,
                 Estado = true,
                 UsuarioCreacion = usuario,
                 UsuarioModificacion = usuario,
@@ -198,21 +197,21 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// Guarda cantidad y unidad de tiempo en T_GestionDocenteDisparadorReglaTiempoRelativo
         /// y la referencia de tiempo (antes/después de sesión) en T_GestionDocenteDisparadorReglaTiempoRelativoReferencia
         /// </summary>
-        private async Task ProcesarDisparadorCronogramaAsync(GestionDocenteDisparadorDetalleDTO disparador, int idDisparadorDetalle, string usuario, DateTime fechaActual)
+        private async Task ProcesarDisparadorCronogramaAsync(GestionDocenteDisparadorReglaTiempoRelativoDTO reglaDto, GestionDocenteDisparadorReglaTiempoRelativoReferenciaDTO referenciaDto, int idDisparadorDetalle, string usuario, DateTime fechaActual)
         {
-            if (!disparador.CantidadTiempo.HasValue || !disparador.IdGestionDocenteUnidadTiempo.HasValue)
-                throw new ArgumentException("La cantidad y unidad de tiempo son requeridas para el disparador Basado en Cronograma");
+            if (reglaDto == null)
+                throw new ArgumentException("La regla de tiempo relativo es requerida para el disparador Basado en Cronograma");
 
-            if (!disparador.IdGestionDocenteReferenciaTiempo.HasValue)
+            if (referenciaDto == null)
                 throw new ArgumentException("La referencia de tiempo (antes/después) es requerida para el disparador Basado en Cronograma");
 
             // Crear regla de tiempo relativo
             var reglaRelativa = new GestionDocenteDisparadorReglaTiempoRelativo
             {
-                IdGestionDocenteDisparadorReglaTiempo = 2, // Tipo Relativo
+                IdGestionDocenteDisparadorReglaTiempo = reglaDto.IdGestionDocenteDisparadorReglaTiempo,
                 IdGestionDocenteDisparadorDetalle = idDisparadorDetalle,
-                Cantidad = disparador.CantidadTiempo.Value,
-                IdGestionDocenteUnidadTiempo = disparador.IdGestionDocenteUnidadTiempo.Value,
+                Cantidad = reglaDto.Cantidad,
+                IdGestionDocenteUnidadTiempo = reglaDto.IdGestionDocenteUnidadTiempo,
                 Estado = true,
                 UsuarioCreacion = usuario,
                 UsuarioModificacion = usuario,
@@ -227,7 +226,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             var referenciaRelativa = new GestionDocenteDisparadorReglaTiempoRelativoReferencia
             {
                 IdGestionDocenteDisparadorReglaTiempoRelativo = reglaRelativaModel.Id,
-                IdGestionDocenteReferenciaTiempo = disparador.IdGestionDocenteReferenciaTiempo.Value,
+                IdGestionDocenteReferenciaTiempo = referenciaDto.IdGestionDocenteReferenciaTiempo,
                 Estado = true,
                 UsuarioCreacion = usuario,
                 UsuarioModificacion = usuario,
@@ -278,13 +277,13 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 int idCabecera = await InsertarCabeceraAsync(dto.Cabecera);
 
                 // 2. Insertar Detalles
-                foreach (var detDto in dto.Detalles)
+                foreach (var detRequest in dto.Detalles)
                 {
-                    detDto.IdGestionDocenteActividadCabecera = idCabecera;
-                    int idDetalle = await InsertarDetalleAsync(detDto);
+                    detRequest.Detalle.IdGestionDocenteActividadCabecera = idCabecera;
+                    int idDetalle = await InsertarDetalleAsync(detRequest);
 
                     // 3. Insertar Ocurrencias asociadas a este detalle
-                    var ocurrenciasAsociadas = dto.Ocurrencias.Where(o => o.IdGestionDocenteActividadDetalle == detDto.Id);
+                    var ocurrenciasAsociadas = dto.Ocurrencias.Where(o => o.IdGestionDocenteActividadDetalle == detRequest.Detalle.Id);
                     foreach (var ocuDto in ocurrenciasAsociadas)
                     {
                         ocuDto.IdGestionDocenteActividadDetalle = idDetalle;
