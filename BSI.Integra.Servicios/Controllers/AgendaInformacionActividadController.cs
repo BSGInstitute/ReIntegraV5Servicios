@@ -2894,7 +2894,7 @@ namespace BSI.Integra.Servicios.Controllers
         }
 
         /// TipoFuncion: POST
-        /// Autor: Sistema
+        /// Autor: Alexis Arroyo
         /// Fecha: 03/02/2025
         /// Versión: 1.0
         /// <summary>

@@ -2957,9 +2957,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             return informacionPrograma;
         }
 
-        //\ Autor: Sistema
-        //\ Fecha: 03/02/2025
-        //\ Version: 1.0
+        /// Autor: Alexis Arroyo
+        /// Fecha: 03/02/2025
+        /// Version: 1.0
         /// <summary>
         /// Carga Información de los Programas V3 - Retorna formato estructurado InformacionProgramaSpeechV2DTO
         /// Combina la lógica de CargarInformacionProgramaV2 con el formato de retorno de CargarInformacionProgramaByIdPGeneral
