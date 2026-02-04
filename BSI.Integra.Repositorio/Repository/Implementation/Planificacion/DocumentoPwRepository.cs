@@ -846,7 +846,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 {
                     Titulo = dto.Titulo,
                     SubTitulo = dto.SubTitulo,
-                    MostrarEnLaWeb = dto.MostrarEnLaWeb,
+                    MostrarWeb = dto.MostrarEnLaWeb,
                     Usuario = usuario
                 };
 
@@ -1314,7 +1314,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             {
                 Titulo = titulo,
                 SubTitulo = subTitulo,
-                MostrarEnLaWeb = mostrarEnLaWeb,
+                MostrarWeb = mostrarEnLaWeb,
                 Usuario = usuario
             };
             return _dapperRepository.QuerySPDapper(sp, parametros);
