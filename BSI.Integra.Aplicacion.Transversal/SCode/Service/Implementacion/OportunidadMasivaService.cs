@@ -128,7 +128,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         datos.Origen = worksheet.Cells[row, 12].Value?.ToString();
                         datos.Asesor = worksheet.Cells[row, 13].Value?.ToString();
                         datos.TipoDato = worksheet.Cells[row, 14].Value?.ToString();
-                        datos.FaseOportunidad = worksheet.Cells[row, 14].Value?.ToString();
+                        datos.FaseOportunidad = worksheet.Cells[row, 15].Value?.ToString();
 
                         listaDatos.Add(datos);
                     }
@@ -381,62 +381,66 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         //Buscar ultima oportunidad por alumno
                         OportunidadFaseDTO datosUltimaOportunidad = _unitOfWork.OportunidadRepository.ObtenerFaseUltimaOportunidadPorIdAlumno(idAlumno);
 
-                        //Fases cerradas: NI,BIC,BIC1,BIC2,RN3,RN1,RN4,RN5,BRM1,NS,E,RN
-                        int[] idsFasesCerradas = { 1, 3, 4, 6, 7, 9, 11, 14, 26, 27, 29, 36 };
+                        //Fases cerradas: NI,BIC,BIC1,BIC2,RN1,RN4,RN5,BRM1,NS,E,RN
+                        int[] idsFasesCerradas = { 1, 3, 4, 7, 9, 11, 14, 26, 27, 29, 36 };
                         //Fases respuesta negativa temporal: RN2-A, RN2-B, RN2-C
                         int[] idsFasesRespuestaNegativaTemporal = { 10, 41, 42 };
+                        //Fases en curso o muy recientes: BNC, IT, IP, PF, IC, IS, M, RN3
+                        int[] idsFasesEnCurso = { 2, 5, 6, 8, 12, 13, 22, 23 };
 
                         //Cambiar asesor automatico a su asesor anterior si corresponde
                         if (idsFasesRespuestaNegativaTemporal.Contains(datosUltimaOportunidad.IdFaseOportunidad))
                         {
                             dtoOportunidad.IdPersonal_Asignado = datosUltimaOportunidad.IdPersonal_Asignado;
                         }
-
-                        //Procesar oportunidades como BNC
-                        if (idsFasesCerradas.Contains(datosUltimaOportunidad.IdFaseOportunidad) || idsFasesRespuestaNegativaTemporal.Contains(datosUltimaOportunidad.IdFaseOportunidad))
+                        //Setear la creacion de oportunidades como OD
+                        if (idsFasesEnCurso.Contains(datosUltimaOportunidad.IdFaseOportunidad))
                         {
-                            dtoOportunidad.IdAlumno = alumno.Id;
-                            var alumnoDTO = new AlumnoFormularioOportunidadDTO();
-                            alumnoDTO.Id = alumno.Id;
-                            alumnoDTO.Nombre1 = nombre1;
-                            alumnoDTO.Nombre2 = nombre2;
-                            alumnoDTO.ApellidoPaterno = apellidoPaterno;
-                            alumnoDTO.ApellidoMaterno = apellidoMaterno;
-                            alumnoDTO.DNI = alumno.Dni;
-                            alumnoDTO.Direccion = alumno.Direccion;
-                            alumnoDTO.Telefono = alumno.Telefono;
-                            alumnoDTO.Celular = celular;
-                            alumnoDTO.Email1 = alumno.Email1;
-                            alumnoDTO.Email2 = alumno.Email2;
-                            alumnoDTO.IdCargo = idCargo;
-                            alumnoDTO.IdAFormacion = idAFormacion;
-                            alumnoDTO.IdATrabajo = idATrabajo;
-                            alumnoDTO.IdIndustria = idIndustria;
-                            alumnoDTO.IdReferido = alumno.IdReferido;
-                            alumnoDTO.IdCodigoPais = alumno.IdPais ?? idPais;
-                            alumnoDTO.IdCodigoCiudad = idCiudad;
-                            alumnoDTO.HoraContacto = alumno.HoraContacto;
-                            alumnoDTO.HoraPeru = alumno.HoraPeru;
-                            alumnoDTO.Telefono2 = alumno.Telefono2;
-                            alumnoDTO.Celular2 = alumno.Celular2;
-                            alumnoDTO.IdEmpresa = alumno.IdEmpresa;
-                            alumnoDTO.Comentario = alumno.Comentario;
+                            dtoOportunidad.IdFaseOportunidad = ValorEstatico.IdFaseOportunidadOD;
+                        }
 
-                            var dto = new RegistroOportunidadAlumnoDTO()
-                            {
-                                Alumno = alumnoDTO,
-                                Oportunidad = dtoOportunidad,
-                                Usuario = usuario
-                            };
-                            try
-                            {
-                                ActualizarAlumnoCrearOportunidadVentas(dto);
-                                datosCorrectos.Add(opo);
-                            }
-                            catch
-                            {
-                                datosIncorrectos.Add(opo);
-                            }
+                        //Procesar oportunidades
+                        dtoOportunidad.IdAlumno = alumno.Id;
+                        var alumnoDTO = new AlumnoFormularioOportunidadDTO();
+                        alumnoDTO.Id = alumno.Id;
+                        alumnoDTO.Nombre1 = nombre1;
+                        alumnoDTO.Nombre2 = nombre2;
+                        alumnoDTO.ApellidoPaterno = apellidoPaterno;
+                        alumnoDTO.ApellidoMaterno = apellidoMaterno;
+                        alumnoDTO.DNI = alumno.Dni;
+                        alumnoDTO.Direccion = alumno.Direccion;
+                        alumnoDTO.Telefono = alumno.Telefono;
+                        alumnoDTO.Celular = celular;
+                        alumnoDTO.Email1 = alumno.Email1;
+                        alumnoDTO.Email2 = alumno.Email2;
+                        alumnoDTO.IdCargo = idCargo;
+                        alumnoDTO.IdAFormacion = idAFormacion;
+                        alumnoDTO.IdATrabajo = idATrabajo;
+                        alumnoDTO.IdIndustria = idIndustria;
+                        alumnoDTO.IdReferido = alumno.IdReferido;
+                        alumnoDTO.IdCodigoPais = alumno.IdPais ?? idPais;
+                        alumnoDTO.IdCodigoCiudad = idCiudad;
+                        alumnoDTO.HoraContacto = alumno.HoraContacto;
+                        alumnoDTO.HoraPeru = alumno.HoraPeru;
+                        alumnoDTO.Telefono2 = alumno.Telefono2;
+                        alumnoDTO.Celular2 = alumno.Celular2;
+                        alumnoDTO.IdEmpresa = alumno.IdEmpresa;
+                        alumnoDTO.Comentario = alumno.Comentario;
+
+                        var dto = new RegistroOportunidadAlumnoDTO()
+                        {
+                            Alumno = alumnoDTO,
+                            Oportunidad = dtoOportunidad,
+                            Usuario = usuario
+                        };
+                        try
+                        {
+                            ActualizarAlumnoCrearOportunidadVentas(dto);
+                            datosCorrectos.Add(opo);
+                        }
+                        catch
+                        {
+                            datosIncorrectos.Add(opo);
                         }
                     }
                 });
@@ -528,6 +532,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 }
                 catch (Exception e)
                 {
+
                 }
 
                 try

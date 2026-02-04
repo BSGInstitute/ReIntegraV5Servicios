@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation
 {
-    public class WavixRepository : IWavixRepository
+    public class WavixRepository :IWavixRepository
     {
 
         private IDapperRepository _dapperRepository;
@@ -91,6 +91,42 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+
+
+        /// Autor:Joseph Llanque
+        /// Fecha: 21/10/2024
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene Configuracion wavix por personal
+        /// </summary>
+        /// <returns> WavixPersonalDTO </returns>
+        public IEnumerable<NumeroAsesorWavixDTO>? GetConfigurationTrunks()
+        {
+            try
+            {
+                var query = @"
+                   SELECT
+	                    IdPersonal,
+	                    NombreAsesor,
+                        IdSipTrunk,
+                        UrlServer,
+                        IdPais,
+                        Numero,
+                        Predeterminado
+                    FROM [conf].[V_ObtenerNumeroConfiguradoAsesorWavix]";
+                var resultado = _dapperRepository.QueryDapper(query, new { });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<List<NumeroAsesorWavixDTO>>(resultado)!;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
         /// Autor:Joseph Llanque
         /// Fecha: 21/10/2024
@@ -204,7 +240,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         public TokenVigenteDTO ObtenerTokenVigente(int idPersonalWavix)
         {
             try {
-                var query = @"SELECT TOP 1 * FROM conf.T_WavixTokenDiario 
+                var query = @"SELECT TOP 1 * FROM conf.T_WavixTokenDiario
                 WHERE IdPersonalWavix = @idPersonalwavix AND EstaActivo = 1  AND FechaExpiracion > GETDATE() ";
 
                 var resultado = _dapperRepository.FirstOrDefault(query, new { idPersonalwavix = idPersonalWavix });
@@ -213,13 +249,116 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     return JsonConvert.DeserializeObject<TokenVigenteDTO>(resultado);
                 }
                 return null;
-            } 
+            }
             catch (Exception ex) {
                 throw ex;
             }
         }
 
+        /// <summary>
+        /// Obtiene la lista de tokens activos de un personal
+        /// </summary>
+        /// <param name="idPersonal">ID del personal</param>
+        /// <returns>Lista de tokens activos</returns>
+        public List<TokenActivoListDTO> ObtenerTokensActivos(int idPersonal)
+        {
+            try
+            {
+                var query = @"
+                    SELECT
+                        t.Id,
+                        t.IdPersonalWavix,
+                        t.TokenUuid,
+                        t.Token,
+                        t.FechaCreacion,
+                        t.FechaExpiracion,
+                        t.EstaActivo
+                    FROM conf.T_WavixTokenDiario t
+                    INNER JOIN conf.T_PersonalWavix p ON t.IdPersonalWavix = p.Id
+                    WHERE p.IdPersonal = @IdPersonal
+                      AND t.EstaActivo = 1
+                      AND t.FechaExpiracion > GETDATE()
+                    ORDER BY t.FechaCreacion DESC";
 
+                var resultado = _dapperRepository.QueryDapper(query, new { IdPersonal = idPersonal });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<List<TokenActivoListDTO>>(resultado);
+                }
+                return new List<TokenActivoListDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene un token específico por su UUID
+        /// </summary>
+        /// <param name="tokenUuid">UUID del token</param>
+        /// <returns>Token encontrado o null</returns>
+        public TokenActivoListDTO ObtenerTokenPorUuid(string tokenUuid)
+        {
+            try
+            {
+                var query = @"
+                    SELECT
+                        Id,
+                        IdPersonalWavix,
+                        TokenUuid,
+                        Token,
+                        FechaCreacion,
+                        FechaExpiracion,
+                        EstaActivo
+                    FROM conf.T_WavixTokenDiario
+                    WHERE TokenUuid = @TokenUuid";
+
+                var resultado = _dapperRepository.FirstOrDefault(query, new { TokenUuid = tokenUuid });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<TokenActivoListDTO>(resultado);
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Invalida (elimina lógicamente) un token por su UUID
+        /// </summary>
+        /// <param name="tokenUuid">UUID del token a invalidar</param>
+        /// <param name="usuario">Usuario que realiza la operación</param>
+        /// <returns>True si se invalidó correctamente</returns>
+        public bool InvalidarToken(string tokenUuid, string usuario)
+        {
+            try
+            {
+                var query = @"
+                    UPDATE conf.T_WavixTokenDiario
+                    SET EstaActivo = 0,
+                        FechaModificacion = GETDATE(),
+                        UsuarioModificacion = @Usuario
+                    WHERE TokenUuid = @TokenUuid
+                      AND EstaActivo = 1;
+                    SELECT @@ROWCOUNT AS FilasAfectadas;";
+
+                var resultado = _dapperRepository.FirstOrDefault(query, new { TokenUuid = tokenUuid, Usuario = usuario });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    var obj = JsonConvert.DeserializeObject<dynamic>(resultado);
+                    return (int)obj.FilasAfectadas > 0;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 
 }

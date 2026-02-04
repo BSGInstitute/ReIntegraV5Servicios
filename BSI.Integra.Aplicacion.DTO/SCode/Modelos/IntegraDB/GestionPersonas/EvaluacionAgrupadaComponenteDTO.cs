@@ -31,7 +31,7 @@ namespace BSI.Integra.Aplicacion.DTOs;
         public int? IdComponente { get; set; }
         public string? NombreComponente { get; set; }
         public decimal? Puntaje { get; set; }
-        public bool CalificaPorCentil { get; set; } 
+        public bool CalificaPorCentil { get; set; }
         public bool CalificaAgrupadoNoIndependiente { get; set; }
         public int? IdProcesoSeleccionRango { get; set; }
         public bool EsCalificable { get; set; }

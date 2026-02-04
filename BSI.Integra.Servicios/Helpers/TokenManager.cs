@@ -99,13 +99,13 @@ namespace BSI.Integra.Servicios.Helpers
             var claimsIndentity = _httpContextAccessor.HttpContext!.User.Identity as ClaimsIdentity;
             _claimToken = new RegistroClaimTokenDTO()
             {
-                IdPersonal = Convert.ToInt32(claimsIndentity.Claims.Where(x => x.Type == "IdPersonal").Select(s => s.Value).First()),
-                IdRol = Convert.ToInt32(claimsIndentity.Claims.Where(x => x.Type == "IdRol").Select(s => s.Value).First()),
-                AreaTrabajo = claimsIndentity.Claims.Where(x => x.Type == "AreaTrabajo").Select(s => s.Value).First(),
-                UserName = claimsIndentity.Claims.Where(x => x.Type == "UserName").Select(s => s.Value).First(),
-                UserAsp = claimsIndentity.Claims.Where(x => x.Type == "UserAsp").Select(s => s.Value).First(),
-                Expira = claimsIndentity.Claims.Where(x => x.Type == "Expira").Select(s => s.Value).First(),
-                TipoPersonal = claimsIndentity.Claims.Where(x => x.Type == "TipoPersonal").Select(s => s.Value).First()
+                IdPersonal = Convert.ToInt32(claimsIndentity.Claims.Where(x => x.Type == "IdPersonal").Select(s => s.Value).FirstOrDefault()),
+                IdRol = Convert.ToInt32(claimsIndentity.Claims.Where(x => x.Type == "IdRol").Select(s => s.Value).FirstOrDefault()),
+                AreaTrabajo = claimsIndentity.Claims.Where(x => x.Type == "AreaTrabajo").Select(s => s.Value).FirstOrDefault(),
+                UserName = claimsIndentity.Claims.Where(x => x.Type == "UserName").Select(s => s.Value).FirstOrDefault(),
+                UserAsp = claimsIndentity.Claims.Where(x => x.Type == "UserAsp").Select(s => s.Value).FirstOrDefault(),
+                Expira = claimsIndentity.Claims.Where(x => x.Type == "Expira").Select(s => s.Value).FirstOrDefault(),
+                TipoPersonal = claimsIndentity.Claims.Where(x => x.Type == "TipoPersonal").Select(s => s.Value).FirstOrDefault()
             };
             //_claimToken.UserName += "_v5";
 

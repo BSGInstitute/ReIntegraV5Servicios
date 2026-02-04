@@ -221,6 +221,6 @@ namespace BSI.Integra.Servicios.Controllers
             var servicio = new AreaFormacionService(unitOfWork);
          
             return Ok(servicio.Obtener());
-        }
+        }  
     }
 }

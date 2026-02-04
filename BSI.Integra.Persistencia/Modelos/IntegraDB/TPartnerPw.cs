@@ -81,5 +81,17 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Id de la tabla Original al migrar
         /// </summary>
         public Guid? IdMigracion { get; set; }
+        /// <summary>
+        /// URL de la pagina web del partner
+        /// </summary>
+        public string? PaginaLink { get; set; }
+        /// <summary>
+        /// URI de Imagen en blob storage del logo de certificacion del partner
+        /// </summary>
+        public string? CertificadoLogo { get; set; }
+        /// <summary>
+        /// URI de Archivo en blob storage del certificado del partner emitido por BSG
+        /// </summary>
+        public string? CertificadoBsg { get; set; }
     }
 }

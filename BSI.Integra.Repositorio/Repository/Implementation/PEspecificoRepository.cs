@@ -657,6 +657,47 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception("Error en ObtenerPorIdPGeneral()", ex);
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 30/09/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene una lista de fechas de inicio de programas segun el idPGeneral
+        /// </summary>
+        /// <param name="idPGeneral"> Id de Programa General </param>
+        /// <returns> List<PEspecificoPorIdPGeneral> </returns>
+        public async Task<List<PEspecificoPorIdPGeneral>> ObtenerPorIdPGeneralAsync(int idPGeneral)
+        {
+            try
+            {
+                List<PEspecificoPorIdPGeneral> rpta = new();
+                string query = @"SELECT 
+                            Id,
+                            Nombre,
+                            Ciudad,
+                            Tipo,
+                            Duracion,
+                            EstadoPId,
+                            FechaCreacion,
+                            IdCategoria,
+                            CentroCosto
+                        FROM pla.V_ListaProgramaEspecificoPorIdPrograma
+                        WHERE IdPGeneral = @idPGeneral";
+
+                string resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<PEspecificoPorIdPGeneral>>(resultado) ?? new List<PEspecificoPorIdPGeneral>();
+                }
+
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error en ObtenerPorIdPGeneral()", ex);
+            }
+        }
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 17/08/2022
         /// Version: 1.0

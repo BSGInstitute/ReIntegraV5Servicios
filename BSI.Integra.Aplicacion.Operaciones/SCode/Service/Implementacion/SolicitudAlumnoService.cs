@@ -358,7 +358,7 @@ namespace BSI.Integra.Aplicacion.Operaciones.Service.Implementacion
         /// Version: 1.0
         /// <summary>
         /// Obtiene todos las solicitudes por filtro reporte
-        /// </summary> 
+        /// </summary>
         /// <returns> IEnumerable<SolicitudAlumnoFiltradaDTO> </returns>
         public IEnumerable<SolicitudAlumnoFiltradaDTO> ObtenerSolicitudesAlumnoPorFiltroReporte(FiltroSolicitudesDTO FiltroSolicitud)
         {
@@ -371,12 +371,51 @@ namespace BSI.Integra.Aplicacion.Operaciones.Service.Implementacion
                 throw ex;
             }
         }
+
+        /// Autor: Alexis Arroyo 
+        /// Fecha: 14/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todas las solicitudes filtradas por asesor/revisor asignado
+        /// </summary>
+        /// <returns> IEnumerable<SolicitudAlumnoFiltradaDTO> </returns>
+        public IEnumerable<SolicitudAlumnoFiltradaDTO> ObtenerSolicitudesPorFiltroAsesor(FiltroSolicitudAlumnoPorAsesorDTO FiltroSolicitud)
+        {
+            try
+            {
+                return _unitOfWork.SolicitudAlumnoRepository.ObtenerSolicitudesPorFiltroAsesor(FiltroSolicitud);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Alexis Arroyo
+        /// Fecha: 15/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene solicitudes agrupadas: Derivadas y Resueltas
+        /// </summary>
+        /// <returns>RespuestaSolicitudesAlumnoDTO</returns>
+        public RespuestaSolicitudesAlumnoDTO ObtenerSolicitudesAgrupadasPorAsesor(FiltroSolicitudAlumnoPorAsesorDTO FiltroSolicitud)
+        {
+            try
+            {
+                return _unitOfWork.SolicitudAlumnoRepository.ObtenerSolicitudesAgrupadasPorAsesor(FiltroSolicitud);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// Autor:Joseph Llanque
         /// Fecha: 02/02/2023
         /// Version: 1.0
         /// <summary>
         /// Obtiene el todas las solicitudes de alumnos
-        /// </summary> 
+        /// </summary>
         /// <returns> IEnumerable<SolicitudAlumnoFiltradaDTO> </returns>
         public IEnumerable<SolicitudAlumnoFiltradaDTO> obtenerSolicitudAlumno()
         {
@@ -774,6 +813,26 @@ namespace BSI.Integra.Aplicacion.Operaciones.Service.Implementacion
                         Exception = ex.ToString(),
                     },
                 };
+            }
+        }
+
+        /// Autor: Alexis Arroyo
+        /// Fecha: 20/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza el estado de una solicitud de alumno
+        /// </summary>
+        /// <param name="idSolicitud">ID de la solicitud a actualizar</param>
+        /// <returns>True si se actualizó correctamente</returns>
+        public bool ActualizarEstadoSolicitud(int idSolicitud)
+        {
+            try
+            {
+                return _unitOfWork.SolicitudAlumnoRepository.ActualizarEstadoSolicitud(idSolicitud);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 

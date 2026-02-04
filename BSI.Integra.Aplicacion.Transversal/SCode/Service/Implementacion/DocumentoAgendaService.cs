@@ -2,6 +2,7 @@
 using BSI.Integra.Aplicacion.Base.Exceptions;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Transversal.Clases;
 using BSI.Integra.Aplicacion.Transversal.SCode.Helper;
@@ -2892,6 +2893,78 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw;
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener contenido estructura curricular transformado
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>List<CapituloEstructuraDTO></returns> 
+        public async Task<List<CapituloEstructuraDTO>> ObtenerContenidoEstructuraCurricularTransformadoAsync(int idPGeneral)
+        {
+            try
+            {
+                var registros = await _unitOfWork.DocumentoAgendaRepository.ObtenerContenidoEstructuraCurricularAsync(idPGeneral);
+
+                var capitulos = new List<CapituloEstructuraDTO>();
+
+                if (registros != null && registros.Any())
+                {
+                    var capituloSesiones = new Dictionary<string, List<string>>();
+
+                    foreach (var registro in registros)
+                    {
+                        if (registro.IdSeccionTipoDetalle_PW == 12) 
+                        {
+                            if (!capituloSesiones.ContainsKey(registro.Contenido))
+                                capituloSesiones[registro.Contenido] = new List<string>();
+                        }
+                        else if (registro.IdSeccionTipoDetalle_PW == 13) 
+                        {
+                            string capituloActual = "";
+
+                            for (int i = registros.IndexOf(registro) - 1; i >= 0; i--)
+                            {
+                                if (registros[i].IdSeccionTipoDetalle_PW == 12)
+                                {
+                                    capituloActual = registros[i].Contenido;
+                                    break;
+                                }
+                            }
+
+                            if (!string.IsNullOrEmpty(capituloActual) && capituloSesiones.ContainsKey(capituloActual))
+                            {
+                                capituloSesiones[capituloActual].Add(registro.Contenido);
+                            }
+                        }
+                    }
+
+                    foreach (var kvp in capituloSesiones)
+                    {
+                        var sesionesUnicas = kvp.Value.Distinct().ToList();
+
+                        if (sesionesUnicas.Any())
+                        {
+                            capitulos.Add(new CapituloEstructuraDTO
+                            {
+                                Capitulo = kvp.Key,
+                                Sesiones = sesionesUnicas
+                            });
+                        }
+                    }
+                }
+
+                return capitulos;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 10/08/2022
         /// Version: 1.0

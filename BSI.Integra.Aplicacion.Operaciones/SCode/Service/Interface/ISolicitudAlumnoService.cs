@@ -33,5 +33,6 @@ namespace BSI.Integra.Aplicacion.Operaciones.Service.Interface
         RespuestaRegistroSolicitudDTO RegistrarSolicitudAlumno(
             RegistrarSolicitudAlumnoDTO solicitud
         );
+        bool ActualizarEstadoSolicitud(int idSolicitud);
     }
 }

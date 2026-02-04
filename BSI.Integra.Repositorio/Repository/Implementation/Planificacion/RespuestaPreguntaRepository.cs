@@ -291,7 +291,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             {
                 var rpta = new List<PreguntaRespuestaAsincronicaDTO>();
                 var query = @"SELECT
-                                  
+
                                     IdRespuestaPregunta, 
                                     IdPregunta, 
                                     NroOrden, 

@@ -1,4 +1,7 @@
-﻿namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
+﻿using BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad;
+using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad.TranscriptionDTO;
+
+namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 {
     public class LlamadaIntegraDTO
     {
@@ -25,8 +28,13 @@
         public string? EstadoLlamada { get; set; }
         public string? SubEstadoLlamada { get; set; }
         public string? UrlGrabacion { get; set; }
+        public string? UrlGrabacion2 { get; set; }
         public string? NombreGrabacion { get; set; }
         public string? Webphone { get; set; }
         public string OrigenLlamada { get; set; }
+        public string? TranscripcionLlamada { get; set; }
+        public bool? esLlamadaCalificada { get; set; }
+        public bool? esLlamadaTranscrita { get; set; }
+        public TranscripcionCompletaResponseDTO? Transcripcion { get; set; }
     }
 }
