@@ -80,10 +80,30 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public GestionDocenteDisparadorReglaTiempoRelativoReferenciaDTO? ReferenciaRelativa { get; set; }
     }
 
+    public class GestionDocenteOcurrenciaIaConfiguracionDTO
+    {
+        public string Prompt { get; set; }
+        public int IdGestionDocenteConfianzaUmbralNivel { get; set; }
+    }
+
+    public class GestionDocenteIaEntrenamientoEjemploDTO
+    {
+        public int IdGestionDocenteIaEntrenamientoClasificacionTipo { get; set; }
+        public string TextoEjemplo { get; set; }
+        public bool EsPositivo { get; set; }
+    }
+
+    public class InsertarOcurrenciaRequestDTO
+    {
+        public GestionDocenteOcurrenciaDTO Ocurrencia { get; set; }
+        public GestionDocenteOcurrenciaIaConfiguracionDTO? IaConfiguracion { get; set; }
+        public List<GestionDocenteIaEntrenamientoEjemploDTO>? EjemplosEntrenamiento { get; set; }
+    }
+
     public class MaestroGestionDocenteActividadDTO
     {
         public GestionDocenteActividadCabeceraDTO Cabecera { get; set; }
         public List<InsertarActividadDetalleRequestDTO> Detalles { get; set; }
-        public List<GestionDocenteOcurrenciaDTO> Ocurrencias { get; set; }
+        public List<InsertarOcurrenciaRequestDTO> Ocurrencias { get; set; }
     }
 }

@@ -66,11 +66,11 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
         }
 
         [HttpPost("InsertarOcurrencia")]
-        public async Task<IActionResult> InsertarOcurrencia([FromBody] GestionDocenteOcurrenciaDTO dto)
+        public async Task<IActionResult> InsertarOcurrencia([FromBody] InsertarOcurrenciaRequestDTO request)
         {
             try
             {
-                var id = await _gestionDocenteActividadService.InsertarOcurrenciaAsync(dto);
+                var id = await _gestionDocenteActividadService.InsertarOcurrenciaAsync(request);
                 return Ok(new { Exito = true, Id = id });
             }
             catch (Exception ex)

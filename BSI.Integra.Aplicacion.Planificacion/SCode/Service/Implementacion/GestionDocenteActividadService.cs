@@ -238,10 +238,15 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task<int> InsertarOcurrenciaAsync(GestionDocenteOcurrenciaDTO dto)
+        public async Task<int> InsertarOcurrenciaAsync(InsertarOcurrenciaRequestDTO request)
         {
             try
             {
+                var dto = request.Ocurrencia;
+                DateTime fechaActual = DateTime.Now;
+                string usuario = dto.Usuario;
+
+                // 1. Insertar la ocurrencia
                 var gestionDocenteOcurrencia = new GestionDocenteOcurrencia
                 {
                     Nombre = dto.Nombre,
@@ -252,20 +257,75 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     RequiereComentario = dto.RequiereComentario,
                     RequiereFechaHora = dto.RequiereFechaHora,
                     Estado = true,
-                    UsuarioCreacion = dto.Usuario,
-                    UsuarioModificacion = dto.Usuario,
-                    FechaCreacion = DateTime.Now,
-                    FechaModificacion = DateTime.Now
+                    UsuarioCreacion = usuario,
+                    UsuarioModificacion = usuario,
+                    FechaCreacion = fechaActual,
+                    FechaModificacion = fechaActual
                 };
 
                 var model = _unitOfWork.GestionDocenteOcurrenciaRepository.Add(gestionDocenteOcurrencia);
                 await _unitOfWork.CommitAsync();
+
+                // 2. Para Automatico (2) y Warm (3), insertar configuración IA y ejemplos de entrenamiento
+                if (dto.IdGestionDocenteModoMarcado == 2 || dto.IdGestionDocenteModoMarcado == 3)
+                {
+                    await ProcesarConfiguracionIaAsync(request, model.Id, usuario, fechaActual);
+                }
 
                 return model.Id;
             }
             catch (Exception ex)
             {
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// Procesa la configuración de IA para modos de marcado Automatico (2) y Warm (3).
+        /// Inserta en T_GestionDocenteOcurrenciaIaConfiguracion y T_GestionDocenteIaEntrenamientoEjemplo.
+        /// </summary>
+        private async Task ProcesarConfiguracionIaAsync(InsertarOcurrenciaRequestDTO request, int idOcurrencia, string usuario, DateTime fechaActual)
+        {
+            if (request.IaConfiguracion == null)
+                throw new ArgumentException("La configuración de IA es requerida para los modos de marcado Automático y Warm");
+
+            // Insertar configuración IA
+            var iaConfiguracion = new GestionDocenteOcurrenciaIaConfiguracion
+            {
+                Prompt = request.IaConfiguracion.Prompt,
+                IdGestionDocenteConfianzaUmbralNivel = request.IaConfiguracion.IdGestionDocenteConfianzaUmbralNivel,
+                IdGestionDocenteOcurrencia = idOcurrencia,
+                Estado = true,
+                UsuarioCreacion = usuario,
+                UsuarioModificacion = usuario,
+                FechaCreacion = fechaActual,
+                FechaModificacion = fechaActual
+            };
+
+            var iaConfigModel = _unitOfWork.GestionDocenteOcurrenciaIaConfiguracionRepository.Add(iaConfiguracion);
+            await _unitOfWork.CommitAsync();
+
+            // Insertar ejemplos de entrenamiento
+            if (request.EjemplosEntrenamiento != null && request.EjemplosEntrenamiento.Count > 0)
+            {
+                foreach (var ejemploDto in request.EjemplosEntrenamiento)
+                {
+                    var ejemplo = new GestionDocenteIaEntrenamientoEjemplo
+                    {
+                        IdGestionDocenteOcurrenciaIaConfiguracion = iaConfigModel.Id,
+                        IdGestionDocenteIaEntrenamientoClasificacionTipo = ejemploDto.IdGestionDocenteIaEntrenamientoClasificacionTipo,
+                        TextoEjemplo = ejemploDto.TextoEjemplo,
+                        EsPositivo = ejemploDto.EsPositivo,
+                        Estado = true,
+                        UsuarioCreacion = usuario,
+                        UsuarioModificacion = usuario,
+                        FechaCreacion = fechaActual,
+                        FechaModificacion = fechaActual
+                    };
+
+                    _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository.Add(ejemplo);
+                }
+                await _unitOfWork.CommitAsync();
             }
         }
 
@@ -283,11 +343,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     int idDetalle = await InsertarDetalleAsync(detRequest);
 
                     // 3. Insertar Ocurrencias asociadas a este detalle
-                    var ocurrenciasAsociadas = dto.Ocurrencias.Where(o => o.IdGestionDocenteActividadDetalle == detRequest.Detalle.Id);
-                    foreach (var ocuDto in ocurrenciasAsociadas)
+                    var ocurrenciasAsociadas = dto.Ocurrencias.Where(o => o.Ocurrencia.IdGestionDocenteActividadDetalle == detRequest.Detalle.Id);
+                    foreach (var ocuRequest in ocurrenciasAsociadas)
                     {
-                        ocuDto.IdGestionDocenteActividadDetalle = idDetalle;
-                        await InsertarOcurrenciaAsync(ocuDto);
+                        ocuRequest.Ocurrencia.IdGestionDocenteActividadDetalle = idDetalle;
+                        await InsertarOcurrenciaAsync(ocuRequest);
                     }
                 }
 
