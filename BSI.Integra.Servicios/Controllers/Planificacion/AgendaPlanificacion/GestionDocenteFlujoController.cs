@@ -102,5 +102,19 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
                 return BadRequest(new { Exito = false, Mensaje = ex.Message });
             }
         }
+
+        [HttpGet("ObtenerActividadesCabecera")]
+        public IActionResult ObtenerActividadesCabecera()
+        {
+            try
+            {
+                var lista = _gestionDocenteFlujoService.ObtenerActividadesCabecera();
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
     }
 }
