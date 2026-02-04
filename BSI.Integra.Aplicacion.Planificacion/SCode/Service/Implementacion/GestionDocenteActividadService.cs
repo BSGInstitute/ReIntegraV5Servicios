@@ -87,6 +87,24 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 var model = _unitOfWork.GestionDocenteActividadDetalleRepository.Add(gestionDocenteActividadDetalle);
                 await _unitOfWork.CommitAsync();
 
+                // 4. Si es tipo disparador 3 (Basado en Cronograma) insertar en T_GestionContactoActividadDetalleSesion
+                if (request.Disparador.IdGestionDocenteDisparadorFlujoTipo == 3 && request.IdGestionDocenteSesion.HasValue)
+                {
+                    var actividadDetalleSesion = new GestionContactoActividadDetalleSesion
+                    {
+                        IdGestionDocenteActividadDetalle = model.Id,
+                        IdGestionDocenteSesion = request.IdGestionDocenteSesion.Value,
+                        Estado = true,
+                        UsuarioCreacion = usuario,
+                        UsuarioModificacion = usuario,
+                        FechaCreacion = fechaActual,
+                        FechaModificacion = fechaActual
+                    };
+
+                    _unitOfWork.GestionContactoActividadDetalleSesionRepository.Add(actividadDetalleSesion);
+                    await _unitOfWork.CommitAsync();
+                }
+
                 return model.Id;
             }
             catch (Exception ex)

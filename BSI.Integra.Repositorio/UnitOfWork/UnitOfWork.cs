@@ -8397,5 +8397,14 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _gestionDocenteIaEntrenamientoEjemploRepository ?? new GestionDocenteIaEntrenamientoEjemploRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+
+        private IGestionContactoActividadDetalleSesionRepository _gestionContactoActividadDetalleSesionRepository;
+        IGestionContactoActividadDetalleSesionRepository IUnitOfWork.GestionContactoActividadDetalleSesionRepository
+        {
+            get
+            {
+                return _gestionContactoActividadDetalleSesionRepository ?? new GestionContactoActividadDetalleSesionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
     }
 }

@@ -78,6 +78,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public GestionDocenteDisparadorReglaTiempoRelativoDTO? ReglaTiempoRelativo { get; set; }
         public GestionDocenteDisparadorOcurrenciaDetalleDTO? OcurrenciaDetalle { get; set; }
         public GestionDocenteDisparadorReglaTiempoRelativoReferenciaDTO? ReferenciaRelativa { get; set; }
+        public int? IdGestionDocenteSesion { get; set; }
     }
 
     public class GestionDocenteOcurrenciaIaConfiguracionDTO
