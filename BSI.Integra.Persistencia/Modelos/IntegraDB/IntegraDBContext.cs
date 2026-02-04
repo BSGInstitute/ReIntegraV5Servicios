@@ -36751,6 +36751,17 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.Id).HasComment("Es primary key");
 
+                entity.Property(e => e.CertificadoBsg)
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasColumnName("CertificadoBSG")
+                    .HasComment("URI de Archivo en blob storage del certificado del partner emitido por BSG");
+
+                entity.Property(e => e.CertificadoLogo)
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasComment("URI de Imagen en blob storage del logo de certificacion del partner");
+
                 entity.Property(e => e.Descripcion)
                     .IsUnicode(false)
                     .HasComment("Descripcion completa");
@@ -36802,6 +36813,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(150)
                     .IsUnicode(false)
                     .HasComment("Nombre completo del partner");
+
+                entity.Property(e => e.PaginaLink)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("URL de la pagina web del partner");
 
                 entity.Property(e => e.Posicion).HasComment("La pocision de como se visualizara el listado de partner");
 
