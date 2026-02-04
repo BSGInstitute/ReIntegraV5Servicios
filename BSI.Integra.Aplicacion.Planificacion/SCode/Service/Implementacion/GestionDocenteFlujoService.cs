@@ -38,6 +38,24 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 var model = _unitOfWork.GestionDocenteFlujoRepository.Add(entidad);
                 await _unitOfWork.CommitAsync();
 
+                // Asociar actividad cabecera al flujo
+                if (dto.IdGestionDocenteActividadCabecera.HasValue)
+                {
+                    var asociacion = new GestionDocenteActividadCabeceraFlujo
+                    {
+                        IdGestionDocenteFlujo = model.Id,
+                        IdGestionDocenteActividadCabecera = dto.IdGestionDocenteActividadCabecera.Value,
+                        Estado = true,
+                        UsuarioCreacion = dto.Usuario,
+                        UsuarioModificacion = dto.Usuario,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now
+                    };
+
+                    _unitOfWork.GestionDocenteActividadCabeceraFlujoRepository.Add(asociacion);
+                    await _unitOfWork.CommitAsync();
+                }
+
                 return model.Id;
             }
             catch (Exception ex)
@@ -124,6 +142,18 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             try
             {
                 return _unitOfWork.GestionDocenteFlujoRepository.ObtenerCategorias();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public IEnumerable<GestionDocenteActividadCabeceraListaDTO> ObtenerActividadesCabecera()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteFlujoRepository.ObtenerActividadesCabecera();
             }
             catch (Exception ex)
             {

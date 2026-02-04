@@ -12,5 +12,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         Task<List<GestionDocenteFlujoDTO>> ObtenerTodoAsync();
         IEnumerable<GestionDocenteEstadoDTO> ObtenerEstadosFlujo();
         IEnumerable<GestionDocenteCategoriaDTO> ObtenerCategorias();
+        IEnumerable<GestionDocenteActividadCabeceraListaDTO> ObtenerActividadesCabecera();
     }
 }
