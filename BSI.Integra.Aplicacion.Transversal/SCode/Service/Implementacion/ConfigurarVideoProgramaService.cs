@@ -3,6 +3,7 @@ using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.Servicios.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
@@ -11,10 +12,13 @@ using BSI.Integra.Repositorio.Repository.Implementation;
 using BSI.Integra.Repositorio.Repository.Implementation.Planificacion;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System;
 using System.Drawing;
+using System.Net;
+using System.Text;
 using System.Transactions;
 using static System.Formats.Asn1.AsnWriter;
 
@@ -1238,15 +1242,15 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                 columna++;
                                 if(i < columnasAdicionalExcel.Count())
                                 {
-                                    worksheet.Cells[fila, columna].Value = columnasAdicionalExcel[i].Minuto;
-                                    columna++;
-                                    worksheet.Cells[fila, columna].Value = columnasAdicionalExcel[i].IdTipoVista;
-                                    columna++;
-                                    worksheet.Cells[fila, columna].Value = columnasAdicionalExcel[i].NroDiapositiva;
-                                    columna++;
-                                    worksheet.Cells[fila, columna].Value = columnasAdicionalExcel[i].ConLogoVideo == true ? "si" : columnasAdicionalExcel[i].ConLogoVideo == false ? "no" : "";
-                                    columna++;
-                                    worksheet.Cells[fila, columna].Value = columnasAdicionalExcel[i].ConLogoDiapositiva == true ? "si" : columnasAdicionalExcel[i].ConLogoDiapositiva == false ? "no" : "";
+                                worksheet.Cells[fila, columna].Value = columnasAdicionalExcel[i].Minuto;
+                                columna++;
+                                worksheet.Cells[fila, columna].Value = columnasAdicionalExcel[i].IdTipoVista;
+                                columna++;
+                                worksheet.Cells[fila, columna].Value = columnasAdicionalExcel[i].NroDiapositiva;
+                                columna++;
+                                worksheet.Cells[fila, columna].Value = columnasAdicionalExcel[i].ConLogoVideo == true ? "si" : columnasAdicionalExcel[i].ConLogoVideo == false ? "no" : "";
+                                columna++;
+                                worksheet.Cells[fila, columna].Value = columnasAdicionalExcel[i].ConLogoDiapositiva == true ? "si" : columnasAdicionalExcel[i].ConLogoDiapositiva == false ? "no" : "";
                                 }
                                 fila++;
                             }
@@ -1437,6 +1441,297 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         {
             return _unitOfWork.SesionConfigurarVideoRepository.ObtenerConteosdeVideosTipo(idPGeneral);
         }
+        /// Autor: Max Mantilla
+        /// Fecha: 2026-01-26
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la configuracion del video programa por el IdPGeneral para Tutor Virtual
+        /// </summary>
+        /// <param name="idPGeneral"> (PK) de T_PGeneral </param> 
+        /// <returns> List<EstructuraCapituloProgramaTutorVirtualDTO> </returns>
+        public List<EstructuraCapituloProgramaTutorVirtualDTO> ObtenerConfiguracionTutorVirtualAonline(int idPGeneral)
+        {
+            try
+            {
+                var respuesta = _unitOfWork.ConfigurarVideoProgramaRepository.ObtenerPreConfigurarVideoProgramaTutorVirtual(idPGeneral);
+                var _listadoEstructura = (from x in respuesta
+                                          group x by x.NumeroFila into newGroup
+                                          select newGroup).ToList();
+                var estructuraCapituloProgramas = new List<EstructuraCapituloProgramaTutorVirtualDTO>();
+                foreach (var item in _listadoEstructura)
+                {
+                    var estructuraCapituloPrograma = new EstructuraCapituloProgramaTutorVirtualDTO();
+                    estructuraCapituloPrograma.OrdenFila = item.Key;
+                    foreach (var itemRegistros in item)
+                    {
+                        switch (itemRegistros.NombreTitulo)
+                        {
+                            case "Capitulo":
+                                estructuraCapituloPrograma.Nombre = itemRegistros.Nombre;
+                                estructuraCapituloPrograma.Capitulo = itemRegistros.Contenido;
+                                estructuraCapituloPrograma.OrdenSeccion = itemRegistros.IdSeccionTipoDetalle_PW;
+                                estructuraCapituloPrograma.IdPgeneral = itemRegistros.IdPGeneral;
+                                break;
+                            case "Sesion":
+                                estructuraCapituloPrograma.Sesion = itemRegistros.Contenido;
+                                estructuraCapituloPrograma.OrdenSeccion = itemRegistros.IdSeccionTipoDetalle_PW;
+                                estructuraCapituloPrograma.IdDocumentoSeccionPw = itemRegistros.Id;
+                                estructuraCapituloPrograma.VideoIdBrightcove = itemRegistros.VideoIdBrightcove;
+                                estructuraCapituloPrograma.VideoIdVimeo = itemRegistros.VideoIdVimeo;
+                                estructuraCapituloPrograma.ReproduccionVideo = itemRegistros.ReproduccionVideo;
+                                break;
+                            case "SubSeccion":
+                                estructuraCapituloPrograma.SubSesion = itemRegistros.Contenido;
+                                if (!string.IsNullOrEmpty(estructuraCapituloPrograma.SubSesion))
+                                {
+                                    estructuraCapituloPrograma.OrdenSeccion = itemRegistros.IdSeccionTipoDetalle_PW;
+                                    estructuraCapituloPrograma.IdDocumentoSeccionPw = itemRegistros.Id;
+                                    estructuraCapituloPrograma.VideoIdBrightcove = itemRegistros.VideoIdBrightcove;
+                                    estructuraCapituloPrograma.VideoIdVimeo = itemRegistros.VideoIdVimeo;
+                                    estructuraCapituloPrograma.ReproduccionVideo = itemRegistros.ReproduccionVideo;
+                                }
+                                break;
+                            default:
+                                estructuraCapituloPrograma.OrdenCapitulo = Convert.ToInt32(itemRegistros.Contenido);
+                                break;
+                        }
+                    }
+                    estructuraCapituloProgramas.Add(estructuraCapituloPrograma);
+                }
+
+                var estructuraCapitulos = estructuraCapituloProgramas.OrderBy(c => c.OrdenCapitulo).ThenBy(c => c.OrdenFila).ToList();
+                var videosProcesados = _unitOfWork.ConfigurarVideoProgramaRepository.ObtenerProcesamientoVideosAonline();
+                Dictionary<string, VideoAonlineProcesamientoDTO> diccionarioProcesados = new Dictionary<string, VideoAonlineProcesamientoDTO>();
+
+                if (videosProcesados != null && videosProcesados.Any())
+                {
+                    diccionarioProcesados = videosProcesados
+                        .GroupBy(v => v.VideoId.ToString())
+                        .Select(g => new VideoAonlineProcesamientoDTO
+                        {
+                            VideoId = g.Key,
+                            Plataforma = g.First().Plataforma,
+                            NroErrores = g.Max(x => x.NroErrores),
+                            EstadoProceso = g.Any(x => x.Tipo == "Vectorial" && x.Estado == "Completado")
+                                ? "Completado"
+                                : g.Any(x => x.NroErrores >= 3)
+                                    ? "Error"
+                                    : "En Proceso",
+                            FechaProcesamiento = g.Any(x => x.Tipo == "Vectorial" && x.Estado == "Completado")
+                                || g.Any(x => x.NroErrores >= 3)
+                                    ? g.Max(x => x.FechaProcesamiento)
+                                    : (DateTime?)null
+                        })
+                        .ToDictionary(v => v.VideoId.ToString(), v => v);
+                }
+                else
+                {
+                    diccionarioProcesados = new Dictionary<string, VideoAonlineProcesamientoDTO>();
+                }
+
+                foreach (var estructura in estructuraCapitulos)
+                {
+                    if (!string.IsNullOrEmpty(estructura.VideoIdBrightcove))
+                    {
+                        estructura.TieneVideo = true;
+
+                        if (diccionarioProcesados.TryGetValue(estructura.VideoIdBrightcove, out var videoProcesado))
+                        {
+                            estructura.EstadoProcesamiento = videoProcesado.EstadoProceso;
+                            estructura.FechaProcesamiento = videoProcesado.FechaProcesamiento;
+                        }
+                        else
+                        {
+                            estructura.EstadoProcesamiento = "Pendiente";
+                            estructura.FechaProcesamiento = null;
+                        }
+                    }
+                    else
+                    {
+                        estructura.TieneVideo = false;
+                        estructura.EstadoProcesamiento = "";
+                        estructura.FechaProcesamiento = null;
+                    }
+                }
+
+                return estructuraCapitulos;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        /// Autor: Max Mantilla
+        /// Fecha: 2026-01-26
+        /// Version: 1.0
+        /// <summary>
+        /// Proceso para generar base de conocimiento en Tutor Virtual
+        /// </summary>
+        /// <returns> Task<(string resultado, HttpStatusCode statusCode)> </returns>
+        public async Task<(string resultado, HttpStatusCode statusCode)> ProcesarTutorVirtualAonline(ProcesamientoVideosAonlineEnvioDTO datos, string usuario)
+        {
+            try
+            {
+                var urlBase = "http://ia-tutor-virtual-api.bsginstitute.com/api/procesamiento/asincrono/batch";
+
+                var requestBody = new ProcesamientoVideosAonlineRequestDTO
+                {
+                    usuario = usuario,
+                    videos = datos.Videos
+                };
+
+                using (HttpClient client = new HttpClient())
+                {
+                    var jsonContent = JsonConvert.SerializeObject(requestBody);
+                    var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                    var response = await client.PostAsync(urlBase, content);
+                    var jsonString = await response.Content.ReadAsStringAsync();
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return (jsonString, response.StatusCode);
+                    }
+                    else
+                    {
+                        return ($"Error al procesar la respuesta del servidor: {response.ReasonPhrase}", response.StatusCode);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return ($"Excepción: {ex.Message}", HttpStatusCode.InternalServerError);
+            }
+        }
+        /// Autor: Max Mantilla
+        /// Fecha: 2026-01-26
+        /// Version: 1.0
+        /// <summary>
+        /// Envio de resumen de procesamiento de videos asincrónicos para Tutor Virtual
+        /// </summary>
+        /// <returns> Task<(string resultado, HttpStatusCode statusCode)> </returns>
+        public bool EnviarCorreoProcesamientoVideosTutorAonline(ProcesamientoVideosAonlineEnvioCorreoDTO datos)
+        {
+            try
+            {
+                var nombreCurso = _unitOfWork.ConfigurarVideoProgramaRepository.ObtenerNombreCursoProcesamientoVideosAonline(datos.Videos[0]);
+                int total = datos.Videos.Count;
+                int completados = datos.Videos.Count(v => v.Completado);
+                int erroneos = total - completados;
+                int porcentajeCompletados = total > 0 ? (int)Math.Round((double)completados / total * 100) : 0;
+
+                var _repIntegraAspNetUsers = new IntegraAspNetUser();
+                var correosPersonalizados = new List<string>();
+
+                if (_unitOfWork.IntegraAspNetUserRepository.ExistePorNombreUsuario(datos.Usuario))
+                {
+                    try
+                    {
+                        correosPersonalizados.Add(_unitOfWork.IntegraAspNetUserRepository.ObtenerEmailPorNombreUsuario(datos.Usuario));
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+                correosPersonalizados.Add("mmantilla@bsginstitute.com");
+                correosPersonalizados.Add("aarcana@bsginstitute.com");
+                correosPersonalizados.Add("omamania@bsginstitute.com");
+                correosPersonalizados = correosPersonalizados.Distinct().ToList();
+                var MailservicePersonalizado = new TMK_MailService();
+                var mailDataPersonalizado = new TMKMailDataDTO
+                {
+                    Sender = "soporte@bsginstitute.com",
+                    Recipient = string.Join(",", correosPersonalizados),
+                    Subject = $"Resumen de Procesamiento - {nombreCurso} - Porcentaje {porcentajeCompletados}%",
+                    Message = $@"
+                            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;'>
+        
+                                <!-- Encabezado -->
+                                <div style='background: linear-gradient(135deg, #2c3e50, #4a6491); color: white; padding: 20px; text-align: center;'>
+                                    <h2 style='margin: 0; font-size: 20px;'>📊 RESUMEN DE PROCESAMIENTO</h2>
+                                    <p style='margin: 5px 0 0 0; opacity: 0.9;'>Sistema Automatizado de Procesamiento de Videos</p>
+                                </div>
+        
+                                <!-- Contenido principal -->
+                                <div style='padding: 25px; background-color: #f9f9f9;'>
+            
+                                    <!-- Información del curso -->
+                                    <div style='background-color: white; padding: 20px; border-radius: 6px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);'>
+                                        <h3 style='color: #2c3e50; margin-top: 0; border-bottom: 2px solid #4a6491; padding-bottom: 10px;'>Información del Curso</h3>
+                                        <p style='margin: 15px 0;'><strong>🎯 Curso:</strong> <span style='color: #3498db; font-weight: 600;'>{nombreCurso}</span></p>
+                                    </div>
+            
+                                    <!-- Estadísticas -->
+                                    <div style='background-color: white; padding: 20px; border-radius: 6px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);'>
+                                        <h3 style='color: #2c3e50; margin-top: 0; border-bottom: 2px solid #4a6491; padding-bottom: 10px;'>Estadísticas de Procesamiento</h3>
+                
+                                        <div style='display: flex; justify-content: space-between; margin: 20px 0;'>
+                                            <div style='text-align: center; flex: 1; padding: 15px; background-color: #f8f9fa; border-radius: 6px; margin: 0 5px;'>
+                                                <div style='font-size: 28px; font-weight: bold; color: #3498db;'>{total}</div>
+                                                <div style='color: #7f8c8d; font-size: 14px;'>Videos a Procesar</div>
+                                            </div>
+                    
+                                            <div style='text-align: center; flex: 1; padding: 15px; background-color: #f8f9fa; border-radius: 6px; margin: 0 5px;'>
+                                                <div style='font-size: 28px; font-weight: bold; color: #27ae60;'>{completados}</div>
+                                                <div style='color: #7f8c8d; font-size: 14px;'>Procesados Correctamente</div>
+                                            </div>
+                    
+                                            <div style='text-align: center; flex: 1; padding: 15px; background-color: #f8f9fa; border-radius: 6px; margin: 0 5px;'>
+                                                <div style='font-size: 28px; font-weight: bold; color: #e74c3c;'>{erroneos}</div>
+                                                <div style='color: #7f8c8d; font-size: 14px;'>No Procesados</div>
+                                            </div>
+                                        </div>
+                
+                                        <!-- Barra de progreso -->
+                                        <div style='margin: 25px 0;'>
+                                            <div style='display: flex; justify-content: space-between; margin-bottom: 8px;'>
+                                                <span style='font-weight: 600; color: #2c3e50;margin-right:5px'>Progreso General: </span>
+                                                <span style='font-weight: 600; color: #27ae60;'>{porcentajeCompletados}%</span>
+                                            </div>
+                                            <div style='height: 10px; background-color: #ecf0f1; border-radius: 5px; overflow: hidden;'>
+                                                <div style='width: {porcentajeCompletados}%; height: 100%; background: linear-gradient(90deg, #27ae60, #2ecc71); border-radius: 5px;'></div>
+                                            </div>
+                                        </div>
+                                    </div>
+            
+                                    <!-- Información temporal -->
+                                    <div style='background-color: white; padding: 20px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);'>
+                                        <h3 style='color: #2c3e50; margin-top: 0; border-bottom: 2px solid #4a6491; padding-bottom: 10px;'>Información de Ejecución</h3>
+                
+                                        <div style='display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;'>
+                                            <div style='padding: 12px; background-color: #f8f9fa; border-radius: 6px;'>
+                                                <div style='font-size: 12px; color: #7f8c8d;'>Hora de Finalización</div>
+                                                <div style='font-weight: 600; color: #e67e22;'>{DateTime.Now:dd/MM/yyyy HH:mm:ss}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+            
+                                </div>
+        
+                                <!-- Pie de página -->
+                                <div style='background-color: #f1f1f1; padding: 15px; text-align: center; border-top: 1px solid #e0e0e0;'>
+                                    <p style='margin: 0; color: #7f8c8d; font-size: 12px;'>
+                                        Este es un reporte automático generado por el sistema de procesamiento de videos.
+                                        <br>
+                                        BSG Institute • {DateTime.Now:yyyy}
+                                    </p>
+                                </div>
+        
+                            </div>
+                            ",
+                    Cc = "",
+                    Bcc = "",
+                    AttachedFiles = null
+                };
+                MailservicePersonalizado.SetData(mailDataPersonalizado);
+                MailservicePersonalizado.SendMessageTask();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
     }
 }
 

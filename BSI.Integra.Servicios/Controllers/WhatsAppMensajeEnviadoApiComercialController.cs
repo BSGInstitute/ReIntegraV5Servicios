@@ -64,6 +64,25 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex);
             }
         }
+
+        [Authorize]
+        [JwtExpirationValidation]
+        [Route("[action]")]
+        [HttpPost]
+        public async Task<IActionResult> AsistenteComercialMensajeTexto(AsistenteComercialMensajeTextoComDTO json)
+        {
+            try
+            {
+                //return Ok();
+                WhatsAppMensajeEnviadoApiComercialService servicio = new WhatsAppMensajeEnviadoApiComercialService(_unitOfWork);
+                var resultado = await servicio.EnvioMensajeAsistenteComercialPorTexto(json, _tokenManager.UserName);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
         [Authorize]
         [JwtExpirationValidation]
         [Route("[action]")]

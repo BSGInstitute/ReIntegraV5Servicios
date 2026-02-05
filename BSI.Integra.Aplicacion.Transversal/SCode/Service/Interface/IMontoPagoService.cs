@@ -14,6 +14,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         MontoPagoCompuestoDTO ObtenerMontoPagoPorIdOportunidadParaTabla(int idOportunidad);
         IEnumerable<MontoPagoCronogramaCompuestoDTO> ObtenerMontoPagoPorIdOportunidadV2(int idOportunidad);
         List<MontoPagoModalidadDTO> ObtenerMontosPorId(int idPGeneral);
+        Task<List<MontoPagoModalidadDTO>> ObtenerMontosPorIdAsync(int idPGeneral);
         MontoPagoDTO ObtenerPorId(int idMontoPago);
         List<MontoPagoEtiquetaDTO> ObtenerVersionesMontoPagoV2(int idOportunidad);
         List<MontoPagoEtiquetaDTO> ObtenerVersionesMontoPago(int idOportunidad);

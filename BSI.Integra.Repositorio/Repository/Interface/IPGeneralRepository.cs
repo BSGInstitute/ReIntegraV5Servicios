@@ -105,6 +105,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public IEnumerable<ProgramaGeneralComboDTO> ProgramaGneralconUrlVersion();
         public int? ObtenerPdu(int idMatriculacabecera);
         public int? ObtenerPduPorIdPGeneral(int IdPgeneral);
+        Task<List<ListaCursosPorProgramaDTO>> ListaCursosHijoPorIdPGeneralAsync(int idPGeneral);
+        Task<List<ContenidoHijoDTO>> ContenidoEstructuraHijoPadreAsync(int idPGeneral);
+        IEnumerable<PGeneralPublicoObjetivoParaAgendaDTO> ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3PorAlumno(int idOportunidad);
         IEnumerable<ComboDTO> ObtenerPGeneralActivo();
     }
 }

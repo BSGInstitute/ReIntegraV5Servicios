@@ -23,4 +23,16 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int Respuesta { get; set; }
         public string Completado { get; set; } = null!;
     }
+    public class OportunidadPrerequisitoGeneralesCompetidorDTO
+    {
+        public List<ProgramaGeneralPrerequisitoOportunidadV2DTO> PrerequisitosGenerales { get; set; } = new List<ProgramaGeneralPrerequisitoOportunidadV2DTO>();
+    }
+    public class ProgramaGeneralPrerequisitoOportunidadV2DTO
+    {
+        public int IdPrerequisito { get; set; }
+        public string PRNombre { get; set; } = null!;
+        public string Respuesta { get; set; }
+        public string Completado { get; set; } = null!;
+    }
+
 }

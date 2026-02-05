@@ -9,6 +9,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         IEnumerable<PEspecificoPGeneralFiltroDTO> ObtenerFiltroPorIdPGeneral(int idPGeneral);
         string FechaInicioProgramaV2(int idPGeneral, int idPespecifico);
         List<PEspecificoPorIdPGeneral> ObtenerFechaInicioProgramaTodos(int idPGeneral);
+        Task<List<PEspecificoPorIdPGeneral>> ObtenerFechaInicioProgramaTodosAsync(int idPGeneral);
         string ObtenerPeriodoDuracion(int idPEspecifico, int idMatriculaCabecera);
         string ObtenerConjuntoSesion(int idPEspecifico);
         string ObtenerProximoConjuntoSesion(int idPEspecifico, int cantidadDias);

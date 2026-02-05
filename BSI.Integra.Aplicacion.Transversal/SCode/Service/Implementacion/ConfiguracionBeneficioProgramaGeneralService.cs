@@ -175,6 +175,29 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw ex;
             }
         }
+        public async Task<List<BeneficioDTO>> ObtenerBeneficiosPGeneralTipo1V2InternacionalAsync(int idPGeneral)
+        {
+            try
+            {
+                return await _unitOfWork.ConfiguracionBeneficioProgramaGeneralRepository.ObtenerBeneficiosPGeneralTipo1V2InternacionalAsync(idPGeneral);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<BeneficioDTOjson> ObtenerBeneficiosPGeneralTipo1V2Internacionaljson(int idPGeneral)
+        {
+            try
+            {
+                return _unitOfWork.ConfiguracionBeneficioProgramaGeneralRepository.ObtenerBeneficiosPGeneralTipo1V2Internacionaljson(idPGeneral);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 10/08/2022
         /// Version: 1.0
@@ -207,6 +230,28 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw ex;
             }
         }
+        public async Task<List<BeneficioDTO>> ObtenerBeneficiosPGeneralTipo1V2Async(int idPGeneral, int codigoPais = 0)
+        {
+            try
+            {
+                return await _unitOfWork.ConfiguracionBeneficioProgramaGeneralRepository.ObtenerBeneficiosPGeneralTipo1V2Async(idPGeneral, codigoPais);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public List<BeneficioDTOjson> ObtenerBeneficiosPGeneralTipo1V2json(int idPGeneral, int codigoPais = 0)
+        {
+            try
+            {
+                return _unitOfWork.ConfiguracionBeneficioProgramaGeneralRepository.ObtenerBeneficiosPGeneralTipo1V2json(idPGeneral, codigoPais);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
 
 
@@ -224,6 +269,28 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             try
             {
                 return _unitOfWork.ConfiguracionBeneficioProgramaGeneralRepository.ObtenerBeneficiosPGeneralTipo1(idPGeneral, codigoPais);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public async Task<List<BeneficioDTO>> ObtenerBeneficiosPGeneralTipo1Async(int idPGeneral, int codigoPais = 0)
+        {
+            try
+            {
+                return await _unitOfWork.ConfiguracionBeneficioProgramaGeneralRepository.ObtenerBeneficiosPGeneralTipo1Async(idPGeneral, codigoPais);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public List<BeneficioDTOjson> ObtenerBeneficiosPGeneralTipo1json(int idPGeneral, int codigoPais = 0)
+        {
+            try
+            {
+                return _unitOfWork.ConfiguracionBeneficioProgramaGeneralRepository.ObtenerBeneficiosPGeneralTipo1json(idPGeneral, codigoPais);
             }
             catch (Exception ex)
             {
@@ -249,6 +316,30 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw ex;
             }
         }
+        public async Task<BeneficioDTO> ObtenerBeneficiosPGeneralTipo2Async(int idPGeneral)
+        {
+            try
+            {
+                return await _unitOfWork.ConfiguracionBeneficioProgramaGeneralRepository.ObtenerBeneficiosPGeneralTipo2Async(idPGeneral);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public BeneficioDTOjson ObtenerBeneficiosPGeneralTipo2json(int idPGeneral)
+        {
+            try
+            {
+                return _unitOfWork.ConfiguracionBeneficioProgramaGeneralRepository.ObtenerBeneficiosPGeneralTipo2json(idPGeneral);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
         /// Autor: Gilmer Quispe.
         /// Fecha: 26/09/2022
         /// Version: 1.0

@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Infrastructure;
@@ -548,6 +550,100 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             else
                 return new List<PreEstructuraCapituloProgramaDTO>(); ;
 
+        }
+        /// Autor: Max Mantilla.
+        /// Fecha: 2026-01-26
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la preconfiguracion de los videos segun el programa general para Tutor Virtual
+        /// </summary>
+        /// <param name="idPGeneral">Id del programa general (PK de la tabla pla.T_PGeneral)</param>
+        /// <returns>PreEstructuraCapituloProgramaTutorVirtualDTO</returns>
+        public List<PreEstructuraCapituloProgramaTutorVirtualDTO> ObtenerPreConfigurarVideoProgramaTutorVirtual(int idPGeneral)
+        {
+            List<PreEstructuraCapituloProgramaTutorVirtualDTO> rpta = new List<PreEstructuraCapituloProgramaTutorVirtualDTO>();
+            string query = "ia.SP_TutorVirtualEstructuraProgramaAonline";
+            string queryDB = _dapperRepository.QuerySPDapper(query, new { IdPGeneral = idPGeneral });
+            if (!string.IsNullOrEmpty(queryDB) && !queryDB.Contains("[]"))
+            {
+                rpta = JsonConvert.DeserializeObject<List<PreEstructuraCapituloProgramaTutorVirtualDTO>>(queryDB);
+                return rpta;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        /// Autor: Max Mantilla.
+        /// Fecha: 2026-01-26
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene registros de los videos procesador para Tutor Virtual
+        /// </summary>
+        /// <param name="idPGeneral">Id del programa general (PK de la tabla pla.T_PGeneral)</param>
+        /// <returns>ProcesamientoTranscripcionVideoOnlineDTO</returns>
+        public List<ProcesamientoTranscripcionVideoOnlineDTO> ObtenerProcesamientoVideosAonline()
+        {
+            List<ProcesamientoTranscripcionVideoOnlineDTO> rpta = new List<ProcesamientoTranscripcionVideoOnlineDTO>();
+            string query = "ia.SP_TutorVirtualProcesamientoVideoAonline";
+            string queryDB = _dapperRepository.QuerySPDapper(query, null);
+            if (!string.IsNullOrEmpty(queryDB) && !queryDB.Contains("[]"))
+            {
+                rpta = JsonConvert.DeserializeObject<List<ProcesamientoTranscripcionVideoOnlineDTO>>(queryDB);
+                return rpta;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        /// Autor: Max Mantilla.
+        /// Fecha: 2026-01-26
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene nombre del curso general del que se procesó el video
+        /// </summary>
+        /// <param name="Video">VideoInfoDTO</param>
+        /// <returns>string</returns>
+        public string ObtenerNombreCursoProcesamientoVideosAonline(VideoInfoDTO Video)
+        {
+            if (Video.Plataforma == 1)
+            {
+                var VideoIdBrightcove = Video.VideoId;
+                string query = @"SELECT TOP 1 PG.Nombre AS Valor 
+                        FROM pla.T_ConfigurarVideoPrograma AS CVP
+                        INNER JOIN pla.T_PGeneral AS PG ON PG.Id=CVP.IdPGeneral AND PG.Estado=1 AND PG.TutorVirtualActivo=1
+                        WHERE CVP.VideoIdBrightcove=@VideoIdBrightcove AND CVP.Estado=1";
+                string queryDB = _dapperRepository.FirstOrDefault(query, new { VideoIdBrightcove });
+                if (!string.IsNullOrEmpty(queryDB) && !queryDB.Contains("[]"))
+                {
+                    var respuesta = JsonConvert.DeserializeObject<StringDTO>(queryDB);
+                    return respuesta.Valor;
+                }
+                else
+                {
+                    return "";
+                }
+            }
+            else
+            {
+                var VideoIdVimeo = Video.VideoId;
+                string query = @"SELECT TOP 1 PG.Nombre AS Valor 
+                        FROM pla.T_ConfigurarVideoPrograma AS CVP
+                        INNER JOIN pla.T_PGeneral AS PG ON PG.Id=CVP.IdPGeneral AND PG.Estado=1 AND PG.TutorVirtualActivo=1
+                        WHERE CVP.VideoIdVimeo=@VideoIdVimeo AND CVP.Estado=1";
+                string queryDB = _dapperRepository.FirstOrDefault(query, new { VideoIdVimeo });
+                if (!string.IsNullOrEmpty(queryDB) && !queryDB.Contains("[]"))
+                {
+                    var respuesta = JsonConvert.DeserializeObject<StringDTO>(queryDB);
+                    return respuesta.Valor;
+                }
+                else
+                {
+                    return "";
+                }
+            }
+           
         }
     }
 }

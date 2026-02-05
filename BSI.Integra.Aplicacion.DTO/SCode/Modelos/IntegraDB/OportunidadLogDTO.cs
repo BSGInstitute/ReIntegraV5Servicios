@@ -195,11 +195,16 @@
         public string? SubEstadoLlamada { get; set; }
         public string? NombreGrabacion { get; set; }
         public string? UrlGrabacion { get; set; }
+        public string? UrlGrabacion2 { get; set; }
         public string? WebphoneGrabacion { get; set; }
         public string? TelefonoDestinoReal { get; set; }
         public string? TelefonoDestino { get; set; }
         public string? AnexoCentral { get; set; }
         public string? OrigenLlamada { get; set; }
+        public string? TranscripcionLlamada { get; set; }
+        public bool? esLlamadaCalificada { get; set; }
+        public bool? esLlamadaTranscrita { get; set; }
+
     }
     public class OportunidadLogReporteSeguimientoNWDetalleDTO
     {
@@ -390,6 +395,21 @@
         public bool EstadoSeguimientoWhatsApp { get; set; }
         public bool OtroMedio { get; set; }
         public List<LlamadaIntegra3cxDTO> LlamadasIntegra3cx { get; set; } = new List<LlamadaIntegra3cxDTO>();
+    }
+
+    public class InteraccionAnteriorResumidaDTO
+    {
+        public DateTime? FechaModificacion { get; set; }
+        public DateTime? FechaSiguienteLlamada { get; set; }
+        public string? FaseInicio { get; set; }
+        public string? FaseDestino { get; set; }
+        public DateTime? FechaInicioLlamada { get; set; }
+    }
+
+    public class HistorialInteraccionesResponseDTO
+    {
+        public List<ReporteSeguimientoNWActividadAlternoDTO?> PrimerasInteracciones { get; set; } = new List<ReporteSeguimientoNWActividadAlternoDTO?>();
+        public List<InteraccionAnteriorResumidaDTO> InteraccionesAnteriores { get; set; } = new List<InteraccionAnteriorResumidaDTO>();
     }
     public class EstadoFaseOportunidadLogDTO
     {

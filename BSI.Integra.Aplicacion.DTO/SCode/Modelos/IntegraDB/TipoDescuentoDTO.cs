@@ -11,6 +11,7 @@
         public int? FraccionesMatricula { get; set; }
         public int? PorcentajeCuotas { get; set; }
         public int? CuotasAdicionales { get; set; }
+        public int? IdTipoDescuentoNivelAprobacion { get; set; }
     }
     public class TipoDescuentoComboDTO
     {
@@ -50,6 +51,7 @@
         public int? FraccionesMatricula { get; set; }
         public int? PorcentajeCuotas { get; set; }
         public int? CuotasAdicionales { get; set; }
+        public int? IdTipoDescuentoNivelAprobacion { get; set; }
         public List<string> TipoDescuentoAsesorCoordinadorPw { get; set; }
 
     }
@@ -57,6 +59,34 @@
     {
         public int IdTipoDescuento { get; set; }
         public List<int> IdPgeneral { get; set; }
+    }
+
+    public class TipoDescuentoConNivelAprobacionDTO
+    {
+        public int Id { get; set; }
+        public string Codigo { get; set; } = null!;
+        public string Descripcion { get; set; } = null!;
+        public int Formula { get; set; }
+        public int? PorcentajeGeneral { get; set; }
+        public int? PorcentajeMatricula { get; set; }
+        public int? FraccionesMatricula { get; set; }
+        public int? PorcentajeCuotas { get; set; }
+        public int? CuotasAdicionales { get; set; }
+        public int? IdTipoDescuentoNivelAprobacion { get; set; }
+    }
+
+    public class TipoDescuentoNivelAprobacionDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; } = null!;
+        public string? Descripcion { get; set; }
+        public bool Estado { get; set; }
+    }
+
+    public class ActualizarNivelAprobacionDTO
+    {
+        public int Id { get; set; }
+        public int? IdTipoDescuentoNivelAprobacion { get; set; }
     }
 
 

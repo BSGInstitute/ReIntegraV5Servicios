@@ -2118,6 +2118,61 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 return false;
             }
         }
+        public ResultadoDTO InsertarAsistenteComercialHiloChat(int IdAlumno, int IdOportunidad)
+        {
+            try
+            {
+
+                string spQuery = "[ia].[SP_InsertarAsistenteComercialHiloChat]";
+                var query = _dapperRepository.QuerySPFirstOrDefault(spQuery, new
+                {
+                    IdAlumno = IdAlumno,
+                    IdOportunidad = IdOportunidad
+
+                });
+                if (!string.IsNullOrEmpty(query) & !query.Equals("null"))
+                {
+                    //rpta = JsonConvert.DeserializeObject<ValorStringDTO>(query);
+                    ResultadoDTO resultado = JsonConvert.DeserializeObject<ResultadoDTO>(query);
+                    return resultado;
+                }
+                return null;
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public ResultadoDTO InsertarAsistenteComercialHiloChatMensaje(int ChatId,string Contenido,bool EsUsuario)
+        {
+            try
+            {
+
+                string spQuery = "[ia].[SP_InsertarAsistenteComercialHiloChatMensaje]";
+                var query = _dapperRepository.QuerySPFirstOrDefault(spQuery, new
+                {
+                    IdAsistenteComercialHiloChat = ChatId,
+                    Contenido = Contenido,
+                    EsUsuario = EsUsuario
+                });
+                if (!string.IsNullOrEmpty(query) & !query.Equals("null"))
+                {
+                    //rpta = JsonConvert.DeserializeObject<ValorStringDTO>(query);
+                    ResultadoDTO resultado = JsonConvert.DeserializeObject<ResultadoDTO>(query);
+                    return resultado;
+                }
+                return null;
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public List<ProbabilidaWhatsAppDTO> ObtenerProbabilidadPorOportunidad(int idOportunidad)
         {
             try

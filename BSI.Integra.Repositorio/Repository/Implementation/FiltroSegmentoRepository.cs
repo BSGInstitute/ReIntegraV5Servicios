@@ -526,7 +526,16 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                        ConsiderarYaEnviados,
                        ConsiderarEnvioAutomatico,
                        AplicaSobreCreacionOportunidad,
-                       AplicaSobreUltimaActividad
+                       AplicaSobreUltimaActividad,
+                       ConsiderarUltimaOportunidad,
+                       ConsiderarMayorProbabilidadInscripcion,
+                       ConsiderarMayorProbabilidadInscripcionVentaCruzada,
+                       ConsiderarProbabilidad,
+                       ConsiderarProbabilidadVentaCruzada,
+                       ConsiderarEmbudo,
+                       ConsiderarExcluirCampania,
+                       FechaInicioExclusionCampania,
+                       FechaFinExclusionCampania
                 FROM mkt.V_TFiltroSegmento_Panel
                 WHERE Id = @id
                       AND Estado = 1;
@@ -879,6 +888,28 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var ConsiderarConWhatsAppValido = obj.ConsiderarConWhatsAppValido;
                 var ConsiderarConEmailValido = obj.ConsiderarConEmailValido;
 
+                var ConsiderarUltimaOportunidad = obj.ConsiderarUltimaOportunidad;
+                var ConsiderarMayorProbabilidadInscripcion = obj.ConsiderarMayorProbabilidadInscripcion;
+                var ConsiderarMayorProbabilidadInscripcionVentaCruzada = obj.ConsiderarMayorProbabilidadInscripcionVentaCruzada;
+                var ConsiderarProbabilidad = obj.ConsiderarProbabilidad;
+                var ConsiderarProbabilidadVentaCruzada = obj.ConsiderarProbabilidadVentaCruzada;
+                var ConsiderarEmbudo = obj.ConsiderarEmbudo;
+
+                var ListaUOArea = string.Join(",", obj.ListaUOArea.Select(x => x.Valor));
+                var ListaUOSubArea = string.Join(",", obj.ListaUOSubArea.Select(x => x.Valor));
+                var ListaUOPGeneral = string.Join(",", obj.ListaUOPGeneral.Select(x => x.Valor));
+
+                var ListaMPIArea = string.Join(",", obj.ListaMPIArea.Select(x => x.Valor));
+                var ListaMPISubArea = string.Join(",", obj.ListaMPISubArea.Select(x => x.Valor));
+                var ListaMPIPGeneral = string.Join(",", obj.ListaMPIPGeneral.Select(x => x.Valor));
+
+                var ListaProbabilidadValor = string.Join(",", obj.ListaProbabilidadValor.Select(x => x.Valor));
+                var ListaProbabilidadArea = string.Join(",", obj.ListaProbabilidadArea.Select(x => x.Valor));
+                var ListaProbabilidadSubArea = string.Join(",", obj.ListaProbabilidadSubArea.Select(x => x.Valor));
+                var ListaProbabilidadPGeneral = string.Join(",", obj.ListaProbabilidadPGeneral.Select(x => x.Valor));
+
+                 var ListaNivelEmbudoEsquema1 = string.Join(",", obj.ListaNivelEmbudoEsquema1.Select(x => x.Valor));
+                 var ListaNivelEmbudoEsquema2= string.Join(",", obj.ListaNivelEmbudoEsquema2.Select(x => x.Valor));
                 var NombreUsuario = obj.NombreUsuario;
 
                 var parametros = new
@@ -1075,6 +1106,29 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     ConsiderarConMessengerValido,
                     ConsiderarConWhatsAppValido,
                     ConsiderarConEmailValido,
+
+                    ConsiderarUltimaOportunidad,
+                    ConsiderarMayorProbabilidadInscripcion,
+                    ConsiderarMayorProbabilidadInscripcionVentaCruzada,
+                    ConsiderarProbabilidad,
+                    ConsiderarProbabilidadVentaCruzada,
+                    ConsiderarEmbudo,
+
+                    ListaUOArea,
+                    ListaUOSubArea,
+                    ListaUOPGeneral,
+
+                    ListaMPIArea,
+                    ListaMPISubArea,
+                    ListaMPIPGeneral,
+
+                    ListaProbabilidadValor,
+                    ListaProbabilidadArea,
+                    ListaProbabilidadSubArea,
+                    ListaProbabilidadPGeneral,
+
+                    ListaNivelEmbudoEsquema1,
+                    ListaNivelEmbudoEsquema2,
 
                     NombreUsuario
                 };

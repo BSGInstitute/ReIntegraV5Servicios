@@ -30,6 +30,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<MontoPagoCronogramaCompuestoDTO> ObtenerPorIdOportunidadV2(int idOportunidad);
         Task<IEnumerable<MontoPagoCronogramaCompuestoDTO>> ObtenerPorIdOportunidadV2Async(int idOportunidad);
         List<MontoPagoModalidadDTO> ObtenerMontosPorId(int idPGeneral);
+        Task<List<MontoPagoModalidadDTO>> ObtenerMontosPorIdAsync(int idPGeneral);
         MontoPago ObtenerPorId(int id);
         List<MontoPagoEtiquetaDTO> ObtenerVersionesMontoPago(int idOportunidad);
         List<MontoPagoEtiquetaDTO> ObtenerVersionesMontoPagoV2(int idOportunidad);

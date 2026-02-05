@@ -8,6 +8,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
     public interface IPEspecificoSesionService
     {
         List<PEspecificoSesionFechaHoraInicioDTO> ObtenerFechaHoraInicioSesionPorIdPEspecifico(List<int> idPEspecifico, int tipo);
+        Task<List<PEspecificoSesionFechaHoraInicioDTO>> ObtenerFechaHoraInicioSesionPorIdPEspecificoAsync(List<int> idPEspecifico, int tipo);
         IEnumerable<PespecificoSesionCompuestoDTO> ObtenerCronogramaIndividualPorPEspecificoAlterno(DatosProgramaEspecificoDTO programaEspecifico);
         VerificarFechaSesionDTO VerificarFechaSesion(int idSesion, DateTime fecha);
         bool ActualizarFechaParaSesionRecorrerFechas(PEspecificoSesion pEspecificoSesion, string usuario);
