@@ -13,5 +13,10 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         Task<int> AsociarActividadAFlujoAsync(GestionDocenteActividadCabeceraFlujoDTO dto);
         Task<bool> DesasociarActividadDeFlujoAsync(int id, string usuario);
         Task<List<GestionDocenteActividadCabeceraFlujoDTO>> ObtenerActividadesPorFlujoAsync(int idFlujo);
+        IEnumerable<GestionDocenteSesionDTO> ObtenerSesiones();
+        IEnumerable<GestionDocenteOcurrenciaDTO> ObtenerOcurrencias();
+        IEnumerable<GestionDocenteConfianzaUmbralNivelDTO> ObtenerConfianzaUmbralNiveles();
+        IEnumerable<GestionDocenteOcurrenciaTipoDTO> ObtenerOcurrenciaTipos();
+        IEnumerable<GestionDocenteReferenciaTiempoDTO> ObtenerReferenciasTiempo();
     }
 }

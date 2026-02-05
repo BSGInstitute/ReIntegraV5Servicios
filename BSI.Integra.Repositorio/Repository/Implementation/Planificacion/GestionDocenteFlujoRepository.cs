@@ -109,24 +109,5 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 throw ex;
             }
         }
-
-        public IEnumerable<GestionDocenteSesionDTO> ObtenerSesiones()
-        {
-            try
-            {
-                IEnumerable<GestionDocenteSesionDTO> sesiones = new List<GestionDocenteSesionDTO>();
-                string _query = "SELECT Id, Nombre, Descripcion FROM pla.T_GestionDocenteSesion WHERE Estado = 1";
-                var resultadoDB = _dapperRepository.QueryDapper(_query, null);
-                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
-                {
-                    sesiones = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteSesionDTO>>(resultadoDB);
-                }
-                return sesiones;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
     }
 }

@@ -160,17 +160,5 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 throw;
             }
         }
-
-        public IEnumerable<GestionDocenteSesionDTO> ObtenerSesiones()
-        {
-            try
-            {
-                return _unitOfWork.GestionDocenteFlujoRepository.ObtenerSesiones();
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
     }
 }

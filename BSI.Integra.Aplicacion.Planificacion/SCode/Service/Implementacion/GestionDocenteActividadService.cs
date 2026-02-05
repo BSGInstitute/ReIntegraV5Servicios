@@ -439,5 +439,65 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 throw;
             }
         }
+
+        public IEnumerable<GestionDocenteSesionDTO> ObtenerSesiones()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerSesiones();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public IEnumerable<GestionDocenteOcurrenciaDTO> ObtenerOcurrencias()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteOcurrenciaRepository.ObtenerOcurrencias();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IEnumerable<GestionDocenteConfianzaUmbralNivelDTO> ObtenerConfianzaUmbralNiveles()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerConfianzaUmbralNiveles();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IEnumerable<GestionDocenteOcurrenciaTipoDTO> ObtenerOcurrenciaTipos()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerOcurrenciaTipos();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IEnumerable<GestionDocenteReferenciaTiempoDTO> ObtenerReferenciasTiempo()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReferenciasTiempo();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

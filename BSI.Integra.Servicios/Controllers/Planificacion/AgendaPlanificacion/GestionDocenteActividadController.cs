@@ -1,4 +1,5 @@
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -113,6 +114,75 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
             try
             {
                 var lista = await _gestionDocenteActividadService.ObtenerActividadesPorFlujoAsync(idFlujo);
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("ObtenerSesiones")]
+        public IActionResult ObtenerSesiones()
+        {
+            try
+            {
+                var lista = _gestionDocenteActividadService.ObtenerSesiones();
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+        [HttpGet("ObtenerOcurrencias")]
+        public IActionResult ObtenerOcurrencias()
+        {
+            try
+            {
+                var lista = _gestionDocenteActividadService.ObtenerOcurrencias();
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("ObtenerConfianzaUmbralNiveles")]
+        public IActionResult ObtenerConfianzaUmbralNiveles()
+        {
+            try
+            {
+                var lista = _gestionDocenteActividadService.ObtenerConfianzaUmbralNiveles();
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("ObtenerOcurrenciaTipos")]
+        public IActionResult ObtenerOcurrenciaTipos()
+        {
+            try
+            {
+                var lista = _gestionDocenteActividadService.ObtenerOcurrenciaTipos();
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("ObtenerReferenciasTiempo")]
+        public IActionResult ObtenerReferenciasTiempo()
+        {
+            try
+            {
+                var lista = _gestionDocenteActividadService.ObtenerReferenciasTiempo();
                 return Ok(lista);
             }
             catch (Exception ex)

@@ -13,6 +13,5 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         IEnumerable<GestionDocenteEstadoDTO> ObtenerEstadosFlujo();
         IEnumerable<GestionDocenteCategoriaDTO> ObtenerCategorias();
         IEnumerable<GestionDocenteActividadCabeceraListaDTO> ObtenerActividadesCabecera();
-        IEnumerable<GestionDocenteSesionDTO> ObtenerSesiones();
     }
 }

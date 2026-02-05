@@ -107,4 +107,24 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public List<InsertarActividadDetalleRequestDTO> Detalles { get; set; }
         public List<InsertarOcurrenciaRequestDTO> Ocurrencias { get; set; }
     }
+
+    public class GestionDocenteConfianzaUmbralNivelDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    public class GestionDocenteOcurrenciaTipoDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+    }
+
+    public class GestionDocenteReferenciaTiempoDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public string Codigo { get; set; }
+    }
 }
