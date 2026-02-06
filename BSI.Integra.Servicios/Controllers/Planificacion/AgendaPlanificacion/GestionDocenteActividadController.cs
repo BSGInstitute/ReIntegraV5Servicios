@@ -1,4 +1,5 @@
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -66,11 +67,11 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
         }
 
         [HttpPost("InsertarOcurrencia")]
-        public async Task<IActionResult> InsertarOcurrencia([FromBody] GestionDocenteOcurrenciaDTO dto)
+        public async Task<IActionResult> InsertarOcurrencia([FromBody] InsertarOcurrenciaRequestDTO request)
         {
             try
             {
-                var id = await _gestionDocenteActividadService.InsertarOcurrenciaAsync(dto);
+                var id = await _gestionDocenteActividadService.InsertarOcurrenciaAsync(request);
                 return Ok(new { Exito = true, Id = id });
             }
             catch (Exception ex)
@@ -114,6 +115,92 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
             {
                 var lista = await _gestionDocenteActividadService.ObtenerActividadesPorFlujoAsync(idFlujo);
                 return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("ObtenerSesiones")]
+        public IActionResult ObtenerSesiones()
+        {
+            try
+            {
+                var lista = _gestionDocenteActividadService.ObtenerSesiones();
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+        [HttpGet("ObtenerOcurrencias")]
+        public IActionResult ObtenerOcurrencias()
+        {
+            try
+            {
+                var lista = _gestionDocenteActividadService.ObtenerOcurrencias();
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("ObtenerConfianzaUmbralNiveles")]
+        public IActionResult ObtenerConfianzaUmbralNiveles()
+        {
+            try
+            {
+                var lista = _gestionDocenteActividadService.ObtenerConfianzaUmbralNiveles();
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("ObtenerOcurrenciaTipos")]
+        public IActionResult ObtenerOcurrenciaTipos()
+        {
+            try
+            {
+                var lista = _gestionDocenteActividadService.ObtenerOcurrenciaTipos();
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("ObtenerReferenciasTiempo")]
+        public IActionResult ObtenerReferenciasTiempo()
+        {
+            try
+            {
+                var lista = _gestionDocenteActividadService.ObtenerReferenciasTiempo();
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("ObtenerActividadCompleta/{id}")]
+        public IActionResult ObtenerActividadCompleta(int id)
+        {
+            try
+            {
+                var resultado = _gestionDocenteActividadService.ObtenerActividadCabeceraCompleta(id);
+                if (resultado == null)
+                    return NotFound(new { Exito = false, Mensaje = "No se encontró la actividad cabecera" });
+
+                return Ok(resultado);
             }
             catch (Exception ex)
             {

@@ -87,6 +87,24 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 var model = _unitOfWork.GestionDocenteActividadDetalleRepository.Add(gestionDocenteActividadDetalle);
                 await _unitOfWork.CommitAsync();
 
+                // 4. Si es tipo disparador 3 (Basado en Cronograma) insertar en T_GestionContactoActividadDetalleSesion
+                if (request.Disparador.IdGestionDocenteDisparadorFlujoTipo == 3 && request.IdGestionDocenteSesion.HasValue)
+                {
+                    var actividadDetalleSesion = new GestionContactoActividadDetalleSesion
+                    {
+                        IdGestionDocenteActividadDetalle = model.Id,
+                        IdGestionDocenteSesion = request.IdGestionDocenteSesion.Value,
+                        Estado = true,
+                        UsuarioCreacion = usuario,
+                        UsuarioModificacion = usuario,
+                        FechaCreacion = fechaActual,
+                        FechaModificacion = fechaActual
+                    };
+
+                    _unitOfWork.GestionContactoActividadDetalleSesionRepository.Add(actividadDetalleSesion);
+                    await _unitOfWork.CommitAsync();
+                }
+
                 return model.Id;
             }
             catch (Exception ex)
@@ -238,10 +256,15 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             await _unitOfWork.CommitAsync();
         }
 
-        public async Task<int> InsertarOcurrenciaAsync(GestionDocenteOcurrenciaDTO dto)
+        public async Task<int> InsertarOcurrenciaAsync(InsertarOcurrenciaRequestDTO request)
         {
             try
             {
+                var dto = request.Ocurrencia;
+                DateTime fechaActual = DateTime.Now;
+                string usuario = dto.Usuario;
+
+                // 1. Insertar la ocurrencia
                 var gestionDocenteOcurrencia = new GestionDocenteOcurrencia
                 {
                     Nombre = dto.Nombre,
@@ -252,20 +275,75 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     RequiereComentario = dto.RequiereComentario,
                     RequiereFechaHora = dto.RequiereFechaHora,
                     Estado = true,
-                    UsuarioCreacion = dto.Usuario,
-                    UsuarioModificacion = dto.Usuario,
-                    FechaCreacion = DateTime.Now,
-                    FechaModificacion = DateTime.Now
+                    UsuarioCreacion = usuario,
+                    UsuarioModificacion = usuario,
+                    FechaCreacion = fechaActual,
+                    FechaModificacion = fechaActual
                 };
 
                 var model = _unitOfWork.GestionDocenteOcurrenciaRepository.Add(gestionDocenteOcurrencia);
                 await _unitOfWork.CommitAsync();
+
+                // 2. Para Automatico (2) y Warm (3), insertar configuración IA y ejemplos de entrenamiento
+                if (dto.IdGestionDocenteModoMarcado == 2 || dto.IdGestionDocenteModoMarcado == 3)
+                {
+                    await ProcesarConfiguracionIaAsync(request, model.Id, usuario, fechaActual);
+                }
 
                 return model.Id;
             }
             catch (Exception ex)
             {
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// Procesa la configuración de IA para modos de marcado Automatico (2) y Warm (3).
+        /// Inserta en T_GestionDocenteOcurrenciaIaConfiguracion y T_GestionDocenteIaEntrenamientoEjemplo.
+        /// </summary>
+        private async Task ProcesarConfiguracionIaAsync(InsertarOcurrenciaRequestDTO request, int idOcurrencia, string usuario, DateTime fechaActual)
+        {
+            if (request.IaConfiguracion == null)
+                throw new ArgumentException("La configuración de IA es requerida para los modos de marcado Automático y Warm");
+
+            // Insertar configuración IA
+            var iaConfiguracion = new GestionDocenteOcurrenciaIaConfiguracion
+            {
+                Prompt = request.IaConfiguracion.Prompt,
+                IdGestionDocenteConfianzaUmbralNivel = request.IaConfiguracion.IdGestionDocenteConfianzaUmbralNivel,
+                IdGestionDocenteOcurrencia = idOcurrencia,
+                Estado = true,
+                UsuarioCreacion = usuario,
+                UsuarioModificacion = usuario,
+                FechaCreacion = fechaActual,
+                FechaModificacion = fechaActual
+            };
+
+            var iaConfigModel = _unitOfWork.GestionDocenteOcurrenciaIaConfiguracionRepository.Add(iaConfiguracion);
+            await _unitOfWork.CommitAsync();
+
+            // Insertar ejemplos de entrenamiento
+            if (request.EjemplosEntrenamiento != null && request.EjemplosEntrenamiento.Count > 0)
+            {
+                foreach (var ejemploDto in request.EjemplosEntrenamiento)
+                {
+                    var ejemplo = new GestionDocenteIaEntrenamientoEjemplo
+                    {
+                        IdGestionDocenteOcurrenciaIaConfiguracion = iaConfigModel.Id,
+                        IdGestionDocenteIaEntrenamientoClasificacionTipo = ejemploDto.IdGestionDocenteIaEntrenamientoClasificacionTipo,
+                        TextoEjemplo = ejemploDto.TextoEjemplo,
+                        EsPositivo = ejemploDto.EsPositivo,
+                        Estado = true,
+                        UsuarioCreacion = usuario,
+                        UsuarioModificacion = usuario,
+                        FechaCreacion = fechaActual,
+                        FechaModificacion = fechaActual
+                    };
+
+                    _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository.Add(ejemplo);
+                }
+                await _unitOfWork.CommitAsync();
             }
         }
 
@@ -283,11 +361,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     int idDetalle = await InsertarDetalleAsync(detRequest);
 
                     // 3. Insertar Ocurrencias asociadas a este detalle
-                    var ocurrenciasAsociadas = dto.Ocurrencias.Where(o => o.IdGestionDocenteActividadDetalle == detRequest.Detalle.Id);
-                    foreach (var ocuDto in ocurrenciasAsociadas)
+                    var ocurrenciasAsociadas = dto.Ocurrencias.Where(o => o.Ocurrencia.IdGestionDocenteActividadDetalle == detRequest.Detalle.Id);
+                    foreach (var ocuRequest in ocurrenciasAsociadas)
                     {
-                        ocuDto.IdGestionDocenteActividadDetalle = idDetalle;
-                        await InsertarOcurrenciaAsync(ocuDto);
+                        ocuRequest.Ocurrencia.IdGestionDocenteActividadDetalle = idDetalle;
+                        await InsertarOcurrenciaAsync(ocuRequest);
                     }
                 }
 
@@ -355,6 +433,182 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     IdGestionDocenteActividadCabecera = x.IdGestionDocenteActividadCabecera,
                     Estado = x.Estado
                 }).ToList();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IEnumerable<GestionDocenteSesionDTO> ObtenerSesiones()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerSesiones();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public IEnumerable<GestionDocenteOcurrenciaDTO> ObtenerOcurrencias()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteOcurrenciaRepository.ObtenerOcurrencias();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IEnumerable<GestionDocenteConfianzaUmbralNivelDTO> ObtenerConfianzaUmbralNiveles()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerConfianzaUmbralNiveles();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IEnumerable<GestionDocenteOcurrenciaTipoDTO> ObtenerOcurrenciaTipos()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerOcurrenciaTipos();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IEnumerable<GestionDocenteReferenciaTiempoDTO> ObtenerReferenciasTiempo()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReferenciasTiempo();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public ActividadCabeceraCompletaDTO ObtenerActividadCabeceraCompleta(int id)
+        {
+            try
+            {
+                // 1. Obtener cabecera
+                var cabecera = _unitOfWork.GestionDocenteActividadCabeceraRepository.ObtenerCabeceraPorId(id);
+                if (cabecera == null) return null;
+
+                // 2. Obtener detalles de la cabecera
+                var detalles = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDetallesPorCabecera(id).ToList();
+                if (!detalles.Any())
+                {
+                    return new ActividadCabeceraCompletaDTO { Cabecera = cabecera, Detalles = new List<ActividadDetalleCompletoDTO>() };
+                }
+
+                // 3. Obtener IDs para consultas en lote
+                var detalleIds = string.Join(",", detalles.Select(d => d.Id));
+                var disparadorIds = string.Join(",", detalles.Select(d => d.IdGestionDocenteDisparadorDetalle));
+
+                // 4. Obtener disparadores
+                var disparadores = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDisparadoresPorIds(disparadorIds).ToList();
+
+                // 5. Obtener reglas de tiempo fijo
+                var reglasFijo = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReglasTiempoFijoPorDisparadores(disparadorIds).ToList();
+
+                // 6. Obtener reglas de tiempo relativo
+                var reglasRelativo = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReglasTiempoRelativoPorDisparadores(disparadorIds).ToList();
+
+                // 7. Obtener referencias relativas (si hay reglas relativas)
+                var referenciasRelativas = new List<GestionDocenteDisparadorReglaTiempoRelativoReferenciaOutputDTO>();
+                if (reglasRelativo.Any())
+                {
+                    var reglasRelativoIds = string.Join(",", reglasRelativo.Select(r => r.Id));
+                    referenciasRelativas = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReferenciasRelativasPorReglas(reglasRelativoIds).ToList();
+                }
+
+                // 8. Obtener disparadores de ocurrencia
+                var disparadoresOcurrencia = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDisparadoresOcurrenciaPorIds(disparadorIds).ToList();
+
+                // 9. Obtener sesiones
+                var sesiones = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerSesionesPorDetalles(detalleIds).ToList();
+
+                // 10. Obtener ocurrencias
+                var ocurrencias = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerOcurrenciasPorDetalles(detalleIds).ToList();
+
+                // 11. Obtener configuraciones IA (si hay ocurrencias)
+                var iaConfiguraciones = new List<OcurrenciaIaConfiguracionCompletaDTO>();
+                var ejemplosEntrenamiento = new List<GestionDocenteIaEntrenamientoEjemploOutputDTO>();
+                if (ocurrencias.Any())
+                {
+                    var ocurrenciaIds = string.Join(",", ocurrencias.Select(o => o.Id));
+                    iaConfiguraciones = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerIaConfiguracionesPorOcurrencias(ocurrenciaIds).ToList();
+
+                    // 12. Obtener ejemplos de entrenamiento (si hay configuraciones IA)
+                    if (iaConfiguraciones.Any())
+                    {
+                        var iaConfigIds = string.Join(",", iaConfiguraciones.Select(c => c.Id));
+                        ejemplosEntrenamiento = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerEjemplosEntrenamientoPorConfiguraciones(iaConfigIds).ToList();
+                    }
+                }
+
+                // Ensamblar: asignar ejemplos a configuraciones IA
+                foreach (var config in iaConfiguraciones)
+                {
+                    config.EjemplosEntrenamiento = ejemplosEntrenamiento
+                        .Where(e => e.IdGestionDocenteOcurrenciaIaConfiguracion == config.Id)
+                        .ToList();
+                }
+
+                // Ensamblar: crear ocurrencias completas
+                var ocurrenciasCompletas = ocurrencias.Select(o => new OcurrenciaCompletaDTO
+                {
+                    Ocurrencia = o,
+                    IaConfiguracion = iaConfiguraciones.FirstOrDefault(c => c.IdGestionDocenteOcurrencia == o.Id)
+                }).ToList();
+
+                // Ensamblar: crear detalles completos
+                var detallesCompletos = detalles.Select(d =>
+                {
+                    var idDisparador = d.IdGestionDocenteDisparadorDetalle;
+                    var disparador = disparadores.FirstOrDefault(dp => dp.Id == idDisparador);
+                    var reglaFijo = reglasFijo.FirstOrDefault(r => r.IdGestionDocenteDisparadorDetalle == idDisparador);
+                    var reglaRelativo = reglasRelativo.FirstOrDefault(r => r.IdGestionDocenteDisparadorDetalle == idDisparador);
+                    var referenciaRelativa = reglaRelativo != null
+                        ? referenciasRelativas.FirstOrDefault(r => r.IdGestionDocenteDisparadorReglaTiempoRelativo == reglaRelativo.Id)
+                        : null;
+                    var ocurrenciaDetalle = disparadoresOcurrencia.FirstOrDefault(o => o.IdGestionDocenteDisparadorDetalle == idDisparador);
+
+                    return new ActividadDetalleCompletoDTO
+                    {
+                        Detalle = d,
+                        Disparador = new DisparadorDetalleCompletoDTO
+                        {
+                            DisparadorDetalle = disparador,
+                            ReglaTiempoFijo = reglaFijo,
+                            ReglaTiempoRelativo = reglaRelativo,
+                            ReferenciaRelativa = referenciaRelativa,
+                            OcurrenciaDetalle = ocurrenciaDetalle
+                        },
+                        Sesion = sesiones.FirstOrDefault(s => s.IdGestionDocenteActividadDetalle == d.Id),
+                        Ocurrencias = ocurrenciasCompletas.Where(o => o.Ocurrencia.IdGestionDocenteActividadDetalle == d.Id).ToList()
+                    };
+                }).ToList();
+
+                return new ActividadCabeceraCompletaDTO
+                {
+                    Cabecera = cabecera,
+                    Detalles = detallesCompletos
+                };
             }
             catch (Exception)
             {

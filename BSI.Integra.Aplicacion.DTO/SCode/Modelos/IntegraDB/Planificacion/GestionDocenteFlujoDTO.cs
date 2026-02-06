@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 {
     public class GestionDocenteFlujoDTO
@@ -43,5 +45,29 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
         public string Descripcion { get; set; }
 
+    }
+
+    public class GestionDocenteSesionDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+    }
+
+    public class GestionDocenteFlujoOutputDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+        public int IdGestionDocenteEstado { get; set; }
+        public string NombreEstado { get; set; }
+        public int IdGestionDocenteCategoria { get; set; }
+        public string NombreCategoria { get; set; }
+    }
+
+    public class FlujoCompletoDTO
+    {
+        public GestionDocenteFlujoOutputDTO Flujo { get; set; }
+        public List<ActividadCabeceraCompletaDTO> Actividades { get; set; }
     }
 }

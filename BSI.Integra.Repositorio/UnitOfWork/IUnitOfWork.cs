@@ -1003,5 +1003,8 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IGestionDocenteDisparadorReglaTiempoFijoRepository GestionDocenteDisparadorReglaTiempoFijoRepository { get; }
         IGestionDocenteDisparadorReglaTiempoRelativoRepository GestionDocenteDisparadorReglaTiempoRelativoRepository { get; }
         IGestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository GestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository { get; }
+        IGestionDocenteOcurrenciaIaConfiguracionRepository GestionDocenteOcurrenciaIaConfiguracionRepository { get; }
+        IGestionDocenteIaEntrenamientoEjemploRepository GestionDocenteIaEntrenamientoEjemploRepository { get; }
+        IGestionContactoActividadDetalleSesionRepository GestionContactoActividadDetalleSesionRepository { get; }
     }
 }

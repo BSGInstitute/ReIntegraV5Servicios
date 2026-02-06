@@ -7,6 +7,7 @@ using BSI.Integra.Repositorio.Repository.Interface.Planificacion;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 {
@@ -103,6 +104,31 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     actividades = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteActividadCabeceraListaDTO>>(resultadoDB);
                 }
                 return actividades;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public GestionDocenteFlujoOutputDTO ObtenerFlujoPorId(int id)
+        {
+            try
+            {
+                GestionDocenteFlujoOutputDTO flujo = null;
+                string _query = @"SELECT f.Id, f.Nombre, f.Descripcion, f.IdGestionDocenteEstado, e.Nombre AS NombreEstado,
+                    f.IdGestionDocenteCategoria, c.Nombre AS NombreCategoria
+                    FROM pla.T_GestionDocenteFlujo f
+                    LEFT JOIN pla.T_GestionDocenteEstado e ON f.IdGestionDocenteEstado = e.Id
+                    LEFT JOIN pla.T_GestionDocenteCategoria c ON f.IdGestionDocenteCategoria = c.Id
+                    WHERE f.Id = @Id AND f.Estado = 1";
+                var resultadoDB = _dapperRepository.QueryDapper(_query, new { Id = id });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    var lista = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteFlujoOutputDTO>>(resultadoDB);
+                    flujo = lista.FirstOrDefault();
+                }
+                return flujo;
             }
             catch (Exception ex)
             {

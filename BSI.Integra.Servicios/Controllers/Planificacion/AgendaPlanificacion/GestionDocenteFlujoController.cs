@@ -116,5 +116,35 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
                 return BadRequest(new { Exito = false, Mensaje = ex.Message });
             }
         }
+
+        [HttpGet("ObtenerFlujoPorId/{id}")]
+        public IActionResult ObtenerFlujoPorId(int id)
+        {
+            try
+            {
+                var flujo = _gestionDocenteFlujoService.ObtenerFlujoPorId(id);
+                if (flujo == null) return NotFound(new { Exito = false, Mensaje = "No se encontró el flujo." });
+                return Ok(flujo);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("ObtenerFlujoCompleto/{id}")]
+        public IActionResult ObtenerFlujoCompleto(int id)
+        {
+            try
+            {
+                var flujo = _gestionDocenteFlujoService.ObtenerFlujoCompleto(id);
+                if (flujo == null) return NotFound(new { Exito = false, Mensaje = "No se encontró el flujo." });
+                return Ok(flujo);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
     }
 }
