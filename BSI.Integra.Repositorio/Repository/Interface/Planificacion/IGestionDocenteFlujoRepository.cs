@@ -12,5 +12,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         IEnumerable<GestionDocenteEstadoDTO> ObtenerEstadosFlujo();
         IEnumerable<GestionDocenteCategoriaDTO> ObtenerCategorias();
         IEnumerable<GestionDocenteActividadCabeceraListaDTO> ObtenerActividadesCabecera();
+        GestionDocenteFlujoOutputDTO ObtenerFlujoPorId(int id);
     }
 }

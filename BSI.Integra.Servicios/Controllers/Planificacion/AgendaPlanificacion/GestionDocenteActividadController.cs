@@ -190,5 +190,22 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
                 return BadRequest(new { Exito = false, Mensaje = ex.Message });
             }
         }
+
+        [HttpGet("ObtenerActividadCompleta/{id}")]
+        public IActionResult ObtenerActividadCompleta(int id)
+        {
+            try
+            {
+                var resultado = _gestionDocenteActividadService.ObtenerActividadCabeceraCompleta(id);
+                if (resultado == null)
+                    return NotFound(new { Exito = false, Mensaje = "No se encontró la actividad cabecera" });
+
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
     }
 }

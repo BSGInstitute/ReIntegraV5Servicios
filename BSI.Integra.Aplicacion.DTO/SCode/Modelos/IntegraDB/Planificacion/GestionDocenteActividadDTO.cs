@@ -39,6 +39,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
     public class GestionDocenteDisparadorReglaTiempoRelativoDTO
     {
+        public int Id { get; set; }
         public int IdGestionDocenteDisparadorReglaTiempo { get; set; }
         public int IdGestionDocenteDisparadorDetalle { get; set; }
         public int Cantidad { get; set; }
@@ -89,6 +90,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
     public class GestionDocenteIaEntrenamientoEjemploDTO
     {
+        public int IdGestionDocenteOcurrenciaIaConfiguracion { get; set; }
         public int IdGestionDocenteIaEntrenamientoClasificacionTipo { get; set; }
         public string TextoEjemplo { get; set; }
         public bool EsPositivo { get; set; }
@@ -126,5 +128,138 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int Id { get; set; }
         public string Nombre { get; set; }
         public string Codigo { get; set; }
+    }
+
+    public class GestionContactoActividadDetalleSesionDTO
+    {
+        public int Id { get; set; }
+        public int IdGestionDocenteActividadDetalle { get; set; }
+        public int IdGestionDocenteSesion { get; set; }
+        public string NombreSesion { get; set; }
+    }
+
+    public class GestionDocenteActividadCabeceraOutputDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+        public int IdGestionDocenteEstado { get; set; }
+        public string NombreEstado { get; set; }
+        public int IdGestionDocenteCategoria { get; set; }
+        public string NombreCategoria { get; set; }
+    }
+
+    public class GestionDocenteActividadDetalleOutputDTO
+    {
+        public int Id { get; set; }
+        public int IdGestionDocenteActividadCabecera { get; set; }
+        public int IdGestionDocenteActividadDetalleTipo { get; set; }
+        public string NombreActividadDetalleTipo { get; set; }
+        public int IdPlantillaMedioComunicacion { get; set; }
+        public string NombrePlantilla { get; set; }
+        public int IdGestionDocenteDisparadorDetalle { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    public class GestionDocenteOcurrenciaOutputDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+        public int IdGestionDocenteOcurrenciaTipo { get; set; }
+        public string NombreOcurrenciaTipo { get; set; }
+        public int IdGestionDocenteActividadDetalle { get; set; }
+        public int IdGestionDocenteModoMarcado { get; set; }
+        public string NombreModoMarcado { get; set; }
+        public bool RequiereComentario { get; set; }
+        public bool RequiereFechaHora { get; set; }
+    }
+
+    public class OcurrenciaIaConfiguracionCompletaDTO
+    {
+        public int Id { get; set; }
+        public string Prompt { get; set; }
+        public int IdGestionDocenteConfianzaUmbralNivel { get; set; }
+        public string NombreConfianzaUmbralNivel { get; set; }
+        public int IdGestionDocenteOcurrencia { get; set; }
+        public List<GestionDocenteIaEntrenamientoEjemploOutputDTO> EjemplosEntrenamiento { get; set; }
+    }
+
+    public class GestionDocenteDisparadorDetalleOutputDTO
+    {
+        public int Id { get; set; }
+        public int IdGestionDocenteDisparadorFlujoTipo { get; set; }
+        public string NombreDisparadorFlujoTipo { get; set; }
+    }
+
+    public class GestionDocenteDisparadorReglaTiempoFijoOutputDTO
+    {
+        public int IdGestionDocenteDisparadorReglaTiempo { get; set; }
+        public int IdGestionDocenteDisparadorDetalle { get; set; }
+        public DateTime Fecha { get; set; }
+        public string TipoRegla { get; set; }
+    }
+
+    public class GestionDocenteDisparadorReglaTiempoRelativoOutputDTO
+    {
+        public int Id { get; set; }
+        public int IdGestionDocenteDisparadorReglaTiempo { get; set; }
+        public int IdGestionDocenteDisparadorDetalle { get; set; }
+        public int Cantidad { get; set; }
+        public int IdGestionDocenteUnidadTiempo { get; set; }
+        public string TipoRegla { get; set; }
+        public string NombreUnidadTiempo { get; set; }
+    }
+
+    public class GestionDocenteDisparadorReglaTiempoRelativoReferenciaOutputDTO
+    {
+        public int IdGestionDocenteDisparadorReglaTiempoRelativo { get; set; }
+        public int IdGestionDocenteReferenciaTiempo { get; set; }
+        public string NombreReferenciaTiempo { get; set; }
+    }
+
+    public class GestionDocenteDisparadorOcurrenciaDetalleOutputDTO
+    {
+        public int IdGestionDocenteDisparadorDetalle { get; set; }
+        public int IdGestionDocenteOcurrenciaPrevia { get; set; }
+        public string NombreOcurrenciaPrevia { get; set; }
+    }
+
+    public class GestionDocenteIaEntrenamientoEjemploOutputDTO
+    {
+        public int IdGestionDocenteOcurrenciaIaConfiguracion { get; set; }
+        public int IdGestionDocenteIaEntrenamientoClasificacionTipo { get; set; }
+        public string TextoEjemplo { get; set; }
+        public bool EsPositivo { get; set; }
+        public string NombreClasificacionTipo { get; set; }
+    }
+
+    public class OcurrenciaCompletaDTO
+    {
+        public GestionDocenteOcurrenciaOutputDTO Ocurrencia { get; set; }
+        public OcurrenciaIaConfiguracionCompletaDTO IaConfiguracion { get; set; }
+    }
+
+    public class DisparadorDetalleCompletoDTO
+    {
+        public GestionDocenteDisparadorDetalleOutputDTO DisparadorDetalle { get; set; }
+        public GestionDocenteDisparadorReglaTiempoFijoOutputDTO ReglaTiempoFijo { get; set; }
+        public GestionDocenteDisparadorReglaTiempoRelativoOutputDTO ReglaTiempoRelativo { get; set; }
+        public GestionDocenteDisparadorReglaTiempoRelativoReferenciaOutputDTO ReferenciaRelativa { get; set; }
+        public GestionDocenteDisparadorOcurrenciaDetalleOutputDTO OcurrenciaDetalle { get; set; }
+    }
+
+    public class ActividadDetalleCompletoDTO
+    {
+        public GestionDocenteActividadDetalleOutputDTO Detalle { get; set; }
+        public DisparadorDetalleCompletoDTO Disparador { get; set; }
+        public GestionContactoActividadDetalleSesionDTO Sesion { get; set; }
+        public List<OcurrenciaCompletaDTO> Ocurrencias { get; set; }
+    }
+
+    public class ActividadCabeceraCompletaDTO
+    {
+        public GestionDocenteActividadCabeceraOutputDTO Cabecera { get; set; }
+        public List<ActividadDetalleCompletoDTO> Detalles { get; set; }
     }
 }

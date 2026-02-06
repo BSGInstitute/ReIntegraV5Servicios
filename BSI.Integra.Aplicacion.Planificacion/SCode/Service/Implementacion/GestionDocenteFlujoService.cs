@@ -12,10 +12,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
     public class GestionDocenteFlujoService : IGestionDocenteFlujoService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IGestionDocenteActividadService _actividadService;
 
-        public GestionDocenteFlujoService(IUnitOfWork unitOfWork)
+        public GestionDocenteFlujoService(IUnitOfWork unitOfWork, IGestionDocenteActividadService actividadService)
         {
             _unitOfWork = unitOfWork;
+            _actividadService = actividadService;
         }
 
         public async Task<int> InsertarAsync(GestionDocenteFlujoDTO dto)
@@ -154,6 +156,51 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             try
             {
                 return _unitOfWork.GestionDocenteFlujoRepository.ObtenerActividadesCabecera();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public GestionDocenteFlujoOutputDTO ObtenerFlujoPorId(int id)
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteFlujoRepository.ObtenerFlujoPorId(id);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public FlujoCompletoDTO ObtenerFlujoCompleto(int id)
+        {
+            try
+            {
+                var flujo = _unitOfWork.GestionDocenteFlujoRepository.ObtenerFlujoPorId(id);
+                if (flujo == null) return null;
+
+                var asociaciones = _unitOfWork.GestionDocenteActividadCabeceraFlujoRepository
+                    .GetBy(x => x.IdGestionDocenteFlujo == id && x.Estado)
+                    .ToList();
+
+                var actividades = new List<ActividadCabeceraCompletaDTO>();
+                foreach (var asociacion in asociaciones)
+                {
+                    var cabecera = _actividadService.ObtenerActividadCabeceraCompleta(asociacion.IdGestionDocenteActividadCabecera);
+                    if (cabecera != null)
+                    {
+                        actividades.Add(cabecera);
+                    }
+                }
+
+                return new FlujoCompletoDTO
+                {
+                    Flujo = flujo,
+                    Actividades = actividades
+                };
             }
             catch (Exception ex)
             {

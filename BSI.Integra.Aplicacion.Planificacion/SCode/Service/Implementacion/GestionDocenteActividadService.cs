@@ -499,5 +499,121 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 throw;
             }
         }
+
+        public ActividadCabeceraCompletaDTO ObtenerActividadCabeceraCompleta(int id)
+        {
+            try
+            {
+                // 1. Obtener cabecera
+                var cabecera = _unitOfWork.GestionDocenteActividadCabeceraRepository.ObtenerCabeceraPorId(id);
+                if (cabecera == null) return null;
+
+                // 2. Obtener detalles de la cabecera
+                var detalles = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDetallesPorCabecera(id).ToList();
+                if (!detalles.Any())
+                {
+                    return new ActividadCabeceraCompletaDTO { Cabecera = cabecera, Detalles = new List<ActividadDetalleCompletoDTO>() };
+                }
+
+                // 3. Obtener IDs para consultas en lote
+                var detalleIds = string.Join(",", detalles.Select(d => d.Id));
+                var disparadorIds = string.Join(",", detalles.Select(d => d.IdGestionDocenteDisparadorDetalle));
+
+                // 4. Obtener disparadores
+                var disparadores = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDisparadoresPorIds(disparadorIds).ToList();
+
+                // 5. Obtener reglas de tiempo fijo
+                var reglasFijo = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReglasTiempoFijoPorDisparadores(disparadorIds).ToList();
+
+                // 6. Obtener reglas de tiempo relativo
+                var reglasRelativo = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReglasTiempoRelativoPorDisparadores(disparadorIds).ToList();
+
+                // 7. Obtener referencias relativas (si hay reglas relativas)
+                var referenciasRelativas = new List<GestionDocenteDisparadorReglaTiempoRelativoReferenciaOutputDTO>();
+                if (reglasRelativo.Any())
+                {
+                    var reglasRelativoIds = string.Join(",", reglasRelativo.Select(r => r.Id));
+                    referenciasRelativas = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReferenciasRelativasPorReglas(reglasRelativoIds).ToList();
+                }
+
+                // 8. Obtener disparadores de ocurrencia
+                var disparadoresOcurrencia = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDisparadoresOcurrenciaPorIds(disparadorIds).ToList();
+
+                // 9. Obtener sesiones
+                var sesiones = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerSesionesPorDetalles(detalleIds).ToList();
+
+                // 10. Obtener ocurrencias
+                var ocurrencias = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerOcurrenciasPorDetalles(detalleIds).ToList();
+
+                // 11. Obtener configuraciones IA (si hay ocurrencias)
+                var iaConfiguraciones = new List<OcurrenciaIaConfiguracionCompletaDTO>();
+                var ejemplosEntrenamiento = new List<GestionDocenteIaEntrenamientoEjemploOutputDTO>();
+                if (ocurrencias.Any())
+                {
+                    var ocurrenciaIds = string.Join(",", ocurrencias.Select(o => o.Id));
+                    iaConfiguraciones = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerIaConfiguracionesPorOcurrencias(ocurrenciaIds).ToList();
+
+                    // 12. Obtener ejemplos de entrenamiento (si hay configuraciones IA)
+                    if (iaConfiguraciones.Any())
+                    {
+                        var iaConfigIds = string.Join(",", iaConfiguraciones.Select(c => c.Id));
+                        ejemplosEntrenamiento = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerEjemplosEntrenamientoPorConfiguraciones(iaConfigIds).ToList();
+                    }
+                }
+
+                // Ensamblar: asignar ejemplos a configuraciones IA
+                foreach (var config in iaConfiguraciones)
+                {
+                    config.EjemplosEntrenamiento = ejemplosEntrenamiento
+                        .Where(e => e.IdGestionDocenteOcurrenciaIaConfiguracion == config.Id)
+                        .ToList();
+                }
+
+                // Ensamblar: crear ocurrencias completas
+                var ocurrenciasCompletas = ocurrencias.Select(o => new OcurrenciaCompletaDTO
+                {
+                    Ocurrencia = o,
+                    IaConfiguracion = iaConfiguraciones.FirstOrDefault(c => c.IdGestionDocenteOcurrencia == o.Id)
+                }).ToList();
+
+                // Ensamblar: crear detalles completos
+                var detallesCompletos = detalles.Select(d =>
+                {
+                    var idDisparador = d.IdGestionDocenteDisparadorDetalle;
+                    var disparador = disparadores.FirstOrDefault(dp => dp.Id == idDisparador);
+                    var reglaFijo = reglasFijo.FirstOrDefault(r => r.IdGestionDocenteDisparadorDetalle == idDisparador);
+                    var reglaRelativo = reglasRelativo.FirstOrDefault(r => r.IdGestionDocenteDisparadorDetalle == idDisparador);
+                    var referenciaRelativa = reglaRelativo != null
+                        ? referenciasRelativas.FirstOrDefault(r => r.IdGestionDocenteDisparadorReglaTiempoRelativo == reglaRelativo.Id)
+                        : null;
+                    var ocurrenciaDetalle = disparadoresOcurrencia.FirstOrDefault(o => o.IdGestionDocenteDisparadorDetalle == idDisparador);
+
+                    return new ActividadDetalleCompletoDTO
+                    {
+                        Detalle = d,
+                        Disparador = new DisparadorDetalleCompletoDTO
+                        {
+                            DisparadorDetalle = disparador,
+                            ReglaTiempoFijo = reglaFijo,
+                            ReglaTiempoRelativo = reglaRelativo,
+                            ReferenciaRelativa = referenciaRelativa,
+                            OcurrenciaDetalle = ocurrenciaDetalle
+                        },
+                        Sesion = sesiones.FirstOrDefault(s => s.IdGestionDocenteActividadDetalle == d.Id),
+                        Ocurrencias = ocurrenciasCompletas.Where(o => o.Ocurrencia.IdGestionDocenteActividadDetalle == d.Id).ToList()
+                    };
+                }).ToList();
+
+                return new ActividadCabeceraCompletaDTO
+                {
+                    Cabecera = cabecera,
+                    Detalles = detallesCompletos
+                };
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }
