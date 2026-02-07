@@ -191,6 +191,62 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
             }
         }
 
+        [HttpGet("ObtenerActividadDetalleTipos")]
+        public IActionResult ObtenerActividadDetalleTipos()
+        {
+            try
+            {
+                var lista = _gestionDocenteActividadService.ObtenerActividadDetalleTipos();
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("ObtenerModosMarcado")]
+        public IActionResult ObtenerModosMarcado()
+        {
+            try
+            {
+                var lista = _gestionDocenteActividadService.ObtenerModosMarcado();
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("ObtenerMediosComunicacion")]
+        public IActionResult ObtenerMediosComunicacion()
+        {
+            try
+            {
+                var lista = _gestionDocenteActividadService.ObtenerMediosComunicacion();
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("ObtenerPlantillasMedioComunicacion")]
+        public IActionResult ObtenerPlantillasMedioComunicacion()
+        {
+            try
+            {
+                var lista = _gestionDocenteActividadService.ObtenerPlantillasMedioComunicacion();
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
         [HttpGet("ObtenerActividadCompleta/{id}")]
         public IActionResult ObtenerActividadCompleta(int id)
         {

@@ -129,6 +129,86 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
+        public IEnumerable<GestionDocenteActividadDetalleTipoDTO> ObtenerActividadDetalleTipos()
+        {
+            try
+            {
+                IEnumerable<GestionDocenteActividadDetalleTipoDTO> tipos = new List<GestionDocenteActividadDetalleTipoDTO>();
+                string _query = "SELECT Id, Nombre FROM pla.T_GestionDocenteActividadDetalleTipo WHERE Estado = 1";
+                var resultadoDB = _dapperRepository.QueryDapper(_query, null);
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    tipos = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteActividadDetalleTipoDTO>>(resultadoDB);
+                }
+                return tipos;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<GestionDocenteModoMarcadoDTO> ObtenerModosMarcado()
+        {
+            try
+            {
+                IEnumerable<GestionDocenteModoMarcadoDTO> modos = new List<GestionDocenteModoMarcadoDTO>();
+                string _query = "SELECT Id, Nombre, Descripcion FROM pla.T_GestionDocenteModoMarcado WHERE Estado = 1";
+                var resultadoDB = _dapperRepository.QueryDapper(_query, null);
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    modos = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteModoMarcadoDTO>>(resultadoDB);
+                }
+                return modos;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<GestionDocenteMedioComunicacionDTO> ObtenerMediosComunicacion()
+        {
+            try
+            {
+                IEnumerable<GestionDocenteMedioComunicacionDTO> medios = new List<GestionDocenteMedioComunicacionDTO>();
+                string _query = "SELECT Id, Nombre FROM pla.T_MedioComunicacion WHERE Estado = 1";
+                var resultadoDB = _dapperRepository.QueryDapper(_query, null);
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    medios = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteMedioComunicacionDTO>>(resultadoDB);
+                }
+                return medios;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<GestionDocentePlantillaMedioComunicacionDTO> ObtenerPlantillasMedioComunicacion()
+        {
+            try
+            {
+                IEnumerable<GestionDocentePlantillaMedioComunicacionDTO> plantillas = new List<GestionDocentePlantillaMedioComunicacionDTO>();
+                string _query = @"SELECT pmc.Id, pmc.IdPlantilla, p.Nombre AS NombrePlantilla, pmc.IdMedioComunicacion, mc.Nombre AS NombreMedioComunicacion
+                    FROM mkt.T_PlantillaMedioComunicacion pmc
+                    LEFT JOIN mkt.T_Plantilla p ON pmc.IdPlantilla = p.Id
+                    LEFT JOIN pla.T_MedioComunicacion mc ON pmc.IdMedioComunicacion = mc.Id
+                    WHERE pmc.Estado = 1";
+                var resultadoDB = _dapperRepository.QueryDapper(_query, null);
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    plantillas = JsonConvert.DeserializeObject<IEnumerable<GestionDocentePlantillaMedioComunicacionDTO>>(resultadoDB);
+                }
+                return plantillas;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<GestionDocenteActividadDetalleOutputDTO> ObtenerDetallesPorCabecera(int idCabecera)
         {
             try
