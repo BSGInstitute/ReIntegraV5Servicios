@@ -82,7 +82,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? IdClasificacionPersona { get; set; }
         public int? IdOportunidad { get; set; }
         public int? IdFaseOportunidad { get; set; }
-        public int? IdOportunidadPadre { get; set; }
+        public int? IdOportunidad_Padre { get; set; }
         public int? IdActividadCabecera { get; set; }
         public string FechaCreacion { get; set; }
         public int IdPEspecifico { get; set; }
