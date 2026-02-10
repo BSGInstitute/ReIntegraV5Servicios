@@ -820,7 +820,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 IdClasificacionPersona = solicitud.IdClasificacionPersona ?? 0,
                 IdOportunidad = solicitud.IdOportunidad ?? 0,
                 IdFaseOportunidad = solicitud.IdFaseOportunidad,
-                IdPadre = solicitud.IdOportunidadPadre,
+                IdPadre = solicitud.IdOportunidad_Padre,
                 IdActividadCabecera = solicitud.IdActividadCabecera ?? 0,
                 UltimaFechaProgramada = !string.IsNullOrEmpty(solicitud.FechaCreacion)
                     ? DateTime.Parse(solicitud.FechaCreacion)
