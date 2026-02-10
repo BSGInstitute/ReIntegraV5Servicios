@@ -564,7 +564,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 }
 
                 // 3. Obtener IDs para consultas en lote
-                var detalleIds = string.Join(",", detalles.Select(d => d.Id));
+                var detalleIds = string.Join(",", detalles.Select(d => d.IdGestionDocenteActividadDetalle));
                 var disparadorIds = string.Join(",", detalles.Select(d => d.IdGestionDocenteDisparadorDetalle));
 
                 // 4. Obtener disparadores
@@ -580,7 +580,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 var referenciasRelativas = new List<GestionDocenteDisparadorReglaTiempoRelativoReferenciaOutputDTO>();
                 if (reglasRelativo.Any())
                 {
-                    var reglasRelativoIds = string.Join(",", reglasRelativo.Select(r => r.Id));
+                    var reglasRelativoIds = string.Join(",", reglasRelativo.Select(r => r.IdGestionDocenteDisparadorReglaTiempoRelativo));
                     referenciasRelativas = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReferenciasRelativasPorReglas(reglasRelativoIds).ToList();
                 }
 
@@ -598,13 +598,13 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 var ejemplosEntrenamiento = new List<GestionDocenteIaEntrenamientoEjemploOutputDTO>();
                 if (ocurrencias.Any())
                 {
-                    var ocurrenciaIds = string.Join(",", ocurrencias.Select(o => o.Id));
+                    var ocurrenciaIds = string.Join(",", ocurrencias.Select(o => o.IdGestionDocenteOcurrencia));
                     iaConfiguraciones = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerIaConfiguracionesPorOcurrencias(ocurrenciaIds).ToList();
 
                     // 12. Obtener ejemplos de entrenamiento (si hay configuraciones IA)
                     if (iaConfiguraciones.Any())
                     {
-                        var iaConfigIds = string.Join(",", iaConfiguraciones.Select(c => c.Id));
+                        var iaConfigIds = string.Join(",", iaConfiguraciones.Select(c => c.IdGestionDocenteOcurrenciaIaConfiguracion));
                         ejemplosEntrenamiento = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerEjemplosEntrenamientoPorConfiguraciones(iaConfigIds).ToList();
                     }
                 }
@@ -613,7 +613,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 foreach (var config in iaConfiguraciones)
                 {
                     config.EjemplosEntrenamiento = ejemplosEntrenamiento
-                        .Where(e => e.IdGestionDocenteOcurrenciaIaConfiguracion == config.Id)
+                        .Where(e => e.IdGestionDocenteOcurrenciaIaConfiguracion == config.IdGestionDocenteOcurrenciaIaConfiguracion)
                         .ToList();
                 }
 
@@ -621,18 +621,18 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 var ocurrenciasCompletas = ocurrencias.Select(o => new OcurrenciaCompletaDTO
                 {
                     Ocurrencia = o,
-                    IaConfiguracion = iaConfiguraciones.FirstOrDefault(c => c.IdGestionDocenteOcurrencia == o.Id)
+                    IaConfiguracion = iaConfiguraciones.FirstOrDefault(c => c.IdGestionDocenteOcurrencia == o.IdGestionDocenteOcurrencia)
                 }).ToList();
 
                 // Ensamblar: crear detalles completos
                 var detallesCompletos = detalles.Select(d =>
                 {
                     var idDisparador = d.IdGestionDocenteDisparadorDetalle;
-                    var disparador = disparadores.FirstOrDefault(dp => dp.Id == idDisparador);
+                    var disparador = disparadores.FirstOrDefault(dp => dp.IdGestionDocenteDisparadorDetalle == idDisparador);
                     var reglaFijo = reglasFijo.FirstOrDefault(r => r.IdGestionDocenteDisparadorDetalle == idDisparador);
                     var reglaRelativo = reglasRelativo.FirstOrDefault(r => r.IdGestionDocenteDisparadorDetalle == idDisparador);
                     var referenciaRelativa = reglaRelativo != null
-                        ? referenciasRelativas.FirstOrDefault(r => r.IdGestionDocenteDisparadorReglaTiempoRelativo == reglaRelativo.Id)
+                        ? referenciasRelativas.FirstOrDefault(r => r.IdGestionDocenteDisparadorReglaTiempoRelativo == reglaRelativo.IdGestionDocenteDisparadorReglaTiempoRelativo)
                         : null;
                     var ocurrenciaDetalle = disparadoresOcurrencia.FirstOrDefault(o => o.IdGestionDocenteDisparadorDetalle == idDisparador);
 
@@ -647,8 +647,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                             ReferenciaRelativa = referenciaRelativa,
                             OcurrenciaDetalle = ocurrenciaDetalle
                         },
-                        Sesion = sesiones.FirstOrDefault(s => s.IdGestionDocenteActividadDetalle == d.Id),
-                        Ocurrencias = ocurrenciasCompletas.Where(o => o.Ocurrencia.IdGestionDocenteActividadDetalle == d.Id).ToList()
+                        Sesion = sesiones.FirstOrDefault(s => s.IdGestionDocenteActividadDetalle == d.IdGestionDocenteActividadDetalle),
+                        Ocurrencias = ocurrenciasCompletas.Where(o => o.Ocurrencia.IdGestionDocenteActividadDetalle == d.IdGestionDocenteActividadDetalle).ToList()
                     };
                 }).ToList();
 

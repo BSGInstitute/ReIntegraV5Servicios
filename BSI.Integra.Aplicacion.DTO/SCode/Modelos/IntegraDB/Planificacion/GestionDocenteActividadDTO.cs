@@ -151,7 +151,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
     public class GestionDocentePlantillaMedioComunicacionDTO
     {
-        public int Id { get; set; }
+        public int IdPlantillaMedioComunicacion { get; set; }
         public int IdPlantilla { get; set; }
         public string NombrePlantilla { get; set; }
         public int IdMedioComunicacion { get; set; }
@@ -160,7 +160,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
     public class GestionContactoActividadDetalleSesionDTO
     {
-        public int Id { get; set; }
+        public int IdGestionContactoActividadDetalleSesion { get; set; }
         public int IdGestionDocenteActividadDetalle { get; set; }
         public int IdGestionDocenteSesion { get; set; }
         public string NombreSesion { get; set; }
@@ -179,19 +179,19 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
     public class GestionDocenteActividadDetalleOutputDTO
     {
-        public int Id { get; set; }
+        public int IdGestionDocenteActividadDetalle { get; set; }
         public int IdGestionDocenteActividadCabecera { get; set; }
         public int IdGestionDocenteActividadDetalleTipo { get; set; }
         public string NombreActividadDetalleTipo { get; set; }
         public int IdPlantillaMedioComunicacion { get; set; }
         public string NombrePlantilla { get; set; }
         public int IdGestionDocenteDisparadorDetalle { get; set; }
-        public string Nombre { get; set; }
+        public string NombreActividadDetalle { get; set; }
     }
 
     public class GestionDocenteOcurrenciaOutputDTO
     {
-        public int Id { get; set; }
+        public int IdGestionDocenteOcurrencia { get; set; }
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
         public int IdGestionDocenteOcurrenciaTipo { get; set; }
@@ -205,7 +205,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
     public class OcurrenciaIaConfiguracionCompletaDTO
     {
-        public int Id { get; set; }
+        public int IdGestionDocenteOcurrenciaIaConfiguracion { get; set; }
         public string Prompt { get; set; }
         public int IdGestionDocenteConfianzaUmbralNivel { get; set; }
         public string NombreConfianzaUmbralNivel { get; set; }
@@ -215,7 +215,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
     public class GestionDocenteDisparadorDetalleOutputDTO
     {
-        public int Id { get; set; }
+        public int IdGestionDocenteDisparadorDetalle { get; set; }
         public int IdGestionDocenteDisparadorFlujoTipo { get; set; }
         public string NombreDisparadorFlujoTipo { get; set; }
     }
@@ -230,7 +230,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
     public class GestionDocenteDisparadorReglaTiempoRelativoOutputDTO
     {
-        public int Id { get; set; }
+        public int IdGestionDocenteDisparadorReglaTiempoRelativo { get; set; }
         public int IdGestionDocenteDisparadorReglaTiempo { get; set; }
         public int IdGestionDocenteDisparadorDetalle { get; set; }
         public int Cantidad { get; set; }

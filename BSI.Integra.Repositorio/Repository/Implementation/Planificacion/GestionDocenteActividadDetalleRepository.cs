@@ -191,11 +191,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 IEnumerable<GestionDocentePlantillaMedioComunicacionDTO> plantillas = new List<GestionDocentePlantillaMedioComunicacionDTO>();
-                string _query = @"SELECT pmc.Id, pmc.IdPlantilla, p.Nombre AS NombrePlantilla, pmc.IdMedioComunicacion, mc.Nombre AS NombreMedioComunicacion
-                    FROM mkt.T_PlantillaMedioComunicacion pmc
-                    LEFT JOIN mkt.T_Plantilla p ON pmc.IdPlantilla = p.Id
-                    LEFT JOIN pla.T_MedioComunicacion mc ON pmc.IdMedioComunicacion = mc.Id
-                    WHERE pmc.Estado = 1";
+                string _query = "pla.SP_GestionDocentePlantillaMedioComunicacionObtener";
                 var resultadoDB = _dapperRepository.QueryDapper(_query, null);
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
@@ -214,13 +210,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 IEnumerable<GestionDocenteActividadDetalleOutputDTO> detalles = new List<GestionDocenteActividadDetalleOutputDTO>();
-                string _query = @$"SELECT d.Id, d.IdGestionDocenteActividadCabecera, d.IdGestionDocenteActividadDetalleTipo, t.Nombre AS NombreActividadDetalleTipo, d.IdPlantillaMedioComunicacion, p.Nombre AS NombrePlantilla, d.IdGestionDocenteDisparadorDetalle, d.Nombre
-                    FROM pla.T_GestionDocenteActividadDetalle d
-                    LEFT JOIN pla.T_GestionDocenteActividadDetalleTipo t ON d.IdGestionDocenteActividadDetalleTipo = t.Id
-                    LEFT JOIN mkt.T_PlantillaMedioComunicacion pmc ON d.IdPlantillaMedioComunicacion = pmc.Id
-                    LEFT JOIN mkt.T_Plantilla p ON pmc.IdPlantilla = p.Id
-                    WHERE d.IdGestionDocenteActividadCabecera = @IdCabecera AND d.Estado = 1";
-                var resultadoDB = _dapperRepository.QueryDapper(_query, new { IdCabecera = idCabecera });
+                string _query = "pla.SP_GestionDocenteActividadDetalleObtenerPorCabecera";
+                var resultadoDB = _dapperRepository.QueryDapper(_query, new { IdGestionDocenteActividadCabecera = idCabecera });
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
                     detalles = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteActividadDetalleOutputDTO>>(resultadoDB);
@@ -238,11 +229,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 IEnumerable<GestionDocenteDisparadorDetalleOutputDTO> disparadores = new List<GestionDocenteDisparadorDetalleOutputDTO>();
-                string _query = $@"SELECT d.Id, d.IdGestionDocenteDisparadorFlujoTipo, t.Nombre AS NombreDisparadorFlujoTipo
-                    FROM pla.T_GestionDocenteDisparadorDetalle d
-                    LEFT JOIN pla.T_GestionDocenteDisparadorFlujoTipo t ON d.IdGestionDocenteDisparadorFlujoTipo = t.Id
-                    WHERE d.Id IN ({ids}) AND d.Estado = 1";
-                var resultadoDB = _dapperRepository.QueryDapper(_query, null);
+                string _query = "pla.SP_GestionDocenteDisparadorDetalleObtenerIds";
+                var resultadoDB = _dapperRepository.QueryDapper(_query, new { IdGestionDocenteDisparadorDetalle_Lista = ids });
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
                     disparadores = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteDisparadorDetalleOutputDTO>>(resultadoDB);
@@ -260,11 +248,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 IEnumerable<GestionDocenteDisparadorReglaTiempoFijoOutputDTO> reglas = new List<GestionDocenteDisparadorReglaTiempoFijoOutputDTO>();
-                string _query = $@"SELECT f.IdGestionDocenteDisparadorReglaTiempo, f.IdGestionDocenteDisparadorDetalle, f.Fecha, rt.TipoRegla
-                    FROM pla.T_GestionDocenteDisparadorReglaTiempoFijo f
-                    LEFT JOIN pla.T_GestionDocenteDisparadorReglaTiempo rt ON f.IdGestionDocenteDisparadorReglaTiempo = rt.Id
-                    WHERE f.IdGestionDocenteDisparadorDetalle IN ({ids}) AND f.Estado = 1";
-                var resultadoDB = _dapperRepository.QueryDapper(_query, null);
+                string _query = "pla.SP_GestionDocenteReglaTiempoFijoObtenerPorDisparadores";
+                var resultadoDB = _dapperRepository.QueryDapper(_query, new { IdGestionDocenteDisparadorDetalle_Lista = ids });
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
                     reglas = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteDisparadorReglaTiempoFijoOutputDTO>>(resultadoDB);
@@ -282,12 +267,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 IEnumerable<GestionDocenteDisparadorReglaTiempoRelativoOutputDTO> reglas = new List<GestionDocenteDisparadorReglaTiempoRelativoOutputDTO>();
-                string _query = $@"SELECT r.Id, r.IdGestionDocenteDisparadorReglaTiempo, r.IdGestionDocenteDisparadorDetalle, r.Cantidad, r.IdGestionDocenteUnidadTiempo, rt.TipoRegla, u.Nombre AS NombreUnidadTiempo
-                    FROM pla.T_GestionDocenteDisparadorReglaTiempoRelativo r
-                    LEFT JOIN pla.T_GestionDocenteDisparadorReglaTiempo rt ON r.IdGestionDocenteDisparadorReglaTiempo = rt.Id
-                    LEFT JOIN pla.T_GestionDocenteUnidadTiempo u ON r.IdGestionDocenteUnidadTiempo = u.Id
-                    WHERE r.IdGestionDocenteDisparadorDetalle IN ({ids}) AND r.Estado = 1";
-                var resultadoDB = _dapperRepository.QueryDapper(_query, null);
+                string _query = "pla.SP_GestionDocenteReglaTiempoRelativoObtenerPorDisparadores";
+                var resultadoDB = _dapperRepository.QueryDapper(_query, new { IdGestionDocenteDisparadorDetalle_Lista = ids });
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
                     reglas = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteDisparadorReglaTiempoRelativoOutputDTO>>(resultadoDB);
@@ -305,11 +286,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 IEnumerable<GestionDocenteDisparadorReglaTiempoRelativoReferenciaOutputDTO> referencias = new List<GestionDocenteDisparadorReglaTiempoRelativoReferenciaOutputDTO>();
-                string _query = $@"SELECT r.IdGestionDocenteDisparadorReglaTiempoRelativo, r.IdGestionDocenteReferenciaTiempo, rt.Nombre AS NombreReferenciaTiempo
-                    FROM pla.T_GestionDocenteDisparadorReglaTiempoRelativoReferencia r
-                    LEFT JOIN pla.T_GestionDocenteReferenciaTiempo rt ON r.IdGestionDocenteReferenciaTiempo = rt.Id
-                    WHERE r.IdGestionDocenteDisparadorReglaTiempoRelativo IN ({ids}) AND r.Estado = 1";
-                var resultadoDB = _dapperRepository.QueryDapper(_query, null);
+                string _query = "pla.SP_GestionDocenteReferenciaRelativaObtenerPorReglas";
+                var resultadoDB = _dapperRepository.QueryDapper(_query, new { IdGestionDocenteDisparadorReglaTiempoRelativo_Lista = ids });
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
                     referencias = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteDisparadorReglaTiempoRelativoReferenciaOutputDTO>>(resultadoDB);
@@ -327,11 +305,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 IEnumerable<GestionDocenteDisparadorOcurrenciaDetalleOutputDTO> disparadores = new List<GestionDocenteDisparadorOcurrenciaDetalleOutputDTO>();
-                string _query = $@"SELECT d.IdGestionDocenteDisparadorDetalle, d.IdGestionDocenteOcurrencia_Previa AS IdGestionDocenteOcurrenciaPrevia, o.Nombre AS NombreOcurrenciaPrevia
-                    FROM pla.T_GestionDocenteDisparadorOcurrenciaDetalle d
-                    LEFT JOIN pla.T_GestionDocenteOcurrencia o ON d.IdGestionDocenteOcurrencia_Previa = o.Id
-                    WHERE d.IdGestionDocenteDisparadorDetalle IN ({ids}) AND d.Estado = 1";
-                var resultadoDB = _dapperRepository.QueryDapper(_query, null);
+                string _query = "pla.SP_GestionDocenteDisparadorOcurrenciaObtenerIds";
+                var resultadoDB = _dapperRepository.QueryDapper(_query, new { IdGestionDocenteDisparadorDetalle_Lista = ids });
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
                     disparadores = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteDisparadorOcurrenciaDetalleOutputDTO>>(resultadoDB);
@@ -349,11 +324,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 IEnumerable<GestionContactoActividadDetalleSesionDTO> sesiones = new List<GestionContactoActividadDetalleSesionDTO>();
-                string _query = $@"SELECT cs.Id, cs.IdGestionDocenteActividadDetalle, cs.IdGestionDocenteSesion, s.Nombre AS NombreSesion
-                    FROM pla.T_GestionContactoActividadDetalleSesion cs
-                    LEFT JOIN pla.T_GestionDocenteSesion s ON cs.IdGestionDocenteSesion = s.Id
-                    WHERE cs.IdGestionDocenteActividadDetalle IN ({ids}) AND cs.Estado = 1";
-                var resultadoDB = _dapperRepository.QueryDapper(_query, null);
+                string _query = "pla.SP_GestionDocenteSesionObtenerPorDetalles";
+                var resultadoDB = _dapperRepository.QueryDapper(_query, new { IdGestionDocenteActividadDetalle_Lista = ids });
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
                     sesiones = JsonConvert.DeserializeObject<IEnumerable<GestionContactoActividadDetalleSesionDTO>>(resultadoDB);
@@ -371,12 +343,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 IEnumerable<GestionDocenteOcurrenciaOutputDTO> ocurrencias = new List<GestionDocenteOcurrenciaOutputDTO>();
-                string _query = $@"SELECT o.Id, o.Nombre, o.Descripcion, o.IdGestionDocenteOcurrenciaTipo, ot.Nombre AS NombreOcurrenciaTipo, o.IdGestionDocenteActividadDetalle, o.IdGestionDocenteModoMarcado, mm.Nombre AS NombreModoMarcado, o.RequiereComentario, o.RequiereFechaHora
-                    FROM pla.T_GestionDocenteOcurrencia o
-                    LEFT JOIN pla.T_GestionDocenteOcurrenciaTipo ot ON o.IdGestionDocenteOcurrenciaTipo = ot.Id
-                    LEFT JOIN pla.T_GestionDocenteModoMarcado mm ON o.IdGestionDocenteModoMarcado = mm.Id
-                    WHERE o.IdGestionDocenteActividadDetalle IN ({ids}) AND o.Estado = 1";
-                var resultadoDB = _dapperRepository.QueryDapper(_query, null);
+                string _query = "pla.SP_GestionDocenteOcurrenciaObtenerPorDetalles";
+                var resultadoDB = _dapperRepository.QueryDapper(_query, new { IdGestionDocenteActividadDetalle_Lista = ids });
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
                     ocurrencias = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteOcurrenciaOutputDTO>>(resultadoDB);
@@ -394,11 +362,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 IEnumerable<OcurrenciaIaConfiguracionCompletaDTO> configuraciones = new List<OcurrenciaIaConfiguracionCompletaDTO>();
-                string _query = $@"SELECT c.Id, c.Prompt, c.IdGestionDocenteConfianzaUmbralNivel, n.Nombre AS NombreConfianzaUmbralNivel, c.IdGestionDocenteOcurrencia
-                    FROM pla.T_GestionDocenteOcurrenciaIaConfiguracion c
-                    LEFT JOIN pla.T_GestionDocenteConfianzaUmbralNivel n ON c.IdGestionDocenteConfianzaUmbralNivel = n.Id
-                    WHERE c.IdGestionDocenteOcurrencia IN ({ids}) AND c.Estado = 1";
-                var resultadoDB = _dapperRepository.QueryDapper(_query, null);
+                string _query = "pla.SP_GestionDocenteIaConfiguracionObtenerPorOcurrencias";
+                var resultadoDB = _dapperRepository.QueryDapper(_query, new { IdGestionDocenteOcurrencia_Lista = ids });
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
                     configuraciones = JsonConvert.DeserializeObject<IEnumerable<OcurrenciaIaConfiguracionCompletaDTO>>(resultadoDB);
@@ -416,11 +381,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 IEnumerable<GestionDocenteIaEntrenamientoEjemploOutputDTO> ejemplos = new List<GestionDocenteIaEntrenamientoEjemploOutputDTO>();
-                string _query = $@"SELECT e.IdGestionDocenteOcurrenciaIaConfiguracion, e.IdGestionDocenteIaEntrenamientoClasificacionTipo, ct.Nombre AS NombreClasificacionTipo, e.TextoEjemplo, e.EsPositivo
-                    FROM pla.T_GestionDocenteIaEntrenamientoEjemplo e
-                    LEFT JOIN pla.T_GestionDocenteIaEntrenamientoClasificacionTipo ct ON e.IdGestionDocenteIaEntrenamientoClasificacionTipo = ct.Id
-                    WHERE e.IdGestionDocenteOcurrenciaIaConfiguracion IN ({ids}) AND e.Estado = 1";
-                var resultadoDB = _dapperRepository.QueryDapper(_query, null);
+                string _query = "pla.SP_GestionDocenteEntrenamientoEjemploObtenerPorConfiguraciones";
+                var resultadoDB = _dapperRepository.QueryDapper(_query, new { IdGestionDocenteOcurrenciaIaConfiguracion_Lista = ids });
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
                     ejemplos = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteIaEntrenamientoEjemploOutputDTO>>(resultadoDB);
