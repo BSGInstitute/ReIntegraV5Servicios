@@ -219,6 +219,20 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
             }
         }
 
+        [HttpGet("ObtenerDisparadorFlujoTipos")]
+        public IActionResult ObtenerDisparadorFlujoTipos()
+        {
+            try
+            {
+                var lista = _gestionDocenteActividadService.ObtenerDisparadorFlujoTipos();
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
         [HttpGet("ObtenerMediosComunicacion")]
         public IActionResult ObtenerMediosComunicacion()
         {

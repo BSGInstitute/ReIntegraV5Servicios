@@ -148,6 +148,25 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
+        public IEnumerable<GestionDocenteDisparadorFlujoTipoDTO> ObtenerDisparadorFlujoTipos()
+        {
+            try
+            {
+                IEnumerable<GestionDocenteDisparadorFlujoTipoDTO> tipos = new List<GestionDocenteDisparadorFlujoTipoDTO>();
+                string _query = "SELECT Id, Nombre FROM pla.T_GestionDocenteDisparadorFlujoTipo WHERE Estado = 1";
+                var resultadoDB = _dapperRepository.QueryDapper(_query, null);
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    tipos = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteDisparadorFlujoTipoDTO>>(resultadoDB);
+                }
+                return tipos;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<GestionDocenteModoMarcadoDTO> ObtenerModosMarcado()
         {
             try

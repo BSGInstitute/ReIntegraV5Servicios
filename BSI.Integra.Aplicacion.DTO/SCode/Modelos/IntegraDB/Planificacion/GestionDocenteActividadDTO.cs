@@ -136,6 +136,12 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string Nombre { get; set; }
     }
 
+    public class GestionDocenteDisparadorFlujoTipoDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+    }
+
     public class GestionDocenteModoMarcadoDTO
     {
         public int Id { get; set; }

@@ -14,6 +14,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         IEnumerable<GestionDocenteOcurrenciaTipoDTO> ObtenerOcurrenciaTipos();
         IEnumerable<GestionDocenteReferenciaTiempoDTO> ObtenerReferenciasTiempo();
         IEnumerable<GestionDocenteActividadDetalleTipoDTO> ObtenerActividadDetalleTipos();
+        IEnumerable<GestionDocenteDisparadorFlujoTipoDTO> ObtenerDisparadorFlujoTipos();
         IEnumerable<GestionDocenteModoMarcadoDTO> ObtenerModosMarcado();
         IEnumerable<GestionDocenteMedioComunicacionDTO> ObtenerMediosComunicacion();
         IEnumerable<GestionDocentePlantillaMedioComunicacionDTO> ObtenerPlantillasMedioComunicacion();

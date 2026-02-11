@@ -512,6 +512,18 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        public IEnumerable<GestionDocenteDisparadorFlujoTipoDTO> ObtenerDisparadorFlujoTipos()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDisparadorFlujoTipos();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public IEnumerable<GestionDocenteModoMarcadoDTO> ObtenerModosMarcado()
         {
             try
