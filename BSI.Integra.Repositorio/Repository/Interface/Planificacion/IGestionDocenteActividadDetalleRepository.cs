@@ -13,6 +13,10 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         IEnumerable<GestionDocenteConfianzaUmbralNivelDTO> ObtenerConfianzaUmbralNiveles();
         IEnumerable<GestionDocenteOcurrenciaTipoDTO> ObtenerOcurrenciaTipos();
         IEnumerable<GestionDocenteReferenciaTiempoDTO> ObtenerReferenciasTiempo();
+        IEnumerable<GestionDocenteActividadDetalleTipoDTO> ObtenerActividadDetalleTipos();
+        IEnumerable<GestionDocenteModoMarcadoDTO> ObtenerModosMarcado();
+        IEnumerable<GestionDocenteMedioComunicacionDTO> ObtenerMediosComunicacion();
+        IEnumerable<GestionDocentePlantillaMedioComunicacionDTO> ObtenerPlantillasMedioComunicacion();
         IEnumerable<GestionDocenteActividadDetalleOutputDTO> ObtenerDetallesPorCabecera(int idCabecera);
         IEnumerable<GestionDocenteDisparadorDetalleOutputDTO> ObtenerDisparadoresPorIds(string ids);
         IEnumerable<GestionDocenteDisparadorReglaTiempoFijoOutputDTO> ObtenerReglasTiempoFijoPorDisparadores(string ids);

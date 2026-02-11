@@ -18,6 +18,10 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         IEnumerable<GestionDocenteConfianzaUmbralNivelDTO> ObtenerConfianzaUmbralNiveles();
         IEnumerable<GestionDocenteOcurrenciaTipoDTO> ObtenerOcurrenciaTipos();
         IEnumerable<GestionDocenteReferenciaTiempoDTO> ObtenerReferenciasTiempo();
+        IEnumerable<GestionDocenteActividadDetalleTipoDTO> ObtenerActividadDetalleTipos();
+        IEnumerable<GestionDocenteModoMarcadoDTO> ObtenerModosMarcado();
+        IEnumerable<GestionDocenteMedioComunicacionDTO> ObtenerMediosComunicacion();
+        IEnumerable<GestionDocentePlantillaMedioComunicacionDTO> ObtenerPlantillasMedioComunicacion();
         ActividadCabeceraCompletaDTO ObtenerActividadCabeceraCompleta(int id);
     }
 }
