@@ -136,6 +136,12 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string Nombre { get; set; }
     }
 
+    public class GestionDocenteDisparadorFlujoTipoDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+    }
+
     public class GestionDocenteModoMarcadoDTO
     {
         public int Id { get; set; }
@@ -275,6 +281,26 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public GestionDocenteDisparadorReglaTiempoRelativoOutputDTO ReglaTiempoRelativo { get; set; }
         public GestionDocenteDisparadorReglaTiempoRelativoReferenciaOutputDTO ReferenciaRelativa { get; set; }
         public GestionDocenteDisparadorOcurrenciaDetalleOutputDTO OcurrenciaDetalle { get; set; }
+    }
+
+    public class DisparadorTiempoFijoDTO
+    {
+        public GestionDocenteDisparadorDetalleOutputDTO DisparadorDetalle { get; set; }
+        public GestionDocenteDisparadorReglaTiempoFijoOutputDTO ReglaTiempoFijo { get; set; }
+    }
+
+    public class DisparadorOcurrenciaAnteriorDTO
+    {
+        public GestionDocenteDisparadorDetalleOutputDTO DisparadorDetalle { get; set; }
+        public GestionDocenteDisparadorReglaTiempoRelativoOutputDTO ReglaTiempoRelativo { get; set; }
+        public GestionDocenteDisparadorOcurrenciaDetalleOutputDTO OcurrenciaDetalle { get; set; }
+    }
+
+    public class DisparadorCronogramaDTO
+    {
+        public GestionDocenteDisparadorDetalleOutputDTO DisparadorDetalle { get; set; }
+        public GestionDocenteDisparadorReglaTiempoRelativoOutputDTO ReglaTiempoRelativo { get; set; }
+        public GestionDocenteDisparadorReglaTiempoRelativoReferenciaOutputDTO ReferenciaRelativa { get; set; }
     }
 
     public class ActividadDetalleCompletoDTO

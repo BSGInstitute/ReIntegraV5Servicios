@@ -219,6 +219,20 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
             }
         }
 
+        [HttpGet("ObtenerDisparadorFlujoTipos")]
+        public IActionResult ObtenerDisparadorFlujoTipos()
+        {
+            try
+            {
+                var lista = _gestionDocenteActividadService.ObtenerDisparadorFlujoTipos();
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
         [HttpGet("ObtenerMediosComunicacion")]
         public IActionResult ObtenerMediosComunicacion()
         {
@@ -239,6 +253,20 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
             try
             {
                 var lista = _gestionDocenteActividadService.ObtenerPlantillasMedioComunicacion();
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet("ObtenerDisparadorReglaTiempo")]
+        public IActionResult ObtenerDisparadorReglaTiempo()
+        {
+            try
+            {
+                var lista = _gestionDocenteActividadService.ObtenerDisparadorReglaTiempo();
                 return Ok(lista);
             }
             catch (Exception ex)
