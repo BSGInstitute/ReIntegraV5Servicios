@@ -560,6 +560,65 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        public List<object> ObtenerDisparadorReglaTiempo()
+        {
+            try
+            {
+                var disparadores = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDisparadorReglaTiempo().ToList();
+                if (!disparadores.Any()) return new List<object>();
+
+                var disparadorIds = string.Join(",", disparadores.Select(d => d.IdGestionDocenteDisparadorDetalle));
+
+                var reglasFijo = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReglasTiempoFijoPorDisparadores(disparadorIds).ToList();
+                var reglasRelativo = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReglasTiempoRelativoPorDisparadores(disparadorIds).ToList();
+
+                var referenciasRelativas = new List<GestionDocenteDisparadorReglaTiempoRelativoReferenciaOutputDTO>();
+                if (reglasRelativo.Any())
+                {
+                    var reglasRelativoIds = string.Join(",", reglasRelativo.Select(r => r.IdGestionDocenteDisparadorReglaTiempoRelativo));
+                    referenciasRelativas = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReferenciasRelativasPorReglas(reglasRelativoIds).ToList();
+                }
+
+                var disparadoresOcurrencia = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDisparadoresOcurrenciaPorIds(disparadorIds).ToList();
+
+                return disparadores.Select<GestionDocenteDisparadorDetalleOutputDTO, object>(d =>
+                {
+                    switch (d.IdGestionDocenteDisparadorFlujoTipo)
+                    {
+                        case 1:
+                            return new DisparadorTiempoFijoDTO
+                            {
+                                DisparadorDetalle = d,
+                                ReglaTiempoFijo = reglasFijo.FirstOrDefault(r => r.IdGestionDocenteDisparadorDetalle == d.IdGestionDocenteDisparadorDetalle)
+                            };
+                        case 2:
+                            return new DisparadorOcurrenciaAnteriorDTO
+                            {
+                                DisparadorDetalle = d,
+                                ReglaTiempoRelativo = reglasRelativo.FirstOrDefault(r => r.IdGestionDocenteDisparadorDetalle == d.IdGestionDocenteDisparadorDetalle),
+                                OcurrenciaDetalle = disparadoresOcurrencia.FirstOrDefault(o => o.IdGestionDocenteDisparadorDetalle == d.IdGestionDocenteDisparadorDetalle)
+                            };
+                        case 3:
+                            var reglaRelativo = reglasRelativo.FirstOrDefault(r => r.IdGestionDocenteDisparadorDetalle == d.IdGestionDocenteDisparadorDetalle);
+                            return new DisparadorCronogramaDTO
+                            {
+                                DisparadorDetalle = d,
+                                ReglaTiempoRelativo = reglaRelativo,
+                                ReferenciaRelativa = reglaRelativo != null
+                                    ? referenciasRelativas.FirstOrDefault(r => r.IdGestionDocenteDisparadorReglaTiempoRelativo == reglaRelativo.IdGestionDocenteDisparadorReglaTiempoRelativo)
+                                    : null
+                            };
+                        default:
+                            return new DisparadorDetalleCompletoDTO { DisparadorDetalle = d };
+                    }
+                }).ToList();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public ActividadCabeceraCompletaDTO ObtenerActividadCabeceraCompleta(int id)
         {
             try

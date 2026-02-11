@@ -261,6 +261,20 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
             }
         }
 
+        [HttpGet("ObtenerDisparadorReglaTiempo")]
+        public IActionResult ObtenerDisparadorReglaTiempo()
+        {
+            try
+            {
+                var lista = _gestionDocenteActividadService.ObtenerDisparadorReglaTiempo();
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
         [HttpGet("ObtenerActividadCompleta/{id}")]
         public IActionResult ObtenerActividadCompleta(int id)
         {

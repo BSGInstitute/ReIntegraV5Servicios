@@ -283,6 +283,26 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public GestionDocenteDisparadorOcurrenciaDetalleOutputDTO OcurrenciaDetalle { get; set; }
     }
 
+    public class DisparadorTiempoFijoDTO
+    {
+        public GestionDocenteDisparadorDetalleOutputDTO DisparadorDetalle { get; set; }
+        public GestionDocenteDisparadorReglaTiempoFijoOutputDTO ReglaTiempoFijo { get; set; }
+    }
+
+    public class DisparadorOcurrenciaAnteriorDTO
+    {
+        public GestionDocenteDisparadorDetalleOutputDTO DisparadorDetalle { get; set; }
+        public GestionDocenteDisparadorReglaTiempoRelativoOutputDTO ReglaTiempoRelativo { get; set; }
+        public GestionDocenteDisparadorOcurrenciaDetalleOutputDTO OcurrenciaDetalle { get; set; }
+    }
+
+    public class DisparadorCronogramaDTO
+    {
+        public GestionDocenteDisparadorDetalleOutputDTO DisparadorDetalle { get; set; }
+        public GestionDocenteDisparadorReglaTiempoRelativoOutputDTO ReglaTiempoRelativo { get; set; }
+        public GestionDocenteDisparadorReglaTiempoRelativoReferenciaOutputDTO ReferenciaRelativa { get; set; }
+    }
+
     public class ActividadDetalleCompletoDTO
     {
         public GestionDocenteActividadDetalleOutputDTO Detalle { get; set; }

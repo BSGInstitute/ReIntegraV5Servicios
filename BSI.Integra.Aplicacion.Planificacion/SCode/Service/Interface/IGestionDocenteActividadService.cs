@@ -24,5 +24,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         IEnumerable<GestionDocenteMedioComunicacionDTO> ObtenerMediosComunicacion();
         IEnumerable<GestionDocentePlantillaMedioComunicacionDTO> ObtenerPlantillasMedioComunicacion();
         ActividadCabeceraCompletaDTO ObtenerActividadCabeceraCompleta(int id);
+        List<object> ObtenerDisparadorReglaTiempo();
     }
 }
