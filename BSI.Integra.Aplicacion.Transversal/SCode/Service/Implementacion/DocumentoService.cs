@@ -18,6 +18,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using PdfSharp.Drawing;
 using QRCoder;
 using System.Globalization;
+using System.Net;
 using System.Text.RegularExpressions;
 using TheArtOfDev.HtmlRenderer.PdfSharp;
 using QRCode = QRCoder.QRCode;
@@ -1912,13 +1913,25 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     page = temmporal.Pages[0];
                     pdf.AddPage(page);
 
-                    gfx = PdfSharp.Drawing.XGraphics.FromPdfPage(pdf.Pages[1], PdfSharp.Drawing.XGraphicsPdfPageOptions.Prepend);
 
-                    System.Net.HttpWebRequest webRequest = (System.Net.HttpWebRequest)System.Net.HttpWebRequest.Create(FondoReversoCertificado); ;
+                    FondoReversoCertificado = WebUtility.HtmlDecode(FondoReversoCertificado ?? "");
+                    FondoReversoCertificado = Regex.Replace(FondoReversoCertificado, "<.*?>", "").Trim();
+                    if (!Uri.TryCreate(FondoReversoCertificado, UriKind.Absolute, out var uri) || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+                    {
+                        throw new Exception("URL inválida: " + FondoReversoCertificado);
+                    }
+
+                    gfx = XGraphics.FromPdfPage(pdf.Pages[1], XGraphicsPdfPageOptions.Prepend);
+
+                    var webRequest = (HttpWebRequest)WebRequest.Create(uri);
                     webRequest.AllowWriteStreamBuffering = true;
-                    System.Net.WebResponse webResponse = webRequest.GetResponse();
-                    PdfSharp.Drawing.XImage xImage = PdfSharp.Drawing.XImage.FromStream(webResponse.GetResponseStream());
-                    gfx.DrawImage(xImage, 0, 0, 843, 595);
+
+                    using (var webResponse = webRequest.GetResponse())
+                    using (var stream = webResponse.GetResponseStream())
+                    {
+                        var xImage = XImage.FromStream(stream);
+                        gfx.DrawImage(xImage, 0, 0, 843, 595);
+                    }
                 }
 
                 pdf.Save(ms, false);

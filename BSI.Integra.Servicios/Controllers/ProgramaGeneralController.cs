@@ -1276,5 +1276,15 @@ namespace BSI.Integra.Servicios.Controllers
             var respuesta = _pGeneralService.ActualizarInformacionBeneficioDetalleRequisito(dto, _tokenManager.UserName);
             return Ok(respuesta);
         }
+
+        [HttpGet("[action]")]
+        public IActionResult ObtenerPGeneralActivo()
+        {
+            var resultado = _pGeneralService.ObtenerPGeneralActivo();
+            return Ok(resultado);
+        }
+
     }
+
+
 }
