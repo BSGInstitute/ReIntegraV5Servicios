@@ -1,13 +1,17 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.Base.Exceptions;
-            using BSI.Integra.Aplicacion.DTO;
-            using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
-            using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
+using Microsoft.AspNetCore.Http;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
+using System.Text.RegularExpressions;
 
 namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 {
@@ -21,6 +25,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
     {
         private IUnitOfWork _unitOfWork;
         private Mapper _mapper;
+
+        private const string URL_BASE_BLOB = "http://repositorioweb.blob.core.windows.net/";
+        private const string RUTA_BLOB_LOGOS = "repositorioweb/partners/logos/";
+        private const string RUTA_BLOB_CERTIFICADOS = "repositorioweb/partners/certificados/";
+        private const string CONNECTION_STRING = "DefaultEndpointsProtocol=https;AccountName=repositorioweb;AccountKey=JurvlnvFAqg4dcGqcDHEj9bkBLoLV3Z/EIxA+8QkdTcuCWTm1iZfgqUOfUOwmDMfnrmrie7Nkkho5mPyVTvIpA==;EndpointSuffix=core.windows.net";
 
         public PartnerPwService(IUnitOfWork unitOfWork)
         {
@@ -49,7 +58,14 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         /// <returns> Lista PartnerPwDTO </returns>
         public IEnumerable<PartnerPwDTO> Obtener()
         {
-            return _unitOfWork.PartnerPwRepository.Obtener();
+            var lista = _unitOfWork.PartnerPwRepository.Obtener().ToList();
+            // Construir URLs completas para cada registro
+            foreach (var item in lista)
+            {
+                item.UrlCertificadoLogo = ObtenerUrlCertificadoLogo(item.CertificadoLogo);
+                item.UrlCertificadoBSG = ObtenerUrlCertificadoBSG(item.CertificadoBSG);
+            }
+            return lista;
         }
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 16/08/2023
@@ -104,6 +120,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         Posicion = dto.Posicion,
                         IdPartner = dto.IdPartner,
                         EncabezadoCorreoPartner = dto.EncabezadoCorreoPartner,
+                        PaginaLink = dto.PaginaLink,
+                        CertificadoLogo = dto.CertificadoLogo,
+                        CertificadoBSG = dto.CertificadoBSG,
                         Estado = true,
                         UsuarioCreacion = usuario,
                         UsuarioModificacion = usuario,
@@ -194,6 +213,13 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                             entidad.Posicion = dto.Posicion;
                             entidad.IdPartner = dto.IdPartner;
                             entidad.EncabezadoCorreoPartner = dto.EncabezadoCorreoPartner;
+                            // Nuevos campos
+                            entidad.PaginaLink = dto.PaginaLink;
+                            // Solo actualizar si se envió un nuevo valor (no sobrescribir con null si no se envió archivo)
+                            if (!string.IsNullOrEmpty(dto.CertificadoLogo))
+                                entidad.CertificadoLogo = dto.CertificadoLogo;
+                            if (!string.IsNullOrEmpty(dto.CertificadoBSG))
+                                entidad.CertificadoBSG = dto.CertificadoBSG;
                             entidad.UsuarioModificacion = usuario;
                             entidad.FechaModificacion = DateTime.Now;
                             var respuesta = _unitOfWork.PartnerPwRepository.Update(entidad);
@@ -370,6 +396,226 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         {
             return _unitOfWork.PartnerPwRepository.ObtenerCombo();
         }
+
+        #region Métodos de Blob Storage
+
+        /// <summary>
+        /// Convierte IFormFile a byte[]
+        /// Copiado de SolicitudAlumnoService.cs
+        /// </summary>
+        public byte[] ConvertToByte(IFormFile file)
+        {
+            byte[] imageByte = null;
+            BinaryReader rdr = new BinaryReader(file.OpenReadStream());
+            imageByte = rdr.ReadBytes((int)file.Length);
+            return imageByte;
+        }
+
+        /// <summary>
+        /// Limpia el nombre del archivo quitando caracteres inválidos
+        /// Copiado de SolicitudAlumnoService.cs
+        /// </summary>
+        public string SlugNombreArchivo(string textoOriginal)
+        {
+            string extension = textoOriginal.Substring(textoOriginal.LastIndexOf("."));
+            string texto = textoOriginal;
+
+            // Caracteres inválidos
+            texto = Regex.Replace(texto, @"[^a-zA-Z0-9\s-]", "");
+            texto = texto.Replace("+", " ");
+            texto = texto.Replace("-", " ");
+
+            // Convierte múltiples espacios
+            texto = Regex.Replace(texto, @"\s+", " ").Trim();
+            texto = texto.Trim();
+            texto = texto + extension;
+
+            return texto;
+        }
+
+        /// <summary>
+        /// Genera un nombre único para el archivo: timestamp + nombre original limpio
+        /// Siguiendo el patrón de SolicitudAlumnoController.cs
+        /// </summary>
+        public string GenerarNombreArchivo(string nombreOriginal)
+        {
+            // Formato: yyyyMMdd-HHmmss-nombrearchivo.extension
+            return string.Concat(DateTime.Now.ToString("yyyyMMdd-HHmmss"), "-", SlugNombreArchivo(nombreOriginal));
+        }
+
+        /// <summary>
+        /// Sube el logo de certificación al Blob Storage
+        /// Copiado de SolicitudAlumnoService.SubirArchivoSolicitudAlumnoRepositorio()
+        /// </summary>
+        /// <param name="archivoEntrada">Archivo de imagen</param>
+        /// <param name="nombreArchivo">Nombre del archivo a guardar (ya procesado con GenerarNombreArchivo)</param>
+        /// <returns>URL del archivo subido o string vacío si falla</returns>
+        public string SubirCertificadoLogo(IFormFile archivoEntrada, string nombreArchivo)
+        {
+            try
+            {
+                var archivo = ConvertToByte(archivoEntrada);
+                string _nombreLink = string.Empty;
+
+                // Elimina los caracteres con tilde
+                nombreArchivo = nombreArchivo.Replace("á", "a");
+                nombreArchivo = nombreArchivo.Replace("é", "e");
+                nombreArchivo = nombreArchivo.Replace("í", "i");
+                nombreArchivo = nombreArchivo.Replace("ó", "o");
+                nombreArchivo = nombreArchivo.Replace("ú", "u");
+
+                nombreArchivo = nombreArchivo.Replace("Á", "A");
+                nombreArchivo = nombreArchivo.Replace("É", "E");
+                nombreArchivo = nombreArchivo.Replace("Í", "I");
+                nombreArchivo = nombreArchivo.Replace("Ó", "O");
+                nombreArchivo = nombreArchivo.Replace("Ú", "U");
+
+                // Elimina las Ñ
+                nombreArchivo = nombreArchivo.Replace("ñ", "n");
+                nombreArchivo = nombreArchivo.Replace("Ñ", "N");
+
+                try
+                {
+                    // TODO: Reemplazar por el connection string real (idealmente desde appsettings.json)
+                    string _azureStorageConnectionString = CONNECTION_STRING;
+                    string _direccionBlob = RUTA_BLOB_LOGOS;
+
+                    // Generar entrada al blob storage
+                    CloudStorageAccount storageAccount = CloudStorageAccount.Parse(_azureStorageConnectionString);
+                    CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+                    CloudBlobContainer container = blobClient.GetContainerReference(_direccionBlob);
+
+                    CloudBlockBlob blockBlob = container.GetBlockBlobReference(nombreArchivo);
+                    blockBlob.Properties.ContentType = archivoEntrada.ContentType;
+                    blockBlob.Metadata["filename"] = nombreArchivo;
+                    blockBlob.Metadata["filemime"] = archivoEntrada.ContentType;
+                    Stream stream = new MemoryStream(archivo);
+                    var objRegistrado = blockBlob.UploadFromStreamAsync(stream);
+
+                    objRegistrado.Wait();
+                    var correcto = objRegistrado.IsCompletedSuccessfully;
+
+                    if (correcto)
+                    {
+                        _nombreLink = URL_BASE_BLOB + _direccionBlob + nombreArchivo.Replace(" ", "%20");
+                    }
+                    else
+                    {
+                        _nombreLink = "";
+                    }
+                    return _nombreLink;
+                }
+                catch (Exception ex)
+                {
+                    return "";
+                }
+            }
+            catch (Exception e)
+            {
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Sube el certificado del partner (PDF) al Blob Storage
+        /// Copiado de SolicitudAlumnoService.SubirArchivoSolicitudAlumnoRepositorio()
+        /// </summary>
+        /// <param name="archivoEntrada">Archivo PDF</param>
+        /// <param name="nombreArchivo">Nombre del archivo a guardar (ya procesado con GenerarNombreArchivo)</param>
+        /// <returns>URL del archivo subido o string vacío si falla</returns>
+        public string SubirCertificadoBSG(IFormFile archivoEntrada, string nombreArchivo)
+        {
+            try
+            {
+                var archivo = ConvertToByte(archivoEntrada);
+                string _nombreLink = string.Empty;
+
+                // Elimina los caracteres con tilde
+                nombreArchivo = nombreArchivo.Replace("á", "a");
+                nombreArchivo = nombreArchivo.Replace("é", "e");
+                nombreArchivo = nombreArchivo.Replace("í", "i");
+                nombreArchivo = nombreArchivo.Replace("ó", "o");
+                nombreArchivo = nombreArchivo.Replace("ú", "u");
+
+                nombreArchivo = nombreArchivo.Replace("Á", "A");
+                nombreArchivo = nombreArchivo.Replace("É", "E");
+                nombreArchivo = nombreArchivo.Replace("Í", "I");
+                nombreArchivo = nombreArchivo.Replace("Ó", "O");
+                nombreArchivo = nombreArchivo.Replace("Ú", "U");
+
+                // Elimina las Ñ
+                nombreArchivo = nombreArchivo.Replace("ñ", "n");
+                nombreArchivo = nombreArchivo.Replace("Ñ", "N");
+
+                try
+                {
+                    // TODO: Reemplazar por el connection string real (idealmente desde appsettings.json)
+                    string _azureStorageConnectionString = CONNECTION_STRING;
+                    string _direccionBlob = RUTA_BLOB_CERTIFICADOS;
+
+                    // Generar entrada al blob storage
+                    CloudStorageAccount storageAccount = CloudStorageAccount.Parse(_azureStorageConnectionString);
+                    CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+                    CloudBlobContainer container = blobClient.GetContainerReference(_direccionBlob);
+
+                    CloudBlockBlob blockBlob = container.GetBlockBlobReference(nombreArchivo);
+                    blockBlob.Properties.ContentType = "application/pdf";
+                    blockBlob.Metadata["filename"] = nombreArchivo;
+                    blockBlob.Metadata["filemime"] = "application/pdf";
+                    Stream stream = new MemoryStream(archivo);
+                    var objRegistrado = blockBlob.UploadFromStreamAsync(stream);
+
+                    objRegistrado.Wait();
+                    var correcto = objRegistrado.IsCompletedSuccessfully;
+
+                    if (correcto)
+                    {
+                        _nombreLink = URL_BASE_BLOB + _direccionBlob + nombreArchivo.Replace(" ", "%20");
+                    }
+                    else
+                    {
+                        _nombreLink = "";
+                    }
+                    return _nombreLink;
+                }
+                catch (Exception ex)
+                {
+                    return "";
+                }
+            }
+            catch (Exception e)
+            {
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Obtiene la URL completa del logo de certificación
+        /// </summary>
+        /// <param name="nombreArchivo">Nombre del archivo guardado en BD</param>
+        /// <returns>URL completa o string vacío si no hay archivo</returns>
+        public string ObtenerUrlCertificadoLogo(string? nombreArchivo)
+        {
+            if (string.IsNullOrEmpty(nombreArchivo))
+                return string.Empty;
+
+            return URL_BASE_BLOB + RUTA_BLOB_LOGOS + nombreArchivo.Replace(" ", "%20");
+        }
+
+        /// <summary>
+        /// Obtiene la URL completa del certificado del partner
+        /// </summary>
+        /// <param name="nombreArchivo">Nombre del archivo guardado en BD</param>
+        /// <returns>URL completa o string vacío si no hay archivo</returns>
+        public string ObtenerUrlCertificadoBSG(string? nombreArchivo)
+        {
+            if (string.IsNullOrEmpty(nombreArchivo))
+                return string.Empty;
+
+            return URL_BASE_BLOB + RUTA_BLOB_CERTIFICADOS + nombreArchivo.Replace(" ", "%20");
+        }
+
+        #endregion
 
     }
 }
