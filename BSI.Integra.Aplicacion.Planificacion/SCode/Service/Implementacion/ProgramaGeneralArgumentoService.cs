@@ -921,7 +921,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         .ProgramaGeneralArgumentoRepository
                         .ObtenerProgramaGeneralArgumentoDetalleMotivacion(det.Id);
 
-                    if (motivExist == null)
+                    if (motivExist == null || motivExist.Id == 0  || motivExist.IdProgramaMotivacion == 0)
                     {
                         var motNew = new ProgramaGeneralArgumentoDetalleMotivacion
                         {
