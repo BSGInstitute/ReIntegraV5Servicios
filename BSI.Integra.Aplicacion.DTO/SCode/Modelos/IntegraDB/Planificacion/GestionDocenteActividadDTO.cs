@@ -143,6 +143,41 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string Descripcion { get; set; }
     }
 
+    public class GestionDocenteUnidadTiempoDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    public class OcurrenciaReferenciaDTO
+    {
+        public int IdGestionDocenteActividadDetalle { get; set; }
+        public int IdGestionDocenteOcurrencia { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    public class DisparadorFlujoTipoPrimeraActividadConfigDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    public class DisparadorFlujoTipoOcurrenciaConfigDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public List<GestionDocenteUnidadTiempoDTO> Tiempo { get; set; }
+        public List<OcurrenciaReferenciaDTO> Ocurrencias { get; set; }
+    }
+
+    public class DisparadorFlujoTipoCronogramaConfigDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public List<GestionDocenteReferenciaTiempoDTO> Momento { get; set; }
+        public List<GestionDocenteUnidadTiempoDTO> Tiempo { get; set; }
+    }
+
     public class GestionDocenteModoMarcadoDTO
     {
         public int Id { get; set; }
