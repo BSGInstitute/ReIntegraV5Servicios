@@ -122,7 +122,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string NombreEstadoSolicitud { get; set; }
         public int? IdControlSolicitudOrigen { get; set; }
         // Nuevos campos SP
-        public int? IdUltimaActividadDetalle { get; set; }
+        public int? IdActividadDetalle_Ultima { get; set; }
         public string EstadoHoja { get; set; }
         public string EmailAlumno { get; set; }
         public string CelularAlumno { get; set; }

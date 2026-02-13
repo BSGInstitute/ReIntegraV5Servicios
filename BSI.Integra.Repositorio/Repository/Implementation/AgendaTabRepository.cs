@@ -809,7 +809,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             return new ActividadAgendaDTO
             {
                 // Campos base existentes
-                Id = solicitud.IdSolicitudAlumno,
+                Id = solicitud.IdActividadDetalle_Ultima ?? 0,
                 IdMatriculaCabecera = solicitud.IdMatriculaCabecera,
                 CodigoMatricula = solicitud.CodigoMatricula,
                 IdEstadoMatricula = solicitud.IdEstadoMatricula,
@@ -855,6 +855,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 PGeneral = solicitud.NombrePGeneral,
 
                 // Campos de Solicitud
+                IdSolicitud = solicitud.IdSolicitudAlumno,
                 Prioridad = solicitud.Prioridad,
                 NombreSolicitud = solicitud.NombreSolicitud,
                 IdTipoReporte = solicitud.IdSolicitudTipoReporte,
@@ -862,6 +863,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 IdSolicitudCategoria = solicitud.IdSolicitudCategoria,
                 IdSubCategoria = solicitud.IdSolicitudProblema,
                 IdEstadoSolicitud = solicitud.IdEstadoSolicitud,
+                DetalleSolucion = solicitud.DetalleSolicitud,
 
                 // Campos de Solicitante
                 IdSolicitante = solicitud.IdPersonal_Solicitante,
