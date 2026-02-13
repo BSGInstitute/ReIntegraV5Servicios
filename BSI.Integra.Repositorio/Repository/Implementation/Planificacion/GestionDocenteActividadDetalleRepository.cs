@@ -167,6 +167,46 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
+        public IEnumerable<GestionDocenteUnidadTiempoDTO> ObtenerUnidadesTiempo()
+        {
+            try
+            {
+                IEnumerable<GestionDocenteUnidadTiempoDTO> unidades = new List<GestionDocenteUnidadTiempoDTO>();
+                string _query = "SELECT Id, Nombre FROM pla.T_GestionDocenteUnidadTiempo WHERE Estado = 1";
+                var resultadoDB = _dapperRepository.QueryDapper(_query, null);
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    unidades = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteUnidadTiempoDTO>>(resultadoDB);
+                }
+                return unidades;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<OcurrenciaReferenciaDTO> ObtenerOcurrenciasReferencia()
+        {
+            try
+            {
+                IEnumerable<OcurrenciaReferenciaDTO> ocurrencias = new List<OcurrenciaReferenciaDTO>();
+                string _query = @"SELECT GDO.IdGestionDocenteActividadDetalle, GDO.Id AS IdGestionDocenteOcurrencia, GDO.Nombre
+                    FROM pla.T_GestionDocenteOcurrencia GDO
+                    WHERE GDO.Estado = 1";
+                var resultadoDB = _dapperRepository.QueryDapper(_query, null);
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    ocurrencias = JsonConvert.DeserializeObject<IEnumerable<OcurrenciaReferenciaDTO>>(resultadoDB);
+                }
+                return ocurrencias;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<GestionDocenteDisparadorDetalleOutputDTO> ObtenerDisparadorReglaTiempo()
         {
             try

@@ -524,6 +524,70 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        public IEnumerable<GestionDocenteUnidadTiempoDTO> ObtenerUnidadesTiempo()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerUnidadesTiempo();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public List<object> ObtenerDisparadorFlujoTiposConfiguracion()
+        {
+            try
+            {
+                var tipos = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDisparadorFlujoTipos().ToList();
+                if (!tipos.Any()) return new List<object>();
+
+                var unidadesTiempo = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerUnidadesTiempo().ToList();
+                var referenciasTiempo = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReferenciasTiempo().ToList();
+                var ocurrencias = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerOcurrenciasReferencia().ToList();
+
+                return tipos.Select<GestionDocenteDisparadorFlujoTipoDTO, object>(t =>
+                {
+                    switch (t.Id)
+                    {
+                        case 1:
+                            return new DisparadorFlujoTipoPrimeraActividadConfigDTO
+                            {
+                                Id = t.Id,
+                                Nombre = t.Nombre
+                            };
+                        case 2:
+                            return new DisparadorFlujoTipoOcurrenciaConfigDTO
+                            {
+                                Id = t.Id,
+                                Nombre = t.Nombre,
+                                Tiempo = unidadesTiempo,
+                                Ocurrencias = ocurrencias
+                            };
+                        case 3:
+                            return new DisparadorFlujoTipoCronogramaConfigDTO
+                            {
+                                Id = t.Id,
+                                Nombre = t.Nombre,
+                                Momento = referenciasTiempo,
+                                Tiempo = unidadesTiempo
+                            };
+                        default:
+                            return new DisparadorFlujoTipoPrimeraActividadConfigDTO
+                            {
+                                Id = t.Id,
+                                Nombre = t.Nombre
+                            };
+                    }
+                }).ToList();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public IEnumerable<GestionDocenteModoMarcadoDTO> ObtenerModosMarcado()
         {
             try

@@ -20,6 +20,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         IEnumerable<GestionDocenteReferenciaTiempoDTO> ObtenerReferenciasTiempo();
         IEnumerable<GestionDocenteActividadDetalleTipoDTO> ObtenerActividadDetalleTipos();
         IEnumerable<GestionDocenteDisparadorFlujoTipoDTO> ObtenerDisparadorFlujoTipos();
+        IEnumerable<GestionDocenteUnidadTiempoDTO> ObtenerUnidadesTiempo();
+        List<object> ObtenerDisparadorFlujoTiposConfiguracion();
         IEnumerable<GestionDocenteModoMarcadoDTO> ObtenerModosMarcado();
         IEnumerable<GestionDocenteMedioComunicacionDTO> ObtenerMediosComunicacion();
         IEnumerable<GestionDocentePlantillaMedioComunicacionDTO> ObtenerPlantillasMedioComunicacion();
