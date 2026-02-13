@@ -1,6 +1,6 @@
 ﻿using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface;
-using BSI.Integra.Repositorio.UnitOfWork;
+using System.Threading.Tasks;
 using BSI.Integra.Servicios.Helpers;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -112,13 +112,22 @@ namespace BSI.Integra.Servicios.Controllers.Marketing
             }
         }
 
+        /// Tipo Función: GET
+        /// Autor: Humberto Oscata
+        /// Fecha: 09/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene detalles del estado de ejecucion para una llamada, ademas de los mensajes generados hasta el momento
+        /// </summary>
+        /// <param name="idLlamadaIA">ID de la llamada a la IA para obtener mensajes</param>
+        /// <returns>Detalles de estado ejecucion y listado de mensajes generados</returns>
         [HttpGet]
-        [Route("[action]/{id}")]
-        public IActionResult ObtenerResultadosGeneracionTextoPorCampania(int id)
+        [Route("[action]/{idLlamadaIA}")]
+        public async Task<ActionResult> ObtenerResultadosGeneracionTextoPorCampania(string idLlamadaIA)
         {
             try
             {
-                var listado = _campaniaRemarketingGeneralService.ObtenerResultadosGeneracionTextoPorCampania(id);
+                var listado = await _campaniaRemarketingGeneralService.ObtenerResultadosGeneracionTextoPorCampania(idLlamadaIA);
                 return Ok(listado);
             }
             catch (Exception ex)
@@ -132,12 +141,12 @@ namespace BSI.Integra.Servicios.Controllers.Marketing
         /// Fecha: 26/12/2025
         /// Versión: 1.0
         /// <summary>
-        /// Guarda y ejecuta una campaña remarketing general de acuerdo a lo programado
+        /// Actualiza y ejecuta una campaña remarketing general de acuerdo a lo programado
         /// </summary>
         /// <returns>Estado de la programacion y/o ejecucion</returns>
         [HttpPost]
         [Route("[action]")]
-        public IActionResult GuardarEjecutarEnvioCampaniaRemarketing(EnvioCampaniaRemarketingDTO request)
+        public async Task<IActionResult> ActualizarEjecutarEnvioCampaniaRemarketing([FromBody] ConfiguracionCampaniaRemarketingDTO request)
         {
             try
             {
@@ -145,34 +154,7 @@ namespace BSI.Integra.Servicios.Controllers.Marketing
                 var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
                 var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
 
-                var listado = _campaniaRemarketingGeneralService.GuardarEjecutarEnvioCampaniaRemarketing(request, usuario);
-                return Ok(listado);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        /// Tipo Función: POST
-        /// Autor: Humberto Oscata
-        /// Fecha: 26/12/2025
-        /// Versión: 1.0
-        /// <summary>
-        /// Edita y ejecuta una campaña remarketing general de acuerdo a lo programado
-        /// </summary>
-        /// <returns>Estado de la programacion y/o ejecucion</returns>
-        [HttpPost]
-        [Route("[action]")]
-        public IActionResult EditarEjecutarEnvioCampaniaRemarketing(EnvioCampaniaRemarketingDTO request)
-        {
-            try
-            {
-                var claimsIdentity = User.Identity as ClaimsIdentity;
-                var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
-                var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
-
-                var listado = _campaniaRemarketingGeneralService.EditarEjecutarEnvioCampaniaRemarketing(request, usuario);
+                var listado = await _campaniaRemarketingGeneralService.ActualizarEjecutarEnvioCampaniaRemarketing(request, usuario);
                 return Ok(listado);
             }
             catch (Exception ex)
@@ -190,12 +172,12 @@ namespace BSI.Integra.Servicios.Controllers.Marketing
         /// </summary>
         /// <returns>Detalles envio</returns>
         [HttpGet]
-        [Route("[action]/{id}")]
-        public IActionResult VerDetallesCampania(int id)
+        [Route("[action]/{idCampania}")]
+        public IActionResult VerDetallesCampania(int idCampania)
         {
             try
             {
-                var listado = _campaniaRemarketingGeneralService.VerDetallesCampania(id);
+                var listado = _campaniaRemarketingGeneralService.VerDetallesCampania(idCampania);
                 return Ok(listado);
             }
             catch (Exception ex)
@@ -254,13 +236,40 @@ namespace BSI.Integra.Servicios.Controllers.Marketing
             }
         }
 
-        [HttpGet]
-        [Route("[action]/{id}")]
-        public IActionResult ObtenerMensajeGeneradoPorId(int id)
+        /// Tipo Función: POST
+        /// Autor: Humberto Oscata
+        /// Fecha: 09/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Inicia la generacion de mensajes y guarda al configuracion inicial
+        /// </summary>
+        /// <returns>Estado de ejecucion</returns>
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> GenerarListadoTextosRemarketing(ConfiguracionCampaniaRemarketingDTO request)
         {
             try
             {
-                var resultado = _campaniaRemarketingGeneralService.ObtenerMensajeGeneradoPorId(id);
+                var claimsIdentity = User.Identity as ClaimsIdentity;
+                var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+                var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
+
+                var resultado = await _campaniaRemarketingGeneralService.GenerarListadoTextosRemarketing(request, usuario);
+                return Ok(new { resultado });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("[action]/{identificadorLlamadaIA}/{idAlumno}")]
+        public async Task<IActionResult> ObtenerMensajeGeneradoPorId(string identificadorLlamadaIA, int idAlumno)
+        {
+            try
+            {
+                var resultado = await _campaniaRemarketingGeneralService.ObtenerMensajeGeneradoPorId(identificadorLlamadaIA, idAlumno);
                 return Ok(resultado);
             }
             catch (Exception ex)
@@ -271,11 +280,11 @@ namespace BSI.Integra.Servicios.Controllers.Marketing
 
         [HttpPost]
         [Route("[action]")]
-        public IActionResult ReenviarMensajeGenerado([FromBody] int id)
+        public async Task<IActionResult> ReenviarMensajeGenerado(ReenviarMensajeRequest request)
         {
             try
             {
-                var resultado = _campaniaRemarketingGeneralService.ReenviarMensajeGenerado(id);
+                var resultado = await _campaniaRemarketingGeneralService.ReenviarMensajeGenerado(request);
                 return Ok(resultado);
             }
             catch (Exception ex)
@@ -283,5 +292,7 @@ namespace BSI.Integra.Servicios.Controllers.Marketing
                 return BadRequest(ex.Message);
             }
         }
+
+
     }
 }
