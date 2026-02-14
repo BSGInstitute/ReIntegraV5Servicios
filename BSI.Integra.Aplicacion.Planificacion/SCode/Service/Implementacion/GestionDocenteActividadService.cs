@@ -18,6 +18,13 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             _unitOfWork = unitOfWork;
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 29/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Inserta una cabecera de actividad docente en la base de datos.
+        /// </summary>
+        /// <param name="dto">DTO con los datos de la cabecera de actividad.</param>
         public async Task<int> InsertarCabeceraAsync(GestionDocenteActividadCabeceraDTO dto)
         {
             try
@@ -46,6 +53,13 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 29/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Inserta un detalle de actividad con su disparador, reglas de tiempo y referencias asociadas según el tipo de disparador.
+        /// </summary>
+        /// <param name="request">DTO con detalle, disparador, reglas de tiempo y referencias.</param>
         public async Task<int> InsertarDetalleAsync(InsertarActividadDetalleRequestDTO request)
         {
             try
@@ -113,11 +127,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 02/02/2026
+        /// Versión: 1.0
         /// <summary>
         /// Procesa el tipo de disparador y crea los registros correspondientes según el tipo:
-        /// 1 = Primera Actividad (Tiempo Fijo)
-        /// 2 = Basado en Ocurrencia Anterior
-        /// 3 = Basado en Cronograma
+        /// 1 = Primera Actividad (Tiempo Fijo), 2 = Basado en Ocurrencia Anterior, 3 = Basado en Cronograma.
         /// </summary>
         private async Task ProcesarTipoDisparadorAsync(InsertarActividadDetalleRequestDTO request, int idDisparadorDetalle, string usuario, DateTime fechaActual)
         {
@@ -140,9 +155,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 02/02/2026
+        /// Versión: 1.0
         /// <summary>
-        /// Tipo 1: Primera Actividad - Tiempo Fijo
-        /// Guarda fecha específica en T_GestionDocenteDisparadorReglaTiempoFijo
+        /// Tipo 1: Primera Actividad - Tiempo Fijo.
+        /// Guarda fecha específica en T_GestionDocenteDisparadorReglaTiempoFijo.
         /// </summary>
         private async Task ProcesarDisparadorTiempoFijoAsync(GestionDocenteDisparadorReglaTiempoFijoDTO dto, int idDisparadorDetalle, string usuario, DateTime fechaActual)
         {
@@ -165,10 +183,13 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             await _unitOfWork.CommitAsync();
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 02/02/2026
+        /// Versión: 1.0
         /// <summary>
-        /// Tipo 2: Basado en Ocurrencia Anterior
+        /// Tipo 2: Basado en Ocurrencia Anterior.
         /// Guarda cantidad y unidad de tiempo en T_GestionDocenteDisparadorReglaTiempoRelativo
-        /// y la ocurrencia anterior en T_GestionDocenteDisparadorOcurrenciaDetalle
+        /// y la ocurrencia anterior en T_GestionDocenteDisparadorOcurrenciaDetalle.
         /// </summary>
         private async Task ProcesarDisparadorOcurrenciaAnteriorAsync(GestionDocenteDisparadorReglaTiempoRelativoDTO reglaDto, GestionDocenteDisparadorOcurrenciaDetalleDTO ocurrenciaDto, int idDisparadorDetalle, string usuario, DateTime fechaActual)
         {
@@ -210,10 +231,13 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             await _unitOfWork.CommitAsync();
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 02/02/2026
+        /// Versión: 1.0
         /// <summary>
-        /// Tipo 3: Basado en Cronograma
+        /// Tipo 3: Basado en Cronograma.
         /// Guarda cantidad y unidad de tiempo en T_GestionDocenteDisparadorReglaTiempoRelativo
-        /// y la referencia de tiempo (antes/después de sesión) en T_GestionDocenteDisparadorReglaTiempoRelativoReferencia
+        /// y la referencia de tiempo (antes/después de sesión) en T_GestionDocenteDisparadorReglaTiempoRelativoReferencia.
         /// </summary>
         private async Task ProcesarDisparadorCronogramaAsync(GestionDocenteDisparadorReglaTiempoRelativoDTO reglaDto, GestionDocenteDisparadorReglaTiempoRelativoReferenciaDTO referenciaDto, int idDisparadorDetalle, string usuario, DateTime fechaActual)
         {
@@ -256,6 +280,13 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             await _unitOfWork.CommitAsync();
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 04/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Inserta una ocurrencia asociada a un detalle de actividad, incluyendo configuración IA y ejemplos de entrenamiento si el modo es Automático o Warm.
+        /// </summary>
+        /// <param name="request">DTO con ocurrencia, configuración IA y ejemplos de entrenamiento.</param>
         public async Task<int> InsertarOcurrenciaAsync(InsertarOcurrenciaRequestDTO request)
         {
             try
@@ -298,8 +329,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 04/02/2026
+        /// Versión: 1.0
         /// <summary>
-        /// Procesa la configuración de IA para modos de marcado Automatico (2) y Warm (3).
+        /// Procesa la configuración de IA para modos de marcado Automático (2) y Warm (3).
         /// Inserta en T_GestionDocenteOcurrenciaIaConfiguracion y T_GestionDocenteIaEntrenamientoEjemplo.
         /// </summary>
         private async Task ProcesarConfiguracionIaAsync(InsertarOcurrenciaRequestDTO request, int idOcurrencia, string usuario, DateTime fechaActual)
@@ -347,6 +381,13 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 28/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Procesa la inserción maestro de una actividad completa: cabecera, detalles con disparadores y ocurrencias en una sola transacción.
+        /// </summary>
+        /// <param name="dto">DTO maestro con cabecera, detalles y ocurrencias.</param>
         public async Task<int> ProcesarMaestroActividadAsync(MaestroGestionDocenteActividadDTO dto)
         {
             try
@@ -377,6 +418,13 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 30/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Asocia una actividad cabecera a un flujo docente creando un registro en T_GestionDocenteActividadCabeceraFlujo.
+        /// </summary>
+        /// <param name="dto">DTO con IdGestionDocenteFlujo e IdGestionDocenteActividadCabecera.</param>
         public async Task<int> AsociarActividadAFlujoAsync(GestionDocenteActividadCabeceraFlujoDTO dto)
         {
             try
@@ -403,6 +451,14 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 30/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Desasocia una actividad cabecera de un flujo docente mediante eliminación lógica.
+        /// </summary>
+        /// <param name="id">Identificador de la asociación actividad-flujo.</param>
+        /// <param name="usuario">Usuario que realiza la operación.</param>
         public async Task<bool> DesasociarActividadDeFlujoAsync(int id, string usuario)
         {
             try
@@ -417,6 +473,13 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 30/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todas las actividades cabecera asociadas a un flujo específico.
+        /// </summary>
+        /// <param name="idFlujo">Identificador del flujo docente.</param>
         public async Task<List<GestionDocenteActividadCabeceraFlujoDTO>> ObtenerActividadesPorFlujoAsync(int idFlujo)
         {
             try
@@ -440,6 +503,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 05/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de sesiones docentes activas desde pla.T_GestionDocenteSesion.
+        /// </summary>
         public IEnumerable<GestionDocenteSesionDTO> ObtenerSesiones()
         {
             try
@@ -452,6 +521,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 05/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todas las ocurrencias activas registradas en el sistema.
+        /// </summary>
         public IEnumerable<GestionDocenteOcurrenciaDTO> ObtenerOcurrencias()
         {
             try
@@ -464,6 +539,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 05/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de niveles de umbral de confianza para configuración IA.
+        /// </summary>
         public IEnumerable<GestionDocenteConfianzaUmbralNivelDTO> ObtenerConfianzaUmbralNiveles()
         {
             try
@@ -476,6 +557,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 05/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de tipos de ocurrencia (Manual, Automático, Warm).
+        /// </summary>
         public IEnumerable<GestionDocenteOcurrenciaTipoDTO> ObtenerOcurrenciaTipos()
         {
             try
@@ -488,6 +575,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 05/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de referencias de tiempo (Antes de sesión, Después de sesión).
+        /// </summary>
         public IEnumerable<GestionDocenteReferenciaTiempoDTO> ObtenerReferenciasTiempo()
         {
             try
@@ -500,6 +593,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 07/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de tipos de actividad detalle.
+        /// </summary>
         public IEnumerable<GestionDocenteActividadDetalleTipoDTO> ObtenerActividadDetalleTipos()
         {
             try
@@ -512,6 +611,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 11/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de tipos de disparador de flujo (1ra Actividad, Ocurrencia Anterior, Cronograma).
+        /// </summary>
         public IEnumerable<GestionDocenteDisparadorFlujoTipoDTO> ObtenerDisparadorFlujoTipos()
         {
             try
@@ -524,6 +629,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 13/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de unidades de tiempo (Minutos, Horas, Días) desde pla.T_GestionDocenteUnidadTiempo.
+        /// </summary>
         public IEnumerable<GestionDocenteUnidadTiempoDTO> ObtenerUnidadesTiempo()
         {
             try
@@ -536,6 +647,13 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 13/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los tres tipos de disparador de flujo con sus catálogos de configuración ensamblados por tipo:
+        /// Tipo 1 solo nombre, Tipo 2 con unidades de tiempo y ocurrencias, Tipo 3 con momentos y unidades de tiempo.
+        /// </summary>
         public List<object> ObtenerDisparadorFlujoTiposConfiguracion()
         {
             try
@@ -588,6 +706,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 07/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de modos de marcado de ocurrencia (Manual, Automático, Warm).
+        /// </summary>
         public IEnumerable<GestionDocenteModoMarcadoDTO> ObtenerModosMarcado()
         {
             try
@@ -600,6 +724,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 07/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de medios de comunicación activos desde pla.T_MedioComunicacion.
+        /// </summary>
         public IEnumerable<GestionDocenteMedioComunicacionDTO> ObtenerMediosComunicacion()
         {
             try
@@ -612,6 +742,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 07/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de plantillas de medio de comunicación con sus plantillas y medios asociados.
+        /// </summary>
         public IEnumerable<GestionDocentePlantillaMedioComunicacionDTO> ObtenerPlantillasMedioComunicacion()
         {
             try
@@ -624,6 +760,13 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 11/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los disparadores activos con sus reglas de tiempo ensambladas por tipo
+        /// (Tiempo Fijo, Ocurrencia Anterior, Cronograma) usando DTOs específicos para eliminar campos null.
+        /// </summary>
         public List<object> ObtenerDisparadorReglaTiempo()
         {
             try
@@ -683,6 +826,14 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 06/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la actividad cabecera completa con toda su jerarquía: detalles, disparadores, reglas de tiempo,
+        /// sesiones, ocurrencias, configuración IA y ejemplos de entrenamiento.
+        /// </summary>
+        /// <param name="id">Identificador de la actividad cabecera.</param>
         public ActividadCabeceraCompletaDTO ObtenerActividadCabeceraCompleta(int id)
         {
             try
