@@ -153,7 +153,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 IEnumerable<GestionDocenteDisparadorFlujoTipoDTO> tipos = new List<GestionDocenteDisparadorFlujoTipoDTO>();
-                string _query = "SELECT Id, Nombre FROM pla.T_GestionDocenteDisparadorFlujoTipo WHERE Estado = 1";
+                string _query = "SELECT Id, Nombre , Descripcion FROM pla.T_GestionDocenteDisparadorFlujoTipo WHERE Estado = 1";
                 var resultadoDB = _dapperRepository.QueryDapper(_query, null);
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
