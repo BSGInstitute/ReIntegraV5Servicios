@@ -1216,7 +1216,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <returns> Bool </returns>
         public bool ValidarPlantillasEnviadasApiComercial(string plantilla, string numero)
         {
-            string _query = "SELECT TOP 1 Id FROM com.T_WhatsAppMensajeEnviadoCom WHERE WaType='hsm' AND WaBody=@Plantilla AND WaTo=@Numero";
+            string _query = "SELECT TOP 1 Id FROM com.V_TWhatsAppMensajeEnviadoCom_Obtener WHERE WaType='hsm' AND WaBody=@Plantilla AND WaTo=@Numero";
             var queryAsesor = _dapperRepository.FirstOrDefault(_query, new { plantilla, numero });
             return (queryAsesor == "null" || queryAsesor == "") ? false : true; //false->envia , true->no envia 
         }
@@ -1231,7 +1231,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <returns> Bool </returns>
         public bool ValidarPlantillasEnviadasApiComercialPersonal(string plantilla, string numero, int idPersonal)
         {
-            string _query = "SELECT TOP 1 Id FROM com.T_WhatsAppMensajeEnviadoCom WHERE WaType='hsm' AND WaBody=@Plantilla AND WaTo=@Numero AND IdPersonal=@IdPersonal";
+            string _query = "SELECT TOP 1 Id FROM com.V_TWhatsAppMensajeEnviadoCom_Obtener WHERE WaType='hsm' AND WaBody=@Plantilla AND WaTo=@Numero AND IdPersonal=@IdPersonal";
             var queryAsesor = _dapperRepository.FirstOrDefault(_query, new { plantilla, numero, idPersonal });
             return (queryAsesor == "null" || queryAsesor == "") ? false : true; //false->envia , true->no envia 
         }
@@ -1245,12 +1245,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <returns> Bool </returns>
         public bool ValidarPlantillasEnviadasApiComercial(string plantilla, string numero, DateTime fechaUltimoMensajeRecibido)
         {
-            string _query = "SELECT TOP 1 Id FROM com.T_WhatsAppMensajeEnviadoCom WHERE WaType='hsm' AND WaBody=@Plantilla AND WaTo=@Numero AND FechaCreacion > @FechaUltimoMensajeRecibido";
+            string _query = "SELECT TOP 1 Id FROM com.V_TWhatsAppMensajeEnviadoCom_Obtener WHERE WaType='hsm' AND WaBody=@Plantilla AND WaTo=@Numero AND FechaCreacion > @FechaUltimoMensajeRecibido";
 
             var queryAsesor = _dapperRepository.FirstOrDefault(_query, new { plantilla, numero, fechaUltimoMensajeRecibido });
             if (queryAsesor == "null" || queryAsesor == "")
             {
-                string _query2 = "SELECT TOP 1 Id FROM com.T_WhatsAppMensajeEnviadoCom WHERE WaType='hsm' AND WaBody=@Plantilla AND WaTo=@Numero AND FechaCreacion > GETDATE()-1";
+                string _query2 = "SELECT TOP 1 Id FROM com.V_TWhatsAppMensajeEnviadoCom_Obtener WHERE WaType='hsm' AND WaBody=@Plantilla AND WaTo=@Numero AND FechaCreacion > GETDATE()-1";
                 var queryAsesor2 = _dapperRepository.FirstOrDefault(_query2, new { plantilla, numero });
                 return (queryAsesor2 == "null" || queryAsesor2 == "") ? false : true; //false->envia , true->no envia 
 
@@ -1273,7 +1273,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <returns> Bool </returns>
         public bool ValidarMesajeRecibidosApiComercial(string numero)
         {
-            string _query = "SELECT TOP 1 Id FROM com.T_WhatsAppMensajeRecibidoCom WHERE WaFrom=@numero AND FechaCreacion > GETDATE()-1";
+            string _query = "SELECT TOP 1 Id FROM com.V_TWhatsAppMensajeRecibidoCom_Obtener WHERE WaFrom=@numero AND FechaCreacion > GETDATE()-1";
             var queryAsesor = _dapperRepository.FirstOrDefault(_query, new { numero });
             return (queryAsesor == "null" || queryAsesor == "") ? false : true;
         }
@@ -1323,7 +1323,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             PersonalNumeroMinimoChatDTO Conversacion = new PersonalNumeroMinimoChatDTO();
             string _query = @"SELECT TOP 1 WAMRC.id
-                            FROM com.T_WhatsAppMensajeRecibidoCom WAMRC
+                            FROM com.V_TWhatsAppMensajeRecibidoCom_Obtener WAMRC
 		                            WHERE WAMRC.WaFrom=@numero AND WAMRC.FechaCreacion > GETDATE()-1 AND  WAMRC.PhoneNumberId = @cuentaIdentificadorWA";
             var queryAsesor = _dapperRepository.FirstOrDefault(_query, new { numero = Numero, cuentaIdentificadorWA = CuentaIdentificadorWA });
             return (queryAsesor == "null" || queryAsesor == "") ? true : false;
@@ -1332,7 +1332,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             MensajeChatDTO Mensaje = new MensajeChatDTO();
             string _query = @"SELECT TOP 1 WAMRC.id,WAMRC.FechaCreacion FechaMensaje
-                            FROM com.T_WhatsAppMensajeRecibidoCom WAMRC
+                            FROM com.V_TWhatsAppMensajeRecibidoCom_Obtener WAMRC
 		                            WHERE WAMRC.WaFrom=@numero AND  WAMRC.PhoneNumberId = @cuentaIdentificadorWA order by fechacreacion desc";
             var queryAsesor = _dapperRepository.FirstOrDefault(_query, new { numero = Numero, cuentaIdentificadorWA = CuentaIdentificadorWA });
 
