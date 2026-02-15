@@ -11,7 +11,7 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface
     public interface ICampaniaRemarketingGeneralService
     {
         List<CampaniaRemarketingGeneralDTO> ObtenerListadoCampania();
-        List<object> ObtenerRendimientoListadoCampanias(List<int> ids);
+        RendimientoCampaniaDTO ObtenerRendimientoListadoCampanias(List<int> ids);
         CombosConfiguracionCampaniaDTO ObtenerCombosConfiguracionCampania();
         List<SegmentoCreadoDTO> ObtenerListadoSegmentosCreados();
         Task<EstadoEjecucionLlamadaIA> ObtenerResultadosGeneracionTextoPorCampania(string idLlamadaIA);
@@ -28,6 +28,6 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface
 
         // Métodos para el envío masivo de correos
         Task<ResultadoEnvioMasivoDTO> EjecutarEnvioCampaniaRemarketing(ConfiguracionCampaniaRemarketingDTO request, string usuario, bool argumentos);
-        //Task<List<MensajeGeneradoIA>> ObtenerMensajesParaEnvio(string idLlamadaIA);
+        Task EjecutarCampaniasProgramadas();
     }
 }

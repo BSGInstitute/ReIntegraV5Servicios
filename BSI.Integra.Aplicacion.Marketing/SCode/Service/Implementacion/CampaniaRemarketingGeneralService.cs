@@ -2,7 +2,6 @@
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface;
 using BSI.Integra.Aplicacion.Servicios.Service.Implementacion;
-using BSI.Integra.Repositorio.Repository.Implementation.Marketing;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing;
 using Newtonsoft.Json;
 using System;
@@ -27,9 +26,61 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
             return _campaniaRemarketingGeneralRepository.ObtenerListadoCampania();
         }
 
-        public List<object> ObtenerRendimientoListadoCampanias(List<int> ids)
+        /// Autor: Humberto Oscata
+        /// Fecha: 13/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene datos de rendimiento agrupados por fecha para un listado de campañas
+        /// y construye el objeto de respuesta con capacidad de entrega y tasas
+        /// </summary>
+        /// <param name="ids">Lista de IDs de campañas remarketing</param>
+        /// <returns>Rendimiento con capacidad de entrega y tasas</returns>
+        public RendimientoCampaniaDTO ObtenerRendimientoListadoCampanias(List<int> ids)
         {
-            return _campaniaRemarketingGeneralRepository.ObtenerRendimientoListadoCampanias(ids);
+            var datosDiarios = _campaniaRemarketingGeneralRepository.ObtenerRendimientoCampanias(ids)
+                .OrderBy(d => d.Fecha).ToList();
+
+            var labels = datosDiarios.Select(d => d.Fecha.ToString("yyyy-MM-dd")).ToList();
+            var enviados = datosDiarios.Select(d => d.Enviados).ToList();
+            var rebotados = datosDiarios.Select(d => d.Rebotados).ToList();
+            var rechazados = datosDiarios.Select(d => d.Rechazados).ToList();
+            var abiertos = datosDiarios.Select(d => d.Abiertos).ToList();
+            var clicks = datosDiarios.Select(d => d.Clicks).ToList();
+
+            var totalProgramados = datosDiarios.Sum(d => d.TotalRegistros);
+            var totalEnviados = datosDiarios.Sum(d => d.Enviados);
+            var cantidadApertura = datosDiarios.Sum(d => d.Abiertos);
+            var cantidadClicks = datosDiarios.Sum(d => d.Clicks);
+
+            return new RendimientoCampaniaDTO
+            {
+                CapacidadEntrega = new CapacidadEntregaDTO
+                {
+                    Labels = labels,
+                    Enviados = enviados,
+                    Rebotados = rebotados,
+                    Rechazados = rechazados,
+                    TotalProgramados = totalProgramados,
+                    TotalEnviados = totalEnviados,
+                    PorcentajeEnviados = totalProgramados > 0
+                        ? Math.Round((double)totalEnviados / totalProgramados * 100, 1)
+                        : 0
+                },
+                Tasas = new TasasRendimientoDTO
+                {
+                    Labels = labels,
+                    Abiertos = abiertos,
+                    Clicks = clicks,
+                    TasaApertura = totalEnviados > 0
+                        ? Math.Round((double)cantidadApertura / totalEnviados * 100, 1)
+                        : 0,
+                    CantidadApertura = cantidadApertura,
+                    TasaClicks = totalEnviados > 0
+                        ? Math.Round((double)cantidadClicks / totalEnviados * 100, 1)
+                        : 0,
+                    CantidadClicks = cantidadClicks
+                }
+            };
         }
 
         public List<SegmentoCreadoDTO> ObtenerListadoSegmentosCreados()
@@ -37,6 +88,13 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
             return _campaniaRemarketingGeneralRepository.ObtenerListadoSegmentosCreados();
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 09/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los combos con informacion basica para la creacion de campanias
+        /// </summary>
+        /// <returns>Objeto con listado de combos</returns>
         public CombosConfiguracionCampaniaDTO ObtenerCombosConfiguracionCampania()
         {
             var medioEnvio = _campaniaRemarketingGeneralRepository.ObtenerMediosEnvio();
@@ -110,13 +168,20 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
                 switch (request.EnvioSeleccionado.ToUpper())
                 {
                     case "ENVIAR AHORA":
-                        //Se ejecuta el envio masivo de correos
+                        //Se ejecuta el envio masivo de correos en segundo plano
                         if (request.Id.HasValue && !string.IsNullOrEmpty(request.IdentificadorLlamadaIA))
                         {
-                            Task.Run(async () =>
+                            _ = Task.Run(async () =>
                             {
-                                await EjecutarEnvioCampaniaRemarketing(request, usuario, false);
-                            }).Wait();
+                                try
+                                {
+                                    await EjecutarEnvioCampaniaRemarketing(request, usuario, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _campaniaRemarketingGeneralRepository.ActualizarEstadoEnvioCampania(request.Id ?? 0, 6, usuario);
+                                }
+                            });
                         }
                         break;
 
@@ -164,7 +229,7 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
             //Reenviamos el mensaje
 
 
-            //Actualizamos envio en base de datos
+            //Actualizamos estado envio en base de datos
 
             return true;
         }
@@ -344,6 +409,59 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
         }
 
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 13/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Método invocado por el worker cada minuto para ejecutar campañas programadas.
+        /// Consulta si existen campañas cuya fecha programada coincide con el minuto actual,
+        /// realiza las validaciones necesarias y ejecuta el envío en segundo plano.
+        /// </summary>
+        public async Task EjecutarCampaniasProgramadas()
+        {
+            var campaniasProgramadas = _campaniaRemarketingGeneralRepository.ObtenerCampaniasProgramadasParaEjecutar();
+
+            if (campaniasProgramadas == null || !campaniasProgramadas.Any())
+                return;
+
+            foreach (var campania in campaniasProgramadas)
+            {
+                //Validar que la campaña no tenga un envío en curso
+                var estadoEnvio = _campaniaRemarketingGeneralRepository.ObtenerEstadoEnvioCampaniaRemarketing(campania.Id);
+                if (estadoEnvio.IdEstadoEnvio == 4) //Envio en progreso
+                    continue;
+
+                //Validar que no haya una generación de mensajes IA en curso
+                var estadoEjecucionLlamadaIA = await ObtenerEstadoEjecucionLlamada(campania.IdentificadorLlamadaIA);
+                if (estadoEjecucionLlamadaIA.pendientes > 0)
+                    continue;
+
+                //Construir el request con los datos de la campaña programada
+                var request = new ConfiguracionCampaniaRemarketingDTO
+                {
+                    Id = campania.Id,
+                    Segmento = new SegmentoDTO { Id = campania.IdFiltroSegmento, Nombre = campania.NombreSegmento },
+                    IdentificadorLlamadaIA = campania.IdentificadorLlamadaIA,
+                    RemitenteCorreo = campania.RemitenteCorreo,
+                    RemitenteNombre = campania.RemitenteNombre,
+                    Asunto = campania.Asunto
+                };
+
+                //Ejecutar envío en segundo plano
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await EjecutarEnvioCampaniaRemarketing(request, "WORKER_SISTEMA", false);
+                    }
+                    catch (Exception ex)
+                    {
+                        _campaniaRemarketingGeneralRepository.ActualizarEstadoEnvioCampania(campania.Id, 6, "WORKER_SISTEMA");
+                    }
+                });
+            }
+        }
+
         #region Metodos de interaccion con API IA
 
         /// Autor: Humberto Oscata
@@ -435,24 +553,31 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
         /// <returns>Detalles estado ejecucion</returns>
         public async Task<EstadoEjecucionLlamadaIA> ObtenerEstadoEjecucionLlamada(string idLlamadaIA)
         {
-            string url = $"http://ia-remarketing-api.bsginstitute.com/testing/api/generacion_mensaje/estado_ejecucion_llamada?id_llamada={idLlamadaIA}";
-            //string url = $"http://ia-remarketing-api.bsginstitute.com/api/generacion_mensaje/estado_ejecucion_llamada?id_llamada={idLlamadaIA}";
-
-            using (var client = new HttpClient())
+            try
             {
-                var response = await client.PostAsync(url, null);
+                string url = $"http://ia-remarketing-api.bsginstitute.com/testing/api/generacion_mensaje/estado_ejecucion_llamada?id_llamada={idLlamadaIA}";
+                //string url = $"http://ia-remarketing-api.bsginstitute.com/api/generacion_mensaje/estado_ejecucion_llamada?id_llamada={idLlamadaIA}";
 
-                var responseContent = await response.Content.ReadAsStringAsync();
+                using (var client = new HttpClient())
+                {
+                    var response = await client.PostAsync(url, null);
 
-                if (!response.IsSuccessStatusCode)
-                    throw new Exception($"Error al llamar al API externa: {responseContent}");
+                    var responseContent = await response.Content.ReadAsStringAsync();
 
-                var resultado = JsonConvert.DeserializeObject<EstadoEjecucionLlamadaIA>(responseContent);
+                    if (!response.IsSuccessStatusCode)
+                        throw new Exception($"Error al llamar al API externa: {responseContent}");
 
-                if (resultado == null)
-                    throw new Exception("La respuesta de la API externa fue nula o inválida.");
+                    var resultado = JsonConvert.DeserializeObject<EstadoEjecucionLlamadaIA>(responseContent);
 
-                return resultado;
+                    if (resultado == null)
+                        throw new Exception("La respuesta de la API externa fue nula o inválida.");
+
+                    return resultado;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al ejecutar envío masivo: {ex.Message}");
             }
         }
 

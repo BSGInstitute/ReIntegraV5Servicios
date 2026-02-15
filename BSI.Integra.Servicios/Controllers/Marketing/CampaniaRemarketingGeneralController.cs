@@ -1,6 +1,5 @@
 ﻿using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface;
-using System.Threading.Tasks;
 using BSI.Integra.Servicios.Helpers;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -263,6 +262,14 @@ namespace BSI.Integra.Servicios.Controllers.Marketing
             }
         }
 
+        /// Tipo Función: POST
+        /// Autor: Humberto Oscata
+        /// Fecha: 09/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los mensajes generados para una alumno y llamada especifica
+        /// </summary>
+        /// <returns>Estado de ejecucion</returns>
         [HttpGet]
         [Route("[action]/{identificadorLlamadaIA}/{idAlumno}")]
         public async Task<IActionResult> ObtenerMensajeGeneradoPorId(string identificadorLlamadaIA, int idAlumno)
@@ -278,6 +285,14 @@ namespace BSI.Integra.Servicios.Controllers.Marketing
             }
         }
 
+        /// Tipo Función: POST
+        /// Autor: Humberto Oscata
+        /// Fecha: 09/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Reenvia un mensaje ya generado a un alumno especifico
+        /// </summary>
+        /// <returns>Estado de ejecucion</returns>
         [HttpPost]
         [Route("[action]")]
         public async Task<IActionResult> ReenviarMensajeGenerado(ReenviarMensajeRequest request)
@@ -294,5 +309,27 @@ namespace BSI.Integra.Servicios.Controllers.Marketing
         }
 
 
+        /// Tipo Función: POST
+        /// Autor: Humberto Oscata
+        /// Fecha: 13/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Endpoint invocado por el worker para ejecutar campañas programadas cuya fecha coincide con el minuto actual
+        /// </summary>
+        /// <returns>Estado de ejecución</returns>
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> EjecutarCampaniasProgramadas()
+        {
+            try
+            {
+                await _campaniaRemarketingGeneralService.EjecutarCampaniasProgramadas();
+                return Ok(true);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

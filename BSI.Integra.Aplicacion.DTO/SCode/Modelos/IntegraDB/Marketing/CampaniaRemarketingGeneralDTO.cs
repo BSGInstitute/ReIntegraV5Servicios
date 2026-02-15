@@ -104,6 +104,22 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing
         public List<EstadoAlumnosDTO> EstadoAlumnos { get; set; }
     }
 
+    public class ResultadoCompletoDTO
+    {
+        // Columnas de totales (repetidas en cada fila)
+        public int TotalMensajes { get; set; }
+        public int Enviados { get; set; }
+        public int Abiertos { get; set; }
+        public int Rebotados { get; set; }
+
+        // Columnas de detalle por alumno
+        public int IdAlumno { get; set; }
+        public string EstadoEnvio { get; set; }
+        public bool Abierto { get; set; }
+        public bool Rebotado { get; set; }
+        public string RazonRechazo { get; set; }
+        public DateTime FechaEnvio { get; set; }
+    }
     public class EstadoAlumnosDTO
     {
         public int IdAlumno { get; set; }
@@ -227,6 +243,59 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing
     {
         public int IdAlumno { get; set; }
         public string IdentificadorLlamadaIA { get; set; }
+    }
+
+    /// DTO para el rendimiento general de campañas
+    public class RendimientoCampaniaDTO
+    {
+        public CapacidadEntregaDTO CapacidadEntrega { get; set; }
+        public TasasRendimientoDTO Tasas { get; set; }
+    }
+
+    public class CapacidadEntregaDTO
+    {
+        public List<string> Labels { get; set; }
+        public List<int> Enviados { get; set; }
+        public List<int> Rebotados { get; set; }
+        public List<int> Rechazados { get; set; }
+        public int TotalProgramados { get; set; }
+        public int TotalEnviados { get; set; }
+        public double PorcentajeEnviados { get; set; }
+    }
+
+    public class TasasRendimientoDTO
+    {
+        public List<string> Labels { get; set; }
+        public List<int> Abiertos { get; set; }
+        public List<int> Clicks { get; set; }
+        public double TasaApertura { get; set; }
+        public int CantidadApertura { get; set; }
+        public double TasaClicks { get; set; }
+        public int CantidadClicks { get; set; }
+    }
+
+    /// DTO para el resultado diario del SP de rendimiento
+    public class RendimientoDiarioCampaniaDTO
+    {
+        public DateTime Fecha { get; set; }
+        public int Enviados { get; set; }
+        public int Rebotados { get; set; }
+        public int Rechazados { get; set; }
+        public int Abiertos { get; set; }
+        public int Clicks { get; set; }
+        public int TotalRegistros { get; set; }
+    }
+
+    /// DTO para campañas programadas pendientes de ejecución, devuelto por SP
+    public class CampaniaProgramadaParaEjecutarDTO
+    {
+        public int Id { get; set; }
+        public int IdFiltroSegmento { get; set; }
+        public string NombreSegmento { get; set; }
+        public string IdentificadorLlamadaIA { get; set; }
+        public string RemitenteCorreo { get; set; }
+        public string RemitenteNombre { get; set; }
+        public string Asunto { get; set; }
     }
 
 }
