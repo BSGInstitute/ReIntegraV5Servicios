@@ -518,8 +518,8 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
             string tipoMensajeTransformado = tipoMensaje.ToUpper().Replace(" ", "_");
             string logicaEnvioTransformado = logicaEnvio.ToUpper().Replace(" ", "_");
 
-            string baseUrl = "http://ia-remarketing-api.bsginstitute.com/testing/api/generacion_mensaje/generar_mensaje_mult";
-            //string baseUrl = "http://ia-remarketing-api.bsginstitute.com/api/generacion_mensaje/generar_mensaje_mult";
+            //string baseUrl = "http://ia-remarketing-api.bsginstitute.com/testing/api/generacion_mensaje/generar_mensaje_mult";
+            string baseUrl = "http://ia-remarketing-api.bsginstitute.com/api/generacion_mensaje/generar_mensaje_mult";
 
             string url = $"{baseUrl}?" +
                  $"canal={Uri.EscapeDataString(canal)}&" +
@@ -564,8 +564,8 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
         /// <returns>Lista de mensajes generados</returns>
         public async Task<List<MensajeGeneradoIA>> ObtenerMensajesGeneradosPorIdLlamadaIA(string idLlamadaIA, bool argumentos)
         {
-            string url = $"http://ia-remarketing-api.bsginstitute.com/testing/api/generacion_mensaje/consulta_mensaje_llamada?id_llamada={idLlamadaIA}&con_argumentos={argumentos}";
-            //string url = $"http://ia-remarketing-api.bsginstitute.com/api/generacion_mensaje/consulta_mensaje_llamada?id_llamada={idLlamadaIA}&con_argumentos={argumentos}";
+            //string url = $"http://ia-remarketing-api.bsginstitute.com/testing/api/generacion_mensaje/consulta_mensaje_llamada?id_llamada={idLlamadaIA}&con_argumentos={argumentos}";
+            string url = $"http://ia-remarketing-api.bsginstitute.com/api/generacion_mensaje/consulta_mensaje_llamada?id_llamada={idLlamadaIA}&con_argumentos={argumentos}";
 
             using (var client = new HttpClient())
             {
@@ -596,8 +596,8 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
         {
             try
             {
-                string url = $"http://ia-remarketing-api.bsginstitute.com/testing/api/generacion_mensaje/estado_ejecucion_llamada?id_llamada={idLlamadaIA}";
-                //string url = $"http://ia-remarketing-api.bsginstitute.com/api/generacion_mensaje/estado_ejecucion_llamada?id_llamada={idLlamadaIA}";
+                //string url = $"http://ia-remarketing-api.bsginstitute.com/testing/api/generacion_mensaje/estado_ejecucion_llamada?id_llamada={idLlamadaIA}";
+                string url = $"http://ia-remarketing-api.bsginstitute.com/api/generacion_mensaje/estado_ejecucion_llamada?id_llamada={idLlamadaIA}";
 
                 using (var client = new HttpClient())
                 {
@@ -633,8 +633,8 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
         {
             try
             {
-                string url = $"http://ia-remarketing-api.bsginstitute.com/testing/api/generacion_mensaje/consulta_mensaje_alumno?id_alumno={idAlumno}&id_llamada={identificadorLlamadaIA}&con_argumentos={argumentos}";
-                //string url = $"http://ia-remarketing-api.bsginstitute.com/api/generacion_mensaje/consulta_mensaje_alumno?id_alumno={idAlumno}&id_llamada={idLlamadaIA}&con_argumentos={argumentos}";
+                //string url = $"http://ia-remarketing-api.bsginstitute.com/testing/api/generacion_mensaje/consulta_mensaje_alumno?id_alumno={idAlumno}&id_llamada={identificadorLlamadaIA}&con_argumentos={argumentos}";
+                string url = $"http://ia-remarketing-api.bsginstitute.com/api/generacion_mensaje/consulta_mensaje_alumno?id_alumno={idAlumno}&id_llamada={identificadorLlamadaIA}&con_argumentos={argumentos}";
 
                 using (var client = new HttpClient())
                 {

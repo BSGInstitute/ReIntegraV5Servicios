@@ -44,7 +44,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
                 var querySP = "[mkt].[SP_RemarketingCampaniaGeneralRendimientoObtener]";
 
                 var parameters = new DynamicParameters();
-                parameters.Add("@IdsCampania", string.Join(",", ids));
+                parameters.Add("@IdRemarketingCampaniaGeneral_Lista", string.Join(",", ids));
 
                 var jsonResult = _dapperRepository.QuerySPDapper(querySP, parameters);
 
