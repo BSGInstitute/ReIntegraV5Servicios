@@ -245,7 +245,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// </summary>
         /// <param name="id">Identificador del flujo.</param>
         /// <returns>FlujoCompletoDTO con el flujo y sus actividades completas.</returns>
-        public FlujoCompletoDTO ObtenerFlujoCompleto(int id)
+        public async Task<FlujoCompletoDTO> ObtenerFlujoCompletoAsync(int id)
         {
             try
             {
@@ -259,7 +259,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 var actividades = new List<ActividadCabeceraCompletaDTO>();
                 foreach (var asociacion in asociaciones)
                 {
-                    var cabecera = _actividadService.ObtenerActividadCabeceraCompleta(asociacion.IdGestionDocenteActividadCabecera);
+                    var cabecera = await _actividadService.ObtenerActividadCabeceraCompletaAsync(asociacion.IdGestionDocenteActividadCabecera);
                     if (cabecera != null)
                     {
                         actividades.Add(cabecera);

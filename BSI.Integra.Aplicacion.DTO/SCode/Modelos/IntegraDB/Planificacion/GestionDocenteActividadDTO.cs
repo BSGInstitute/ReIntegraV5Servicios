@@ -80,6 +80,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public GestionDocenteDisparadorOcurrenciaDetalleDTO? OcurrenciaDetalle { get; set; }
         public GestionDocenteDisparadorReglaTiempoRelativoReferenciaDTO? ReferenciaRelativa { get; set; }
         public int? IdGestionDocenteSesion { get; set; }
+        public List<InsertarOcurrenciaRequestDTO>? Ocurrencias { get; set; }
     }
 
     public class GestionDocenteOcurrenciaIaConfiguracionDTO
@@ -107,7 +108,6 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
     {
         public GestionDocenteActividadCabeceraDTO Cabecera { get; set; }
         public List<InsertarActividadDetalleRequestDTO> Detalles { get; set; }
-        public List<InsertarOcurrenciaRequestDTO> Ocurrencias { get; set; }
     }
 
     public class GestionDocenteConfianzaUmbralNivelDTO

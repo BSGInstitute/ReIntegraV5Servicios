@@ -25,7 +25,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         IEnumerable<GestionDocenteModoMarcadoDTO> ObtenerModosMarcado();
         IEnumerable<GestionDocenteMedioComunicacionDTO> ObtenerMediosComunicacion();
         IEnumerable<GestionDocentePlantillaMedioComunicacionDTO> ObtenerPlantillasMedioComunicacion();
-        ActividadCabeceraCompletaDTO ObtenerActividadCabeceraCompleta(int id);
+        IEnumerable<GestionDocentePlantillaMedioComunicacionDTO> ObtenerPlantillasMedioComunicacionPorMedioComunicacion(int idMedioComunicacion);
+        Task<ActividadCabeceraCompletaDTO> ObtenerActividadCabeceraCompletaAsync(int id);
         List<object> ObtenerDisparadorReglaTiempo();
     }
 }

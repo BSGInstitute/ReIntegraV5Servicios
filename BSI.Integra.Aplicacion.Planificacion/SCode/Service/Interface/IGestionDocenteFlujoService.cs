@@ -14,6 +14,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         IEnumerable<GestionDocenteCategoriaDTO> ObtenerCategorias();
         IEnumerable<GestionDocenteActividadCabeceraListaDTO> ObtenerActividadesCabecera();
         GestionDocenteFlujoOutputDTO ObtenerFlujoPorId(int id);
-        FlujoCompletoDTO ObtenerFlujoCompleto(int id);
+        Task<FlujoCompletoDTO> ObtenerFlujoCompletoAsync(int id);
     }
 }

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
 {
@@ -29,6 +30,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         {
             try
             {
+                DateTime fechaActual = DateTime.Now;
+
                 var gestionDocenteActividadCabecera = new GestionDocenteActividadCabecera
                 {
                     Nombre = dto.Nombre,
@@ -38,8 +41,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     Estado = true,
                     UsuarioCreacion = dto.Usuario,
                     UsuarioModificacion = dto.Usuario,
-                    FechaCreacion = DateTime.Now,
-                    FechaModificacion = DateTime.Now
+                    FechaCreacion = fechaActual,
+                    FechaModificacion = fechaActual
                 };
 
                 var model = _unitOfWork.GestionDocenteActividadCabeceraRepository.Add(gestionDocenteActividadCabecera);
@@ -58,56 +61,42 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// Versión: 1.0
         /// <summary>
         /// Inserta un detalle de actividad con su disparador, reglas de tiempo y referencias asociadas según el tipo de disparador.
+        /// Usa TransactionScope para garantizar atomicidad entre los múltiples commits.
         /// </summary>
         /// <param name="request">DTO con detalle, disparador, reglas de tiempo y referencias.</param>
         public async Task<int> InsertarDetalleAsync(InsertarActividadDetalleRequestDTO request)
         {
             try
             {
-                DateTime fechaActual = DateTime.Now;
-                string usuario = request.Detalle.Usuario;
-
-                // 1. Crear el Disparador Detalle
-                var gestionDocenteDisparadorDetalle = new GestionDocenteDisparadorDetalle
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    IdGestionDocenteDisparadorFlujoTipo = request.Disparador.IdGestionDocenteDisparadorFlujoTipo,
-                    Estado = true,
-                    UsuarioCreacion = usuario,
-                    UsuarioModificacion = usuario,
-                    FechaCreacion = fechaActual,
-                    FechaModificacion = fechaActual
-                };
-                var disparadorModel = _unitOfWork.GestionDocenteDisparadorDetalleRepository.Add(gestionDocenteDisparadorDetalle);
-                await _unitOfWork.CommitAsync();
+                    DateTime fechaActual = DateTime.Now;
+                    string usuario = request.Detalle.Usuario;
 
-                // 2. Procesar según el tipo de disparador
-                await ProcesarTipoDisparadorAsync(request, disparadorModel.Id, usuario, fechaActual);
-
-                // 3. Crear Detalle de Actividad
-                var gestionDocenteActividadDetalle = new GestionDocenteActividadDetalle
-                {
-                    IdGestionDocenteActividadCabecera = request.Detalle.IdGestionDocenteActividadCabecera,
-                    IdGestionDocenteActividadDetalleTipo = request.Detalle.IdGestionDocenteActividadDetalleTipo,
-                    IdPlantillaMedioComunicacion = request.Detalle.IdPlantillaMedioComunicacion,
-                    IdGestionDocenteDisparadorDetalle = disparadorModel.Id,
-                    Nombre = request.Detalle.Nombre,
-                    Estado = true,
-                    UsuarioCreacion = usuario,
-                    UsuarioModificacion = usuario,
-                    FechaCreacion = fechaActual,
-                    FechaModificacion = fechaActual
-                };
-
-                var model = _unitOfWork.GestionDocenteActividadDetalleRepository.Add(gestionDocenteActividadDetalle);
-                await _unitOfWork.CommitAsync();
-
-                // 4. Si es tipo disparador 3 (Basado en Cronograma) insertar en T_GestionContactoActividadDetalleSesion
-                if (request.Disparador.IdGestionDocenteDisparadorFlujoTipo == 3 && request.IdGestionDocenteSesion.HasValue)
-                {
-                    var actividadDetalleSesion = new GestionContactoActividadDetalleSesion
+                    // 1. Crear el Disparador Detalle
+                    var gestionDocenteDisparadorDetalle = new GestionDocenteDisparadorDetalle
                     {
-                        IdGestionDocenteActividadDetalle = model.Id,
-                        IdGestionDocenteSesion = request.IdGestionDocenteSesion.Value,
+                        IdGestionDocenteDisparadorFlujoTipo = request.Disparador.IdGestionDocenteDisparadorFlujoTipo,
+                        Estado = true,
+                        UsuarioCreacion = usuario,
+                        UsuarioModificacion = usuario,
+                        FechaCreacion = fechaActual,
+                        FechaModificacion = fechaActual
+                    };
+                    var disparadorModel = _unitOfWork.GestionDocenteDisparadorDetalleRepository.Add(gestionDocenteDisparadorDetalle);
+                    await _unitOfWork.CommitAsync();
+
+                    // 2. Procesar según el tipo de disparador
+                    await ProcesarTipoDisparadorAsync(request, disparadorModel.Id, usuario, fechaActual);
+
+                    // 3. Crear Detalle de Actividad
+                    var gestionDocenteActividadDetalle = new GestionDocenteActividadDetalle
+                    {
+                        IdGestionDocenteActividadCabecera = request.Detalle.IdGestionDocenteActividadCabecera,
+                        IdGestionDocenteActividadDetalleTipo = request.Detalle.IdGestionDocenteActividadDetalleTipo,
+                        IdPlantillaMedioComunicacion = request.Detalle.IdPlantillaMedioComunicacion,
+                        IdGestionDocenteDisparadorDetalle = disparadorModel.Id,
+                        Nombre = request.Detalle.Nombre,
                         Estado = true,
                         UsuarioCreacion = usuario,
                         UsuarioModificacion = usuario,
@@ -115,11 +104,30 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                         FechaModificacion = fechaActual
                     };
 
-                    _unitOfWork.GestionContactoActividadDetalleSesionRepository.Add(actividadDetalleSesion);
+                    var model = _unitOfWork.GestionDocenteActividadDetalleRepository.Add(gestionDocenteActividadDetalle);
                     await _unitOfWork.CommitAsync();
-                }
 
-                return model.Id;
+                    // 4. Si es tipo disparador 3 (Basado en Cronograma) insertar en T_GestionContactoActividadDetalleSesion
+                    if (request.Disparador.IdGestionDocenteDisparadorFlujoTipo == 3 && request.IdGestionDocenteSesion.HasValue)
+                    {
+                        var actividadDetalleSesion = new GestionContactoActividadDetalleSesion
+                        {
+                            IdGestionDocenteActividadDetalle = model.Id,
+                            IdGestionDocenteSesion = request.IdGestionDocenteSesion.Value,
+                            Estado = true,
+                            UsuarioCreacion = usuario,
+                            UsuarioModificacion = usuario,
+                            FechaCreacion = fechaActual,
+                            FechaModificacion = fechaActual
+                        };
+
+                        _unitOfWork.GestionContactoActividadDetalleSesionRepository.Add(actividadDetalleSesion);
+                        await _unitOfWork.CommitAsync();
+                    }
+
+                    scope.Complete();
+                    return model.Id;
+                }
             }
             catch (Exception ex)
             {
@@ -285,43 +293,48 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// Versión: 1.0
         /// <summary>
         /// Inserta una ocurrencia asociada a un detalle de actividad, incluyendo configuración IA y ejemplos de entrenamiento si el modo es Automático o Warm.
+        /// Usa TransactionScope para garantizar atomicidad entre los múltiples commits.
         /// </summary>
         /// <param name="request">DTO con ocurrencia, configuración IA y ejemplos de entrenamiento.</param>
         public async Task<int> InsertarOcurrenciaAsync(InsertarOcurrenciaRequestDTO request)
         {
             try
             {
-                var dto = request.Ocurrencia;
-                DateTime fechaActual = DateTime.Now;
-                string usuario = dto.Usuario;
-
-                // 1. Insertar la ocurrencia
-                var gestionDocenteOcurrencia = new GestionDocenteOcurrencia
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    Nombre = dto.Nombre,
-                    Descripcion = dto.Descripcion,
-                    IdGestionDocenteOcurrenciaTipo = dto.IdGestionDocenteOcurrenciaTipo,
-                    IdGestionDocenteActividadDetalle = dto.IdGestionDocenteActividadDetalle,
-                    IdGestionDocenteModoMarcado = dto.IdGestionDocenteModoMarcado,
-                    RequiereComentario = dto.RequiereComentario,
-                    RequiereFechaHora = dto.RequiereFechaHora,
-                    Estado = true,
-                    UsuarioCreacion = usuario,
-                    UsuarioModificacion = usuario,
-                    FechaCreacion = fechaActual,
-                    FechaModificacion = fechaActual
-                };
+                    var dto = request.Ocurrencia;
+                    DateTime fechaActual = DateTime.Now;
+                    string usuario = dto.Usuario;
 
-                var model = _unitOfWork.GestionDocenteOcurrenciaRepository.Add(gestionDocenteOcurrencia);
-                await _unitOfWork.CommitAsync();
+                    // 1. Insertar la ocurrencia
+                    var gestionDocenteOcurrencia = new GestionDocenteOcurrencia
+                    {
+                        Nombre = dto.Nombre,
+                        Descripcion = dto.Descripcion,
+                        IdGestionDocenteOcurrenciaTipo = dto.IdGestionDocenteOcurrenciaTipo,
+                        IdGestionDocenteActividadDetalle = dto.IdGestionDocenteActividadDetalle,
+                        IdGestionDocenteModoMarcado = dto.IdGestionDocenteModoMarcado,
+                        RequiereComentario = dto.RequiereComentario,
+                        RequiereFechaHora = dto.RequiereFechaHora,
+                        Estado = true,
+                        UsuarioCreacion = usuario,
+                        UsuarioModificacion = usuario,
+                        FechaCreacion = fechaActual,
+                        FechaModificacion = fechaActual
+                    };
 
-                // 2. Para Automatico (2) y Warm (3), insertar configuración IA y ejemplos de entrenamiento
-                if (dto.IdGestionDocenteModoMarcado == 2 || dto.IdGestionDocenteModoMarcado == 3)
-                {
-                    await ProcesarConfiguracionIaAsync(request, model.Id, usuario, fechaActual);
+                    var model = _unitOfWork.GestionDocenteOcurrenciaRepository.Add(gestionDocenteOcurrencia);
+                    await _unitOfWork.CommitAsync();
+
+                    // 2. Para Automatico (2) y Warm (3), insertar configuración IA y ejemplos de entrenamiento
+                    if (dto.IdGestionDocenteModoMarcado == 2 || dto.IdGestionDocenteModoMarcado == 3)
+                    {
+                        await ProcesarConfiguracionIaAsync(request, model.Id, usuario, fechaActual);
+                    }
+
+                    scope.Complete();
+                    return model.Id;
                 }
-
-                return model.Id;
             }
             catch (Exception ex)
             {
@@ -386,31 +399,38 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// Versión: 1.0
         /// <summary>
         /// Procesa la inserción maestro de una actividad completa: cabecera, detalles con disparadores y ocurrencias en una sola transacción.
+        /// Usa TransactionScope para garantizar atomicidad de toda la operación.
         /// </summary>
-        /// <param name="dto">DTO maestro con cabecera, detalles y ocurrencias.</param>
+        /// <param name="dto">DTO maestro con cabecera y detalles (cada detalle incluye sus ocurrencias).</param>
         public async Task<int> ProcesarMaestroActividadAsync(MaestroGestionDocenteActividadDTO dto)
         {
             try
             {
-                // 1. Insertar Cabecera
-                int idCabecera = await InsertarCabeceraAsync(dto.Cabecera);
-
-                // 2. Insertar Detalles
-                foreach (var detRequest in dto.Detalles)
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    detRequest.Detalle.IdGestionDocenteActividadCabecera = idCabecera;
-                    int idDetalle = await InsertarDetalleAsync(detRequest);
+                    // 1. Insertar Cabecera
+                    int idCabecera = await InsertarCabeceraAsync(dto.Cabecera);
 
-                    // 3. Insertar Ocurrencias asociadas a este detalle
-                    var ocurrenciasAsociadas = dto.Ocurrencias.Where(o => o.Ocurrencia.IdGestionDocenteActividadDetalle == detRequest.Detalle.Id);
-                    foreach (var ocuRequest in ocurrenciasAsociadas)
+                    // 2. Insertar Detalles con sus Ocurrencias
+                    foreach (var detRequest in dto.Detalles)
                     {
-                        ocuRequest.Ocurrencia.IdGestionDocenteActividadDetalle = idDetalle;
-                        await InsertarOcurrenciaAsync(ocuRequest);
-                    }
-                }
+                        detRequest.Detalle.IdGestionDocenteActividadCabecera = idCabecera;
+                        int idDetalle = await InsertarDetalleAsync(detRequest);
 
-                return idCabecera;
+                        // 3. Insertar Ocurrencias asociadas a este detalle
+                        if (detRequest.Ocurrencias != null)
+                        {
+                            foreach (var ocuRequest in detRequest.Ocurrencias)
+                            {
+                                ocuRequest.Ocurrencia.IdGestionDocenteActividadDetalle = idDetalle;
+                                await InsertarOcurrenciaAsync(ocuRequest);
+                            }
+                        }
+                    }
+
+                    scope.Complete();
+                    return idCabecera;
+                }
             }
             catch (Exception)
             {
@@ -429,6 +449,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         {
             try
             {
+                DateTime fechaActual = DateTime.Now;
+
                 var entidad = new GestionDocenteActividadCabeceraFlujo
                 {
                     IdGestionDocenteFlujo = dto.IdGestionDocenteFlujo,
@@ -436,8 +458,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     Estado = true,
                     UsuarioCreacion = dto.Usuario,
                     UsuarioModificacion = dto.Usuario,
-                    FechaCreacion = DateTime.Now,
-                    FechaModificacion = DateTime.Now
+                    FechaCreacion = fechaActual,
+                    FechaModificacion = fechaActual
                 };
 
                 var model = _unitOfWork.GestionDocenteActividadCabeceraFlujoRepository.Add(entidad);
@@ -489,13 +511,15 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     .Where(x => x.IdGestionDocenteFlujo == idFlujo && x.Estado)
                     .ToList();
 
-                return lista.Select(x => new GestionDocenteActividadCabeceraFlujoDTO
+                var resultado = lista.Select(x => new GestionDocenteActividadCabeceraFlujoDTO
                 {
                     Id = x.Id,
                     IdGestionDocenteFlujo = x.IdGestionDocenteFlujo,
                     IdGestionDocenteActividadCabecera = x.IdGestionDocenteActividadCabecera,
                     Estado = x.Estado
                 }).ToList();
+
+                return await Task.FromResult(resultado);
             }
             catch (Exception)
             {
@@ -761,6 +785,26 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         }
 
         /// Autor: Jose Vega
+        /// Fecha: 16/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene las plantillas de medio de comunicación filtradas por un medio de comunicación específico.
+        /// </summary>
+        /// <param name="idMedioComunicacion">Identificador del medio de comunicación.</param>
+        public IEnumerable<GestionDocentePlantillaMedioComunicacionDTO> ObtenerPlantillasMedioComunicacionPorMedioComunicacion(int idMedioComunicacion)
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerPlantillasMedioComunicacion()
+                    .Where(x => x.IdMedioComunicacion == idMedioComunicacion);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
         /// Fecha: 11/02/2026
         /// Versión: 1.0
         /// <summary>
@@ -834,16 +878,17 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// sesiones, ocurrencias, configuración IA y ejemplos de entrenamiento.
         /// </summary>
         /// <param name="id">Identificador de la actividad cabecera.</param>
-        public ActividadCabeceraCompletaDTO ObtenerActividadCabeceraCompleta(int id)
+        public async Task<ActividadCabeceraCompletaDTO> ObtenerActividadCabeceraCompletaAsync(int id)
         {
             try
             {
                 // 1. Obtener cabecera
-                var cabecera = _unitOfWork.GestionDocenteActividadCabeceraRepository.ObtenerCabeceraPorId(id);
+                var cabecera = await _unitOfWork.GestionDocenteActividadCabeceraRepository.ObtenerCabeceraPorIdAsync(id);
                 if (cabecera == null) return null;
 
                 // 2. Obtener detalles de la cabecera
-                var detalles = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDetallesPorCabecera(id).ToList();
+                var detallesResult = await _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDetallesPorCabeceraAsync(id);
+                var detalles = detallesResult.ToList();
                 if (!detalles.Any())
                 {
                     return new ActividadCabeceraCompletaDTO { Cabecera = cabecera, Detalles = new List<ActividadDetalleCompletoDTO>() };
@@ -853,45 +898,43 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 var detalleIds = string.Join(",", detalles.Select(d => d.IdGestionDocenteActividadDetalle));
                 var disparadorIds = string.Join(",", detalles.Select(d => d.IdGestionDocenteDisparadorDetalle));
 
-                // 4. Obtener disparadores
-                var disparadores = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDisparadoresPorIds(disparadorIds).ToList();
+                // 4. Obtener disparadores, reglas y sesiones en paralelo
+                var disparadoresTask = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDisparadoresPorIdsAsync(disparadorIds);
+                var reglasFijoTask = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReglasTiempoFijoPorDisparadoresAsync(disparadorIds);
+                var reglasRelativoTask = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReglasTiempoRelativoPorDisparadoresAsync(disparadorIds);
+                var disparadoresOcurrenciaTask = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDisparadoresOcurrenciaPorIdsAsync(disparadorIds);
+                var sesionesTask = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerSesionesPorDetallesAsync(detalleIds);
+                var ocurrenciasTask = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerOcurrenciasPorDetallesAsync(detalleIds);
 
-                // 5. Obtener reglas de tiempo fijo
-                var reglasFijo = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReglasTiempoFijoPorDisparadores(disparadorIds).ToList();
+                await Task.WhenAll(disparadoresTask, reglasFijoTask, reglasRelativoTask, disparadoresOcurrenciaTask, sesionesTask, ocurrenciasTask);
 
-                // 6. Obtener reglas de tiempo relativo
-                var reglasRelativo = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReglasTiempoRelativoPorDisparadores(disparadorIds).ToList();
+                var disparadores = (await disparadoresTask).ToList();
+                var reglasFijo = (await reglasFijoTask).ToList();
+                var reglasRelativo = (await reglasRelativoTask).ToList();
+                var disparadoresOcurrencia = (await disparadoresOcurrenciaTask).ToList();
+                var sesiones = (await sesionesTask).ToList();
+                var ocurrencias = (await ocurrenciasTask).ToList();
 
-                // 7. Obtener referencias relativas (si hay reglas relativas)
+                // 5. Obtener referencias relativas (si hay reglas relativas)
                 var referenciasRelativas = new List<GestionDocenteDisparadorReglaTiempoRelativoReferenciaOutputDTO>();
                 if (reglasRelativo.Any())
                 {
                     var reglasRelativoIds = string.Join(",", reglasRelativo.Select(r => r.IdGestionDocenteDisparadorReglaTiempoRelativo));
-                    referenciasRelativas = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReferenciasRelativasPorReglas(reglasRelativoIds).ToList();
+                    referenciasRelativas = (await _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReferenciasRelativasPorReglasAsync(reglasRelativoIds)).ToList();
                 }
 
-                // 8. Obtener disparadores de ocurrencia
-                var disparadoresOcurrencia = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDisparadoresOcurrenciaPorIds(disparadorIds).ToList();
-
-                // 9. Obtener sesiones
-                var sesiones = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerSesionesPorDetalles(detalleIds).ToList();
-
-                // 10. Obtener ocurrencias
-                var ocurrencias = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerOcurrenciasPorDetalles(detalleIds).ToList();
-
-                // 11. Obtener configuraciones IA (si hay ocurrencias)
+                // 6. Obtener configuraciones IA (si hay ocurrencias)
                 var iaConfiguraciones = new List<OcurrenciaIaConfiguracionCompletaDTO>();
                 var ejemplosEntrenamiento = new List<GestionDocenteIaEntrenamientoEjemploOutputDTO>();
                 if (ocurrencias.Any())
                 {
                     var ocurrenciaIds = string.Join(",", ocurrencias.Select(o => o.IdGestionDocenteOcurrencia));
-                    iaConfiguraciones = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerIaConfiguracionesPorOcurrencias(ocurrenciaIds).ToList();
+                    iaConfiguraciones = (await _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerIaConfiguracionesPorOcurrenciasAsync(ocurrenciaIds)).ToList();
 
-                    // 12. Obtener ejemplos de entrenamiento (si hay configuraciones IA)
                     if (iaConfiguraciones.Any())
                     {
                         var iaConfigIds = string.Join(",", iaConfiguraciones.Select(c => c.IdGestionDocenteOcurrenciaIaConfiguracion));
-                        ejemplosEntrenamiento = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerEjemplosEntrenamientoPorConfiguraciones(iaConfigIds).ToList();
+                        ejemplosEntrenamiento = (await _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerEjemplosEntrenamientoPorConfiguracionesAsync(iaConfigIds)).ToList();
                     }
                 }
 
