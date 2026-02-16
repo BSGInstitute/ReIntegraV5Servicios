@@ -4,7 +4,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing
 {
     public class CampaniaRemarketingGeneralDTO
     {
-        public int Id { get; set; }
+        public int IdRemarketingCampaniaGeneral { get; set; }
         public string Nombre { get; set; }
         public DateTime FechaEnvioProgramada { get; set; }
         public string EnvioConfigurado { get; set; }
@@ -197,6 +197,14 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing
     {
         public int IdAlumno { get; set; }
         public string Correo { get; set; }
+    }
+
+    public class CampaniaCanvasDTO
+    {
+        public int? Id { get; set; }
+        public int IdRemarketingCampaniaGeneral { get; set; }
+        public string? ContenidoSuperior { get; set; }
+        public string? ContenidoInferior { get; set; }
     }
 
     /// DTO para almacenar el estado de envío de cada correo en una campaña

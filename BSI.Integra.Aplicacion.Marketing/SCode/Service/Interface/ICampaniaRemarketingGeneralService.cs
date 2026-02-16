@@ -29,5 +29,11 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface
         // Métodos para el envío masivo de correos
         Task<ResultadoEnvioMasivoDTO> EjecutarEnvioCampaniaRemarketing(ConfiguracionCampaniaRemarketingDTO request, string usuario, bool argumentos);
         Task EjecutarCampaniasProgramadas();
+
+        // Canvas
+        bool InsertarCampaniaCanvas(CampaniaCanvasDTO request, string usuario);
+        bool ActualizarCampaniaCanvas(CampaniaCanvasDTO request, string usuario);
+        CampaniaCanvasDTO ObtenerCampaniaCanvas(int idRemarketingCampaniaGeneral);
+        bool EliminarCampaniaCanvas(int idRemarketingCampaniaGeneral, string usuario);
     }
 }

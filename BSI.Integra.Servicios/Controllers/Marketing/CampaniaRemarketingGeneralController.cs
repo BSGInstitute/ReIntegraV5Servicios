@@ -311,6 +311,110 @@ namespace BSI.Integra.Servicios.Controllers.Marketing
 
         /// Tipo Función: POST
         /// Autor: Humberto Oscata
+        /// Fecha: 15/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Inserta un canvas de contenido adicional para una campaña de remarketing
+        /// </summary>
+        /// <returns>Estado de inserción</returns>
+        [HttpPost]
+        [Route("[action]")]
+        public IActionResult InsertarCampaniaCanvas([FromBody] CampaniaCanvasDTO request)
+        {
+            try
+            {
+                var claimsIdentity = User.Identity as ClaimsIdentity;
+                var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+                var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
+
+                var resultado = _campaniaRemarketingGeneralService.InsertarCampaniaCanvas(request, usuario);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Humberto Oscata
+        /// Fecha: 15/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Actualiza el canvas de contenido adicional de una campaña de remarketing
+        /// </summary>
+        /// <returns>Estado de actualización</returns>
+        [HttpPost]
+        [Route("[action]")]
+        public IActionResult ActualizarCampaniaCanvas([FromBody] CampaniaCanvasDTO request)
+        {
+            try
+            {
+                var claimsIdentity = User.Identity as ClaimsIdentity;
+                var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+                var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
+
+                var resultado = _campaniaRemarketingGeneralService.ActualizarCampaniaCanvas(request, usuario);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Humberto Oscata
+        /// Fecha: 15/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el canvas de contenido adicional activo de una campaña de remarketing
+        /// </summary>
+        /// <returns>Canvas de la campaña</returns>
+        [HttpGet]
+        [Route("[action]/{idCampania}")]
+        public IActionResult ObtenerCampaniaCanvas(int idCampania)
+        {
+            try
+            {
+                var resultado = _campaniaRemarketingGeneralService.ObtenerCampaniaCanvas(idCampania);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Humberto Oscata
+        /// Fecha: 15/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Elimina lógicamente el canvas de contenido adicional de una campaña de remarketing
+        /// </summary>
+        /// <returns>Estado de eliminación</returns>
+        [HttpPost]
+        [Route("[action]")]
+        public IActionResult EliminarCampaniaCanvas([FromBody] int idCampania)
+        {
+            try
+            {
+                var claimsIdentity = User.Identity as ClaimsIdentity;
+                var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+                var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
+
+                var resultado = _campaniaRemarketingGeneralService.EliminarCampaniaCanvas(idCampania, usuario);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Humberto Oscata
         /// Fecha: 13/02/2026
         /// Versión: 1.0
         /// <summary>

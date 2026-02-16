@@ -307,11 +307,14 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
                 // 3. Crear diccionario de mensajes por IdAlumno para acceso rápido
                 var mensajesPorAlumno = mensajesGenerados.ToDictionary(m => m.id_alumno, m => m);
 
-                // 4. Actualizar registro para marcar envio de campaña como Iniciada
+                // 4. Obtener canvas de contenido adicional para la campaña
+                var canvas = _campaniaRemarketingGeneralRepository.ObtenerCampaniaCanvas(request.Id ?? 0);
+
+                // 5. Actualizar registro para marcar envio de campaña como Iniciada
                 _campaniaRemarketingGeneralRepository.ActualizarEstadoEnvioCampania(request.Id ?? 0, 4, usuario);
 
 
-                // 5. Procesar cada alumno
+                // 6. Procesar cada alumno
                 var mailService = new TMK_MailService();
                 foreach (var alumno in alumnosCorreos)
                 {
@@ -347,7 +350,7 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
                             RemitenteC = request.RemitenteNombre,
                             Recipient = alumno.Correo,
                             Subject = request.Asunto,
-                            Message = mensajeAlumno.contenido
+                            Message = ConstruirContenidoConCanvas(canvas, mensajeAlumno.contenido)
                         };
 
                         mailService.SetData(mailData);
@@ -394,10 +397,10 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
                     resultado.TotalProcesados++;
                 }
 
-                // 6. Guardar todos los estados en la base de datos
+                // 7. Guardar todos los estados en la base de datos
                 _campaniaRemarketingGeneralRepository.InsertarEstadosEnvioCampaniaMasivo(resultado.Detalle);
 
-                // 7. Actualizar registro para marcar envio de campaña como Finalizada
+                // 8. Actualizar registro para marcar envio de campaña como Finalizada
                 _campaniaRemarketingGeneralRepository.ActualizarEstadoEnvioCampania(request.Id ?? 0, 2, usuario);
 
                 return resultado;
@@ -460,6 +463,44 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
                     }
                 });
             }
+        }
+
+        public bool InsertarCampaniaCanvas(CampaniaCanvasDTO request, string usuario)
+        {
+            return _campaniaRemarketingGeneralRepository.InsertarCampaniaCanvas(request, usuario);
+        }
+
+        public bool ActualizarCampaniaCanvas(CampaniaCanvasDTO request, string usuario)
+        {
+            return _campaniaRemarketingGeneralRepository.ActualizarCampaniaCanvas(request, usuario);
+        }
+
+        public CampaniaCanvasDTO ObtenerCampaniaCanvas(int idRemarketingCampaniaGeneral)
+        {
+            return _campaniaRemarketingGeneralRepository.ObtenerCampaniaCanvas(idRemarketingCampaniaGeneral);
+        }
+
+        public bool EliminarCampaniaCanvas(int idRemarketingCampaniaGeneral, string usuario)
+        {
+            return _campaniaRemarketingGeneralRepository.EliminarCampaniaCanvas(idRemarketingCampaniaGeneral, usuario);
+        }
+
+        private string ConstruirContenidoConCanvas(CampaniaCanvasDTO canvas, string contenidoIA)
+        {
+            if (canvas == null)
+                return contenidoIA;
+
+            var sb = new StringBuilder();
+
+            if (!string.IsNullOrEmpty(canvas.ContenidoSuperior))
+                sb.Append(canvas.ContenidoSuperior);
+
+            sb.Append(contenidoIA);
+
+            if (!string.IsNullOrEmpty(canvas.ContenidoInferior))
+                sb.Append(canvas.ContenidoInferior);
+
+            return sb.ToString();
         }
 
         #region Metodos de interaccion con API IA

@@ -41,7 +41,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
             try
             {
                 List<RendimientoDiarioCampaniaDTO> resultado = new List<RendimientoDiarioCampaniaDTO>();
-                var querySP = "[mkt].[SP_RendimientoCampaniasObtener]";
+                var querySP = "[mkt].[SP_RemarketingCampaniaGeneralRendimientoObtener]";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("@IdsCampania", string.Join(",", ids));
@@ -197,7 +197,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
 
                 var parameters = new DynamicParameters();
 
-                parameters.Add("@NombreCampania", request.Segmento.Nombre);
+                parameters.Add("@Nombre", request.Segmento.Nombre);
                 parameters.Add("@IdFiltroSegmento", request.Segmento.Id);
                 parameters.Add("@IdRemarketingTipoMensaje", request.TipoMensaje.Id);
                 parameters.Add("@IdRemarketingLogicaEnvio", request.LogicaEnvio.Id);
@@ -207,10 +207,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
                 parameters.Add("@EnvioConfigurado", request.EnvioSeleccionado);
                 parameters.Add("@FechaEnvioProgramada", request.FechaEnvio);
                 parameters.Add("@UsuarioCreacion", request.UsuarioCreacion);
-                parameters.Add("@MediosEnvio", string.Join(",", request.MediosEnvio.Select(x => x.Id)));
+                parameters.Add("@IdMedioComunicacion_Lista", string.Join(",", request.MediosEnvio.Select(x => x.Id)));
                 parameters.Add("@IdentificadorLlamadaIA", request.IdentificadorLlamadaIA);
                 parameters.Add("@IdCategoriaArgumentoConfigurado", request.CategoriaArgumento.Id);
-                parameters.Add("@Prioridades", string.Join(",", request.Prioridades));
+                parameters.Add("@Prioridad_Lista", string.Join(",", request.Prioridades));
                 parameters.Add("@IdEstadoEnvio", 1);
 
                 var result = _dapperRepository.QuerySPFirstOrDefault(querySP, parameters);
@@ -232,7 +232,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
                 var parameters = new DynamicParameters();
 
                 parameters.Add("@IdRemarketingCampaniaGeneral", request.Id);
-                parameters.Add("@NombreCampania", request.Segmento.Nombre);
+                parameters.Add("@Nombre", request.Segmento.Nombre);
                 parameters.Add("@IdFiltroSegmento", request.Segmento.Id);
                 parameters.Add("@IdRemarketingTipoMensaje", request.TipoMensaje.Id);
                 parameters.Add("@IdRemarketingLogicaEnvio", request.LogicaEnvio.Id);
@@ -242,10 +242,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
                 parameters.Add("@EnvioConfigurado", request.EnvioSeleccionado);
                 parameters.Add("@FechaEnvioProgramada", request.FechaEnvio);
                 parameters.Add("@UsuarioModificacion", request.UsuarioCreacion);
-                parameters.Add("@MediosEnvio", string.Join(",", request.MediosEnvio.Select(x => x.Id)));
-                parameters.Add("@IdentificadorLlamadaIA", request.IdentificadorLlamadaIA);
+                parameters.Add("@IdMedioComunicacion_Lista", string.Join(",", request.MediosEnvio.Select(x => x.Id)));
+                //parameters.Add("@IdentificadorLlamadaIA", request.IdentificadorLlamadaIA);
                 parameters.Add("@IdCategoriaArgumentoConfigurado", request.CategoriaArgumento.Id);
-                parameters.Add("@Prioridades", string.Join(",", request.Prioridades));
+                parameters.Add("@Prioridad_Lista", string.Join(",", request.Prioridades));
 
                 var result = _dapperRepository.QuerySPFirstOrDefault(querySP, parameters);
 
@@ -495,7 +495,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
             try
             {
                 List<CampaniaProgramadaParaEjecutarDTO> resultado = new List<CampaniaProgramadaParaEjecutarDTO>();
-                var querySP = "[mkt].[SP_CampaniasProgramadasObtener]";
+                var querySP = "[mkt].[SP_RemarketingCampaniaGeneralObtenerProgramas]";
 
                 var jsonResult = _dapperRepository.QuerySPDapper(querySP, null);
 
@@ -503,6 +503,95 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
                     resultado = JsonConvert.DeserializeObject<List<CampaniaProgramadaParaEjecutarDTO>>(jsonResult);
 
                 return resultado;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public bool InsertarCampaniaCanvas(CampaniaCanvasDTO request, string usuario)
+        {
+            try
+            {
+                var querySP = "[mkt].[SP_RemarketingCampaniaCanvasInsertar]";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@IdRemarketingCampaniaGeneral", request.IdRemarketingCampaniaGeneral);
+                parameters.Add("@ContenidoSuperior", request.ContenidoSuperior);
+                parameters.Add("@ContenidoInferior", request.ContenidoInferior);
+                parameters.Add("@UsuarioCreacion", usuario);
+
+                _dapperRepository.QuerySPFirstOrDefault(querySP, parameters);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public bool ActualizarCampaniaCanvas(CampaniaCanvasDTO request, string usuario)
+        {
+            try
+            {
+                var querySP = "[mkt].[SP_RemarketingCampaniaCanvasActualizar]";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@IdRemarketingCampaniaCanvas", request.Id);
+                parameters.Add("@ContenidoSuperior", request.ContenidoSuperior);
+                parameters.Add("@ContenidoInferior", request.ContenidoInferior);
+                parameters.Add("@UsuarioModificacion", usuario);
+
+                _dapperRepository.QuerySPFirstOrDefault(querySP, parameters);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public CampaniaCanvasDTO ObtenerCampaniaCanvas(int idRemarketingCampaniaGeneral)
+        {
+            try
+            {
+                var querySP = "[mkt].[SP_TRemarketingCampaniaCanvas_ObtenerPorCampaniaGeneral]";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@IdRemarketingCampaniaGeneral", idRemarketingCampaniaGeneral);
+
+                var jsonResult = _dapperRepository.QuerySPDapper(querySP, parameters);
+
+                if (!string.IsNullOrEmpty(jsonResult) && jsonResult != "null" && jsonResult != "[]")
+                {
+                    var lista = JsonConvert.DeserializeObject<List<CampaniaCanvasDTO>>(jsonResult);
+                    return lista?.FirstOrDefault();
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public bool EliminarCampaniaCanvas(int idRemarketingCampaniaGeneral, string usuario)
+        {
+            try
+            {
+                var querySP = "[mkt].[SP_RemarketingCampaniaCanvasEliminar]";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@IdRemarketingCampaniaGeneral", idRemarketingCampaniaGeneral);
+                parameters.Add("@UsuarioModificacion", usuario);
+
+                _dapperRepository.QuerySPFirstOrDefault(querySP, parameters);
+
+                return true;
             }
             catch (Exception ex)
             {

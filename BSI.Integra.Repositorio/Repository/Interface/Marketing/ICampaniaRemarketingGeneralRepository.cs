@@ -29,5 +29,11 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Marketing
         // Métodos para envío programado
         List<CampaniaProgramadaParaEjecutarDTO> ObtenerCampaniasProgramadasParaEjecutar();
 
+        // Canvas
+        bool InsertarCampaniaCanvas(CampaniaCanvasDTO request, string usuario);
+        bool ActualizarCampaniaCanvas(CampaniaCanvasDTO request, string usuario);
+        CampaniaCanvasDTO ObtenerCampaniaCanvas(int idRemarketingCampaniaGeneral);
+        bool EliminarCampaniaCanvas(int idRemarketingCampaniaGeneral, string usuario);
+
     }
 }
