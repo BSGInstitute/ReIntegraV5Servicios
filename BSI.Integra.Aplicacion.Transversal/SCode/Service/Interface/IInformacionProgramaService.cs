@@ -21,5 +21,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         CargarInformacionProgramaEndpointsDTO ObtenerInformacionPrograma(int idCentroCosto, int codigoPais, int idMatriculaCabecera, int idOportunidad);
         CargarInformacionProgramaEndpointsDTO CargarInformacionProgramaSinHTML(int idPGeneral, int codigoPais, int idMatriculaCabecera, int idOportunidad);
         InformacionProgramaSpeechV2DTO CargarInformacionProgramaAutomaticoSpeechV2(int idCentroCosto, int codigoPais, int idMatriculaCabecera, int idOportunidad);
+        InformacionProgramaSpeechV2DTO CargarInformacionProgramaV3(int idPGeneral, int codigoPais);
     }
 }

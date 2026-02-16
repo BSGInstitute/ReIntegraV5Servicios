@@ -82,8 +82,10 @@
         public int? IdTipoReporte { get; set; }
         public string? TipoReporte { get; set; }
         public int? IdSolicitudCategoria { get; set; }
+        public int? IdSolicitud { get; set; }
         public int? IdSubCategoria { get; set; }
         public int? IdEstadoSolicitud { get; set; }
+        public string? DetalleSolucion { get; set; }
 
         // Campos de Solicitante
         public int? IdSolicitante { get; set; }

@@ -4,6 +4,7 @@ using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using Microsoft.AspNetCore.Http;
+using System.Net;
 
 namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
 {
@@ -30,5 +31,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         (List<EstructuraProgramaCapituloDTO> estructuraProgramaCapitulo, List<SesionSubSesionPreguntaInteractivaDTO> estructuraProgramaSesion) ObtenerCombosModulo();
         bool ActualizarDescargaReproduccionVideo(ActualizarDescargaReproduccionDTO dto, string usuario);
         ConfigurarConteodeVideosPorTipo ObtenerConteosdeVideosTipo(int idPGeneral);
+        List<EstructuraCapituloProgramaTutorVirtualDTO> ObtenerConfiguracionTutorVirtualAonline(int idPGeneral);
+        Task<(string resultado, HttpStatusCode statusCode)> ProcesarTutorVirtualAonline(ProcesamientoVideosAonlineEnvioDTO datos, string usuario);
+        bool EnviarCorreoProcesamientoVideosTutorAonline(ProcesamientoVideosAonlineEnvioCorreoDTO datos);
     }
 }
