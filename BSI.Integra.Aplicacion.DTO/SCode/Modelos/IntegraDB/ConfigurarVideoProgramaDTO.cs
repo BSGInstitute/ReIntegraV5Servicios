@@ -149,5 +149,49 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? CantidadDescarga_Brightcove { get; set; }
         public int? CantidadDescarga_Vimeo { get; set; }
     }
-
+    public class PreEstructuraCapituloProgramaTutorVirtualDTO
+    {
+        public int Id { get; set; }
+        public int IdConfigurarVideoPrograma { get; set; }
+        public int IdPGeneral { get; set; }
+        public string Nombre { get; set; }
+        public string Contenido { get; set; }
+        public string NombreTitulo { get; set; }
+        public int IdSeccionTipoDetalle_PW { get; set; }
+        public int NumeroFila { get; set; }
+        public string VideoId { get; set; }
+        public string VideoIdBrightcove { get; set; }
+        public string VideoIdVimeo { get; set; }
+        public int? ReproduccionVideo { get; set; }
+        public int? IdTipoVista { get; set; }
+        public int? NroDiapositiva { get; set; }
+    }
+    public class EstructuraCapituloProgramaTutorVirtualDTO
+    {
+        public int IdPgeneral { get; set; }
+        public int IdDocumentoSeccionPw { get; set; }
+        public string Nombre { get; set; }
+        public string Capitulo { get; set; }
+        public string Sesion { get; set; }
+        public string SubSesion { get; set; }
+        public int OrdenFila { get; set; }
+        public int OrdenCapitulo { get; set; }
+        public int OrdenSeccion { get; set; }
+        public string VideoIdBrightcove { get; set; }
+        public string VideoIdVimeo { get; set; }
+        public int? ReproduccionVideo { get; set; }
+        public int? IdTipoVista { get; set; }
+        public int? NroDiapositiva { get; set; }
+        public string EstadoProcesamiento { get; set; }
+        public DateTime? FechaProcesamiento { get; set; }
+        public bool TieneVideo { get; set; }
+    }
+    public class VideoAonlineProcesamientoDTO
+    {
+        public string VideoId { get; set; }
+        public string EstadoProceso { get; set; }
+        public DateTime? FechaProcesamiento { get; set; }
+        public int NroErrores { get; set; }
+        public int Plataforma { get; set; }
+    }
 }

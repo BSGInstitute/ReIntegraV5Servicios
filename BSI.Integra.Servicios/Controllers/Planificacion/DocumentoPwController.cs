@@ -130,7 +130,54 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             return Ok(resultado);
         }
 
+        [HttpGet("[action]")]
+        public IActionResult ObtenerModalidadPortal()
+        {
+            var resultado = _documentoPwService.ObtenerModalidadPortal();
+            return Ok(resultado);
+        }
+        [HttpGet("[action]")]
+        public IActionResult ObtenerModoFechaInicio()
+        {
+            var resultado = _documentoPwService.ObtenerModoFechaInicio();
+            return Ok(resultado);
+        }
+
+        [HttpGet("[action]")]
+        public IActionResult ObtenerNotasTipo()
+        {
+            var resultado = _documentoPwService.ObtenerNotasTipo();
+            return Ok(resultado);
+        }
 
 
+        [HttpGet("[action]/{idDocumentoPW}")]
+        public IActionResult ObtenerDocumentoPWModalidad(int idDocumentoPW)
+        {
+            var resultado = _documentoPwService.ObtenerDocumentoPWModalidad(idDocumentoPW);
+            return Ok(resultado);
+        }
+
+        [HttpGet("[action]/{idDocumentoPW}")]
+        public IActionResult ObtenerDocumentoPWDuracion(int idDocumentoPW)
+        {
+            var resultado = _documentoPwService.ObtenerDocumentoPWDuracion(idDocumentoPW);
+            return Ok(resultado);
+        }
+
+
+        [HttpGet("[action]/{idDocumentoPW}")]
+        public IActionResult ObtenerDocumentoPWFechaInicio(int idDocumentoPW)
+        {
+            var resultado = _documentoPwService.ObtenerDocumentoPWFechaInicio(idDocumentoPW);
+            return Ok(resultado);
+        }
+
+        [HttpGet("[action]/{idDocumentoPW}")]
+        public IActionResult ObtenerDocumentoPWNotas(int idDocumentoPW)
+        {
+            var resultado = _documentoPwService.ObtenerDocumentoPWNotas(idDocumentoPW);
+            return Ok(resultado);
+        }
     }
 }
