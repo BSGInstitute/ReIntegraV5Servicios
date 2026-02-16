@@ -5324,6 +5324,26 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [Route("[Action]/{idMatriculaCabecera}")]
+        [HttpGet]
+        public ActionResult ObtenerDatosAvanceAonlineATC(int idMatriculaCabecera)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var datosAvanceAonline = new AlumnoService(_unitOfWork);
+                var datosCobranza = datosAvanceAonline.obtenerDatosAvanceAonlineATC(idMatriculaCabecera);
+                return Ok(datosCobranza);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         /// TipoFuncion: GET
         /// Autor: Joseph LLanque.
         /// Fecha: 05/04/2023

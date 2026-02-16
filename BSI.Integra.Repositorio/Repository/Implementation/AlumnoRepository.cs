@@ -2464,6 +2464,28 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
         }
+
+
+
+        public AvanceAonlineAlumnoATCDTO obtenerDatosAvanceAonlineATC(int idMatriculaCabecera)
+        {
+            try
+            {
+                AvanceAonlineAlumnoATCDTO respuesta = new AvanceAonlineAlumnoATCDTO();
+                string _query = $@"[ope].[SP_AvanceAonlineAlumnoReporte]";
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(_query, new { IdMatriculaCabecera = idMatriculaCabecera });
+
+                if (!string.IsNullOrEmpty(resultado))
+                {
+                    respuesta = JsonConvert.DeserializeObject<AvanceAonlineAlumnoATCDTO>(resultado);
+                }
+                return respuesta;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
         /// Autor: Joseph Llanque
         /// Fecha: 12/07/2023
         /// Version: 1.0

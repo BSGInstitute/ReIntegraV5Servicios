@@ -246,6 +246,34 @@
         public decimal? RealUltimas2SemanasHoras { get; set; }
         public decimal? RealUltimas4SemanasHoras { get; set; }
     }
+
+    public class AvanceAonlineAlumnoATCDTO
+    {
+        public string? FechaMatricula { get; set; }
+        public string? FechaPrimerAcceso { get; set; }
+        public string? FechaUltimoAcceso { get; set; }
+        public string? FechaFinalizacion { get; set; }
+        public int IdPGeneral { get; set; }
+        public string? PGeneral { get; set; }
+        public string? IdPespecifico { get; set; }
+        public string? PEspecifico { get; set; }
+        public string? IdCentroCosto { get; set; }
+        public string? CentroCosto { get; set; }
+        public int? Porcentaje { get; set; }
+        public int? PorcentajeProgramado { get; set; }
+        public int? EsperadoSemanalHoras { get; set; }
+        public decimal? RealUltimaSemanaHoras { get; set; }
+        public decimal? RealUltimas2SemanasHoras { get; set; }
+        public decimal? RealUltimas4SemanasHoras { get; set; }
+        public int? TotalClases { get; set; }
+        public int? SesionesDictadas { get; set; }
+        public int? SesionesAsistidasActuales {  get; set; }
+
+        public string? FechaUltimaSesionDictada { get; set; }
+        public string? UltimaAsistencia { get; set; }
+        public string? FechaProximaSesion { get; set; }
+
+    }
     public class AvanceOnlineAlumnoDTO
     {
         public string? FechaMatricula { get; set; }
