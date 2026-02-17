@@ -289,6 +289,12 @@
 
     }
 
+    public class AvanceAonlineAlumnoEnHorasDTO { 
+        public int HorasTotalesPrograma { get; set; }
+        public decimal HorasVisualizadas { get; set; }
+        public decimal HorasRestantes { get; set; }
+        public decimal PorcentajeAvance { get; set; }
+    }
     public class AlumnoPorCelularDTO
     {
         public int Id { get; set; }

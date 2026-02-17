@@ -1304,6 +1304,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             List<RegistroListaSeccionesDocumentoDTO> presentacion = seccionV1.Where(s => string.Equals(s.Titulo?.Trim(), "Presentación", StringComparison.OrdinalIgnoreCase)).ToList();
             List<ProgramaGeneralSeccionDocumentoDTO> listaadicionales = sericioDocumentoAgendaService.ObtenerListaSeccionDocumentoProgramaGeneralSpeech(idPGeneral);
             List<ProgramaExpositoresDTO> expositores = _unitOfWork.DocumentoSeccionPwRepository.ObtenerExpositoresPorIdGeneral(idPGeneral);
+            List<CertificacionPrograma> certificacion = _unitOfWork.DocumentoSeccionPwRepository.ObtenerCertificadoPorIdPGeneral(idPGeneral);
             //ETL 
             var duracionHorarioETL = horario.Select(x => new RegistroListaSeccionesDocumentoV2DTO
             {
@@ -1336,7 +1337,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 Expositores = expositores,
                 Presentacion= presentacion,
                 Prerrequisitos = prerrequisitos,
-                DatosAdicionales = listaadicionales
+                DatosAdicionales = listaadicionales,
+                Certificaciones = certificacion
                 
             };
 
@@ -1392,6 +1394,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             List<ProgramaGeneralSeccionDocumentoDTO> listaadicionales = sericioDocumentoAgendaService.ObtenerListaSeccionDocumentoProgramaGeneralSpeech(idPGeneral);
             // Expositores del programa
             List<ProgramaExpositoresDTO> expositores = _unitOfWork.DocumentoSeccionPwRepository.ObtenerExpositoresPorIdGeneral(idPGeneral);
+            List<CertificacionPrograma> certificacion = _unitOfWork.DocumentoSeccionPwRepository.ObtenerCertificadoPorIdPGeneral(idPGeneral);
             //ETL Final Campos
 
             var duracionHorarioETL = horario.Select(x => new RegistroListaSeccionesDocumentoV2DTO
@@ -1425,7 +1428,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 Expositores = expositores,
                 Presentacion = presentacion,
                 Prerrequisitos = prerrequisitos,
-                DatosAdicionales = listaadicionales
+                DatosAdicionales = listaadicionales,
+                Certificaciones = certificacion
             };
 
             return resultado;

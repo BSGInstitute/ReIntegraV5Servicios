@@ -2465,6 +2465,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             }
         }
 
+        public AvanceAonlineAlumnoEnHorasDTO ObtenerAvanceAonlineHoras(int idMatriculaCabecera) {
+            try
+            {
+                return _unitOfWork.AlumnoRepository.ObtenerAvanceAonlineHoras(idMatriculaCabecera); 
+            }
+            catch (Exception e) { throw e; }
+        }
+
         /// Autor: Gilmer Quispe
         /// Fecha: 10/01/2023
         /// Version: 1.0

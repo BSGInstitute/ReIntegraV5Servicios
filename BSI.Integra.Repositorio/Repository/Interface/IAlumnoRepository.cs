@@ -90,6 +90,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         AvanceAonlineAlumnoATCDTO obtenerDatosAvanceAonlineATC(int idMatriculaCabecera);
         AvanceOnlineAlumnoDTO obtenerDatosAvanceOnline(int idMatriculaCabecera);
 
+        AvanceAonlineAlumnoEnHorasDTO ObtenerAvanceAonlineHoras(int idMatriculaCabecera);
+
         List<AlumnoReferidosDTO> ObtenerReferidos(int idReferido);
         List<AlumnoFiltroAutocompleteDTO> ObtenerTodoFiltrosAutoComplete(string valor);
         string guardarArchivosQR(byte[] archivo, string tipo, string nombreArchivo);

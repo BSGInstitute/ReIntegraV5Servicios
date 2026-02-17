@@ -2513,6 +2513,22 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
         }
+
+        public AvanceAonlineAlumnoEnHorasDTO ObtenerAvanceAonlineHoras(int idMatriculaCabecera) {
+            try {
+                AvanceAonlineAlumnoEnHorasDTO AlumnoResponse = new AvanceAonlineAlumnoEnHorasDTO();
+                string _query = "[ope].[SP_AvanceAlumnoPorHoras]";
+                var response = _dapperRepository.QuerySPFirstOrDefault(_query, new { IdMatriculaCabecera = idMatriculaCabecera });
+                if (!string.IsNullOrEmpty(response)) {
+                    AlumnoResponse = JsonConvert.DeserializeObject<AvanceAonlineAlumnoEnHorasDTO>(response);
+                }
+                return AlumnoResponse;
+            } catch (Exception e) { throw e; }
+
+        }
+
+
+
         /// <summary>
         /// Obtiene los alumnos de contactos a validarWhatsapp
         /// </summary>

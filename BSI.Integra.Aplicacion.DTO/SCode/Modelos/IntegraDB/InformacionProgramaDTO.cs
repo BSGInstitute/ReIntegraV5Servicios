@@ -318,6 +318,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public List<RegistroListaSeccionesDocumentoDTO> Presentacion { get; set; }
         public List<ProgramaExpositoresDTO> Expositores { get; set; }
         public List<RegistroListaSeccionesDocumentoDTO> Prerrequisitos { get; set; }
+        public List<CertificacionPrograma>? Certificaciones { get; set; }
     }
 
 
