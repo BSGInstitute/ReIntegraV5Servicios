@@ -2,6 +2,7 @@
 using BSI.Integra.Repositorio.Repository.Interface.Marketing;
 using Dapper;
 using Newtonsoft.Json;
+using System.Data;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
 {
@@ -35,15 +36,22 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
             }
         }
 
-        public List<object> ObtenerRendimientoListadoCampanias(List<int> ids)
+        public List<RendimientoDiarioCampaniaDTO> ObtenerRendimientoCampanias(List<int> ids)
         {
             try
             {
-                var mock = new List<object>
-                {
-                    new { CampaniaId = 1, Rendimiento = 0.85 }
-                };
-                return mock.Cast<object>().ToList();
+                List<RendimientoDiarioCampaniaDTO> resultado = new List<RendimientoDiarioCampaniaDTO>();
+                var querySP = "[mkt].[SP_RemarketingCampaniaGeneralRendimientoObtener]";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@IdRemarketingCampaniaGeneral_Lista", string.Join(",", ids));
+
+                var jsonResult = _dapperRepository.QuerySPDapper(querySP, parameters);
+
+                if (!string.IsNullOrEmpty(jsonResult) && jsonResult != "null")
+                    resultado = JsonConvert.DeserializeObject<List<RendimientoDiarioCampaniaDTO>>(jsonResult);
+
+                return resultado;
             }
             catch (Exception ex)
             {
@@ -56,7 +64,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
             try
             {
                 List<ElementoConfiguracionCampania> resultado = new List<ElementoConfiguracionCampania>();
-                var query = "SELECT Id, Nombre FROM [mkt].[T_RemarketingMedioEnvio] WHERE Estado = 1";
+                var query = "SELECT Id, Nombre FROM [pla].[T_MedioComunicacion] WHERE Estado = 1";
 
                 var jsonResult = _dapperRepository.QueryDapper(query, null);
 
@@ -112,12 +120,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
             }
         }
 
-        public List<ElementoConfiguracionCampania> ObtenerArgumentos()
+        public List<ElementoConfiguracionCampania> ObtenerCategoriaArgumento()
         {
             try
             {
                 List<ElementoConfiguracionCampania> resultado = new List<ElementoConfiguracionCampania>();
-                var query = "SELECT Id, Nombre FROM [mkt].[T_RemarketingArgumento] WHERE Estado = 1";
+                var query = "SELECT Id, Nombre FROM [mkt].[T_CategoriaArgumentoConfigurado] WHERE Estado = 1";
 
                 var jsonResult = _dapperRepository.QueryDapper(query, null);
 
@@ -125,6 +133,35 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
                     resultado = JsonConvert.DeserializeObject<List<ElementoConfiguracionCampania>>(jsonResult);
 
                 return resultado;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public List<int> ObtenerPrioridadesUnicas()
+        {
+            try
+            {
+                List<int> resultado = new List<int>();
+                var querySP = "[mkt].[SP_PrioridadesArgumentoRemarketingObtener]";
+
+                var jsonResult = _dapperRepository.QuerySPDapper(querySP, null);
+
+                if (!string.IsNullOrEmpty(jsonResult) && jsonResult != "null")
+                {
+                    // Deserializamos como una lista de objetos dinámicos
+                    var objetos = JsonConvert.DeserializeObject<List<dynamic>>(jsonResult);
+
+                    // Extraemos solo el valor de "prioridad" y ordenamos
+                    return objetos
+                        .Select(x => (int)x.Prioridad)
+                        .OrderBy(p => p)
+                        .ToList();
+                }
+
+                return new List<int>();
             }
             catch (Exception ex)
             {
@@ -152,53 +189,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
             }
         }
 
-        public List<ResultadoTextoGeneradoDTO> ObtenerResultadosGeneracionTextoPorCampania(int id)
-        {
-            try
-            {
-                //Logica para obtener la ultima generacion de mensaje para un id segmento
-                //Mock data temporal
-                var resultado = new List<ResultadoTextoGeneradoDTO>
-                {
-                    new ResultadoTextoGeneradoDTO {
-                        Id = 1,
-                        IdAlumno = 12873,
-                        NombreAlumno = "Alumno 1",
-                        Pais = "Peru",
-                        ContenidoGenerado = "Buenos dias Alumno 1, te invitamos a revisar nuestro programa"
-                    },
-                    new ResultadoTextoGeneradoDTO {
-                        Id = 2,
-                        IdAlumno = 298364,
-                        NombreAlumno = "Alumno 2",
-                        Pais = "Peru",
-                        ContenidoGenerado = "Buenos dias Alumno 2, te invitamos a revisar nuestro programa"
-                    },
-                    new ResultadoTextoGeneradoDTO {
-                        Id = 3,
-                        IdAlumno = 9182374,
-                        NombreAlumno = "Alumno 3",
-                        Pais = "Peru",
-                        ContenidoGenerado = "Buenos dias Alumno 3, te invitamos a revisar nuestro programa"
-                    },
-                    new ResultadoTextoGeneradoDTO {
-                        Id = 4,
-                        IdAlumno = 928344,
-                        NombreAlumno = "Alumno 4",
-                        Pais = "Peru",
-                        ContenidoGenerado = "Buenos dias Alumno 4, te invitamos a revisar nuestro programa"
-                    }
-                };
-
-                return resultado;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public bool InsertarCampaniaRemarketing(EnvioCampaniaRemarketingDTO request)
+        public bool InsertarCampaniaRemarketing(ConfiguracionCampaniaRemarketingDTO request)
         {
             try
             {
@@ -206,18 +197,21 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
 
                 var parameters = new DynamicParameters();
 
-                parameters.Add("@NombreCampania", request.Segmento.Nombre);
+                parameters.Add("@Nombre", request.Segmento.Nombre);
                 parameters.Add("@IdFiltroSegmento", request.Segmento.Id);
-                parameters.Add("@IdRemarketingTipoMensaje", request.TipoMensaje);
-                parameters.Add("@IdRemarketingLogicaEnvio", request.LogicaEnvio);
+                parameters.Add("@IdRemarketingTipoMensaje", request.TipoMensaje.Id);
+                parameters.Add("@IdRemarketingLogicaEnvio", request.LogicaEnvio.Id);
                 parameters.Add("@RemitenteCorreo", request.RemitenteCorreo);
                 parameters.Add("@RemitenteNombre", request.RemitenteNombre);
                 parameters.Add("@Asunto", request.Asunto);
                 parameters.Add("@EnvioConfigurado", request.EnvioSeleccionado);
                 parameters.Add("@FechaEnvioProgramada", request.FechaEnvio);
                 parameters.Add("@UsuarioCreacion", request.UsuarioCreacion);
-                parameters.Add("@MediosEnvio", string.Join(",", request.MediosEnvio));
-                parameters.Add("@Argumentos", string.Join(",", request.Argumentos));
+                parameters.Add("@IdMedioComunicacion_Lista", string.Join(",", request.MediosEnvio.Select(x => x.Id)));
+                parameters.Add("@IdentificadorLlamadaIA", request.IdentificadorLlamadaIA);
+                parameters.Add("@IdCategoriaArgumentoConfigurado", request.CategoriaArgumento.Id);
+                parameters.Add("@Prioridad_Lista", string.Join(",", request.Prioridades));
+                parameters.Add("@IdEstadoEnvio", 1);
 
                 var result = _dapperRepository.QuerySPFirstOrDefault(querySP, parameters);
 
@@ -229,7 +223,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
             }
         }
 
-        public bool ActualizarCampaniaRemarketing(EnvioCampaniaRemarketingDTO request)
+        public bool ActualizarCampaniaRemarketing(ConfiguracionCampaniaRemarketingDTO request)
         {
             try
             {
@@ -238,76 +232,24 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
                 var parameters = new DynamicParameters();
 
                 parameters.Add("@IdRemarketingCampaniaGeneral", request.Id);
-                parameters.Add("@NombreCampania", request.Segmento.Nombre);
+                parameters.Add("@Nombre", request.Segmento.Nombre);
                 parameters.Add("@IdFiltroSegmento", request.Segmento.Id);
-                parameters.Add("@IdRemarketingTipoMensaje", request.TipoMensaje);
-                parameters.Add("@IdRemarketingLogicaEnvio", request.LogicaEnvio);
+                parameters.Add("@IdRemarketingTipoMensaje", request.TipoMensaje.Id);
+                parameters.Add("@IdRemarketingLogicaEnvio", request.LogicaEnvio.Id);
                 parameters.Add("@RemitenteCorreo", request.RemitenteCorreo);
                 parameters.Add("@RemitenteNombre", request.RemitenteNombre);
                 parameters.Add("@Asunto", request.Asunto);
                 parameters.Add("@EnvioConfigurado", request.EnvioSeleccionado);
                 parameters.Add("@FechaEnvioProgramada", request.FechaEnvio);
                 parameters.Add("@UsuarioModificacion", request.UsuarioCreacion);
-                parameters.Add("@MediosEnvio", string.Join(",", request.MediosEnvio));
-                parameters.Add("@Argumentos", string.Join(",", request.Argumentos));
+                parameters.Add("@IdMedioComunicacion_Lista", string.Join(",", request.MediosEnvio.Select(x => x.Id)));
+                //parameters.Add("@IdentificadorLlamadaIA", request.IdentificadorLlamadaIA);
+                parameters.Add("@IdCategoriaArgumentoConfigurado", request.CategoriaArgumento.Id);
+                parameters.Add("@Prioridad_Lista", string.Join(",", request.Prioridades));
 
                 var result = _dapperRepository.QuerySPFirstOrDefault(querySP, parameters);
 
                 return true;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public DetallesCampaniaDTO VerDetallesCampania(int id)
-        {
-            try
-            {
-                var mock = new DetallesCampaniaDTO
-                {
-                    Programados = 15,
-                    Aperturas = 10,
-                    Clicks = 5,
-                    Rebotados = 2,
-                    AlumnosContactados = new List<AlumnoContactadoDTO>
-                        {
-                            new AlumnoContactadoDTO
-                            {
-                                IdAlumno = 1,
-                                EstadoEnvio = "Entregado",
-                                NombreAlumno = "Juan Perez",
-                                Apertura = true,
-                                Click = false
-                            },
-                            new AlumnoContactadoDTO
-                            {
-                                IdAlumno = 2,
-                                EstadoEnvio = "Entregado",
-                                NombreAlumno = "Maria Gomez",
-                                Apertura = true,
-                                Click = true
-                            },
-                            new AlumnoContactadoDTO
-                            {
-                                IdAlumno = 3,
-                                EstadoEnvio = "En Proceso",
-                                NombreAlumno = "Daniel Gomez",
-                                Apertura = true,
-                                Click = false
-                            },
-                            new AlumnoContactadoDTO
-                            {
-                                IdAlumno = 4,
-                                EstadoEnvio = "Entregado",
-                                NombreAlumno = "Juan Gomez",
-                                Apertura = false,
-                                Click = true
-                            }
-                        }
-                };
-                return mock;
             }
             catch (Exception ex)
             {
@@ -324,7 +266,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
                 //Obtener Campania
                 var queryCampania = @"SELECT CG.Id, CG.Nombre, CG.IdFiltroSegmento, CG.IdRemarketingTipoMensaje AS TipoMensaje,
                                             CG.IdRemarketingLogicaEnvio AS LogicaEnvio, CG.RemitenteCorreo, CG.RemitenteNombre,
-                                            CG.Asunto, CG.EnvioConfigurado, CG.FechaEnvioProgramada
+                                            CG.Asunto, CG.EnvioConfigurado, CG.FechaEnvioProgramada, CG.IdentificadorLlamadaIA,
+                                            CG.IdCategoriaArgumentoConfigurado AS CategoriaArgumento
                                         FROM mkt.T_RemarketingCampaniaGeneral CG
                                         WHERE CG.Id = @Id AND CG.Estado = 1;";
                 var jsonResultCampania = _dapperRepository.FirstOrDefault(queryCampania, new { Id = id });
@@ -336,7 +279,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
                     return null;
 
                 // Obtener Medios de envío
-                var queryMedios = @"SELECT CAST(IdRemarketingMedioEnvio AS INT) AS Value
+                var queryMedios = @"SELECT CAST(IdMedioComunicacion AS INT) AS Value
                                     FROM mkt.T_RemarketingMedioEnvioCampania
                                     WHERE IdRemarketingCampaniaGeneral = @Id
                                       AND Estado = 1;";
@@ -348,18 +291,107 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
                     resultado.MediosEnvio = listaMedios.Select(x => x.Value).ToList();
                 }
 
-                // Obtener Argumentos
-                var queryArgumentos = @"SELECT CAST(IdRemarketingArgumento AS INT) AS Value
-                                        FROM mkt.T_RemarketingArgumentoCampania
+                // Obtener Prioridades
+                var queryPrioridades = @"SELECT CAST(Prioridad AS INT) AS Value
+                                        FROM mkt.T_RemarketingCampaniaPrioridad
                                         WHERE IdRemarketingCampaniaGeneral = @Id
                                           AND Estado = 1;";
-                var jsonResultArgumentos = _dapperRepository.QueryDapper(queryArgumentos, new { Id = id });
+                var jsonResultPrioridades = _dapperRepository.QueryDapper(queryPrioridades, new { Id = id });
 
-                if (!string.IsNullOrEmpty(jsonResultArgumentos) && jsonResultArgumentos != "null")
+                if (!string.IsNullOrEmpty(jsonResultPrioridades) && jsonResultPrioridades != "null")
                 {
-                    var listaArgumentos = JsonConvert.DeserializeObject<List<IntValueDTO>>(jsonResultArgumentos);
-                    resultado.Argumentos = listaArgumentos.Select(x => x.Value).ToList();
+                    var listaPrioridades = JsonConvert.DeserializeObject<List<IntValueDTO>>(jsonResultPrioridades);
+                    resultado.Prioridades = listaPrioridades.Select(x => x.Value).ToList();
                 }
+
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public DetallesCampaniaDTO ObtenerDetallesGeneralesEnvio(int idCampaniaRemarketing)
+        {
+            try
+            {
+                var querySP = "[mkt].[SP_CampaniaEnvioDetalleObtener]";
+                var jsonResult = _dapperRepository.QuerySPDapper(querySP, new { IdRemarketingCampaniaGeneral = idCampaniaRemarketing });
+
+                if (string.IsNullOrEmpty(jsonResult) || jsonResult == "[]")
+                {
+                    return new DetallesCampaniaDTO
+                    {
+                        TotalMensajes = 0,
+                        Enviados = 0,
+                        Abiertos = 0,
+                        Rebotados = 0,
+                        EstadoAlumnos = new List<EstadoAlumnosDTO>()
+                    };
+                }
+
+                // Deserializamos a la clase completa que incluye ambos tipos de datos
+                var lista = JsonConvert.DeserializeObject<List<ResultadoCompletoDTO>>(jsonResult);
+
+                if (lista == null || lista.Count == 0)
+                {
+                    return new DetallesCampaniaDTO
+                    {
+                        TotalMensajes = 0,
+                        Enviados = 0,
+                        Abiertos = 0,
+                        Rebotados = 0,
+                        EstadoAlumnos = new List<EstadoAlumnosDTO>()
+                    };
+                }
+
+                // Tomamos los totales de la primera fila (son iguales en todas)
+                var primeraFila = lista[0];
+
+                // Mapeamos el detalle de alumnos desde todas las filas
+                var estadoAlumnos = lista
+                    .Select(x => new EstadoAlumnosDTO
+                    {
+                        IdAlumno = x.IdAlumno,
+                        EstadoEnvio = x.EstadoEnvio,
+                        Abierto = x.Abierto,
+                        Rebotado = x.Rebotado,
+                        RazonRechazo = x.RazonRechazo,
+                        FechaEnvio = x.FechaEnvio
+                    })
+                    .OrderByDescending(x => x.FechaEnvio)
+                    .ToList();
+
+                // Construimos el resultado final
+                var resultado = new DetallesCampaniaDTO
+                {
+                    TotalMensajes = primeraFila.TotalMensajes,
+                    Enviados = primeraFila.Enviados,
+                    Abiertos = primeraFila.Abiertos,
+                    Rebotados = primeraFila.Rebotados,
+                    EstadoAlumnos = estadoAlumnos
+                };
+
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al obtener detalles de campaña: {ex.Message}", ex);
+            }
+        }
+
+        public ElementoEstadoEnvio ObtenerEstadoEnvioCampaniaRemarketing(int idCampaniaRemarketing)
+        {
+            try
+            {
+                ElementoEstadoEnvio resultado = new ElementoEstadoEnvio();
+                var query = "SELECT TOP 1 IdEstadoEnvio FROM [mkt].[T_RemarketingCampaniaGeneral] WHERE Estado = 1 AND Id = @Id";
+
+                var jsonResult = _dapperRepository.FirstOrDefault(query, new { Id = idCampaniaRemarketing });
+
+                if (!string.IsNullOrEmpty(jsonResult) && jsonResult != "null")
+                    resultado = JsonConvert.DeserializeObject<ElementoEstadoEnvio>(jsonResult);
 
                 return resultado;
             }
@@ -373,12 +405,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
         {
             try
             {
-                List<ElementoConfiguracionCampania> resultado = new List<ElementoConfiguracionCampania>();
-                var query = "UPDATE [mkt].[T_RemarketingCampaniaGeneral] " +
-                                "SET Estado = 0, UsuarioModificacion = @Usuario, FechaModificacion = GETDATE()" +
-                                "WHERE Id = @Id";
+                var querySP = "[mkt].[SP_CampaniaRemarketingCampaniaEliminar]";
 
-                var jsonResult = _dapperRepository.QueryDapper(query, new { Id = id, Usuario = usuario });
+                var jsonResult = _dapperRepository.QuerySPDapper(querySP, new { IdRemarketingCampaniaGeneral = id, UsuarioModificacion = usuario });
 
                 return true;
             }
@@ -388,22 +417,220 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
             }
         }
 
-        public MensajeGeneradoDTO ObtenerMensajeGeneradoPorId(int id)
+        public List<AlumnoCorreoDTO> ObtenerAlumnosCorreosPorFiltroSegmento(int idFiltroSegmento)
         {
             try
             {
-                var mensaje = new MensajeGeneradoDTO
-                {
-                    Id = 1,
-                    Contenido = "Hola estimado alumno, te saluda una asesora de BSG Institute, queremos comentarte sobre el curso de BI",
-                };
+                List<AlumnoCorreoDTO> resultado = new List<AlumnoCorreoDTO>();
+                var querySP = "[mkt].[SP_AlumnosObtenerPorFiltroSegmento]";
 
-                return mensaje;
+                var jsonResult = _dapperRepository.QuerySPDapper(querySP, new { IdFiltroSegmento = idFiltroSegmento });
+
+                if (!string.IsNullOrEmpty(jsonResult) && jsonResult != "null")
+                    resultado = JsonConvert.DeserializeObject<List<AlumnoCorreoDTO>>(jsonResult);
+
+                return resultado;
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
+        }
+
+        public bool ActualizarEstadoEnvioCampania(int idCampaniaRemarketing, int estadoEnvio, string usuario)
+        {
+            try
+            {
+                List<ElementoConfiguracionCampania> resultado = new List<ElementoConfiguracionCampania>();
+                var query = "UPDATE [mkt].[T_RemarketingCampaniaGeneral] " +
+                                "SET IdEstadoEnvio = @IdEstadoEnvio, UsuarioModificacion = @Usuario, FechaModificacion = GETDATE()" +
+                                "WHERE Id = @Id";
+
+                var jsonResult = _dapperRepository.QueryDapper(query, new { Id = idCampaniaRemarketing, IdEstadoEnvio = estadoEnvio, Usuario = usuario });
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 11/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Inserta por bloque los múltiples registros de estado de envío de campaña
+        /// </summary>
+        public bool InsertarEstadosEnvioCampaniaMasivo(List<RemarketingEstadoCampaniaDTO> estados)
+        {
+            try
+            {
+                if (estados == null || !estados.Any())
+                    return true;
+
+                var table = ConvertirListaADataTable(estados);
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@ListadoEstados", table.AsTableValuedParameter("mkt.RemarketingEstadoEnvioCampaniaType"));
+
+                _dapperRepository.QuerySPDapper("[mkt].[SP_CampaniaRemarketingInsertarEnvioDetalle]", parameters);
+
+                return true;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 11/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene las campanias programadas para ser ejecutadas
+        /// </summary>
+        public List<CampaniaProgramadaParaEjecutarDTO> ObtenerCampaniasProgramadasParaEjecutar()
+        {
+            try
+            {
+                List<CampaniaProgramadaParaEjecutarDTO> resultado = new List<CampaniaProgramadaParaEjecutarDTO>();
+                var querySP = "[mkt].[SP_RemarketingCampaniaGeneralObtenerProgramas]";
+
+                var jsonResult = _dapperRepository.QuerySPDapper(querySP, null);
+
+                if (!string.IsNullOrEmpty(jsonResult) && jsonResult != "null")
+                    resultado = JsonConvert.DeserializeObject<List<CampaniaProgramadaParaEjecutarDTO>>(jsonResult);
+
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public bool InsertarCampaniaCanvas(CampaniaCanvasDTO request, string usuario)
+        {
+            try
+            {
+                var querySP = "[mkt].[SP_RemarketingCampaniaCanvasInsertar]";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@IdRemarketingCampaniaGeneral", request.IdRemarketingCampaniaGeneral);
+                parameters.Add("@ContenidoSuperior", request.ContenidoSuperior);
+                parameters.Add("@ContenidoInferior", request.ContenidoInferior);
+                parameters.Add("@UsuarioCreacion", usuario);
+
+                _dapperRepository.QuerySPFirstOrDefault(querySP, parameters);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public bool ActualizarCampaniaCanvas(CampaniaCanvasDTO request, string usuario)
+        {
+            try
+            {
+                var querySP = "[mkt].[SP_RemarketingCampaniaCanvasActualizar]";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@IdRemarketingCampaniaCanvas", request.Id);
+                parameters.Add("@ContenidoSuperior", request.ContenidoSuperior);
+                parameters.Add("@ContenidoInferior", request.ContenidoInferior);
+                parameters.Add("@UsuarioModificacion", usuario);
+
+                _dapperRepository.QuerySPFirstOrDefault(querySP, parameters);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public CampaniaCanvasDTO ObtenerCampaniaCanvas(int idRemarketingCampaniaGeneral)
+        {
+            try
+            {
+                var querySP = "[mkt].[SP_TRemarketingCampaniaCanvas_ObtenerPorCampaniaGeneral]";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@IdRemarketingCampaniaGeneral", idRemarketingCampaniaGeneral);
+
+                var jsonResult = _dapperRepository.QuerySPDapper(querySP, parameters);
+
+                if (!string.IsNullOrEmpty(jsonResult) && jsonResult != "null" && jsonResult != "[]")
+                {
+                    var lista = JsonConvert.DeserializeObject<List<CampaniaCanvasDTO>>(jsonResult);
+                    return lista?.FirstOrDefault();
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public bool EliminarCampaniaCanvas(int idRemarketingCampaniaGeneral, string usuario)
+        {
+            try
+            {
+                var querySP = "[mkt].[SP_RemarketingCampaniaCanvasEliminar]";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@IdRemarketingCampaniaGeneral", idRemarketingCampaniaGeneral);
+                parameters.Add("@UsuarioModificacion", usuario);
+
+                _dapperRepository.QuerySPFirstOrDefault(querySP, parameters);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        private DataTable ConvertirListaADataTable(List<RemarketingEstadoCampaniaDTO> estados)
+        {
+            var table = new DataTable();
+
+            table.Columns.Add("IdRemarketingCampaniaGeneral", typeof(int));
+            table.Columns.Add("IdAlumno", typeof(int));
+            table.Columns.Add("IdentificadorMensaje", typeof(string));
+            table.Columns.Add("Enviado", typeof(bool));
+            table.Columns.Add("Entregado", typeof(bool));
+            table.Columns.Add("Abierto", typeof(bool));
+            table.Columns.Add("Rebotado", typeof(bool));
+            table.Columns.Add("RazonRechazo", typeof(string));
+            table.Columns.Add("EstadoMandrill", typeof(string));
+            table.Columns.Add("UsuarioCreacion", typeof(string));
+
+            foreach (var item in estados)
+            {
+                table.Rows.Add(
+                    item.IdCampaniaRemarketing,
+                    item.IdAlumno,
+                    item.IdentificadorMensaje ?? (object)DBNull.Value,
+                    item.Enviado,
+                    item.Entregado,
+                    item.Abierto,
+                    item.Rebotado,
+                    item.RazonRechazo ?? (object)DBNull.Value,
+                    item.EstadoMandrill ?? (object)DBNull.Value,
+                    item.UsuarioCreacion
+                );
+            }
+
+            return table;
         }
 
     }
