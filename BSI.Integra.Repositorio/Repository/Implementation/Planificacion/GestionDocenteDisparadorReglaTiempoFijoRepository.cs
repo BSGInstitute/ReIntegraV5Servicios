@@ -10,9 +10,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
     public class GestionDocenteDisparadorReglaTiempoFijoRepository : GenericRepository<TGestionDocenteDisparadorReglaTiempoFijo>, IGestionDocenteDisparadorReglaTiempoFijoRepository
     {
         private Mapper _mapper;
+        private readonly IntegraDBContext _dbContext;
 
         public GestionDocenteDisparadorReglaTiempoFijoRepository(IntegraDBContext context, IConnectionFactory connectionFactory, IDapperRepository dapperRepository) : base(context, connectionFactory, dapperRepository)
         {
+            _dbContext = context;
             var config = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<GestionDocenteDisparadorReglaTiempoFijo, TGestionDocenteDisparadorReglaTiempoFijo>().ReverseMap();
@@ -48,6 +50,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             {
                 throw ex;
             }
+        }
+
+        public int ObtenerIdReglaTiempoPorTipo(string tipoRegla)
+        {
+            var regla = _dbContext.TGestionDocenteDisparadorReglaTiempos.First(x => x.TipoRegla == tipoRegla);
+            return regla.Id;
         }
     }
 }
