@@ -48,4 +48,38 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string Comentario { get; set; }
         public int IdEstadoGestionContacto { get; set; }
     }
+
+    public class PEspecificoSesionProveedorDTO
+    {
+        public int IdProveedor { get; set; }
+        public string NombreProveedor { get; set; }
+    }
+
+    public class CrearOportunidadDocenteDTO
+    {
+        public int? IdCentroCosto { get; set; }
+        public int IdProveedor { get; set; }
+        public string UsuarioCreacion { get; set; }
+    }
+
+    public class ProveedorClasificacionDTO
+    {
+        public int IdClasificacionPersona { get; set; }
+        public int IdProveedor { get; set; }
+        public string RazonSocial { get; set; }
+    }
+
+    public class EstadoGestionContactoDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+    }
+
+    public class InsertarGestionContactoDocenteFlujoDTO
+    {
+        public int IdGestionContacto { get; set; }
+        public int IdGestionDocenteFlujo { get; set; }
+        public string UsuarioCreacion { get; set; }
+    }
 }

@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Infrastructure;
@@ -16,10 +18,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
     public class GestionContactoRepository : GenericRepository<TGestionContacto>, IGestionContactoRepository
     {
         private Mapper _mapper;
+        private readonly IntegraDBContext _dbContext;
 
         public GestionContactoRepository(IntegraDBContext context, IConnectionFactory connectionFactory, IDapperRepository dapperRepository)
             : base(context, connectionFactory, dapperRepository)
         {
+            _dbContext = context;
             var config = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<GestionContacto, TGestionContacto>().ReverseMap();
@@ -249,6 +253,181 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             catch (Exception ex)
             {
                 throw new Exception("Error al obtener GestionContacto por ID", ex);
+            }
+        }
+        /// Autor: Lolo Zaa
+        /// Fecha: 12/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene id y nombre de centros de costo basado en un Nombre Parcial.
+        /// </summary>
+        /// <param name="valor">Nombre parcial de centro de costo</param>
+        /// <returns> lista de combo de centro de costo </returns>
+        public IEnumerable<ComboDTO> ObtenerFiltroAutocomplete(string valor)
+        {
+          try
+          {
+            string query = @"SELECT Id, Nombre FROM pla.V_TCentroCosto_ParaFiltro WHERE Estado = 1 AND Nombre LIKE @Valor Order BY Nombre ASC";
+            string resultado = _dapperRepository.QueryDapper(query, new {Valor = $"%{valor}%"});
+            if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+              return JsonConvert.DeserializeObject<IEnumerable<ComboDTO>>(resultado)!;
+            return new List<ComboDTO>();
+          }
+          catch (Exception ex)
+          {
+            throw new Exception($"Error en ObtenerFiltroAutocomplete(): {ex.Message}", ex);
+          }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 13/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene Id y Nombre de T_PEspecifico filtrado por IdCentroCosto.
+        /// </summary>
+        /// <param name="idCentroCosto">Identificador del centro de costo</param>
+        /// <returns>Lista de Id y Nombre de los registros encontrados</returns>
+        public IEnumerable<ComboDTO> ObtenerPEspecificoPorCentroCosto(int idCentroCosto)
+        {
+            try
+            {
+                string query = "EXEC pla.SP_TPEspecifico_Obtener @IdCentroCosto";
+                string resultado = _dapperRepository.QueryDapper(query, new { IdCentroCosto = idCentroCosto });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                    return JsonConvert.DeserializeObject<IEnumerable<ComboDTO>>(resultado);
+                return new List<ComboDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerPEspecificoPorCentroCosto(): {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 13/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las sesiones con datos del proveedor asociado a un PE especifico.
+        /// </summary>
+        /// <param name="idPEspecifico">Identificador del presupuesto especifico</param>
+        /// <returns>Lista de IdPEspecificoSesion, IdProveedor y NombreProveedor</returns>
+        public IEnumerable<PEspecificoSesionProveedorDTO> ObtenerSesionesProveedorPorPEspecifico(int idPEspecifico)
+        {
+            try
+            {
+                string query = "EXEC pla.SP_PEspecificoSesionProveedor @IdPEspecifico";
+                string resultado = _dapperRepository.QueryDapper(query, new { IdPEspecifico = idPEspecifico });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                    return JsonConvert.DeserializeObject<IEnumerable<PEspecificoSesionProveedorDTO>>(resultado);
+                return new List<PEspecificoSesionProveedorDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerSesionesProveedorPorPEspecifico(): {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 13/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene los flujos de gestion docente activos.
+        /// </summary>
+        /// <returns>Lista de Id y Nombre de T_GestionDocenteFlujo</returns>
+        public IEnumerable<ComboDTO> ObtenerGestionDocenteFlujos()
+        {
+            try
+            {
+                string query = "EXEC pla.SP_TGestionDocenteFlujo_Obtener";
+                string resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                    return JsonConvert.DeserializeObject<IEnumerable<ComboDTO>>(resultado);
+                return new List<ComboDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerGestionDocenteFlujos(): {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 13/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la clasificacion de persona asociada a un proveedor.
+        /// </summary>
+        /// <param name="idProveedor">Id del proveedor a consultar</param>
+        /// <returns>IdClasificacionPersona, IdProveedor y RazonSocial</returns>
+        public ProveedorClasificacionDTO ObtenerClasificacionPorProveedor(int idProveedor)
+        {
+            try
+            {
+                string query = "EXEC fin.SP_ProveedorClasificacion @IdProveedor";
+                string resultado = _dapperRepository.QueryDapper(query, new { IdProveedor = idProveedor });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                    return JsonConvert.DeserializeObject<IEnumerable<ProveedorClasificacionDTO>>(resultado).FirstOrDefault();
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerClasificacionPorProveedor(): {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 13/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene los estados de gestion de contacto activos.
+        /// </summary>
+        /// <returns>Lista de Id, Nombre y Descripcion de T_EstadoGestionContacto</returns>
+        public IEnumerable<EstadoGestionContactoDTO> ObtenerEstadosGestionContacto()
+        {
+            try
+            {
+                string query = "EXEC pla.SP_TEstadoGestionContacto_Obtener";
+                string resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                    return JsonConvert.DeserializeObject<IEnumerable<EstadoGestionContactoDTO>>(resultado);
+                return new List<EstadoGestionContactoDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerEstadosGestionContacto(): {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 13/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Inserta un registro en T_GestionContactoDocenteFlujo.
+        /// </summary>
+        /// <param name="dto">Datos necesarios para crear la relacion</param>
+        /// <returns>Entidad insertada con el Id generado</returns>
+        public TGestionContactoDocenteFlujo InsertarGestionContactoDocenteFlujo(InsertarGestionContactoDocenteFlujoDTO dto)
+        {
+            try
+            {
+                DateTime fechaActual = DateTime.Now;
+
+                var entidad = new TGestionContactoDocenteFlujo
+                {
+                    IdGestionContacto    = dto.IdGestionContacto,
+                    IdGestionDocenteFlujo = dto.IdGestionDocenteFlujo,
+                    Estado               = true,
+                    UsuarioCreacion      = dto.UsuarioCreacion,
+                    UsuarioModificacion  = dto.UsuarioCreacion,
+                    FechaCreacion        = fechaActual,
+                    FechaModificacion    = fechaActual
+                };
+
+                _dbContext.TGestionContactoDocenteFlujos.Add(entidad);
+                return entidad;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en InsertarGestionContactoDocenteFlujo(): {ex.Message}", ex);
             }
         }
 
