@@ -675,7 +675,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                             Tipo = tipo,
                             IdPais = tipo == "HORA" ? d.IdPais : (int?)null,
                             Beneficio = tipo == "BENEFICIO" ? d.Beneficio : null,
+                            Horario = d.Horario,
                             Usuario = usuario
+
                         };
 
                         _dapperRepository.QuerySPDapper(spDetalle, parametrosDetalle);
@@ -970,7 +972,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 {
                     var vacia =
                         (n.IdNotaTipo == null || n.IdNotaTipo <= 0) &&
-                        (n.IdPGeneral == null || n.IdPGeneral <= 0) &&
                         string.IsNullOrWhiteSpace(n.Descripcion) &&
                         (n.Detalles == null || n.Detalles.Count == 0);
 
@@ -983,7 +984,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     var pNota = new
                     {
                         IdDocumentoPWNotaTipo = n.IdNotaTipo.Value,
-                        IdPGeneral = n.IdPGeneral,
                         Descripcion = n.Descripcion,
                         Usuario = usuario
                     };
@@ -1023,6 +1023,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                             Orden = d.Orden,
                             InformacionExtra = d.InformacionExtra,
                             IdPais = d.IdPais,
+                            Horario = d.Horario,
                             Usuario = usuario
                         };
 
@@ -1047,12 +1048,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 c.MostrarWeb                  AS MostrarWeb,
                 n.Id                          AS IdDocumentoPWNota,
                 n.IdDocumentoPWNotaTipo       AS IdDocumentoPWNotaTipo,
-                n.IdPGeneral                  AS IdPGeneral,
                 n.Descripcion                 AS Descripcion,
                 d.Id                          AS IdDocumentoPWNotaDetalle,
                 d.Orden                       AS Orden,
                 d.InformacionExtra            AS InformacionExtra,
-                d.IdPais                      AS IdPais
+                d.IdPais                      AS IdPais,
+                d.Horario                     AS Horario
             FROM pla.T_DocumentoPWNotaConfiguracion c
             INNER JOIN pla.T_DocumentoPWNota n
                 ON n.Id = c.IdDocumentoPWNota
@@ -1128,7 +1129,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             return _dapperRepository.QuerySPDapper(sp, parametros);
         }
 
-        public string SP_TDocumentoPWModalidadDetalle_Insertar(int idDocumentoPWModalidad, int orden, string? tipo,string? beneficio, int? idPais, string usuario)
+        public string SP_TDocumentoPWModalidadDetalle_Insertar(int idDocumentoPWModalidad, int orden, string? tipo,string? beneficio, int? idPais, string? horario, string usuario)
         {
             var sp = "pla.SP_TDocumentoPWModalidadDetalle_Insertar";
             var parametros = new
@@ -1138,12 +1139,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 Tipo = tipo,
                 IdPais = idPais,
                 Beneficio = beneficio,
+                Horario = horario,
                 Usuario = usuario
             };
             return _dapperRepository.QuerySPDapper(sp, parametros);
         }
 
-        public string SP_TDocumentoPWModalidadDetalle_Actualizar(int id, int idDocumentoPWModalidad, int orden, string? tipo, string? beneficio, int? idPais, string usuario)
+        public string SP_TDocumentoPWModalidadDetalle_Actualizar(int id, int idDocumentoPWModalidad, int orden, string? tipo, string? beneficio, int? idPais, string? horario, string usuario)
         {
             var sp = "pla.SP_TDocumentoPWModalidadDetalle_Actualizar";
             var parametros = new
@@ -1154,6 +1156,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 Tipo = (tipo ?? "").Trim().ToUpper(),
                 Beneficio = beneficio,
                 IdPais = idPais,
+                Horario = horario,
                 Usuario = usuario
             };
             return _dapperRepository.QuerySPDapper(sp, parametros);
@@ -1430,27 +1433,25 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             return _dapperRepository.QuerySPDapper(sp, parametros);
         }
 
-        public string SP_TDocumentoPWNota_Insertar(int idDocumentoPWNotaTipo, int? idPGeneral, string? descripcion, string usuario)
+        public string SP_TDocumentoPWNota_Insertar(int idDocumentoPWNotaTipo, string? descripcion, string usuario)
         {
             var sp = "pla.SP_TDocumentoPWNota_Insertar";
             var parametros = new
             {
                 IdDocumentoPWNotaTipo = idDocumentoPWNotaTipo,
-                IdPGeneral = idPGeneral,
                 Descripcion = descripcion,
                 Usuario = usuario
             };
             return _dapperRepository.QuerySPDapper(sp, parametros);
         }
 
-        public string SP_TDocumentoPWNota_Actualizar(int id, int idDocumentoPWNotaTipo, int? idPGeneral, string? descripcion, string usuario)
+        public string SP_TDocumentoPWNota_Actualizar(int id, int idDocumentoPWNotaTipo, string? descripcion, string usuario)
         {
             var sp = "pla.SP_TDocumentoPWNota_Actualizar";
             var parametros = new
             {
                 Id = id,
                 IdDocumentoPWNotaTipo = idDocumentoPWNotaTipo,
-                IdPGeneral = idPGeneral,
                 Descripcion = descripcion,
                 Usuario = usuario
             };
@@ -1464,7 +1465,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             return _dapperRepository.QuerySPDapper(sp, parametros);
         }
 
-        public string SP_TDocumentoPWNotaDetalle_Insertar(int idDocumentoPWNota, int orden, string? informacionExtra, int? idPais, string usuario)
+        public string SP_TDocumentoPWNotaDetalle_Insertar(int idDocumentoPWNota, int orden, string? informacionExtra, int? idPais, string? horario ,string usuario)
         {
             var sp = "pla.SP_TDocumentoPWNotaDetalle_Insertar";
             var parametros = new
@@ -1473,12 +1474,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 Orden = orden,
                 InformacionExtra = informacionExtra,
                 IdPais = idPais,
+                Horario = horario,
                 Usuario = usuario
             };
             return _dapperRepository.QuerySPDapper(sp, parametros);
         }
 
-        public string SP_TDocumentoPWNotaDetalle_Actualizar(int id, int idDocumentoPWNota, int orden, string? informacionExtra, int? idPais, string usuario)
+        public string SP_TDocumentoPWNotaDetalle_Actualizar(int id, int idDocumentoPWNota, int orden, string? informacionExtra, int? idPais, string? horario ,string usuario)
         {
             var sp = "pla.SP_TDocumentoPWNotaDetalle_Actualizar";
             var parametros = new
@@ -1488,6 +1490,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 Orden = orden,
                 InformacionExtra = informacionExtra,
                 IdPais = idPais,
+                Horario = horario,
                 Usuario = usuario
             };
             return _dapperRepository.QuerySPDapper(sp, parametros);

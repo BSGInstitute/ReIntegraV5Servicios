@@ -53,8 +53,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         string SP_TDocumentoPWModalidadIntroduccion_Actualizar(int id, string? introduccion, string usuario);
         string SP_TDocumentoPWModalidad_Insertar(int idModalidadPortal, string? subTitulo, string? descripcion, string usuario);
         string SP_TDocumentoPWModalidad_Actualizar(int id, int idModalidadPortal, string? subTitulo, string? descripcion, string usuario);
-        string SP_TDocumentoPWModalidadDetalle_Insertar(int idDocumentoPWModalidad, int orden, string? tipo, string? beneficio, int? idPais, string usuario);
-        string SP_TDocumentoPWModalidadDetalle_Actualizar(int id, int idDocumentoPWModalidad, int orden, string? tipo,string? beneficio, int? idPais, string usuario);
+        string SP_TDocumentoPWModalidadDetalle_Insertar(int idDocumentoPWModalidad, int orden, string? tipo, string? beneficio, int? idPais, string? horario, string usuario);
+        string SP_TDocumentoPWModalidadDetalle_Actualizar(int id, int idDocumentoPWModalidad, int orden, string? tipo,string? beneficio, int? idPais, string? horario, string usuario);
         string SP_DocumentoPWModalidadConfiguracion_RegistrarCambios(int idDocumentoPw, int idIntroduccion, int idDocumentoPWModalidad, string usuario);
         string SP_TDocumentoPWModalidad_Desactivar(int idDocumentoPWModalidad, string usuario);
         string SP_TDocumentoPWModalidadDetalle_Desactivar(int idDocumentoPWModalidadDetalle, string usuario);
@@ -88,12 +88,12 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
 
         string SP_TDocumentoPWNota_ObtenerRows(int idDocumentoPw);
 
-        string SP_TDocumentoPWNota_Insertar(int idDocumentoPWNotaTipo, int? idPGeneral, string? descripcion, string usuario);
-        string SP_TDocumentoPWNota_Actualizar(int id, int idDocumentoPWNotaTipo, int? idPGeneral, string? descripcion, string usuario);
+        string SP_TDocumentoPWNota_Insertar(int idDocumentoPWNotaTipo, string? descripcion, string usuario);
+        string SP_TDocumentoPWNota_Actualizar(int id, int idDocumentoPWNotaTipo, string? descripcion, string usuario);
         string SP_TDocumentoPWNota_Desactivar(int id, string usuario);
 
-        string SP_TDocumentoPWNotaDetalle_Insertar(int idDocumentoPWNota, int orden, string? informacionExtra, int? idPais, string usuario);
-        string SP_TDocumentoPWNotaDetalle_Actualizar(int id, int idDocumentoPWNota, int orden, string? informacionExtra, int? idPais, string usuario);
+        string SP_TDocumentoPWNotaDetalle_Insertar(int idDocumentoPWNota, int orden, string? informacionExtra, int? idPais, string? Horario, string usuario);
+        string SP_TDocumentoPWNotaDetalle_Actualizar(int id, int idDocumentoPWNota, int orden, string? informacionExtra, int? idPais,string? Horario, string usuario);
         string SP_TDocumentoPWNotaDetalle_Desactivar(int id, string usuario);
         string SP_TDocumentoPWNotaDetalle_DesactivarPorNota(int idDocumentoPWNota, string usuario);
 
