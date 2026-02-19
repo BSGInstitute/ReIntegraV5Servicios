@@ -159,6 +159,7 @@ builder.Services.AddTransient<IFaseGestionContactoService, FaseGestionContactoSe
 builder.Services.AddTransient<IMatriculaFormularioProgresivoService, MatriculaFormularioProgresivoService>();
 builder.Services.AddTransient<IGestionDocenteActividadService, GestionDocenteActividadService>();
 builder.Services.AddTransient<IGestionDocenteFlujoService, GestionDocenteFlujoService>();
+builder.Services.AddTransient<IGestionDocenteAgendaService, GestionDocenteAgendaService>();
 
 builder.Services.AddTransient<ITransicionFaseOportunidadService, TransicionFaseOportunidadService>();
 builder.Services.AddTransient<ITransicionFaseOportunidadRepository, TransicionFaseOportunidadRepository>();
