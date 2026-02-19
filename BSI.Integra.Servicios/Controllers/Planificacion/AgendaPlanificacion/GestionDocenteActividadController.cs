@@ -1,4 +1,4 @@
-using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
+﻿using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
 using Microsoft.AspNetCore.Cors;
@@ -522,6 +522,41 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
             {
                 return BadRequest(new { Exito = false, Mensaje = ex.Message });
             }
+        }
+
+        [HttpGet("ObtenerClasificacionTipos")]
+        public IActionResult ObtenerClasificacionTipos()
+        {
+            try { var lista = _gestionDocenteActividadService.ObtenerClasificacionTipos(); return Ok(lista); }
+            catch (Exception ex) { return BadRequest(new { Exito = false, Mensaje = ex.Message }); }
+        }
+
+        [HttpGet("ObtenerEjemplosEntrenamiento/{idIaConfiguracion}")]
+        public IActionResult ObtenerEjemplosEntrenamiento(int idIaConfiguracion)
+        {
+            try { var lista = _gestionDocenteActividadService.ObtenerEjemplosEntrenamientoPorConfiguracion(idIaConfiguracion); return Ok(lista); }
+            catch (Exception ex) { return BadRequest(new { Exito = false, Mensaje = ex.Message }); }
+        }
+
+        [HttpPost("InsertarEjemploEntrenamiento")]
+        public async Task<IActionResult> InsertarEjemploEntrenamiento([FromBody] InsertarEjemploEntrenamientoRequestDTO request)
+        {
+            try { var id = await _gestionDocenteActividadService.InsertarEjemploEntrenamientoAsync(request); return Ok(new { Exito = true, Id = id }); }
+            catch (Exception ex) { return BadRequest(new { Exito = false, Mensaje = ex.Message }); }
+        }
+
+        [HttpPut("ActualizarEjemploEntrenamiento")]
+        public async Task<IActionResult> ActualizarEjemploEntrenamiento([FromBody] ActualizarEjemploEntrenamientoRequestDTO request)
+        {
+            try { var rpta = await _gestionDocenteActividadService.ActualizarEjemploEntrenamientoAsync(request); return Ok(new { Exito = rpta }); }
+            catch (Exception ex) { return BadRequest(new { Exito = false, Mensaje = ex.Message }); }
+        }
+
+        [HttpDelete("EliminarEjemploEntrenamiento")]
+        public async Task<IActionResult> EliminarEjemploEntrenamiento(int id, string usuario)
+        {
+            try { var rpta = await _gestionDocenteActividadService.EliminarEjemploEntrenamientoAsync(id, usuario); return Ok(new { Exito = rpta }); }
+            catch (Exception ex) { return BadRequest(new { Exito = false, Mensaje = ex.Message }); }
         }
     }
 }

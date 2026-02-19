@@ -22,6 +22,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public string Nombre { get; set; } = null!;
         /// <summary>
+        /// Descripcion del nivel de confianza con rango porcentual y comportamiento del sistema
+        /// </summary>
+        public string Descripcion { get; set; } = null!;
+        /// <summary>
         /// Estado del registro (1=Activo, 0=Inactivo)
         /// </summary>
         public bool Estado { get; set; }

@@ -1,4 +1,6 @@
-﻿using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
+﻿using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository;
 using System;
@@ -20,5 +22,12 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         Task<bool> ExistePersonalAsync(int id);
         Task<GestionContacto> ObtenerPorIdAsync(int id);
         TGestionContacto Update(GestionContacto entidad);
+        IEnumerable<ComboDTO> ObtenerFiltroAutocomplete(string nombreParcial);
+        IEnumerable<ComboDTO> ObtenerPEspecificoPorCentroCosto(int idCentroCosto);
+        IEnumerable<PEspecificoSesionProveedorDTO> ObtenerSesionesProveedorPorPEspecifico(int idPEspecifico);
+        IEnumerable<ComboDTO> ObtenerGestionDocenteFlujos();
+        ProveedorClasificacionDTO ObtenerClasificacionPorProveedor(int idProveedor);
+        IEnumerable<EstadoGestionContactoDTO> ObtenerEstadosGestionContacto();
+        TGestionContactoDocenteFlujo InsertarGestionContactoDocenteFlujo(InsertarGestionContactoDocenteFlujoDTO dto);
     }
 }

@@ -7,5 +7,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
     {
         TGestionDocenteDisparadorReglaTiempoFijo Add(GestionDocenteDisparadorReglaTiempoFijo entidad);
         TGestionDocenteDisparadorReglaTiempoFijo Update(GestionDocenteDisparadorReglaTiempoFijo entidad);
+        int ObtenerIdReglaTiempoPorTipo(string tipoRegla);
     }
 }

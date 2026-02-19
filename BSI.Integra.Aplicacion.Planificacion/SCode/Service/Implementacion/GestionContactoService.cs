@@ -1,4 +1,5 @@
-﻿using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
+﻿using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -184,5 +185,125 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 throw;
             }
         }
+        /// Autor: Lolo Zaa
+        /// Fecha: 12/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene id y nombre de centro de costos basado en un nombre parcial
+
+        public IEnumerable<ComboDTO>ObtenerFiltroAutocomplete(string valor)
+        {
+          return _unitOfWork.GestionContactoRepository.ObtenerFiltroAutocomplete(valor);
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 13/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene Id y Nombre de T_PEspecifico filtrado por IdCentroCosto.
+        /// </summary>
+        public IEnumerable<ComboDTO> ObtenerPEspecificoPorCentroCosto(int idCentroCosto)
+        {
+            return _unitOfWork.GestionContactoRepository.ObtenerPEspecificoPorCentroCosto(idCentroCosto);
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 13/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las sesiones con datos del proveedor asociado a un PE especifico.
+        /// </summary>
+        public IEnumerable<PEspecificoSesionProveedorDTO> ObtenerSesionesProveedorPorPEspecifico(int idPEspecifico)
+        {
+            return _unitOfWork.GestionContactoRepository.ObtenerSesionesProveedorPorPEspecifico(idPEspecifico);
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 13/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene los flujos de gestion docente activos.
+        /// </summary>
+        public IEnumerable<ComboDTO> ObtenerGestionDocenteFlujos()
+        {
+            return _unitOfWork.GestionContactoRepository.ObtenerGestionDocenteFlujos();
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 13/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Inserta una Gestión de Contacto como oportunidad docente,
+        /// resolviendo IdClasificacionPersona desde el proveedor recibido.
+        /// </summary>
+        /// Autor: Lolo Zaa
+        /// Fecha: 13/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene los estados de gestion de contacto activos.
+        /// </summary>
+        public IEnumerable<EstadoGestionContactoDTO> ObtenerEstadosGestionContacto()
+        {
+            return _unitOfWork.GestionContactoRepository.ObtenerEstadosGestionContacto();
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 13/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Inserta un registro en T_GestionContactoDocenteFlujo.
+        /// </summary>
+        public async Task<int> InsertarGestionContactoDocenteFlujoAsync(InsertarGestionContactoDocenteFlujoDTO dto)
+        {
+            try
+            {
+                var entidad = _unitOfWork.GestionContactoRepository.InsertarGestionContactoDocenteFlujo(dto);
+                await _unitOfWork.CommitAsync();
+                return entidad.Id;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<int> InsertarOportunidadDocenteAsync(CrearOportunidadDocenteDTO dto)
+        {
+            try
+            {
+                var clasificacion = _unitOfWork.GestionContactoRepository.ObtenerClasificacionPorProveedor(dto.IdProveedor);
+                if (clasificacion == null)
+                    throw new Exception($"No se encontró clasificación de persona para el proveedor {dto.IdProveedor}.");
+
+                DateTime fechaActual = DateTime.Now;
+
+                var nuevaGestion = new GestionContacto
+                {
+                    IdCentroCosto             = dto.IdCentroCosto,
+                    IdPersonalAsignado        = 6205,
+                    IdClasificacionPersona    = clasificacion.IdClasificacionPersona,
+                    IdFaseGestionContacto     = 2,
+                    IdOrigen                  = 1124,
+                    IdEstadoGestionContacto   = dto.IdCentroCosto.HasValue ? 2 : 1,
+                    UltimoComentario          = "Creacion de Oportunidad Docente Registrada",
+                    EstadoSeguimientoWhatsApp = false,
+                    Estado                    = true,
+                    UsuarioCreacion           = dto.UsuarioCreacion,
+                    UsuarioModificacion       = dto.UsuarioCreacion,
+                    FechaCreacion             = fechaActual,
+                    FechaModificacion         = fechaActual
+                };
+
+                var tGestionContacto = _unitOfWork.GestionContactoRepository.AddAsync(nuevaGestion);
+                await _unitOfWork.CommitAsync();
+
+                return tGestionContacto.Id;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }

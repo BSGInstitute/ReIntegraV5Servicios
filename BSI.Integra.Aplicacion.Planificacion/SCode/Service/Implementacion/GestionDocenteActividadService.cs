@@ -1,4 +1,4 @@
-using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
+﻿using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Repositorio.UnitOfWork;
@@ -175,9 +175,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             if (dto == null)
                 throw new ArgumentException("La regla de tiempo fijo es requerida para el disparador de tipo Primera Actividad");
 
+            int idReglaTiempoFijo = _unitOfWork.GestionDocenteDisparadorReglaTiempoFijoRepository.ObtenerIdReglaTiempoPorTipo("FIJO");
+
             var reglaFija = new GestionDocenteDisparadorReglaTiempoFijo
             {
-                IdGestionDocenteDisparadorReglaTiempo = dto.IdGestionDocenteDisparadorReglaTiempo,
+                IdGestionDocenteDisparadorReglaTiempo = idReglaTiempoFijo,
                 IdGestionDocenteDisparadorDetalle = idDisparadorDetalle,
                 Fecha = dto.Fecha,
                 Estado = true,
@@ -207,10 +209,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             if (ocurrenciaDto == null)
                 throw new ArgumentException("La ocurrencia anterior es requerida para el disparador Basado en Ocurrencia Anterior");
 
+            int idReglaTiempoRelativo = _unitOfWork.GestionDocenteDisparadorReglaTiempoFijoRepository.ObtenerIdReglaTiempoPorTipo("RELATIVO");
+
             // Crear regla de tiempo relativo
             var reglaRelativa = new GestionDocenteDisparadorReglaTiempoRelativo
             {
-                IdGestionDocenteDisparadorReglaTiempo = reglaDto.IdGestionDocenteDisparadorReglaTiempo,
+                IdGestionDocenteDisparadorReglaTiempo = idReglaTiempoRelativo,
                 IdGestionDocenteDisparadorDetalle = idDisparadorDetalle,
                 Cantidad = reglaDto.Cantidad,
                 IdGestionDocenteUnidadTiempo = reglaDto.IdGestionDocenteUnidadTiempo,
@@ -255,10 +259,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             if (referenciaDto == null)
                 throw new ArgumentException("La referencia de tiempo (antes/después) es requerida para el disparador Basado en Cronograma");
 
+            int idReglaTiempoRelativo = _unitOfWork.GestionDocenteDisparadorReglaTiempoFijoRepository.ObtenerIdReglaTiempoPorTipo("RELATIVO");
+
             // Crear regla de tiempo relativo
             var reglaRelativa = new GestionDocenteDisparadorReglaTiempoRelativo
             {
-                IdGestionDocenteDisparadorReglaTiempo = reglaDto.IdGestionDocenteDisparadorReglaTiempo,
+                IdGestionDocenteDisparadorReglaTiempo = idReglaTiempoRelativo,
                 IdGestionDocenteDisparadorDetalle = idDisparadorDetalle,
                 Cantidad = reglaDto.Cantidad,
                 IdGestionDocenteUnidadTiempo = reglaDto.IdGestionDocenteUnidadTiempo,
@@ -986,6 +992,102 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     Cabecera = cabecera,
                     Detalles = detallesCompletos
                 };
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IEnumerable<GestionDocenteIaEntrenamientoClasificacionTipoDTO> ObtenerClasificacionTipos()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository.ObtenerClasificacionTipos();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IEnumerable<GestionDocenteIaEntrenamientoEjemploOutputDTO> ObtenerEjemplosEntrenamientoPorConfiguracion(int idIaConfiguracion)
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository.ObtenerEjemplosEntrenamientoPorConfiguracion(idIaConfiguracion);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<int> InsertarEjemploEntrenamientoAsync(InsertarEjemploEntrenamientoRequestDTO request)
+        {
+            try
+            {
+                DateTime fechaActual = DateTime.Now;
+                var entidad = new GestionDocenteIaEntrenamientoEjemplo
+                {
+                    IdGestionDocenteOcurrenciaIaConfiguracion = request.IdGestionDocenteOcurrenciaIaConfiguracion,
+                    IdGestionDocenteIaEntrenamientoClasificacionTipo = request.IdGestionDocenteIaEntrenamientoClasificacionTipo,
+                    TextoEjemplo = request.TextoEjemplo,
+                    EsPositivo = request.EsPositivo,
+                    Estado = true,
+                    UsuarioCreacion = request.Usuario,
+                    UsuarioModificacion = request.Usuario,
+                    FechaCreacion = fechaActual,
+                    FechaModificacion = fechaActual
+                };
+                var model = _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository.Add(entidad);
+                await _unitOfWork.CommitAsync();
+                return model.Id;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> ActualizarEjemploEntrenamientoAsync(ActualizarEjemploEntrenamientoRequestDTO request)
+        {
+            try
+            {
+                var existente = _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository.FirstById(request.Id);
+                if (existente == null)
+                    throw new ArgumentException("$No se encontro el ejemplo de entrenamiento con Id {request.Id}");
+
+                var entidad = new GestionDocenteIaEntrenamientoEjemplo
+                {
+                    Id = existente.Id,
+                    IdGestionDocenteOcurrenciaIaConfiguracion = existente.IdGestionDocenteOcurrenciaIaConfiguracion,
+                    IdGestionDocenteIaEntrenamientoClasificacionTipo = request.IdGestionDocenteIaEntrenamientoClasificacionTipo,
+                    TextoEjemplo = request.TextoEjemplo,
+                    EsPositivo = request.EsPositivo,
+                    Estado = existente.Estado,
+                    UsuarioCreacion = existente.UsuarioCreacion,
+                    FechaCreacion = existente.FechaCreacion,
+                    UsuarioModificacion = request.Usuario,
+                    FechaModificacion = DateTime.Now
+                };
+                _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository.Update(entidad);
+                await _unitOfWork.CommitAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> EliminarEjemploEntrenamientoAsync(int id, string usuario)
+        {
+            try
+            {
+                _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository.Delete(id, usuario);
+                await _unitOfWork.CommitAsync();
+                return true;
             }
             catch (Exception)
             {

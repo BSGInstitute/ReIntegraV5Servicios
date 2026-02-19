@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
@@ -32,9 +32,9 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
     public class GestionDocenteDisparadorReglaTiempoFijoDTO
     {
-        public int IdGestionDocenteDisparadorReglaTiempo { get; set; }
-        public int IdGestionDocenteDisparadorDetalle { get; set; }
-        public DateTime Fecha { get; set; }
+        public int? IdGestionDocenteDisparadorReglaTiempo { get; set; }
+        public int? IdGestionDocenteDisparadorDetalle { get; set; }
+        public DateTime? Fecha { get; set; }
     }
 
     public class GestionDocenteDisparadorReglaTiempoRelativoDTO
@@ -114,6 +114,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
     {
         public int Id { get; set; }
         public string Nombre { get; set; }
+        public string Descripcion { get; set; }
     }
 
     public class GestionDocenteOcurrenciaTipoDTO
@@ -302,6 +303,30 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string TextoEjemplo { get; set; }
         public bool EsPositivo { get; set; }
         public string NombreClasificacionTipo { get; set; }
+    }
+
+    public class GestionDocenteIaEntrenamientoClasificacionTipoDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    public class InsertarEjemploEntrenamientoRequestDTO
+    {
+        public int IdGestionDocenteOcurrenciaIaConfiguracion { get; set; }
+        public int IdGestionDocenteIaEntrenamientoClasificacionTipo { get; set; }
+        public string TextoEjemplo { get; set; }
+        public bool EsPositivo { get; set; }
+        public string Usuario { get; set; }
+    }
+
+    public class ActualizarEjemploEntrenamientoRequestDTO
+    {
+        public int Id { get; set; }
+        public int IdGestionDocenteIaEntrenamientoClasificacionTipo { get; set; }
+        public string TextoEjemplo { get; set; }
+        public bool EsPositivo { get; set; }
+        public string Usuario { get; set; }
     }
 
     public class OcurrenciaCompletaDTO
