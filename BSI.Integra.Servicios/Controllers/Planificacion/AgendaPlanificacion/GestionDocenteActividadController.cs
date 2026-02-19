@@ -431,6 +431,29 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
 
         /// Tipo Función: GET
         /// Autor: Jose Vega
+        /// Fecha: 16/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Endpoint que obtiene las plantillas de medio de comunicación filtradas por un medio de comunicación específico.
+        /// </summary>
+        /// <param name="idMedioComunicacion">Identificador del medio de comunicación.</param>
+        /// <returns>ActionResult con la lista filtrada de GestionDocentePlantillaMedioComunicacionDTO.</returns>
+        [HttpGet("ObtenerPlantillasPorMedioComunicacion/{idMedioComunicacion}")]
+        public IActionResult ObtenerPlantillasPorMedioComunicacion(int idMedioComunicacion)
+        {
+            try
+            {
+                var lista = _gestionDocenteActividadService.ObtenerPlantillasMedioComunicacionPorMedioComunicacion(idMedioComunicacion);
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
         /// Fecha: 13/02/2026
         /// Versión: 1.0
         /// <summary>
@@ -485,11 +508,11 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
         /// <param name="id">Identificador de la actividad cabecera.</param>
         /// <returns>ActionResult con ActividadCabeceraCompletaDTO.</returns>
         [HttpGet("ObtenerActividadCompleta/{id}")]
-        public IActionResult ObtenerActividadCompleta(int id)
+        public async Task<IActionResult> ObtenerActividadCompleta(int id)
         {
             try
             {
-                var resultado = _gestionDocenteActividadService.ObtenerActividadCabeceraCompleta(id);
+                var resultado = await _gestionDocenteActividadService.ObtenerActividadCabeceraCompletaAsync(id);
                 if (resultado == null)
                     return NotFound(new { Exito = false, Mensaje = "No se encontró la actividad cabecera" });
 

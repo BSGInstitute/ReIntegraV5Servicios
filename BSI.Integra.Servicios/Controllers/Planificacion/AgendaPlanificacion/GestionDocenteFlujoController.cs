@@ -212,11 +212,11 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
         /// <param name="id">Identificador del flujo.</param>
         /// <returns>ActionResult con FlujoCompletoDTO.</returns>
         [HttpGet("ObtenerFlujoCompleto/{id}")]
-        public IActionResult ObtenerFlujoCompleto(int id)
+        public async Task<IActionResult> ObtenerFlujoCompleto(int id)
         {
             try
             {
-                var flujo = _gestionDocenteFlujoService.ObtenerFlujoCompleto(id);
+                var flujo = await _gestionDocenteFlujoService.ObtenerFlujoCompletoAsync(id);
                 if (flujo == null) return NotFound(new { Exito = false, Mensaje = "No se encontró el flujo." });
                 return Ok(flujo);
             }

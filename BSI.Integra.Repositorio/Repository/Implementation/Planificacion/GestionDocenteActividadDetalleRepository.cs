@@ -7,6 +7,7 @@ using BSI.Integra.Repositorio.Repository.Interface.Planificacion;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 {
@@ -461,6 +462,196 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 IEnumerable<GestionDocenteIaEntrenamientoEjemploOutputDTO> ejemplos = new List<GestionDocenteIaEntrenamientoEjemploOutputDTO>();
                 string _query = "pla.SP_GestionDocenteEntrenamientoEjemploObtenerPorConfiguraciones";
                 var resultadoDB = _dapperRepository.QuerySPDapper(_query, new { IdGestionDocenteOcurrenciaIaConfiguracion_Lista = ids });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    ejemplos = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteIaEntrenamientoEjemploOutputDTO>>(resultadoDB);
+                }
+                return ejemplos;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<GestionDocenteActividadDetalleOutputDTO>> ObtenerDetallesPorCabeceraAsync(int idCabecera)
+        {
+            try
+            {
+                IEnumerable<GestionDocenteActividadDetalleOutputDTO> detalles = new List<GestionDocenteActividadDetalleOutputDTO>();
+                string _query = "pla.SP_GestionDocenteActividadDetalleObtenerPorCabecera";
+                var resultadoDB = await _dapperRepository.QuerySPDapperAsync(_query, new { IdGestionDocenteActividadCabecera = idCabecera });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    detalles = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteActividadDetalleOutputDTO>>(resultadoDB);
+                }
+                return detalles;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<GestionDocenteDisparadorDetalleOutputDTO>> ObtenerDisparadoresPorIdsAsync(string ids)
+        {
+            try
+            {
+                IEnumerable<GestionDocenteDisparadorDetalleOutputDTO> disparadores = new List<GestionDocenteDisparadorDetalleOutputDTO>();
+                string _query = "pla.SP_GestionDocenteDisparadorDetalleObtenerIds";
+                var resultadoDB = await _dapperRepository.QuerySPDapperAsync(_query, new { IdGestionDocenteDisparadorDetalle_Lista = ids });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    disparadores = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteDisparadorDetalleOutputDTO>>(resultadoDB);
+                }
+                return disparadores;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<GestionDocenteDisparadorReglaTiempoFijoOutputDTO>> ObtenerReglasTiempoFijoPorDisparadoresAsync(string ids)
+        {
+            try
+            {
+                IEnumerable<GestionDocenteDisparadorReglaTiempoFijoOutputDTO> reglas = new List<GestionDocenteDisparadorReglaTiempoFijoOutputDTO>();
+                string _query = "pla.SP_GestionDocenteReglaTiempoFijoObtenerPorDisparadores";
+                var resultadoDB = await _dapperRepository.QuerySPDapperAsync(_query, new { IdGestionDocenteDisparadorDetalle_Lista = ids });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    reglas = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteDisparadorReglaTiempoFijoOutputDTO>>(resultadoDB);
+                }
+                return reglas;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<GestionDocenteDisparadorReglaTiempoRelativoOutputDTO>> ObtenerReglasTiempoRelativoPorDisparadoresAsync(string ids)
+        {
+            try
+            {
+                IEnumerable<GestionDocenteDisparadorReglaTiempoRelativoOutputDTO> reglas = new List<GestionDocenteDisparadorReglaTiempoRelativoOutputDTO>();
+                string _query = "pla.SP_GestionDocenteReglaTiempoRelativoObtenerPorDisparadores";
+                var resultadoDB = await _dapperRepository.QuerySPDapperAsync(_query, new { IdGestionDocenteDisparadorDetalle_Lista = ids });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    reglas = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteDisparadorReglaTiempoRelativoOutputDTO>>(resultadoDB);
+                }
+                return reglas;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<GestionDocenteDisparadorReglaTiempoRelativoReferenciaOutputDTO>> ObtenerReferenciasRelativasPorReglasAsync(string ids)
+        {
+            try
+            {
+                IEnumerable<GestionDocenteDisparadorReglaTiempoRelativoReferenciaOutputDTO> referencias = new List<GestionDocenteDisparadorReglaTiempoRelativoReferenciaOutputDTO>();
+                string _query = "pla.SP_GestionDocenteReferenciaRelativaObtenerPorReglas";
+                var resultadoDB = await _dapperRepository.QuerySPDapperAsync(_query, new { IdGestionDocenteDisparadorReglaTiempoRelativo_Lista = ids });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    referencias = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteDisparadorReglaTiempoRelativoReferenciaOutputDTO>>(resultadoDB);
+                }
+                return referencias;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<GestionDocenteDisparadorOcurrenciaDetalleOutputDTO>> ObtenerDisparadoresOcurrenciaPorIdsAsync(string ids)
+        {
+            try
+            {
+                IEnumerable<GestionDocenteDisparadorOcurrenciaDetalleOutputDTO> disparadores = new List<GestionDocenteDisparadorOcurrenciaDetalleOutputDTO>();
+                string _query = "pla.SP_GestionDocenteDisparadorOcurrenciaObtenerIds";
+                var resultadoDB = await _dapperRepository.QuerySPDapperAsync(_query, new { IdGestionDocenteDisparadorDetalle_Lista = ids });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    disparadores = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteDisparadorOcurrenciaDetalleOutputDTO>>(resultadoDB);
+                }
+                return disparadores;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<GestionContactoActividadDetalleSesionDTO>> ObtenerSesionesPorDetallesAsync(string ids)
+        {
+            try
+            {
+                IEnumerable<GestionContactoActividadDetalleSesionDTO> sesiones = new List<GestionContactoActividadDetalleSesionDTO>();
+                string _query = "pla.SP_GestionDocenteSesionObtenerPorDetalles";
+                var resultadoDB = await _dapperRepository.QuerySPDapperAsync(_query, new { IdGestionDocenteActividadDetalle_Lista = ids });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    sesiones = JsonConvert.DeserializeObject<IEnumerable<GestionContactoActividadDetalleSesionDTO>>(resultadoDB);
+                }
+                return sesiones;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<GestionDocenteOcurrenciaOutputDTO>> ObtenerOcurrenciasPorDetallesAsync(string ids)
+        {
+            try
+            {
+                IEnumerable<GestionDocenteOcurrenciaOutputDTO> ocurrencias = new List<GestionDocenteOcurrenciaOutputDTO>();
+                string _query = "pla.SP_GestionDocenteOcurrenciaObtenerPorDetalles";
+                var resultadoDB = await _dapperRepository.QuerySPDapperAsync(_query, new { IdGestionDocenteActividadDetalle_Lista = ids });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    ocurrencias = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteOcurrenciaOutputDTO>>(resultadoDB);
+                }
+                return ocurrencias;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<OcurrenciaIaConfiguracionCompletaDTO>> ObtenerIaConfiguracionesPorOcurrenciasAsync(string ids)
+        {
+            try
+            {
+                IEnumerable<OcurrenciaIaConfiguracionCompletaDTO> configuraciones = new List<OcurrenciaIaConfiguracionCompletaDTO>();
+                string _query = "pla.SP_GestionDocenteIaConfiguracionObtenerPorOcurrencias";
+                var resultadoDB = await _dapperRepository.QuerySPDapperAsync(_query, new { IdGestionDocenteOcurrencia_Lista = ids });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    configuraciones = JsonConvert.DeserializeObject<IEnumerable<OcurrenciaIaConfiguracionCompletaDTO>>(resultadoDB);
+                }
+                return configuraciones;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<IEnumerable<GestionDocenteIaEntrenamientoEjemploOutputDTO>> ObtenerEjemplosEntrenamientoPorConfiguracionesAsync(string ids)
+        {
+            try
+            {
+                IEnumerable<GestionDocenteIaEntrenamientoEjemploOutputDTO> ejemplos = new List<GestionDocenteIaEntrenamientoEjemploOutputDTO>();
+                string _query = "pla.SP_GestionDocenteEntrenamientoEjemploObtenerPorConfiguraciones";
+                var resultadoDB = await _dapperRepository.QuerySPDapperAsync(_query, new { IdGestionDocenteOcurrenciaIaConfiguracion_Lista = ids });
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
                     ejemplos = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteIaEntrenamientoEjemploOutputDTO>>(resultadoDB);
