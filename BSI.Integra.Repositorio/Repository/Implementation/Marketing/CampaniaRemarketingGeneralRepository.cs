@@ -243,7 +243,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
                 parameters.Add("@FechaEnvioProgramada", request.FechaEnvio);
                 parameters.Add("@UsuarioModificacion", request.UsuarioCreacion);
                 parameters.Add("@IdMedioComunicacion_Lista", string.Join(",", request.MediosEnvio.Select(x => x.Id)));
-                //parameters.Add("@IdentificadorLlamadaIA", request.IdentificadorLlamadaIA);
+                parameters.Add("@IdentificadorLlamadaIA", request.IdentificadorLlamadaIA);
                 parameters.Add("@IdCategoriaArgumentoConfigurado", request.CategoriaArgumento.Id);
                 parameters.Add("@Prioridad_Lista", string.Join(",", request.Prioridades));
 
