@@ -78,7 +78,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 IEnumerable<GestionDocenteCategoriaDTO> categorias = new List<GestionDocenteCategoriaDTO>();
-                string _query = "SELECT Id, Nombre FROM pla.T_GestionDocenteCategoria WHERE Estado = 1";
+                string _query = "SELECT Id, Nombre , Descripcion FROM pla.T_GestionDocenteCategoria WHERE Estado = 1";
                 var resultadoDB = _dapperRepository.QueryDapper(_query, null);
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {

@@ -1,4 +1,4 @@
-using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
+﻿using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -20,10 +20,19 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         IEnumerable<GestionDocenteReferenciaTiempoDTO> ObtenerReferenciasTiempo();
         IEnumerable<GestionDocenteActividadDetalleTipoDTO> ObtenerActividadDetalleTipos();
         IEnumerable<GestionDocenteDisparadorFlujoTipoDTO> ObtenerDisparadorFlujoTipos();
+        IEnumerable<GestionDocenteUnidadTiempoDTO> ObtenerUnidadesTiempo();
+        List<object> ObtenerDisparadorFlujoTiposConfiguracion();
         IEnumerable<GestionDocenteModoMarcadoDTO> ObtenerModosMarcado();
         IEnumerable<GestionDocenteMedioComunicacionDTO> ObtenerMediosComunicacion();
         IEnumerable<GestionDocentePlantillaMedioComunicacionDTO> ObtenerPlantillasMedioComunicacion();
-        ActividadCabeceraCompletaDTO ObtenerActividadCabeceraCompleta(int id);
+        IEnumerable<GestionDocentePlantillaMedioComunicacionDTO> ObtenerPlantillasMedioComunicacionPorMedioComunicacion(int idMedioComunicacion);
+        Task<ActividadCabeceraCompletaDTO> ObtenerActividadCabeceraCompletaAsync(int id);
         List<object> ObtenerDisparadorReglaTiempo();
+        // Ejemplos de entrenamiento
+        IEnumerable<GestionDocenteIaEntrenamientoClasificacionTipoDTO> ObtenerClasificacionTipos();
+        IEnumerable<GestionDocenteIaEntrenamientoEjemploOutputDTO> ObtenerEjemplosEntrenamientoPorConfiguracion(int idIaConfiguracion);
+        Task<int> InsertarEjemploEntrenamientoAsync(InsertarEjemploEntrenamientoRequestDTO request);
+        Task<bool> ActualizarEjemploEntrenamientoAsync(ActualizarEjemploEntrenamientoRequestDTO request);
+        Task<bool> EliminarEjemploEntrenamientoAsync(int id, string usuario);
     }
 }

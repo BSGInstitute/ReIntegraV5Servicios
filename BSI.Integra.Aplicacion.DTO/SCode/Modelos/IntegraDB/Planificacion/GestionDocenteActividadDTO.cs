@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
@@ -32,9 +32,9 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
     public class GestionDocenteDisparadorReglaTiempoFijoDTO
     {
-        public int IdGestionDocenteDisparadorReglaTiempo { get; set; }
-        public int IdGestionDocenteDisparadorDetalle { get; set; }
-        public DateTime Fecha { get; set; }
+        public int? IdGestionDocenteDisparadorReglaTiempo { get; set; }
+        public int? IdGestionDocenteDisparadorDetalle { get; set; }
+        public DateTime? Fecha { get; set; }
     }
 
     public class GestionDocenteDisparadorReglaTiempoRelativoDTO
@@ -80,6 +80,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public GestionDocenteDisparadorOcurrenciaDetalleDTO? OcurrenciaDetalle { get; set; }
         public GestionDocenteDisparadorReglaTiempoRelativoReferenciaDTO? ReferenciaRelativa { get; set; }
         public int? IdGestionDocenteSesion { get; set; }
+        public List<InsertarOcurrenciaRequestDTO>? Ocurrencias { get; set; }
     }
 
     public class GestionDocenteOcurrenciaIaConfiguracionDTO
@@ -107,13 +108,13 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
     {
         public GestionDocenteActividadCabeceraDTO Cabecera { get; set; }
         public List<InsertarActividadDetalleRequestDTO> Detalles { get; set; }
-        public List<InsertarOcurrenciaRequestDTO> Ocurrencias { get; set; }
     }
 
     public class GestionDocenteConfianzaUmbralNivelDTO
     {
         public int Id { get; set; }
         public string Nombre { get; set; }
+        public string Descripcion { get; set; }
     }
 
     public class GestionDocenteOcurrenciaTipoDTO
@@ -140,6 +141,42 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
     {
         public int Id { get; set; }
         public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+    }
+
+    public class GestionDocenteUnidadTiempoDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    public class OcurrenciaReferenciaDTO
+    {
+        public int IdGestionDocenteActividadDetalle { get; set; }
+        public int IdGestionDocenteOcurrencia { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    public class DisparadorFlujoTipoPrimeraActividadConfigDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    public class DisparadorFlujoTipoOcurrenciaConfigDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public List<GestionDocenteUnidadTiempoDTO> Tiempo { get; set; }
+        public List<OcurrenciaReferenciaDTO> Ocurrencias { get; set; }
+    }
+
+    public class DisparadorFlujoTipoCronogramaConfigDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public List<GestionDocenteReferenciaTiempoDTO> Momento { get; set; }
+        public List<GestionDocenteUnidadTiempoDTO> Tiempo { get; set; }
     }
 
     public class GestionDocenteModoMarcadoDTO
@@ -266,6 +303,30 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string TextoEjemplo { get; set; }
         public bool EsPositivo { get; set; }
         public string NombreClasificacionTipo { get; set; }
+    }
+
+    public class GestionDocenteIaEntrenamientoClasificacionTipoDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    public class InsertarEjemploEntrenamientoRequestDTO
+    {
+        public int IdGestionDocenteOcurrenciaIaConfiguracion { get; set; }
+        public int IdGestionDocenteIaEntrenamientoClasificacionTipo { get; set; }
+        public string TextoEjemplo { get; set; }
+        public bool EsPositivo { get; set; }
+        public string Usuario { get; set; }
+    }
+
+    public class ActualizarEjemploEntrenamientoRequestDTO
+    {
+        public int Id { get; set; }
+        public int IdGestionDocenteIaEntrenamientoClasificacionTipo { get; set; }
+        public string TextoEjemplo { get; set; }
+        public bool EsPositivo { get; set; }
+        public string Usuario { get; set; }
     }
 
     public class OcurrenciaCompletaDTO
