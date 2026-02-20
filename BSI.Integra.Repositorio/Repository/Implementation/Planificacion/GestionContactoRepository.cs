@@ -291,7 +291,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                string query = "EXEC pla.SP_TPEspecifico_Obtener @IdCentroCosto";
+                string query = "EXEC pla.SP_TPEspecifico_ObtenerIdCentroCosto @IdCentroCosto";
                 string resultado = _dapperRepository.QueryDapper(query, new { IdCentroCosto = idCentroCosto });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                     return JsonConvert.DeserializeObject<IEnumerable<ComboDTO>>(resultado);
@@ -315,7 +315,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                string query = "EXEC pla.SP_PEspecificoSesionProveedor @IdPEspecifico";
+                string query = "EXEC pla.SP_PEspecificoSesionProveedorPorIdPEspecifico @IdPEspecifico";
                 string resultado = _dapperRepository.QueryDapper(query, new { IdPEspecifico = idPEspecifico });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                     return JsonConvert.DeserializeObject<IEnumerable<PEspecificoSesionProveedorDTO>>(resultado);
@@ -362,7 +362,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                string query = "EXEC fin.SP_ProveedorClasificacion @IdProveedor";
+                string query = "EXEC fin.SP_ProveedorClasificacionPorId @IdProveedor";
                 string resultado = _dapperRepository.QueryDapper(query, new { IdProveedor = idProveedor });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                     return JsonConvert.DeserializeObject<IEnumerable<ProveedorClasificacionDTO>>(resultado).FirstOrDefault();
