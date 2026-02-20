@@ -5,6 +5,7 @@ using BSI.Integra.Repositorio.Repository.Interface.Planificacion;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 {
@@ -17,15 +18,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
     /// NOTA: Verificar nombres de columna en T_Proveedor, T_Personal, T_PEspecifico
     /// contra el esquema real de la base de datos antes de ejecutar en producción.
     /// </summary>
-    public class GestionDocenteAgendaRepository : IGestionDocenteAgendaRepository
+    public class GestionDocenteAgendaRepository : GenericRepository<TProveedor>, IGestionDocenteAgendaRepository
     {
-        private readonly IConnectionFactory _connectionFactory;
-        private readonly IDapperRepository _dapperRepository;
-
-        public GestionDocenteAgendaRepository(
-            IntegraDBContext context,
-            IConnectionFactory connectionFactory,
-            IDapperRepository dapperRepository)
+        public GestionDocenteAgendaRepository(IntegraDBContext context, IConnectionFactory connectionFactory, IDapperRepository dapperRepository)
+            : base(context, connectionFactory, dapperRepository)
         {
             _connectionFactory = connectionFactory;
             _dapperRepository = dapperRepository;
@@ -39,48 +35,40 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                var resultado = new List<DocenteConCursoDTO>();
+                List<DocenteConCursoDTO> lista = new List<DocenteConCursoDTO>();
                 string query = @"
                     SELECT DISTINCT
-                        prov.Id                                                         AS IdProveedor,
-                        prov.NombreCompleto                                             AS NombreDocente,
-                        pe.Id                                                           AS IdPEspecifico,
-                        pe.Nombre                                                       AS NombreCurso,
-                        ISNULL(pe.Codigo, '')                                           AS CodigoCurso,
-                        ISNULL(pers.Id, 0)                                              AS IdPersonalAsignado,
-                        ISNULL(
-                            CONCAT(
-                                pers.ApellidoPaterno, ' ',
-                                ISNULL(pers.ApellidoMaterno, ''), ', ',
-                                pers.Nombre
-                            ), ''
-                        )                                                               AS PersonalAsignado,
-                        gc.Id                                                           AS IdGestionContacto,
-                        gdf.Id                                                          AS IdFlujo,
-                        gdf.Nombre                                                      AS NombreFlujo
-                    FROM pla.T_PEspecificoSesion ses
-                    INNER JOIN fin.T_Proveedor prov
-                        ON prov.Id = ses.IdProveedor AND prov.Estado = 1
-                    INNER JOIN pla.T_PEspecifico pe
-                        ON pe.Id = ses.IdPEspecifico AND pe.Estado = 1
-                    INNER JOIN conf.T_ClasificacionPersona cp
-                        ON cp.IdTablaOriginal = prov.Id AND cp.IdTipoPersona = 4 AND cp.Estado = 1
-                    INNER JOIN pla.T_GestionContacto gc
-                        ON gc.IdClasificacionPersona = cp.Id AND gc.Estado = 1
-                    INNER JOIN pla.T_GestionContactoDocenteFlujo gcdf
-                        ON gcdf.IdGestionContacto = gc.Id AND gcdf.Estado = 1
-                    INNER JOIN pla.T_GestionDocenteFlujo gdf
-                        ON gdf.Id = gcdf.IdGestionDocenteFlujo AND gdf.Estado = 1
-                    LEFT JOIN gp.T_Personal pers
-                        ON pers.Id = gc.IdPersonal AND pers.Estado = 1
-                    WHERE ses.Estado = 1";
+                        P.Id AS IdProveedor,
+                        CASE
+                            WHEN LEN(CONCAT(P.Nombre1, ' ', P.Nombre2, ' ', P.ApePaterno, ' ', P.ApeMaterno)) = 0
+                                THEN P.RazonSocial
+                            ELSE CONCAT(P.Nombre1, ' ', P.Nombre2, ' ', P.ApePaterno, ' ', P.ApeMaterno)
+                        END AS NombreDocente,
+                        PE.Id AS IdPEspecifico,
+                        PE.Nombre AS NombreCurso,
+                        PE.Codigo AS CodigoCurso,
+                        P.IdPersonal_Asignado AS IdPersonalAsignado,
+                        ISNULL(CONCAT(PER.Apellidos, ', ', PER.Nombres), '') AS PersonalAsignado,
+                        GC.Id AS IdGestionContacto,
+                        GDF.Id AS IdFlujo,
+                        GDF.Nombre AS NombreFlujo
+                    FROM pla.T_PEspecificoSesion S
+                    INNER JOIN fin.T_Proveedor P ON S.IdProveedor = P.Id
+                    INNER JOIN pla.T_PEspecifico PE ON S.IdPEspecifico = PE.Id
+                    LEFT JOIN gp.T_Personal PER ON P.IdPersonal_Asignado = PER.Id
+                    INNER JOIN conf.T_ClasificacionPersona CP ON CP.IdTablaOriginal = P.Id AND CP.IdTipoPersona = 4 AND CP.Estado = 1
+                    INNER JOIN pla.T_GestionContacto GC ON GC.IdClasificacionPersona = CP.Id AND GC.Estado = 1
+                    INNER JOIN pla.T_GestionContactoDocenteFlujo GCDF ON GCDF.IdGestionContacto = GC.Id AND GCDF.Estado = 1
+                    INNER JOIN pla.T_GestionDocenteFlujo GDF ON GCDF.IdGestionDocenteFlujo = GDF.Id AND GDF.Estado = 1
+                    WHERE S.Estado = 1 AND P.Estado = 1 AND PE.Estado = 1
+                    ORDER BY NombreDocente, NombreCurso";
 
                 var resultadoDB = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
-                    resultado = JsonConvert.DeserializeObject<List<DocenteConCursoDTO>>(resultadoDB);
+                    lista = JsonConvert.DeserializeObject<List<DocenteConCursoDTO>>(resultadoDB);
                 }
-                return resultado;
+                return lista;
             }
             catch (Exception ex)
             {
@@ -88,49 +76,36 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
-        /// <summary>
-        /// Obtiene la cabecera de datos personales de un docente por su IdProveedor.
-        /// </summary>
-        public CabeceraDocenteAgendaDTO ObtenerCabeceraDocente(int idProveedor)
+        public DocenteAgendaCabeceraDTO ObtenerCabeceraDocente(int idProveedor)
         {
             try
             {
-                CabeceraDocenteAgendaDTO cabecera = null;
+                DocenteAgendaCabeceraDTO cabecera = null;
                 string query = @"
-                    SELECT TOP 1
-                        prov.Id                                                         AS IdProveedor,
-                        prov.NombreCompleto                                             AS NombreCompleto,
-                        ISNULL(prov.Celular, '')                                        AS Celular,
-                        ISNULL(prov.Email, '')                                          AS Email,
-                        ISNULL(pers.Id, 0)                                              AS IdPersonalAsignado,
-                        ISNULL(
-                            CONCAT(
-                                pers.ApellidoPaterno, ' ',
-                                ISNULL(pers.ApellidoMaterno, ''), ', ',
-                                pers.Nombre
-                            ), ''
-                        )                                                               AS PersonalAsignado,
-                        ISNULL(pais.Nombre, '')                                         AS Pais,
-                        ISNULL(ciu.Nombre, '')                                          AS Ciudad
-                    FROM fin.T_Proveedor prov
-                    INNER JOIN conf.T_ClasificacionPersona cp
-                        ON cp.IdTablaOriginal = prov.Id AND cp.IdTipoPersona = 4 AND cp.Estado = 1
-                    INNER JOIN pla.T_GestionContacto gc
-                        ON gc.IdClasificacionPersona = cp.Id AND gc.Estado = 1
-                    LEFT JOIN gp.T_Personal pers
-                        ON pers.Id = gc.IdPersonal AND pers.Estado = 1
-                    LEFT JOIN conf.T_Ciudad ciu
-                        ON ciu.Id = prov.IdCiudad AND ciu.Estado = 1
-                    LEFT JOIN conf.T_Pais pais
-                        ON pais.Id = ciu.IdPais AND pais.Estado = 1
-                    WHERE prov.Id = @IdProveedor AND prov.Estado = 1";
+                    SELECT
+                        P.Id AS IdProveedor,
+                        CASE
+                            WHEN LEN(CONCAT(P.Nombre1, ' ', P.Nombre2, ' ', P.ApePaterno, ' ', P.ApeMaterno)) = 0
+                                THEN P.RazonSocial
+                            ELSE CONCAT(P.Nombre1, ' ', P.Nombre2, ' ', P.ApePaterno, ' ', P.ApeMaterno)
+                        END AS NombreCompleto,
+                        P.Celular1 AS Celular,
+                        P.Email,
+                        P.IdPersonal_Asignado AS IdPersonalAsignado,
+                        ISNULL(CONCAT(PER.Apellidos, ', ', PER.Nombres), '') AS PersonalAsignado,
+                        ISNULL(PA.NombrePais, '') AS Pais,
+                        ISNULL(C.Nombre, '') AS Ciudad
+                    FROM fin.T_Proveedor P
+                    LEFT JOIN gp.T_Personal PER ON P.IdPersonal_Asignado = PER.Id
+                    LEFT JOIN conf.T_Ciudad C ON P.IdCiudad = C.Id
+                    LEFT JOIN conf.T_Pais PA ON C.IdPais = PA.Id
+                    WHERE P.Id = @IdProveedor AND P.Estado = 1";
 
-                var parametros = new { IdProveedor = idProveedor };
-                var resultadoDB = _dapperRepository.QueryDapper(query, parametros);
+                var resultadoDB = _dapperRepository.QueryDapper(query, new { IdProveedor = idProveedor });
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
-                    var lista = JsonConvert.DeserializeObject<List<CabeceraDocenteAgendaDTO>>(resultadoDB);
-                    cabecera = lista?.Count > 0 ? lista[0] : null;
+                    var lista = JsonConvert.DeserializeObject<List<DocenteAgendaCabeceraDTO>>(resultadoDB);
+                    cabecera = lista?.FirstOrDefault();
                 }
                 return cabecera;
             }
@@ -140,30 +115,27 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
-        /// <summary>
-        /// Obtiene el flujo docente asociado a un registro de gestión de contacto.
-        /// </summary>
-        public FlujoDocenteAgendaDTO ObtenerFlujoDocente(int idGestionContacto)
+        public DocenteAgendaFlujoDTO ObtenerFlujoDocente(int idGestionContacto)
         {
             try
             {
-                FlujoDocenteAgendaDTO flujo = null;
+                DocenteAgendaFlujoDTO flujo = null;
                 string query = @"
-                    SELECT TOP 1
-                        gdf.Id                          AS IdFlujo,
-                        gdf.Nombre                      AS NombreFlujo,
-                        ISNULL(gdf.Descripcion, '')     AS DescripcionFlujo
-                    FROM pla.T_GestionContactoDocenteFlujo gcdf
-                    INNER JOIN pla.T_GestionDocenteFlujo gdf
-                        ON gdf.Id = gcdf.IdGestionDocenteFlujo AND gdf.Estado = 1
-                    WHERE gcdf.IdGestionContacto = @IdGestionContacto AND gcdf.Estado = 1";
+                    SELECT
+                        GDF.Id AS IdFlujo,
+                        GDF.Nombre AS NombreFlujo,
+                        GDF.Descripcion AS DescripcionFlujo
+                    FROM pla.T_GestionContactoDocenteFlujo GCDF
+                    INNER JOIN pla.T_GestionDocenteFlujo GDF ON GCDF.IdGestionDocenteFlujo = GDF.Id
+                    WHERE GCDF.IdGestionContacto = @IdGestionContacto
+                        AND GCDF.Estado = 1
+                        AND GDF.Estado = 1";
 
-                var parametros = new { IdGestionContacto = idGestionContacto };
-                var resultadoDB = _dapperRepository.QueryDapper(query, parametros);
+                var resultadoDB = _dapperRepository.QueryDapper(query, new { IdGestionContacto = idGestionContacto });
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
-                    var lista = JsonConvert.DeserializeObject<List<FlujoDocenteAgendaDTO>>(resultadoDB);
-                    flujo = lista?.Count > 0 ? lista[0] : null;
+                    var lista = JsonConvert.DeserializeObject<List<DocenteAgendaFlujoDTO>>(resultadoDB);
+                    flujo = lista?.FirstOrDefault();
                 }
                 return flujo;
             }
@@ -173,40 +145,34 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
-        /// <summary>
-        /// Obtiene todos los cronogramas del docente. El idPEspecificoPriorizado aparece primero.
-        /// Los demás se ordenan por FechaInicio descendente.
-        /// </summary>
-        public List<CronogramaDocenteDTO> ObtenerCronogramasDocente(int idProveedor, int idPEspecificoPriorizado)
+        public List<DocenteAgendaCronogramaDTO> ObtenerCronogramasDocente(int idProveedor, int idPEspecificoPrioridad)
         {
             try
             {
-                var resultado = new List<CronogramaDocenteDTO>();
+                List<DocenteAgendaCronogramaDTO> lista = new List<DocenteAgendaCronogramaDTO>();
                 string query = @"
                     SELECT DISTINCT
-                        pe.Id                                                           AS IdPEspecifico,
-                        pe.Nombre                                                       AS NombreCurso,
-                        ISNULL(pe.Codigo, '')                                           AS CodigoCurso,
-                        ISNULL(pe.FechaInicio, GETDATE())                               AS FechaInicio,
-                        ISNULL(pe.FechaTermino, GETDATE())                              AS FechaTermino,
-                        CASE WHEN pe.Id = @IdPEspecificoPriorizado THEN 1 ELSE 0 END   AS EsPriorizado,
-                        ''                                                              AS EstadoCurso,
-                        ''                                                              AS TipoCurso,
-                        ''                                                              AS CategoriaCurso,
-                        ''                                                              AS CiudadCurso
-                    FROM pla.T_PEspecificoSesion ses
-                    INNER JOIN pla.T_PEspecifico pe
-                        ON pe.Id = ses.IdPEspecifico AND pe.Estado = 1
-                    WHERE ses.IdProveedor = @IdProveedor AND ses.Estado = 1
-                    ORDER BY EsPriorizado DESC, pe.FechaInicio DESC";
+                        PE.Id AS IdPEspecifico,
+                        PE.Nombre AS NombreCurso,
+                        PE.Codigo AS CodigoCurso,
+                        PE.EstadoP AS EstadoCurso,
+                        PE.Tipo AS TipoCurso,
+                        PE.Categoria AS CategoriaCurso,
+                        PE.Ciudad AS CiudadCurso,
+                        PE.FechaInicio,
+                        PE.FechaTermino,
+                        CASE WHEN PE.Id = @IdPEspecificoPrioridad THEN 1 ELSE 0 END AS EsPriorizado
+                    FROM pla.T_PEspecificoSesion S
+                    INNER JOIN pla.T_PEspecifico PE ON S.IdPEspecifico = PE.Id
+                    WHERE S.IdProveedor = @IdProveedor AND S.Estado = 1 AND PE.Estado = 1
+                    ORDER BY EsPriorizado DESC, PE.FechaInicio DESC";
 
-                var parametros = new { IdProveedor = idProveedor, IdPEspecificoPriorizado = idPEspecificoPriorizado };
-                var resultadoDB = _dapperRepository.QueryDapper(query, parametros);
+                var resultadoDB = _dapperRepository.QueryDapper(query, new { IdProveedor = idProveedor, IdPEspecificoPrioridad = idPEspecificoPrioridad });
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
-                    resultado = JsonConvert.DeserializeObject<List<CronogramaDocenteDTO>>(resultadoDB);
+                    lista = JsonConvert.DeserializeObject<List<DocenteAgendaCronogramaDTO>>(resultadoDB);
                 }
-                return resultado;
+                return lista;
             }
             catch (Exception ex)
             {
@@ -214,34 +180,30 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
-        /// <summary>
-        /// Obtiene las sesiones de un docente para un programa específico, ordenadas por FechaHoraInicio.
-        /// </summary>
-        public List<SesionCronogramaDTO> ObtenerSesionesPorCronograma(int idProveedor, int idPEspecifico)
+        public List<DocenteAgendaSesionDTO> ObtenerSesionesPorCursoYDocente(int idProveedor, int idPEspecifico)
         {
             try
             {
-                var resultado = new List<SesionCronogramaDTO>();
+                List<DocenteAgendaSesionDTO> lista = new List<DocenteAgendaSesionDTO>();
                 string query = @"
                     SELECT
-                        ses.Id                          AS IdSesion,
-                        ses.FechaHoraInicio             AS FechaHoraInicio,
-                        ISNULL(ses.Duracion, 0)         AS Duracion,
-                        ISNULL(ses.Grupo, 1)            AS Grupo,
-                        ses.Comentario                  AS Comentario
-                    FROM pla.T_PEspecificoSesion ses
-                    WHERE ses.IdProveedor = @IdProveedor
-                      AND ses.IdPEspecifico = @IdPEspecifico
-                      AND ses.Estado = 1
-                    ORDER BY ses.FechaHoraInicio ASC";
+                        S.Id AS IdSesion,
+                        S.FechaHoraInicio,
+                        S.Duracion,
+                        S.Grupo,
+                        S.Comentario
+                    FROM pla.T_PEspecificoSesion S
+                    WHERE S.IdProveedor = @IdProveedor
+                        AND S.IdPEspecifico = @IdPEspecifico
+                        AND S.Estado = 1
+                    ORDER BY S.FechaHoraInicio";
 
-                var parametros = new { IdProveedor = idProveedor, IdPEspecifico = idPEspecifico };
-                var resultadoDB = _dapperRepository.QueryDapper(query, parametros);
+                var resultadoDB = _dapperRepository.QueryDapper(query, new { IdProveedor = idProveedor, IdPEspecifico = idPEspecifico });
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
-                    resultado = JsonConvert.DeserializeObject<List<SesionCronogramaDTO>>(resultadoDB);
+                    lista = JsonConvert.DeserializeObject<List<DocenteAgendaSesionDTO>>(resultadoDB);
                 }
-                return resultado;
+                return lista;
             }
             catch (Exception ex)
             {

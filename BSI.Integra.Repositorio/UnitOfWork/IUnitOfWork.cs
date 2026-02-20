@@ -1006,5 +1006,6 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IGestionDocenteOcurrenciaIaConfiguracionRepository GestionDocenteOcurrenciaIaConfiguracionRepository { get; }
         IGestionDocenteIaEntrenamientoEjemploRepository GestionDocenteIaEntrenamientoEjemploRepository { get; }
         IGestionContactoActividadDetalleSesionRepository GestionContactoActividadDetalleSesionRepository { get; }
+        IGestionDocenteAgendaRepository GestionDocenteAgendaRepository { get; }
     }
 }

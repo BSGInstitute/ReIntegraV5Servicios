@@ -22,9 +22,13 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             _unitOfWork = unitOfWork;
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 19/02/2026
+        /// Versión: 1.0
         /// <summary>
-        /// Obtiene la lista plana de docentes con sus cursos y flujos asignados.
+        /// Obtiene la lista de docentes que tienen cursos asignados con su personal asignado.
         /// </summary>
+        /// <returns>Lista de DocenteConCursoDTO.</returns>
         public List<DocenteConCursoDTO> ObtenerDocentesConCursos()
         {
             try
@@ -37,34 +41,38 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 19/02/2026
+        /// Versión: 1.0
         /// <summary>
-        /// Construye el detalle completo de un docente: cabecera, flujo y cronogramas con sesiones.
-        /// El cronograma con idPEspecifico solicitado tiene esPriorizado = true y aparece primero.
+        /// Obtiene el detalle completo de un docente: cabecera con datos personales, flujo asignado
+        /// y todos sus cronogramas con sesiones, priorizando el curso indicado.
         /// </summary>
-        public DetalleDocenteAgendaDTO ObtenerDetalleDocente(int idProveedor, int idPEspecifico, int? idGestionContacto)
+        /// <param name="idProveedor">Identificador del docente/proveedor.</param>
+        /// <param name="idPEspecifico">Identificador del curso a priorizar en la lista.</param>
+        /// <param name="idGestionContacto">Identificador opcional del GestionContacto para obtener el flujo.</param>
+        /// <returns>DocenteAgendaDetalleDTO con toda la información.</returns>
+        public DocenteAgendaDetalleDTO ObtenerDetalleDocente(int idProveedor, int idPEspecifico, int? idGestionContacto)
         {
             try
             {
                 var cabecera = _unitOfWork.GestionDocenteAgendaRepository.ObtenerCabeceraDocente(idProveedor);
-                if (cabecera == null)
-                    return null;
+                if (cabecera == null) return null;
 
-                FlujoDocenteAgendaDTO flujo = null;
+                DocenteAgendaFlujoDTO flujo = null;
                 if (idGestionContacto.HasValue)
                 {
                     flujo = _unitOfWork.GestionDocenteAgendaRepository.ObtenerFlujoDocente(idGestionContacto.Value);
                 }
 
-                var cronogramas = _unitOfWork.GestionDocenteAgendaRepository
-                    .ObtenerCronogramasDocente(idProveedor, idPEspecifico);
+                var cronogramas = _unitOfWork.GestionDocenteAgendaRepository.ObtenerCronogramasDocente(idProveedor, idPEspecifico);
 
                 foreach (var cronograma in cronogramas)
                 {
-                    cronograma.Sesiones = _unitOfWork.GestionDocenteAgendaRepository
-                        .ObtenerSesionesPorCronograma(idProveedor, cronograma.IdPEspecifico);
+                    cronograma.Sesiones = _unitOfWork.GestionDocenteAgendaRepository.ObtenerSesionesPorCursoYDocente(idProveedor, cronograma.IdPEspecifico);
                 }
 
-                return new DetalleDocenteAgendaDTO
+                return new DocenteAgendaDetalleDTO
                 {
                     Cabecera = cabecera,
                     Flujo = flujo,
