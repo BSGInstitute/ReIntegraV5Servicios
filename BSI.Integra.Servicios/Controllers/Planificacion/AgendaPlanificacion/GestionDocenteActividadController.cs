@@ -1,4 +1,4 @@
-﻿using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
 using Microsoft.AspNetCore.Cors;
@@ -557,6 +557,31 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
         {
             try { var rpta = await _gestionDocenteActividadService.EliminarEjemploEntrenamientoAsync(id, usuario); return Ok(new { Exito = rpta }); }
             catch (Exception ex) { return BadRequest(new { Exito = false, Mensaje = ex.Message }); }
+        }
+
+        /// Tipo Funcion: PUT
+        /// Autor: Joseph Llanque
+        /// Fecha: 19/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Endpoint que actualiza los datos de una cabecera de actividad docente existente.
+        /// </summary>
+        /// <param name=dto>DTO con los datos actualizados de la cabecera.</param>
+        /// <returns>ActionResult con el resultado de la operacion.</returns>
+        [HttpPut("ActualizarMaestro")]
+        public async Task<IActionResult> ActualizarMaestro([FromBody] GestionDocenteActividadCabeceraDTO dto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(new { Exito = false, Mensaje = "Modelo invalido", Errores = ModelState });
+                var rpta = await _gestionDocenteActividadService.ActualizarCabeceraAsync(dto);
+                return Ok(new { Exito = rpta });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
         }
     }
 }

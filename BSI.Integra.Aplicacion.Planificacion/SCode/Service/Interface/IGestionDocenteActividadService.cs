@@ -1,4 +1,4 @@
-﻿using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -34,5 +34,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         Task<int> InsertarEjemploEntrenamientoAsync(InsertarEjemploEntrenamientoRequestDTO request);
         Task<bool> ActualizarEjemploEntrenamientoAsync(ActualizarEjemploEntrenamientoRequestDTO request);
         Task<bool> EliminarEjemploEntrenamientoAsync(int id, string usuario);
+        Task<bool> ActualizarCabeceraAsync(GestionDocenteActividadCabeceraDTO dto);
     }
 }
