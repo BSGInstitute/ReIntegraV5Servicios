@@ -18,6 +18,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         Task<int> InsertarOportunidadDocenteAsync(CrearOportunidadDocenteDTO dto);
         IEnumerable<EstadoGestionContactoDTO> ObtenerEstadosGestionContacto();
         Task<int> InsertarGestionContactoDocenteFlujoAsync(InsertarGestionContactoDocenteFlujoDTO dto);
+        Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo);
         OportunidadDocenteListResponseDTO ObtenerOportunidadesDocente(string busqueda, int pagina, int porPagina);
         IEnumerable<ComboDTO> ObtenerDocentes();
     }

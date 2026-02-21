@@ -329,5 +329,24 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             return _unitOfWork.GestionContactoRepository.ObtenerDocentes();
         }
 
+        /// Autor: Lolo Zaa
+        /// Fecha: 21/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Congela un flujo de gestión docente con todas sus actividades, disparadores,
+        /// ocurrencias y configuración IA asociadas.
+        /// </summary>
+        public async Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo)
+        {
+            try
+            {
+                return await _unitOfWork.GestionContactoRepository.CongelarFlujoDocenteAsync(idGestionContactoDocenteFlujo);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }

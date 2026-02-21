@@ -205,6 +205,42 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             }
         }
 
+        /// Autor: Lolo Zaa
+        /// Fecha: 21/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Congela un flujo de gestión docente con todas sus actividades, disparadores,
+        /// ocurrencias y configuración IA asociadas. Crea copias congeladas en estado
+        /// POR_EJECUTAR para ejecución posterior.
+        /// </summary>
+        /// <param name="idGestionContactoDocenteFlujo">ID del vínculo entre gestión contacto y flujo docente a congelar</param>
+        /// <returns>ID del flujo congelado creado</returns>
+        [HttpPost("[action]/{idGestionContactoDocenteFlujo}")]
+        public async Task<IActionResult> CongelarFlujoDocente(int idGestionContactoDocenteFlujo)
+        {
+            try
+            {
+                var idFlujoCongelado = await _gestionContactoService.CongelarFlujoDocenteAsync(idGestionContactoDocenteFlujo);
+
+                return Ok(new
+                {
+                    Exito = true,
+                    Mensaje = "Flujo docente congelado correctamente",
+                    IdFlujoCongelado = idFlujoCongelado
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Exito   = false,
+                    Mensaje = ex.Message,
+                    Detalle = ex.InnerException?.Message,
+                    Inner2  = ex.InnerException?.InnerException?.Message
+                });
+            }
+        }
+
         /// Autor: Joseph Llanque
         /// Fecha: 23/02/2026
         /// Version: 1.0
