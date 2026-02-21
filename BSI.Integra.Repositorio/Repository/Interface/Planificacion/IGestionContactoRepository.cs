@@ -29,5 +29,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         ProveedorClasificacionDTO ObtenerClasificacionPorProveedor(int idProveedor);
         IEnumerable<EstadoGestionContactoDTO> ObtenerEstadosGestionContacto();
         TGestionContactoDocenteFlujo InsertarGestionContactoDocenteFlujo(InsertarGestionContactoDocenteFlujoDTO dto);
+        Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo);
     }
 }

@@ -6,9 +6,11 @@ using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface.Planificacion;
+using Dapper;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -428,6 +430,35 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             catch (Exception ex)
             {
                 throw new Exception($"Error en InsertarGestionContactoDocenteFlujo(): {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 21/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Congela un flujo de gestión docente invocando el SP pla.SP_CongelamientoFlujoDocente.
+        /// El usuario de creación está hardcodeado como 'sgradosn'.
+        /// </summary>
+        public async Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@IdGestionContactoDocenteFlujo", idGestionContactoDocenteFlujo, DbType.Int32);
+                parameters.Add("@UsuarioCreacion", "sgradosn", DbType.String, size: 50);
+
+                await _dapperRepository.QuerySPDapperAsync(
+                    "pla.SP_CongelamientoFlujoDocente",
+                    parameters
+                );
+
+                // El SP no retorna nada, podríamos retornar el ID del vínculo como confirmación
+                return idGestionContactoDocenteFlujo;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en CongelarFlujoDocenteAsync(): {ex.Message}", ex);
             }
         }
 
