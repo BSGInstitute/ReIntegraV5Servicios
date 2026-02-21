@@ -11,6 +11,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public TGestionDocenteDisparadorReglaTiempoRelativoReferencium()
         {
             InverseIdGestionDocenteDisparadorReglaTiempoRelativoNavigation = new HashSet<TGestionDocenteDisparadorReglaTiempoRelativoReferencium>();
+            TGestionDocenteDisparadorReglaTiempoRelativoReferenciaCongelados = new HashSet<TGestionDocenteDisparadorReglaTiempoRelativoReferenciaCongelado>();
         }
 
         /// <summary>
@@ -53,5 +54,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual TGestionDocenteDisparadorReglaTiempoRelativoReferencium IdGestionDocenteDisparadorReglaTiempoRelativoNavigation { get; set; } = null!;
         public virtual TGestionDocenteReferenciaTiempo IdGestionDocenteReferenciaTiempoNavigation { get; set; } = null!;
         public virtual ICollection<TGestionDocenteDisparadorReglaTiempoRelativoReferencium> InverseIdGestionDocenteDisparadorReglaTiempoRelativoNavigation { get; set; }
+        public virtual ICollection<TGestionDocenteDisparadorReglaTiempoRelativoReferenciaCongelado> TGestionDocenteDisparadorReglaTiempoRelativoReferenciaCongelados { get; set; }
     }
 }
