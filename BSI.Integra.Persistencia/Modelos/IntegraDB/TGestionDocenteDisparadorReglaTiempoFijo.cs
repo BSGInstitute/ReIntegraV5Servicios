@@ -8,6 +8,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     /// </summary>
     public partial class TGestionDocenteDisparadorReglaTiempoFijo
     {
+        public TGestionDocenteDisparadorReglaTiempoFijo()
+        {
+            TGestionDocenteDisparadorReglaTiempoFijoCongelados = new HashSet<TGestionDocenteDisparadorReglaTiempoFijoCongelado>();
+        }
+
         /// <summary>
         /// Identificador único de la regla de tiempo fijo
         /// </summary>
@@ -51,5 +56,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
         public virtual TGestionDocenteDisparadorDetalle IdGestionDocenteDisparadorDetalleNavigation { get; set; } = null!;
         public virtual TGestionDocenteDisparadorReglaTiempo IdGestionDocenteDisparadorReglaTiempoNavigation { get; set; } = null!;
+        public virtual ICollection<TGestionDocenteDisparadorReglaTiempoFijoCongelado> TGestionDocenteDisparadorReglaTiempoFijoCongelados { get; set; }
     }
 }
