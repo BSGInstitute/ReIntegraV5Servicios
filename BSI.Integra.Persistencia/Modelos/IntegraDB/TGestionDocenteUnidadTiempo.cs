@@ -10,6 +10,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TGestionDocenteUnidadTiempo()
         {
+            TGestionDocenteDisparadorReglaTiempoRelativoCongelados = new HashSet<TGestionDocenteDisparadorReglaTiempoRelativoCongelado>();
             TGestionDocenteDisparadorReglaTiempoRelativos = new HashSet<TGestionDocenteDisparadorReglaTiempoRelativo>();
         }
 
@@ -46,6 +47,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
 
+        public virtual ICollection<TGestionDocenteDisparadorReglaTiempoRelativoCongelado> TGestionDocenteDisparadorReglaTiempoRelativoCongelados { get; set; }
         public virtual ICollection<TGestionDocenteDisparadorReglaTiempoRelativo> TGestionDocenteDisparadorReglaTiempoRelativos { get; set; }
     }
 }

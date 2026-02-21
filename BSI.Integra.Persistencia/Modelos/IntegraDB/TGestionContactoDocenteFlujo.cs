@@ -8,6 +8,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     /// </summary>
     public partial class TGestionContactoDocenteFlujo
     {
+        public TGestionContactoDocenteFlujo()
+        {
+            TGestionContactoFlujoCongelados = new HashSet<TGestionContactoFlujoCongelado>();
+        }
+
         /// <summary>
         /// Identificador único de la relación
         /// </summary>
@@ -47,5 +52,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
         public virtual TGestionContacto IdGestionContactoNavigation { get; set; } = null!;
         public virtual TGestionDocenteFlujo IdGestionDocenteFlujoNavigation { get; set; } = null!;
+        public virtual ICollection<TGestionContactoFlujoCongelado> TGestionContactoFlujoCongelados { get; set; }
     }
 }

@@ -8,6 +8,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     /// </summary>
     public partial class TGestionDocenteDisparadorOcurrenciaDetalle
     {
+        public TGestionDocenteDisparadorOcurrenciaDetalle()
+        {
+            TGestionDocenteDisparadorOcurrenciaDetalleCongelados = new HashSet<TGestionDocenteDisparadorOcurrenciaDetalleCongelado>();
+        }
+
         /// <summary>
         /// Identificador único de la relación
         /// </summary>
@@ -47,5 +52,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
         public virtual TGestionDocenteDisparadorDetalle IdGestionDocenteDisparadorDetalleNavigation { get; set; } = null!;
         public virtual TGestionDocenteOcurrencium IdGestionDocenteOcurrenciaPreviaNavigation { get; set; } = null!;
+        public virtual ICollection<TGestionDocenteDisparadorOcurrenciaDetalleCongelado> TGestionDocenteDisparadorOcurrenciaDetalleCongelados { get; set; }
     }
 }
