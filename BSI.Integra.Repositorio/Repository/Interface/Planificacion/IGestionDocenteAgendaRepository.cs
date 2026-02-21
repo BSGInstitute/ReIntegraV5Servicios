@@ -6,10 +6,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
 {
     public interface IGestionDocenteAgendaRepository : IGenericRepository<TProveedor>
     {
-        List<DocenteConCursoDTO> ObtenerDocentesConCursos();
-        DocenteAgendaCabeceraDTO ObtenerCabeceraDocente(int idProveedor);
-        DocenteAgendaFlujoDTO ObtenerFlujoDocente(int idGestionContacto);
-        List<DocenteAgendaCronogramaDTO> ObtenerCronogramasDocente(int idProveedor, int idPEspecificoPrioridad);
-        List<DocenteAgendaSesionDTO> ObtenerSesionesPorCursoYDocente(int idProveedor, int idPEspecifico);
+        List<AgendaTabConfiguracionPlanificacionAlternoDTO> ObtenerTabsConfigurados(string codigoAreaTrabajo);
+        List<AgendaTabConfiguracionPlanificacionAlternoDTO> ObtenerTabsConfiguradosPorIdTab(string codigoAreaTrabajo, int idTab);
+        List<ActividadAgendaPlanificacionDTO> ObtenerActividades(AgendaTabConfiguracionPlanificacionAlternoDTO tabAgenda, int idAsesor);
+        int CantidadActividadesPorTab(AgendaTabConfiguracionPlanificacionAlternoDTO tabAgenda, int idAsesor);
     }
 }

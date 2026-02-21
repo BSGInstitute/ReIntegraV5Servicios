@@ -3,9 +3,18 @@ using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
 {
+    /// Service: GestionDocenteAgendaService
+    /// Autor: Jose Vega
+    /// Fecha: 21/02/2026
+    /// <summary>
+    /// Orquesta la carga de tabs y actividades para la agenda de planificación docente.
+    /// Lee la configuración de tabs desde T_AgendaTab + T_AgendaTabConfiguracionPlanificacion
+    /// y ejecuta los SPs almacenados en VistaBaseDatos.
+    /// </summary>
     public class GestionDocenteAgendaService : IGestionDocenteAgendaService
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -16,63 +25,98 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         }
 
         /// Autor: Jose Vega
-        /// Fecha: 19/02/2026
+        /// Fecha: 21/02/2026
         /// Versión: 1.0
         /// <summary>
-        /// Obtiene la lista de docentes que tienen cursos asignados con su personal asignado.
+        /// Obtiene las configuraciones de tabs para un área de trabajo.
         /// </summary>
-        /// <returns>Lista de DocenteConCursoDTO.</returns>
-        public List<DocenteConCursoDTO> ObtenerDocentesConCursos()
+        /// <param name="codigoAreaTrabajo">Código del área de trabajo</param>
+        /// <returns>Lista de configuraciones de tabs</returns>
+        public List<AgendaTabConfiguracionPlanificacionAlternoDTO> ObtenerTabsConfigurados(string codigoAreaTrabajo)
         {
             try
             {
-                return _unitOfWork.GestionDocenteAgendaRepository.ObtenerDocentesConCursos();
+                return _unitOfWork.GestionDocenteAgendaRepository.ObtenerTabsConfigurados(codigoAreaTrabajo);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
         }
 
         /// Autor: Jose Vega
-        /// Fecha: 19/02/2026
+        /// Fecha: 21/02/2026
         /// Versión: 1.0
         /// <summary>
-        /// Obtiene el detalle completo de un docente: cabecera con datos personales, flujo asignado
-        /// y todos sus cronogramas con sesiones, priorizando el curso indicado.
+        /// Obtiene todas las actividades por cada tab configurado para el asesor.
+        /// Itera los tabs y ejecuta el SP de cada uno.
         /// </summary>
-        /// <param name="idProveedor">Identificador del docente/proveedor.</param>
-        /// <param name="idPEspecifico">Identificador del curso a priorizar en la lista.</param>
-        /// <param name="idGestionContacto">Identificador opcional del GestionContacto para obtener el flujo.</param>
-        /// <returns>DocenteAgendaDetalleDTO con toda la información.</returns>
-        public DocenteAgendaDetalleDTO ObtenerDetalleDocente(int idProveedor, int idPEspecifico, int? idGestionContacto)
+        /// <param name="idAsesor">Id del personal asignado (0 para no filtrar)</param>
+        /// <param name="codigoAreaTrabajo">Código del área de trabajo</param>
+        /// <returns>Diccionario con nombre del tab como clave y lista de actividades como valor</returns>
+        public Dictionary<string, List<ActividadAgendaPlanificacionDTO>> ObtenerActividades(int idAsesor, string codigoAreaTrabajo)
         {
             try
             {
-                var cabecera = _unitOfWork.GestionDocenteAgendaRepository.ObtenerCabeceraDocente(idProveedor);
-                if (cabecera == null) return null;
+                var tabsAgenda = _unitOfWork.GestionDocenteAgendaRepository.ObtenerTabsConfigurados(codigoAreaTrabajo);
+                Dictionary<string, List<ActividadAgendaPlanificacionDTO>> actividadesAgenda = new();
 
-                DocenteAgendaFlujoDTO flujo = null;
-                if (idGestionContacto.HasValue)
+                foreach (var item in tabsAgenda)
                 {
-                    flujo = _unitOfWork.GestionDocenteAgendaRepository.ObtenerFlujoDocente(idGestionContacto.Value);
+                    if (item.VisualizarActividad && item.CargarInformacionInicial)
+                    {
+                        var actividades = _unitOfWork.GestionDocenteAgendaRepository.ObtenerActividades(item, idAsesor);
+
+                        if (!actividadesAgenda.ContainsKey(item.Nombre))
+                            actividadesAgenda.Add(item.Nombre, actividades);
+                        else
+                            actividadesAgenda[item.Nombre].AddRange(actividades);
+                    }
                 }
 
-                var cronogramas = _unitOfWork.GestionDocenteAgendaRepository.ObtenerCronogramasDocente(idProveedor, idPEspecifico);
-
-                foreach (var cronograma in cronogramas)
-                {
-                    cronograma.Sesiones = _unitOfWork.GestionDocenteAgendaRepository.ObtenerSesionesPorCursoYDocente(idProveedor, cronograma.IdPEspecifico);
-                }
-
-                return new DocenteAgendaDetalleDTO
-                {
-                    Cabecera = cabecera,
-                    Flujo = flujo,
-                    Cronogramas = cronogramas
-                };
+                return actividadesAgenda;
             }
-            catch (Exception ex)
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 21/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Carga las actividades de un tab específico filtrado por idTab.
+        /// </summary>
+        /// <param name="idTab">Id del AgendaTab</param>
+        /// <param name="codigoAreaTrabajo">Código del área de trabajo</param>
+        /// <param name="idAsesor">Id del personal asignado (0 para no filtrar)</param>
+        /// <returns>Tupla con diccionario de actividades y cantidad total</returns>
+        public (Dictionary<string, List<ActividadAgendaPlanificacionDTO>> ActividadesAgenda, int Cantidad) CargarActividadSeleccionadaPorFiltro(int idTab, string codigoAreaTrabajo, int idAsesor)
+        {
+            try
+            {
+                var tabsActividad = _unitOfWork.GestionDocenteAgendaRepository.ObtenerTabsConfiguradosPorIdTab(codigoAreaTrabajo, idTab);
+                Dictionary<string, List<ActividadAgendaPlanificacionDTO>> actividadesAgenda = new();
+                int cantidad = 0;
+
+                if (tabsActividad != null && tabsActividad.Count > 0)
+                {
+                    foreach (var item in tabsActividad)
+                    {
+                        var actividades = _unitOfWork.GestionDocenteAgendaRepository.ObtenerActividades(item, idAsesor);
+                        cantidad = actividades.Count;
+
+                        if (!actividadesAgenda.ContainsKey(item.Nombre))
+                            actividadesAgenda.Add(item.Nombre, actividades);
+                        else
+                            actividadesAgenda[item.Nombre].AddRange(actividades);
+                    }
+                }
+
+                return (actividadesAgenda, cantidad);
+            }
+            catch (Exception)
             {
                 throw;
             }

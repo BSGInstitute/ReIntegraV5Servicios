@@ -5,6 +5,12 @@ using System;
 
 namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
 {
+    /// Controlador: GestionDocenteAgendaController
+    /// Autor: Jose Vega
+    /// Fecha: 21/02/2026
+    /// <summary>
+    /// Gestión de tabs y actividades de la agenda de planificación docente.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [EnableCors("CorsVista")]
@@ -19,20 +25,20 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
 
         /// Tipo Función: GET
         /// Autor: Jose Vega
-        /// Fecha: 19/02/2026
+        /// Fecha: 21/02/2026
         /// Versión: 1.0
         /// <summary>
-        /// Endpoint que obtiene la lista de docentes que tienen cursos asignados,
-        /// con su respectivo curso y personal asignado.
+        /// Obtiene las configuraciones de tabs de agenda para el área de trabajo indicada.
         /// </summary>
-        /// <returns>ActionResult con la lista de DocenteConCursoDTO.</returns>
-        [HttpGet("ObtenerDocentesConCursos")]
-        public IActionResult ObtenerDocentesConCursos()
+        /// <param name="codigoAreaTrabajo">Código del área de trabajo</param>
+        /// <returns>Lista de configuraciones de tabs</returns>
+        [HttpGet("ObtenerTabsConfigurados/{codigoAreaTrabajo}")]
+        public IActionResult ObtenerTabsConfigurados(string codigoAreaTrabajo)
         {
             try
             {
-                var lista = _gestionDocenteAgendaService.ObtenerDocentesConCursos();
-                return Ok(lista);
+                var tabs = _gestionDocenteAgendaService.ObtenerTabsConfigurados(codigoAreaTrabajo);
+                return Ok(tabs);
             }
             catch (Exception ex)
             {
@@ -42,25 +48,46 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
 
         /// Tipo Función: GET
         /// Autor: Jose Vega
-        /// Fecha: 19/02/2026
+        /// Fecha: 21/02/2026
         /// Versión: 1.0
         /// <summary>
-        /// Endpoint que obtiene el detalle completo de un docente: datos personales (nombre, celular,
-        /// correo, personal asignado, país, ciudad), flujo asignado y todos sus cronogramas con sesiones.
-        /// El curso indicado por idPEspecifico se lista en primer lugar.
+        /// Obtiene todas las actividades de todos los tabs configurados para el asesor.
         /// </summary>
-        /// <param name="idProveedor">Identificador del docente/proveedor.</param>
-        /// <param name="idPEspecifico">Identificador del curso a priorizar en la lista de cronogramas.</param>
-        /// <param name="idGestionContacto">Identificador opcional del GestionContacto para obtener el flujo asignado.</param>
-        /// <returns>ActionResult con DocenteAgendaDetalleDTO.</returns>
-        [HttpGet("ObtenerDetalleDocente/{idProveedor}/{idPEspecifico}")]
-        public IActionResult ObtenerDetalleDocente(int idProveedor, int idPEspecifico, [FromQuery] int? idGestionContacto)
+        /// <param name="codigoAreaTrabajo">Código del área de trabajo</param>
+        /// <param name="idAsesor">Id del personal asignado (0 para todos)</param>
+        /// <returns>Diccionario de actividades agrupadas por nombre del tab</returns>
+        [HttpGet("ObtenerActividades/{codigoAreaTrabajo}/{idAsesor}")]
+        public IActionResult ObtenerActividades(string codigoAreaTrabajo, int idAsesor)
         {
             try
             {
-                var detalle = _gestionDocenteAgendaService.ObtenerDetalleDocente(idProveedor, idPEspecifico, idGestionContacto);
-                if (detalle == null) return NotFound(new { Exito = false, Mensaje = "No se encontró el docente." });
-                return Ok(detalle);
+                var actividades = _gestionDocenteAgendaService.ObtenerActividades(idAsesor, codigoAreaTrabajo);
+                return Ok(actividades);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 21/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Carga las actividades de un tab específico.
+        /// </summary>
+        /// <param name="idTab">Id del AgendaTab</param>
+        /// <param name="codigoAreaTrabajo">Código del área de trabajo</param>
+        /// <param name="idAsesor">Id del personal asignado (0 para todos)</param>
+        /// <returns>Actividades del tab seleccionado y cantidad</returns>
+        [HttpGet("CargarActividadPorTab/{idTab}/{codigoAreaTrabajo}/{idAsesor}")]
+        public IActionResult CargarActividadPorTab(int idTab, string codigoAreaTrabajo, int idAsesor)
+        {
+            try
+            {
+                var resultado = _gestionDocenteAgendaService.CargarActividadSeleccionadaPorFiltro(idTab, codigoAreaTrabajo, idAsesor);
+                return Ok(new { ActividadesAgenda = resultado.ActividadesAgenda, Cantidad = resultado.Cantidad });
             }
             catch (Exception ex)
             {
