@@ -3031,6 +3031,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             List<PresentacionProgramadto> demostraciondevalor = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Demostración de valor", StringComparison.OrdinalIgnoreCase)).ToList();
             List<PresentacionProgramadto> aspectosdiferenciadores = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Aspectos diferenciadores", StringComparison.OrdinalIgnoreCase)).ToList();
             List<PresentacionProgramadto> garantiadeprograma = secciones.Where(s => string.Equals(s.Titulo?.Trim(), "Garantia de programa", StringComparison.OrdinalIgnoreCase)).ToList();
+            List<CertificacionPrograma> certificacion = _unitOfWork.DocumentoSeccionPwRepository.ObtenerCertificadoPorIdPGeneral(idPGeneral);
 
             // Obtener objetivos desde las secciones procesadas
             List<RegistroListaSeccionesDocumentoDTO> objetivos = _unitOfWork.DocumentoSeccionPwRepository.ObtenerDatosComplementariosProgramaGeneralV2Objetivos(idPGeneral);
@@ -3138,7 +3139,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 Expositores = expositores,
                 Presentacion = presentacion,
                 Prerrequisitos = prerrequisitos,
-                DatosAdicionales = listaadicionales
+                DatosAdicionales = listaadicionales,
+                Certificaciones = certificacion
+
             };
 
             return resultado;

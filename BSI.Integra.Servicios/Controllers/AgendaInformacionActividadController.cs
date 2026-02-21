@@ -5327,6 +5327,26 @@ namespace BSI.Integra.Servicios.Controllers
 
         [Route("[Action]/{idMatriculaCabecera}")]
         [HttpGet]
+        public ActionResult ObtenerDatosAvanceAonlineATC(int idMatriculaCabecera)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var datosAvanceAonline = new AlumnoService(_unitOfWork);
+                var datosCobranza = datosAvanceAonline.obtenerDatosAvanceAonlineATC(idMatriculaCabecera);
+                return Ok(datosCobranza);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("[Action]/{idMatriculaCabecera}")]
+        [HttpGet]
         public ActionResult ObtenerAvanceAonlineHoras(int idMatriculaCabecera) { 
             if (!ModelState.IsValid)
             {
