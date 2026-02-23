@@ -284,7 +284,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     IdClasificacionPersona    = clasificacion.IdClasificacionPersona,
                     IdFaseGestionContacto     = 2,
                     IdOrigen                  = 1124,
-                    IdEstadoGestionContacto   = dto.IdCentroCosto.HasValue ? 2 : 1,
+                    IdEstadoGestionContacto   = 1,
                     UltimoComentario          = "Creacion de Oportunidad Docente Registrada",
                     EstadoSeguimientoWhatsApp = false,
                     Estado                    = true,

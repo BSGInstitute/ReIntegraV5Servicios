@@ -26,6 +26,20 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public DocenteAgendaFlujoDTO Flujo { get; set; }
         public List<DocenteAgendaCronogramaDTO> Cronogramas { get; set; }
     }
+    public class DocenteAgendaCronogramaDTO
+    {
+        public int IdPEspecifico { get; set; }
+        public string NombreCurso { get; set; }
+        public string CodigoCurso { get; set; }
+        public string EstadoCurso { get; set; }
+        public string TipoCurso { get; set; }
+        public string CategoriaCurso { get; set; }
+        public string CiudadCurso { get; set; }
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaTermino { get; set; }
+        public bool EsPriorizado { get; set; }
+        public List<DocenteAgendaSesionDTO> Sesiones { get; set; }
+    }
 
     public class DocenteAgendaCabeceraDTO
     {
@@ -76,16 +90,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public List<DocenteAgendaSesionDTO> Sesiones { get; set; }
     }
 
-    /// <summary>
-    /// DTO con el detalle completo de un docente: cabecera, flujo y cronogramas con sesiones.
-    /// </summary>
-    public class DetalleDocenteAgendaDTO
-    public class DocenteAgendaSesionDTO
-    {
-        public CabeceraDocenteAgendaDTO Cabecera { get; set; }
-        public FlujoDocenteAgendaDTO Flujo { get; set; }
-        public List<CronogramaDocenteDTO> Cronogramas { get; set; } = new List<CronogramaDocenteDTO>();
-    }
+   
+
 
     public class DocenteAgendaSesionDTO
     {
