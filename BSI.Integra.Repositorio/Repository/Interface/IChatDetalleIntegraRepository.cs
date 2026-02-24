@@ -53,5 +53,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         List<ActividadAtcDTO> ObtenerTareasPorPEspecifico(int idPEspecifico);
         List<ActividadRecursoSesionDocenteDTO> ObtenerActividadesRecursoSesionDocente(int idPEspecificoSesion);
         DatoPerfilProyectoDTO ObtenerDatoPerfilProyecto(int idMatriculaCabecera);
+        bool AmpliarFechaCuestionario(int idActividad, string fecha);
+        bool AmpliarFechaTarea(int idActividad, string fecha);
     }
 }

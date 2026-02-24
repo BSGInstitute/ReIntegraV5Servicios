@@ -805,7 +805,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         /// <summary>
         /// Amplia la fecha de entrega de un cuestionario o tarea.
         /// </summary>
-        public AmpliarFechaEntregaResponseDTO AmpliarFechaEntrega(int idPEspecifico, int idAlumno, int idActividad, string fecha, string tipoActividad, string usuario)
+        public AmpliarFechaEntregaResponseDTO AmpliarFechaEntrega(int idPEspecifico, int idAlumno, int idActividad, string fecha, string tipoActividad)
         {
             try
             {
@@ -828,11 +828,11 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 bool resultado;
                 if (tipoActividad.ToUpper() == "CUESTIONARIO")
                 {
-                    resultado = _unitOfWork.ChatDetalleIntegraRepository.AmpliarFechaCuestionario(idActividad, fecha, usuario);
+                    resultado = _unitOfWork.ChatDetalleIntegraRepository.AmpliarFechaCuestionario(idActividad, fecha);
                 }
                 else if (tipoActividad.ToUpper() == "TAREA")
                 {
-                    resultado = _unitOfWork.ChatDetalleIntegraRepository.AmpliarFechaTarea(idActividad, fecha, usuario);
+                    resultado = _unitOfWork.ChatDetalleIntegraRepository.AmpliarFechaTarea(idActividad, fecha);
                 }
                 else
                 {

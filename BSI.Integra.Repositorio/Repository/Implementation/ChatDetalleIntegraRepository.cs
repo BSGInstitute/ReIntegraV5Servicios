@@ -1208,5 +1208,60 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Amplia la fecha de entrega de un cuestionario.
+        /// </summary>
+        public bool AmpliarFechaCuestionario(int idActividad, string fecha)
+        {
+            try
+            {
+                var query = @"UPDATE pw.T_PW_PEspecificoSesionCuestionario
+                              SET FechaEntregaSecundaria = @Fecha,
+                                  UsuarioModificacion = @Usuario,
+                                  FechaModificacion = GETDATE()
+                              WHERE Id = @IdActividad";
+                _dapperRepository.QueryDapper(query, new { IdActividad = idActividad, Fecha = fecha});
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Amplia la fecha de entrega de una tarea.
+        /// </summary>
+        public bool AmpliarFechaTarea(int idActividad, string fecha)
+        {
+            try
+            {
+                var query = @"UPDATE pw.T_PW_PEspecificoSesionTarea
+                              SET FechaEntregaSecundaria = @Fecha,
+                                  UsuarioModificacion = @Usuario,
+                                  FechaModificacion = GETDATE()
+                              WHERE Id = @IdActividad";
+                _dapperRepository.QueryDapper(query, new { IdActividad = idActividad, Fecha = fecha});
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

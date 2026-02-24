@@ -891,7 +891,14 @@ namespace BSI.Integra.Servicios.Controllers
             try
             {
                 var servicio = new ChatDetalleIntegraService(unitOfWork);
-                var respuesta = servicio.AmpliarFechaEntrega(dto.IdPEspecifico, dto.IdAlumno, dto.IdActividad, dto.Fecha, dto.TipoActividad, usuario);
+                var respuesta = servicio.AmpliarFechaEntrega(dto.IdPEspecifico, dto.IdAlumno, dto.IdActividad, dto.Fecha, dto.TipoActividad);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
                 return Ok(respuesta);
             }
             catch (Exception ex)
