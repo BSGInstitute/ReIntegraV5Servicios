@@ -22,5 +22,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         List<ChatDetalleIntegra> ObtenerDetalleChatPorIdInteraccionControlMensajesSoporte(int idAlumno);
         ChatDetalleIntegra ObtenerPorIntegraChatYRemintente(int idInteraccionChatIntegra, string idRemitente);
         public List<ChatActivoDetalleIntegraDTO> ObtenerChatsAcademicosHabilitadosCoordinadora(int IdCoordinadorAcademico, bool EsOnline);
+        ObtenerActividadesAtcResponseDTO ObtenerActividadesAtc(int idPEspecifico, int idAlumno);
+        AmpliarFechaEntregaResponseDTO AmpliarFechaEntrega(int idPEspecifico, int idAlumno, int idActividad, string fecha, string tipoActividad, string usuario);
     }
 }

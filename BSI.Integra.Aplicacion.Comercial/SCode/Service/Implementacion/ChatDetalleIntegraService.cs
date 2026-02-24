@@ -738,5 +738,125 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
 
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene todas las actividades AONLINE/ONLINE para un alumno y programa especifico.
+        /// </summary>
+        public ObtenerActividadesAtcResponseDTO ObtenerActividadesAtc(int idPEspecifico, int idAlumno)
+        {
+            try
+            {
+                var response = new ObtenerActividadesAtcResponseDTO();
+
+                var idMatriculaCabecera = _unitOfWork.ChatDetalleIntegraRepository.ObtenerIdMatriculaCabecera(idAlumno, idPEspecifico);
+                if (idMatriculaCabecera != null)
+                {
+                    int idMC = idMatriculaCabecera.Value;
+
+                    // AONLINE: Videos
+                    response.Videos = _unitOfWork.ChatDetalleIntegraRepository.ObtenerVideosAulaVirtual(idMC);
+
+                    // AONLINE: Encuestas
+                    response.Encuestas = _unitOfWork.ChatDetalleIntegraRepository.ObtenerEncuestasRealizadas(idMC);
+
+                    // AONLINE: Tareas
+                    response.Tareas = _unitOfWork.ChatDetalleIntegraRepository.ObtenerTareasRealizadas(idMC);
+
+                    // Proyecto de Aplicacion
+                    var perfil = _unitOfWork.ChatDetalleIntegraRepository.ObtenerDatoPerfilProyecto(idMC);
+                    if (perfil != null && perfil.IdProyecto.HasValue && perfil.IdProyecto.Value > 0)
+                    {
+                        response.Proyecto = perfil;
+                        var evaluacion = _unitOfWork.ChatDetalleIntegraRepository.ObtenerConfigurarEvaluacionTrabajo(perfil.IdProyecto.Value);
+                        if (evaluacion != null && evaluacion.Id > 0)
+                        {
+                            response.ProyectoConfiguracion = evaluacion;
+                            if (evaluacion.IdPGeneral.HasValue && evaluacion.IdDocumentoPw.HasValue)
+                            {
+                                response.ProyectoInstrucciones = _unitOfWork.ChatDetalleIntegraRepository.ObtenerInstruccionesDocumentoSeccion(
+                                    evaluacion.IdPGeneral.Value, evaluacion.IdDocumentoPw.Value);
+                            }
+                        }
+                    }
+                }
+
+                // ONLINE: Actividades por sesion (cuestionarios, tareas, actividades adicionales)
+                var idsSesion = _unitOfWork.ChatDetalleIntegraRepository.ObtenerIdsPEspecificoSesion(idPEspecifico);
+                foreach (var idSesion in idsSesion)
+                {
+                    var actividades = _unitOfWork.ChatDetalleIntegraRepository.ObtenerActividadesRecursoSesionDocente(idSesion);
+                    response.ActividadesOnline.AddRange(actividades);
+                }
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Amplia la fecha de entrega de un cuestionario o tarea.
+        /// </summary>
+        public AmpliarFechaEntregaResponseDTO AmpliarFechaEntrega(int idPEspecifico, int idAlumno, int idActividad, string fecha, string tipoActividad, string usuario)
+        {
+            try
+            {
+                var response = new AmpliarFechaEntregaResponseDTO { Error = new Dictionary<string, string>() };
+
+                if (string.IsNullOrEmpty(tipoActividad))
+                {
+                    response.Mensaje = "Error";
+                    response.Error.Add("TipoActividad", "El campo TipoActividad es requerido (CUESTIONARIO o TAREA).");
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(fecha))
+                {
+                    response.Mensaje = "Error";
+                    response.Error.Add("Fecha", "El campo Fecha es requerido.");
+                    return response;
+                }
+
+                bool resultado;
+                if (tipoActividad.ToUpper() == "CUESTIONARIO")
+                {
+                    resultado = _unitOfWork.ChatDetalleIntegraRepository.AmpliarFechaCuestionario(idActividad, fecha, usuario);
+                }
+                else if (tipoActividad.ToUpper() == "TAREA")
+                {
+                    resultado = _unitOfWork.ChatDetalleIntegraRepository.AmpliarFechaTarea(idActividad, fecha, usuario);
+                }
+                else
+                {
+                    response.Mensaje = "Error";
+                    response.Error.Add("TipoActividad", "TipoActividad debe ser CUESTIONARIO o TAREA.");
+                    return response;
+                }
+
+                if (resultado)
+                {
+                    response.Mensaje = "Fecha de entrega ampliada correctamente.";
+                }
+                else
+                {
+                    response.Mensaje = "Error al ampliar la fecha de entrega.";
+                    response.Error.Add("General", "No se pudo actualizar el registro.");
+                }
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

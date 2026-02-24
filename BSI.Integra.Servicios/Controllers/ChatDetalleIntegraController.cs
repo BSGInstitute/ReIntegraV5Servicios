@@ -846,5 +846,58 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }     
+        /// Tipo Funcion: POST
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene actividades AONLINE/ONLINE para un alumno y programa
+        /// </summary>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerActividadesAtc([FromBody] ObtenerActividadesAtcRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerActividadesAtc(dto.IdPEspecifico, dto.IdAlumno);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Funcion: POST
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Amplia la fecha de entrega de un cuestionario o tarea
+        /// </summary>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult AmpliarFechaEntregaAtc([FromBody] AmpliarFechaEntregaRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.AmpliarFechaEntrega(dto.IdPEspecifico, dto.IdAlumno, dto.IdActividad, dto.Fecha, dto.TipoActividad, usuario);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

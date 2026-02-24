@@ -956,5 +956,257 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el Id de MatriculaCabecera a partir de IdAlumno e IdPEspecifico.
+        /// </summary>
+        public int? ObtenerIdMatriculaCabecera(int idAlumno, int idPEspecifico)
+        {
+            try
+            {
+                var query = @"SELECT TOP 1 Id FROM fin.T_MatriculaCabecera
+                              WHERE Estado = 1 AND IdAlumno = @IdAlumno AND IdPEspecifico = @IdPEspecifico";
+                var resultado = _dapperRepository.FirstOrDefault(query, new { IdAlumno = idAlumno, IdPEspecifico = idPEspecifico });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    var obj = JsonConvert.DeserializeObject<Dictionary<string, int>>(resultado);
+                    if (obj != null && obj.ContainsKey("Id"))
+                    {
+                        return obj["Id"];
+                    }
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el estado de videos del aula virtual para un programa AONLINE.
+        /// </summary>
+        public List<VideoAulaVirtualDTO> ObtenerVideosAulaVirtual(int idMatriculaCabecera)
+        {
+            try
+            {
+                var rpta = new List<VideoAulaVirtualDTO>();
+                var query = @"SELECT IdMatriculaCabecera, IdAlumno, IdPGeneralPadre, IdPGeneralHijo,
+                              OrdenSeccion, IdPEspecificoHijo, VideosTerminados, VideosTotal
+                              FROM pw.V_PW_ConfiguracionProgramaEstadoVideoAulaVirtual
+                              WHERE IdMatriculaCabecera = @IdMatriculaCabecera";
+                var resultado = _dapperRepository.QueryDapper(query, new { IdMatriculaCabecera = idMatriculaCabecera });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<VideoAulaVirtualDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el estado de encuestas para un programa AONLINE.
+        /// </summary>
+        public List<EncuestaRealizadaDTO> ObtenerEncuestasRealizadas(int idMatriculaCabecera)
+        {
+            try
+            {
+                var rpta = new List<EncuestaRealizadaDTO>();
+                var query = @"SELECT IdMatriculaCabecera, IdPEspecifico, IdAlumno, IdPGeneralPadre, IdPGeneralHijo,
+                              IdPEspecificoHijo, ExamenProgramados, ExamenRealizado, Completado
+                              FROM ope.V_EncuestaRealizadaProgramaAlumno
+                              WHERE IdMatriculaCabecera = @IdMatriculaCabecera";
+                var resultado = _dapperRepository.QueryDapper(query, new { IdMatriculaCabecera = idMatriculaCabecera });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<EncuestaRealizadaDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el estado de tareas para un programa AONLINE.
+        /// </summary>
+        public List<TareaRealizadaDTO> ObtenerTareasRealizadas(int idMatriculaCabecera)
+        {
+            try
+            {
+                var rpta = new List<TareaRealizadaDTO>();
+                var query = @"SELECT IdMatriculaCabecera, IdPEspecifico, IdAlumno, IdPGeneralPadre, IdPGeneralHijo,
+                              IdPEspecificoHijo, TareasProgramadas, TareasRealizadas, Completado
+                              FROM pw.V_PW_TareaRealizadaProgramaAlumno
+                              WHERE IdMatriculaCabecera = @IdMatriculaCabecera";
+                var resultado = _dapperRepository.QueryDapper(query, new { IdMatriculaCabecera = idMatriculaCabecera });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<TareaRealizadaDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene los Id de PEspecificoSesion asociados a un PEspecifico.
+        /// </summary>
+        public List<int> ObtenerIdsPEspecificoSesion(int idPEspecifico)
+        {
+            try
+            {
+                var lista = new List<int>();
+                var query = "SELECT Id FROM pla.T_PEspecificoSesion WHERE IdPEspecifico = @IdPEspecifico AND Estado = 1";
+                var resultado = _dapperRepository.QueryDapper(query, new { IdPEspecifico = idPEspecifico });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    var temp = JsonConvert.DeserializeObject<List<Dictionary<string, int>>>(resultado);
+                    if (temp != null)
+                    {
+                        lista = temp.Select(obj => obj["Id"]).ToList();
+                    }
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene cuestionarios por PEspecifico con Titulo, FechaEntrega, FechaEntregaSecundaria.
+        /// </summary>
+        public List<ActividadAtcDTO> ObtenerCuestionariosPorPEspecifico(int idPEspecifico)
+        {
+            try
+            {
+                var rpta = new List<ActividadAtcDTO>();
+                var query = @"SELECT c.Id AS ActividadId, c.Titulo AS ActividadNombre,
+                              c.FechaEntrega AS ActividadFechaEntrega, c.FechaEntregaSecundaria AS ActividadFechaEntregaSecundaria
+                              FROM pw.T_PW_PEspecificoSesionCuestionario c
+                              INNER JOIN pla.T_PEspecificoSesion s ON c.IdPEspecificoSesion = s.Id
+                              WHERE s.IdPEspecifico = @IdPEspecifico AND s.Estado = 1 AND c.Estado = 1 AND c.Publicado = 1";
+                var resultado = _dapperRepository.QueryDapper(query, new { IdPEspecifico = idPEspecifico });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ActividadAtcDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene tareas por PEspecifico con Titulo, FechaEntrega, FechaEntregaSecundaria.
+        /// </summary>
+        public List<ActividadAtcDTO> ObtenerTareasPorPEspecifico(int idPEspecifico)
+        {
+            try
+            {
+                var rpta = new List<ActividadAtcDTO>();
+                var query = @"SELECT t.Id AS ActividadId, t.Titulo AS ActividadNombre,
+                              t.FechaEntrega AS ActividadFechaEntrega, t.FechaEntregaSecundaria AS ActividadFechaEntregaSecundaria
+                              FROM pw.T_PW_PEspecificoSesionTarea t
+                              INNER JOIN pla.T_PEspecificoSesion s ON t.IdPEspecificoSesion = s.Id
+                              WHERE s.IdPEspecifico = @IdPEspecifico AND s.Estado = 1 AND t.Estado = 1 AND t.Publicado = 1";
+                var resultado = _dapperRepository.QueryDapper(query, new { IdPEspecifico = idPEspecifico });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ActividadAtcDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene actividades/recursos de sesion docente para programas ONLINE.
+        /// </summary>
+        public List<ActividadRecursoSesionDocenteDTO> ObtenerActividadesRecursoSesionDocente(int idPEspecificoSesion)
+        {
+            try
+            {
+                var rpta = new List<ActividadRecursoSesionDocenteDTO>();
+                var query = @"SELECT * FROM pw.V_PW_ObtenerActividadesRecursoSesionDocente
+                              WHERE IdPEspecificoSesion = @IdPEspecificoSesion AND Publicado = 1 AND AsignadoPara = 1
+                              ORDER BY Tipo";
+                var resultado = _dapperRepository.QueryDapper(query, new { IdPEspecificoSesion = idPEspecificoSesion });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ActividadRecursoSesionDocenteDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene datos del perfil de proyecto de aplicacion.
+        /// </summary>
+        public DatoPerfilProyectoDTO ObtenerDatoPerfilProyecto(int idMatriculaCabecera)
+        {
+            try
+            {
+                var query = @"SELECT ProyectoAplicacion, IdProyecto
+                              FROM pw.V_PW_DatoPerfil
+                              WHERE IdMatriculaCabecera = @IdMatriculaCabecera";
+                var resultado = _dapperRepository.FirstOrDefault(query, new { IdMatriculaCabecera = idMatriculaCabecera });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<DatoPerfilProyectoDTO>(resultado);
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }
