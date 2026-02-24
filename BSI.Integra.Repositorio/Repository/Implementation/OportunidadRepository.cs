@@ -4786,7 +4786,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 OportunidadEmpresaPagaDTO resultado = new OportunidadEmpresaPagaDTO();
-                var resultadoSP = _dapperRepository.QuerySPFirstOrDefault("fin.SP_MatriculaEmpresaPaga", new { CodigoMatricula = codigoMatricula });
+                var resultadoSP = _dapperRepository.QuerySPFirstOrDefault("ope.SP_MatriculaEmpresaPaga", new { CodigoMatricula = codigoMatricula });
 
                 if (!string.IsNullOrEmpty(resultadoSP) && !resultadoSP.Contains("[]"))
                 {
