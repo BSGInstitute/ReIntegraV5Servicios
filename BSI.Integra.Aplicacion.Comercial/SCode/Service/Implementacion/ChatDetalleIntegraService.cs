@@ -858,5 +858,80 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 throw ex;
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene sesiones con estado de asistencia para un alumno y programa.
+        /// </summary>
+        public ObtenerAsistenciaAtcResponseDTO ObtenerAsistenciaAtc(int idPEspecifico, int idAlumno)
+        {
+            try
+            {
+                var response = new ObtenerAsistenciaAtcResponseDTO();
+
+                var idMatriculaCabecera = _unitOfWork.ChatDetalleIntegraRepository.ObtenerIdMatriculaCabecera(idAlumno, idPEspecifico);
+                if (idMatriculaCabecera == null)
+                {
+                    return response;
+                }
+
+                var sesiones = _unitOfWork.ChatDetalleIntegraRepository.ObtenerAsistenciaPorMatricula(idMatriculaCabecera.Value, idPEspecifico);
+                response.Sesiones = sesiones;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Registra justificacion de inasistencia para una sesion.
+        /// </summary>
+        public RegistrarAsistenciaAtcResponseDTO RegistrarAsistenciaAtc(int sesionId, int idAlumno)
+        {
+            try
+            {
+                var response = new RegistrarAsistenciaAtcResponseDTO { Error = new Dictionary<string, string>() };
+
+                var idPEspecifico = _unitOfWork.ChatDetalleIntegraRepository.ObtenerIdPEspecificoPorSesion(sesionId);
+                if (idPEspecifico == null)
+                {
+                    response.Mensaje = "Error";
+                    response.Error.Add("Sesion", "No se encontro una sesion activa con el Id especificado.");
+                    return response;
+                }
+
+                var idMatriculaCabecera = _unitOfWork.ChatDetalleIntegraRepository.ObtenerIdMatriculaCabecera(idAlumno, idPEspecifico.Value);
+                if (idMatriculaCabecera == null)
+                {
+                    response.Mensaje = "Error";
+                    response.Error.Add("MatriculaCabecera", "No se encontro una matricula activa para el alumno y programa especificado.");
+                    return response;
+                }
+
+                var resultado = _unitOfWork.ChatDetalleIntegraRepository.RegistrarAsistenciaMatricula(idMatriculaCabecera.Value, sesionId);
+                if (resultado)
+                {
+                    response.Mensaje = "Asistencia registrada correctamente.";
+                }
+                else
+                {
+                    response.Mensaje = "Error al registrar la asistencia.";
+                    response.Error.Add("General", "No se pudo registrar la asistencia.");
+                }
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

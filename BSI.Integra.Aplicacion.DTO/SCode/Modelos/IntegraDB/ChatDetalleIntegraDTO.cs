@@ -1,5 +1,6 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.GestionPersonas;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 {
@@ -309,6 +310,17 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     }
 
     public class ObtenerAsistenciaAtcRequestDTO
+    {
+        public int IdPEspecifico { get; set; }
+        public int IdAlumno { get; set; }
+    }
+
+    public class RegistrarAsistenciaAtcRequestDTO
+    {
+        public int SesionId { get; set; }
+        public int IdAlumno { get; set; }
+    }
+
 
     public class VideoAulaVirtualDTO
     {
@@ -388,9 +400,13 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 
     public class SesionAsistenciaDTO
     {
-        public int? IdPEspecificoSesion { get; set; }
-        public string NombreSesion { get; set; }
-        public DateTime? FechaSesion { get; set; }
+        [JsonPropertyName("sesionId")]
+        public int IdPEspecificoSesion { get; set; }
+        [JsonPropertyName("sesionNombre")]
+        public int NombreSesion { get; set; }
+        [JsonPropertyName("sesionFecha")]
+        public DateTime? FechaHoraInicio { get; set; }
+        [JsonPropertyName("sesionAsistencia")]
         public bool? Asistio { get; set; }
     }
 
@@ -422,4 +438,14 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public Dictionary<string, string> Error { get; set; }
     }
 
+    public class ObtenerAsistenciaAtcResponseDTO
+    {
+        public List<SesionAsistenciaDTO> Sesiones { get; set; } = new List<SesionAsistenciaDTO>();
+    }
+
+    public class RegistrarAsistenciaAtcResponseDTO
+    {
+        public string Mensaje { get; set; }
+        public Dictionary<string, string> Error { get; set; }
+    }
 }

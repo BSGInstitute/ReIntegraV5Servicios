@@ -1208,14 +1208,59 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+
         /// Autor: Jose Vega
         /// Fecha: 23/02/2026
         /// Version: 1.0
         /// <summary>
+        /// Obtiene la configuracion de evaluacion de trabajo por Id.
+        /// </summary>
+        public ConfigurarEvaluacionTrabajoV2DTO ObtenerConfigurarEvaluacionTrabajo(int idProyecto)
+        {
+            try
+            {
+                var query = @"SELECT * FROM pla.V_RegistroConfigurarEvaluacionTrabajo WHERE Id = @Id";
+                var resultado = _dapperRepository.FirstOrDefault(query, new { Id = idProyecto });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<ConfigurarEvaluacionTrabajoV2DTO>(resultado);
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// Autor: Jose Vega
         /// Fecha: 23/02/2026
         /// Version: 1.0
         /// <summary>
+        /// Obtiene las instrucciones del documento por seccion.
+        /// </summary>
+        public List<InstruccionDocumentoSeccionDTO> ObtenerInstruccionesDocumentoSeccion(int idPGeneral, int idDocumento)
+        {
+            try
+            {
+                var rpta = new List<InstruccionDocumentoSeccionDTO>();
+                var query = @"SELECT Id, Titulo, Contenido, OrdenWeb, ZonaWeb
+                              FROM pla.V_registroInstruccionDocumentoSeccion
+                              WHERE IdPGeneral = @IdPGeneral AND IdDocumento = @IdDocumento
+                              ORDER BY OrdenWeb";
+                var resultado = _dapperRepository.QueryDapper(query, new { IdPGeneral = idPGeneral, IdDocumento = idDocumento });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<InstruccionDocumentoSeccionDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// Autor: Jose Vega
         /// Fecha: 23/02/2026
         /// Version: 1.0
@@ -1256,6 +1301,79 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                   FechaModificacion = GETDATE()
                               WHERE Id = @IdActividad";
                 _dapperRepository.QueryDapper(query, new { IdActividad = idActividad, Fecha = fecha});
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 24/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el IdPEspecifico a partir del Id de una sesion.
+        /// </summary>
+        public int? ObtenerIdPEspecificoPorSesion(int idPEspecificoSesion)
+        {
+            try
+            {
+                var query = @"SELECT TOP 1 IdPEspecifico FROM pla.T_PEspecificoSesion WHERE Id = @IdPEspecificoSesion AND Estado = 1";
+                var resultado = _dapperRepository.FirstOrDefault(query, new { IdPEspecificoSesion = idPEspecificoSesion });
+                if (!string.IsNullOrEmpty(resultado))
+                {
+                    var obj = JsonConvert.DeserializeObject<Dictionary<string, int>>(resultado);
+                    if (obj != null && obj.ContainsKey("IdPEspecifico"))
+                    {
+                        return obj["IdPEspecifico"];
+                    }
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las sesiones con asistencia por matricula.
+        /// </summary>
+        public List<SesionAsistenciaDTO> ObtenerAsistenciaPorMatricula(int idMatriculaCabecera, int idPEspecifico)
+        {
+            try
+            {
+                var rpta = new List<SesionAsistenciaDTO>();
+                var resultado = _dapperRepository.QuerySPDapper("pla.SP_ObtenerAsistenciaPorMatricula",
+                    new { IdMatriculaCabecera = idMatriculaCabecera, IdPEspecifico = idPEspecifico });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<SesionAsistenciaDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Registra asistencia (justificacion de inasistencia) por matricula y sesion.
+        /// </summary>
+        public bool RegistrarAsistenciaMatricula(int idMatriculaCabecera, int idPEspecificoSesion)
+        {
+            try
+            {
+                _dapperRepository.QuerySPDapper("pw.SP_PW_RegistrarAsistenciaMatricula",
+                    new { IdMatriculaCabecera = idMatriculaCabecera, IdPEspecificoSesion = idPEspecificoSesion });
                 return true;
             }
             catch (Exception ex)
