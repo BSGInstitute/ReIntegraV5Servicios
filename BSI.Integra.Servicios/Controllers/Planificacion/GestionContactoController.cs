@@ -1,4 +1,4 @@
-﻿using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
 using Microsoft.AspNetCore.Cors;
@@ -202,6 +202,48 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                     Detalle = ex.InnerException?.Message,
                     Inner2  = ex.InnerException?.InnerException?.Message
                 });
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el listado de docentes para el combo del formulario General.
+        /// </summary>
+        [HttpGet("[action]")]
+        public IActionResult ObtenerDocentes()
+        {
+            try
+            {
+                return Ok(_gestionContactoService.ObtenerDocentes());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el listado paginado de oportunidades docentes para la grilla.
+        /// </summary>
+        [HttpGet("[action]")]
+        public IActionResult ObtenerOportunidades(
+            [FromQuery] string? busqueda = null,
+            [FromQuery] int pagina = 1,
+            [FromQuery] int porPagina = 10)
+        {
+            try
+            {
+                return Ok(_gestionContactoService.ObtenerOportunidadesDocente(
+                    busqueda ?? "", pagina, porPagina));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
             }
         }
 

@@ -1,4 +1,4 @@
-﻿using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
@@ -303,6 +303,30 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             {
                 throw;
             }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el listado paginado de oportunidades docentes.
+        /// </summary>
+        public OportunidadDocenteListResponseDTO ObtenerOportunidadesDocente(
+            string busqueda, int pagina, int porPagina)
+        {
+            return _unitOfWork.GestionContactoRepository
+                              .ObtenerOportunidadesDocente(busqueda, pagina, porPagina);
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el listado de docentes para el combo de tipo General.
+        /// </summary>
+        public IEnumerable<ComboDTO> ObtenerDocentes()
+        {
+            return _unitOfWork.GestionContactoRepository.ObtenerDocentes();
         }
 
     }

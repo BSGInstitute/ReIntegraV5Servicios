@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
@@ -428,6 +428,145 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             catch (Exception ex)
             {
                 throw new Exception($"Error en InsertarGestionContactoDocenteFlujo(): {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el listado paginado de oportunidades docentes con nombre de docente,
+        /// curso (centro de costo) y flujo asignado.
+        /// </summary>
+        public OportunidadDocenteListResponseDTO ObtenerOportunidadesDocente(
+            string busqueda, int pagina, int porPagina)
+        {
+            try
+            {
+                int offset = (pagina - 1) * porPagina;
+
+                string queryCount = @"
+                    SELECT COUNT(*)
+                    FROM pla.T_GestionContacto gc WITH(NOLOCK)
+                    LEFT JOIN conf.T_ClasificacionPersona cp WITH(NOLOCK)
+                        ON cp.Id = gc.IdClasificacionPersona
+                    LEFT JOIN fin.T_Proveedor p WITH(NOLOCK)
+                        ON p.Id = cp.IdTablaOriginal
+                    LEFT JOIN pla.T_CentroCosto cc WITH(NOLOCK)
+                        ON cc.Id = gc.IdCentroCosto
+                    LEFT JOIN pla.T_GestionContactoDocenteFlujo gcdf WITH(NOLOCK)
+                        ON gcdf.IdGestionContacto = gc.Id AND gcdf.Estado = 1
+                    LEFT JOIN pla.T_GestionDocenteFlujo gdf WITH(NOLOCK)
+                        ON gdf.Id = gcdf.IdGestionDocenteFlujo
+                    WHERE gc.Estado = 1
+                      AND (@Busqueda IS NULL OR @Busqueda = ''
+                           OR p.RazonSocial LIKE '%' + @Busqueda + '%'
+                           OR p.Nombre1    LIKE '%' + @Busqueda + '%'
+                           OR cc.Nombre    LIKE '%' + @Busqueda + '%'
+                           OR gdf.Nombre   LIKE '%' + @Busqueda + '%')";
+
+                string queryData = @"
+                    SELECT
+                        gc.Id,
+                        gc.IdClasificacionPersona AS DocenteId,
+                        COALESCE(LTRIM(RTRIM(
+                            CASE WHEN p.Nombre1 IS NOT NULL AND p.Nombre1 <> ''
+                                 THEN p.Nombre1 + ' ' + COALESCE(p.ApePaterno, '')
+                                 ELSE p.RazonSocial
+                            END
+                        )), 'Sin nombre') AS DocenteNombre,
+                        CASE WHEN gc.IdCentroCosto IS NOT NULL
+                             THEN 'asignado-al-curso' ELSE 'general'
+                        END AS TipoOportunidad,
+                        COALESCE(cc.Nombre, '')  AS Curso,
+                        COALESCE(gdf.Nombre, '') AS FlujoAsignado
+                    FROM pla.T_GestionContacto gc WITH(NOLOCK)
+                    LEFT JOIN conf.T_ClasificacionPersona cp WITH(NOLOCK)
+                        ON cp.Id = gc.IdClasificacionPersona
+                    LEFT JOIN fin.T_Proveedor p WITH(NOLOCK)
+                        ON p.Id = cp.IdTablaOriginal
+                    LEFT JOIN pla.T_CentroCosto cc WITH(NOLOCK)
+                        ON cc.Id = gc.IdCentroCosto
+                    LEFT JOIN pla.T_GestionContactoDocenteFlujo gcdf WITH(NOLOCK)
+                        ON gcdf.IdGestionContacto = gc.Id AND gcdf.Estado = 1
+                    LEFT JOIN pla.T_GestionDocenteFlujo gdf WITH(NOLOCK)
+                        ON gdf.Id = gcdf.IdGestionDocenteFlujo
+                    WHERE gc.Estado = 1
+                      AND (@Busqueda IS NULL OR @Busqueda = ''
+                           OR p.RazonSocial LIKE '%' + @Busqueda + '%'
+                           OR p.Nombre1    LIKE '%' + @Busqueda + '%'
+                           OR cc.Nombre    LIKE '%' + @Busqueda + '%'
+                           OR gdf.Nombre   LIKE '%' + @Busqueda + '%')
+                    ORDER BY gc.FechaCreacion DESC
+                    OFFSET @Offset ROWS FETCH NEXT @PorPagina ROWS ONLY";
+
+                var param = new { Busqueda = busqueda, Offset = offset, PorPagina = porPagina };
+
+                string countStr = _dapperRepository
+                    .FirstOrDefaultAsync(queryCount, param).GetAwaiter().GetResult();
+                int total = int.TryParse(countStr, out int t) ? t : 0;
+
+                string resultado = _dapperRepository.QueryDapper(queryData, param);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                    return new OportunidadDocenteListResponseDTO
+                    {
+                        Oportunidades = JsonConvert.DeserializeObject<
+                            IEnumerable<OportunidadDocenteListItemDTO>>(resultado),
+                        Total     = total,
+                        Pagina    = pagina,
+                        PorPagina = porPagina,
+                    };
+
+                return new OportunidadDocenteListResponseDTO
+                {
+                    Oportunidades = new List<OportunidadDocenteListItemDTO>(),
+                    Total     = 0,
+                    Pagina    = pagina,
+                    PorPagina = porPagina,
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerOportunidadesDocente(): {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el listado de docentes (proveedores con clasificacion persona activa)
+        /// para el combo de seleccion en oportunidades de tipo General.
+        /// </summary>
+        public IEnumerable<ComboDTO> ObtenerDocentes()
+        {
+            try
+            {
+                string query = @"
+                    SELECT DISTINCT
+                        p.Id AS Id,
+                        COALESCE(LTRIM(RTRIM(
+                            CASE WHEN p.Nombre1 IS NOT NULL AND p.Nombre1 <> ''
+                                 THEN p.Nombre1 + ' ' + COALESCE(p.ApePaterno, '')
+                                 ELSE p.RazonSocial
+                            END
+                        )), 'Sin nombre') AS Nombre
+                    FROM conf.T_ClasificacionPersona cp WITH(NOLOCK)
+                    JOIN fin.T_Proveedor p WITH(NOLOCK)
+                        ON p.Id = cp.IdTablaOriginal
+                    WHERE cp.Estado = 1
+                      AND p.Estado = 1
+                    ORDER BY Nombre";
+
+                string resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                    return JsonConvert.DeserializeObject<IEnumerable<ComboDTO>>(resultado);
+
+                return new List<ComboDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerDocentes(): {ex.Message}", ex);
             }
         }
 

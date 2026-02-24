@@ -1,4 +1,4 @@
-﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,5 +81,23 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int IdGestionContacto { get; set; }
         public int IdGestionDocenteFlujo { get; set; }
         public string UsuarioCreacion { get; set; }
+    }
+
+    public class OportunidadDocenteListItemDTO
+    {
+        public int Id { get; set; }
+        public int? DocenteId { get; set; }
+        public string DocenteNombre { get; set; }
+        public string TipoOportunidad { get; set; }
+        public string Curso { get; set; }
+        public string FlujoAsignado { get; set; }
+    }
+
+    public class OportunidadDocenteListResponseDTO
+    {
+        public IEnumerable<OportunidadDocenteListItemDTO> Oportunidades { get; set; }
+        public int Total { get; set; }
+        public int Pagina { get; set; }
+        public int PorPagina { get; set; }
     }
 }

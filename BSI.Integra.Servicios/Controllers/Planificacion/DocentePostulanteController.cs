@@ -80,8 +80,8 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 return BadRequest(ModelState);
             try
             {
-                //var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
-                var resultado = await _docentePostulanteService.InsertarAsync(dto,"lzaafe");
+                var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
+                var resultado = await _docentePostulanteService.InsertarAsync(dto, registroClaimToken.UserName);
                 return Ok(resultado);
             }
             catch
