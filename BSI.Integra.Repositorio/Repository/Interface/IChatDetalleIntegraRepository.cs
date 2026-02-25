@@ -44,5 +44,21 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<int> ObtenerIdsPreguntaPorIdsRespuesta(IEnumerable<int> idsRespuesta);
         List<ChatActivoDetalleIntegraDTO> ObtenerChatsAcademicosHabilitadosCoordinadora(int IdCoordinadorAcademico, bool EsOnline);
 
+        int? ObtenerIdMatriculaCabecera(int idAlumno, int idPEspecifico);
+        List<VideoAulaVirtualDTO> ObtenerVideosAulaVirtual(int idMatriculaCabecera);
+        List<EncuestaRealizadaDTO> ObtenerEncuestasRealizadas(int idMatriculaCabecera);
+        List<TareaRealizadaDTO> ObtenerTareasRealizadas(int idMatriculaCabecera);
+        List<int> ObtenerIdsPEspecificoSesion(int idPEspecifico);
+        List<ActividadAtcDTO> ObtenerCuestionariosPorPEspecifico(int idPEspecifico);
+        List<ActividadAtcDTO> ObtenerTareasPorPEspecifico(int idPEspecifico);
+        List<ActividadRecursoSesionDocenteDTO> ObtenerActividadesRecursoSesionDocente(int idPEspecificoSesion);
+        DatoPerfilProyectoDTO ObtenerDatoPerfilProyecto(int idMatriculaCabecera);
+        ConfigurarEvaluacionTrabajoV2DTO ObtenerConfigurarEvaluacionTrabajo(int idProyecto);
+        List<InstruccionDocumentoSeccionDTO> ObtenerInstruccionesDocumentoSeccion(int idPGeneral, int idDocumento);
+        bool AmpliarFechaCuestionario(int idActividad, string fecha);
+        bool AmpliarFechaTarea(int idActividad, string fecha);
+        int? ObtenerIdPEspecificoPorSesion(int idPEspecificoSesion);
+        List<SesionAsistenciaDTO> ObtenerAsistenciaPorMatricula(int idMatriculaCabecera, int idPEspecifico);
+        bool RegistrarAsistenciaMatricula(int idMatriculaCabecera, int idPEspecificoSesion);
     }
 }

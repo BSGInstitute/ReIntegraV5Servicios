@@ -1888,7 +1888,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 EstadoDTO estado = new EstadoDTO();
-                var resultado = _dapperRepository.FirstOrDefault("SELECT TOP 1 Estado FROM com.T_WhatsAppMensajeEnviadoCom WHERE WaTo LIKE '%' + @celular + '%' AND FechaCreacion >= DATEADD(DAY, -1, GETDATE()) ORDER BY FechaCreacion DESC", new { celular });
+                var resultado = _dapperRepository.FirstOrDefault("SELECT TOP 1 Estado FROM com.V_TWhatsAppMensajeEnviadoCom_Obtener WHERE WaTo LIKE '%' + @celular + '%' AND FechaCreacion >= DATEADD(DAY, -1, GETDATE()) ORDER BY FechaCreacion DESC", new { celular });
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
