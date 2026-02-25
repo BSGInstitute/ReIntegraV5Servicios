@@ -21,6 +21,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         SeccionFechaInicioDTO ObtenerDocumentoPWFechaInicio(int idDocumentoPw);
         SeccionNotasDTO ObtenerDocumentoPWNotas(int idDocumentoPW);
         void ActualizarSeccionDuracion(SeccionDuracionDTO? dto, int idDocumentoPw, string usuario);
-
+        Task<string> SubirArchivoDocumentoPw(int id, IFormFile archivo, string usuario);
     }
 }

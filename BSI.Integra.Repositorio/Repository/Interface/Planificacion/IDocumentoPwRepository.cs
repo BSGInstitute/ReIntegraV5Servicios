@@ -100,5 +100,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         string SP_DocumentoPWNotaConfiguracion_RegistrarCambios(int idDocumentoPw, int idDocumentoPWNota, bool mostrarWeb, string usuario);
         string SP_TDocumentoPWNotaConfiguracion_DesactivarPorNota(int idDocumentoPw, int idDocumentoPWNota, string usuario);
 
+        Task<string> SubirArchivoDocumentoPw(byte[] archivo, string contentType, string nombreArchivo);
     }
 }

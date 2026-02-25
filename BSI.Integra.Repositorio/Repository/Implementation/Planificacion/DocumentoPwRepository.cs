@@ -9,9 +9,12 @@ using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface.Planificacion;
 using Dapper;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Data;
+using System.Text.RegularExpressions;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
@@ -1519,6 +1522,81 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 Usuario = usuario
             };
             return _dapperRepository.QuerySPDapper(sp, parametros);
+        }
+
+        public async Task<string> SubirArchivoDocumentoPw(byte[] archivo, string contentType, string nombreArchivo)
+        {
+            try
+            {
+                string _nombreLink = string.Empty;
+
+                try
+                {
+                    string _azureStorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=repositorioweb;AccountKey=JurvlnvFAqg4dcGqcDHEj9bkBLoLV3Z/EIxA+8QkdTcuCWTm1iZfgqUOfUOwmDMfnrmrie7Nkkho5mPyVTvIpA==;EndpointSuffix=core.windows.net";
+                    string _direccionBlob = @"planificacion/documentospw/";
+
+                    string nombreValidado = NormalizarCadena(nombreArchivo);
+
+                    CloudStorageAccount storageAccount = CloudStorageAccount.Parse(_azureStorageConnectionString);
+                    CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+                    CloudBlobContainer container = blobClient.GetContainerReference(_direccionBlob);
+
+                    CloudBlockBlob blockBlob = container.GetBlockBlobReference(nombreValidado);
+                    blockBlob.Properties.ContentType = contentType;
+                    blockBlob.Metadata["filename"] = nombreValidado;
+                    blockBlob.Metadata["filemime"] = contentType;
+                    Stream stream = new MemoryStream(archivo);
+                    var objRegistrado = blockBlob.UploadFromStreamAsync(stream);
+                    await objRegistrado;
+
+                    if (objRegistrado.IsCompletedSuccessfully)
+                    {
+                        _nombreLink = "https://repositorioweb.blob.core.windows.net/" + _direccionBlob + nombreValidado.Replace(" ", "%20");
+                    }
+
+                    return _nombreLink;
+                }
+                catch (Exception)
+                {
+                    return string.Empty;
+                }
+            }
+            catch (Exception)
+            {
+                return string.Empty;
+            }
+        }
+
+        private string NormalizarCadena(string input)
+        {
+            Regex replace_a_Accents = new Regex("[á|à|ä|â]", RegexOptions.Compiled);
+            Regex replace_e_Accents = new Regex("[é|è|ë|ê]", RegexOptions.Compiled);
+            Regex replace_i_Accents = new Regex("[í|ì|ï|î]", RegexOptions.Compiled);
+            Regex replace_o_Accents = new Regex("[ó|ò|ö|ô]", RegexOptions.Compiled);
+            Regex replace_u_Accents = new Regex("[ú|ù|ü|û]", RegexOptions.Compiled);
+            Regex replace_A_Mayuscula = new Regex("[Á]", RegexOptions.Compiled);
+            Regex replace_E_Mayuscula = new Regex("[É]", RegexOptions.Compiled);
+            Regex replace_I_Mayuscula = new Regex("[Í]", RegexOptions.Compiled);
+            Regex replace_O_Mayuscula = new Regex("[Ó]", RegexOptions.Compiled);
+            Regex replace_U_Mayuscula = new Regex("[Ú]", RegexOptions.Compiled);
+            Regex replace_N_Mayuscula = new Regex("[Ñ]", RegexOptions.Compiled);
+            Regex replace_n_Accents = new Regex("[ñ]", RegexOptions.Compiled);
+            Regex replace_caracteresEspeciales = new Regex("[]|[|@|~|#|$|%|&|{|}|,|;|°|¿|!|¡|'|^|=|+]", RegexOptions.Compiled);
+
+            input = replace_caracteresEspeciales.Replace(input, "");
+            input = replace_a_Accents.Replace(input, "a");
+            input = replace_e_Accents.Replace(input, "e");
+            input = replace_i_Accents.Replace(input, "i");
+            input = replace_o_Accents.Replace(input, "o");
+            input = replace_u_Accents.Replace(input, "u");
+            input = replace_n_Accents.Replace(input, "n");
+            input = replace_A_Mayuscula.Replace(input, "A");
+            input = replace_E_Mayuscula.Replace(input, "E");
+            input = replace_I_Mayuscula.Replace(input, "I");
+            input = replace_O_Mayuscula.Replace(input, "O");
+            input = replace_U_Mayuscula.Replace(input, "U");
+            input = replace_N_Mayuscula.Replace(input, "N");
+            return input;
         }
     }
 }

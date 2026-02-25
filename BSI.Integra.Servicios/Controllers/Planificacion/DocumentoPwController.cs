@@ -5,6 +5,7 @@ using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Helpers;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace BSI.Integra.Servicios.Controllers.Planificacion
 {
@@ -59,15 +60,29 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <returns></returns>
         [Route("[Action]")]
         [HttpPost]
-        public IActionResult InsertarDocumento([FromBody] CompuestoDocumentoDTO dto)
+        public async Task<IActionResult> InsertarDocumento([FromForm] string dto, IFormFile? archivo)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            if (string.IsNullOrEmpty(dto))
+                return BadRequest("El parámetro dto es requerido.");
+
+            CompuestoDocumentoDTO compuestoDto;
             try
             {
-                return Ok(_documentoPwService.InsertarDocumento(dto, _tokenManager.UserName));
+                compuestoDto = JsonConvert.DeserializeObject<CompuestoDocumentoDTO>(dto)!;
+            }
+            catch
+            {
+                return BadRequest("El parámetro dto no tiene un formato JSON válido.");
+            }
+
+            try
+            {
+                var documento = _documentoPwService.InsertarDocumento(compuestoDto, _tokenManager.UserName);
+
+                if (archivo != null && archivo.Length > 0 && documento.Id > 0)
+                    await _documentoPwService.SubirArchivoDocumentoPw(documento.Id, archivo, _tokenManager.UserName);
+
+                return Ok(documento);
             }
             catch
             {
@@ -178,6 +193,23 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         {
             var resultado = _documentoPwService.ObtenerDocumentoPWNotas(idDocumentoPW);
             return Ok(resultado);
+        }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> SubirArchivoDocumentoPw([FromForm] int id, IFormFile archivo)
+        {
+            if (archivo == null || archivo.Length == 0)
+                return BadRequest("No se recibió ningún archivo.");
+
+            try
+            {
+                var url = await _documentoPwService.SubirArchivoDocumentoPw(id, archivo, _tokenManager.UserName);
+                return Ok(url);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

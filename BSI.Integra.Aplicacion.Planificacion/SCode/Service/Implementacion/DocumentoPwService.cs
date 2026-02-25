@@ -12,6 +12,7 @@ using BSI.Integra.Repositorio.Repository.Implementation;
 using BSI.Integra.Repositorio.Repository.Implementation.Planificacion;
 using BSI.Integra.Repositorio.Repository.Interface.Planificacion;
 using BSI.Integra.Repositorio.UnitOfWork;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Text;
@@ -184,6 +185,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     _unitOfWork.Commit();
 
                     var id = resultado.Id;
+                    documento.Id = id;
                     _unitOfWork.DocumentoPwRepository.InsertarDocumentoPwModalidad(dto.SeccionModalidadHorario, id, usuario);
                     _unitOfWork.DocumentoPwRepository.InsertarDocumentoPwDuracion(dto.SeccionDuracion, id, usuario);
                     _unitOfWork.DocumentoPwRepository.InsertarDocumentoPwFechaInicio(dto.SeccionFechaInicio, id, usuario);
@@ -1536,6 +1538,47 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             catch (Exception ex)
             {
                 throw new Exception($"#IOSF-MKT-001@Error en ActualizarSeccionNotas() {ex.Message}", ex);
+            }
+        }
+
+        public async Task<string> SubirArchivoDocumentoPw(int id, IFormFile archivo, string usuario)
+        {
+            try
+            {
+                var tiposPermitidos = new[] { "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document" };
+                if (!tiposPermitidos.Contains(archivo.ContentType))
+                    throw new Exception("Solo se permiten archivos PDF o Word (.doc, .docx).");
+
+                byte[] bytes;
+                using (var ms = new MemoryStream())
+                {
+                    await archivo.CopyToAsync(ms);
+                    bytes = ms.ToArray();
+                }
+
+                var url = await _unitOfWork.DocumentoPwRepository.SubirArchivoDocumentoPw(bytes, archivo.ContentType, archivo.FileName);
+
+                if (!string.IsNullOrEmpty(url))
+                {
+                    var documentoPw = _unitOfWork.DocumentoPwRepository.ObtenerPorId(id);
+                    if (documentoPw == null)
+                        throw new Exception($"No se encontró el documento con Id {id}.");
+
+                    documentoPw.UrlArchivoInstruccionTarea = url;
+                    documentoPw.UrlArchivoCalificacionExcelente = url;
+                    documentoPw.UsuarioModificacion = usuario;
+                    documentoPw.FechaModificacion = DateTime.Now;
+
+                    _unitOfWork.DetachAll();
+                    _unitOfWork.DocumentoPwRepository.Update(documentoPw);
+                    _unitOfWork.Commit();
+                }
+
+                return url;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-PLN-001@Error en SubirArchivoDocumentoPw() {ex.Message}", ex);
             }
         }
 
