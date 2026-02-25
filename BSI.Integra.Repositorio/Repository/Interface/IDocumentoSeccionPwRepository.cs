@@ -38,6 +38,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         List<ProgramaExpositoresDTO> ObtenerExpositoresPorIdGeneral(int idPGeneral);
         List<EstructuraCursoDTO> ObtenerEstructuraCurso(int IdMatriculaCabecera);
         List<EstructuraCursoDTO> ObtenerEstructuraCursoPorIdProgramaGeneral(int IdProgramaGeneral);
+        List<CertificacionPrograma> ObtenerCertificadoPorIdPGeneral(int idPGeneral);
 
         List<SeccionDocumentoDTO> ObtenerDocumentoSeccionCompleto(int idPGeneral);
         Task<IEnumerable<SesionSubSesionPreguntaInteractivaDTO>> ObtenerSesionesPreguntasInteractivasExportacionExcel();

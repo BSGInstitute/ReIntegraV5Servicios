@@ -10,6 +10,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TGestionDocenteDisparadorFlujoTipo()
         {
+            TGestionDocenteDisparadorCongelados = new HashSet<TGestionDocenteDisparadorCongelado>();
             TGestionDocenteDisparadorDetalles = new HashSet<TGestionDocenteDisparadorDetalle>();
         }
 
@@ -46,6 +47,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
 
+        public virtual ICollection<TGestionDocenteDisparadorCongelado> TGestionDocenteDisparadorCongelados { get; set; }
         public virtual ICollection<TGestionDocenteDisparadorDetalle> TGestionDocenteDisparadorDetalles { get; set; }
     }
 }

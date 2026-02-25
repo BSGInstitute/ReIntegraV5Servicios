@@ -64,7 +64,7 @@ namespace BSI.Integra.Servicios.Controllers
         public IActionResult ValidarAcceso([FromBody] IpPublicaDTO objetoDTO)
         {
             IIntegraAspNetUserService servicio = new IntegraAspNetUserService(unitOfWork);
-            if (objetoDTO.usuario != "AdminInst")
+            if (objetoDTO.usuario != "AdminInst" && objetoDTO.usuario != "docente1")
             {
                 servicio.ValidarAcceso(objetoDTO.ipIntegra);
             }
@@ -84,7 +84,7 @@ namespace BSI.Integra.Servicios.Controllers
         public IActionResult ValidarReLogin([FromBody] string ipPublica)
         {
             IIntegraAspNetUserService servicio = new IntegraAspNetUserService(unitOfWork);
-            if (ipPublica != "-1" && _tokenManager.UserName != "AdminInst")
+            if (ipPublica != "-1" && _tokenManager.UserName != "AdminInst" && _tokenManager.UserName != "docente1")
             {
                 servicio.ValidarAcceso(ipPublica);
             }

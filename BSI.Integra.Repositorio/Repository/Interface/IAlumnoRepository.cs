@@ -87,7 +87,10 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         AlumnoAccesosDTO ObtenerAccesosAlumno(int idAlumno);
         DatosCorbranzaAlumnoDTO obtenerDatosCobranzaAlumno(int idMatriculaCabecera);
         AvanceAonlineAlumnoDTO obtenerDatosAvanceAonline(int idMatriculaCabecera);
+        AvanceAonlineAlumnoATCDTO obtenerDatosAvanceAonlineATC(int idMatriculaCabecera);
         AvanceOnlineAlumnoDTO obtenerDatosAvanceOnline(int idMatriculaCabecera);
+
+        AvanceAonlineAlumnoEnHorasDTO ObtenerAvanceAonlineHoras(int idMatriculaCabecera);
 
         List<AlumnoReferidosDTO> ObtenerReferidos(int idReferido);
         List<AlumnoFiltroAutocompleteDTO> ObtenerTodoFiltrosAutoComplete(string valor);

@@ -339,9 +339,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         numeroMexicoOut = numero.StartsWith("521") ? "52" + numero.Substring(3) : numero;
                         numeroCanadaIn = numero.StartsWith("1") ? "11" + numero.Substring(1) : numero;
 
-                        query = @$"SELECT DISTINCT Numero, Tipo, SubTipo, Mensaje, IdPersonal, IdAlumno, IdPais, Registro, FechaCreacion,NombrePersonal, MAX(EstadoMensaje) AS EstadoMensaje, MAX(final.FechaEstado) AS FechaEstado
+                        query = @$"SELECT DISTINCT Numero,NumeroRespuesta, Tipo, SubTipo, Mensaje, IdPersonal, IdAlumno, IdPais, Registro, FechaCreacion,NombrePersonal, MAX(EstadoMensaje) AS EstadoMensaje, MAX(final.FechaEstado) AS FechaEstado
                                 FROM (
-                                    SELECT resultado.WaId, Numero, Tipo, SubTipo, Mensaje, IdPersonal, ISNULL(IdAlumno, 0) IdAlumno, resultado.IdPais, Registro, resultado.FechaCreacion, NombrePersonal, AreaAbrev, estado.WaStatus,
+                                    SELECT resultado.WaId, resultado.Numero, Tipo, SubTipo, Mensaje, IdPersonal, wapi.Numero NumeroRespuesta, ISNULL(IdAlumno, 0) IdAlumno, resultado.IdPais, Registro, resultado.FechaCreacion, NombrePersonal, AreaAbrev, estado.WaStatus,
                                            CASE
                                                WHEN estado.WaStatus = 'sent' THEN 1
                                                WHEN estado.WaStatus = 'delivered' THEN 2
@@ -350,9 +350,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                            estado.FechaCreacion AS FechaEstado
                                     FROM [com].[V_HistorialChatWhatsAppCom] AS resultado
                                     LEFT JOIN com.T_WhatsAppEstadoMensajeEnviadoCom AS estado ON estado.WaId = resultado.WaId
-                                    WHERE MensajeOfensivo = 0 AND (Numero ='{numeroMexicoIn}' OR Numero = '{numeroMexicoOut}' OR Numero = '{numeroCanadaIn}' OR Numero=@numero)
+                                    LEFT JOIN conf.T_WhatsAppConfiguracionApi AS wapi ON resultado.PhoneNumberId=wapi.NumeroIndentificador
+                                    WHERE MensajeOfensivo = 0 AND (resultado.Numero ='{numeroMexicoIn}' OR resultado.Numero = '{numeroMexicoOut}' OR resultado.Numero = '{numeroCanadaIn}' OR resultado.Numero=@numero)
                                 ) AS final
-                                GROUP BY Numero, Tipo, SubTipo, Mensaje, IdPersonal, IdAlumno, IdPais, Registro, FechaCreacion, NombrePersonal
+                                GROUP BY Numero, NumeroRespuesta, Tipo, SubTipo, Mensaje, IdPersonal, IdAlumno, IdPais, Registro, FechaCreacion, NombrePersonal
                                 ORDER BY FechaCreacion ASC;";
                     }
                     else if (area == "OP")
