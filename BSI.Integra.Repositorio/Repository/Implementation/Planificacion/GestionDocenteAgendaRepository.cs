@@ -213,5 +213,124 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 throw ex;
             }
         }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 24/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la configuración de todos los tabs activos para un área de trabajo,
+        /// ordenados por Numeracion.
+        /// </summary>
+        public List<AgendaTabConfiguracionPlanificacionAlternoDTO> ObtenerTabsConfigurados(string codigoAreaTrabajo)
+        {
+            try
+            {
+                var lista = new List<AgendaTabConfiguracionPlanificacionAlternoDTO>();
+                string query = @"
+                        SELECT
+                            ATC.Id,
+                            AT.Nombre,
+                            AT.VisualizarActividad,
+                            AT.CargarInformacionInicial,
+                            ATC.VistaBaseDatos,
+                            ATC.VistaCampos,
+                            ATC.IdFaseGestionContacto,
+                            ATC.IdEstadoGestionContacto,
+                            AT.CodigoAreaTrabajo,
+                            AT.Numeracion,
+                            AT.ValidarFecha
+                        FROM com.T_AgendaTabConfiguracionPlanificacion ATC
+                        INNER JOIN com.T_AgendaTab AT ON ATC.IdAgendaTab = AT.Id
+                        WHERE AT.Estado = 1 AND ATC.Estado = 1
+                            AND AT.CodigoAreaTrabajo = @CodigoAreaTrabajo
+                        ORDER BY AT.Numeracion";
+
+                var resultadoDB = _dapperRepository.QueryDapper(query, new { CodigoAreaTrabajo = codigoAreaTrabajo });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    lista = JsonConvert.DeserializeObject<List<AgendaTabConfiguracionPlanificacionAlternoDTO>>(resultadoDB);
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 24/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la configuración de un tab específico filtrado por su ID y área de trabajo.
+        /// </summary>
+        public List<AgendaTabConfiguracionPlanificacionAlternoDTO> ObtenerTabsConfiguradosPorIdTab(string codigoAreaTrabajo, int idTab)
+        {
+            try
+            {
+                var lista = new List<AgendaTabConfiguracionPlanificacionAlternoDTO>();
+                string query = @"
+                        SELECT
+                            ATC.Id,
+                            AT.Nombre,
+                            AT.VisualizarActividad,
+                            AT.CargarInformacionInicial,
+                            ATC.VistaBaseDatos,
+                            ATC.VistaCampos,
+                            ATC.IdFaseGestionContacto,
+                            ATC.IdEstadoGestionContacto,
+                            AT.CodigoAreaTrabajo,
+                            AT.Numeracion,
+                            AT.ValidarFecha
+                        FROM com.T_AgendaTabConfiguracionPlanificacion ATC
+                        INNER JOIN com.T_AgendaTab AT ON ATC.IdAgendaTab = AT.Id
+                        WHERE AT.Estado = 1 AND ATC.Estado = 1
+                            AND AT.Id = @IdTab
+                            AND AT.CodigoAreaTrabajo = @CodigoAreaTrabajo
+                        ORDER BY AT.Numeracion";
+
+                var resultadoDB = _dapperRepository.QueryDapper(query, new { IdTab = idTab, CodigoAreaTrabajo = codigoAreaTrabajo });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    lista = JsonConvert.DeserializeObject<List<AgendaTabConfiguracionPlanificacionAlternoDTO>>(resultadoDB);
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 24/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Ejecuta el SP dinámico almacenado en tab.VistaBaseDatos y retorna la lista de actividades.
+        /// Si idAsesor > 0 filtra los resultados por IdPersonalAsignado en memoria.
+        /// </summary>
+        public List<ActividadAgendaPlanificacionDTO> ObtenerActividades(AgendaTabConfiguracionPlanificacionAlternoDTO tab, int idAsesor)
+        {
+            try
+            {
+                var lista = new List<ActividadAgendaPlanificacionDTO>();
+                var resultadoDB = _dapperRepository.QuerySPDapper(tab.VistaBaseDatos, null);
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    lista = JsonConvert.DeserializeObject<List<ActividadAgendaPlanificacionDTO>>(resultadoDB);
+                }
+
+                if (idAsesor > 0)
+                {
+                    lista = lista.Where(a => a.IdPersonalAsignado == idAsesor).ToList();
+                }
+
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

@@ -7,5 +7,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
     {
         List<DocenteConCursoDTO> ObtenerDocentesConCursos();
         DocenteAgendaDetalleDTO ObtenerDetalleDocente(int idProveedor, int idPEspecifico, int? idGestionContacto);
+        List<AgendaTabConfiguracionPlanificacionAlternoDTO> ObtenerTabsConfigurados(string codigoAreaTrabajo);
+        Dictionary<string, List<ActividadAgendaPlanificacionDTO>> ObtenerActividades(int idAsesor, string codigoAreaTrabajo);
+        CargarActividadPorTabResultadoDTO CargarActividadSeleccionadaPorFiltro(int idTab, string codigoAreaTrabajo, int idAsesor);
     }
 }
