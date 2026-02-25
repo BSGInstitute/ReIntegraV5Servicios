@@ -1,31 +1,31 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Este archivo proporciona orientación a Claude Code (claude.ai/code) para trabajar con el código de este repositorio.
 
-## Build & Run Commands
+## Comandos de Compilación y Ejecución
 
 ```bash
-# Build the entire solution
+# Compilar toda la solución
 dotnet build BSI.Integra.Servicios.V5.sln
 
-# Build only the main API project
+# Compilar solo el proyecto API principal
 dotnet build BSI.Integra.Servicios/BSI.Integra.Servicios.csproj
 
-# Run the API (from BSI.Integra.Servicios/)
+# Ejecutar la API
 dotnet run --project BSI.Integra.Servicios/BSI.Integra.Servicios.csproj
 
-# Run unit tests
+# Ejecutar pruebas unitarias
 dotnet test BSI.Integra.PruebasUnitarias/BSI.Integra.PruebasUnitarias.csproj
 
-# Run a single test by name
-dotnet test BSI.Integra.PruebasUnitarias/BSI.Integra.PruebasUnitarias.csproj --filter "FullyQualifiedName~TestMethodName"
+# Ejecutar una prueba específica por nombre
+dotnet test BSI.Integra.PruebasUnitarias/BSI.Integra.PruebasUnitarias.csproj --filter "FullyQualifiedName~NombreDelTest"
 ```
 
-## Architecture
+## Arquitectura
 
-This is an ASP.NET Core 6.0 REST API using a layered clean architecture with domain-based separation.
+API REST en ASP.NET Core 6.0 con arquitectura limpia por capas y separación por dominios.
 
-### Layer Flow
+### Flujo de Capas
 
 ```
 Controllers (BSI.Integra.Servicios)
@@ -35,42 +35,42 @@ Controllers (BSI.Integra.Servicios)
                 → SQL Server
 ```
 
-### Projects
+### Proyectos
 
-| Project | Purpose |
-|---------|---------|
-| `BSI.Integra.Servicios` | Main API. 566+ controllers organized by domain (Comercial, Marketing, Planificacion, Finanzas, GestionPersonas, Operaciones, Interaccion, Calidad, Configuracion, Wavix, Wolkbox) |
-| `BSI.Integra.Persistencia` | EF Core 6 models, DbContexts, connection factories. Three contexts: `IntegraDBContext`, `IntegraDBInteraccionContext`, `AulaVirtualContext` |
-| `BSI.Integra.Repositorio` | Generic repository + Unit of Work pattern. `IUnitOfWork` exposes all 180+ repositories as lazy-loaded properties |
-| `BSI.Integra.Aplicacion.DTO` | Data Transfer Objects per domain |
-| `BSI.Integra.Aplicacion.Base` | Base classes, custom exceptions (BadRequestException, NotFoundException, ConflictException, UnauthorizedAccessRequestException) |
-| `BSI.Integra.Aplicacion.Transversal` | Cross-cutting: helpers, validators, tools, socket services |
-| `BSI.Integra.Aplicacion.{Comercial,Planificacion,Marketing,Finanzas,GestionPersonas,Operaciones,Interaccion}` | Domain-specific business logic services with Interface/Implementacion folders |
-| `BSI.Integra.PruebasUnitarias` | Unit tests (.NET 8.0, MSTest, Moq) |
+| Proyecto | Propósito |
+|----------|-----------|
+| `BSI.Integra.Servicios` | API principal. 566+ controladores organizados por dominio (Comercial, Marketing, Planificacion, Finanzas, GestionPersonas, Operaciones, Interaccion, Calidad, Configuracion, Wavix, Wolkbox) |
+| `BSI.Integra.Persistencia` | Modelos EF Core 6, DbContexts, fábricas de conexión. Tres contextos: `IntegraDBContext`, `IntegraDBInteraccionContext`, `AulaVirtualContext` |
+| `BSI.Integra.Repositorio` | Patrón repositorio genérico + Unit of Work. `IUnitOfWork` expone los 180+ repositorios como propiedades lazy-loaded |
+| `BSI.Integra.Aplicacion.DTO` | Objetos de transferencia de datos por dominio |
+| `BSI.Integra.Aplicacion.Base` | Clases base, excepciones personalizadas (BadRequestException, NotFoundException, ConflictException, UnauthorizedAccessRequestException) |
+| `BSI.Integra.Aplicacion.Transversal` | Transversales: helpers, validadores, herramientas, servicios socket |
+| `BSI.Integra.Aplicacion.{Comercial,Planificacion,Marketing,Finanzas,GestionPersonas,Operaciones,Interaccion}` | Servicios de lógica de negocio por dominio con carpetas Interface/Implementacion |
+| `BSI.Integra.PruebasUnitarias` | Pruebas unitarias (.NET 8.0, MSTest, Moq) |
 
-### Key Patterns
+### Patrones Clave
 
-- **Controllers** inject `IUnitOfWork` and instantiate domain services inline. Most have `[EnableCors("CorsVista")]` and `[Route("api/[controller]")]`.
-- **Data access** uses both EF Core (LINQ) and Dapper (`IDapperRepository`) for complex queries/stored procedures. Stored procedures are heavily used (e.g., `pla.SP_*`, `pw.SP_*`).
-- **Entity naming**: EF models use `T` prefix (e.g., `TAlumno`, `TCampania`) in `Persistencia/Modelos/IntegraDB/`.
-- **AutoMapper** maps between entities and DTOs.
-- **Hangfire** handles background jobs (SQL Server storage).
-- **JWT Bearer** authentication with custom token validation middleware in `Configurations/`.
-- **Global exception handling** via `GlobalExceptionHandlingMiddleware`.
+- **Controllers** inyectan `IUnitOfWork` e instancian servicios de dominio inline. La mayoría tienen `[EnableCors("CorsVista")]` y `[Route("api/[controller]")]`.
+- **Acceso a datos** usa tanto EF Core (LINQ) como Dapper (`IDapperRepository`) para consultas complejas/stored procedures. Los stored procedures se usan intensivamente (ej. `pla.SP_*`, `pw.SP_*`).
+- **Nomenclatura de entidades**: los modelos EF usan prefijo `T` (ej. `TAlumno`, `TCampania`) en `Persistencia/Modelos/IntegraDB/`.
+- **AutoMapper** mapea entre entidades y DTOs.
+- **Hangfire** gestiona trabajos en segundo plano (almacenamiento en SQL Server).
+- **JWT Bearer** autenticación con middleware de validación personalizado en `Configurations/`.
+- **Manejo global de excepciones** mediante `GlobalExceptionHandlingMiddleware`.
 
-### Configuration (Program.cs)
+### Configuración (Program.cs)
 
-The entry point configures: JWT auth, CORS (25+ whitelisted origins), two EF DbContexts, Hangfire, Swagger, SignalR, memory caching, and 500MB file upload limits. DI registers all repositories and services.
+El punto de entrada configura: autenticación JWT, CORS (25+ orígenes permitidos), dos DbContexts de EF, Hangfire, Swagger, SignalR, caché en memoria y límite de carga de archivos de 500MB. La inyección de dependencias registra todos los repositorios y servicios.
 
-## Conventions
+## Convenciones
 
-- Domain services follow `Interface/Implementacion` folder structure with `I{Name}Service` / `{Name}Service` naming.
-- Repositories follow `Interface/Implementation` folder structure with `I{Name}Repository` / `{Name}Repository` naming.
-- New repositories must be registered as properties in both `IUnitOfWork.cs` and `UnitOfWork.cs` (these are very large files, ~80KB and ~365KB respectively).
-- DTOs live in `BSI.Integra.Aplicacion.DTO/SCode/Modelos/IntegraDB/` organized by domain.
-- Controller folders match domain names under `Controllers/`.
+- Los servicios de dominio siguen la estructura de carpetas `Interface/Implementacion` con nomenclatura `I{Nombre}Service` / `{Nombre}Service`.
+- Los repositorios siguen la estructura `Interface/Implementation` con nomenclatura `I{Nombre}Repository` / `{Nombre}Repository`.
+- Los nuevos repositorios deben registrarse como propiedades en `IUnitOfWork.cs` y `UnitOfWork.cs` (archivos muy grandes, ~80KB y ~365KB respectivamente).
+- Los DTOs están en `BSI.Integra.Aplicacion.DTO/SCode/Modelos/IntegraDB/` organizados por dominio.
+- Las carpetas de controladores corresponden a los nombres de dominio bajo `Controllers/`.
 
 ## CI/CD
 
-- Azure DevOps pipeline (`IntegraV5ServiciosDespliegue.yml`) triggers on `master` branch.
-- Docker multi-stage build available (`Dockerfile`) based on `mcr.microsoft.com/dotnet/aspnet:6.0`.
+- Pipeline de Azure DevOps (`IntegraV5ServiciosDespliegue.yml`) se ejecuta en la rama `master`.
+- Build Docker multi-stage disponible (`Dockerfile`) basado en `mcr.microsoft.com/dotnet/aspnet:6.0`.
