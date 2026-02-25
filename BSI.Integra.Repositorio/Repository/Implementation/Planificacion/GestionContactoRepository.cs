@@ -449,7 +449,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 parameters.Add("@UsuarioCreacion", "sgradosn", DbType.String, size: 50);
 
                 await _dapperRepository.QuerySPDapperAsync(
-                    "pla.SP_CongelamientoFlujoDocente",
+                    "pla.SP_FlujoDocenteCongelar",
                     parameters
                 );
 
