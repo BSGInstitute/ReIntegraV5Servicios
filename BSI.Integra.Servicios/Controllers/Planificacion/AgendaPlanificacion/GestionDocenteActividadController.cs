@@ -1,4 +1,5 @@
-﻿using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
 using Microsoft.AspNetCore.Cors;
@@ -557,6 +558,66 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
         {
             try { var rpta = await _gestionDocenteActividadService.EliminarEjemploEntrenamientoAsync(id, usuario); return Ok(new { Exito = rpta }); }
             catch (Exception ex) { return BadRequest(new { Exito = false, Mensaje = ex.Message }); }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 19/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Endpoint que genera una plantilla de email o WhatsApp para docentes, reemplazando las etiquetas
+        /// con datos reales del docente, coordinador y curso asociado a la gestión de contacto.
+        /// </summary>
+        /// <param name="idGestionContacto">Identificador de la gestión de contacto.</param>
+        /// <param name="idPlantilla">Identificador de la plantilla a procesar.</param>
+        /// <returns>ActionResult con PlantillaEmailMandrillDTO o PlantillaWhatsAppCalculadoDTO según el tipo de plantilla.</returns>
+        [HttpGet("GenerarPlantillaDocente/{idGestionContacto}/{idPlantilla}")]
+        public IActionResult GenerarPlantillaDocente(int idGestionContacto, int idPlantilla)
+        {
+            try
+            {
+                var resultado = _gestionDocenteActividadService.GenerarPlantillaDocente(new ReemplazoEtiquetaPlantillaDocenteDTO
+                {
+                    IdGestionContacto = idGestionContacto,
+                    IdPlantilla = idPlantilla
+                });
+
+                return Ok(new
+                {
+                    EmailReemplazado = resultado.EmailReemplazado,
+                    WhatsAppReemplazado = resultado.WhatsAppReemplazado
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 25/02/2026
+        /// Versión: 2.0
+        /// <summary>
+        /// Obtiene las plantillas disponibles para la agenda de planificación docente
+        /// según el módulo, tipo de plantilla y área de trabajo enviados desde el front.
+        /// </summary>
+        /// <param name="idModuloSistemaV5">Id del módulo del sistema V5.</param>
+        /// <param name="idPlantillaBase">Id del tipo de plantilla (2=Email, 8=WhatsApp).</param>
+        /// <param name="idPersonalAreaTrabajo">Id del área de trabajo del personal logueado.</param>
+        /// <returns>Lista de PlantillaDisponiblePlanificacionDTO.</returns>
+        [HttpGet("ObtenerPlantillasPlanificacion/{idModuloSistemaV5}/{idPlantillaBase}/{idPersonalAreaTrabajo}")]
+        public IActionResult ObtenerPlantillasPlanificacion(int idModuloSistemaV5, int idPlantillaBase, int idPersonalAreaTrabajo)
+        {
+            try
+            {
+                var lista = _gestionDocenteActividadService.ObtenerPlantillasPlanificacion(idModuloSistemaV5, idPlantillaBase, idPersonalAreaTrabajo);
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
         }
     }
 }

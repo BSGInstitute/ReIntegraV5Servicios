@@ -56,5 +56,17 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         /// Obtiene múltiples docentes postulantes por sus IDs
         /// </summary>
         List<DocentePostulante> ObtenerPorIds(List<int> ids);
+
+        /// <summary>
+        /// Obtiene un docente postulante como DTO por su ID, incluyendo NombreCiudad y NombreCompleto
+        /// </summary>
+        DocentePostulanteDTO ObtenerDocentePostulanteDTOPorId(int id);
+
+        /// <summary>
+        /// Obtiene datos del docente a partir de IdClasificacionPersona, resolviendo a través de
+        /// conf.T_ClasificacionPersona para obtener datos de fin.T_Proveedor (tipo 4) o
+        /// pla.T_DocentePostulante (tipo 6) según corresponda.
+        /// </summary>
+        DocentePostulanteDTO ObtenerDocenteDTOPorIdClasificacionPersona(int idClasificacionPersona);
     }
 }
