@@ -975,6 +975,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TTagParametroSeoPw> TTagParametroSeoPws { get; set; } = null!;
         public virtual DbSet<TTagPw> TTagPws { get; set; } = null!;
         public virtual DbSet<TTamanioEmpresa> TTamanioEmpresas { get; set; } = null!;
+        public virtual DbSet<TTareaCriterio> TTareaCriterios { get; set; } = null!;
+        public virtual DbSet<TTareaCriterioConfiguracion> TTareaCriterioConfiguracions { get; set; } = null!;
+        public virtual DbSet<TTareaCriterioSubCriterio> TTareaCriterioSubCriterios { get; set; } = null!;
+        public virtual DbSet<TTareaSubCriterio> TTareaSubCriterios { get; set; } = null!;
         public virtual DbSet<TTarifario> TTarifarios { get; set; } = null!;
         public virtual DbSet<TTarifarioDetalleAlterno> TTarifarioDetalleAlternos { get; set; } = null!;
         public virtual DbSet<TTiempoCapacitacion> TTiempoCapacitacions { get; set; } = null!;
@@ -17642,6 +17646,16 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsRowVersion()
                     .IsConcurrencyToken()
                     .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UrlArchivoCalificacionExcelente)
+                    .HasMaxLength(750)
+                    .IsUnicode(false)
+                    .HasComment("URL publica de acceso al archivo almacenado en el storage");
+
+                entity.Property(e => e.UrlArchivoInstruccionTarea)
+                    .HasMaxLength(750)
+                    .IsUnicode(false)
+                    .HasComment("URL del archivo almacenado en el storage");
 
                 entity.Property(e => e.UsuarioCreacion)
                     .HasMaxLength(50)
@@ -57962,6 +57976,188 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.Property(e => e.UsuarioModificacion)
                     .HasMaxLength(50)
                     .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TTareaCriterio>(entity =>
+            {
+                entity.ToTable("T_TareaCriterio", "pla");
+
+                entity.HasComment("Tabla que almacena los criterios de evaluación asociados a las tareas de planificación");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Activo).HasComment("Indica si el criterio esta activo para su uso en evaluaciones");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(300)
+                    .HasComment("Descripcion detallada del criterio de tarea");
+
+                entity.Property(e => e.Escala).HasComment("Valor de escala de calificacion asignado al criterio");
+
+                entity.Property(e => e.Estado).HasComment("Creado o eliminado");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de modificacion");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(300)
+                    .HasComment("Nombre del criterio de tarea");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .HasComment("Sistema Automatico Usuario de creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TTareaCriterioConfiguracion>(entity =>
+            {
+                entity.ToTable("T_TareaCriterioConfiguracion", "pla");
+
+                entity.HasComment("Tabla pivote que relaciona los criterios de tarea con las configuraciones de evaluación de trabajo");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Estado).HasComment("Creado o eliminado");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de modificacion");
+
+                entity.Property(e => e.IdConfigurarEvaluacionTrabajo).HasComment("Identificador de la tabla pla.T_ConfigurarEvaluacionTrabajo");
+
+                entity.Property(e => e.IdTareaCriterio).HasComment("Identificador de la tabla pla.T_CriterioTarea");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de modificacion");
+
+                entity.HasOne(d => d.IdConfigurarEvaluacionTrabajoNavigation)
+                    .WithMany(p => p.TTareaCriterioConfiguracions)
+                    .HasForeignKey(d => d.IdConfigurarEvaluacionTrabajo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_TareaCriterioConfiguracion_T_ConfigurarEvaluacionTrabajo");
+
+                entity.HasOne(d => d.IdTareaCriterioNavigation)
+                    .WithMany(p => p.TTareaCriterioConfiguracions)
+                    .HasForeignKey(d => d.IdTareaCriterio)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_TareaCriterioConfiguracion_T_TareaCriterio");
+            });
+
+            modelBuilder.Entity<TTareaCriterioSubCriterio>(entity =>
+            {
+                entity.ToTable("T_TareaCriterioSubCriterio", "pla");
+
+                entity.HasComment("Tabla pivote que relaciona los criterios de tarea con sus subcriterios (relacion N:N)");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Estado).HasComment("Creado o eliminado");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de modificacion");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .HasComment("Sistema Automatico Usuario de creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .HasComment("Sistema Automatico Usuario de modificacion");
+
+                entity.HasOne(d => d.IdTareaCriterioNavigation)
+                    .WithMany(p => p.TTareaCriterioSubCriterios)
+                    .HasForeignKey(d => d.IdTareaCriterio)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_TareaCriterioSubCriterio_T_TareaCriterio");
+
+                entity.HasOne(d => d.IdTareaSubCriterioNavigation)
+                    .WithMany(p => p.TTareaCriterioSubCriterios)
+                    .HasForeignKey(d => d.IdTareaSubCriterio)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_TareaCriterioSubCriterio_T_TareaSubCriterio");
+            });
+
+            modelBuilder.Entity<TTareaSubCriterio>(entity =>
+            {
+                entity.ToTable("T_TareaSubCriterio", "pla");
+
+                entity.HasComment("Tabla que almacena los subcriterios de evaluacion asociados a los criterios de tarea");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Activo).HasComment("Indica si el subcriterio esta activo para su uso en evaluaciones");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(300)
+                    .HasComment("Descripcion detallada del subcriterio de tarea");
+
+                entity.Property(e => e.Escala).HasComment("Valor de escala de calificacion asignado al subcriterio");
+
+                entity.Property(e => e.Estado).HasComment("Creado o eliminado");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de modificacion");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(300)
+                    .HasComment("Nombre del subcriterio de tarea");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .HasComment("Sistema Automatico Usuario de creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
                     .HasComment("Sistema Automatico Usuario de modificacion");
             });
 
