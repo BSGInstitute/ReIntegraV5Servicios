@@ -1,4 +1,4 @@
-﻿using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -29,5 +29,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         ProveedorClasificacionDTO ObtenerClasificacionPorProveedor(int idProveedor);
         IEnumerable<EstadoGestionContactoDTO> ObtenerEstadosGestionContacto();
         TGestionContactoDocenteFlujo InsertarGestionContactoDocenteFlujo(InsertarGestionContactoDocenteFlujoDTO dto);
+        Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo);
+        OportunidadDocenteListResponseDTO ObtenerOportunidadesDocente(string busqueda, int pagina, int porPagina);
+        IEnumerable<ComboDTO> ObtenerDocentes();
     }
 }

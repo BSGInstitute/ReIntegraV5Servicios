@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
@@ -10,6 +10,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string Descripcion { get; set; }
         public int IdGestionDocenteEstado { get; set; }
         public int IdGestionDocenteCategoria { get; set; }
+        public bool Estado { get; set; }
         public string Usuario { get; set; }
     }
 
@@ -217,6 +218,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int IdGestionDocenteEstado { get; set; }
         public string NombreEstado { get; set; }
         public int IdGestionDocenteCategoria { get; set; }
+        public bool Estado { get; set; }
         public string NombreCategoria { get; set; }
     }
 

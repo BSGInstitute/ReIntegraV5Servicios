@@ -9,164 +9,327 @@ using System.Linq;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 {
-    /// Repositorio: GestionDocenteAgendaRepository
-    /// Autor: Jose Vega
-    /// Fecha: 21/02/2026
+    /// Autor: Joseph Llanque
+    /// Fecha: 20/02/2026
+    /// Versión: 1.0
     /// <summary>
-    /// Gestión de tabs de agenda para planificación docente.
-    /// Lee la configuración de T_AgendaTab + T_AgendaTabConfiguracionPlanificacion
-    /// y ejecuta los SPs almacenados en el campo VistaBaseDatos.
+    /// Implementación Dapper del repositorio de agenda de docentes.
+    /// Ejecuta consultas de solo lectura sobre múltiples tablas del esquema pla, fin, gp y conf.
+    /// NOTA: Verificar nombres de columna en T_Proveedor, T_Personal, T_PEspecifico
+    /// contra el esquema real de la base de datos antes de ejecutar en producción.
     /// </summary>
     public class GestionDocenteAgendaRepository : GenericRepository<TProveedor>, IGestionDocenteAgendaRepository
     {
+        private readonly IConnectionFactory _connectionFactory;
+        private readonly IDapperRepository _dapperRepository;
+
         public GestionDocenteAgendaRepository(IntegraDBContext context, IConnectionFactory connectionFactory, IDapperRepository dapperRepository)
             : base(context, connectionFactory, dapperRepository)
         {
+            _connectionFactory = connectionFactory;
+            _dapperRepository = dapperRepository;
         }
 
-        /// Autor: Jose Vega
-        /// Fecha: 21/02/2026
+        /// <summary>
+        /// Obtiene la lista plana de docentes con sus cursos y el flujo asignado.
+        /// Solo incluye docentes que tengan al menos un flujo activo en T_GestionContactoDocenteFlujo.
+        /// </summary>
+        public List<DocenteConCursoDTO> ObtenerDocentesConCursos()
+        {
+            try
+            {
+                List<DocenteConCursoDTO> lista = new List<DocenteConCursoDTO>();
+                string query = @"
+                        SELECT DISTINCT
+                            P.Id AS IdProveedor,
+                            CASE
+                                WHEN LEN(CONCAT(P.Nombre1, ' ', P.Nombre2, ' ', P.ApePaterno, ' ', P.ApeMaterno)) = 0
+                                    THEN P.RazonSocial
+                                ELSE CONCAT(P.Nombre1, ' ', P.Nombre2, ' ', P.ApePaterno, ' ', P.ApeMaterno)
+                            END AS NombreDocente,
+                            PE.Id AS IdPEspecifico,
+                            PE.Nombre AS NombreCurso,
+                            PE.Codigo AS CodigoCurso,
+                            P.IdPersonal_Asignado AS IdPersonalAsignado,
+                            ISNULL(CONCAT(PER.Apellidos, ', ', PER.Nombres), '') AS PersonalAsignado,
+                            GC.Id AS IdGestionContacto,
+                            GDF.Id AS IdFlujo,
+                            GDF.Nombre AS NombreFlujo
+                        FROM pla.T_PEspecificoSesion S
+                        INNER JOIN fin.T_Proveedor P ON S.IdProveedor = P.Id
+                        INNER JOIN pla.T_PEspecifico PE ON S.IdPEspecifico = PE.Id
+                        LEFT JOIN gp.T_Personal PER ON P.IdPersonal_Asignado = PER.Id
+                        INNER JOIN conf.T_ClasificacionPersona CP ON CP.IdTablaOriginal = P.Id AND CP.IdTipoPersona = 4 AND CP.Estado = 1
+                        INNER JOIN pla.T_GestionContacto GC ON GC.IdClasificacionPersona = CP.Id AND GC.Estado = 1
+                        INNER JOIN pla.T_GestionContactoDocenteFlujo GCDF ON GCDF.IdGestionContacto = GC.Id AND GCDF.Estado = 1
+                        INNER JOIN pla.T_GestionDocenteFlujo GDF ON GCDF.IdGestionDocenteFlujo = GDF.Id AND GDF.Estado = 1
+                        WHERE S.Estado = 1 AND P.Estado = 1 AND PE.Estado = 1
+                        ORDER BY NombreDocente, NombreCurso";
+
+                var resultadoDB = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    lista = JsonConvert.DeserializeObject<List<DocenteConCursoDTO>>(resultadoDB);
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DocenteAgendaCabeceraDTO ObtenerCabeceraDocente(int idProveedor)
+        {
+            try
+            {
+                DocenteAgendaCabeceraDTO cabecera = null;
+                string query = @"
+                        SELECT
+                            P.Id AS IdProveedor,
+                            CASE
+                                WHEN LEN(CONCAT(P.Nombre1, ' ', P.Nombre2, ' ', P.ApePaterno, ' ', P.ApeMaterno)) = 0
+                                    THEN P.RazonSocial
+                                ELSE CONCAT(P.Nombre1, ' ', P.Nombre2, ' ', P.ApePaterno, ' ', P.ApeMaterno)
+                            END AS NombreCompleto,
+                            P.Celular1 AS Celular,
+                            P.Email,
+                            P.IdPersonal_Asignado AS IdPersonalAsignado,
+                            ISNULL(CONCAT(PER.Apellidos, ', ', PER.Nombres), '') AS PersonalAsignado,
+                            ISNULL(PA.NombrePais, '') AS Pais,
+                            ISNULL(C.Nombre, '') AS Ciudad
+                        FROM fin.T_Proveedor P
+                        LEFT JOIN gp.T_Personal PER ON P.IdPersonal_Asignado = PER.Id
+                        LEFT JOIN conf.T_Ciudad C ON P.IdCiudad = C.Id
+                        LEFT JOIN conf.T_Pais PA ON C.IdPais = PA.Id
+                        WHERE P.Id = @IdProveedor AND P.Estado = 1";
+
+                var resultadoDB = _dapperRepository.QueryDapper(query, new { IdProveedor = idProveedor });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    var lista = JsonConvert.DeserializeObject<List<DocenteAgendaCabeceraDTO>>(resultadoDB);
+                    cabecera = lista?.FirstOrDefault();
+                }
+                return cabecera;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DocenteAgendaFlujoDTO ObtenerFlujoDocente(int idGestionContacto)
+        {
+            try
+            {
+                DocenteAgendaFlujoDTO flujo = null;
+                string query = @"
+                        SELECT
+                            GDF.Id AS IdFlujo,
+                            GDF.Nombre AS NombreFlujo,
+                            GDF.Descripcion AS DescripcionFlujo
+                        FROM pla.T_GestionContactoDocenteFlujo GCDF
+                        INNER JOIN pla.T_GestionDocenteFlujo GDF ON GCDF.IdGestionDocenteFlujo = GDF.Id
+                        WHERE GCDF.IdGestionContacto = @IdGestionContacto
+                            AND GCDF.Estado = 1
+                            AND GDF.Estado = 1";
+
+                var resultadoDB = _dapperRepository.QueryDapper(query, new { IdGestionContacto = idGestionContacto });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    var lista = JsonConvert.DeserializeObject<List<DocenteAgendaFlujoDTO>>(resultadoDB);
+                    flujo = lista?.FirstOrDefault();
+                }
+                return flujo;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<DocenteAgendaCronogramaDTO> ObtenerCronogramasDocente(int idProveedor, int idPEspecificoPrioridad)
+        {
+            try
+            {
+                List<DocenteAgendaCronogramaDTO> lista = new List<DocenteAgendaCronogramaDTO>();
+                string query = @"
+                        SELECT DISTINCT
+                            PE.Id AS IdPEspecifico,
+                            PE.Nombre AS NombreCurso,
+                            PE.Codigo AS CodigoCurso,
+                            PE.EstadoP AS EstadoCurso,
+                            PE.Tipo AS TipoCurso,
+                            PE.Categoria AS CategoriaCurso,
+                            PE.Ciudad AS CiudadCurso,
+                            PE.FechaInicio,
+                            PE.FechaTermino,
+                            CASE WHEN PE.Id = @IdPEspecificoPrioridad THEN 1 ELSE 0 END AS EsPriorizado
+                        FROM pla.T_PEspecificoSesion S
+                        INNER JOIN pla.T_PEspecifico PE ON S.IdPEspecifico = PE.Id
+                        WHERE S.IdProveedor = @IdProveedor AND S.Estado = 1 AND PE.Estado = 1
+                        ORDER BY EsPriorizado DESC, PE.FechaInicio DESC";
+
+                var resultadoDB = _dapperRepository.QueryDapper(query, new { IdProveedor = idProveedor, IdPEspecificoPrioridad = idPEspecificoPrioridad });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    lista = JsonConvert.DeserializeObject<List<DocenteAgendaCronogramaDTO>>(resultadoDB);
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<DocenteAgendaSesionDTO> ObtenerSesionesPorCursoYDocente(int idProveedor, int idPEspecifico)
+        {
+            try
+            {
+                List<DocenteAgendaSesionDTO> lista = new List<DocenteAgendaSesionDTO>();
+                string query = @"
+                        SELECT
+                            S.Id AS IdSesion,
+                            S.FechaHoraInicio,
+                            S.Duracion,
+                            S.Grupo,
+                            S.Comentario
+                        FROM pla.T_PEspecificoSesion S
+                        WHERE S.IdProveedor = @IdProveedor
+                            AND S.IdPEspecifico = @IdPEspecifico
+                            AND S.Estado = 1
+                        ORDER BY S.FechaHoraInicio";
+
+                var resultadoDB = _dapperRepository.QueryDapper(query, new { IdProveedor = idProveedor, IdPEspecifico = idPEspecifico });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    lista = JsonConvert.DeserializeObject<List<DocenteAgendaSesionDTO>>(resultadoDB);
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 24/02/2026
         /// Versión: 1.0
         /// <summary>
-        /// Obtiene las configuraciones de tabs de agenda para planificación,
-        /// uniendo T_AgendaTab con T_AgendaTabConfiguracionPlanificacion.
+        /// Obtiene la configuración de todos los tabs activos para un área de trabajo,
+        /// ordenados por Numeracion.
         /// </summary>
-        /// <param name="codigoAreaTrabajo">Código del área de trabajo</param>
-        /// <returns>Lista de AgendaTabConfiguracionPlanificacionAlternoDTO</returns>
         public List<AgendaTabConfiguracionPlanificacionAlternoDTO> ObtenerTabsConfigurados(string codigoAreaTrabajo)
         {
             try
             {
-                List<AgendaTabConfiguracionPlanificacionAlternoDTO> rpta = new();
-                var query = @"
-                    SELECT
-                        ATC.Id,
-                        AT.Nombre,
-                        AT.VisualizarActividad,
-                        AT.CargarInformacionInicial,
-                        ATC.VistaBaseDatos,
-                        ATC.CamposVista,
-                        ATC.IdFaseGestionContacto,
-                        ATC.IdEstadoGestionContacto,
-                        AT.CodigoAreaTrabajo,
-                        AT.Numeracion,
-                        AT.ValidarFecha
-                    FROM com.T_AgendaTabConfiguracionPlanificacion ATC
-                    INNER JOIN com.T_AgendaTab AT ON ATC.IdAgendaTab = AT.Id
-                    WHERE AT.Estado = 1
-                        AND ATC.Estado = 1
-                        AND AT.CodigoAreaTrabajo = @codigoAreaTrabajo";
-                var resultado = _dapperRepository.QueryDapper(query, new { codigoAreaTrabajo });
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                var lista = new List<AgendaTabConfiguracionPlanificacionAlternoDTO>();
+                string query = @"
+                        SELECT
+                            ATC.Id,
+                            AT.Nombre,
+                            AT.VisualizarActividad,
+                            AT.CargarInformacionInicial,
+                            ATC.VistaBaseDatos,
+                            ATC.VistaCampos,
+                            ATC.IdFaseGestionContacto,
+                            ATC.IdEstadoGestionContacto,
+                            AT.CodigoAreaTrabajo,
+                            AT.Numeracion,
+                            AT.ValidarFecha
+                        FROM com.T_AgendaTabConfiguracionPlanificacion ATC
+                        INNER JOIN com.T_AgendaTab AT ON ATC.IdAgendaTab = AT.Id
+                        WHERE AT.Estado = 1 AND ATC.Estado = 1
+                            AND AT.CodigoAreaTrabajo = @CodigoAreaTrabajo
+                        ORDER BY AT.Numeracion";
+
+                var resultadoDB = _dapperRepository.QueryDapper(query, new { CodigoAreaTrabajo = codigoAreaTrabajo });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
-                    rpta = JsonConvert.DeserializeObject<List<AgendaTabConfiguracionPlanificacionAlternoDTO>>(resultado);
+                    lista = JsonConvert.DeserializeObject<List<AgendaTabConfiguracionPlanificacionAlternoDTO>>(resultadoDB);
                 }
-                return rpta;
+                return lista;
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error en ObtenerTabsConfigurados(), {ex.Message}");
+                throw ex;
             }
         }
 
-        /// Autor: Jose Vega
-        /// Fecha: 21/02/2026
+        /// Autor: Joseph Llanque
+        /// Fecha: 24/02/2026
         /// Versión: 1.0
         /// <summary>
-        /// Obtiene la configuración de un tab específico por IdAgendaTab.
+        /// Obtiene la configuración de un tab específico filtrado por su ID y área de trabajo.
         /// </summary>
-        /// <param name="codigoAreaTrabajo">Código del área de trabajo</param>
-        /// <param name="idTab">Id del AgendaTab</param>
-        /// <returns>Lista de AgendaTabConfiguracionPlanificacionAlternoDTO</returns>
         public List<AgendaTabConfiguracionPlanificacionAlternoDTO> ObtenerTabsConfiguradosPorIdTab(string codigoAreaTrabajo, int idTab)
         {
             try
             {
-                List<AgendaTabConfiguracionPlanificacionAlternoDTO> rpta = new();
-                var query = @"
-                    SELECT
-                        ATC.Id,
-                        AT.Nombre,
-                        AT.VisualizarActividad,
-                        AT.CargarInformacionInicial,
-                        ATC.VistaBaseDatos,
-                        ATC.CamposVista,
-                        ATC.IdFaseGestionContacto,
-                        ATC.IdEstadoGestionContacto,
-                        AT.CodigoAreaTrabajo,
-                        AT.Numeracion,
-                        AT.ValidarFecha
-                    FROM com.T_AgendaTabConfiguracionPlanificacion ATC
-                    INNER JOIN com.T_AgendaTab AT ON ATC.IdAgendaTab = AT.Id
-                    WHERE AT.Estado = 1
-                        AND ATC.Estado = 1
-                        AND AT.CodigoAreaTrabajo = @codigoAreaTrabajo
-                        AND AT.Id = @idTab";
-                var resultado = _dapperRepository.QueryDapper(query, new { codigoAreaTrabajo, idTab });
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                var lista = new List<AgendaTabConfiguracionPlanificacionAlternoDTO>();
+                string query = @"
+                        SELECT
+                            ATC.Id,
+                            AT.Nombre,
+                            AT.VisualizarActividad,
+                            AT.CargarInformacionInicial,
+                            ATC.VistaBaseDatos,
+                            ATC.VistaCampos,
+                            ATC.IdFaseGestionContacto,
+                            ATC.IdEstadoGestionContacto,
+                            AT.CodigoAreaTrabajo,
+                            AT.Numeracion,
+                            AT.ValidarFecha
+                        FROM com.T_AgendaTabConfiguracionPlanificacion ATC
+                        INNER JOIN com.T_AgendaTab AT ON ATC.IdAgendaTab = AT.Id
+                        WHERE AT.Estado = 1 AND ATC.Estado = 1
+                            AND AT.Id = @IdTab
+                            AND AT.CodigoAreaTrabajo = @CodigoAreaTrabajo
+                        ORDER BY AT.Numeracion";
+
+                var resultadoDB = _dapperRepository.QueryDapper(query, new { IdTab = idTab, CodigoAreaTrabajo = codigoAreaTrabajo });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
-                    rpta = JsonConvert.DeserializeObject<List<AgendaTabConfiguracionPlanificacionAlternoDTO>>(resultado);
+                    lista = JsonConvert.DeserializeObject<List<AgendaTabConfiguracionPlanificacionAlternoDTO>>(resultadoDB);
                 }
-                return rpta;
+                return lista;
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error en ObtenerTabsConfiguradosPorIdTab(), {ex.Message}");
+                throw ex;
             }
         }
 
-        /// Autor: Jose Vega
-        /// Fecha: 21/02/2026
+        /// Autor: Joseph Llanque
+        /// Fecha: 24/02/2026
         /// Versión: 1.0
         /// <summary>
-        /// Ejecuta el SP almacenado en VistaBaseDatos del tab configurado
-        /// y retorna las actividades. Si se envía idAsesor > 0 filtra por IdPersonalAsignado.
+        /// Ejecuta el SP dinámico almacenado en tab.VistaBaseDatos y retorna la lista de actividades.
+        /// Si idAsesor > 0 filtra los resultados por IdPersonalAsignado en memoria.
         /// </summary>
-        /// <param name="tabAgenda">Configuración del tab</param>
-        /// <param name="idAsesor">Id del personal asignado (0 para no filtrar)</param>
-        /// <returns>Lista de ActividadAgendaPlanificacionDTO</returns>
-        public List<ActividadAgendaPlanificacionDTO> ObtenerActividades(AgendaTabConfiguracionPlanificacionAlternoDTO tabAgenda, int idAsesor)
+        public List<ActividadAgendaPlanificacionDTO> ObtenerActividades(AgendaTabConfiguracionPlanificacionAlternoDTO tab, int idAsesor)
         {
             try
             {
-                List<ActividadAgendaPlanificacionDTO> rpta = new();
-                var resultado = _dapperRepository.QuerySPDapper(tabAgenda.VistaBaseDatos, null);
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                var lista = new List<ActividadAgendaPlanificacionDTO>();
+                var resultadoDB = _dapperRepository.QuerySPDapper(tab.VistaBaseDatos, null);
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
-                    rpta = JsonConvert.DeserializeObject<List<ActividadAgendaPlanificacionDTO>>(resultado);
+                    lista = JsonConvert.DeserializeObject<List<ActividadAgendaPlanificacionDTO>>(resultadoDB);
                 }
+
                 if (idAsesor > 0)
                 {
-                    rpta = rpta.Where(x => x.IdPersonalAsignado == idAsesor).ToList();
+                    lista = lista.Where(a => a.IdPersonalAsignado == idAsesor).ToList();
                 }
-                return rpta;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error en ObtenerActividades(), {ex.Message}");
-            }
-        }
 
-        /// Autor: Jose Vega
-        /// Fecha: 21/02/2026
-        /// Versión: 1.0
-        /// <summary>
-        /// Obtiene la cantidad de actividades por tab.
-        /// Ejecuta el SP del tab y cuenta los resultados, filtrando por idAsesor si se envía.
-        /// </summary>
-        /// <param name="tabAgenda">Configuración del tab</param>
-        /// <param name="idAsesor">Id del personal asignado (0 para no filtrar)</param>
-        /// <returns>Cantidad de actividades</returns>
-        public int CantidadActividadesPorTab(AgendaTabConfiguracionPlanificacionAlternoDTO tabAgenda, int idAsesor)
-        {
-            try
-            {
-                var actividades = ObtenerActividades(tabAgenda, idAsesor);
-                return actividades.Count;
+                return lista;
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error en CantidadActividadesPorTab(), {ex.Message}");
+                throw ex;
             }
         }
     }

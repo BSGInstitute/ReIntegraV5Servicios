@@ -12,6 +12,11 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public bool Estado { get; set; }
         public string Usuario { get; set; }
         public int? IdGestionDocenteActividadCabecera { get; set; }
+        /// <summary>
+        /// IDs de actividades a asociar al flujo. El servicio las procesa tras guardar.
+        /// Si está vacío o null, no se realizan asociaciones.
+        /// </summary>
+        public List<int> ActividadesIds { get; set; }
     }
 
     public class GestionDocenteActividadCabeceraListaDTO

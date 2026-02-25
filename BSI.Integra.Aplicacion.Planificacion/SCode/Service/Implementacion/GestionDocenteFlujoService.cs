@@ -48,7 +48,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 var model = _unitOfWork.GestionDocenteFlujoRepository.Add(entidad);
                 await _unitOfWork.CommitAsync();
 
-                // Asociar actividad cabecera al flujo
+                // Asociar actividad cabecera individual (uso legado)
                 if (dto.IdGestionDocenteActividadCabecera.HasValue)
                 {
                     var asociacion = new GestionDocenteActividadCabeceraFlujo
@@ -63,6 +63,26 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     };
 
                     _unitOfWork.GestionDocenteActividadCabeceraFlujoRepository.Add(asociacion);
+                    await _unitOfWork.CommitAsync();
+                }
+
+                // Asociar lista de actividades al flujo si se proporcionan
+                if (dto.ActividadesIds != null && dto.ActividadesIds.Count > 0)
+                {
+                    foreach (var actividadId in dto.ActividadesIds)
+                    {
+                        var asociacion = new GestionDocenteActividadCabeceraFlujo
+                        {
+                            IdGestionDocenteFlujo = model.Id,
+                            IdGestionDocenteActividadCabecera = actividadId,
+                            Estado = true,
+                            UsuarioCreacion = dto.Usuario,
+                            UsuarioModificacion = dto.Usuario,
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now
+                        };
+                        _unitOfWork.GestionDocenteActividadCabeceraFlujoRepository.Add(asociacion);
+                    }
                     await _unitOfWork.CommitAsync();
                 }
 
@@ -86,6 +106,10 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         {
             try
             {
+                // Cargar la entidad existente para preservar FechaCreacion, UsuarioCreacion y Estado
+                var existente = _unitOfWork.GestionDocenteFlujoRepository
+                    .GetAll().FirstOrDefault(x => x.Id == dto.Id);
+
                 var entidad = new GestionDocenteFlujo
                 {
                     Id = dto.Id,
@@ -93,12 +117,35 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     Descripcion = dto.Descripcion,
                     IdGestionDocenteEstado = dto.IdGestionDocenteEstado,
                     IdGestionDocenteCategoria = dto.IdGestionDocenteCategoria,
+                    Estado = existente != null ? existente.Estado : dto.Estado,
+                    UsuarioCreacion = existente != null ? existente.UsuarioCreacion : dto.Usuario,
+                    FechaCreacion = existente != null ? existente.FechaCreacion : DateTime.Now,
                     UsuarioModificacion = dto.Usuario,
                     FechaModificacion = DateTime.Now
                 };
 
                 _unitOfWork.GestionDocenteFlujoRepository.Update(entidad);
                 await _unitOfWork.CommitAsync();
+
+                // Asociar actividades al flujo si se proporcionan
+                if (dto.ActividadesIds != null && dto.ActividadesIds.Count > 0)
+                {
+                    foreach (var actividadId in dto.ActividadesIds)
+                    {
+                        var asociacion = new GestionDocenteActividadCabeceraFlujo
+                        {
+                            IdGestionDocenteFlujo = dto.Id,
+                            IdGestionDocenteActividadCabecera = actividadId,
+                            Estado = true,
+                            UsuarioCreacion = dto.Usuario,
+                            UsuarioModificacion = dto.Usuario,
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now
+                        };
+                        _unitOfWork.GestionDocenteActividadCabeceraFlujoRepository.Add(asociacion);
+                    }
+                    await _unitOfWork.CommitAsync();
+                }
 
                 return true;
             }

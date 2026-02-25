@@ -1,4 +1,4 @@
-﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
@@ -1319,6 +1319,38 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         {
             if (idPlantillaBase == PlantillaBase.Email)
                 plantillaCorreo.Asunto = plantillaCorreo.Asunto.Replace(etiqueta, valor ?? "");
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 19/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza los datos de una cabecera de actividad docente existente.
+        /// </summary>
+        /// <param name=dto>DTO con los datos actualizados de la cabecera.</param>
+        public async Task<bool> ActualizarCabeceraAsync(GestionDocenteActividadCabeceraDTO dto)
+        {
+            try
+            {
+                var entidad = new GestionDocenteActividadCabecera
+                {
+                    Id = dto.Id,
+                    Nombre = dto.Nombre,
+                    Descripcion = dto.Descripcion,
+                    IdGestionDocenteEstado = dto.IdGestionDocenteEstado,
+                    IdGestionDocenteCategoria = dto.IdGestionDocenteCategoria,
+                    Estado = dto.Estado,
+                    UsuarioModificacion = dto.Usuario,
+                    FechaModificacion = DateTime.Now
+                };
+                _unitOfWork.GestionDocenteActividadCabeceraRepository.Update(entidad);
+                await _unitOfWork.CommitAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

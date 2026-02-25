@@ -44,8 +44,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 var model = _mapper.Map<TGestionDocenteActividadCabecera>(entidad);
-                var existing = base.FirstBy(w => w.Id == entidad.Id, s => new { s.RowVersion });
-                if (existing != null) model.RowVersion = existing.RowVersion;
+                var existing = base.FirstBy(w => w.Id == entidad.Id, s => new { s.RowVersion, s.FechaCreacion, s.UsuarioCreacion });
+                if (existing != null)
+                {
+                    model.RowVersion = existing.RowVersion;
+                    model.FechaCreacion = existing.FechaCreacion;
+                    model.UsuarioCreacion = existing.UsuarioCreacion;
+                }
                 base.Update(model);
                 return model;
             }

@@ -1,4 +1,4 @@
-﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -37,5 +37,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         Task<bool> EliminarEjemploEntrenamientoAsync(int id, string usuario);
         (PlantillaEmailMandrillDTO EmailReemplazado, PlantillaWhatsAppCalculadoDTO WhatsAppReemplazado) GenerarPlantillaDocente(ReemplazoEtiquetaPlantillaDocenteDTO request);
         List<PlantillaDisponiblePlanificacionDTO> ObtenerPlantillasPlanificacion(int idModuloSistemaV5, int idPlantillaBase, int idPersonalAreaTrabajo);
+        Task<bool> ActualizarCabeceraAsync(GestionDocenteActividadCabeceraDTO dto);
     }
 }

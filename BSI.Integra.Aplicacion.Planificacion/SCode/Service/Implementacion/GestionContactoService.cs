@@ -1,4 +1,4 @@
-﻿using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
@@ -284,7 +284,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     IdClasificacionPersona    = clasificacion.IdClasificacionPersona,
                     IdFaseGestionContacto     = 2,
                     IdOrigen                  = 1124,
-                    IdEstadoGestionContacto   = dto.IdCentroCosto.HasValue ? 2 : 1,
+                    IdEstadoGestionContacto   = 1,
                     UltimoComentario          = "Creacion de Oportunidad Docente Registrada",
                     EstadoSeguimientoWhatsApp = false,
                     Estado                    = true,
@@ -298,6 +298,49 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 await _unitOfWork.CommitAsync();
 
                 return tGestionContacto.Id;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el listado paginado de oportunidades docentes.
+        /// </summary>
+        public OportunidadDocenteListResponseDTO ObtenerOportunidadesDocente(
+            string busqueda, int pagina, int porPagina)
+        {
+            return _unitOfWork.GestionContactoRepository
+                              .ObtenerOportunidadesDocente(busqueda, pagina, porPagina);
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el listado de docentes para el combo de tipo General.
+        /// </summary>
+        public IEnumerable<ComboDTO> ObtenerDocentes()
+        {
+            return _unitOfWork.GestionContactoRepository.ObtenerDocentes();
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 21/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Congela un flujo de gestión docente con todas sus actividades, disparadores,
+        /// ocurrencias y configuración IA asociadas.
+        /// </summary>
+        public async Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo)
+        {
+            try
+            {
+                return await _unitOfWork.GestionContactoRepository.CongelarFlujoDocenteAsync(idGestionContactoDocenteFlujo);
             }
             catch (Exception)
             {
