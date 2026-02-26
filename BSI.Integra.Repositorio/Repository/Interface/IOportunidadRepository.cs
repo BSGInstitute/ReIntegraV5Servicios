@@ -133,6 +133,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public OportunidadConversionesDTO ObtenerInformacionOportunidadConversion(int idOportunidad);
         public OportunidadDetalleProbabilidadDTO ObtenerInformacionOportunidadProbabilidad(int idOportunidad);
         MetricasComparativasDiariasDTO ObtenerMetricasComparativasDiarias(int idAsesor, DateTime? fecha = null);
+        MetricasActividadesATCDTO ObtenerMetricasActividadesATC(int idPersonal, DateTime? fecha = null);
         AlumnoCodigosDescuentosDTO ObtenerCodigoDescuentoAlumno(int idAlumno);
         bool ActualizarCentroCosto(int idCentroCosto, int idActividad);
         OportunidadFaseDTO ObtenerFaseUltimaOportunidadPorIdAlumno(int idAlumno);

@@ -4327,6 +4327,222 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        /// Autor: Junior Llerena
+        /// Fecha: 25/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las métricas comparativas de actividades ATC entre el día actual y el día anterior
+        /// </summary>
+        /// <param name="idPersonal">ID del personal a consultar</param>
+        /// <param name="fecha">Fecha opcional a consultar (por defecto hoy)</param>
+        /// <returns>DTO con métricas comparativas de actividades ATC</returns>
+        public MetricasActividadesATCDTO ObtenerMetricasActividadesATC(int idPersonal, DateTime? fecha = null)
+        {
+            try
+            {
+                var fechaActual = (fecha ?? DateTime.Today).Date;
+                var fechaAnterior = fechaActual.AddDays(-1);
+
+                // Evitar comparar con domingo
+                if (fechaAnterior.DayOfWeek == System.DayOfWeek.Sunday)
+                {
+                    fechaAnterior = fechaAnterior.AddDays(-1);
+                }
+
+                var esHoy = fechaActual == DateTime.Today;
+
+                // Función local: Obtener datos del día actual desde SP ope.SP_ReporteControlActividadesAgendaATC
+                (int llamadasTotales, int llamadasEfectivas, int compromisosPago, decimal montoRecaudado) ObtenerDatosActuales()
+                {
+                    var fechaInicio = new DateTime(fechaActual.Year, fechaActual.Month, fechaActual.Day, 0, 0, 0);
+                    var fechaFin = new DateTime(fechaActual.Year, fechaActual.Month, fechaActual.Day, 23, 59, 59);
+
+                    var resultado = _dapperRepository.QuerySPDapper("ope.SP_ReporteControlActividadesAgendaATC", new
+                    {
+                        IdPersonal = idPersonal,
+                        FechaInicio = fechaInicio,
+                        FechaFin = fechaFin
+                    });
+
+                    int llamadasTot = 0, llamadasEfec = 0, compromisosP = 0;
+                    decimal montoRec = 0;
+
+                    if (!string.IsNullOrEmpty(resultado) && resultado != "null" && !resultado.Contains("[]"))
+                    {
+                        var listaResultados = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(resultado);
+
+                        if (listaResultados != null && listaResultados.Any())
+                        {
+                            foreach (var item in listaResultados)
+                            {
+                                if (item.ContainsKey("Estado") && item.ContainsKey("Total"))
+                                {
+                                    var estado = item["Estado"]?.ToString() ?? "";
+                                    var total = item["Total"];
+
+                                    switch (estado)
+                                    {
+                                        case "Llamadas Totales":
+                                            llamadasTot = Convert.ToInt32(total);
+                                            break;
+                                        case "Llamadas Efectivas":
+                                            llamadasEfec = Convert.ToInt32(total);
+                                            break;
+                                        case "Compromisos de Pago":
+                                            compromisosP = Convert.ToInt32(total);
+                                            break;
+                                        case "Monto Recaudado":
+                                            montoRec = Convert.ToDecimal(total);
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    return (llamadasTot, llamadasEfec, compromisosP, montoRec);
+                }
+
+                // Función local: Obtener datos históricos desde SP tra.SP_ActividadControlCongeladoMetrica
+                (int llamadasTotales, int llamadasEfectivas, int compromisosPago, decimal montoRecaudado, int minutosTotales) ObtenerDatosHistoricos(DateTime fechaConsulta)
+                {
+                    var resultado = _dapperRepository.QuerySPDapper("tra.SP_ActividadControlCongeladoMetrica", new
+                    {
+                        IdPersonal = idPersonal,
+                        FechaActividad = fechaConsulta.ToString("yyyy-MM-dd")
+                    });
+
+                    int llamadasTot = 0, llamadasEfec = 0, compromisosP = 0, minutosTot = 0;
+                    decimal montoRec = 0;
+
+                    if (!string.IsNullOrEmpty(resultado) && resultado != "null" && !resultado.Contains("[]"))
+                    {
+                        var listaResultados = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(resultado);
+
+                        if (listaResultados != null && listaResultados.Any())
+                        {
+                            foreach (var item in listaResultados)
+                            {
+                                if (item.ContainsKey("NombreActividadPersonalTipo") && item.ContainsKey("ValorControlCongelado"))
+                                {
+                                    var nombre = item["NombreActividadPersonalTipo"]?.ToString() ?? "";
+                                    var valor = item["ValorControlCongelado"];
+
+                                    switch (nombre)
+                                    {
+                                        case "Llamadas Totales":
+                                            llamadasTot = Convert.ToInt32(valor);
+                                            break;
+                                        case "Llamadas Efectivas":
+                                            llamadasEfec = Convert.ToInt32(valor);
+                                            break;
+                                        case "Compromisos de Pago":
+                                            compromisosP = Convert.ToInt32(valor);
+                                            break;
+                                        case "Monto Recaudado":
+                                            montoRec = Convert.ToDecimal(valor);
+                                            break;
+                                        case "Minutos Totales Telefono Corporativo":
+                                            minutosTot = Convert.ToInt32(valor);
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    return (llamadasTot, llamadasEfec, compromisosP, montoRec, minutosTot);
+                }
+
+                // Función local: Calcular métrica comparativa
+                MetricaComparativaATCDTO CalcularMetrica(int hoy, int ayer)
+                {
+                    int porcentaje = ayer > 0 ? (int)Math.Round(((double)(hoy - ayer) / ayer) * 100) : 0;
+                    string estado = porcentaje >= 0 ? "Positivo" : "Negativo";
+
+                    return new MetricaComparativaATCDTO
+                    {
+                        Hoy = hoy,
+                        Ayer = ayer,
+                        Porcentaje = porcentaje,
+                        Estado = estado
+                    };
+                }
+
+                // Función local: Calcular métrica comparativa con decimales (para Monto Recaudado)
+                MetricaComparativaATCDTO CalcularMetricaDecimal(decimal hoy, decimal ayer)
+                {
+                    int porcentaje = ayer > 0 ? (int)Math.Round(((double)(hoy - ayer) / (double)ayer) * 100) : 0;
+                    string estado = porcentaje >= 0 ? "Positivo" : "Negativo";
+
+                    return new MetricaComparativaATCDTO
+                    {
+                        Hoy = (int)hoy,
+                        Ayer = (int)ayer,
+                        Porcentaje = porcentaje,
+                        Estado = estado
+                    };
+                }
+
+                // Función local: Calcular métrica solo con histórico (para Minutos Totales)
+                MetricaComparativaATCDTO CalcularMetricaSoloHistorico(int ayer)
+                {
+                    return new MetricaComparativaATCDTO
+                    {
+                        Hoy = 0,
+                        Ayer = ayer,
+                        Porcentaje = 0,
+                        Estado = "Neutral"
+                    };
+                }
+
+                // Obtener datos del día actual (o histórico si la fecha no es hoy)
+                int llamadasTotalesHoy, llamadasEfectivasHoy, compromisosPagoHoy;
+                decimal montoRecaudadoHoy;
+
+                if (esHoy)
+                {
+                    var datosHoy = ObtenerDatosActuales();
+                    llamadasTotalesHoy = datosHoy.llamadasTotales;
+                    llamadasEfectivasHoy = datosHoy.llamadasEfectivas;
+                    compromisosPagoHoy = datosHoy.compromisosPago;
+                    montoRecaudadoHoy = datosHoy.montoRecaudado;
+                }
+                else
+                {
+                    var datosHoy = ObtenerDatosHistoricos(fechaActual);
+                    llamadasTotalesHoy = datosHoy.llamadasTotales;
+                    llamadasEfectivasHoy = datosHoy.llamadasEfectivas;
+                    compromisosPagoHoy = datosHoy.compromisosPago;
+                    montoRecaudadoHoy = datosHoy.montoRecaudado;
+                }
+
+                // Obtener datos del día anterior
+                var datosAyer = ObtenerDatosHistoricos(fechaAnterior);
+
+                // Construir respuesta
+                return new MetricasActividadesATCDTO
+                {
+                    Success = true,
+                    Fecha = fechaActual.ToString("yyyy-MM-dd"),
+                    FechaComparacion = fechaAnterior.ToString("yyyy-MM-dd"),
+                    IdPersonal = idPersonal,
+                    Metricas = new MetricasATCDTO
+                    {
+                        LlamadasTotales = CalcularMetrica(llamadasTotalesHoy, datosAyer.llamadasTotales),
+                        LlamadasEfectivas = CalcularMetrica(llamadasEfectivasHoy, datosAyer.llamadasEfectivas),
+                        CompromisosPago = CalcularMetrica(compromisosPagoHoy, datosAyer.compromisosPago),
+                        MontoRecaudado = CalcularMetricaDecimal(montoRecaudadoHoy, datosAyer.montoRecaudado),
+                        MinutosTotalesTelefono = CalcularMetricaSoloHistorico(datosAyer.minutosTotales)
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#OR-OMAATC-001@Error en ObtenerMetricasActividadesATC: {ex.Message}", ex);
+            }
+        }
+
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 24/04/2024
         /// Version: 1.0

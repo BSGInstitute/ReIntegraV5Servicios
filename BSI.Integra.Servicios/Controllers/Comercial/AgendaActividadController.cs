@@ -1657,6 +1657,72 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
 
         /// TipoFuncion: GET
         /// Autor: Junior Llerena
+        /// Fecha: 25/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las métricas comparativas de actividades ATC de un personal entre el día actual y el anterior
+        /// </summary>
+        /// <param name="idPersonal">ID del personal a consultar</param>
+        /// <param name="fecha">Fecha opcional a consultar (por defecto: hoy)</param>
+        /// <returns>Métricas comparativas con porcentajes de variación</returns>
+        /// GET: api/Comercial/AgendaActividad/ObtenerMetricasActividadesATC?idPersonal=6588&fecha=2026-02-20
+        [HttpGet]
+        [Route("ObtenerMetricasActividadesATC")]
+        public IActionResult ObtenerMetricasActividadesATC([FromQuery] int idPersonal, [FromQuery] DateTime? fecha = null)
+        {
+            try
+            {
+                // Validación: idPersonal debe ser mayor a 0
+                if (idPersonal <= 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        mensaje = "El ID del personal debe ser mayor a 0"
+                    });
+                }
+
+                // Validación: fecha no puede ser futura
+                var fechaConsulta = fecha ?? DateTime.Today;
+                if (fechaConsulta.Date > DateTime.Today)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        mensaje = "No se pueden consultar métricas de fechas futuras",
+                        fecha = fechaConsulta.ToString("yyyy-MM-dd")
+                    });
+                }
+
+                IAgendaActividadService agendaActividadService = new AgendaActividadService(_unitOfWork);
+
+                var resultado = agendaActividadService.ObtenerMetricasActividadesATC(idPersonal, fechaConsulta);
+
+                return Ok(resultado);
+            }
+            catch (ArgumentException argEx)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    mensaje = argEx.Message,
+                    error = "Validación de parámetros"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    mensaje = "Error al obtener métricas de actividades ATC",
+                    error = ex.Message,
+                    errorCode = "#AAC-OMAATC-001"
+                });
+            }
+        }
+
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
         /// Fecha: 01/12/2025
         /// Version: 1.0
         /// <summary>

@@ -2156,6 +2156,27 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
         }
 
+        /// Autor: Junior Llerena
+        /// Fecha: 25/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las métricas comparativas de actividades ATC del personal
+        /// </summary>
+        /// <param name="idPersonal">ID del personal a consultar</param>
+        /// <param name="fecha">Fecha opcional a consultar</param>
+        /// <returns>DTO con métricas comparativas de actividades ATC</returns>
+        public MetricasActividadesATCDTO ObtenerMetricasActividadesATC(int idPersonal, DateTime? fecha = null)
+        {
+            try
+            {
+                return _unitOfWork.OportunidadRepository.ObtenerMetricasActividadesATC(idPersonal, fecha);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#HAS-OMAATC-001@Error en ObtenerMetricasActividadesATC: {ex.Message}", ex);
+            }
+        }
+
 
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 12/03/2024

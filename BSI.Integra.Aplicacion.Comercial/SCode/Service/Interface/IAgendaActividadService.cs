@@ -74,6 +74,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         ValorEtiquetaWhatsAppDTO ObtenerValoresEtiquetaWhatsapp(int idOportunidad);
         ControlActividadAgendaDTO ObtenerReporteControlActividadesAgenda(int idAsesor);
         MetricasComparativasDiariasDTO ObtenerMetricasComparativasDiarias(int idAsesor, DateTime? fecha = null);
+        MetricasActividadesATCDTO ObtenerMetricasActividadesATC(int idPersonal, DateTime? fecha = null);
         List<ResultadoBusquedaFichaAlumnoDTO> BuscarFichaPorCelular(string celular);
         int ObtenerIdSkillPorCelular(string celular);
         IEnumerable<ColorPerfilProgramaDTO> ObtenerColorPerfilProgramaPorIdOportunidad(int idOportunidad);

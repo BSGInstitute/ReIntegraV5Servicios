@@ -347,4 +347,30 @@
         public int IdAsesor { get; set; }
         public MetricasDTO Metricas { get; set; }
     }
+
+    public class MetricaComparativaATCDTO
+    {
+        public int Hoy { get; set; }
+        public int Ayer { get; set; }
+        public int Porcentaje { get; set; }
+        public string Estado { get; set; }
+    }
+
+    public class MetricasATCDTO
+    {
+        public MetricaComparativaATCDTO LlamadasTotales { get; set; }
+        public MetricaComparativaATCDTO LlamadasEfectivas { get; set; }
+        public MetricaComparativaATCDTO CompromisosPago { get; set; }
+        public MetricaComparativaATCDTO MontoRecaudado { get; set; }
+        public MetricaComparativaATCDTO MinutosTotalesTelefono { get; set; }
+    }
+
+    public class MetricasActividadesATCDTO
+    {
+        public bool Success { get; set; }
+        public string Fecha { get; set; }
+        public string FechaComparacion { get; set; }
+        public int IdPersonal { get; set; }
+        public MetricasATCDTO Metricas { get; set; }
+    }
 }
