@@ -667,7 +667,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                         FechaCreacion = y.Key.FechaCreacion,
                     }).ToList(),
 
-                    MensajePorCelular = x.GroupBy(y => new { y.Estatus, y.Tipo, y.IdAlumnoCelular, y.Celular, y.Alumno, y.Mensaje, y.Personal, y.FechaMensaje, y.NumeroWhatsappEmpresa }).Select(y => new ObtenerChatWhatsAppMarketingMensajeDTO
+                    MensajePorCelular = x.GroupBy(y => new { y.Estatus, y.Tipo, y.IdAlumnoCelular, y.Celular, y.Alumno, y.Mensaje, y.Personal, y.FechaMensaje, y.NumeroWhatsappEmpresa, y.CodigoArea, y.PersonalFiltrado }).Select(y => new ObtenerChatWhatsAppMarketingMensajeDTO
                     {
                         Estatus = y.Key.Estatus,
                         Tipo = y.Key.Tipo,
@@ -678,6 +678,8 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                         Personal = y.Key.Personal,
                         FechaMensaje = y.Key.FechaMensaje,
                         NumeroWhatsappEmpresa = y.Key.NumeroWhatsappEmpresa,
+                        CodigoArea = y.Key.CodigoArea,
+                        PersonalFiltrado = y.Key.PersonalFiltrado,
                     }).ToList(),
                 }).ToList();
                 if (resultadoAgrupado.Count() == 0)
@@ -735,7 +737,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                     }).ToList(),
 
 
-                    MensajePorCelular = x.GroupBy(y => new { y.Estatus, y.Tipo, y.IdAlumnoCelular, y.Celular, y.Alumno, y.Mensaje, y.Personal, y.FechaMensaje, y.NumeroWhatsappEmpresa }).Select(y => new ObtenerChatWhatsAppMarketingMensajeDTO
+                    MensajePorCelular = x.GroupBy(y => new { y.Estatus, y.Tipo, y.IdAlumnoCelular, y.Celular, y.Alumno, y.Mensaje, y.Personal, y.FechaMensaje, y.NumeroWhatsappEmpresa, y.CodigoArea, y.PersonalFiltrado }).Select(y => new ObtenerChatWhatsAppMarketingMensajeDTO
                     {
                         Estatus = y.Key.Estatus,
                         Tipo = y.Key.Tipo,
@@ -746,6 +748,8 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                         Personal = y.Key.Personal,
                         FechaMensaje = y.Key.FechaMensaje,
                         NumeroWhatsappEmpresa = y.Key.NumeroWhatsappEmpresa,
+                        CodigoArea = y.Key.CodigoArea,
+                        PersonalFiltrado = y.Key.PersonalFiltrado,
                     }).ToList(),
                 }).ToList();
                 if (resultadoAgrupado.Count() == 0)
