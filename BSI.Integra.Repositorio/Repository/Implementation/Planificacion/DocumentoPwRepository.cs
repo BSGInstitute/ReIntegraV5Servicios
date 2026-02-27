@@ -445,7 +445,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                         Nombre,
                         IdPlantillaPW,
                         EstadoFlujo,
-                        Asignado
+                        Asignado,
+                        UrlArchivoInstruccionTarea,
+                        UrlArchivoCalificacionExcelente
                     FROM pla.T_Documento_PW
                     WHERE Estado = 1 ORDER BY Id DESC";
                 var resultado = _dapperRepository.QueryDapper(query, null);

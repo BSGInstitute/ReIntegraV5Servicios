@@ -93,5 +93,50 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 throw new Exception($"Error en CriterioTareaService.ListarCriterios: {ex.Message}", ex);
             }
         }
+
+        /// <summary>
+        /// Lista los SubCriterioTarea asignados a un CriterioTarea
+        /// </summary>
+        public List<SubCriterioTareaDTO> ListarSubCriteriosPorCriterio(int idCriterio)
+        {
+            try
+            {
+                return _unitOfWork.CriterioTareaRepository.ListarSubCriteriosPorCriterio(idCriterio);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en CriterioTareaService.ListarSubCriteriosPorCriterio: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Asigna un SubCriterioTarea a un CriterioTarea
+        /// </summary>
+        public bool AsignarSubCriterio(int idCriterio, int idSubCriterio, string usuario)
+        {
+            try
+            {
+                return _unitOfWork.CriterioTareaRepository.AsignarSubCriterio(idCriterio, idSubCriterio, usuario);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en CriterioTareaService.AsignarSubCriterio: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Desasigna un SubCriterioTarea de un CriterioTarea
+        /// </summary>
+        public bool DesasignarSubCriterio(int idCriterio, int idSubCriterio, string usuario)
+        {
+            try
+            {
+                return _unitOfWork.CriterioTareaRepository.DesasignarSubCriterio(idCriterio, idSubCriterio, usuario);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en CriterioTareaService.DesasignarSubCriterio: {ex.Message}", ex);
+            }
+        }
     }
 }

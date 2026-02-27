@@ -26,7 +26,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                var sp = "pla.SP_TareaSubCriterioInsertar";
+                var sp = "pla.SP_TareaSubCriterio_Insertar";
                 _dapperRepository.QuerySPDapper(sp, new
                 {
                     Nombre              = subCriterioDTO.Nombre,
@@ -50,7 +50,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                var sp = "pla.SP_TareaSubCriterioActualizar";
+                var sp = "pla.SP_TareaSubCriterio_Actualizar";
                 _dapperRepository.QuerySPDapper(sp, new
                 {
                     Id                  = subCriterioDTO.Id,
@@ -74,7 +74,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                var sp = "pla.SP_TareaSubCriterioEliminar";
+                var sp = "pla.SP_TareaSubCriterio_Eliminar";
                 _dapperRepository.QuerySPDapper(sp, new
                 {
                     Id                  = id,
@@ -95,7 +95,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                var query = @"SELECT Id, Nombre, Descripcion, Escala, Activo
+                var query = @"SELECT Id, Nombre, Descripcion, Escala, Estado AS Activo
                               FROM pla.T_TareaSubCriterio
                               WHERE Estado = 1 AND Id = @Id";
 
@@ -119,7 +119,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                var query = @"SELECT Id, Nombre, Descripcion, Escala, Activo
+                var query = @"SELECT Id, Nombre, Descripcion, Escala, Estado AS Activo
                               FROM pla.T_TareaSubCriterio
                               WHERE Estado = 1
                               ORDER BY Id DESC";

@@ -76,12 +76,38 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         /// <param name="dto"></param>
         /// <param name="usuario"></param>
         /// <returns> Entidad - DocumentoPw </returns>
-        public DocumentoPw InsertarDocumento(CompuestoDocumentoDTO dto, string usuario)
+        public async Task<DocumentoPw> InsertarDocumento(CompuestoDocumentoDTO dto, IFormFile? archivoInstruccion, IFormFile? archivoCalificacion, string usuario)
         {
             try
             {
                 DocumentoPw documento = new DocumentoPw();
-                using (TransactionScope scope = new TransactionScope())
+
+                // Subir archivos antes del INSERT para tener las URLs listas en la entidad
+                if (archivoInstruccion != null && archivoInstruccion.Length > 0)
+                {
+                    byte[] bytes;
+                    using (var ms = new MemoryStream())
+                    {
+                        await archivoInstruccion.CopyToAsync(ms);
+                        bytes = ms.ToArray();
+                    }
+                    documento.UrlArchivoInstruccionTarea = await _unitOfWork.DocumentoPwRepository
+                        .SubirArchivoDocumentoPw(bytes, archivoInstruccion.ContentType, archivoInstruccion.FileName);
+                }
+
+                if (archivoCalificacion != null && archivoCalificacion.Length > 0)
+                {
+                    byte[] bytes;
+                    using (var ms = new MemoryStream())
+                    {
+                        await archivoCalificacion.CopyToAsync(ms);
+                        bytes = ms.ToArray();
+                    }
+                    documento.UrlArchivoCalificacionExcelente = await _unitOfWork.DocumentoPwRepository
+                        .SubirArchivoDocumentoPw(bytes, archivoCalificacion.ContentType, archivoCalificacion.FileName);
+                }
+
+                using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
                     documento.Nombre = dto.ObjetoDocumento.Nombre;
                     documento.IdPlantillaPw = dto.ObjetoDocumento.IdPlantillaPw;
@@ -210,7 +236,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         /// <param name="dto"></param>
         /// <param name="usuario"></param>
         /// <returns></returns>
-        public DocumentoPw ActualizarDocumento(CompuestoDocumentoPwDTO dto, string usuario)
+        public async Task<DocumentoPw> ActualizarDocumento(CompuestoDocumentoPwDTO dto, IFormFile? archivoInstruccion, IFormFile? archivoCalificacion, string usuario)
         {
             try
             {
@@ -220,7 +246,23 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 DocumentoPw documentoPw = new DocumentoPw();
                 List<DocumentoSeccionPw> documentoSeccionPw = new List<DocumentoSeccionPw>();
 
-                using (TransactionScope scope = new TransactionScope())
+                string urlInstruccion = string.Empty;
+                string urlCalificacion = string.Empty;
+
+                if (archivoInstruccion != null && archivoInstruccion.Length > 0)
+                {
+                    byte[] bytes;
+                    using (var ms = new MemoryStream()) { await archivoInstruccion.CopyToAsync(ms); bytes = ms.ToArray(); }
+                    urlInstruccion = await _unitOfWork.DocumentoPwRepository.SubirArchivoDocumentoPw(bytes, archivoInstruccion.ContentType, archivoInstruccion.FileName);
+                }
+                if (archivoCalificacion != null && archivoCalificacion.Length > 0)
+                {
+                    byte[] bytes;
+                    using (var ms = new MemoryStream()) { await archivoCalificacion.CopyToAsync(ms); bytes = ms.ToArray(); }
+                    urlCalificacion = await _unitOfWork.DocumentoPwRepository.SubirArchivoDocumentoPw(bytes, archivoCalificacion.ContentType, archivoCalificacion.FileName);
+                }
+
+                using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
                     documentoSeccionPwService.EliminacionDocumentoSeccionLogicoPorIdDocumento(dto.ObjetoDocumento.Id, usuario, dto.Lista);
                     //bandejaPendientePwService.EliminacionBandejaPendienteLogicoPorIdDocumento(dto.ObjetoDocumento.Id, usuario, dto.ListaRevision);
@@ -230,6 +272,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     documentoPw.IdPlantillaPw = dto.ObjetoDocumento.IdPlantillaPw;
                     documentoPw.EstadoFlujo = dto.ObjetoDocumento.EstadoFlujo;
                     documentoPw.Asignado = dto.ObjetoDocumento.Asignado;
+                    if (!string.IsNullOrEmpty(urlInstruccion)) documentoPw.UrlArchivoInstruccionTarea = urlInstruccion;
+                    if (!string.IsNullOrEmpty(urlCalificacion)) documentoPw.UrlArchivoCalificacionExcelente = urlCalificacion;
                     documentoPw.UsuarioModificacion = usuario;
                     documentoPw.FechaModificacion = DateTime.Now;
 
@@ -1541,7 +1585,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             }
         }
 
-        public async Task<string> SubirArchivoDocumentoPw(int id, IFormFile archivo, string usuario)
+        public async Task<string> SubirArchivoDocumentoPw(int id, IFormFile archivo, string campo, string usuario)
         {
             try
             {
@@ -1564,8 +1608,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     if (documentoPw == null)
                         throw new Exception($"No se encontró el documento con Id {id}.");
 
-                    documentoPw.UrlArchivoInstruccionTarea = url;
-                    documentoPw.UrlArchivoCalificacionExcelente = url;
+                    if (campo == "urlArchivoInstruccionTarea")
+                        documentoPw.UrlArchivoInstruccionTarea = url;
+                    else if (campo == "urlArchivoCalificacionExcelente")
+                        documentoPw.UrlArchivoCalificacionExcelente = url;
+
                     documentoPw.UsuarioModificacion = usuario;
                     documentoPw.FechaModificacion = DateTime.Now;
 

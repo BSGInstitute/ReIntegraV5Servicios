@@ -13,6 +13,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public int IdPlantillaPw { get; set; }
         public int EstadoFlujo { get; set; }
         public bool Asignado { get; set; }
+        public string? UrlArchivoInstruccionTarea { get; set; }
+        public string? UrlArchivoCalificacionExcelente { get; set; }
     }
     public class DocumentoAsociadoProgramaDTO
     {

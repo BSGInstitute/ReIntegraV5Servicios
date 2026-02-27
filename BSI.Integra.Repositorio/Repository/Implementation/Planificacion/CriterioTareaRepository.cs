@@ -26,7 +26,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                var sp = "[pla].[SP_TareaCriterioInsertar]";
+                var sp = "[pla].[SP_TareaCriterio_Insertar]";
                 _dapperRepository.QuerySPDapper(sp, new
                 {
                     Nombre             = criterioDTO.Nombre,
@@ -50,7 +50,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                var sp = "[pla].[SP_TareaCriterioActualizar]";
+                var sp = "[pla].[SP_TareaCriterio_Actualizar]";
                 _dapperRepository.QuerySPDapper(sp, new
                 {
                     Id                  = criterioDTO.Id,
@@ -74,7 +74,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                var sp = "[pla].[SP_TareaCriterioEliminar]";
+                var sp = "[pla].[SP_TareaCriterio_Eliminar]";
                 _dapperRepository.QuerySPDapper(sp, new
                 {
                     Id                  = id,
@@ -134,6 +134,73 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             catch (Exception ex)
             {
                 throw new Exception($"Error en CriterioTareaRepository.ListarCriterios: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Lista los SubCriterioTarea activos asignados a un CriterioTarea
+        /// </summary>
+        public List<SubCriterioTareaDTO> ListarSubCriteriosPorCriterio(int idCriterio)
+        {
+            try
+            {
+                var sp = "pla.[SP_TareaCriterioSubCriterio_Listar]";
+
+                var resultado = _dapperRepository.QuerySPDapper(sp, new { IdTareaCriterio = idCriterio });
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                    return JsonConvert.DeserializeObject<List<SubCriterioTareaDTO>>(resultado);
+
+                return new List<SubCriterioTareaDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en CriterioTareaRepository.ListarSubCriteriosPorCriterio: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Asigna un SubCriterioTarea a un CriterioTarea mediante SP
+        /// </summary>
+        public bool AsignarSubCriterio(int idCriterio, int idSubCriterio, string usuario)
+        {
+            try
+            {
+                var sp = "pla.SP_TareaCriterioSubCriterio_Insertar";
+                _dapperRepository.QuerySPDapper(sp, new
+                {
+                    IdTareaCriterio     = idCriterio,
+                    IdTareaSubCriterio  = idSubCriterio,
+                    UsuarioCreacion     = usuario,
+                    UsuarioModificacion = usuario
+                });
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en CriterioTareaRepository.AsignarSubCriterio: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Desasigna (eliminación lógica) un SubCriterioTarea de un CriterioTarea mediante SP
+        /// </summary>
+        public bool DesasignarSubCriterio(int idCriterio, int idSubCriterio, string usuario)
+        {
+            try
+            {
+                var sp = "pla.SP_TareaCriterioSubCriterio_Eliminar";
+                _dapperRepository.QuerySPDapper(sp, new
+                {
+                    IdTareaCriterio     = idCriterio,
+                    IdTareaSubCriterio  = idSubCriterio,
+                    UsuarioModificacion = usuario
+                });
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en CriterioTareaRepository.DesasignarSubCriterio: {ex.Message}", ex);
             }
         }
     }

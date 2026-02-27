@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Security.Claims;
+using System.Collections.Generic;
 
 namespace BSI.Integra.Servicios.Controllers.Planificacion
 {
@@ -104,6 +105,57 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             {
                 var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
                 var resultado = _criterioTareaService.Eliminar(id, registroClaimToken.UserName);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("[action]/{idCriterio}")]
+        [HttpGet]
+        public IActionResult ListarSubCriteriosPorCriterio(int idCriterio)
+        {
+            try
+            {
+                var resultado = _criterioTareaService.ListarSubCriteriosPorCriterio(idCriterio);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("[action]")]
+        [HttpPost]
+        //[Authorize]
+        public IActionResult AsignarSubCriterio([FromBody] AsignacionCriterioSubCriterioDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            try
+            {
+                var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
+                var resultado = _criterioTareaService.AsignarSubCriterio(dto.IdCriterio, dto.IdSubCriterio, registroClaimToken.UserName);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("[action]/{idCriterio}/{idSubCriterio}")]
+        [HttpDelete]
+        //[Authorize]
+        public IActionResult DesasignarSubCriterio(int idCriterio, int idSubCriterio)
+        {
+            try
+            {
+                var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
+                var resultado = _criterioTareaService.DesasignarSubCriterio(idCriterio, idSubCriterio, registroClaimToken.UserName);
                 return Ok(resultado);
             }
             catch (Exception ex)

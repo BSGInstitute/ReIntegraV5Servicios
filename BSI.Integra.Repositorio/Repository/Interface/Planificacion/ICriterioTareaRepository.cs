@@ -10,5 +10,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         bool Eliminar(int id, string usuario);
         CriterioTareaDTO ObtenerPorId(int idCriterio);
         List<CriterioTareaDTO> ListarCriterios();
+        List<SubCriterioTareaDTO> ListarSubCriteriosPorCriterio(int idCriterio);
+        bool AsignarSubCriterio(int idCriterio, int idSubCriterio, string usuario);
+        bool DesasignarSubCriterio(int idCriterio, int idSubCriterio, string usuario);
     }
 }
