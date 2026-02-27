@@ -8,6 +8,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public TConfigurarEvaluacionTrabajo()
         {
             TPreguntaEvaluacionTrabajos = new HashSet<TPreguntaEvaluacionTrabajo>();
+            TTareaCriterioConfiguracions = new HashSet<TTareaCriterioConfiguracion>();
         }
 
         /// <summary>
@@ -107,5 +108,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual TPgeneral? IdPgeneralNavigation { get; set; }
         public virtual TTipoEvaluacionTrabajo IdTipoEvaluacionTrabajoNavigation { get; set; } = null!;
         public virtual ICollection<TPreguntaEvaluacionTrabajo> TPreguntaEvaluacionTrabajos { get; set; }
+        public virtual ICollection<TTareaCriterioConfiguracion> TTareaCriterioConfiguracions { get; set; }
     }
 }

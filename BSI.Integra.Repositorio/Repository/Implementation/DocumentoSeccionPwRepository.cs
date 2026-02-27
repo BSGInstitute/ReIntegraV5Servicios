@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
@@ -820,6 +821,31 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception e)
             {
                 throw new Exception(e.Message);
+            }
+        }
+
+        public List<CertificacionPrograma> ObtenerCertificadoPorIdPGeneral(int idPGeneral)
+        {
+            try
+            {
+                List<CertificacionPrograma> rpta = new List<CertificacionPrograma>();
+
+                var query = "pla.SP_CertificacionPGeneralObtener";
+                var parametros = new
+                {
+                    IdPGeneral = idPGeneral,
+               
+                };
+                var resultado = _dapperRepository.QuerySPDapper(query, parametros);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<CertificacionPrograma>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ObtenerCertificadoPorIdPGeneral() {ex.Message}", ex);
             }
         }
         /// Autor: Jonathan Caipo

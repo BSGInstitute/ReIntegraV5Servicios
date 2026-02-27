@@ -127,6 +127,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     public class WhatsAppHistorialMensajesDTO
     {
         public string Numero { get; set; }
+        public string NumeroRespuesta { get; set; }
         public int Tipo { get; set; }
         public int SubTipo { get; set; }
         public int IdPais { get; set; }

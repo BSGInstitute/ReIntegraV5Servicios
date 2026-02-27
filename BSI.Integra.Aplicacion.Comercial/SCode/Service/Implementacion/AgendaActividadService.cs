@@ -2371,5 +2371,33 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
         }
 
+        /// TipoFuncion: SERVICE
+        /// Autor: Junior Llerena
+        /// Fecha: 23/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Valida si una oportunidad corresponde a una empresa basándose en el código de matrícula
+        /// </summary>
+        /// <param name="codigoMatricula">Código de matrícula de la oportunidad</param>
+        /// <returns>true si EmpresaPaga es "Si", false en caso contrario</returns>
+        public bool ValidarEsOportunidadEmpresa(string codigoMatricula)
+        {
+            try
+            {
+                var resultado = _unitOfWork.OportunidadRepository.ObtenerEmpresaPagaPorCodigoMatricula(codigoMatricula);
+
+                if (resultado != null && !string.IsNullOrEmpty(resultado.EmpresaPaga))
+                {
+                    return resultado.EmpresaPaga.Trim().Equals("Si", StringComparison.OrdinalIgnoreCase);
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }
