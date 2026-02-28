@@ -379,4 +379,17 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public GestionDocenteActividadCabeceraOutputDTO Cabecera { get; set; }
         public List<ActividadDetalleCompletoDTO> Detalles { get; set; }
     }
+
+    public class ReemplazoEtiquetaPlantillaDocenteDTO
+    {
+        public int IdGestionContacto { get; set; }
+        public int IdPlantilla { get; set; }
+    }
+
+    public class PlantillaDisponiblePlanificacionDTO
+    {
+        public int IdPlantilla { get; set; }
+        public string NombrePlantilla { get; set; }
+        public int EstadoPlantilla { get; set; }
+    }
 }

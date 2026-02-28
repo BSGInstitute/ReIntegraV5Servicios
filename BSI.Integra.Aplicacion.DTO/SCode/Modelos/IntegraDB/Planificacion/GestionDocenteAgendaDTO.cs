@@ -136,12 +136,25 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int IdProveedor { get; set; }
         public string NombreDocente { get; set; }
         public string Celular { get; set; }
+        public string Celular2 { get; set; }
+        public string Contacto1 { get; set; }
+        public string Contacto2 { get; set; }
         public string Correo { get; set; }
         public int IdGestionContacto { get; set; }
-        public int? IdPersonalAsignado { get; set; }
+        public int? IdPersonal_Asignado { get; set; }
         public string PersonalAsignado { get; set; }
-        public int? IdFlujo { get; set; }
+        public int? IdGestionDocenteFlujo { get; set; }
         public string NombreFlujo { get; set; }
+        
+        public int? IdCentroCosto { get; set; }
+        public string NombreCentroCosto { get; set; }
+        public string CodigoCentroCosto { get; set; }
+        
+        public int? IdActividadCabecera { get; set; }
+        public string NombreActividadCabecera { get; set; }
+        public int? IdActividadDetalle { get; set; }
+        public string NombreActividadDetalle { get; set; }
+
         public string ActividadesCabecera { get; set; }
         public int? NumeroActividades { get; set; }
         public string Pais { get; set; }
@@ -154,9 +167,14 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int? IdProgramaGeneral { get; set; }
         public string ProgramaGeneral { get; set; }
         public DateTime? ProximaClase { get; set; }
-        public decimal? PromedioPuntajeEncuesta { get; set; }
-        public int? CantidadEncuestas { get; set; }
-        public string UltimoComentarioAlumno { get; set; }
+        
+        public decimal? EncuestaPromedio { get; set; }
+        public int? EncuestaCantidad { get; set; }
+        public string EncuestaUltimoComentario { get; set; }
+
+        public string UsuarioWeb { get; set; }
+        public string ContraseniaWeb { get; set; }
+        public DateTime? FechaInscritoWeb { get; set; }
     }
 
     /// Autor: Joseph Llanque
