@@ -1,5 +1,6 @@
 ﻿using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
@@ -136,5 +137,14 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         AlumnoCodigosDescuentosDTO ObtenerCodigoDescuentoAlumno(int idAlumno);
         bool ActualizarCentroCosto(int idCentroCosto, int idActividad);
         OportunidadFaseDTO ObtenerFaseUltimaOportunidadPorIdAlumno(int idAlumno);
+
+        // RN2: llama a tdb.SP_ValidacionBloqueoAutomaticoRN2 y devuelve datos del alumno si aplica bloqueo, null si no
+        ValidacionRn2SpResultDTO? ObtenerIdAlumnoPorValidacionRN2(int idOportunidad);
+        // RN2: cuenta oportunidades del alumno vía tdb.SP_OportunidadesPorIdAlumno
+        int ContarOportunidadesPorIdAlumno(int idAlumno);
+        // RN2: busca alumnos con celular o correo similar (LIKE) para detectar duplicados
+        List<AlumnoSimilarRn2DTO> BuscarAlumnosSimilaresPorCelularOCorreo(string? telefono, string? correo);
+        // RN2: verifica si alguno de los alumnos similares tiene oportunidades activas en fases RN2
+        bool ExistenOportunidadesParaAlumnos(List<int> idAlumnos);
     }
 }

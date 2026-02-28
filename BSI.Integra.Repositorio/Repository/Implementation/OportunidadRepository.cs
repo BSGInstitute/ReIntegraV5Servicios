@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Linkedin;
@@ -4769,6 +4770,86 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+        }
+
+        public ValidacionRn2SpResultDTO? ObtenerIdAlumnoPorValidacionRN2(int idOportunidad)
+        {
+            try
+            {
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(
+                    "tdb.SP_ValidacionBloqueoAutomaticoRN2",
+                    new { IdOportunidad = idOportunidad }
+                );
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<ValidacionRn2SpResultDTO>(resultado);
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public int ContarOportunidadesPorIdAlumno(int idAlumno)
+        {
+            try
+            {
+                var resultado = _dapperRepository.QuerySPDapper(
+                    "tdb.SP_OportunidadesPorIdAlumno",
+                    new { IdAlumno = idAlumno }
+                );
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    var lista = JsonConvert.DeserializeObject<List<object>>(resultado);
+                    return lista?.Count ?? 0;
+                }
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<AlumnoSimilarRn2DTO> BuscarAlumnosSimilaresPorCelularOCorreo(string? telefono, string? correo)
+        {
+            try
+            {
+                var resultado = _dapperRepository.QuerySPDapper(
+                    "tdb.SP_BuscarAlumnosSimilaresPorCelularOCorreo",
+                    new { Telefono = telefono, Correo = correo }
+                );
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                    return JsonConvert.DeserializeObject<List<AlumnoSimilarRn2DTO>>(resultado) ?? new List<AlumnoSimilarRn2DTO>();
+
+                return new List<AlumnoSimilarRn2DTO>();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public bool ExistenOportunidadesParaAlumnos(List<int> idAlumnos)
+        {
+            try
+            {
+                if (idAlumnos == null || !idAlumnos.Any())
+                    return false;
+
+                var idsStr = string.Join(",", idAlumnos);
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(
+                    "tdb.SP_ExistenOportunidadesPorIdAlumnos",
+                    new { IdAlumnos = idsStr }
+                );
+                return !string.IsNullOrEmpty(resultado) && resultado != "null";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
     }

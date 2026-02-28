@@ -156,6 +156,8 @@ builder.Services.AddTransient<IMatriculaFormularioProgresivoService, MatriculaFo
 builder.Services.AddTransient<ITransicionFaseOportunidadService, TransicionFaseOportunidadService>();
 builder.Services.AddTransient<ITransicionFaseOportunidadRepository, TransicionFaseOportunidadRepository>();
 
+builder.Services.AddTransient<IValidacionRn2Service, ValidacionRn2Service>();
+
 
 
 builder.Services.AddScoped<ITokenManager, TokenManager>();
