@@ -32,5 +32,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo);
         OportunidadDocenteListResponseDTO ObtenerOportunidadesDocente(string busqueda, int pagina, int porPagina);
         IEnumerable<ComboDTO> ObtenerDocentes();
+        Task<ActividadesFlujoPorCategoriaResponseDTO> ObtenerActividadesFlujoPorCategoriaAsync(int idGestionContactoDocenteFlujo);
     }
 }

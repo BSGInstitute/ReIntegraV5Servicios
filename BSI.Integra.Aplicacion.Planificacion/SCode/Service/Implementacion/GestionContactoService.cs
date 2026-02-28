@@ -348,5 +348,23 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Claude Code
+        /// Fecha: 28/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las actividades de un flujo congelado organizadas jerarquicamente segun categoria.
+        /// </summary>
+        public async Task<ActividadesFlujoPorCategoriaResponseDTO> ObtenerActividadesFlujoPorCategoriaAsync(int idGestionContactoDocenteFlujo)
+        {
+            try
+            {
+                return await _unitOfWork.GestionContactoRepository.ObtenerActividadesFlujoPorCategoriaAsync(idGestionContactoDocenteFlujo);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }
