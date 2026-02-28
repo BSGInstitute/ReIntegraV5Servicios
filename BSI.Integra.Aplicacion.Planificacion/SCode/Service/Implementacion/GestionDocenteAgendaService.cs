@@ -126,7 +126,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
 
                 foreach (var tab in tabs.Where(t => t.VisualizarActividad && t.CargarInformacionInicial))
                 {
-                    var actividades = _unitOfWork.GestionDocenteAgendaRepository.ObtenerActividades(tab, idAsesor);
+                    var actividades = _unitOfWork.GestionDocenteAgendaRepository.ObtenerActividades(tab, 6205);//hardcodeado temporalmente , hasta que se indique criterio de asignacion 
                     resultado[tab.Nombre] = actividades;
                 }
 

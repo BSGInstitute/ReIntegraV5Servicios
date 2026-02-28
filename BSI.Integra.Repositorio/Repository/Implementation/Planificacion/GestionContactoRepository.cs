@@ -509,6 +509,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                         CASE WHEN gc.IdCentroCosto IS NOT NULL
                              THEN 'asignado-al-curso' ELSE 'general'
                         END AS TipoOportunidad,
+                    	C.IdPais,
                         COALESCE(cc.Nombre, '')  AS Curso,
                         COALESCE(gdf.Nombre, '') AS FlujoAsignado
                     FROM pla.T_GestionContacto gc WITH(NOLOCK)
@@ -516,6 +517,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                         ON cp.Id = gc.IdClasificacionPersona
                     LEFT JOIN fin.T_Proveedor p WITH(NOLOCK)
                         ON p.Id = cp.IdTablaOriginal
+                    LEFT JOIN conf.T_Ciudad C
+                    	ON p.IdCiudad=c.Id AND c.Estado=1
                     LEFT JOIN pla.T_CentroCosto cc WITH(NOLOCK)
                         ON cc.Id = gc.IdCentroCosto
                     LEFT JOIN pla.T_GestionContactoDocenteFlujo gcdf WITH(NOLOCK)

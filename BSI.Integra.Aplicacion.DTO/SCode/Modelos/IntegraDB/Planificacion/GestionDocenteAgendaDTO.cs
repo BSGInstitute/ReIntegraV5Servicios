@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 {
@@ -138,6 +139,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string Celular { get; set; }
         public string Correo { get; set; }
         public int IdGestionContacto { get; set; }
+        [JsonProperty("IdPersonal_Asignado")]
         public int? IdPersonalAsignado { get; set; }
         public string PersonalAsignado { get; set; }
         public int? IdFlujo { get; set; }
@@ -154,9 +156,15 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int? IdProgramaGeneral { get; set; }
         public string ProgramaGeneral { get; set; }
         public DateTime? ProximaClase { get; set; }
-        public decimal? PromedioPuntajeEncuesta { get; set; }
-        public int? CantidadEncuestas { get; set; }
-        public string UltimoComentarioAlumno { get; set; }
+        public decimal? EncuestaPromedio { get; set; }
+        public int? EncuestaCantidad { get; set; }
+        public string EncuestaUltimoComentario { get; set; }
+        /// <summary>Canal de la última comunicación (Whatsapp, Llamada, Correo, etc.).</summary>
+        public string UltimoCanalComunicacion { get; set; }
+        /// <summary>Dirección de la última comunicación (Recibida, Enviada).</summary>
+        public string UltimaDireccionComunicacion { get; set; }
+        /// <summary>Fecha de la última comunicación registrada.</summary>
+        public DateTime? UltimaFechaComunicacion { get; set; }
     }
 
     /// Autor: Joseph Llanque

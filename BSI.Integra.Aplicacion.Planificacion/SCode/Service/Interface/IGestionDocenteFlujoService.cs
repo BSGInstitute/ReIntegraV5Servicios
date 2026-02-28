@@ -15,5 +15,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         IEnumerable<GestionDocenteActividadCabeceraListaDTO> ObtenerActividadesCabecera();
         GestionDocenteFlujoOutputDTO ObtenerFlujoPorId(int id);
         Task<FlujoCompletoDTO> ObtenerFlujoCompletoAsync(int id);
+        Task<int> DuplicarFlujoAsync(DuplicarFlujoRequestDTO request);
     }
 }

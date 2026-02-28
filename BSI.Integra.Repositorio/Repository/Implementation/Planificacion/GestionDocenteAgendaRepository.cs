@@ -319,11 +319,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 {
                     lista = JsonConvert.DeserializeObject<List<ActividadAgendaPlanificacionDTO>>(resultadoDB);
                 }
-
-                if (idAsesor > 0)
-                {
-                    lista = lista.Where(a => a.IdPersonalAsignado == idAsesor).ToList();
-                }
+                //comentado para probar con asesora generica, descomentar en produccion con criteiro de aiginaciones
+                //if (idAsesor > 0)
+                //{
+                //    lista = lista.Where(a => a.IdPersonalAsignado == idAsesor).ToList();
+                //}
 
                 return lista;
             }

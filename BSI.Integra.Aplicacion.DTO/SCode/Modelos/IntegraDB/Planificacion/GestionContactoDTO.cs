@@ -90,6 +90,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string DocenteNombre { get; set; }
         public string TipoOportunidad { get; set; }
         public string Curso { get; set; }
+        public int? PaisId { get; set; }
+
         public string FlujoAsignado { get; set; }
     }
 
