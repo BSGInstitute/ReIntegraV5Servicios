@@ -4771,5 +4771,34 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(ex.Message);
             }
         }
+
+        /// TipoFuncion: REPOSITORY
+        /// Autor: Junior Llerena
+        /// Fecha: 23/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene información de empresa paga por código de matrícula ejecutando el SP fin.sp_ObtenerEmpresaPagaPorCodigoMatricula
+        /// </summary>
+        /// <param name="codigoMatricula">Código de matrícula</param>
+        /// <returns>OportunidadEmpresaPagaDTO con CodigoMatricula y EmpresaPaga</returns>
+        public OportunidadEmpresaPagaDTO ObtenerEmpresaPagaPorCodigoMatricula(string codigoMatricula)
+        {
+            try
+            {
+                OportunidadEmpresaPagaDTO resultado = new OportunidadEmpresaPagaDTO();
+                var resultadoSP = _dapperRepository.QuerySPFirstOrDefault("ope.SP_MatriculaEmpresaPaga", new { CodigoMatricula = codigoMatricula });
+
+                if (!string.IsNullOrEmpty(resultadoSP) && !resultadoSP.Contains("[]"))
+                {
+                    resultado = JsonConvert.DeserializeObject<OportunidadEmpresaPagaDTO>(resultadoSP);
+                }
+
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

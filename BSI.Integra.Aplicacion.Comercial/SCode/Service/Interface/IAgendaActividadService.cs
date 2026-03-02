@@ -80,5 +80,6 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         IEnumerable<ProgramaGeneralPresentacionArgumentoDetalleAgendaDTO> ObtenerProgramaGeneralPresentacionArgumentoDetallePorIdOportunidad(int idOportunidad);
         AlumnoCodigosDescuentosDTO ObtenerCodigoDescuentoAlumno(int idAlumno);
         bool ActualizarCentroCosto(int idCentroCosto, int idActividad);
+        bool ValidarEsOportunidadEmpresa(string codigoMatricula);
     }
 }

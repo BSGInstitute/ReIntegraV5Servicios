@@ -136,5 +136,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         AlumnoCodigosDescuentosDTO ObtenerCodigoDescuentoAlumno(int idAlumno);
         bool ActualizarCentroCosto(int idCentroCosto, int idActividad);
         OportunidadFaseDTO ObtenerFaseUltimaOportunidadPorIdAlumno(int idAlumno);
+        OportunidadEmpresaPagaDTO ObtenerEmpresaPagaPorCodigoMatricula(string codigoMatricula);
     }
 }

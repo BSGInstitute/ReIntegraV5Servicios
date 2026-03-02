@@ -1797,6 +1797,68 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             }
         }
 
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 23/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene información de empresa paga por código de matrícula, incluyendo coordinador y asesor
+        /// </summary>
+        /// <param name="codigoMatricula">Código de matrícula de la oportunidad</param>
+        /// <returns>Retorna información de empresa paga con indicador si es empresa, nombre de coordinador y asesor</returns>
+        [HttpGet("ObtenerInformacionEmpresaPorCodigoMatricula/{codigoMatricula}")]
+        public IActionResult ObtenerInformacionEmpresaPorCodigoMatricula(string codigoMatricula)
+        {
+            if (string.IsNullOrWhiteSpace(codigoMatricula))
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "El código de matrícula es requerido y no puede estar vacío"
+                });
+            }
+
+            try
+            {
+                IAgendaActividadService agendaActividadService = new AgendaActividadService(_unitOfWork);
+                var informacionEmpresa = _unitOfWork.OportunidadRepository.ObtenerEmpresaPagaPorCodigoMatricula(codigoMatricula);
+
+                if (informacionEmpresa == null)
+                {
+                    return Ok(new
+                    {
+                        success = true,
+                        esEmpresa = false,
+                        nombreCoordinador = (string)null,
+                        nombreAsesor = (string)null,
+                        message = "No se encontró información para el código de matrícula proporcionado"
+                    });
+                }
+
+                bool esEmpresa = !string.IsNullOrEmpty(informacionEmpresa.EmpresaPaga) &&
+                                 informacionEmpresa.EmpresaPaga.Trim().Equals("Si", StringComparison.OrdinalIgnoreCase);
+
+                return Ok(new
+                {
+                    success = true,
+                    esEmpresa = esEmpresa,
+                    nombreCoordinador = informacionEmpresa.NombreCoordinador,
+                    nombreAsesor = informacionEmpresa.NombreAsesor,
+                    message = esEmpresa ? "La oportunidad corresponde a una empresa" : "La oportunidad no corresponde a una empresa"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error al obtener información de empresa",
+                    error = ex.Message,
+                    errorCode = "#AAC-OIEP-001"
+                });
+            }
+        }
+
 
     }
 }

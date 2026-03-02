@@ -908,11 +908,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                List<DocumentoPWFechaInicioRowDTO> rpta = new List<DocumentoPWFechaInicioRowDTO>();
+                List<DocumentoPWFechaInicioRowDTO> rpta = new();
 
                 var query = @"
             SELECT
-                cab.MostrarWeb as MostrarEnLaWeb,
+                ISNULL(cab.MostrarWeb, 0) AS MostrarEnLaWeb,
                 cab.Titulo,
                 cab.SubTitulo,
                 fi.Id AS IdDocumentoPWFechaInicio,
@@ -922,29 +922,30 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 det.Fecha,
                 det.Horario
             FROM pla.T_DocumentoPWFechaInicioConfiguracion cfg
-            INNER JOIN pla.T_DocumentoPWFechaInicioCabecera cab
+            LEFT JOIN pla.T_DocumentoPWFechaInicioCabecera cab
                 ON cab.Id = cfg.IdDocumentoPWFechaInicioCabecera
-            INNER JOIN pla.T_DocumentoPWFechaInicio fi
+               AND cab.Estado = 1
+            LEFT JOIN pla.T_DocumentoPWFechaInicio fi
                 ON fi.Id = cfg.IdDocumentoPWFechaInicio
+               AND fi.Estado = 1
             LEFT JOIN pla.T_DocumentoPWFechaInicioDetalle det
                 ON det.IdDocumentoPWFechaInicio = fi.Id
+               AND det.Estado = 1
             WHERE cfg.IdDocumento_PW = @IdDocumentoPw
               AND cfg.Estado = 1
-              AND cab.Estado = 1
-              AND fi.Estado = 1
-              AND (det.Id IS NULL OR det.Estado = 1)
-            ORDER BY fi.Id, det.Id;";
+              AND (cab.Id IS NOT NULL OR fi.Id IS NOT NULL)
+            ORDER BY
+                COALESCE(fi.Id, -1),
+                det.Id;";
 
-                var parametros = new
-                {
-                    IdDocumentoPw = idDocumentoPw
-                };
+                var parametros = new { IdDocumentoPw = idDocumentoPw };
 
                 var resultado = _dapperRepository.QueryDapper(query, parametros);
 
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                if (!string.IsNullOrWhiteSpace(resultado) && !resultado.Contains("[]"))
                 {
-                    rpta = JsonConvert.DeserializeObject<List<DocumentoPWFechaInicioRowDTO>>(resultado);
+                    rpta = JsonConvert.DeserializeObject<List<DocumentoPWFechaInicioRowDTO>>(resultado)
+                           ?? new List<DocumentoPWFechaInicioRowDTO>();
                 }
 
                 return rpta;
@@ -1303,8 +1304,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             return _dapperRepository.QuerySPDapper(sp, parametros);
         }
 
-        public string SP_TDocumentoPWFechaInicioCabecera_Insertar(string? titulo, string? subTitulo, bool mostrarEnLaWeb, string usuario)
+        public string SP_TDocumentoPWFechaInicioCabecera_Insertar(string? titulo, string? subTitulo, bool? mostrarEnLaWeb, string usuario)
         {
+            if (mostrarEnLaWeb == null)
+            {
+                mostrarEnLaWeb=false;
+            }
             var sp = "pla.SP_TDocumentoPWFechaInicioCabecera_Insertar";
             var parametros = new
             {
@@ -1316,8 +1321,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             return _dapperRepository.QuerySPDapper(sp, parametros);
         }
 
-        public string SP_TDocumentoPWFechaInicioCabecera_Actualizar(int id, string? titulo, string? subTitulo, bool mostrarEnLaWeb, string usuario)
+        public string SP_TDocumentoPWFechaInicioCabecera_Actualizar(int id, string? titulo, string? subTitulo, bool? mostrarEnLaWeb, string usuario)
         {
+            if (mostrarEnLaWeb == null)
+            {
+                mostrarEnLaWeb = false;
+            }
             var sp = "pla.SP_TDocumentoPWFechaInicioCabecera_Actualizar";
             var parametros = new
             {
@@ -1373,7 +1382,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             return _dapperRepository.QuerySPDapper(sp, parametros);
         }
 
-        public string SP_DocumentoPWFechaInicioConfiguracion_RegistrarCambios(int idDocumentoPWFechaInicioCabecera, int idDocumentoPWFechaInicio, int idDocumentoPw, string usuario)
+        public string SP_DocumentoPWFechaInicioConfiguracion_RegistrarCambios(int? idDocumentoPWFechaInicioCabecera, int? idDocumentoPWFechaInicio, int idDocumentoPw, string usuario)
         {
             var sp = "pla.SP_DocumentoPWFechaInicioConfiguracion_RegistrarCambios";
             var parametros = new

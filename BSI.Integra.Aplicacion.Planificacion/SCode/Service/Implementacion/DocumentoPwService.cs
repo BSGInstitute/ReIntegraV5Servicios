@@ -702,16 +702,20 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     };
                 }
 
+        
                 var header = rows.First();
+
+                var paisRows = rows.Where(x => x.IdDocumentoPWFechaInicio.HasValue && x.IdDocumentoPWFechaInicio.Value > 0);
 
                 var dto = new SeccionFechaInicioDTO
                 {
                     IdDocumentoPw = idDocumentoPw,
-                    MostrarEnLaWeb = header.MostrarEnLaWeb,
+                    MostrarEnLaWeb = header.MostrarEnLaWeb ?? false,
                     Titulo = header.Titulo,
                     SubTitulo = header.SubTitulo,
-                    Paises = rows
-                        .GroupBy(x => x.IdDocumentoPWFechaInicio)
+
+                    Paises = paisRows
+                        .GroupBy(x => x.IdDocumentoPWFechaInicio!.Value)
                         .Select(g => new FechaInicioPaisDTO
                         {
                             Id = g.Key,
@@ -729,6 +733,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                                 .ToList()
                         })
                         .ToList(),
+
                     PaisesEliminados = new List<int>(),
                     DetallesEliminados = new List<int>()
                 };
@@ -1230,19 +1235,30 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
                 string Norm(string? s) => (s ?? "").Trim();
 
-
+              
                 var jsonActual = _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicio_ObtenerRows(idDocumentoPw);
+
                 var actuales = (!string.IsNullOrWhiteSpace(jsonActual) && !jsonActual.Contains("[]"))
-                    ? JsonConvert.DeserializeObject<List<DocumentoPWFechaInicioRowDTOV2>>(jsonActual) ?? new List<DocumentoPWFechaInicioRowDTOV2>()
+                    ? (JsonConvert.DeserializeObject<List<DocumentoPWFechaInicioRowDTOV2>>(jsonActual) ?? new List<DocumentoPWFechaInicioRowDTOV2>())
                     : new List<DocumentoPWFechaInicioRowDTOV2>();
 
-                var idCabActual = actuales.Select(x => x.IdDocumentoPWFechaInicioCabecera).FirstOrDefault(x => x.HasValue) ?? 0;
-                var tituloActual = Norm(actuales.Select(x => x.Titulo).FirstOrDefault());
-                var subActual = Norm(actuales.Select(x => x.SubTitulo).FirstOrDefault());
-                var mostrarActual = actuales.Select(x => x.MostrarEnLaWeb).FirstOrDefault() ?? false;
+            
+                var filaCab = actuales.FirstOrDefault(x => (x.IdDocumentoPWFechaInicioCabecera ?? 0) > 0);
 
+                int idCabActual = filaCab?.IdDocumentoPWFechaInicioCabecera ?? 0;
+                string tituloActual = Norm(filaCab?.Titulo);
+                string subActual = Norm(filaCab?.SubTitulo);
+                bool mostrarActual = filaCab?.MostrarEnLaWeb ?? false;
 
-                int idCabUsar = idCabActual;
+              
+                var existingFiIds = actuales
+                    .Where(x => (x.IdDocumentoPWFechaInicio ?? 0) > 0)
+                    .Select(x => x.IdDocumentoPWFechaInicio!.Value)
+                    .Distinct()
+                    .ToHashSet();
+
+       
+                int idCabUsar;
 
                 if (idCabActual <= 0)
                 {
@@ -1253,46 +1269,58 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 }
                 else
                 {
-                    var tituloNuevo = Norm(dto.Titulo);
-                    var subNuevo = Norm(dto.SubTitulo);
-                    var mostrarNuevo = dto.MostrarEnLaWeb;
+       
+                    string? tituloNuevoRaw = dto.Titulo is null ? filaCab?.Titulo : dto.Titulo;
+                    string? subNuevoRaw = dto.SubTitulo is null ? filaCab?.SubTitulo : dto.SubTitulo;
+                    bool mostrarNuevo = dto.MostrarEnLaWeb;
+
+                    string tituloNuevo = Norm(tituloNuevoRaw);
+                    string subNuevo = Norm(subNuevoRaw);
 
                     if (tituloActual != tituloNuevo || subActual != subNuevo || mostrarActual != mostrarNuevo)
                     {
                         _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicioCabecera_Actualizar(
-                            idCabActual, dto.Titulo, dto.SubTitulo, dto.MostrarEnLaWeb, usuario
+                            idCabActual,
+                            tituloNuevoRaw,   
+                            subNuevoRaw,
+                            mostrarNuevo,
+                            usuario
                         );
                     }
 
                     idCabUsar = idCabActual;
                 }
 
-
-                foreach (var idDet in (dto.DetallesEliminados ?? new List<int>()).Distinct())
+                foreach (var idDet in (dto.DetallesEliminados ?? new List<int>()).Where(x => x > 0).Distinct())
                 {
-                    if (idDet > 0)
-                        _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicioDetalle_Desactivar(idDet, usuario);
+                    _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicioDetalle_Desactivar(idDet, usuario);
                 }
 
-                foreach (var idPaisElim in (dto.PaisesEliminados ?? new List<int>()).Distinct())
-                {
-                    if (idPaisElim <= 0) continue;
+              
+                var eliminadosFiIds = (dto.PaisesEliminados ?? new List<int>())
+                    .Where(x => x > 0)
+                    .Distinct()
+                    .ToHashSet();
 
-                    _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicioDetalle_DesactivarPorFechaInicio(idPaisElim, usuario);
-                    _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicioConfiguracion_DesactivarPorFechaInicio(idDocumentoPw, idPaisElim, usuario);
-                    _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicio_Desactivar(idPaisElim, usuario);
+                foreach (var idFiElim in eliminadosFiIds)
+                {
+                    _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicioDetalle_DesactivarPorFechaInicio(idFiElim, usuario);
+                    _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicioConfiguracion_DesactivarPorFechaInicio(idDocumentoPw, idFiElim, usuario);
+                    _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicio_Desactivar(idFiElim, usuario);
                 }
 
-
+                
                 var actualPorPais = actuales
                     .Where(x => (x.IdDocumentoPWFechaInicio ?? 0) > 0)
                     .GroupBy(x => x.IdDocumentoPWFechaInicio!.Value)
                     .ToDictionary(g => g.Key, g => g.ToList());
 
+                bool seRegistroAlMenosUnPaisEnRequest = false;
+
+              
                 foreach (var p in (dto.Paises ?? new List<FechaInicioPaisDTO>()))
                 {
                     int idFechaInicio = p.Id;
-
 
                     DocumentoPWFechaInicioRowDTOV2? paisActual = null;
                     List<DocumentoPWFechaInicioRowDTOV2> filasPaisActual = new();
@@ -1303,9 +1331,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         paisActual = filasPaisActual.FirstOrDefault();
                     }
 
+                  
                     if (idFechaInicio > 0)
                     {
-
                         if (paisActual != null && (paisActual.IdPais ?? 0) != (p.IdPais ?? 0))
                         {
                             _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicio_Actualizar(idFechaInicio, p.IdPais, usuario);
@@ -1313,19 +1341,23 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     }
                     else
                     {
-
                         var rPais = _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicio_Insertar(p.IdPais, usuario);
                         idFechaInicio = GetIdFromSpResult(rPais, "IdDocumentoPWFechaInicio inválido (insert).");
                     }
 
+                   
                     _unitOfWork.DocumentoPwRepository.SP_DocumentoPWFechaInicioConfiguracion_RegistrarCambios(
                         idCabUsar, idFechaInicio, idDocumentoPw, usuario
                     );
 
+                    seRegistroAlMenosUnPaisEnRequest = true;
+
+                    
                     var detActualPorId = filasPaisActual
                         .Where(x => (x.IdDocumentoPWFechaInicioDetalle ?? 0) > 0)
                         .ToDictionary(x => x.IdDocumentoPWFechaInicioDetalle!.Value, x => x);
 
+                    
                     foreach (var d in (p.Detalles ?? new List<FechaInicioDetalleDTO>()))
                     {
                         var fechaNueva = d.Fecha?.Date;
@@ -1333,7 +1365,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
                         if (d.Id > 0)
                         {
-
                             if (detActualPorId.TryGetValue(d.Id, out var detAct))
                             {
                                 var cambio =
@@ -1350,7 +1381,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                             }
                             else
                             {
-
+                               
                                 _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicioDetalle_Actualizar(
                                     d.Id, idFechaInicio, d.IdModo, d.Fecha, d.Horario, usuario
                                 );
@@ -1358,11 +1389,32 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         }
                         else
                         {
-
                             _unitOfWork.DocumentoPwRepository.SP_TDocumentoPWFechaInicioDetalle_Insertar(
                                 idFechaInicio, d.IdModo, d.Fecha, d.Horario, usuario
                             );
                         }
+                    }
+                }
+
+        
+                bool quedanFiActivos =
+                    existingFiIds.Except(eliminadosFiIds).Any() || seRegistroAlMenosUnPaisEnRequest;
+
+                if (!quedanFiActivos)
+                {
+                    _unitOfWork.DocumentoPwRepository.SP_DocumentoPWFechaInicioConfiguracion_RegistrarCambios(
+                        idCabUsar, null, idDocumentoPw, usuario
+                    );
+                }
+
+        
+                if (idCabActual <= 0 && existingFiIds.Except(eliminadosFiIds).Any() && !seRegistroAlMenosUnPaisEnRequest)
+                {
+                    foreach (var fiId in existingFiIds.Except(eliminadosFiIds))
+                    {
+                        _unitOfWork.DocumentoPwRepository.SP_DocumentoPWFechaInicioConfiguracion_RegistrarCambios(
+                            idCabUsar, fiId, idDocumentoPw, usuario
+                        );
                     }
                 }
             }
@@ -1371,7 +1423,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw new Exception($"#IOSF-MKT-001@Error en ActualizarSeccionFechaInicio() {ex.Message}", ex);
             }
         }
-
 
         public void ActualizarSeccionNotas(SeccionNotasDTO? dto, int idDocumentoPw, string usuario)
         {
