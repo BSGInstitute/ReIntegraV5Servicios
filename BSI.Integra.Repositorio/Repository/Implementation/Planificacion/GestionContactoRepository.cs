@@ -604,5 +604,228 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
+        /// Autor: Claude Code
+        /// Fecha: 28/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las actividades de un flujo congelado agrupadas jerarquicamente segun categoria.
+        /// Categoria 1 (General): retorna Actividades con Detalles y Disparadores.
+        /// Categoria 2 (Ejecucion Curso): retorna Sesiones con Actividades, Detalles y Disparadores.
+        /// </summary>
+        public async Task<ActividadesFlujoPorCategoriaResponseDTO> ObtenerActividadesFlujoPorCategoriaAsync(int idGestionContactoDocenteFlujo)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@IdGestionContactoDocenteFlujo", idGestionContactoDocenteFlujo, DbType.Int32);
+
+                string resultado = await _dapperRepository.QuerySPDapperAsync(
+                    "pla.SP_GestionDocenteActividadesFlujoPorCategoria",
+                    parameters
+                );
+
+                if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
+                {
+                    return new ActividadesFlujoPorCategoriaResponseDTO
+                    {
+                        IdCategoria = 0,
+                        NombreCategoria = "Sin categoria",
+                        Sesiones = new List<SesionConActividadesDTO>(),
+                        Actividades = new List<ActividadCabeceraDTO>()
+                    };
+                }
+
+                var registrosPlanos = JsonConvert.DeserializeObject<List<ActividadFlujoRawDTO>>(resultado);
+                if (registrosPlanos == null || !registrosPlanos.Any())
+                {
+                    return new ActividadesFlujoPorCategoriaResponseDTO
+                    {
+                        IdCategoria = 0,
+                        NombreCategoria = "Sin categoria",
+                        Sesiones = new List<SesionConActividadesDTO>(),
+                        Actividades = new List<ActividadCabeceraDTO>()
+                    };
+                }
+
+                var primerRegistro = registrosPlanos.First();
+                bool esCategoria2 = primerRegistro.IdSesion.HasValue;
+
+                if (esCategoria2)
+                {
+                    // Categoria 2: Agrupado por Sesion > ActividadCabecera > ActividadDetalle > Disparador
+                    var sesiones = registrosPlanos
+                        .GroupBy(r => new
+                        {
+                            r.IdSesion,
+                            r.NumeroSesion,
+                            r.FechaInicioSesion,
+                            r.IdPEspecifico,
+                            r.NombrePEspecifico
+                        })
+                        .Select(sesionGroup => new SesionConActividadesDTO
+                        {
+                            IdSesion = sesionGroup.Key.IdSesion.Value,
+                            NumeroSesion = sesionGroup.Key.NumeroSesion.Value,
+                            FechaInicioSesion = sesionGroup.Key.FechaInicioSesion,
+                            IdPEspecifico = sesionGroup.Key.IdPEspecifico,
+                            NombrePEspecifico = sesionGroup.Key.NombrePEspecifico,
+                            Actividades = sesionGroup
+                                .GroupBy(r => new
+                                {
+                                    r.IdGestionDocenteActividadCabeceraCongelada,
+                                    r.NombreCabecera,
+                                    r.DescripcionCabecera
+                                })
+                                .Select(cabeceraGroup => new ActividadCabeceraDTO
+                                {
+                                    IdGestionDocenteActividadCabeceraCongelada = cabeceraGroup.Key.IdGestionDocenteActividadCabeceraCongelada,
+                                    NombreCabecera = cabeceraGroup.Key.NombreCabecera,
+                                    DescripcionCabecera = cabeceraGroup.Key.DescripcionCabecera,
+                                    Detalles = cabeceraGroup
+                                        .GroupBy(r => new
+                                        {
+                                            r.IdGestionDocenteActividadDetalleCongelada,
+                                            r.NombreDetalle,
+                                            r.NombrePlantilla,
+                                            r.MedioComunicacion,
+                                            r.EstadoEjecucionDetalle
+                                        })
+                                        .Select(detalleGroup => new ActividadDetalleDTO
+                                        {
+                                            IdGestionDocenteActividadDetalleCongelada = detalleGroup.Key.IdGestionDocenteActividadDetalleCongelada,
+                                            NombreDetalle = detalleGroup.Key.NombreDetalle,
+                                            NombrePlantilla = detalleGroup.Key.NombrePlantilla,
+                                            MedioComunicacion = detalleGroup.Key.MedioComunicacion,
+                                            EstadoEjecucionDetalle = detalleGroup.Key.EstadoEjecucionDetalle,
+                                            Disparadores = detalleGroup.Select(r => new DisparadorDTO
+                                            {
+                                                IdDisparadorCongelado = r.IdDisparadorCongelado,
+                                                TipoDisparador = r.TipoDisparador,
+                                                FechaProgramada = r.FechaProgramada,
+                                                FechaFija = r.FechaFija,
+                                                CantidadTiempoRelativo = r.CantidadTiempoRelativo,
+                                                UnidadTiempo = r.UnidadTiempo,
+                                                CodigoReferenciaTiempo = r.CodigoReferenciaTiempo,
+                                                NombreReferenciaTiempo = r.NombreReferenciaTiempo,
+                                                NombreEvento = r.NombreEvento,
+                                                OcurrenciaPrevia = r.OcurrenciaPrevia,
+                                                EstadoEjecucionDisparador = r.EstadoEjecucionDisparador,
+                                                TieneFechaFija = r.TieneFechaFija,
+                                                TieneTiempoRelativo = r.TieneTiempoRelativo,
+                                                TieneEvento = r.TieneEvento,
+                                                TieneOcurrenciaPrevia = r.TieneOcurrenciaPrevia
+                                            }).ToList()
+                                        }).ToList()
+                                }).ToList()
+                        }).ToList();
+
+                    return new ActividadesFlujoPorCategoriaResponseDTO
+                    {
+                        IdCategoria = 2,
+                        NombreCategoria = "Ejecucion Curso",
+                        Sesiones = sesiones,
+                        Actividades = new List<ActividadCabeceraDTO>()
+                    };
+                }
+                else
+                {
+                    // Categoria 1: Agrupado por ActividadCabecera > ActividadDetalle > Disparador
+                    var actividades = registrosPlanos
+                        .GroupBy(r => new
+                        {
+                            r.IdGestionDocenteActividadCabeceraCongelada,
+                            r.NombreCabecera,
+                            r.DescripcionCabecera
+                        })
+                        .Select(cabeceraGroup => new ActividadCabeceraDTO
+                        {
+                            IdGestionDocenteActividadCabeceraCongelada = cabeceraGroup.Key.IdGestionDocenteActividadCabeceraCongelada,
+                            NombreCabecera = cabeceraGroup.Key.NombreCabecera,
+                            DescripcionCabecera = cabeceraGroup.Key.DescripcionCabecera,
+                            Detalles = cabeceraGroup
+                                .GroupBy(r => new
+                                {
+                                    r.IdGestionDocenteActividadDetalleCongelada,
+                                    r.NombreDetalle,
+                                    r.NombrePlantilla,
+                                    r.MedioComunicacion,
+                                    r.EstadoEjecucionDetalle
+                                })
+                                .Select(detalleGroup => new ActividadDetalleDTO
+                                {
+                                    IdGestionDocenteActividadDetalleCongelada = detalleGroup.Key.IdGestionDocenteActividadDetalleCongelada,
+                                    NombreDetalle = detalleGroup.Key.NombreDetalle,
+                                    NombrePlantilla = detalleGroup.Key.NombrePlantilla,
+                                    MedioComunicacion = detalleGroup.Key.MedioComunicacion,
+                                    EstadoEjecucionDetalle = detalleGroup.Key.EstadoEjecucionDetalle,
+                                    Disparadores = detalleGroup.Select(r => new DisparadorDTO
+                                    {
+                                        IdDisparadorCongelado = r.IdDisparadorCongelado,
+                                        TipoDisparador = r.TipoDisparador,
+                                        FechaProgramada = r.FechaProgramada,
+                                        FechaFija = r.FechaFija,
+                                        CantidadTiempoRelativo = r.CantidadTiempoRelativo,
+                                        UnidadTiempo = r.UnidadTiempo,
+                                        CodigoReferenciaTiempo = r.CodigoReferenciaTiempo,
+                                        NombreReferenciaTiempo = r.NombreReferenciaTiempo,
+                                        NombreEvento = r.NombreEvento,
+                                        OcurrenciaPrevia = r.OcurrenciaPrevia,
+                                        EstadoEjecucionDisparador = r.EstadoEjecucionDisparador,
+                                        TieneFechaFija = r.TieneFechaFija,
+                                        TieneTiempoRelativo = r.TieneTiempoRelativo,
+                                        TieneEvento = r.TieneEvento,
+                                        TieneOcurrenciaPrevia = r.TieneOcurrenciaPrevia
+                                    }).ToList()
+                                }).ToList()
+                        }).ToList();
+
+                    return new ActividadesFlujoPorCategoriaResponseDTO
+                    {
+                        IdCategoria = 1,
+                        NombreCategoria = "General",
+                        Sesiones = new List<SesionConActividadesDTO>(),
+                        Actividades = actividades
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerActividadesFlujoPorCategoriaAsync(): {ex.Message}", ex);
+            }
+        }
+
+        // DTO interno para deserializar resultado plano del SP
+        private class ActividadFlujoRawDTO
+        {
+            public int IdGestionDocenteActividadCabeceraCongelada { get; set; }
+            public string NombreCabecera { get; set; }
+            public string DescripcionCabecera { get; set; }
+            public int IdGestionDocenteActividadDetalleCongelada { get; set; }
+            public string NombreDetalle { get; set; }
+            public int IdDisparadorCongelado { get; set; }
+            public string TipoDisparador { get; set; }
+            public DateTime? FechaProgramada { get; set; }
+            public DateTime? FechaFija { get; set; }
+            public int? CantidadTiempoRelativo { get; set; }
+            public string UnidadTiempo { get; set; }
+            public string CodigoReferenciaTiempo { get; set; }
+            public string NombreReferenciaTiempo { get; set; }
+            public string NombreEvento { get; set; }
+            public string OcurrenciaPrevia { get; set; }
+            public string NombrePlantilla { get; set; }
+            public string MedioComunicacion { get; set; }
+            public string EstadoEjecucionDetalle { get; set; }
+            public string EstadoEjecucionDisparador { get; set; }
+            public bool TieneFechaFija { get; set; }
+            public bool TieneTiempoRelativo { get; set; }
+            public bool TieneEvento { get; set; }
+            public bool TieneOcurrenciaPrevia { get; set; }
+            public int? IdSesion { get; set; }
+            public int? NumeroSesion { get; set; }
+            public DateTime? FechaInicioSesion { get; set; }
+            public int? IdPEspecifico { get; set; }
+            public string NombrePEspecifico { get; set; }
+        }
+
     }
 }
