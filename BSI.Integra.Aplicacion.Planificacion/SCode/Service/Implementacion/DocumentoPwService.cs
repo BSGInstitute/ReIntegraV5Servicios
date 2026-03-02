@@ -272,8 +272,17 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     documentoPw.IdPlantillaPw = dto.ObjetoDocumento.IdPlantillaPw;
                     documentoPw.EstadoFlujo = dto.ObjetoDocumento.EstadoFlujo;
                     documentoPw.Asignado = dto.ObjetoDocumento.Asignado;
-                    if (!string.IsNullOrEmpty(urlInstruccion)) documentoPw.UrlArchivoInstruccionTarea = urlInstruccion;
-                    if (!string.IsNullOrEmpty(urlCalificacion)) documentoPw.UrlArchivoCalificacionExcelente = urlCalificacion;
+                    // Instruccion: nuevo archivo → URL nueva; front sin URL → eliminado → null; misma URL → sin cambio
+                    if (!string.IsNullOrEmpty(urlInstruccion))
+                        documentoPw.UrlArchivoInstruccionTarea = urlInstruccion;
+                    else if (string.IsNullOrEmpty(dto.ObjetoDocumento.UrlArchivoInstruccionTarea))
+                        documentoPw.UrlArchivoInstruccionTarea = null;
+
+                    // Calificacion: nuevo archivo → URL nueva; front sin URL → eliminado → null; misma URL → sin cambio
+                    if (!string.IsNullOrEmpty(urlCalificacion))
+                        documentoPw.UrlArchivoCalificacionExcelente = urlCalificacion;
+                    else if (string.IsNullOrEmpty(dto.ObjetoDocumento.UrlArchivoCalificacionExcelente))
+                        documentoPw.UrlArchivoCalificacionExcelente = null;
                     documentoPw.UsuarioModificacion = usuario;
                     documentoPw.FechaModificacion = DateTime.Now;
 

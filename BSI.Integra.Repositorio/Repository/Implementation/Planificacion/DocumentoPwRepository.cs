@@ -406,6 +406,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                    IdPlantillaPW,
                                    EstadoFlujo,
                                    Asignado,
+                                   UrlArchivoInstruccionTarea,
+                                   UrlArchivoCalificacionExcelente,
                                    Estado,
                                    UsuarioCreacion,
                                    UsuarioModificacion,
