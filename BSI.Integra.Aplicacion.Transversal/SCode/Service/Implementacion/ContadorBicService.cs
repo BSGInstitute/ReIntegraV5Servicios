@@ -23,6 +23,11 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         private const int _DiasMexico = 3;
         private const int _DiasChile = 3;
         private const int _DiasColombia = 3;
+
+        private const int _ConteoBic1 = 3;
+        private const int _ConteoBic2 = 5;
+
+
         private List<Oportunidad> _OportunidadesBic = new();
         public ContadorBicService(IUnitOfWork unitOfWork)
         {
@@ -676,180 +681,185 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 List<ContadorBicLog> contadoresActualizar = new();
                 try
                 {
-                    foreach (var configuracion in listaConfiguracionBIC)
+                    //int dias = configuracion.Dias;
+
+                    //var bloques = _unitOfWork.BloqueHorarioRepository.ObtenerPorIdConfiguracionBic(configuracion.Id);
+                    //foreach (var bloque in bloques)
+                    //{
+                    //    bloque.Contador = 0;
+                    //}
+
+                    foreach (var itemOportunidad in oportunidadesAgrupadas.ToList())
                     {
-                        int dias = configuracion.Dias;
+                        //List<DateTime> fechas = itemOportunidad.ListaFechas;
 
-                        var bloques = _unitOfWork.BloqueHorarioRepository.ObtenerPorIdConfiguracionBic(configuracion.Id);
-                        foreach (var bloque in bloques)
+                        //var nombreTurnoUltimo = "";
+                        //DateTime fechaUltima = new DateTime(2019, 1, 1).Date;
+
+                        //ContadorBicLog? contadorBicLog = _unitOfWork.ContadorBicLogRepository.ObtenerUltimoRegistroPorIdOportunidad(itemOportunidad.IdOportunidad);
+                        //if (contadorBicLog != null)
+                        //{
+                        //    contadorBicLog.IdFaseOportunidad = itemOportunidad.IdFaseOportunidad!.Value;
+                        //    contadorBicLog.FechaCalculo = DateTime.Now;
+                        //    contadorBicLog.UsuarioModificacion = "ContadorBic_v5";
+                        //    contadorBicLog.FechaModificacion = DateTime.Now;
+                        //    contadorBicLog.ContadorBicLogDetalles = new List<ContadorBicLogDetalle>();
+                        //}
+                        //else
+                        //{
+                        //    contadorBicLog = new();
+                        //    contadorBicLog.IdOportunidad = itemOportunidad.IdOportunidad;
+                        //    contadorBicLog.IdFaseOportunidad = itemOportunidad.IdFaseOportunidad!.Value;
+                        //    contadorBicLog.FechaCalculo = DateTime.Now;
+                        //    contadorBicLog.Estado = true;
+                        //    contadorBicLog.UsuarioCreacion = "ContadorBic_v5";
+                        //    contadorBicLog.UsuarioModificacion = "ContadorBic_v5";
+                        //    contadorBicLog.FechaCreacion = DateTime.Now;
+                        //    contadorBicLog.FechaModificacion = DateTime.Now;
+                        //    contadorBicLog.ContadorBicLogDetalles = new List<ContadorBicLogDetalle>();
+                        //}
+                        //foreach (var fecha in fechas)
+                        //{
+                        //    TimeSpan horaFecha = fecha.TimeOfDay;
+                        //    foreach (var bloque in bloques)
+                        //    {
+                        //        if ((horaFecha >= bloque.HoraInicio) && (horaFecha <= bloque.HoraFin))
+                        //        {
+                        //            if ((bloque.Nombre == nombreTurnoUltimo && fecha.Date == fechaUltima.Date))
+                        //                break;
+                        //            else
+                        //            {
+                        //                nombreTurnoUltimo = bloque.Nombre;
+                        //                fechaUltima = fecha.Date;
+                        //                bloque.Contador++;
+
+                        //                var itemLogDetalle = contadorBicLog.ContadorBicLogDetalles.FirstOrDefault(s => s.FechaLogContacto.Date == fechaUltima);
+                        //                if (itemLogDetalle == null)
+                        //                {
+                        //                    itemLogDetalle = new ContadorBicLogDetalle();
+                        //                    itemLogDetalle.Estado = true;
+                        //                    itemLogDetalle.UsuarioCreacion = "ContadorBic_v5";
+                        //                    itemLogDetalle.UsuarioModificacion = "ContadorBic_v5";
+                        //                    itemLogDetalle.FechaCreacion = DateTime.Now;
+                        //                    itemLogDetalle.FechaModificacion = DateTime.Now;
+                        //                    itemLogDetalle.FechaLogContacto = fechaUltima;
+                        //                    itemLogDetalle.EstadoContactoManhana = false;
+                        //                    itemLogDetalle.EstadoContactoTarde = false;
+                        //                    if (bloque.Nombre == "Mañana")
+                        //                        itemLogDetalle.EstadoContactoManhana = true;
+                        //                    else
+                        //                        itemLogDetalle.EstadoContactoTarde = true;
+                        //                    contadorBicLog.ContadorBicLogDetalles.Add(itemLogDetalle);
+                        //                }
+                        //                else
+                        //                {
+                        //                    itemLogDetalle.FechaLogContacto = fechaUltima;
+                        //                    if (bloque.Nombre == "Mañana")
+                        //                        itemLogDetalle.EstadoContactoManhana = true;
+                        //                    else
+                        //                        itemLogDetalle.EstadoContactoTarde = true;
+                        //                }
+                        //                break;
+                        //            }
+                        //        }
+                        //    }
+                        //}
+                        /* Inicio Nueva lógica de validación de cantidad de no ejecutadas en turno mañana O turno tarde */
+                        bool convertirABic = false;
+                        if (itemOportunidad.ListaFechas.Count() >= _ConteoBic1)
                         {
-                            bloque.Contador = 0;
+                            convertirABic = true;
                         }
+                        //foreach (var bloque in bloques)
+                        //{
+                        //    if (bloque.Nombre == "Mañana")
+                        //        contadorBicLog.SinContactoManhana = bloque.Contador ?? 0;
+                        //    else
+                        //        contadorBicLog.SinContactoTarde = bloque.Contador ?? 0;
 
-                        foreach (var itemOportunidad in oportunidadesAgrupadas.ToList())
+                        //    //Casos especiales para el conteo de dias para BIC
+                        //    if ((!itemOportunidad.IdPais.HasValue && bloque.Contador >= dias)
+                        //        || (
+                        //            itemOportunidad.IdPais.HasValue
+                        //            && (
+                        //                (itemOportunidad.IdPais.Value == ValorEstatico.IdPaisMexico && bloque.Contador >= _DiasMexico)
+                        //                || (itemOportunidad.IdPais.Value == ValorEstatico.IdPaisChile && bloque.Contador >= _DiasChile)
+                        //                || (itemOportunidad.IdPais.Value == ValorEstatico.IdPaisColombia && bloque.Contador >= _DiasColombia)
+                        //                || (itemOportunidad.IdPais.Value != ValorEstatico.IdPaisMexico
+                        //                    && itemOportunidad.IdPais.Value != ValorEstatico.IdPaisChile
+                        //                    && itemOportunidad.IdPais.Value != ValorEstatico.IdPaisColombia
+                        //                    && bloque.Contador >= dias)
+                        //                )
+                        //            )
+                        //        )
+                        //    {
+                        //        convertirABic = true;
+                        //    }
+                        //    if (convertirABic == false && configuracionBicPersonal.Count() > 0)
+                        //    {
+                        //        foreach (var item in configuracionBicPersonal)
+                        //        {
+                        //            var listaAsesores = item.IdAsesores.Split(',');
+                        //            foreach (var item1 in listaAsesores)
+                        //            {
+                        //                if (item.IdPais != null)
+                        //                {
+                        //                    if (item1 == itemOportunidad.IdPersonalAsignado.ToString()
+                        //                        && bloque.Contador >= item.DiasBic
+                        //                        && item.IdPais == itemOportunidad.IdPais)
+                        //                    {
+                        //                        convertirABic = true;
+                        //                    }
+                        //                }
+                        //                else
+                        //                {
+                        //                    if (item1 == itemOportunidad.IdPersonalAsignado.ToString()
+                        //                        && bloque.Contador >= item.DiasBic)
+                        //                    {
+                        //                        convertirABic = true;
+                        //                    }
+                        //                }
+                        //            }
+                        //        }
+                        //    }
+                        //    bloque.Contador = 0;
+                        //}
+
+
+
+                        /* Fin Nueva lógica de validación de cantidad de no ejecutadas en turno mañana O turno tarde */
+                        if (convertirABic)
                         {
-                            List<DateTime> fechas = itemOportunidad.ListaFechas;
-
-                            var nombreTurnoUltimo = "";
-                            DateTime fechaUltima = new DateTime(2019, 1, 1).Date;
-
-                            ContadorBicLog? contadorBicLog = _unitOfWork.ContadorBicLogRepository.ObtenerUltimoRegistroPorIdOportunidad(itemOportunidad.IdOportunidad);
-                            if (contadorBicLog != null)
+                            try
                             {
-                                contadorBicLog.IdFaseOportunidad = itemOportunidad.IdFaseOportunidad!.Value;
-                                contadorBicLog.FechaCalculo = DateTime.Now;
-                                contadorBicLog.UsuarioModificacion = "ContadorBic_v5";
-                                contadorBicLog.FechaModificacion = DateTime.Now;
-                                contadorBicLog.ContadorBicLogDetalles = new List<ContadorBicLogDetalle>();
+                                ProcesoConvertiBic1(itemOportunidad.IdOportunidad, "CerradoBIC1");//comentado temporalmente para validar por Marco Kilimajer
+                                idsOportunidadesACerrar.Add(itemOportunidad.IdOportunidad);
                             }
-                            else
+                            catch (Exception)
                             {
-                                contadorBicLog = new();
-                                contadorBicLog.IdOportunidad = itemOportunidad.IdOportunidad;
-                                contadorBicLog.IdFaseOportunidad = itemOportunidad.IdFaseOportunidad!.Value;
-                                contadorBicLog.FechaCalculo = DateTime.Now;
-                                contadorBicLog.Estado = true;
-                                contadorBicLog.UsuarioCreacion = "ContadorBic_v5";
-                                contadorBicLog.UsuarioModificacion = "ContadorBic_v5";
-                                contadorBicLog.FechaCreacion = DateTime.Now;
-                                contadorBicLog.FechaModificacion = DateTime.Now;
-                                contadorBicLog.ContadorBicLogDetalles = new List<ContadorBicLogDetalle>();
+                                continue;
                             }
-                            foreach (var fecha in fechas)
-                            {
-                                TimeSpan horaFecha = fecha.TimeOfDay;
-                                foreach (var bloque in bloques)
-                                {
-                                    if ((horaFecha >= bloque.HoraInicio) && (horaFecha <= bloque.HoraFin))
-                                    {
-                                        if ((bloque.Nombre == nombreTurnoUltimo && fecha.Date == fechaUltima.Date))
-                                            break;
-                                        else
-                                        {
-                                            nombreTurnoUltimo = bloque.Nombre;
-                                            fechaUltima = fecha.Date;
-                                            bloque.Contador++;
-
-                                            var itemLogDetalle = contadorBicLog.ContadorBicLogDetalles.FirstOrDefault(s => s.FechaLogContacto.Date == fechaUltima);
-                                            if (itemLogDetalle == null)
-                                            {
-                                                itemLogDetalle = new ContadorBicLogDetalle();
-                                                itemLogDetalle.Estado = true;
-                                                itemLogDetalle.UsuarioCreacion = "ContadorBic_v5";
-                                                itemLogDetalle.UsuarioModificacion = "ContadorBic_v5";
-                                                itemLogDetalle.FechaCreacion = DateTime.Now;
-                                                itemLogDetalle.FechaModificacion = DateTime.Now;
-                                                itemLogDetalle.FechaLogContacto = fechaUltima;
-                                                itemLogDetalle.EstadoContactoManhana = false;
-                                                itemLogDetalle.EstadoContactoTarde = false;
-                                                if (bloque.Nombre == "Mañana")
-                                                    itemLogDetalle.EstadoContactoManhana = true;
-                                                else
-                                                    itemLogDetalle.EstadoContactoTarde = true;
-                                                contadorBicLog.ContadorBicLogDetalles.Add(itemLogDetalle);
-                                            }
-                                            else
-                                            {
-                                                itemLogDetalle.FechaLogContacto = fechaUltima;
-                                                if (bloque.Nombre == "Mañana")
-                                                    itemLogDetalle.EstadoContactoManhana = true;
-                                                else
-                                                    itemLogDetalle.EstadoContactoTarde = true;
-                                            }
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            /* Inicio Nueva lógica de validación de cantidad de no ejecutadas en turno mañana O turno tarde */
-                            bool convertirABic = false;
-                            foreach (var bloque in bloques)
-                            {
-                                if (bloque.Nombre == "Mañana")
-                                    contadorBicLog.SinContactoManhana = bloque.Contador ?? 0;
-                                else
-                                    contadorBicLog.SinContactoTarde = bloque.Contador ?? 0;
-
-                                //Casos especiales para el conteo de dias para BIC
-                                if ((!itemOportunidad.IdPais.HasValue && bloque.Contador >= dias)
-                                    || (
-                                        itemOportunidad.IdPais.HasValue
-                                        && (
-                                            (itemOportunidad.IdPais.Value == ValorEstatico.IdPaisMexico && bloque.Contador >= _DiasMexico)
-                                            || (itemOportunidad.IdPais.Value == ValorEstatico.IdPaisChile && bloque.Contador >= _DiasChile)
-                                            || (itemOportunidad.IdPais.Value == ValorEstatico.IdPaisColombia && bloque.Contador >= _DiasColombia)
-                                            || (itemOportunidad.IdPais.Value != ValorEstatico.IdPaisMexico
-                                                && itemOportunidad.IdPais.Value != ValorEstatico.IdPaisChile
-                                                && itemOportunidad.IdPais.Value != ValorEstatico.IdPaisColombia
-                                                && bloque.Contador >= dias)
-                                            )
-                                        )
-                                    )
-                                {
-                                    convertirABic = true;
-                                }
-                                if (convertirABic == false && configuracionBicPersonal.Count() > 0)
-                                {
-                                    foreach (var item in configuracionBicPersonal)
-                                    {
-                                        var listaAsesores = item.IdAsesores.Split(',');
-                                        foreach (var item1 in listaAsesores)
-                                        {
-                                            if (item.IdPais != null)
-                                            {
-                                                if (item1 == itemOportunidad.IdPersonalAsignado.ToString()
-                                                    && bloque.Contador >= item.DiasBic
-                                                    && item.IdPais == itemOportunidad.IdPais)
-                                                {
-                                                    convertirABic = true;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                if (item1 == itemOportunidad.IdPersonalAsignado.ToString()
-                                                    && bloque.Contador >= item.DiasBic)
-                                                {
-                                                    convertirABic = true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                bloque.Contador = 0;
-                            }
-                            /* Fin Nueva lógica de validación de cantidad de no ejecutadas en turno mañana O turno tarde */
-                            if (convertirABic)
-                            {
-                                try
-                                {
-                                    //ProcesoConvertiBic1(itemOportunidad.IdOportunidad, "CerradoBIC1");//comentado temporalmente para validar por Marco Kilimajer
-                                    idsOportunidadesACerrar.Add(itemOportunidad.IdOportunidad);
-                                }
-                                catch (Exception)
-                                {
-                                    continue;
-                                }
-                            }
-                            else
-                            {
-                                try
-                                {
-                                    if (contadorBicLog.Id != 0)
-                                    {
-                                        contadoresActualizar.Add(contadorBicLog);
-                                    }
-                                    else
-                                    {
-                                        contadoresNuevos.Add(contadorBicLog);
-                                    }
-                                }
-                                catch
-                                {
-                                    continue;
-                                }
-                            }
+                        }
+                        else
+                        {
+                            //try
+                            //{
+                            //    if (contadorBicLog.Id != 0)
+                            //    {
+                            //        contadoresActualizar.Add(contadorBicLog);
+                            //    }
+                            //    else
+                            //    {
+                            //        contadoresNuevos.Add(contadorBicLog);
+                            //    }
+                            //}
+                            //catch
+                            //{
+                            //    continue;
+                            //}
                         }
                     }
+                    
                 }
                 catch
                 {
@@ -865,35 +875,35 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 catch
                 {
                 }
-                try
-                {
-                    if (contadoresActualizar.Count() > 0)
-                    {
-                        var ids = contadoresActualizar.Select(x => x.Id).ToList();
-                        var detalle = _unitOfWork.ContadorBicLogDetalleRepository.ObtenerPorIdsContadorLog(ids);
-                        if (detalle.Count() > 0)
-                        {
-                            _unitOfWork.ContadorBicLogDetalleRepository.Delete(detalle.Select(x => x.Id), "ContadorBic_v5");
-                            _unitOfWork.Commit();
-                        }
-                        _unitOfWork.ContadorBicLogRepository.Update(contadoresActualizar);
-                        _unitOfWork.Commit();
-                    }
-                }
-                catch
-                {
-                }
-                try
-                {
-                    if (contadoresNuevos.Count() > 0)
-                    {
-                        _unitOfWork.ContadorBicLogRepository.Add(contadoresNuevos);
-                        _unitOfWork.Commit();
-                    }
-                }
-                catch
-                {
-                }
+                //try
+                //{
+                //    if (contadoresActualizar.Count() > 0)
+                //    {
+                //        var ids = contadoresActualizar.Select(x => x.Id).ToList();
+                //        var detalle = _unitOfWork.ContadorBicLogDetalleRepository.ObtenerPorIdsContadorLog(ids);
+                //        if (detalle.Count() > 0)
+                //        {
+                //            _unitOfWork.ContadorBicLogDetalleRepository.Delete(detalle.Select(x => x.Id), "ContadorBic_v5");
+                //            _unitOfWork.Commit();
+                //        }
+                //        _unitOfWork.ContadorBicLogRepository.Update(contadoresActualizar);
+                //        _unitOfWork.Commit();
+                //    }
+                //}
+                //catch
+                //{
+                //}
+                //try
+                //{
+                //    if (contadoresNuevos.Count() > 0)
+                //    {
+                //        _unitOfWork.ContadorBicLogRepository.Add(contadoresNuevos);
+                //        _unitOfWork.Commit();
+                //    }
+                //}
+                //catch
+                //{
+                //}
                 /*Se omite nueva logica de cierre bic por ordenes de gerencia (2025-08-14)*/
                 /*_OportunidadesBic = new List<Oportunidad>();
                  List<OportunidadContadorBicDTO> oportunidadContadorBics = _unitOfWork.ContadorBicRepository.ObtenerDatosParaBicPorPaisNuevaLogica(idPaisSede);
@@ -962,180 +972,185 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 List<ContadorBicLog> contadoresActualizar = new();
                 try
                 {
-                    foreach (var configuracion in listaConfiguracionBIC)
+                    //int dias = configuracion.Dias;
+
+                    //var bloques = _unitOfWork.BloqueHorarioRepository.ObtenerPorIdConfiguracionBic(configuracion.Id);
+                    //foreach (var bloque in bloques)
+                    //{
+                    //    bloque.Contador = 0;
+                    //}
+
+                    foreach (var itemOportunidad in oportunidadesAgrupadas.ToList())
                     {
-                        int dias = configuracion.Dias;
+                        //List<DateTime> fechas = itemOportunidad.ListaFechas;
 
-                        var bloques = _unitOfWork.BloqueHorarioRepository.ObtenerPorIdConfiguracionBic(configuracion.Id);
-                        foreach (var bloque in bloques)
+                        //var nombreTurnoUltimo = "";
+                        //DateTime fechaUltima = new DateTime(2019, 1, 1).Date;
+
+                        //ContadorBicLog? contadorBicLog = _unitOfWork.ContadorBicLogRepository.ObtenerUltimoRegistroPorIdOportunidad(itemOportunidad.IdOportunidad);
+                        //if (contadorBicLog != null)
+                        //{
+                        //    contadorBicLog.IdFaseOportunidad = itemOportunidad.IdFaseOportunidad!.Value;
+                        //    contadorBicLog.FechaCalculo = DateTime.Now;
+                        //    contadorBicLog.UsuarioModificacion = "ContadorBic_v5";
+                        //    contadorBicLog.FechaModificacion = DateTime.Now;
+                        //    contadorBicLog.ContadorBicLogDetalles = new List<ContadorBicLogDetalle>();
+                        //}
+                        //else
+                        //{
+                        //    contadorBicLog = new();
+                        //    contadorBicLog.IdOportunidad = itemOportunidad.IdOportunidad;
+                        //    contadorBicLog.IdFaseOportunidad = itemOportunidad.IdFaseOportunidad!.Value;
+                        //    contadorBicLog.FechaCalculo = DateTime.Now;
+                        //    contadorBicLog.Estado = true;
+                        //    contadorBicLog.UsuarioCreacion = "ContadorBic_v5";
+                        //    contadorBicLog.UsuarioModificacion = "ContadorBic_v5";
+                        //    contadorBicLog.FechaCreacion = DateTime.Now;
+                        //    contadorBicLog.FechaModificacion = DateTime.Now;
+                        //    contadorBicLog.ContadorBicLogDetalles = new List<ContadorBicLogDetalle>();
+                        //}
+                        //foreach (var fecha in fechas)
+                        //{
+                        //    TimeSpan horaFecha = fecha.TimeOfDay;
+                        //    foreach (var bloque in bloques)
+                        //    {
+                        //        if ((horaFecha >= bloque.HoraInicio) && (horaFecha <= bloque.HoraFin))
+                        //        {
+                        //            if ((bloque.Nombre == nombreTurnoUltimo && fecha.Date == fechaUltima.Date))
+                        //                break;
+                        //            else
+                        //            {
+                        //                nombreTurnoUltimo = bloque.Nombre;
+                        //                fechaUltima = fecha.Date;
+                        //                bloque.Contador++;
+
+                        //                var itemLogDetalle = contadorBicLog.ContadorBicLogDetalles.FirstOrDefault(s => s.FechaLogContacto.Date == fechaUltima);
+                        //                if (itemLogDetalle == null)
+                        //                {
+                        //                    itemLogDetalle = new ContadorBicLogDetalle();
+                        //                    itemLogDetalle.Estado = true;
+                        //                    itemLogDetalle.UsuarioCreacion = "ContadorBic_v5";
+                        //                    itemLogDetalle.UsuarioModificacion = "ContadorBic_v5";
+                        //                    itemLogDetalle.FechaCreacion = DateTime.Now;
+                        //                    itemLogDetalle.FechaModificacion = DateTime.Now;
+                        //                    itemLogDetalle.FechaLogContacto = fechaUltima;
+                        //                    itemLogDetalle.EstadoContactoManhana = false;
+                        //                    itemLogDetalle.EstadoContactoTarde = false;
+                        //                    if (bloque.Nombre == "Mañana")
+                        //                        itemLogDetalle.EstadoContactoManhana = true;
+                        //                    else
+                        //                        itemLogDetalle.EstadoContactoTarde = true;
+                        //                    contadorBicLog.ContadorBicLogDetalles.Add(itemLogDetalle);
+                        //                }
+                        //                else
+                        //                {
+                        //                    itemLogDetalle.FechaLogContacto = fechaUltima;
+                        //                    if (bloque.Nombre == "Mañana")
+                        //                        itemLogDetalle.EstadoContactoManhana = true;
+                        //                    else
+                        //                        itemLogDetalle.EstadoContactoTarde = true;
+                        //                }
+                        //                break;
+                        //            }
+                        //        }
+                        //    }
+                        //}
+                        /* Inicio Nueva lógica de validación de cantidad de no ejecutadas en turno mañana O turno tarde */
+                        bool convertirABic = false;
+                        if (itemOportunidad.ListaFechas.Count() >= _ConteoBic2)
                         {
-                            bloque.Contador = 0;
+                            convertirABic = true;
                         }
+                        //foreach (var bloque in bloques)
+                        //{
+                        //    if (bloque.Nombre == "Mañana")
+                        //        contadorBicLog.SinContactoManhana = bloque.Contador ?? 0;
+                        //    else
+                        //        contadorBicLog.SinContactoTarde = bloque.Contador ?? 0;
 
-                        foreach (var itemOportunidad in oportunidadesAgrupadas.ToList())
+                        //    //Casos especiales para el conteo de dias para BIC
+                        //    if ((!itemOportunidad.IdPais.HasValue && bloque.Contador >= dias)
+                        //        || (
+                        //            itemOportunidad.IdPais.HasValue
+                        //            && (
+                        //                (itemOportunidad.IdPais.Value == ValorEstatico.IdPaisMexico && bloque.Contador >= _DiasMexico)
+                        //                || (itemOportunidad.IdPais.Value == ValorEstatico.IdPaisChile && bloque.Contador >= _DiasChile)
+                        //                || (itemOportunidad.IdPais.Value == ValorEstatico.IdPaisColombia && bloque.Contador >= _DiasColombia)
+                        //                || (itemOportunidad.IdPais.Value != ValorEstatico.IdPaisMexico
+                        //                    && itemOportunidad.IdPais.Value != ValorEstatico.IdPaisChile
+                        //                    && itemOportunidad.IdPais.Value != ValorEstatico.IdPaisColombia
+                        //                    && bloque.Contador >= dias)
+                        //                )
+                        //            )
+                        //        )
+                        //    {
+                        //        convertirABic = true;
+                        //    }
+                        //    if (convertirABic == false && configuracionBicPersonal.Count() > 0)
+                        //    {
+                        //        foreach (var item in configuracionBicPersonal)
+                        //        {
+                        //            var listaAsesores = item.IdAsesores.Split(',');
+                        //            foreach (var item1 in listaAsesores)
+                        //            {
+                        //                if (item.IdPais != null)
+                        //                {
+                        //                    if (item1 == itemOportunidad.IdPersonalAsignado.ToString()
+                        //                        && bloque.Contador >= item.DiasBic
+                        //                        && item.IdPais == itemOportunidad.IdPais)
+                        //                    {
+                        //                        convertirABic = true;
+                        //                    }
+                        //                }
+                        //                else
+                        //                {
+                        //                    if (item1 == itemOportunidad.IdPersonalAsignado.ToString()
+                        //                        && bloque.Contador >= item.DiasBic)
+                        //                    {
+                        //                        convertirABic = true;
+                        //                    }
+                        //                }
+                        //            }
+                        //        }
+                        //    }
+                        //    bloque.Contador = 0;
+                        //}
+
+
+
+                        /* Fin Nueva lógica de validación de cantidad de no ejecutadas en turno mañana O turno tarde */
+                        if (convertirABic)
                         {
-                            List<DateTime> fechas = itemOportunidad.ListaFechas;
-
-                            var nombreTurnoUltimo = "";
-                            DateTime fechaUltima = new DateTime(2019, 1, 1).Date;
-
-                            ContadorBicLog? contadorBicLog = _unitOfWork.ContadorBicLogRepository.ObtenerUltimoRegistroPorIdOportunidad(itemOportunidad.IdOportunidad);
-                            if (contadorBicLog != null)
+                            try
                             {
-                                contadorBicLog.IdFaseOportunidad = itemOportunidad.IdFaseOportunidad!.Value;
-                                contadorBicLog.FechaCalculo = DateTime.Now;
-                                contadorBicLog.UsuarioModificacion = "ContadorBic_v5";
-                                contadorBicLog.FechaModificacion = DateTime.Now;
-                                contadorBicLog.ContadorBicLogDetalles = new List<ContadorBicLogDetalle>();
+                                ProcesoConvertiBic2(itemOportunidad.IdOportunidad, "CerradoBIC2");//comentado temporalmente para validar por Marco Kilimajer
+                                idsOportunidadesACerrar.Add(itemOportunidad.IdOportunidad);
                             }
-                            else
+                            catch (Exception)
                             {
-                                contadorBicLog = new();
-                                contadorBicLog.IdOportunidad = itemOportunidad.IdOportunidad;
-                                contadorBicLog.IdFaseOportunidad = itemOportunidad.IdFaseOportunidad!.Value;
-                                contadorBicLog.FechaCalculo = DateTime.Now;
-                                contadorBicLog.Estado = true;
-                                contadorBicLog.UsuarioCreacion = "ContadorBic_v5";
-                                contadorBicLog.UsuarioModificacion = "ContadorBic_v5";
-                                contadorBicLog.FechaCreacion = DateTime.Now;
-                                contadorBicLog.FechaModificacion = DateTime.Now;
-                                contadorBicLog.ContadorBicLogDetalles = new List<ContadorBicLogDetalle>();
+                                continue;
                             }
-                            foreach (var fecha in fechas)
-                            {
-                                TimeSpan horaFecha = fecha.TimeOfDay;
-                                foreach (var bloque in bloques)
-                                {
-                                    if ((horaFecha >= bloque.HoraInicio) && (horaFecha <= bloque.HoraFin))
-                                    {
-                                        if ((bloque.Nombre == nombreTurnoUltimo && fecha.Date == fechaUltima.Date))
-                                            break;
-                                        else
-                                        {
-                                            nombreTurnoUltimo = bloque.Nombre;
-                                            fechaUltima = fecha.Date;
-                                            bloque.Contador++;
-
-                                            var itemLogDetalle = contadorBicLog.ContadorBicLogDetalles.FirstOrDefault(s => s.FechaLogContacto.Date == fechaUltima);
-                                            if (itemLogDetalle == null)
-                                            {
-                                                itemLogDetalle = new ContadorBicLogDetalle();
-                                                itemLogDetalle.Estado = true;
-                                                itemLogDetalle.UsuarioCreacion = "ContadorBic_v5";
-                                                itemLogDetalle.UsuarioModificacion = "ContadorBic_v5";
-                                                itemLogDetalle.FechaCreacion = DateTime.Now;
-                                                itemLogDetalle.FechaModificacion = DateTime.Now;
-                                                itemLogDetalle.FechaLogContacto = fechaUltima;
-                                                itemLogDetalle.EstadoContactoManhana = false;
-                                                itemLogDetalle.EstadoContactoTarde = false;
-                                                if (bloque.Nombre == "Mañana")
-                                                    itemLogDetalle.EstadoContactoManhana = true;
-                                                else
-                                                    itemLogDetalle.EstadoContactoTarde = true;
-                                                contadorBicLog.ContadorBicLogDetalles.Add(itemLogDetalle);
-                                            }
-                                            else
-                                            {
-                                                itemLogDetalle.FechaLogContacto = fechaUltima;
-                                                if (bloque.Nombre == "Mañana")
-                                                    itemLogDetalle.EstadoContactoManhana = true;
-                                                else
-                                                    itemLogDetalle.EstadoContactoTarde = true;
-                                            }
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            /* Inicio Nueva lógica de validación de cantidad de no ejecutadas en turno mañana O turno tarde */
-                            bool convertirABic = false;
-                            foreach (var bloque in bloques)
-                            {
-                                if (bloque.Nombre == "Mañana")
-                                    contadorBicLog.SinContactoManhana = bloque.Contador ?? 0;
-                                else
-                                    contadorBicLog.SinContactoTarde = bloque.Contador ?? 0;
-
-                                //Casos especiales para el conteo de dias para BIC
-                                if ((!itemOportunidad.IdPais.HasValue && bloque.Contador >= dias)
-                                    || (
-                                        itemOportunidad.IdPais.HasValue
-                                        && (
-                                            (itemOportunidad.IdPais.Value == ValorEstatico.IdPaisMexico && bloque.Contador >= _DiasMexico)
-                                            || (itemOportunidad.IdPais.Value == ValorEstatico.IdPaisChile && bloque.Contador >= _DiasChile)
-                                            || (itemOportunidad.IdPais.Value == ValorEstatico.IdPaisColombia && bloque.Contador >= _DiasColombia)
-                                            || (itemOportunidad.IdPais.Value != ValorEstatico.IdPaisMexico
-                                                && itemOportunidad.IdPais.Value != ValorEstatico.IdPaisChile
-                                                && itemOportunidad.IdPais.Value != ValorEstatico.IdPaisColombia
-                                                && bloque.Contador >= dias)
-                                            )
-                                        )
-                                    )
-                                {
-                                    convertirABic = true;
-                                }
-                                if (convertirABic == false && configuracionBicPersonal.Count() > 0)
-                                {
-                                    foreach (var item in configuracionBicPersonal)
-                                    {
-                                        var listaAsesores = item.IdAsesores.Split(',');
-                                        foreach (var item1 in listaAsesores)
-                                        {
-                                            if (item.IdPais != null)
-                                            {
-                                                if (item1 == itemOportunidad.IdPersonalAsignado.ToString()
-                                                    && bloque.Contador >= item.DiasBic
-                                                    && item.IdPais == itemOportunidad.IdPais)
-                                                {
-                                                    convertirABic = true;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                if (item1 == itemOportunidad.IdPersonalAsignado.ToString()
-                                                    && bloque.Contador >= item.DiasBic)
-                                                {
-                                                    convertirABic = true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                bloque.Contador = 0;
-                            }
-                            /* Fin Nueva lógica de validación de cantidad de no ejecutadas en turno mañana O turno tarde */
-                            if (convertirABic)
-                            {
-                                try
-                                {
-                                    //ProcesoConvertiBic2(itemOportunidad.IdOportunidad, "CerradoBIC2");//comentado temporalmente para validar por Marco Kilimajer
-                                    idsOportunidadesACerrar.Add(itemOportunidad.IdOportunidad);
-                                }
-                                catch (Exception)
-                                {
-                                    continue;
-                                }
-                            }
-                            else
-                            {
-                                try
-                                {
-                                    if (contadorBicLog.Id != 0)
-                                    {
-                                        contadoresActualizar.Add(contadorBicLog);
-                                    }
-                                    else
-                                    {
-                                        contadoresNuevos.Add(contadorBicLog);
-                                    }
-                                }
-                                catch
-                                {
-                                    continue;
-                                }
-                            }
+                        }
+                        else
+                        {
+                            //try
+                            //{
+                            //    if (contadorBicLog.Id != 0)
+                            //    {
+                            //        contadoresActualizar.Add(contadorBicLog);
+                            //    }
+                            //    else
+                            //    {
+                            //        contadoresNuevos.Add(contadorBicLog);
+                            //    }
+                            //}
+                            //catch
+                            //{
+                            //    continue;
+                            //}
                         }
                     }
+
                 }
                 catch
                 {
@@ -1151,35 +1166,35 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 catch
                 {
                 }
-                try
-                {
-                    if (contadoresActualizar.Count() > 0)
-                    {
-                        var ids = contadoresActualizar.Select(x => x.Id).ToList();
-                        var detalle = _unitOfWork.ContadorBicLogDetalleRepository.ObtenerPorIdsContadorLog(ids);
-                        if (detalle.Count() > 0)
-                        {
-                            _unitOfWork.ContadorBicLogDetalleRepository.Delete(detalle.Select(x => x.Id), "ContadorBic_v5");
-                            _unitOfWork.Commit();
-                        }
-                        _unitOfWork.ContadorBicLogRepository.Update(contadoresActualizar);
-                        _unitOfWork.Commit();
-                    }
-                }
-                catch
-                {
-                }
-                try
-                {
-                    if (contadoresNuevos.Count() > 0)
-                    {
-                        _unitOfWork.ContadorBicLogRepository.Add(contadoresNuevos);
-                        _unitOfWork.Commit();
-                    }
-                }
-                catch
-                {
-                }
+                //try
+                //{
+                //    if (contadoresActualizar.Count() > 0)
+                //    {
+                //        var ids = contadoresActualizar.Select(x => x.Id).ToList();
+                //        var detalle = _unitOfWork.ContadorBicLogDetalleRepository.ObtenerPorIdsContadorLog(ids);
+                //        if (detalle.Count() > 0)
+                //        {
+                //            _unitOfWork.ContadorBicLogDetalleRepository.Delete(detalle.Select(x => x.Id), "ContadorBic_v5");
+                //            _unitOfWork.Commit();
+                //        }
+                //        _unitOfWork.ContadorBicLogRepository.Update(contadoresActualizar);
+                //        _unitOfWork.Commit();
+                //    }
+                //}
+                //catch
+                //{
+                //}
+                //try
+                //{
+                //    if (contadoresNuevos.Count() > 0)
+                //    {
+                //        _unitOfWork.ContadorBicLogRepository.Add(contadoresNuevos);
+                //        _unitOfWork.Commit();
+                //    }
+                //}
+                //catch
+                //{
+                //}
                 /*Se omite nueva logica de cierre bic por ordenes de gerencia (2025-08-14)*/
                 /*_OportunidadesBic = new List<Oportunidad>();
                  List<OportunidadContadorBicDTO> oportunidadContadorBics = _unitOfWork.ContadorBicRepository.ObtenerDatosParaBicPorPaisNuevaLogica(idPaisSede);

@@ -69,8 +69,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         string SP_DocumentoPWDuracionConfiguracion_RegistrarCambios(int idDocumentoPw, int idDocumentoPWDuracion, string usuario);
         string SP_TDocumentoPWFechaInicio_ObtenerRows(int idDocumentoPw);
 
-        string SP_TDocumentoPWFechaInicioCabecera_Insertar(string? titulo, string? subTitulo, bool mostrarEnLaWeb, string usuario);
-        string SP_TDocumentoPWFechaInicioCabecera_Actualizar(int id, string? titulo, string? subTitulo, bool mostrarEnLaWeb, string usuario);
+        string SP_TDocumentoPWFechaInicioCabecera_Insertar(string? titulo, string? subTitulo, bool? mostrarEnLaWeb, string usuario);
+        string SP_TDocumentoPWFechaInicioCabecera_Actualizar(int id, string? titulo, string? subTitulo, bool? mostrarEnLaWeb, string usuario);
 
         string SP_TDocumentoPWFechaInicio_Insertar(int? idPais, string usuario);
         string SP_TDocumentoPWFechaInicio_Actualizar(int id, int? idPais, string usuario);
@@ -78,7 +78,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         string SP_TDocumentoPWFechaInicioDetalle_Insertar(int idDocumentoPWFechaInicio, int? idModo, DateTime? fecha, string? horario, string usuario);
         string SP_TDocumentoPWFechaInicioDetalle_Actualizar(int id, int idDocumentoPWFechaInicio, int? idModo, DateTime? fecha, string? horario, string usuario);
 
-        string SP_DocumentoPWFechaInicioConfiguracion_RegistrarCambios(int idDocumentoPWFechaInicioCabecera, int idDocumentoPWFechaInicio, int idDocumentoPw, string usuario);
+        string SP_DocumentoPWFechaInicioConfiguracion_RegistrarCambios(int? idDocumentoPWFechaInicioCabecera, int? idDocumentoPWFechaInicio, int idDocumentoPw, string usuario);
 
         string SP_TDocumentoPWFechaInicioDetalle_Desactivar(int id, string usuario);
         string SP_TDocumentoPWFechaInicioDetalle_DesactivarPorFechaInicio(int idDocumentoPWFechaInicio, string usuario);
@@ -100,5 +100,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         string SP_DocumentoPWNotaConfiguracion_RegistrarCambios(int idDocumentoPw, int idDocumentoPWNota, bool mostrarWeb, string usuario);
         string SP_TDocumentoPWNotaConfiguracion_DesactivarPorNota(int idDocumentoPw, int idDocumentoPWNota, string usuario);
 
+        Task<string> SubirArchivoDocumentoPw(byte[] archivo, string contentType, string nombreArchivo);
     }
 }

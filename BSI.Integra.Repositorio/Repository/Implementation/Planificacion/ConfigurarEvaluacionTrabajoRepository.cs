@@ -215,11 +215,29 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                var _queryfiltrocapitulo = "Select Id,IdTipoEvaluacionTrabajo,Nombre,Descripcion,IdDocumentoPw,ArchivoNombre,ArchivoCarpeta,IdPgeneral,IdSeccion,Fila,FechaCreacion,UsuarioCreacion,NombreTipoEvaluacion,DescripcionPregunta,HabilitarInstrucciones,HabilitarArchivo,HabilitarPreguntas,OrdenCapitulo FROM pla.V_RegistroConfigurarEvaluacionTrabajo Where IdPgeneral=@IdPGeneral AND IdSeccion=@IdSeccion AND Fila=@Fila";
+                var _queryfiltrocapitulo = "Select Id,IdTipoEvaluacionTrabajo,Nombre,Descripcion,IdDocumentoPw,ArchivoNombre,ArchivoCarpeta,IdPgeneral,IdSeccion,Fila,FechaCreacion,UsuarioCreacion,NombreTipoEvaluacion,DescripcionPregunta,HabilitarInstrucciones,HabilitarArchivo,HabilitarPreguntas,OrdenCapitulo,IdTareaCriterio,NombreCriterio FROM pla.V_RegistroConfigurarEvaluacionTrabajo Where IdPgeneral=@IdPGeneral AND IdSeccion=@IdSeccion AND Fila=@Fila";
                 var SubfiltroCapitulo = _dapperRepository.QueryDapper(_queryfiltrocapitulo, new { IdPgeneral = idPGeneral, IdSeccion = idSeccion, Fila = fila });
-                if (!string.IsNullOrEmpty(SubfiltroCapitulo) && !SubfiltroCapitulo.Equals("[]"))
-                    return JsonConvert.DeserializeObject<IEnumerable<ConfigurarEvaluacionTrabajoDetalleDTO>>(SubfiltroCapitulo);
-                return new List<ConfigurarEvaluacionTrabajoDetalleDTO>();
+                if (string.IsNullOrEmpty(SubfiltroCapitulo) || SubfiltroCapitulo.Equals("[]"))
+                    return new List<ConfigurarEvaluacionTrabajoDetalleDTO>();
+
+                var filas = JsonConvert.DeserializeObject<List<ConfigurarEvaluacionTrabajoDetalleDTO>>(SubfiltroCapitulo);
+
+                return filas
+                    .GroupBy(x => x.Id)
+                    .Select(g =>
+                    {
+                        var item = g.First();
+                        item.criterioTareas = g
+                            .Where(x => x.IdTareaCriterio.HasValue)
+                            .Select(x => new CriterioTarea
+                            {
+                                idCriterioTarea = x.IdTareaCriterio.Value,
+                                nombre          = x.NombreCriterio
+                            })
+                            .ToList();
+                        return item;
+                    })
+                    .ToList();
             }
             catch (Exception E)
             {
@@ -253,6 +271,41 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         /// <summary>
         /// Obtiene el registro por el Primary Key
         /// </summary>
+        public void InsertarCriterioConfiguracion(int idConfigurarEvaluacionTrabajo, int idTareaCriterio, string usuario)
+        {
+            try
+            {
+                var sp = "pla.[SP_TareaCriterioConfiguracion_Insertar]";
+                _dapperRepository.QuerySPDapper(sp, new
+                {
+                    IdConfigurarEvaluacionTrabajo = idConfigurarEvaluacionTrabajo,
+                    IdTareaCriterio               = idTareaCriterio,
+                    UsuarioCreacion               = usuario,
+                });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ConfigurarEvaluacionTrabajoRepository.InsertarCriterioConfiguracion: {ex.Message}", ex);
+            }
+        }
+
+        public void EliminarCriteriosPorConfiguracion(int idConfigurarEvaluacionTrabajo, string usuario)
+        {
+            try
+            {
+                var sp = "pla.[SP_TareaCriterioConfiguracion_Eliminar]";
+                _dapperRepository.QuerySPDapper(sp, new
+                {
+                    IdConfigurarEvaluacionTrabajo = idConfigurarEvaluacionTrabajo,
+                    UsuarioModificacion           = usuario
+                });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ConfigurarEvaluacionTrabajoRepository.EliminarCriteriosPorConfiguracion: {ex.Message}", ex);
+            }
+        }
+
         public ConfigurarEvaluacionTrabajo ObtenerPorId(int id)
         {
             try
