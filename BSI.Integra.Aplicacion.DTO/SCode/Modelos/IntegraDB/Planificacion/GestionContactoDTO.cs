@@ -120,6 +120,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public DateTime? FechaInicioSesion { get; set; }
         public int? IdPEspecifico { get; set; }
         public string NombrePEspecifico { get; set; }
+        public int? IdProveedor { get; set; }
+        public string RazonSocialDocente { get; set; }
         public IEnumerable<ActividadCabeceraDTO> Actividades { get; set; }
     }
 

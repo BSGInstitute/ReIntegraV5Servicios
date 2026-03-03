@@ -660,7 +660,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                             r.NumeroSesion,
                             r.FechaInicioSesion,
                             r.IdPEspecifico,
-                            r.NombrePEspecifico
+                            r.NombrePEspecifico,
+                            r.IdProveedor,
+                            r.RazonSocialDocente
                         })
                         .Select(sesionGroup => new SesionConActividadesDTO
                         {
@@ -669,6 +671,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                             FechaInicioSesion = sesionGroup.Key.FechaInicioSesion,
                             IdPEspecifico = sesionGroup.Key.IdPEspecifico,
                             NombrePEspecifico = sesionGroup.Key.NombrePEspecifico,
+                            IdProveedor = sesionGroup.Key.IdProveedor,
+                            RazonSocialDocente = sesionGroup.Key.RazonSocialDocente,
                             Actividades = sesionGroup
                                 .GroupBy(r => new
                                 {
@@ -825,6 +829,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             public DateTime? FechaInicioSesion { get; set; }
             public int? IdPEspecifico { get; set; }
             public string NombrePEspecifico { get; set; }
+            public int? IdProveedor { get; set; }
+            public string RazonSocialDocente { get; set; }
         }
 
     }
