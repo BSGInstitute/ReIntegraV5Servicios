@@ -1,3 +1,4 @@
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -32,7 +33,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
         /// <summary>
         /// Obtiene la lista plana de docentes con sus cursos y el flujo asignado.
-        /// Solo incluye docentes que tengan al menos un flujo activo en T_GestionContactoDocenteFlujo.
+        /// Basado en T_GestionContacto para encontrar más docentes asignados a centros de costo.
         /// </summary>
         public List<DocenteConCursoDTO> ObtenerDocentesConCursos()
         {
@@ -40,7 +41,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             {
                 List<DocenteConCursoDTO> lista = new List<DocenteConCursoDTO>();
                 string query = @"
-                        SELECT DISTINCT
+                        SELECT
                             P.Id AS IdProveedor,
                             CASE
                                 WHEN LEN(CONCAT(P.Nombre1, ' ', P.Nombre2, ' ', P.ApePaterno, ' ', P.ApeMaterno)) = 0
@@ -55,16 +56,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                             GC.Id AS IdGestionContacto,
                             GDF.Id AS IdFlujo,
                             GDF.Nombre AS NombreFlujo
-                        FROM pla.T_PEspecificoSesion S
-                        INNER JOIN fin.T_Proveedor P ON S.IdProveedor = P.Id
-                        INNER JOIN pla.T_PEspecifico PE ON S.IdPEspecifico = PE.Id
+                        FROM pla.T_GestionContacto GC
+                        INNER JOIN conf.T_ClasificacionPersona CP ON GC.IdClasificacionPersona = CP.Id AND CP.IdTipoPersona = 4 AND CP.Estado = 1
+                        INNER JOIN fin.T_Proveedor P ON CP.IdTablaOriginal = P.Id AND P.Estado = 1
                         LEFT JOIN gp.T_Personal PER ON P.IdPersonal_Asignado = PER.Id
-                        INNER JOIN conf.T_ClasificacionPersona CP ON CP.IdTablaOriginal = P.Id AND CP.IdTipoPersona = 4 AND CP.Estado = 1
-                        INNER JOIN pla.T_GestionContacto GC ON GC.IdClasificacionPersona = CP.Id AND GC.Estado = 1
+                        LEFT JOIN pla.T_PEspecifico PE ON PE.IdCentroCosto = GC.IdCentroCosto AND PE.Estado = 1
                         INNER JOIN pla.T_GestionContactoDocenteFlujo GCDF ON GCDF.IdGestionContacto = GC.Id AND GCDF.Estado = 1
                         INNER JOIN pla.T_GestionDocenteFlujo GDF ON GCDF.IdGestionDocenteFlujo = GDF.Id AND GDF.Estado = 1
-                        WHERE S.Estado = 1 AND P.Estado = 1 AND PE.Estado = 1
-                        ORDER BY NombreDocente, NombreCurso";
+                        WHERE GC.Estado = 1";
 
                 var resultadoDB = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
@@ -322,10 +321,114 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
                 if (idAsesor > 0)
                 {
-                    lista = lista.Where(a => a.IdPersonalAsignado == idAsesor).ToList();
+                    lista = lista.Where(a => a.IdPersonal_Asignado == idAsesor).ToList();
                 }
 
                 return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 03/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la lista de docentes que comparten el mismo centro de costo que la gestión de contacto proporcionada.
+        /// </summary>
+        public List<DocenteConCursoDTO> ObtenerDocentesPorGestionContacto(int idGestionContacto)
+        {
+            try
+            {
+                List<DocenteConCursoDTO> lista = new List<DocenteConCursoDTO>();
+                var resultadoDB = _dapperRepository.QuerySPDapper("pla.SP_DocenteCursoPorGestionContactoObtener", new { IdGestionContacto = idGestionContacto });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    lista = JsonConvert.DeserializeObject<List<DocenteConCursoDTO>>(resultadoDB);
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 03/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene información adicional del docente: email, historial completo de WhatsApp,
+        /// historial de correos, resumen de última comunicación, encuestas y alumnos únicos.
+        /// </summary>
+        public InformacionFaltanteDocenteDTO ObtenerInformacionFaltanteDocente(int idProveedor, int idPEspecifico)
+        {
+            try
+            {
+                InformacionFaltanteDocenteDTO info = new InformacionFaltanteDocenteDTO();
+
+                // Información base (email, encuestas, cantidad estudiantes)
+                var resultadoBaseDB = _dapperRepository.QuerySPDapper("pla.SP_DocenteInformacionBaseObtener", new { IdProveedor = idProveedor, IdPEspecifico = idPEspecifico });
+                if (!string.IsNullOrEmpty(resultadoBaseDB) && !resultadoBaseDB.Contains("[]"))
+                {
+                    info = JsonConvert.DeserializeObject<List<InformacionFaltanteDocenteDTO>>(resultadoBaseDB).FirstOrDefault();
+                }
+
+                // Historial WhatsApp (enviados y recibidos), ordenado en C#
+                var resultadoWhatsAppDB = _dapperRepository.QuerySPDapper("pla.SP_DocenteWhatsAppHistorialObtener", new { IdProveedor = idProveedor });
+                if (!string.IsNullOrEmpty(resultadoWhatsAppDB) && !resultadoWhatsAppDB.Contains("[]"))
+                {
+                    info.HistorialWhatsApp = JsonConvert.DeserializeObject<List<WhatsAppHistorialDocenteDTO>>(resultadoWhatsAppDB)
+                        .OrderByDescending(x => x.FechaCreacion)
+                        .ToList();
+                }
+
+                // Última comunicación (MAX por canal), selección del más reciente en C#
+                var resultadoUltimaComDB = _dapperRepository.QuerySPDapper("pla.SP_DocenteUltimaComunicacionObtener", new { IdProveedor = idProveedor });
+                if (!string.IsNullOrEmpty(resultadoUltimaComDB) && !resultadoUltimaComDB.Contains("[]"))
+                {
+                    info.UltimaComunicacion = JsonConvert.DeserializeObject<List<UltimaComunicacionResumenDTO>>(resultadoUltimaComDB)
+                        .Where(x => x.Fecha.HasValue)
+                        .OrderByDescending(x => x.Fecha)
+                        .FirstOrDefault();
+                }
+
+                // Historial de correos del docente, ordenado en C#
+                var resultadoCorreosDB = _dapperRepository.QuerySPDapper("pla.SP_DocenteCorreoHistorialObtener", new { IdProveedor = idProveedor, IdPEspecifico = idPEspecifico });
+                if (!string.IsNullOrEmpty(resultadoCorreosDB) && !resultadoCorreosDB.Contains("[]"))
+                {
+                    info.HistorialCorreos = JsonConvert.DeserializeObject<List<CorreoResumenDocenteDTO>>(resultadoCorreosDB)
+                        .OrderByDescending(x => x.FechaEnvio)
+                        .ToList();
+                }
+
+                return info;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 03/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el detalle de un correo enviado al docente por su ID de T_MandrilEnvioCorreoGestion.
+        /// </summary>
+        public CorreoDetalleDocenteDTO ObtenerDetalleCorreo(int idCorreo)
+        {
+            try
+            {
+                CorreoDetalleDocenteDTO detalle = null;
+                var resultadoDB = _dapperRepository.QuerySPDapper("pla.SP_DocenteCorreoDetalleObtener", new { IdMandrilEnvioCorreoGestion = idCorreo });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    detalle = JsonConvert.DeserializeObject<List<CorreoDetalleDocenteDTO>>(resultadoDB).FirstOrDefault();
+                }
+                return detalle;
             }
             catch (Exception ex)
             {

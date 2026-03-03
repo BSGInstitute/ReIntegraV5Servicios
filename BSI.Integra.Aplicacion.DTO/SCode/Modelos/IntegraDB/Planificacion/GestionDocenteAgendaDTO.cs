@@ -1,3 +1,4 @@
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using System;
 using System.Collections.Generic;
 
@@ -188,5 +189,60 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
     {
         public Dictionary<string, List<ActividadAgendaPlanificacionDTO>> ActividadesAgenda { get; set; }
         public int Cantidad { get; set; }
+    }
+
+    public class InformacionFaltanteDocenteDTO
+    {
+        public string Email { get; set; }
+        public decimal? EncuestaPromedio { get; set; }
+        public int? EncuestaCantidad { get; set; }
+        public string EncuestaUltimoComentario { get; set; }
+        public int CantidadEstudiantes { get; set; }
+        public List<WhatsAppHistorialDocenteDTO> HistorialWhatsApp { get; set; }
+        public List<CorreoResumenDocenteDTO> HistorialCorreos { get; set; }
+        public UltimaComunicacionResumenDTO UltimaComunicacion { get; set; }
+    }
+
+    public class WhatsAppHistorialDocenteDTO
+    {
+        public string Numero { get; set; }
+        public int Tipo { get; set; }
+        public int SubTipo { get; set; }
+        public int IdPais { get; set; }
+        public string Mensaje { get; set; }
+        public int? IdPersonal { get; set; }
+        public int? IdProveedor { get; set; }
+        public int? Registro { get; set; }
+        public DateTime FechaCreacion { get; set; }
+        public string NombrePersonal { get; set; }
+        public int? EstadoMensaje { get; set; }
+    }
+
+    public class UltimaComunicacionResumenDTO
+    {
+        public DateTime? Fecha { get; set; }
+        public string Tipo { get; set; }
+        public string Direccion { get; set; }
+    }
+
+    public class CorreoResumenDocenteDTO
+    {
+        public int IdMandrilEnvioCorreoGestion { get; set; }
+        public string Asunto { get; set; }
+        public DateTime? FechaEnvio { get; set; }
+        public string PersonalRemitente { get; set; }
+        public int? IdCentroCosto { get; set; }
+        public bool EsRelacionadoAlCurso { get; set; }
+    }
+
+    public class CorreoDetalleDocenteDTO
+    {
+        public int IdMandrilEnvioCorreoGestion { get; set; }
+        public string Asunto { get; set; }
+        public DateTime? FechaEnvio { get; set; }
+        public int? EstadoEnvio { get; set; }
+        public string PersonalRemitente { get; set; }
+        public string CorreoDestinatario { get; set; }
+        public int? IdCentroCosto { get; set; }
     }
 }
