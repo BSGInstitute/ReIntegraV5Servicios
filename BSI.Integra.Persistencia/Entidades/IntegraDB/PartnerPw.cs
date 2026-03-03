@@ -23,5 +23,11 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
         public short? IdPartner { get; set; }
         public string? EncabezadoCorreoPartner { get; set; }
         public Guid? IdMigracion { get; set; }
+        [StringLength(500)]
+        public string? PaginaLink { get; set; }
+        [StringLength(150)]
+        public string? CertificadoLogo { get; set; }
+        [StringLength(150)]
+        public string? CertificadoBSG { get; set; }
     }
 }

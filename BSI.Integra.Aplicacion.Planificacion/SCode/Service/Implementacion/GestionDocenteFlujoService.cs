@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
 {
@@ -323,6 +324,329 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             {
                 throw;
             }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 26/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Duplica un flujo docente completo: crea un nuevo flujo con nuevo nombre y realiza una copia profunda
+        /// de todas sus actividades cabecera, detalles, disparadores, reglas, sesiones, ocurrencias,
+        /// configuración IA y ejemplos de entrenamiento. Mantiene el mapeo de IDs de ocurrencias para
+        /// preservar las referencias entre disparadores tipo 2 (Ocurrencia Anterior).
+        /// </summary>
+        /// <param name="request">DTO con el ID del flujo original, nuevo nombre y usuario.</param>
+        /// <returns>ID del nuevo flujo creado.</returns>
+        public async Task<int> DuplicarFlujoAsync(DuplicarFlujoRequestDTO request)
+        {
+            try
+            {
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    var flujoCompleto = await ObtenerFlujoCompletoAsync(request.IdFlujoOriginal);
+                    if (flujoCompleto == null)
+                        throw new Exception($"No se encontró el flujo con ID {request.IdFlujoOriginal}");
+
+                    DateTime fechaActual = DateTime.Now;
+                    string usuario = request.Usuario;
+
+                    // 1. Crear nuevo flujo
+                    var nuevoFlujo = new GestionDocenteFlujo
+                    {
+                        Nombre = request.NuevoNombre,
+                        Descripcion = flujoCompleto.Flujo.Descripcion,
+                        IdGestionDocenteEstado = flujoCompleto.Flujo.IdGestionDocenteEstado,
+                        IdGestionDocenteCategoria = flujoCompleto.Flujo.IdGestionDocenteCategoria,
+                        Estado = true,
+                        UsuarioCreacion = usuario,
+                        UsuarioModificacion = usuario,
+                        FechaCreacion = fechaActual,
+                        FechaModificacion = fechaActual
+                    };
+                    var nuevoFlujoModel = _unitOfWork.GestionDocenteFlujoRepository.Add(nuevoFlujo);
+                    await _unitOfWork.CommitAsync();
+
+                    // 2. Duplicar cada actividad cabecera y asociarla al nuevo flujo
+                    foreach (var actividad in flujoCompleto.Actividades)
+                    {
+                        int idNuevaCabecera = await DuplicarActividadCabeceraAsync(actividad, nuevoFlujoModel.Id, usuario, fechaActual);
+
+                        var asociacion = new GestionDocenteActividadCabeceraFlujo
+                        {
+                            IdGestionDocenteFlujo = nuevoFlujoModel.Id,
+                            IdGestionDocenteActividadCabecera = idNuevaCabecera,
+                            Estado = true,
+                            UsuarioCreacion = usuario,
+                            UsuarioModificacion = usuario,
+                            FechaCreacion = fechaActual,
+                            FechaModificacion = fechaActual
+                        };
+                        _unitOfWork.GestionDocenteActividadCabeceraFlujoRepository.Add(asociacion);
+                        await _unitOfWork.CommitAsync();
+                    }
+
+                    scope.Complete();
+                    return nuevoFlujoModel.Id;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Copia en profundidad una actividad cabecera con todos sus detalles, disparadores,
+        /// reglas, sesiones, ocurrencias, configuración IA y ejemplos de entrenamiento.
+        /// Mantiene un mapa de IDs de ocurrencias (viejo → nuevo) para resolver referencias
+        /// cruzadas en disparadores tipo 2 (Basado en Ocurrencia Anterior).
+        /// </summary>
+        private async Task<int> DuplicarActividadCabeceraAsync(ActividadCabeceraCompletaDTO original, int idNuevoFlujo, string usuario, DateTime fechaActual)
+        {
+            // Mapa: ID ocurrencia original -> ID ocurrencia nueva
+            var ocurrenciaIdMap = new Dictionary<int, int>();
+
+            // 1. Crear nueva cabecera
+            var nuevaCabecera = new GestionDocenteActividadCabecera
+            {
+                Nombre = original.Cabecera.Nombre,
+                Descripcion = original.Cabecera.Descripcion,
+                IdGestionDocenteEstado = original.Cabecera.IdGestionDocenteEstado,
+                IdGestionDocenteCategoria = original.Cabecera.IdGestionDocenteCategoria,
+                Estado = true,
+                UsuarioCreacion = usuario,
+                UsuarioModificacion = usuario,
+                FechaCreacion = fechaActual,
+                FechaModificacion = fechaActual
+            };
+            var nuevaCabeceraModel = _unitOfWork.GestionDocenteActividadCabeceraRepository.Add(nuevaCabecera);
+            await _unitOfWork.CommitAsync();
+
+            // 2. Procesar cada detalle secuencialmente para poder mapear IDs de ocurrencias
+            foreach (var detalleCompleto in original.Detalles)
+            {
+                var detalle = detalleCompleto.Detalle;
+                var disparador = detalleCompleto.Disparador;
+                int idTipoDisparador = disparador.DisparadorDetalle.IdGestionDocenteDisparadorFlujoTipo;
+
+                // 2a. Crear disparador
+                var nuevoDisparador = new GestionDocenteDisparadorDetalle
+                {
+                    IdGestionDocenteDisparadorFlujoTipo = idTipoDisparador,
+                    Estado = true,
+                    UsuarioCreacion = usuario,
+                    UsuarioModificacion = usuario,
+                    FechaCreacion = fechaActual,
+                    FechaModificacion = fechaActual
+                };
+                var nuevoDisparadorModel = _unitOfWork.GestionDocenteDisparadorDetalleRepository.Add(nuevoDisparador);
+                await _unitOfWork.CommitAsync();
+
+                // 2b. Crear regla según tipo de disparador
+                switch (idTipoDisparador)
+                {
+                    case 1: // Primera Actividad (Tiempo Fijo)
+                        if (disparador.ReglaTiempoFijo != null)
+                        {
+                            int idReglaTiempoFijo = _unitOfWork.GestionDocenteDisparadorReglaTiempoFijoRepository.ObtenerIdReglaTiempoPorTipo("FIJO");
+                            var reglaFija = new GestionDocenteDisparadorReglaTiempoFijo
+                            {
+                                IdGestionDocenteDisparadorReglaTiempo = idReglaTiempoFijo,
+                                IdGestionDocenteDisparadorDetalle = nuevoDisparadorModel.Id,
+                                Fecha = disparador.ReglaTiempoFijo.Fecha,
+                                Estado = true,
+                                UsuarioCreacion = usuario,
+                                UsuarioModificacion = usuario,
+                                FechaCreacion = fechaActual,
+                                FechaModificacion = fechaActual
+                            };
+                            _unitOfWork.GestionDocenteDisparadorReglaTiempoFijoRepository.Add(reglaFija);
+                            await _unitOfWork.CommitAsync();
+                        }
+                        break;
+
+                    case 2: // Basado en Ocurrencia Anterior
+                        if (disparador.ReglaTiempoRelativo != null)
+                        {
+                            int idReglaTiempoRelativo = _unitOfWork.GestionDocenteDisparadorReglaTiempoFijoRepository.ObtenerIdReglaTiempoPorTipo("RELATIVO");
+                            var reglaRelativa = new GestionDocenteDisparadorReglaTiempoRelativo
+                            {
+                                IdGestionDocenteDisparadorReglaTiempo = idReglaTiempoRelativo,
+                                IdGestionDocenteDisparadorDetalle = nuevoDisparadorModel.Id,
+                                Cantidad = disparador.ReglaTiempoRelativo.Cantidad,
+                                IdGestionDocenteUnidadTiempo = disparador.ReglaTiempoRelativo.IdGestionDocenteUnidadTiempo,
+                                Estado = true,
+                                UsuarioCreacion = usuario,
+                                UsuarioModificacion = usuario,
+                                FechaCreacion = fechaActual,
+                                FechaModificacion = fechaActual
+                            };
+                            _unitOfWork.GestionDocenteDisparadorReglaTiempoRelativoRepository.Add(reglaRelativa);
+
+                            if (disparador.OcurrenciaDetalle != null)
+                            {
+                                int idOcurrenciaPrevia = ocurrenciaIdMap.TryGetValue(
+                                    disparador.OcurrenciaDetalle.IdGestionDocenteOcurrenciaPrevia, out int nuevoIdOcurrencia)
+                                    ? nuevoIdOcurrencia
+                                    : disparador.OcurrenciaDetalle.IdGestionDocenteOcurrenciaPrevia;
+
+                                var disparadorOcurrencia = new GestionDocenteDisparadorOcurrenciaDetalle
+                                {
+                                    IdGestionDocenteDisparadorDetalle = nuevoDisparadorModel.Id,
+                                    IdGestionDocenteOcurrenciaPrevia = idOcurrenciaPrevia,
+                                    Estado = true,
+                                    UsuarioCreacion = usuario,
+                                    UsuarioModificacion = usuario,
+                                    FechaCreacion = fechaActual,
+                                    FechaModificacion = fechaActual
+                                };
+                                _unitOfWork.GestionDocenteDisparadorOcurrenciaDetalleRepository.Add(disparadorOcurrencia);
+                            }
+                            await _unitOfWork.CommitAsync();
+                        }
+                        break;
+
+                    case 3: // Basado en Cronograma
+                        if (disparador.ReglaTiempoRelativo != null)
+                        {
+                            int idReglaTiempoRelativo = _unitOfWork.GestionDocenteDisparadorReglaTiempoFijoRepository.ObtenerIdReglaTiempoPorTipo("RELATIVO");
+                            var reglaRelativa = new GestionDocenteDisparadorReglaTiempoRelativo
+                            {
+                                IdGestionDocenteDisparadorReglaTiempo = idReglaTiempoRelativo,
+                                IdGestionDocenteDisparadorDetalle = nuevoDisparadorModel.Id,
+                                Cantidad = disparador.ReglaTiempoRelativo.Cantidad,
+                                IdGestionDocenteUnidadTiempo = disparador.ReglaTiempoRelativo.IdGestionDocenteUnidadTiempo,
+                                Estado = true,
+                                UsuarioCreacion = usuario,
+                                UsuarioModificacion = usuario,
+                                FechaCreacion = fechaActual,
+                                FechaModificacion = fechaActual
+                            };
+                            var reglaRelativaModel = _unitOfWork.GestionDocenteDisparadorReglaTiempoRelativoRepository.Add(reglaRelativa);
+                            await _unitOfWork.CommitAsync();
+
+                            if (disparador.ReferenciaRelativa != null)
+                            {
+                                var referenciaRelativa = new GestionDocenteDisparadorReglaTiempoRelativoReferencia
+                                {
+                                    IdGestionDocenteDisparadorReglaTiempoRelativo = reglaRelativaModel.Id,
+                                    IdGestionDocenteReferenciaTiempo = disparador.ReferenciaRelativa.IdGestionDocenteReferenciaTiempo,
+                                    Estado = true,
+                                    UsuarioCreacion = usuario,
+                                    UsuarioModificacion = usuario,
+                                    FechaCreacion = fechaActual,
+                                    FechaModificacion = fechaActual
+                                };
+                                _unitOfWork.GestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository.Add(referenciaRelativa);
+                                await _unitOfWork.CommitAsync();
+                            }
+                        }
+                        break;
+                }
+
+                // 2c. Crear detalle
+                var nuevoDetalle = new GestionDocenteActividadDetalle
+                {
+                    IdGestionDocenteActividadCabecera = nuevaCabeceraModel.Id,
+                    IdGestionDocenteActividadDetalleTipo = detalle.IdGestionDocenteActividadDetalleTipo,
+                    IdPlantillaMedioComunicacion = detalle.IdPlantillaMedioComunicacion,
+                    IdGestionDocenteDisparadorDetalle = nuevoDisparadorModel.Id,
+                    Nombre = detalle.NombreActividadDetalle,
+                    Estado = true,
+                    UsuarioCreacion = usuario,
+                    UsuarioModificacion = usuario,
+                    FechaCreacion = fechaActual,
+                    FechaModificacion = fechaActual
+                };
+                var nuevoDetalleModel = _unitOfWork.GestionDocenteActividadDetalleRepository.Add(nuevoDetalle);
+                await _unitOfWork.CommitAsync();
+
+                // 2d. Sesión (sólo para disparador tipo 3 - Cronograma)
+                if (idTipoDisparador == 3 && detalleCompleto.Sesion != null)
+                {
+                    var sesion = new GestionContactoActividadDetalleSesion
+                    {
+                        IdGestionDocenteActividadDetalle = nuevoDetalleModel.Id,
+                        IdGestionDocenteSesion = detalleCompleto.Sesion.IdGestionDocenteSesion,
+                        Estado = true,
+                        UsuarioCreacion = usuario,
+                        UsuarioModificacion = usuario,
+                        FechaCreacion = fechaActual,
+                        FechaModificacion = fechaActual
+                    };
+                    _unitOfWork.GestionContactoActividadDetalleSesionRepository.Add(sesion);
+                    await _unitOfWork.CommitAsync();
+                }
+
+                // 2e. Crear ocurrencias y registrar mapeo de IDs
+                foreach (var ocurrenciaCompleta in detalleCompleto.Ocurrencias)
+                {
+                    var ocurrencia = ocurrenciaCompleta.Ocurrencia;
+
+                    var nuevaOcurrencia = new GestionDocenteOcurrencia
+                    {
+                        Nombre = ocurrencia.Nombre,
+                        Descripcion = ocurrencia.Descripcion,
+                        IdGestionDocenteOcurrenciaTipo = ocurrencia.IdGestionDocenteOcurrenciaTipo,
+                        IdGestionDocenteActividadDetalle = nuevoDetalleModel.Id,
+                        IdGestionDocenteModoMarcado = ocurrencia.IdGestionDocenteModoMarcado,
+                        RequiereComentario = ocurrencia.RequiereComentario,
+                        RequiereFechaHora = ocurrencia.RequiereFechaHora,
+                        Estado = true,
+                        UsuarioCreacion = usuario,
+                        UsuarioModificacion = usuario,
+                        FechaCreacion = fechaActual,
+                        FechaModificacion = fechaActual
+                    };
+                    var nuevaOcurrenciaModel = _unitOfWork.GestionDocenteOcurrenciaRepository.Add(nuevaOcurrencia);
+                    await _unitOfWork.CommitAsync();
+
+                    // Registrar mapeo viejo ID -> nuevo ID
+                    ocurrenciaIdMap[ocurrencia.IdGestionDocenteOcurrencia] = nuevaOcurrenciaModel.Id;
+
+                    // Configuración IA (modos Automático=2 y Warm=3)
+                    if ((ocurrencia.IdGestionDocenteModoMarcado == 2 || ocurrencia.IdGestionDocenteModoMarcado == 3)
+                        && ocurrenciaCompleta.IaConfiguracion != null)
+                    {
+                        var iaConfig = new GestionDocenteOcurrenciaIaConfiguracion
+                        {
+                            Prompt = ocurrenciaCompleta.IaConfiguracion.Prompt,
+                            IdGestionDocenteConfianzaUmbralNivel = ocurrenciaCompleta.IaConfiguracion.IdGestionDocenteConfianzaUmbralNivel,
+                            IdGestionDocenteOcurrencia = nuevaOcurrenciaModel.Id,
+                            Estado = true,
+                            UsuarioCreacion = usuario,
+                            UsuarioModificacion = usuario,
+                            FechaCreacion = fechaActual,
+                            FechaModificacion = fechaActual
+                        };
+                        var iaConfigModel = _unitOfWork.GestionDocenteOcurrenciaIaConfiguracionRepository.Add(iaConfig);
+                        await _unitOfWork.CommitAsync();
+
+                        if (ocurrenciaCompleta.IaConfiguracion.EjemplosEntrenamiento?.Any() == true)
+                        {
+                            foreach (var ejemplo in ocurrenciaCompleta.IaConfiguracion.EjemplosEntrenamiento)
+                            {
+                                var nuevoEjemplo = new GestionDocenteIaEntrenamientoEjemplo
+                                {
+                                    IdGestionDocenteOcurrenciaIaConfiguracion = iaConfigModel.Id,
+                                    IdGestionDocenteIaEntrenamientoClasificacionTipo = ejemplo.IdGestionDocenteIaEntrenamientoClasificacionTipo,
+                                    TextoEjemplo = ejemplo.TextoEjemplo,
+                                    EsPositivo = ejemplo.EsPositivo,
+                                    Estado = true,
+                                    UsuarioCreacion = usuario,
+                                    UsuarioModificacion = usuario,
+                                    FechaCreacion = fechaActual,
+                                    FechaModificacion = fechaActual
+                                };
+                                _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository.Add(nuevoEjemplo);
+                            }
+                            await _unitOfWork.CommitAsync();
+                        }
+                    }
+                }
+            }
+
+            return nuevaCabeceraModel.Id;
         }
     }
 }

@@ -2894,6 +2894,39 @@ namespace BSI.Integra.Servicios.Controllers
         }
 
         /// TipoFuncion: POST
+        /// Autor: Alexis Arroyo
+        /// Fecha: 03/02/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene información del programa en formato estructurado InformacionProgramaSpeechV2DTO
+        /// Combina la lógica de V2 con el formato de retorno de ByIdPGeneral
+        /// </summary>
+        /// <param name="filtros">Filtros de busqueda (idPGeneral, codigoPais)</param>
+        /// <returns> InformacionProgramaSpeechV2DTO </returns>
+        [Route("[Action]")]
+        [HttpPost]
+        public ActionResult ObtenerInformacionProgramaV3([FromBody] Dictionary<string, string> filtros)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var informacionProgramaService = new InformacionProgramaService(_unitOfWork);
+                var idPGeneral = Convert.ToInt32(filtros["idPGeneral"]);
+                var idCodigoPais = Convert.ToInt32(filtros["codigoPais"]);
+                var respuesta = informacionProgramaService.CargarInformacionProgramaV3(idPGeneral, idCodigoPais);
+
+                return Ok(new { respuesta });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        /// TipoFuncion: POST
         /// Autor: Juan D. Huanaco Quispe.
         /// Fecha: 15/04/2024
         /// Versión: 1.0
@@ -5291,6 +5324,47 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [Route("[Action]/{idMatriculaCabecera}")]
+        [HttpGet]
+        public ActionResult ObtenerDatosAvanceAonlineATC(int idMatriculaCabecera)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var datosAvanceAonline = new AlumnoService(_unitOfWork);
+                var datosCobranza = datosAvanceAonline.obtenerDatosAvanceAonlineATC(idMatriculaCabecera);
+                return Ok(datosCobranza);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("[Action]/{idMatriculaCabecera}")]
+        [HttpGet]
+        public ActionResult ObtenerAvanceAonlineHoras(int idMatriculaCabecera) { 
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                IAlumnoService datosAvanceAonlinePorHoras = new AlumnoService(_unitOfWork);
+                var response = datosAvanceAonlinePorHoras.ObtenerAvanceAonlineHoras(idMatriculaCabecera);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         /// TipoFuncion: GET
         /// Autor: Joseph LLanque.
         /// Fecha: 05/04/2023

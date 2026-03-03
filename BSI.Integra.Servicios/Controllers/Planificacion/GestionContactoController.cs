@@ -283,5 +283,40 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             }
         }
 
+        /// Autor: Joseph Llanque
+        /// Fecha: 28/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las actividades de un flujo docente congelado organizadas jerarquicamente.
+        /// Para categoria General (1): retorna estructura { Actividades: [{ Detalles: [{ Disparadores: [...] }] }] }
+        /// Para categoria Ejecucion Curso (2): retorna estructura { Sesiones: [{ Actividades: [{ Detalles: [{ Disparadores: [...] }] }] }] }
+        /// </summary>
+        /// <param name="idGestionContactoDocenteFlujo">ID del vinculo entre gestion contacto y flujo docente</param>
+        /// <returns>Estructura jerarquica de actividades segun categoria del flujo</returns>
+        [HttpGet("[action]/{idGestionContactoDocenteFlujo}")]
+        public async Task<IActionResult> ObtenerActividadesFlujoPorCategoria(int idGestionContactoDocenteFlujo)
+        {
+            try
+            {
+                var resultado = await _gestionContactoService.ObtenerActividadesFlujoPorCategoriaAsync(idGestionContactoDocenteFlujo);
+                return Ok(new
+                {
+                    Exito = true,
+                    Mensaje = "Actividades obtenidas correctamente",
+                    Datos = resultado
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Exito = false,
+                    Mensaje = ex.Message,
+                    Detalle = ex.InnerException?.Message,
+                    Inner2 = ex.InnerException?.InnerException?.Message
+                });
+            }
+        }
+
     }
 }

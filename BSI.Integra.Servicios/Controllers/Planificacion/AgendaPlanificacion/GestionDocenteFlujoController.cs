@@ -225,5 +225,30 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
                 return BadRequest(new { Exito = false, Mensaje = ex.Message });
             }
         }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 26/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Endpoint que duplica un flujo docente completo: crea un nuevo flujo con un nuevo nombre
+        /// y realiza una copia profunda de todas sus actividades, detalles, disparadores, reglas,
+        /// sesiones, ocurrencias, configuración IA y ejemplos de entrenamiento.
+        /// </summary>
+        /// <param name="request">DTO con IdFlujoOriginal, NuevoNombre y Usuario.</param>
+        /// <returns>ActionResult con el Id del nuevo flujo creado.</returns>
+        [HttpPost("Duplicar")]
+        public async Task<IActionResult> Duplicar([FromBody] DuplicarFlujoRequestDTO request)
+        {
+            try
+            {
+                var id = await _gestionDocenteFlujoService.DuplicarFlujoAsync(request);
+                return Ok(new { Exito = true, Id = id });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
     }
 }

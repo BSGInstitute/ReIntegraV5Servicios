@@ -7,6 +7,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TPespecificoSesion()
         {
+            TGestionContactoActividadSesionCongelada = new HashSet<TGestionContactoActividadSesionCongeladum>();
             TRecuperacionSesions = new HashSet<TRecuperacionSesion>();
         }
 
@@ -175,6 +176,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public DateTime? FechaRegularizacionWhatsAppWebinar { get; set; }
 
+        public virtual ICollection<TGestionContactoActividadSesionCongeladum> TGestionContactoActividadSesionCongelada { get; set; }
         public virtual ICollection<TRecuperacionSesion> TRecuperacionSesions { get; set; }
     }
 }

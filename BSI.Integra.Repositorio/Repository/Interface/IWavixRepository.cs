@@ -19,5 +19,19 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         string ObtenerTokenActivo(int idPersonal);
         TokenVigenteDTO ObtenerTokenVigente(int idPersonalWavix);
 
+        /// <summary>
+        /// Obtiene la lista de tokens activos de un personal
+        /// </summary>
+        List<TokenActivoListDTO> ObtenerTokensActivos(int idPersonal);
+
+        /// <summary>
+        /// Obtiene un token específico por su UUID
+        /// </summary>
+        TokenActivoListDTO ObtenerTokenPorUuid(string tokenUuid);
+
+        /// <summary>
+        /// Invalida (elimina lógicamente) un token por su UUID
+        /// </summary>
+        bool InvalidarToken(string tokenUuid, string usuario);
     }
 }

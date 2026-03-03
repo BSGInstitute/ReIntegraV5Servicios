@@ -75,4 +75,11 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public GestionDocenteFlujoOutputDTO Flujo { get; set; }
         public List<ActividadCabeceraCompletaDTO> Actividades { get; set; }
     }
+
+    public class DuplicarFlujoRequestDTO
+    {
+        public int IdFlujoOriginal { get; set; }
+        public string NuevoNombre { get; set; }
+        public string Usuario { get; set; }
+    }
 }

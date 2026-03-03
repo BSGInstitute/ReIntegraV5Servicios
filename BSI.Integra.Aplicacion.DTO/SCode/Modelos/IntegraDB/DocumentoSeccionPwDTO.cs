@@ -240,4 +240,14 @@
         public string Cabecera { get; set; }
         public string Solucion { get; set; }
     }
+    public class CertificacionPrograma
+    {
+        public int IdPGeneral { get; set; }
+        public string Titulo { get; set; }
+        public string Cabecera { get; set; }
+        public string Contenido { get; set; }
+        public int IdSeccionTipoDetalle_PW { get; set; }
+        public int NumeroFila { get; set; }
+
+    }
 }

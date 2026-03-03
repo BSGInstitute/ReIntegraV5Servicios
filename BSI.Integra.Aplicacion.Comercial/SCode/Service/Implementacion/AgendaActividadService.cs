@@ -2156,6 +2156,27 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
         }
 
+        /// Autor: Junior Llerena
+        /// Fecha: 25/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las métricas comparativas de actividades ATC del personal
+        /// </summary>
+        /// <param name="idPersonal">ID del personal a consultar</param>
+        /// <param name="fecha">Fecha opcional a consultar</param>
+        /// <returns>DTO con métricas comparativas de actividades ATC</returns>
+        public MetricasActividadesATCDTO ObtenerMetricasActividadesATC(int idPersonal, DateTime? fecha = null)
+        {
+            try
+            {
+                return _unitOfWork.OportunidadRepository.ObtenerMetricasActividadesATC(idPersonal, fecha);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#HAS-OMAATC-001@Error en ObtenerMetricasActividadesATC: {ex.Message}", ex);
+            }
+        }
+
 
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 12/03/2024
@@ -2368,6 +2389,34 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             catch (Exception ex)
             {
                 throw new Exception($"#AAS-ACC-001@Error en ActualizarCentroCosto: {ex.Message}", ex);
+            }
+        }
+
+        /// TipoFuncion: SERVICE
+        /// Autor: Junior Llerena
+        /// Fecha: 23/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Valida si una oportunidad corresponde a una empresa basándose en el código de matrícula
+        /// </summary>
+        /// <param name="codigoMatricula">Código de matrícula de la oportunidad</param>
+        /// <returns>true si EmpresaPaga es "Si", false en caso contrario</returns>
+        public bool ValidarEsOportunidadEmpresa(string codigoMatricula)
+        {
+            try
+            {
+                var resultado = _unitOfWork.OportunidadRepository.ObtenerEmpresaPagaPorCodigoMatricula(codigoMatricula);
+
+                if (resultado != null && !string.IsNullOrEmpty(resultado.EmpresaPaga))
+                {
+                    return resultado.EmpresaPaga.Trim().Equals("Si", StringComparison.OrdinalIgnoreCase);
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 

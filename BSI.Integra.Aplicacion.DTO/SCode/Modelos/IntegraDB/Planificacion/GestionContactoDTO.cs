@@ -90,6 +90,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string DocenteNombre { get; set; }
         public string TipoOportunidad { get; set; }
         public string Curso { get; set; }
+        public int? PaisId { get; set; }
+
         public string FlujoAsignado { get; set; }
     }
 
@@ -99,5 +101,64 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int Total { get; set; }
         public int Pagina { get; set; }
         public int PorPagina { get; set; }
+    }
+
+    // ===== DTOs para Actividades de Flujo por Categoría =====
+
+    public class ActividadesFlujoPorCategoriaResponseDTO
+    {
+        public int IdCategoria { get; set; }
+        public string NombreCategoria { get; set; }
+        public IEnumerable<SesionConActividadesDTO> Sesiones { get; set; }
+        public IEnumerable<ActividadCabeceraDTO> Actividades { get; set; }
+    }
+
+    public class SesionConActividadesDTO
+    {
+        public int IdSesion { get; set; }
+        public int NumeroSesion { get; set; }
+        public DateTime? FechaInicioSesion { get; set; }
+        public int? IdPEspecifico { get; set; }
+        public string NombrePEspecifico { get; set; }
+        public int? IdProveedor { get; set; }
+        public string RazonSocialDocente { get; set; }
+        public IEnumerable<ActividadCabeceraDTO> Actividades { get; set; }
+    }
+
+    public class ActividadCabeceraDTO
+    {
+        public int IdGestionDocenteActividadCabeceraCongelada { get; set; }
+        public string NombreCabecera { get; set; }
+        public string DescripcionCabecera { get; set; }
+        public IEnumerable<ActividadDetalleDTO> Detalles { get; set; }
+    }
+
+    public class ActividadDetalleDTO
+    {
+        public int IdGestionDocenteActividadDetalleCongelada { get; set; }
+        public string NombreDetalle { get; set; }
+        public string NombrePlantilla { get; set; }
+        public string MedioComunicacion { get; set; }
+        public string EstadoEjecucionDetalle { get; set; }
+        public IEnumerable<DisparadorDTO> Disparadores { get; set; }
+    }
+
+    public class DisparadorDTO
+    {
+        public int IdDisparadorCongelado { get; set; }
+        public string TipoDisparador { get; set; }
+        public DateTime? FechaProgramada { get; set; }
+        public DateTime? FechaFija { get; set; }
+        public int? CantidadTiempoRelativo { get; set; }
+        public string UnidadTiempo { get; set; }
+        public string CodigoReferenciaTiempo { get; set; }
+        public string NombreReferenciaTiempo { get; set; }
+        public string NombreEvento { get; set; }
+        public string OcurrenciaPrevia { get; set; }
+        public string EstadoEjecucionDisparador { get; set; }
+        public bool TieneFechaFija { get; set; }
+        public bool TieneTiempoRelativo { get; set; }
+        public bool TieneEvento { get; set; }
+        public bool TieneOcurrenciaPrevia { get; set; }
     }
 }
