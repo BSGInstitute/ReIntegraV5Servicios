@@ -134,6 +134,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public OportunidadConversionesDTO ObtenerInformacionOportunidadConversion(int idOportunidad);
         public OportunidadDetalleProbabilidadDTO ObtenerInformacionOportunidadProbabilidad(int idOportunidad);
         MetricasComparativasDiariasDTO ObtenerMetricasComparativasDiarias(int idAsesor, DateTime? fecha = null);
+        MetricasActividadesATCDTO ObtenerMetricasActividadesATC(int idPersonal, DateTime? fecha = null);
         AlumnoCodigosDescuentosDTO ObtenerCodigoDescuentoAlumno(int idAlumno);
         bool ActualizarCentroCosto(int idCentroCosto, int idActividad);
         OportunidadFaseDTO ObtenerFaseUltimaOportunidadPorIdAlumno(int idAlumno);
@@ -146,5 +147,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         List<AlumnoSimilarRn2DTO> BuscarAlumnosSimilaresPorCelularOCorreo(string? telefono, string? correo);
         // RN2: verifica si alguno de los alumnos similares tiene oportunidades activas en fases RN2
         bool ExistenOportunidadesParaAlumnos(List<int> idAlumnos, int idPersonalAsignado);
+        OportunidadEmpresaPagaDTO ObtenerEmpresaPagaPorCodigoMatricula(string codigoMatricula);
     }
 }

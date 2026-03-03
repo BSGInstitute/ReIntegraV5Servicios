@@ -8246,5 +8246,23 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _remarketingEmbudoHistoricoRepository ?? new RemarketingEmbudoHistoricoRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+
+        private CriterioTareaRepository _criterioTareaRepository;
+        ICriterioTareaRepository IUnitOfWork.CriterioTareaRepository
+        {
+            get
+            {
+                return _criterioTareaRepository ?? new CriterioTareaRepository(_dapperRepository);
+            }
+        }
+
+        private SubCriterioTareaRepository _subCriterioTareaRepository;
+        ISubCriterioTareaRepository IUnitOfWork.SubCriterioTareaRepository
+        {
+            get
+            {
+                return _subCriterioTareaRepository ?? new SubCriterioTareaRepository(_dapperRepository);
+            }
+        }
     }
 }

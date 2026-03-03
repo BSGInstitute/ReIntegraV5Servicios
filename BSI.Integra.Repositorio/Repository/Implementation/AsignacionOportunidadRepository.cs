@@ -182,7 +182,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                        RowVersion,
                                        IdMigracion,
                                        IdClasificacionPersona
-                                FROM mkt.T_AsignacionOportunidad
+                                FROM mkt.V_TAsignacionOportunidad_Obtener
                                 WHERE Estado = 1 AND IdOportunidad = @idOportunidad";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { idOportunidad });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")

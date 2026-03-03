@@ -13,6 +13,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public int IdPlantillaPw { get; set; }
         public int EstadoFlujo { get; set; }
         public bool Asignado { get; set; }
+        public string? UrlArchivoInstruccionTarea { get; set; }
+        public string? UrlArchivoCalificacionExcelente { get; set; }
     }
     public class DocumentoAsociadoProgramaDTO
     {
@@ -98,14 +100,14 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
 
     public class FechaInicioPaisDTO
     {
-        public int Id { get; set; }
+        public int Id { get; set; }              // IdDocumentoPWFechaInicio
         public int? IdPais { get; set; }
         public List<FechaInicioDetalleDTO> Detalles { get; set; } = new();
     }
 
     public class FechaInicioDetalleDTO
     {
-        public int Id { get; set; }
+        public int Id { get; set; }              // IdDetalle
         public int? IdModo { get; set; }
         public DateTime? Fecha { get; set; }
         public string? Horario { get; set; }
@@ -272,11 +274,11 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
 
     public class DocumentoPWFechaInicioRowDTO
     {
-        public bool MostrarEnLaWeb { get; set; }
+        public bool? MostrarEnLaWeb { get; set; }
         public string? Titulo { get; set; }
         public string? SubTitulo { get; set; }
 
-        public int IdDocumentoPWFechaInicio { get; set; }
+        public int? IdDocumentoPWFechaInicio { get; set; }
         public int? IdPais { get; set; }
 
         public int? IdDetalle { get; set; }
