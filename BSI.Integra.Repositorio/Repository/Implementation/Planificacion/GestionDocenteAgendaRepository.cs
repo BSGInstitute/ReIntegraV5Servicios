@@ -125,6 +125,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 DocenteAgendaFlujoDTO flujo = null;
                 string query = @"
                         SELECT
+                            GCDF.Id AS IdGestionContactoDocenteFlujo,
                             GDF.Id AS IdFlujo,
                             GDF.Nombre AS NombreFlujo,
                             GDF.Descripcion AS DescripcionFlujo

@@ -77,7 +77,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 {
                     Cabecera = cabecera,
                     Flujo = flujo,
-                    Cronogramas = cronogramas
+                    Cronogramas = cronogramas,
+                    IdGestionContactoDocenteFlujo = flujo?.IdGestionContactoDocenteFlujo
                 };
             }
             catch (Exception ex)

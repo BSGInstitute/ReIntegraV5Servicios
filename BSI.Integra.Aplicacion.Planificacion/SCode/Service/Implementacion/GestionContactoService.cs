@@ -348,7 +348,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
-        /// Autor: Claude Code
+        /// Autor: Joseph Llanque
         /// Fecha: 28/02/2026
         /// Version: 1.0
         /// <summary>

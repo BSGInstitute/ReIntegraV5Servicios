@@ -26,6 +26,11 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public DocenteAgendaCabeceraDTO Cabecera { get; set; }
         public DocenteAgendaFlujoDTO Flujo { get; set; }
         public List<DocenteAgendaCronogramaDTO> Cronogramas { get; set; }
+        /// <summary>
+        /// ID del registro en pla.T_GestionContactoDocenteFlujo correspondiente al idGestionContacto
+        /// recibido en la request. Es el ID requerido por ObtenerActividadesFlujoPorCategoria.
+        /// </summary>
+        public int? IdGestionContactoDocenteFlujo { get; set; }
     }
     public class DocenteAgendaCronogramaDTO
     {
@@ -56,6 +61,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
     public class DocenteAgendaFlujoDTO
     {
+        /// <summary>ID del registro en pla.T_GestionContactoDocenteFlujo (PK de la tabla de vínculo).</summary>
+        public int IdGestionContactoDocenteFlujo { get; set; }
         public int IdFlujo { get; set; }
         public string NombreFlujo { get; set; }
         public string DescripcionFlujo { get; set; }
