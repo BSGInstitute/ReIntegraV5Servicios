@@ -8,6 +8,6 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
     /// </summary>
     public interface IValidacionRn2Service
     {
-        bool ValidarLeadRn2Async(int idOportunidad);
+        bool ValidarLeadRn2Async(int idOportunidad, int idPersonalAsignado);
     }
 }

@@ -11,7 +11,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
     /// Pruebas unitarias para ValidacionRn2Service.ValidarLeadRn2Async
     ///
     /// Flujo general validado:
-    ///   PASO 0: Guard idOportunidad <= 0
+    ///   PASO 0: Guard idOportunidad <= 0 | Guard idPersonalAsignado <= 0
     ///   PASO 1: SP ObtenerIdAlumnoPorValidacionRN2 — si null o IdAlumno null → true
     ///   PASO 2: Normalización de teléfono y correo
     ///   PASO 3: Búsqueda LIKE de alumnos similares + existencia de oportunidades → false si bloquea
@@ -27,6 +27,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
         // Datos fijos reutilizables
         private const int IdOportunidadValida = 1001;
         private const int IdAlumnoActual = 5000;
+        private const int IdPersonalAsignadoValido = 42;
 
         [TestInitialize]
         public void Setup()
@@ -52,7 +53,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
         {
             // Act & Assert
             Assert.ThrowsException<ArgumentOutOfRangeException>(
-                () => _service.ValidarLeadRn2Async(0));
+                () => _service.ValidarLeadRn2Async(0, IdPersonalAsignadoValido));
 
             _oportunidadRepoMock.Verify(r => r.ObtenerIdAlumnoPorValidacionRN2(It.IsAny<int>()), Times.Never);
         }
@@ -63,7 +64,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
         {
             // Act & Assert
             Assert.ThrowsException<ArgumentOutOfRangeException>(
-                () => _service.ValidarLeadRn2Async(-99));
+                () => _service.ValidarLeadRn2Async(-99, IdPersonalAsignadoValido));
 
             _oportunidadRepoMock.Verify(r => r.ObtenerIdAlumnoPorValidacionRN2(It.IsAny<int>()), Times.Never);
         }
@@ -74,7 +75,33 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
         {
             // Act & Assert
             Assert.ThrowsException<ArgumentOutOfRangeException>(
-                () => _service.ValidarLeadRn2Async(int.MinValue));
+                () => _service.ValidarLeadRn2Async(int.MinValue, IdPersonalAsignadoValido));
+        }
+
+        // ─────────────────────────────────────────────────────────────────
+        // CATEGORÍA 1b: Guard de entrada — idPersonalAsignado inválido
+        // ─────────────────────────────────────────────────────────────────
+
+        [TestMethod]
+        [Description("idPersonalAsignado = 0 debe lanzar ArgumentOutOfRangeException sin consultar la BD")]
+        public void ValidarLeadRn2Async_IdPersonalAsignadoCero_LanzaArgumentOutOfRangeSinConsultarRepo()
+        {
+            // Act & Assert
+            Assert.ThrowsException<ArgumentOutOfRangeException>(
+                () => _service.ValidarLeadRn2Async(IdOportunidadValida, 0));
+
+            _oportunidadRepoMock.Verify(r => r.ObtenerIdAlumnoPorValidacionRN2(It.IsAny<int>()), Times.Never);
+        }
+
+        [TestMethod]
+        [Description("idPersonalAsignado negativo debe lanzar ArgumentOutOfRangeException sin consultar la BD")]
+        public void ValidarLeadRn2Async_IdPersonalAsignadoNegativo_LanzaArgumentOutOfRangeSinConsultarRepo()
+        {
+            // Act & Assert
+            Assert.ThrowsException<ArgumentOutOfRangeException>(
+                () => _service.ValidarLeadRn2Async(IdOportunidadValida, -1));
+
+            _oportunidadRepoMock.Verify(r => r.ObtenerIdAlumnoPorValidacionRN2(It.IsAny<int>()), Times.Never);
         }
 
         // ─────────────────────────────────────────────────────────────────
@@ -91,7 +118,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Returns((ValidacionRn2SpResultDTO?)null);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -108,7 +135,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Returns(new ValidacionRn2SpResultDTO { IdAlumno = null, Correo = "a@b.com", Telefono = "987654321" });
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -124,10 +151,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
         {
             // Arrange
             ConfigurarSpAlumno(telefono: null, correo: null, idPais: null);
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -140,10 +167,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
         {
             // Arrange
             ConfigurarSpAlumno(telefono: "", correo: "   ", idPais: null);
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -156,10 +183,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
         {
             // Arrange
             ConfigurarSpAlumno(telefono: "000000000", correo: null, idPais: null);
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -172,10 +199,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
         {
             // Arrange
             ConfigurarSpAlumno(telefono: "88888888", correo: null, idPais: null);
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -188,10 +215,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
         {
             // Arrange
             ConfigurarSpAlumno(telefono: "12345", correo: null, idPais: null);
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -204,10 +231,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
         {
             // Arrange
             ConfigurarSpAlumno(telefono: "abcdef", correo: null, idPais: null);
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -224,10 +251,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
         {
             // Arrange
             ConfigurarSpAlumno(telefono: null, correo: "sindominio.com", idPais: null);
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -240,10 +267,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
         {
             // Arrange
             ConfigurarSpAlumno(telefono: null, correo: "a@b", idPais: null);
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -256,10 +283,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
         {
             // Arrange
             ConfigurarSpAlumno(telefono: null, correo: "@dominio.com", idPais: null);
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -272,10 +299,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
         {
             // Arrange
             ConfigurarSpAlumno(telefono: null, correo: "usuario@", idPais: null);
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -297,10 +324,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Setup(r => r.BuscarAlumnosSimilaresPorCelularOCorreo("987654321", null))
                 .Returns(new List<AlumnoSimilarRn2DTO>());
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -318,10 +345,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Setup(r => r.BuscarAlumnosSimilaresPorCelularOCorreo("987654321", null))
                 .Returns(new List<AlumnoSimilarRn2DTO>());
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -339,10 +366,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Setup(r => r.BuscarAlumnosSimilaresPorCelularOCorreo("987654321", null))
                 .Returns(new List<AlumnoSimilarRn2DTO>());
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -360,10 +387,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Setup(r => r.BuscarAlumnosSimilaresPorCelularOCorreo("987654321", null))
                 .Returns(new List<AlumnoSimilarRn2DTO>());
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -385,14 +412,14 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Setup(r => r.BuscarAlumnosSimilaresPorCelularOCorreo(It.IsAny<string?>(), It.IsAny<string?>()))
                 .Returns(new List<AlumnoSimilarRn2DTO>());
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
-            _oportunidadRepoMock.Verify(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()), Times.Never);
+            _oportunidadRepoMock.Verify(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), It.IsAny<int>()), Times.Never);
         }
 
         [TestMethod]
@@ -406,14 +433,14 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Setup(r => r.BuscarAlumnosSimilaresPorCelularOCorreo(It.IsAny<string?>(), It.IsAny<string?>()))
                 .Returns((List<AlumnoSimilarRn2DTO>?)null!);
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
-            _oportunidadRepoMock.Verify(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()), Times.Never);
+            _oportunidadRepoMock.Verify(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), It.IsAny<int>()), Times.Never);
         }
 
         // ─────────────────────────────────────────────────────────────────
@@ -431,14 +458,14 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Setup(r => r.BuscarAlumnosSimilaresPorCelularOCorreo(It.IsAny<string?>(), It.IsAny<string?>()))
                 .Returns(new List<AlumnoSimilarRn2DTO> { new AlumnoSimilarRn2DTO { Id = IdAlumnoActual } });
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
-            _oportunidadRepoMock.Verify(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()), Times.Never);
+            _oportunidadRepoMock.Verify(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), It.IsAny<int>()), Times.Never);
         }
 
         [TestMethod]
@@ -458,18 +485,18 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 });
 
             _oportunidadRepoMock
-                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()))
+                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), IdPersonalAsignadoValido))
                 .Returns(false);
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
             _oportunidadRepoMock.Verify(r => r.ExistenOportunidadesParaAlumnos(
-                It.Is<List<int>>(ids => ids.Count == 1 && ids[0] == otroAlumno)), Times.Once);
+                It.Is<List<int>>(ids => ids.Count == 1 && ids[0] == otroAlumno), IdPersonalAsignadoValido), Times.Once);
         }
 
         // ─────────────────────────────────────────────────────────────────
@@ -488,11 +515,11 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Returns(new List<AlumnoSimilarRn2DTO> { new AlumnoSimilarRn2DTO { Id = 9001 } });
 
             _oportunidadRepoMock
-                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()))
+                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), IdPersonalAsignadoValido))
                 .Returns(true);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsFalse(resultado);
@@ -510,11 +537,11 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Returns(new List<AlumnoSimilarRn2DTO> { new AlumnoSimilarRn2DTO { Id = 8888 } });
 
             _oportunidadRepoMock
-                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()))
+                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), IdPersonalAsignadoValido))
                 .Returns(true);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsFalse(resultado);
@@ -532,15 +559,15 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Returns(new List<AlumnoSimilarRn2DTO> { new AlumnoSimilarRn2DTO { Id = 7777 } });
 
             _oportunidadRepoMock
-                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()))
+                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), IdPersonalAsignadoValido))
                 .Returns(true);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsFalse(resultado);
-            _oportunidadRepoMock.Verify(r => r.ContarOportunidadesPorIdAlumno(It.IsAny<int>()), Times.Never);
+            _oportunidadRepoMock.Verify(r => r.ContarOportunidadesPorIdAlumno(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
         }
 
         // ─────────────────────────────────────────────────────────────────
@@ -559,13 +586,13 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Returns(new List<AlumnoSimilarRn2DTO> { new AlumnoSimilarRn2DTO { Id = 9002 } });
 
             _oportunidadRepoMock
-                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()))
+                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), IdPersonalAsignadoValido))
                 .Returns(false);
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -586,10 +613,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Setup(r => r.BuscarAlumnosSimilaresPorCelularOCorreo(It.IsAny<string?>(), It.IsAny<string?>()))
                 .Returns(new List<AlumnoSimilarRn2DTO>());
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -606,10 +633,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Setup(r => r.BuscarAlumnosSimilaresPorCelularOCorreo(It.IsAny<string?>(), It.IsAny<string?>()))
                 .Returns(new List<AlumnoSimilarRn2DTO>());
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(0);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(0);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -626,10 +653,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Setup(r => r.BuscarAlumnosSimilaresPorCelularOCorreo(It.IsAny<string?>(), It.IsAny<string?>()))
                 .Returns(new List<AlumnoSimilarRn2DTO>());
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(2);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(2);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsFalse(resultado);
@@ -641,10 +668,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
         {
             // Arrange
             ConfigurarSpAlumno(telefono: null, correo: null, idPais: null);
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(10);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(10);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsFalse(resultado);
@@ -670,18 +697,18 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Returns(similares);
 
             _oportunidadRepoMock
-                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()))
+                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), IdPersonalAsignadoValido))
                 .Returns(false);
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
             _oportunidadRepoMock.Verify(r => r.ExistenOportunidadesParaAlumnos(
-                It.Is<List<int>>(ids => ids.Count == 200)), Times.Once);
+                It.Is<List<int>>(ids => ids.Count == 200), IdPersonalAsignadoValido), Times.Once);
         }
 
         [TestMethod]
@@ -700,18 +727,18 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Returns(similares);
 
             _oportunidadRepoMock
-                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()))
+                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), IdPersonalAsignadoValido))
                 .Returns(false);
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
             _oportunidadRepoMock.Verify(r => r.ExistenOportunidadesParaAlumnos(
-                It.Is<List<int>>(ids => ids.Count == 200)), Times.Once);
+                It.Is<List<int>>(ids => ids.Count == 200), IdPersonalAsignadoValido), Times.Once);
         }
 
         // ─────────────────────────────────────────────────────────────────
@@ -737,18 +764,18 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 });
 
             _oportunidadRepoMock
-                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()))
+                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), IdPersonalAsignadoValido))
                 .Returns(false);
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
             _oportunidadRepoMock.Verify(r => r.ExistenOportunidadesParaAlumnos(
-                It.Is<List<int>>(ids => ids.Count == 3 && ids.Distinct().Count() == 3)), Times.Once);
+                It.Is<List<int>>(ids => ids.Count == 3 && ids.Distinct().Count() == 3), IdPersonalAsignadoValido), Times.Once);
         }
 
         // ─────────────────────────────────────────────────────────────────
@@ -766,10 +793,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Setup(r => r.BuscarAlumnosSimilaresPorCelularOCorreo(null, "test@mail.com"))
                 .Returns(new List<AlumnoSimilarRn2DTO>());
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -791,10 +818,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Setup(r => r.BuscarAlumnosSimilaresPorCelularOCorreo("987654321", "alumno@gmail.com"))
                 .Returns(new List<AlumnoSimilarRn2DTO>());
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
@@ -812,11 +839,11 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Returns(new List<AlumnoSimilarRn2DTO> { new AlumnoSimilarRn2DTO { Id = 1111 } });
 
             _oportunidadRepoMock
-                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()))
+                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), IdPersonalAsignadoValido))
                 .Returns(true);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsFalse(resultado);
@@ -833,10 +860,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Setup(r => r.BuscarAlumnosSimilaresPorCelularOCorreo(null, "solo@correo.com"))
                 .Returns(new List<AlumnoSimilarRn2DTO>());
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(2);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(2);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsFalse(resultado);
@@ -857,7 +884,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Throws(new InvalidOperationException("Error de BD en SP1"));
 
             // Act
-            _service.ValidarLeadRn2Async(IdOportunidadValida);
+            _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert: manejado por [ExpectedException]
         }
@@ -875,7 +902,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Throws(new InvalidOperationException("Error de BD en BuscarSimilares"));
 
             // Act
-            _service.ValidarLeadRn2Async(IdOportunidadValida);
+            _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert: manejado por [ExpectedException]
         }
@@ -893,11 +920,11 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Returns(new List<AlumnoSimilarRn2DTO> { new AlumnoSimilarRn2DTO { Id = 9001 } });
 
             _oportunidadRepoMock
-                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()))
+                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), IdPersonalAsignadoValido))
                 .Throws(new InvalidOperationException("Error de BD en ExistenOportunidades"));
 
             // Act
-            _service.ValidarLeadRn2Async(IdOportunidadValida);
+            _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert: manejado por [ExpectedException]
         }
@@ -911,11 +938,11 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
             ConfigurarSpAlumno(telefono: null, correo: null, idPais: null);
 
             _oportunidadRepoMock
-                .Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual))
+                .Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido))
                 .Throws(new InvalidOperationException("Error de BD en ContarOportunidades"));
 
             // Act
-            _service.ValidarLeadRn2Async(IdOportunidadValida);
+            _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert: manejado por [ExpectedException]
         }
@@ -936,15 +963,15 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Returns(new List<AlumnoSimilarRn2DTO> { new AlumnoSimilarRn2DTO { Id = 9999 } });
 
             _oportunidadRepoMock
-                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()))
+                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), IdPersonalAsignadoValido))
                 .Returns(true);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsFalse(resultado);
-            _oportunidadRepoMock.Verify(r => r.ContarOportunidadesPorIdAlumno(It.IsAny<int>()), Times.Never);
+            _oportunidadRepoMock.Verify(r => r.ContarOportunidadesPorIdAlumno(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
         }
 
         [TestMethod]
@@ -953,7 +980,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
         {
             // Act & Assert — la excepción se lanza antes de acceder al repo
             Assert.ThrowsException<ArgumentOutOfRangeException>(
-                () => _service.ValidarLeadRn2Async(-1));
+                () => _service.ValidarLeadRn2Async(-1, IdPersonalAsignadoValido));
 
             _oportunidadRepoMock.VerifyNoOtherCalls();
         }
@@ -981,14 +1008,14 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                     new AlumnoSimilarRn2DTO { Id = IdAlumnoActual }
                 });
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
-            _oportunidadRepoMock.Verify(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()), Times.Never);
+            _oportunidadRepoMock.Verify(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), It.IsAny<int>()), Times.Never);
         }
 
         [TestMethod]
@@ -1011,18 +1038,18 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 });
 
             _oportunidadRepoMock
-                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()))
+                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), IdPersonalAsignadoValido))
                 .Returns(false);
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert: ExistenOportunidades recibe exactamente [9999], sin el actual y sin duplicados
             Assert.IsTrue(resultado);
             _oportunidadRepoMock.Verify(r => r.ExistenOportunidadesParaAlumnos(
-                It.Is<List<int>>(ids => ids.Count == 1 && ids[0] == otroAlumno)), Times.Once);
+                It.Is<List<int>>(ids => ids.Count == 1 && ids[0] == otroAlumno), IdPersonalAsignadoValido), Times.Once);
         }
 
         [TestMethod]
@@ -1048,13 +1075,13 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 });
 
             _oportunidadRepoMock
-                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()))
+                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), IdPersonalAsignadoValido))
                 .Returns(false);
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert: ExistenOportunidades recibe exactamente 3 IDs distintos, sin IdAlumnoActual
             Assert.IsTrue(resultado);
@@ -1064,7 +1091,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                     !ids.Contains(IdAlumnoActual) &&
                     ids.Contains(9999) &&
                     ids.Contains(8888) &&
-                    ids.Contains(7777))), Times.Once);
+                    ids.Contains(7777)), IdPersonalAsignadoValido), Times.Once);
         }
 
         [TestMethod]
@@ -1085,16 +1112,16 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 });
 
             _oportunidadRepoMock
-                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()))
+                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), IdPersonalAsignadoValido))
                 .Returns(true);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsFalse(resultado);
             // El bloqueo ocurre en PASO 3 → ContarOportunidades nunca se llama
-            _oportunidadRepoMock.Verify(r => r.ContarOportunidadesPorIdAlumno(It.IsAny<int>()), Times.Never);
+            _oportunidadRepoMock.Verify(r => r.ContarOportunidadesPorIdAlumno(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
         }
 
         [TestMethod]
@@ -1115,17 +1142,17 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 });
 
             _oportunidadRepoMock
-                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()))
+                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), IdPersonalAsignadoValido))
                 .Returns(false);
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado);
-            _oportunidadRepoMock.Verify(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual), Times.Once);
+            _oportunidadRepoMock.Verify(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido), Times.Once);
         }
 
         [TestMethod]
@@ -1146,18 +1173,18 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 });
 
             _oportunidadRepoMock
-                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()))
+                .Setup(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), IdPersonalAsignadoValido))
                 .Returns(false);
 
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(2);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(2);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert: no bloqueó en PASO 3 pero sí en PASO 4
             Assert.IsFalse(resultado);
-            _oportunidadRepoMock.Verify(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>()), Times.Once);
-            _oportunidadRepoMock.Verify(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual), Times.Once);
+            _oportunidadRepoMock.Verify(r => r.ExistenOportunidadesParaAlumnos(It.IsAny<List<int>>(), It.IsAny<int>()), Times.Once);
+            _oportunidadRepoMock.Verify(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido), Times.Once);
         }
 
         // ─────────────────────────────────────────────────────────────────

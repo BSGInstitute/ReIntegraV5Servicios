@@ -12,7 +12,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial
         public string Celular2 { get; set; }
         public string Email1 { get; set; }
         public string Email2 { get; set; }
-        public int IdPais { get; set; }
+        public int? IdPais { get; set; }
     }
 
     // DTO interno para deserializar el resultado del SP tdb.SP_ValidacionBloqueoAutomaticoRN2

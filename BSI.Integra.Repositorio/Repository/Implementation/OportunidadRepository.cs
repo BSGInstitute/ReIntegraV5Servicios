@@ -4778,7 +4778,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var resultado = _dapperRepository.QuerySPFirstOrDefault(
-                    "tdb.SP_ValidacionBloqueoAutomaticoRN2",
+                    "mkt.SP_ValidacionBloqueoAutomaticoRN2",
                     new { IdOportunidad = idOportunidad }
                 );
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
@@ -4793,13 +4793,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public int ContarOportunidadesPorIdAlumno(int idAlumno)
+        public int ContarOportunidadesPorIdAlumno(int idAlumno, int idPersonalAsignado)
         {
             try
             {
                 var resultado = _dapperRepository.QuerySPDapper(
-                    "tdb.SP_OportunidadesPorIdAlumno",
-                    new { IdAlumno = idAlumno }
+                    "mkt.SP_OportunidadesPorIdAlumno",
+                    new { IdAlumno = idAlumno, IdPersonal_Asignado = idPersonalAsignado }
                 );
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
@@ -4819,7 +4819,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var resultado = _dapperRepository.QuerySPDapper(
-                    "tdb.SP_BuscarAlumnosSimilaresPorCelularOCorreo",
+                    "mkt.SP_BuscarAlumnosSimilaresPorCelularOCorreo",
                     new { Telefono = telefono, Correo = correo }
                 );
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
@@ -4833,7 +4833,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public bool ExistenOportunidadesParaAlumnos(List<int> idAlumnos)
+        public bool ExistenOportunidadesParaAlumnos(List<int> idAlumnos, int idPersonalAsignado)
         {
             try
             {
@@ -4842,8 +4842,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
                 var idsStr = string.Join(",", idAlumnos);
                 var resultado = _dapperRepository.QuerySPFirstOrDefault(
-                    "tdb.SP_ExistenOportunidadesPorIdAlumnos",
-                    new { IdAlumnos = idsStr }
+                    "mkt.SP_ExistenOportunidadesPorIdAlumnos",
+                    new { IdAlumno_Lista = idsStr, IdPersonal_Asignado = idPersonalAsignado }
                 );
                 return !string.IsNullOrEmpty(resultado) && resultado != "null";
             }

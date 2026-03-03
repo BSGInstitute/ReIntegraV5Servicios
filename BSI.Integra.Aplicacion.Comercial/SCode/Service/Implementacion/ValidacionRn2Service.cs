@@ -38,7 +38,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         /// Valida si una oportunidad está bloqueada por RN2.
         /// Retorna true = puede continuar | false = bloqueada.
         /// </summary>
-        public bool ValidarLeadRn2Async(int idOportunidad)
+        public bool ValidarLeadRn2Async(int idOportunidad, int idPersonalAsignado)
         {
             try
             {
@@ -46,6 +46,10 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 if (idOportunidad <= 0)
                     throw new ArgumentOutOfRangeException(nameof(idOportunidad),
                         "El idOportunidad debe ser mayor a cero.");
+
+                if (idPersonalAsignado <= 0)
+                    throw new ArgumentOutOfRangeException(nameof(idPersonalAsignado),
+                        "El idPersonalAsignado debe ser mayor a cero.");
                 // ── PASO 1: ¿La oportunidad aplica RN2? ─────────────────────────────
                 var datosAlumno = _unitOfWork.OportunidadRepository
                     .ObtenerIdAlumnoPorValidacionRN2(idOportunidad);
@@ -78,7 +82,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                     if (idsSimilares.Any())
                     {
                         var tieneOportunidades = _unitOfWork.OportunidadRepository
-                            .ExistenOportunidadesParaAlumnos(idsSimilares);
+                            .ExistenOportunidadesParaAlumnos(idsSimilares, idPersonalAsignado);
 
                         // CASO: duplicado de contacto con oportunidad activa → BLOQUEADO
                         if (tieneOportunidades)
@@ -88,7 +92,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
 
                 // ── PASO 4: ¿El propio alumno tiene más de una oportunidad? ──────────
                 var totalOportunidades = _unitOfWork.OportunidadRepository
-                    .ContarOportunidadesPorIdAlumno(datosAlumno.IdAlumno.Value);
+                    .ContarOportunidadesPorIdAlumno(datosAlumno.IdAlumno.Value, idPersonalAsignado);
 
                 // CASO: el alumno ya tiene múltiples oportunidades activas → BLOQUEADO
                 if (totalOportunidades > 1)

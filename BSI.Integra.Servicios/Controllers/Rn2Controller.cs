@@ -29,8 +29,8 @@ namespace BSI.Integra.Servicios.Controllers
         /// <summary>
         /// Valida si un lead está bloqueado por la RN2 (conflicto de correo/teléfono con oportunidad activa)
         /// </summary>
-        [HttpGet("[Action]/{idOportunidad}")]
-        public IActionResult ValidarAsync(int idOportunidad)
+        [HttpGet("[Action]/{idOportunidad}/{idPersonalAsignado}")]
+        public IActionResult ValidarAsync(int idOportunidad, int idPersonalAsignado)
         {
             if (!ModelState.IsValid)
             {
@@ -38,7 +38,7 @@ namespace BSI.Integra.Servicios.Controllers
             }
             try
             {
-                var response = _validacionRn2Service.ValidarLeadRn2Async(idOportunidad);
+                var response = _validacionRn2Service.ValidarLeadRn2Async(idOportunidad, idPersonalAsignado);
                 return Ok(response);
             }
             catch (Exception ex)
