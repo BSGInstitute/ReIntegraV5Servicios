@@ -2,7 +2,6 @@
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
-using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Helpers;
 using Microsoft.AspNetCore.Cors;
@@ -23,12 +22,11 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
     public class AsistenciaWebinarController : Controller
     {
         private ITokenManager _tokenManager;
-        private IUnitOfWork unitOfWork;
         private readonly IAsistenciaWebinarService _AsistenciaWebinarService;
-        public AsistenciaWebinarController(IUnitOfWork unitOfWork)
+        public AsistenciaWebinarController(IUnitOfWork unitOfWork, ITokenManager tokenManager)
         {
             _AsistenciaWebinarService = new AsistenciaWebinarService(unitOfWork);
-            this.unitOfWork = unitOfWork;
+            _tokenManager = tokenManager;
         }
         
         /// Tipo Función: POST

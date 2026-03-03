@@ -183,6 +183,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdPEspecifico { get; set; }
         public int IdSesion { get; set; }
         public int IdCoordinadoraAcademica { get; set; }
+        public string EmailCoordinadoraAcademica { get; set; }
         public string NombreCoordinadoraAcademica { get; set; }
         public int IdMatriculaCabecera { get; set; }
         public string CodigoMatricula { get; set; }

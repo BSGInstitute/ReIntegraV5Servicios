@@ -10,6 +10,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TPlantillaMedioComunicacion()
         {
+            TGestionDocenteActividadDetalleCongelada = new HashSet<TGestionDocenteActividadDetalleCongeladum>();
             TGestionDocenteActividadDetalles = new HashSet<TGestionDocenteActividadDetalle>();
         }
 
@@ -52,6 +53,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
         public virtual TMedioComunicacion IdMedioComunicacionNavigation { get; set; } = null!;
         public virtual TPlantilla IdPlantillaNavigation { get; set; } = null!;
+        public virtual ICollection<TGestionDocenteActividadDetalleCongeladum> TGestionDocenteActividadDetalleCongelada { get; set; }
         public virtual ICollection<TGestionDocenteActividadDetalle> TGestionDocenteActividadDetalles { get; set; }
     }
 }

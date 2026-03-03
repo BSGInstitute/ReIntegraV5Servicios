@@ -11,7 +11,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public TGestionDocenteActividadDetalle()
         {
             TGestionContactoActividadDetalleSesions = new HashSet<TGestionContactoActividadDetalleSesion>();
+            TGestionDocenteActividadDetalleCongelada = new HashSet<TGestionDocenteActividadDetalleCongeladum>();
             TGestionDocenteOcurrencia = new HashSet<TGestionDocenteOcurrencium>();
+            TGestionDocenteOcurrenciaCongelada = new HashSet<TGestionDocenteOcurrenciaCongeladum>();
         }
 
         /// <summary>
@@ -68,6 +70,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual TGestionDocenteDisparadorDetalle IdGestionDocenteDisparadorDetalleNavigation { get; set; } = null!;
         public virtual TPlantillaMedioComunicacion IdPlantillaMedioComunicacionNavigation { get; set; } = null!;
         public virtual ICollection<TGestionContactoActividadDetalleSesion> TGestionContactoActividadDetalleSesions { get; set; }
+        public virtual ICollection<TGestionDocenteActividadDetalleCongeladum> TGestionDocenteActividadDetalleCongelada { get; set; }
         public virtual ICollection<TGestionDocenteOcurrencium> TGestionDocenteOcurrencia { get; set; }
+        public virtual ICollection<TGestionDocenteOcurrenciaCongeladum> TGestionDocenteOcurrenciaCongelada { get; set; }
     }
 }

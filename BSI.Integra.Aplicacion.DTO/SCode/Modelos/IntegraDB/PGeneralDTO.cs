@@ -48,6 +48,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string? NombreCorto { get; set; }
         public int? IdPagina { get; set; }
         public int? ChatActivo { get; set; }
+        public bool? TutorVirtualActivo { get; set; } = false;
         [StringLength(500)]
         public string? PwDescripcionGeneral { get; set; }
         public bool? TieneProyectoDeAplicacion { get; set; }

@@ -152,5 +152,30 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
         #endregion
+
+
+
+
+
+        public bool ActualizarProgramaGeneralArgumentoDetalleMotivacion(int id, string usuario, int idMotivacion)
+        {
+            try
+            {
+                var query = "pla.SP_TProgramaGeneralArgumentoDetalleMotivacion_Actualizar";
+                var parametros = new
+                {
+                    Id = id,
+                    Idmotivacion = idMotivacion,
+                    UsuarioModificacion = usuario
+                };
+
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(query, parametros);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ActualizarProgramaGeneralArgumentoDetalleMotivacion() {ex.Message}", ex);
+            }
+        }
     }
 }
