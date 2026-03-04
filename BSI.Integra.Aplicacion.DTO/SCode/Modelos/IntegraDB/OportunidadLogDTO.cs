@@ -397,6 +397,13 @@
         public List<LlamadaIntegra3cxDTO> LlamadasIntegra3cx { get; set; } = new List<LlamadaIntegra3cxDTO>();
     }
 
+    public class RecomendacionDTO
+    {
+        public int IdRecomendacion { get; set; }
+        public string Cabecera { get; set; }
+        public string Descripcion { get; set; }
+    }
+
     public class InteraccionAnteriorResumidaDTO
     {
         public DateTime? FechaModificacion { get; set; }

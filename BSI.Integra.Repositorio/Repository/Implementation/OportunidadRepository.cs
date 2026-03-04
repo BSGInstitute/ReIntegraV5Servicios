@@ -3817,6 +3817,35 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw;
             }
         }
+
+        /// Autor: Carlos Crispin R.
+        /// Fecha: 04/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las recomendaciones de la transcripcion de la llamada
+        /// </summary>
+        /// <param name="idActividadDetalle">Id de la Oportunidad</param>
+        /// <returns> List<OportunidadTiempoCapacitacionDTO> </returns>
+        public List<RecomendacionDTO> ObtenerRecomendacionesPorIdActividadDetalle(int idActividadDetalle)
+        {
+            try
+            {
+                var resultado = new List<RecomendacionDTO>();
+                var query = _dapperRepository.QuerySPDapper("com.SP_ObtenerRecomendacionesActividad", new { idActividadDetalle });
+                if (!string.IsNullOrEmpty(query) && query != "null")
+                {
+                    resultado = JsonConvert.DeserializeObject<List<RecomendacionDTO>>(query)!;
+                }
+                return resultado;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+
+           
+
+        }
         /// Autor: Jonathan Caipo
         /// Fecha: 20/03/2023
         /// Version: 1.0

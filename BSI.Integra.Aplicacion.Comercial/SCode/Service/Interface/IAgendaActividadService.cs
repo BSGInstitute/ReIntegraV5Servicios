@@ -26,6 +26,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         IEnumerable<OportunidadLogHistorialComentariosDTO> ObtenerHistorialComentariosPorIdOportunidad(int idOportunidad);
         List<ReporteSeguimientoNWActividadDTO?> ObtenerHistorialInteraccionesPorIdOportunidad(int idOportunidad);
         List<ReporteSeguimientoNWActividadAlternoDTO?> ObtenerHistorialInteraccionesPorIdOportunidad3cx(int idOportunidad);
+        List<RecomendacionDTO?> ObtenerRecomendacionesPorIdActividadDetalle(int idActividadDetalle);
         Task<HistorialInteraccionesResponseDTO> ObtenerHistorialInteraccionesPorIdOportunidadMensajePersonalizado(int idOportunidad);
 
         (List<PreguntaFrecuenteSeccionesDTO> Data, List<PGeneralModeloCertificadoDTO> ModeloCertificado) ObtenerPreguntasFrecuentes(int idCentroCosto, int idOportunidad);
