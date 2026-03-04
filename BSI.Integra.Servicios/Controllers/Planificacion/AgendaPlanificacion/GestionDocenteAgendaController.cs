@@ -149,5 +149,79 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
                 return BadRequest(new { Exito = false, Mensaje = ex.Message });
             }
         }
+
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 03/03/2026
+        /// Versión: 1.1
+        /// <summary>
+        /// Obtiene la lista de docentes que comparten el mismo centro de costo que la gestión de contacto proporcionada.
+        /// Útil para alternar entre docentes vinculados al mismo contexto de trabajo/centro de costo.
+        /// </summary>
+        /// <param name="idGestionContacto">Identificador de la gestión de contacto.</param>
+        /// <returns>ActionResult con lista de DocenteConCursoDTO.</returns>
+        [HttpGet("ObtenerDocentesPorGestionContacto/{idGestionContacto}")]
+        public IActionResult ObtenerDocentesPorGestionContacto(int idGestionContacto)
+        {
+            try
+            {
+                var lista = _gestionDocenteAgendaService.ObtenerDocentesPorGestionContacto(idGestionContacto);
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 03/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene información adicional faltante del docente: email, historial WhatsApp completo,
+        /// historial de correos (asuntos), resumen de última comunicación, encuestas y cantidad de alumnos.
+        /// </summary>
+        /// <param name="idProveedor">Identificador del docente.</param>
+        /// <param name="idPEspecifico">Identificador del curso.</param>
+        /// <returns>ActionResult con InformacionFaltanteDocenteDTO.</returns>
+        [HttpGet("ObtenerInformacionFaltante/{idProveedor}/{idPEspecifico}")]
+        public IActionResult ObtenerInformacionFaltante(int idProveedor, int idPEspecifico)
+        {
+            try
+            {
+                var info = _gestionDocenteAgendaService.ObtenerInformacionFaltanteDocente(idProveedor, idPEspecifico);
+                return Ok(info);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 03/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el detalle de un correo enviado al docente, incluyendo asunto, fecha de envío,
+        /// personal remitente, correo destinatario y estado de envío.
+        /// </summary>
+        /// <param name="idCorreo">Identificador del correo en T_MandrilEnvioCorreoGestion.</param>
+        /// <returns>ActionResult con CorreoDetalleDocenteDTO.</returns>
+        [HttpGet("ObtenerDetalleCorreo/{idCorreo}")]
+        public IActionResult ObtenerDetalleCorreo(int idCorreo)
+        {
+            try
+            {
+                var detalle = _gestionDocenteAgendaService.ObtenerDetalleCorreo(idCorreo);
+                if (detalle == null) return NotFound(new { Exito = false, Mensaje = "No se encontró el correo." });
+                return Ok(detalle);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
     }
 }

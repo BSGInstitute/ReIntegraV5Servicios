@@ -149,27 +149,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 List<DocentePostulanteDTO> listaDocentePostulante = new List<DocentePostulanteDTO>();
-                var queryText = @"
-                    SELECT
-                        DP.Id,
-                        DP.Nombre1,
-                        DP.Nombre2,
-                        DP.ApellidoPaterno,
-                        DP.ApellidoMaterno,
-                        DP.NumeroDocumento,
-                        DP.FechaNacimiento,
-                        DP.Telefono,
-                        DP.Celular,
-                        DP.Correo,
-                        DP.IdCiudad,
-                        C.Nombre AS NombreCiudad,
-                        CONCAT(DP.Nombre1, ' ', ISNULL(DP.Nombre2, ''), ' ', DP.ApellidoPaterno, ' ', ISNULL(DP.ApellidoMaterno, '')) AS NombreCompleto
-                    FROM pla.T_DocentePostulante AS DP
-                    LEFT JOIN conf.T_Ciudad AS C ON C.Id = DP.IdCiudad
-                    WHERE DP.Estado = 1
-                    ORDER BY DP.Id DESC";
-
-                var datosDocentePostulante = _dapperRepository.QueryDapper(queryText, null);
+                var datosDocentePostulante = _dapperRepository.QuerySPDapper("pla.SP_DocentePostulanteTodosObtener", null);
 
                 if (!string.IsNullOrEmpty(datosDocentePostulante) && !datosDocentePostulante.Contains("[]") && datosDocentePostulante != "null")
                 {
@@ -217,26 +197,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                var queryText = @"
-                    SELECT
-                        DP.Id,
-                        DP.Nombre1,
-                        DP.Nombre2,
-                        DP.ApellidoPaterno,
-                        DP.ApellidoMaterno,
-                        DP.NumeroDocumento,
-                        DP.FechaNacimiento,
-                        DP.Telefono,
-                        DP.Celular,
-                        DP.Correo,
-                        DP.IdCiudad,
-                        C.Nombre AS NombreCiudad,
-                        CONCAT(DP.Nombre1, ' ', ISNULL(DP.Nombre2, ''), ' ', DP.ApellidoPaterno, ' ', ISNULL(DP.ApellidoMaterno, '')) AS NombreCompleto
-                    FROM pla.T_DocentePostulante AS DP
-                    LEFT JOIN conf.T_Ciudad AS C ON C.Id = DP.IdCiudad
-                    WHERE DP.Id = @Id AND DP.Estado = 1";
-
-                var datosDocentePostulante = _dapperRepository.QueryDapper(queryText, new { Id = id });
+                var datosDocentePostulante = _dapperRepository.QuerySPDapper("pla.SP_DocentePostulanteObtener", new { IdDocentePostulante = id });
 
                 if (!string.IsNullOrEmpty(datosDocentePostulante) && !datosDocentePostulante.Contains("[]") && datosDocentePostulante != "null")
                 {
@@ -264,31 +225,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                var queryText = @"
-                    SELECT
-                        CP.IdTablaOriginal AS Id,
-                        COALESCE(P.Nombre1, DP.Nombre1) AS Nombre1,
-                        COALESCE(P.Nombre2, DP.Nombre2) AS Nombre2,
-                        COALESCE(P.ApePaterno, DP.ApellidoPaterno) AS ApellidoPaterno,
-                        COALESCE(P.ApeMaterno, DP.ApellidoMaterno) AS ApellidoMaterno,
-                        DP.NumeroDocumento,
-                        DP.FechaNacimiento,
-                        COALESCE(P.Telefono, DP.Telefono) AS Telefono,
-                        COALESCE(P.Celular1, DP.Celular) AS Celular,
-                        COALESCE(P.Email, DP.Correo) AS Correo,
-                        COALESCE(P.IdCiudad, DP.IdCiudad) AS IdCiudad,
-                        C.Nombre AS NombreCiudad,
-                        CASE
-                            WHEN CP.IdTipoPersona = 4 THEN CONCAT(P.Nombre1, ' ', ISNULL(P.Nombre2, ''), ' ', P.ApePaterno, ' ', ISNULL(P.ApeMaterno, ''))
-                            WHEN CP.IdTipoPersona = 6 THEN CONCAT(DP.Nombre1, ' ', ISNULL(DP.Nombre2, ''), ' ', DP.ApellidoPaterno, ' ', ISNULL(DP.ApellidoMaterno, ''))
-                        END AS NombreCompleto
-                    FROM conf.T_ClasificacionPersona CP
-                    LEFT JOIN fin.T_Proveedor P ON CP.IdTablaOriginal = P.Id AND CP.IdTipoPersona = 4 AND P.Estado = 1
-                    LEFT JOIN pla.T_DocentePostulante DP ON CP.IdTablaOriginal = DP.Id AND CP.IdTipoPersona = 6 AND DP.Estado = 1
-                    LEFT JOIN conf.T_Ciudad C ON C.Id = COALESCE(P.IdCiudad, DP.IdCiudad)
-                    WHERE CP.Id = @IdClasificacionPersona AND CP.Estado = 1";
-
-                var resultado = _dapperRepository.QueryDapper(queryText, new { IdClasificacionPersona = idClasificacionPersona });
+                var resultado = _dapperRepository.QuerySPDapper("pla.SP_ClasificacionPersonaDatoObtener", new { IdClasificacionPersona = idClasificacionPersona });
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]") && resultado != "null")
                 {
