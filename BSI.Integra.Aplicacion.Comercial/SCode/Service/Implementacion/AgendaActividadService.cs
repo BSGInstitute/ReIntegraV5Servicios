@@ -585,6 +585,29 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
         }
 
+        /// Autor: Carlos Crispin Riquelme
+        /// Fecha: 04/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene  las recomendaciones obtenidas segun la transcripcion de la llamada
+        /// </summary>
+        /// <param name="idActividadDetalle">Id de la Oportunidad</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        public List<RecomendacionDTO?> ObtenerRecomendacionesPorIdActividadDetalle(int idActividadDetalle)
+        {
+            try
+            {
+                IOportunidadLogService oportunidadLogService = new OportunidadLogService(_unitOfWork);
+                var recomendacionesDTOs = new List<RecomendacionDTO>();
+                recomendacionesDTOs = _unitOfWork.OportunidadRepository.ObtenerRecomendacionesPorIdActividadDetalle(idActividadDetalle);
+                return (recomendacionesDTOs);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// Autor: Joseph Llanque
         /// Fecha: 10/11/2025
         /// Versión: 1.0
@@ -593,7 +616,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         /// </summary>
         /// <param name="idOportunidad">Id de la Oportunidad</param>
         /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
-      public async Task<HistorialInteraccionesResponseDTO> ObtenerHistorialInteraccionesPorIdOportunidadMensajePersonalizado(int idOportunidad)
+        public async Task<HistorialInteraccionesResponseDTO> ObtenerHistorialInteraccionesPorIdOportunidadMensajePersonalizado(int idOportunidad)
         {
             try
             {
