@@ -629,14 +629,14 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
         /// </summary>
         /// <param name="idModuloSistemaV5">Id del módulo del sistema V5.</param>
         /// <param name="idPlantillaBase">Id del tipo de plantilla (2=Email, 8=WhatsApp).</param>
-        /// <param name="idPersonalAreaTrabajo">Id del área de trabajo del personal logueado.</param>
+        /// <param name="area">Nombre del área de trabajo del personal logueado.</param>
         /// <returns>Lista de PlantillaDisponiblePlanificacionDTO.</returns>
-        [HttpGet("ObtenerPlantillasPlanificacion/{idModuloSistemaV5}/{idPlantillaBase}/{idPersonalAreaTrabajo}")]
-        public IActionResult ObtenerPlantillasPlanificacion(int idModuloSistemaV5, int idPlantillaBase, int idPersonalAreaTrabajo)
+        [HttpGet("ObtenerPlantillasPlanificacion/{idModuloSistemaV5}/{idPlantillaBase}/{area}")]
+        public IActionResult ObtenerPlantillasPlanificacion(int idModuloSistemaV5, int idPlantillaBase, string area)
         {
             try
             {
-                var lista = _gestionDocenteActividadService.ObtenerPlantillasPlanificacion(idModuloSistemaV5, idPlantillaBase, idPersonalAreaTrabajo);
+                var lista = _gestionDocenteActividadService.ObtenerPlantillasPlanificacion(idModuloSistemaV5, idPlantillaBase, area);
                 return Ok(lista);
             }
             catch (Exception ex)

@@ -20,7 +20,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         Task<bool> ExisteGestionActivaAsync(int idDocente, int idCentroCosto);
         Task<bool> ExisteOrigenAsync(int id);
         Task<bool> ExistePersonalAsync(int id);
-        Task<GestionContacto> ObtenerPorIdAsync(int id);
+        Task<GestionContactoSimpleDTO> ObtenerPorIdAsync(int id);
         TGestionContacto Update(GestionContacto entidad);
         IEnumerable<ComboDTO> ObtenerFiltroAutocomplete(string nombreParcial);
         IEnumerable<ComboDTO> ObtenerPEspecificoPorCentroCosto(int idCentroCosto);
