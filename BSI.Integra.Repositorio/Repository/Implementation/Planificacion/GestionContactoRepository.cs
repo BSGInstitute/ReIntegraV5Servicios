@@ -959,5 +959,222 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             public string RazonSocialDocente { get; set; }
         }
 
+        /// Autor: Lolo Zaa
+        /// Fecha: 05/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Ejecuta una actividad inmediatamente sin esperar a Hangfire.
+        /// Si MarcarOcurrenciaAsociada es true, tambien marca la ocurrencia y activa dependientes.
+        /// </summary>
+        public async Task<ResultadoEjecucionDTO> EjecutarActividadManualmenteAsync(EjecutarActividadManualDTO request)
+        {
+            try
+            {
+                // 1. Obtener datos de la actividad
+                var parameters = new DynamicParameters();
+                parameters.Add("@IdActividadDetalleCongelada", request.IdActividadDetalleCongelada, DbType.Int32);
+                parameters.Add("@IdDisparadorCongelado", request.IdDisparadorCongelado, DbType.Int32);
+
+                string queryActividad = await _dapperRepository.QuerySPDapperAsync(
+                    "pla.SP_GestionDocenteActividadesPendientesEjecucion",
+                    parameters
+                );
+
+                if (string.IsNullOrEmpty(queryActividad) || queryActividad.Contains("[]"))
+                {
+                    return new ResultadoEjecucionDTO
+                    {
+                        Exitoso = false,
+                        Error = "Actividad no encontrada o ya ejecutada"
+                    };
+                }
+
+                var actividades = JsonConvert.DeserializeObject<List<ActividadPendienteDTO>>(queryActividad);
+                var actividad = actividades?.FirstOrDefault(a =>
+                    a.IdActividadDetalleCongelada == request.IdActividadDetalleCongelada &&
+                    a.IdDisparadorCongelado == request.IdDisparadorCongelado
+                );
+
+                if (actividad == null)
+                {
+                    return new ResultadoEjecucionDTO
+                    {
+                        Exitoso = false,
+                        Error = "Actividad no encontrada"
+                    };
+                }
+
+                // 2. Simular ejecución (TODO: implementar servicios reales)
+                string mensajeResultado = string.Empty;
+
+                if (actividad.IdTipoActividad == 1) // Automática
+                {
+                    mensajeResultado = $"[EJECUCION MANUAL] Actividad automatica ejecutada - Plantilla: {actividad.IdPlantilla}, Contacto: {actividad.IdGestionContacto}";
+                }
+                else if (actividad.IdTipoActividad == 2) // Manual
+                {
+                    mensajeResultado = $"[EJECUCION MANUAL] Notificacion creada para contacto: {actividad.IdGestionContacto}";
+                }
+
+                // 3. Actualizar estado a EJECUTADO
+                var resultado = await ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
+                {
+                    IdActividadDetalleCongelada = request.IdActividadDetalleCongelada,
+                    IdDisparadorCongelado = request.IdDisparadorCongelado,
+                    CodigoNuevoEstado = "EJECUTADO",
+                    MensajeResultado = mensajeResultado,
+                    UsuarioModificacion = request.UsuarioEjecucion
+                });
+
+                if (!resultado.Exitoso)
+                    return resultado;
+
+                // 4. Si se debe marcar la ocurrencia asociada, marcarla (esto activa dependientes)
+                if (request.MarcarOcurrenciaAsociada && request.IdGestionDocenteOcurrenciaCongelada.HasValue)
+                {
+                    var resultadoOcurrencia = await MarcarOcurrenciaAsync(new MarcarOcurrenciaRequestDTO
+                    {
+                        IdGestionDocenteOcurrenciaCongelada = request.IdGestionDocenteOcurrenciaCongelada.Value,
+                        IdGestionContacto = actividad.IdGestionContacto,
+                        Comentario = request.ComentarioOcurrencia ?? "Ocurrencia marcada automaticamente por ejecucion manual",
+                        FechaHoraOcurrencia = DateTime.Now,
+                        UsuarioCreacion = request.UsuarioEjecucion
+                    });
+
+                    resultado.Mensaje = $"{resultado.Mensaje}. {resultadoOcurrencia.Mensaje}";
+                }
+
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                return new ResultadoEjecucionDTO
+                {
+                    Exitoso = false,
+                    Error = $"Error al ejecutar actividad manualmente: {ex.Message}"
+                };
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 05/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Adelanta la fecha de ejecucion de una actividad para que Hangfire la procese pronto.
+        /// </summary>
+        public async Task<ResultadoEjecucionDTO> AdelantarFechaActividadAsync(AdelantarActividadDTO request)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@IdDisparadorCongelado", request.IdDisparadorCongelado, DbType.Int32);
+                parameters.Add("@UsuarioModificacion", request.UsuarioModificacion, DbType.String, size: 50);
+
+                DateTime nuevaFecha = DateTime.Now;
+
+                string query = $@"
+                    UPDATE pla.T_GestionDocenteDisparadorCongelado
+                    SET FechaProgramada = '{nuevaFecha:yyyy-MM-dd HH:mm:ss}',
+                        UsuarioModificacion = @UsuarioModificacion,
+                        FechaModificacion = GETDATE()
+                    WHERE Id = @IdDisparadorCongelado
+                      AND Estado = 1;
+
+                    SELECT 1 AS Actualizado;
+                ";
+
+                string resultado = await _dapperRepository.FirstOrDefaultAsync(query, new {
+                    IdDisparadorCongelado = request.IdDisparadorCongelado,
+                    UsuarioModificacion = request.UsuarioModificacion
+                });
+
+                if (!string.IsNullOrEmpty(resultado))
+                {
+                    return new ResultadoEjecucionDTO
+                    {
+                        Exitoso = true,
+                        Mensaje = "Fecha adelantada correctamente",
+                        NuevaFecha = nuevaFecha
+                    };
+                }
+
+                return new ResultadoEjecucionDTO
+                {
+                    Exitoso = false,
+                    Error = "No se pudo adelantar la fecha"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResultadoEjecucionDTO
+                {
+                    Exitoso = false,
+                    Error = $"Error al adelantar fecha: {ex.Message}"
+                };
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 05/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las actividades que dependen de una actividad especifica via ocurrencias.
+        /// Busca actividades que tienen disparador OCURRENCIA_PREVIA vinculado a la misma ocurrencia.
+        /// </summary>
+        public async Task<List<ActividadDependienteDTO>> ObtenerActividadesDependientesAsync(int idActividadDetalleCongelada)
+        {
+            try
+            {
+                string query = @"
+                    -- Buscar actividades dependientes via ocurrencias
+                    SELECT DISTINCT
+                        ADC_Dependiente.Id AS IdActividadDetalleCongelada,
+                        ADC_Dependiente.Nombre AS NombreActividad,
+                        DFT.Nombre AS TipoDisparador,
+                        OC.Nombre AS NombreOcurrencia
+                    FROM pla.T_GestionDocenteActividadDetalleCongelada ADC
+                    INNER JOIN pla.T_GestionDocenteActividadCabeceraCongelada ACC
+                        ON ACC.Id = ADC.IdGestionDocenteActividadCabeceraCongelada
+                    INNER JOIN pla.T_GestionDocenteFlujoCongelado FC
+                        ON FC.Id = ACC.IdGestionDocenteFlujoCongelado
+
+                    -- Buscar ocurrencias asociadas a la actividad
+                    INNER JOIN pla.T_GestionDocenteOcurrenciaCongelada OC
+                        ON OC.IdGestionDocenteFlujoCongelado = FC.Id
+
+                    -- Buscar actividades que dependen de esa ocurrencia
+                    INNER JOIN pla.T_GestionDocenteDisparadorReglaOcurrenciaCongelado DROC
+                        ON DROC.IdGestionDocenteOcurrenciaCongelada = OC.Id
+                        AND DROC.Estado = 1
+                    INNER JOIN pla.T_GestionDocenteDisparadorCongelado DC_Dependiente
+                        ON DC_Dependiente.Id = DROC.IdGestionDocenteDisparadorCongelado
+                        AND DC_Dependiente.Estado = 1
+                    INNER JOIN pla.T_GestionDocenteActividadDetalleCongelada ADC_Dependiente
+                        ON ADC_Dependiente.Id = DC_Dependiente.IdGestionDocenteActividadDetalleCongelada
+                        AND ADC_Dependiente.Estado = 1
+                    INNER JOIN pla.T_GestionDocenteDisparadorFlujoTipo DFT
+                        ON DFT.Id = DC_Dependiente.IdGestionDocenteDisparadorFlujoTipo
+
+                    WHERE ADC.Id = @IdActividadDetalleCongelada
+                      AND ADC.Estado = 1
+                      AND DC_Dependiente.IdGestionDocenteDisparadorFlujoTipo = 2 -- OCURRENCIA_PREVIA
+                    ORDER BY ADC_Dependiente.Nombre;
+                ";
+
+                string resultado = await _dapperRepository.FirstOrDefaultAsync(query, new {
+                    IdActividadDetalleCongelada = idActividadDetalleCongelada
+                });
+
+                if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
+                    return new List<ActividadDependienteDTO>();
+
+                return JsonConvert.DeserializeObject<List<ActividadDependienteDTO>>(resultado);
+            }
+            catch (Exception)
+            {
+                return new List<ActividadDependienteDTO>();
+            }
+        }
+
     }
 }

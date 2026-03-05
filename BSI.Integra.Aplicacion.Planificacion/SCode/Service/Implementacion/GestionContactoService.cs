@@ -420,5 +420,59 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Lolo Zaa
+        /// Fecha: 05/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Ejecuta una actividad especifica inmediatamente sin esperar a Hangfire.
+        /// </summary>
+        public async Task<ResultadoEjecucionDTO> EjecutarActividadManualmenteAsync(EjecutarActividadManualDTO request)
+        {
+            try
+            {
+                return await _unitOfWork.GestionContactoRepository.EjecutarActividadManualmenteAsync(request);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 05/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Adelanta la fecha de ejecucion de una actividad para que Hangfire la procese pronto.
+        /// </summary>
+        public async Task<ResultadoEjecucionDTO> AdelantarFechaActividadAsync(AdelantarActividadDTO request)
+        {
+            try
+            {
+                return await _unitOfWork.GestionContactoRepository.AdelantarFechaActividadAsync(request);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 05/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las actividades que dependen de una actividad especifica.
+        /// </summary>
+        public async Task<List<ActividadDependienteDTO>> ObtenerActividadesDependientesAsync(int idActividadDetalleCongelada)
+        {
+            try
+            {
+                return await _unitOfWork.GestionContactoRepository.ObtenerActividadesDependientesAsync(idActividadDetalleCongelada);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }
