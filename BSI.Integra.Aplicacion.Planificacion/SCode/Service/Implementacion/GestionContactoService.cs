@@ -2,11 +2,9 @@ using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
-using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,20 +16,10 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
     public class GestionContactoService : IGestionContactoService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IGestionDocenteActividadService _gestionDocenteActividadService;
-        private readonly IPersonalService _personalService;
-        private readonly ILogger<GestionContactoService> _logger;
 
-        public GestionContactoService(
-            IUnitOfWork unitOfWork,
-            IGestionDocenteActividadService gestionDocenteActividadService,
-            IPersonalService personalService,
-            ILogger<GestionContactoService> logger)
+        public GestionContactoService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _gestionDocenteActividadService = gestionDocenteActividadService;
-            _personalService = personalService;
-            _logger = logger;
         }
 
         /// Autor: Jose Vega
@@ -438,148 +426,17 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// Version: 2.0
         /// <summary>
         /// Ejecuta una actividad especifica inmediatamente sin esperar a Hangfire.
-        /// Si la actividad es automatica (Email), envia el correo realmente.
+        /// El envio de correo se realiza desde el frontend (Proceso 3: POST /api/Correo/EnviarMensajeGmail).
         /// </summary>
         public async Task<ResultadoEjecucionDTO> EjecutarActividadManualmenteAsync(EjecutarActividadManualDTO request)
         {
             try
             {
-                // 1. Obtener datos de la actividad
-                var actividad = await _unitOfWork.GestionContactoRepository.ObtenerActividadParaEjecucionManualAsync(
-                    request.IdActividadDetalleCongelada,
-                    request.IdDisparadorCongelado
-                );
-
-                if (actividad == null)
-                {
-                    return new ResultadoEjecucionDTO
-                    {
-                        Exitoso = false,
-                        Error = "Actividad no encontrada"
-                    };
-                }
-
-                // 2. Si es actividad automatica (Email), enviar correo real
-                string mensajeEjecucion = null;
-                if (actividad.IdTipoActividad == 1) // Automatica
-                {
-                    try
-                    {
-                        mensajeEjecucion = await EjecutarEnvioCorreoAsync(actividad);
-                        _logger.LogInformation($"Ejecucion manual: {mensajeEjecucion}");
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, $"Error enviando correo en ejecucion manual de actividad {actividad.IdActividadDetalleCongelada}");
-                        return new ResultadoEjecucionDTO
-                        {
-                            Exitoso = false,
-                            Error = $"Error al enviar correo: {ex.Message}"
-                        };
-                    }
-                }
-
-                // 3. Actualizar el request con el mensaje de ejecucion si se envio correo
-                if (!string.IsNullOrEmpty(mensajeEjecucion))
-                {
-                    // Modificar el request no es posible porque es read-only, pero podemos pasar el mensaje despues
-                }
-
-                // 4. Llamar al repository para marcar como ejecutado
-                var resultado = await _unitOfWork.GestionContactoRepository.EjecutarActividadManualmenteAsync(request);
-
-                // 5. Sobrescribir el mensaje con el del envio de correo si existe
-                if (resultado.Exitoso && !string.IsNullOrEmpty(mensajeEjecucion))
-                {
-                    resultado.Mensaje = mensajeEjecucion;
-                }
-
-                return resultado;
+                return await _unitOfWork.GestionContactoRepository.EjecutarActividadManualmenteAsync(request);
             }
             catch (Exception)
             {
                 throw;
-            }
-        }
-
-        /// Autor: Lolo Zaa
-        /// Fecha: 05/03/2026
-        /// Version: 1.0
-        /// <summary>
-        /// Envia correo para una actividad automatica (Email).
-        /// Usa la misma logica que ActividadesCongeladasJob.
-        /// </summary>
-        private async Task<string> EjecutarEnvioCorreoAsync(ActividadPendienteDTO actividad)
-        {
-            // 1. Obtener datos de la gestion de contacto
-            var gestionContacto = await _unitOfWork.GestionContactoRepository.ObtenerPorIdAsync(actividad.IdGestionContacto);
-            if (gestionContacto == null || !gestionContacto.IdClasificacionPersona.HasValue)
-            {
-                throw new Exception($"No se encontro la gestion de contacto o no tiene clasificacion de persona");
-            }
-
-            // 2. Obtener datos del docente
-            var docente = _unitOfWork.DocentePostulanteRepository.ObtenerDocenteDTOPorIdClasificacionPersona(gestionContacto.IdClasificacionPersona.Value);
-            if (docente == null || string.IsNullOrWhiteSpace(docente.Correo))
-            {
-                throw new Exception($"No se encontro el correo del docente");
-            }
-
-            // 3. Generar la plantilla con los datos reemplazados
-            var plantillaGenerada = _gestionDocenteActividadService.GenerarPlantillaDocente(new ReemplazoEtiquetaPlantillaDocenteDTO
-            {
-                IdGestionContacto = actividad.IdGestionContacto,
-                IdPlantilla = actividad.IdPlantilla
-            });
-
-            // 4. Verificar el tipo de plantilla y ejecutar
-            if (actividad.IdPlantillaBase == 2) // Email
-            {
-                if (string.IsNullOrWhiteSpace(plantillaGenerada.EmailReemplazado.Asunto) ||
-                    string.IsNullOrWhiteSpace(plantillaGenerada.EmailReemplazado.CuerpoHTML))
-                {
-                    throw new Exception("La plantilla de email generada esta vacia");
-                }
-
-                // 5. Obtener credenciales de Gmail
-                var configCorreo = _unitOfWork.ConfiguracionIntegraRepository.ObtenerPorClaves("GMAIL", "CORREO_REMITENTE");
-                var configClave = _unitOfWork.ConfiguracionIntegraRepository.ObtenerPorClaves("GMAIL", "CLAVE_APLICACION");
-
-                if (configCorreo == null || string.IsNullOrWhiteSpace(configCorreo.Valor1))
-                {
-                    throw new Exception("No se encontro la configuracion del correo remitente de Gmail");
-                }
-
-                if (configClave == null || string.IsNullOrWhiteSpace(configClave.Valor1))
-                {
-                    throw new Exception("No se encontro la configuracion de la clave de aplicacion de Gmail");
-                }
-
-                // 6. Enviar el correo
-                bool enviado = _personalService.EnviarCorreoGmail(
-                    emailDestinatario: docente.Correo,
-                    emailRemitente: configCorreo.Valor1,
-                    personal: "BSG Institute - Planificacion Docente",
-                    clave: configClave.Valor1,
-                    mensaje: plantillaGenerada.EmailReemplazado.CuerpoHTML,
-                    asunto: plantillaGenerada.EmailReemplazado.Asunto
-                );
-
-                if (!enviado)
-                {
-                    throw new Exception("El servicio de envio de correo retorno false");
-                }
-
-                return $"[EJECUCION MANUAL] Email enviado exitosamente a {docente.Correo} - Asunto: {plantillaGenerada.EmailReemplazado.Asunto}";
-            }
-            else if (actividad.IdPlantillaBase == 8) // WhatsApp
-            {
-                // TODO: Implementar envio de WhatsApp
-                return $"[PENDIENTE] WhatsApp - Plantilla: {actividad.IdPlantilla}, Contacto: {docente.Celular}";
-            }
-            else
-            {
-                throw new Exception($"Tipo de plantilla base no soportado: {actividad.IdPlantillaBase}");
             }
         }
 
