@@ -16,7 +16,8 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
     {
         private IGestionContactoService _gestionContactoService;
 
-        public GestionContactoController(IGestionContactoService gestionContactoService)
+        public GestionContactoController(
+            IGestionContactoService gestionContactoService)
         {
             _gestionContactoService = gestionContactoService;
         }
@@ -314,6 +315,143 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                     Mensaje = ex.Message,
                     Detalle = ex.InnerException?.Message,
                     Inner2 = ex.InnerException?.InnerException?.Message
+                });
+            }
+        }
+
+        // =============================================
+        // ENDPOINTS PARA HANGFIRE
+        // =============================================
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 03/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la lista de actividades pendientes listas para ejecutar por Hangfire.
+        /// Incluye actividades con disparadores de TIEMPO_FIJO y TIEMPO_RELATIVO que estan
+        /// dentro de la ventana de ejecucion (5 minutos).
+        /// </summary>
+        /// <returns>Lista de actividades pendientes con datos de plantilla y contacto</returns>
+        [HttpGet("[action]")]
+        public async Task<IActionResult> ObtenerActividadesPendientes()
+        {
+            try
+            {
+                var actividades = await _gestionContactoService.ObtenerActividadesPendientesAsync();
+                return Ok(new
+                {
+                    Exito = true,
+                    Mensaje = "Actividades pendientes obtenidas correctamente",
+                    Cantidad = actividades.Count,
+                    Datos = actividades
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Exito = false,
+                    Mensaje = ex.Message,
+                    Detalle = ex.InnerException?.Message
+                });
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 03/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza el estado de una actividad congelada despues de su ejecucion por Hangfire.
+        /// Registra el resultado en el historial de ejecuciones y actualiza los estados de
+        /// la actividad y disparador. Maneja reintentos automaticamente (maximo 3 intentos).
+        /// </summary>
+        /// <param name="request">Datos de la actualizacion de estado</param>
+        /// <returns>Resultado de la operacion con el ID del registro de ejecucion creado</returns>
+        [HttpPost("[action]")]
+        public async Task<IActionResult> ActualizarEstadoActividad([FromBody] ActualizarEstadoRequestDTO request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(new { Exito = false, Mensaje = "Modelo invalido", Errores = ModelState });
+
+                var resultado = await _gestionContactoService.ActualizarEstadoActividadAsync(request);
+
+                if (resultado.Exitoso)
+                {
+                    return Ok(new
+                    {
+                        Exito = true,
+                        Mensaje = resultado.Mensaje,
+                        IdEjecucion = resultado.IdRegistro
+                    });
+                }
+                else
+                {
+                    return BadRequest(new
+                    {
+                        Exito = false,
+                        Mensaje = resultado.Error
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Exito = false,
+                    Mensaje = ex.Message,
+                    Detalle = ex.InnerException?.Message
+                });
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 03/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Marca una ocurrencia y activa disparadores dependientes convirtiendolos a TIEMPO_FIJO.
+        /// Busca todas las actividades con disparador OCURRENCIA_PREVIA que dependen de la
+        /// ocurrencia marcada, calcula su fecha de ejecucion y las convierte a TIEMPO_FIJO
+        /// para que Hangfire las procese.
+        /// </summary>
+        /// <param name="request">Datos de la ocurrencia a marcar</param>
+        /// <returns>Resultado de la operacion con el ID de la ocurrencia marcada</returns>
+        [HttpPost("[action]")]
+        public async Task<IActionResult> MarcarOcurrencia([FromBody] MarcarOcurrenciaRequestDTO request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(new { Exito = false, Mensaje = "Modelo invalido", Errores = ModelState });
+
+                var resultado = await _gestionContactoService.MarcarOcurrenciaAsync(request);
+
+                if (resultado.Exitoso)
+                {
+                    return Ok(new
+                    {
+                        Exito = true,
+                        Mensaje = resultado.Mensaje,
+                        IdOcurrenciaMarcada = resultado.IdRegistro
+                    });
+                }
+                else
+                {
+                    return BadRequest(new
+                    {
+                        Exito = false,
+                        Mensaje = resultado.Error
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Exito = false,
+                    Mensaje = ex.Message,
+                    Detalle = ex.InnerException?.Message
                 });
             }
         }

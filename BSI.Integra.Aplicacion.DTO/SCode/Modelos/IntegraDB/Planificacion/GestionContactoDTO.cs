@@ -178,4 +178,62 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public bool TieneEvento { get; set; }
         public bool TieneOcurrenciaPrevia { get; set; }
     }
+
+    // ===== DTOs para Hangfire - Ejecución de Actividades Congeladas =====
+
+    /// <summary>
+    /// DTO que representa una actividad pendiente de ejecución por Hangfire
+    /// </summary>
+    public class ActividadPendienteDTO
+    {
+        public int IdActividadDetalleCongelada { get; set; }
+        public string NombreActividad { get; set; }
+        public int IdTipoActividad { get; set; }
+        public int IdPlantillaMedioComunicacion { get; set; }
+        public int IdGestionContactoFlujoCongelado { get; set; }
+        public int IdGestionContactoDocenteFlujo { get; set; }
+        public int IdGestionContacto { get; set; }
+        public int IdDisparadorCongelado { get; set; }
+        public string TipoDisparador { get; set; }
+        public DateTime FechaEjecucion { get; set; }
+        public int? IdPEspecificoSesion { get; set; }
+        public int IdPlantillaBase { get; set; }
+        public int IdPlantilla { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para actualizar el estado de una actividad después de su ejecución
+    /// </summary>
+    public class ActualizarEstadoRequestDTO
+    {
+        public int IdActividadDetalleCongelada { get; set; }
+        public int IdDisparadorCongelado { get; set; }
+        public string CodigoNuevoEstado { get; set; }
+        public string MensajeResultado { get; set; }
+        public string MensajeError { get; set; }
+        public string UsuarioModificacion { get; set; } = "HANGFIRE";
+    }
+
+    /// <summary>
+    /// DTO para marcar una ocurrencia y activar disparadores dependientes
+    /// </summary>
+    public class MarcarOcurrenciaRequestDTO
+    {
+        public int IdGestionDocenteOcurrenciaCongelada { get; set; }
+        public int IdGestionContacto { get; set; }
+        public string Comentario { get; set; }
+        public DateTime? FechaHoraOcurrencia { get; set; }
+        public string UsuarioCreacion { get; set; }
+    }
+
+    /// <summary>
+    /// DTO que representa el resultado de una operación de ejecución
+    /// </summary>
+    public class ResultadoEjecucionDTO
+    {
+        public bool Exitoso { get; set; }
+        public int IdRegistro { get; set; }
+        public string Mensaje { get; set; }
+        public string Error { get; set; }
+    }
 }
