@@ -366,5 +366,59 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Lolo Zaa
+        /// Fecha: 03/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las actividades pendientes listas para ejecutar por Hangfire.
+        /// </summary>
+        public async Task<List<ActividadPendienteDTO>> ObtenerActividadesPendientesAsync()
+        {
+            try
+            {
+                return await _unitOfWork.GestionContactoRepository.ObtenerActividadesPendientesAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 03/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza el estado de una actividad despues de su ejecucion por Hangfire.
+        /// </summary>
+        public async Task<ResultadoEjecucionDTO> ActualizarEstadoActividadAsync(ActualizarEstadoRequestDTO request)
+        {
+            try
+            {
+                return await _unitOfWork.GestionContactoRepository.ActualizarEstadoActividadAsync(request);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 03/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Marca una ocurrencia y activa disparadores dependientes.
+        /// </summary>
+        public async Task<ResultadoEjecucionDTO> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request)
+        {
+            try
+            {
+                return await _unitOfWork.GestionContactoRepository.MarcarOcurrenciaAsync(request);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }

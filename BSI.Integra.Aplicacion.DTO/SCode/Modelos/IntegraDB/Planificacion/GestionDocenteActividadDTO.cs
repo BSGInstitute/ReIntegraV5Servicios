@@ -390,6 +390,6 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
     {
         public int IdPlantilla { get; set; }
         public string NombrePlantilla { get; set; }
-        public int EstadoPlantilla { get; set; }
+        public bool EstadoPlantilla { get; set; }
     }
 }

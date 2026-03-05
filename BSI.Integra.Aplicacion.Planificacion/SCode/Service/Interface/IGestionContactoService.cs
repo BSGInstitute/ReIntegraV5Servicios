@@ -22,5 +22,10 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         OportunidadDocenteListResponseDTO ObtenerOportunidadesDocente(string busqueda, int pagina, int porPagina);
         IEnumerable<ComboDTO> ObtenerDocentes();
         Task<ActividadesFlujoPorCategoriaResponseDTO> ObtenerActividadesFlujoPorCategoriaAsync(int idGestionContactoDocenteFlujo);
+
+        // Métodos para Hangfire
+        Task<List<ActividadPendienteDTO>> ObtenerActividadesPendientesAsync();
+        Task<ResultadoEjecucionDTO> ActualizarEstadoActividadAsync(ActualizarEstadoRequestDTO request);
+        Task<ResultadoEjecucionDTO> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request);
     }
 }
