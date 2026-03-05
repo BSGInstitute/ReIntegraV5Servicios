@@ -798,6 +798,114 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
+        /// Autor: Lolo Zaa
+        /// Fecha: 03/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las actividades pendientes listas para ejecutar por Hangfire.
+        /// </summary>
+        public async Task<List<ActividadPendienteDTO>> ObtenerActividadesPendientesAsync()
+        {
+            try
+            {
+                var actividades = await _dataAccess.QueryAsync<ActividadPendienteDTO>(
+                    "pla.SP_GestionDocenteActividadesPendientesEjecucion",
+                    commandType: System.Data.CommandType.StoredProcedure
+                );
+
+                return actividades.ToList();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 03/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza el estado de una actividad despues de su ejecucion por Hangfire.
+        /// </summary>
+        public async Task<ResultadoEjecucionDTO> ActualizarEstadoActividadAsync(ActualizarEstadoRequestDTO request)
+        {
+            try
+            {
+                var parameters = new
+                {
+                    IdActividadDetalleCongelada = request.IdActividadDetalleCongelada,
+                    IdDisparadorCongelado = request.IdDisparadorCongelado,
+                    CodigoNuevoEstado = request.CodigoNuevoEstado,
+                    MensajeResultado = request.MensajeResultado,
+                    MensajeError = request.MensajeError,
+                    UsuarioModificacion = request.UsuarioModificacion
+                };
+
+                var resultado = await _dataAccess.QueryFirstOrDefaultAsync<dynamic>(
+                    "pla.SP_GestionDocenteActividadActualizarEstado",
+                    parameters,
+                    commandType: System.Data.CommandType.StoredProcedure
+                );
+
+                return new ResultadoEjecucionDTO
+                {
+                    Exitoso = true,
+                    IdRegistro = resultado?.IdEjecucion ?? 0,
+                    Mensaje = "Estado actualizado correctamente"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResultadoEjecucionDTO
+                {
+                    Exitoso = false,
+                    Error = $"Error al actualizar estado: {ex.Message}"
+                };
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 03/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Marca una ocurrencia y activa disparadores dependientes.
+        /// </summary>
+        public async Task<ResultadoEjecucionDTO> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request)
+        {
+            try
+            {
+                var parameters = new
+                {
+                    IdGestionDocenteOcurrenciaCongelada = request.IdGestionDocenteOcurrenciaCongelada,
+                    IdGestionContacto = request.IdGestionContacto,
+                    Comentario = request.Comentario,
+                    FechaHoraOcurrencia = request.FechaHoraOcurrencia,
+                    UsuarioCreacion = request.UsuarioCreacion
+                };
+
+                var resultado = await _dataAccess.QueryFirstOrDefaultAsync<dynamic>(
+                    "pla.SP_GestionDocenteOcurrenciaMarcar",
+                    parameters,
+                    commandType: System.Data.CommandType.StoredProcedure
+                );
+
+                return new ResultadoEjecucionDTO
+                {
+                    Exitoso = true,
+                    IdRegistro = resultado?.IdOcurrenciaMarcada ?? 0,
+                    Mensaje = "Ocurrencia marcada correctamente"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResultadoEjecucionDTO
+                {
+                    Exitoso = false,
+                    Error = $"Error al marcar ocurrencia: {ex.Message}"
+                };
+            }
+        }
+
         // DTO interno para deserializar resultado plano del SP
         private class ActividadFlujoRawDTO
         {
