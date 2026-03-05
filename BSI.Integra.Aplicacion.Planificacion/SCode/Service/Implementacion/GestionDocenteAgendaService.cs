@@ -113,28 +113,25 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
-        /// Autor: Joseph Llanque
-        /// Fecha: 24/02/2026
-        /// Versión: 1.0
+        /// Autor: Joseph Llanque / Jose Vega
+        /// Fecha: 05/03/2026
+        /// Versión: 1.1
         /// <summary>
         /// Obtiene las actividades de todos los tabs que tengan VisualizarActividad = true
         /// y CargarInformacionInicial = true, agrupadas por nombre de tab.
-        /// El filtro por asesor se aplica en repositorio si idAsesor > 0.
+        /// Dentro de cada tab, las filas planas se agrupan por docente + centro de costo.
         /// </summary>
-        /// <param name="idAsesor">ID del personal asignado; 0 para no filtrar.</param>
-        /// <param name="codigoAreaTrabajo">Código del área de trabajo.</param>
-        /// <returns>Diccionario con clave = NombreTab y valor = lista de actividades.</returns>
-        public Dictionary<string, List<ActividadAgendaPlanificacionDTO>> ObtenerActividades(int idAsesor, string codigoAreaTrabajo)
+        public Dictionary<string, List<ActividadAgendaAgrupadaDTO>> ObtenerActividades(int idAsesor, string codigoAreaTrabajo)
         {
             try
             {
-                var resultado = new Dictionary<string, List<ActividadAgendaPlanificacionDTO>>();
+                var resultado = new Dictionary<string, List<ActividadAgendaAgrupadaDTO>>();
                 var tabs = _unitOfWork.GestionDocenteAgendaRepository.ObtenerTabsConfigurados(codigoAreaTrabajo);
 
                 foreach (var tab in tabs.Where(t => t.VisualizarActividad && t.CargarInformacionInicial))
                 {
                     var actividades = _unitOfWork.GestionDocenteAgendaRepository.ObtenerActividades(tab, idAsesor);
-                    resultado[tab.Nombre] = actividades;
+                    resultado[tab.Nombre] = AgruparActividades(actividades);
                 }
 
                 return resultado;
@@ -159,13 +156,13 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         {
             try
             {
-                var actividadesAgenda = new Dictionary<string, List<ActividadAgendaPlanificacionDTO>>();
+                var actividadesAgenda = new Dictionary<string, List<ActividadAgendaAgrupadaDTO>>();
                 var tabs = _unitOfWork.GestionDocenteAgendaRepository.ObtenerTabsConfiguradosPorIdTab(codigoAreaTrabajo, idTab);
 
                 foreach (var tab in tabs)
                 {
                     var actividades = _unitOfWork.GestionDocenteAgendaRepository.ObtenerActividades(tab, idAsesor);
-                    actividadesAgenda[tab.Nombre] = actividades;
+                    actividadesAgenda[tab.Nombre] = AgruparActividades(actividades);
                 }
 
                 int cantidad = actividadesAgenda.Values.Sum(v => v.Count);
@@ -246,6 +243,82 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             {
                 throw;
             }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 05/03/2026
+        /// Versión: 1.1
+        /// <summary>
+        /// Agrupa las filas planas del SP por docente + centro de costo.
+        /// Las actividades se anidan jerárquicamente: Actividades (cabeceras) → Detalles.
+        /// </summary>
+        private List<ActividadAgendaAgrupadaDTO> AgruparActividades(List<ActividadAgendaPlanificacionDTO> actividades)
+        {
+            return actividades
+                .GroupBy(a => new { a.IdProveedor, IdCentroCosto = a.IdCentroCosto ?? 0 })
+                .Select(g =>
+                {
+                    var primero = g.First();
+                    return new ActividadAgendaAgrupadaDTO
+                    {
+                        IdProveedor = primero.IdProveedor,
+                        NombreDocente = primero.NombreDocente,
+                        Celular = primero.Celular,
+                        Celular2 = primero.Celular2,
+                        Contacto1 = primero.Contacto1,
+                        Contacto2 = primero.Contacto2,
+                        Correo = primero.Correo,
+                        IdGestionContacto = primero.IdGestionContacto,
+                        IdPersonal_Asignado = primero.IdPersonal_Asignado,
+                        PersonalAsignado = primero.PersonalAsignado,
+                        IdGestionDocenteFlujo = primero.IdGestionDocenteFlujo,
+                        NombreFlujo = primero.NombreFlujo,
+                        IdCentroCosto = primero.IdCentroCosto,
+                        NombreCentroCosto = primero.NombreCentroCosto,
+                        CodigoCentroCosto = primero.CodigoCentroCosto,
+                        ActividadesCabecera = primero.ActividadesCabecera,
+                        NumeroActividades = primero.NumeroActividades,
+                        Pais = primero.Pais,
+                        Ciudad = primero.Ciudad,
+                        IdPEspecifico = primero.IdPEspecifico,
+                        NombreCurso = primero.NombreCurso,
+                        CodigoCurso = primero.CodigoCurso,
+                        FechaInicio = primero.FechaInicio,
+                        FechaTermino = primero.FechaTermino,
+                        IdProgramaGeneral = primero.IdProgramaGeneral,
+                        ProgramaGeneral = primero.ProgramaGeneral,
+                        ProximaClase = primero.ProximaClase,
+                        HorarioClases = primero.HorarioClases,
+                        IdPais = primero.IdPais,
+                        PuntajeGlobal = primero.PuntajeGlobal,
+                        IdCategoria = primero.IdCategoria,
+                        NombreCategoria = primero.NombreCategoria,
+                        EncuestaPromedio = primero.EncuestaPromedio,
+                        EncuestaCantidad = primero.EncuestaCantidad,
+                        EncuestaUltimoComentario = primero.EncuestaUltimoComentario,
+                        UsuarioWeb = primero.UsuarioWeb,
+                        ContraseniaWeb = primero.ContraseniaWeb,
+                        FechaInscritoWeb = primero.FechaInscritoWeb,
+                        Actividades = g
+                            .Where(a => a.IdActividadCabecera.HasValue)
+                            .GroupBy(a => new { a.IdActividadCabecera, a.NombreActividadCabecera })
+                            .Select(gc => new ActividadCabeceraItemDTO
+                            {
+                                IdActividadCabecera = gc.Key.IdActividadCabecera,
+                                NombreActividadCabecera = gc.Key.NombreActividadCabecera,
+                                Detalles = gc
+                                    .Where(a => a.IdActividadDetalle.HasValue)
+                                    .Select(a => new ActividadDetalleItemDTO
+                                    {
+                                        IdActividadDetalle = a.IdActividadDetalle,
+                                        NombreActividadDetalle = a.NombreActividadDetalle
+                                    })
+                                    .ToList()
+                            })
+                            .ToList()
+                    };
+                })
+                .ToList();
         }
     }
 }
