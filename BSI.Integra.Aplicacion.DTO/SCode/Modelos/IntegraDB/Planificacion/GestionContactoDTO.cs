@@ -17,7 +17,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
     public class ActividadGestionAntiguaDTO
     {
         public int Id { get; set; }
-        public string Comentario { get; set; }
+        public string? Comentario { get; set; }
         public int IdOcurrencia { get; set; }
         public int IdOcurrenciaActividad { get; set; }
         public int IdProveedor { get; set; }
@@ -62,6 +62,23 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string UsuarioCreacion { get; set; }
     }
 
+    public class GestionContactoSimpleDTO
+    {
+        public int Id { get; set; }
+        public int? IdClasificacionPersona { get; set; }
+        public int? IdPersonal_Asignado { get; set; }
+        public int? IdCentroCosto { get; set; }
+        public int? IdFaseGestionContacto { get; set; }
+        public int? IdEstadoGestionContacto { get; set; }
+        public int? IdOrigen { get; set; }
+
+        public string? UltimoComentario { get; set; }
+        public string? UsuarioCreacion { get; set; }
+        public string? UsuarioModificacion { get; set; }
+        public DateTime FechaCreacion { get; set; }
+        public DateTime FechaModificacion { get; set; }
+
+    }
     public class ProveedorClasificacionDTO
     {
         public int IdClasificacionPersona { get; set; }

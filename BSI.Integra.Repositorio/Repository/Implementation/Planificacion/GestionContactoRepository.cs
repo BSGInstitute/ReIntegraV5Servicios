@@ -218,39 +218,33 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         /// </summary>
         /// <param name="id">Identificador de la gestión</param>
         /// <returns>Objeto GestionContacto</returns>
-        public async Task<GestionContacto> ObtenerPorIdAsync(int id)
+        public async Task<GestionContactoSimpleDTO> ObtenerPorIdAsync(int id)
         {
             try
             {
                 string query = @"
                 SELECT 
-                    Id,
-                    IdAlumno, 
-                    IdPersonalAsignado,
-                    IdCentroCosto,
-                    IdFaseGestionContacto,
-                    IdEstadoGestionContacto,
-                    IdSubEstadoGestionContacto,
-                    IdClasificacionPersona,
-                    IdOrigen,
-                    UltimoComentario,
-                    UltimaFechaProgramada,
-                    UsuarioCreacion,
-                    UsuarioModificacion,
-                    FechaCreacion,
-                    FechaModificacion,
-                    RowVersion,
-                    Estado
-                FROM com.T_GestionContacto WITH(NOLOCK)
+                      Id,
+                      IdClasificacionPersona, 
+                      IdPersonal_Asignado,
+                      IdCentroCosto,
+                      IdFaseGestionContacto,
+                      IdEstadoGestionContacto,
+                      IdClasificacionPersona,
+                      IdOrigen,
+                      UltimoComentario,
+                      UsuarioCreacion,
+                      UsuarioModificacion,
+                      FechaCreacion,
+                      FechaModificacion
+                FROM pla.T_GestionContacto WITH(NOLOCK)
                 WHERE Id = @Id AND Estado = 1";
 
                 var resultadoDinamico = await _dapperRepository.FirstOrDefaultAsync(query, new { Id = id });
 
-                if (resultadoDinamico == null) return null;
-                string json = JsonConvert.SerializeObject(resultadoDinamico);
-                var resultadoBO = JsonConvert.DeserializeObject<GestionContacto>(json);
+                if (string.IsNullOrEmpty(resultadoDinamico)) return null;
 
-                return resultadoBO;
+                return JsonConvert.DeserializeObject<GestionContactoSimpleDTO>(resultadoDinamico);
             }
             catch (Exception ex)
             {

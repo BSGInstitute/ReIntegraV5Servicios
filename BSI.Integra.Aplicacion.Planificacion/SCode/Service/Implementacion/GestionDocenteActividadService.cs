@@ -1108,16 +1108,20 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// </summary>
         /// <param name="idModuloSistemaV5">Id del módulo del sistema V5.</param>
         /// <param name="idPlantillaBase">Id del tipo de plantilla (2=Email, 8=WhatsApp).</param>
-        /// <param name="idPersonalAreaTrabajo">Id del área de trabajo del personal logueado.</param>
+        /// <param name="area">Nombre del área de trabajo del personal logueado.</param>
         /// <returns>Lista de PlantillaDisponiblePlanificacionDTO.</returns>
-        public List<PlantillaDisponiblePlanificacionDTO> ObtenerPlantillasPlanificacion(int idModuloSistemaV5, int idPlantillaBase, int idPersonalAreaTrabajo)
+        public List<PlantillaDisponiblePlanificacionDTO> ObtenerPlantillasPlanificacion(int idModuloSistemaV5, int idPlantillaBase, string area)
         {
             try
             {
+                var personalAreaTrabajo = _unitOfWork.PersonalAreaTrabajoRepository.FirstBy(w => w.Codigo == area && w.Estado == true);
+                if (personalAreaTrabajo == null)
+                    throw new Exception($"No se encontró el área de trabajo '{area}'.");
+
                 return _unitOfWork.PlantillaClaveValorRepository.ObtenerPlantillasModuloAgendaPlanificacion(
                     idModuloSistemaV5,
                     idPlantillaBase,
-                    idPersonalAreaTrabajo
+                    personalAreaTrabajo.Id
                 );
             }
             catch (Exception)
@@ -1161,9 +1165,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
 
                 // 3. Obtener Personal (coordinador/asesor)
                 Personal personal = null;
-                if (gestionContacto.IdPersonalAsignado.HasValue)
+                if (gestionContacto.IdPersonal_Asignado.HasValue)
                 {
-                    personal = _unitOfWork.PersonalRepository.ObtenerPorId(gestionContacto.IdPersonalAsignado.Value);
+                    personal = _unitOfWork.PersonalRepository.ObtenerPorId(gestionContacto.IdPersonal_Asignado.Value);
                 }
 
                 // 4. Obtener CentroCosto (curso)

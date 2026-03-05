@@ -236,9 +236,34 @@ namespace BSI.Integra.Aplicacion.Servicios.SCode.Service.Implementacion.Wavix
                 // 2.2.  Validar que exista un token diario
                 var tokenVigente = _unitOfWork.WavixRepository.ObtenerTokenVigente(personalConfig.Id);
 
-                // 2.1 Obtener lista de troncales 
-                var troncales = await ListarSipTrunks(apiKey,1,100);
-                var troncalEncontrada = troncales.sip_trunks.FirstOrDefault(x=>x.name == personalConfig.IdSipTrunk);
+                // 2.1 Obtener lista de troncales recursivamente (paginación de 100 en 100)
+                List<SipTrunkDTO> todasLasTroncales = new List<SipTrunkDTO>();
+                int paginaActual = 1;
+                const int tamanioPagina = 100;
+                bool hayMasPaginas = true;
+
+                while (hayMasPaginas)
+                {
+                    var respuestaPagina = await ListarSipTrunks(apiKey, paginaActual, tamanioPagina);
+                    if (respuestaPagina?.sip_trunks != null && respuestaPagina.sip_trunks.Count > 0)
+                    {
+                        todasLasTroncales.AddRange(respuestaPagina.sip_trunks);
+                        if (respuestaPagina.sip_trunks.Count < tamanioPagina)
+                        {
+                            hayMasPaginas = false;
+                        }
+                        else
+                        {
+                            paginaActual++;
+                        }
+                    }
+                    else
+                    {
+                        hayMasPaginas = false;
+                    }
+                }
+
+                var troncalEncontrada = todasLasTroncales.FirstOrDefault(x => x.name == personalConfig.IdSipTrunk);
 
                 // 3. Obtener configuración del SIP trunk desde Wavix API
                 var sipTrunkConfig = await ObtenerSipTrunkPorId(apiKey, troncalEncontrada.id);
