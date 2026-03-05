@@ -961,38 +961,80 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
         /// Autor: Lolo Zaa
         /// Fecha: 05/03/2026
+        /// Version: 2.0
+        /// <summary>
+        /// Obtiene una actividad especifica para ejecucion manual sin filtros de estado o fecha.
+        /// </summary>
+        public async Task<ActividadPendienteDTO> ObtenerActividadParaEjecucionManualAsync(int idActividadDetalleCongelada, int idDisparadorCongelado)
+        {
+            try
+            {
+                string query = @"
+                    SELECT
+                        adc.Id AS IdActividadDetalleCongelada,
+                        ad.Nombre AS NombreActividad,
+                        ad.IdGestionDocenteActividadDetalleTipo AS IdTipoActividad,
+                        ad.IdPlantillaMedioComunicacion,
+                        fdc.Id AS IdGestionContactoFlujoCongelado,
+                        fdc.IdGestionContactoDocenteFlujo AS IdGestionContactoDocenteFlujo,
+                        gc.Id AS IdGestionContacto,
+                        dc.Id AS IdDisparadorCongelado,
+                        dd.IdGestionDocenteDisparadorFlujoTipo AS TipoDisparador,
+                        ISNULL(rtfc.Fecha, GETDATE()) AS FechaEjecucion,
+                        NULL AS IdPEspecificoSesion,
+                        p.IdPlantillaBase,
+                        pmc.IdPlantilla
+                    FROM pla.T_GestionDocenteActividadDetalleCongelada adc
+                    INNER JOIN pla.T_GestionDocenteActividadDetalle ad ON adc.IdGestionDocenteActividadDetalle = ad.Id
+                    INNER JOIN mkt.T_PlantillaMedioComunicacion pmc ON ad.IdPlantillaMedioComunicacion = pmc.Id
+                    INNER JOIN mkt.T_Plantilla p ON pmc.IdPlantilla = p.Id
+                    INNER JOIN pla.T_GestionDocenteActividadCabeceraCongelada acc ON adc.IdGestionDocenteActividadCabeceraCongelada = acc.Id
+                    INNER JOIN pla.T_GestionContactoFlujoCongelado fdc ON acc.IdGestionContactoFlujoCongelado = fdc.Id
+                    INNER JOIN pla.T_GestionContactoDocenteFlujo gcdf ON fdc.IdGestionContactoDocenteFlujo = gcdf.Id
+                    INNER JOIN pla.T_GestionContacto gc ON gcdf.IdGestionContacto = gc.Id
+                    INNER JOIN pla.T_GestionDocenteDisparadorCongelado dc ON adc.Id = dc.IdGestionDocenteActividadDetalleCongelada
+                    INNER JOIN pla.T_GestionDocenteDisparadorDetalle dd ON dc.IdGestionDocenteDisparadorDetalle = dd.Id
+                    LEFT JOIN pla.T_GestionDocenteDisparadorReglaTiempoFijoCongelado rtfc ON dc.Id = rtfc.IdGestionDocenteDisparadorCongelado AND rtfc.Estado = 1
+                    WHERE adc.Id = @IdActividadDetalleCongelada
+                      AND dc.Id = @IdDisparadorCongelado
+                      AND adc.Estado = 1
+                      AND dc.Estado = 1";
+
+                var result = await _dapperRepository.FirstOrDefaultAsync(query, new
+                {
+                    IdActividadDetalleCongelada = idActividadDetalleCongelada,
+                    IdDisparadorCongelado = idDisparadorCongelado
+                });
+
+                if (string.IsNullOrEmpty(result))
+                    return null;
+
+                // Deserializar manualmente porque FirstOrDefaultAsync retorna string
+                var actividad = JsonConvert.DeserializeObject<ActividadPendienteDTO>(result);
+                return actividad;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al obtener actividad para ejecucion manual: {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 05/03/2026
         /// Version: 1.0
         /// <summary>
         /// Ejecuta una actividad inmediatamente sin esperar a Hangfire.
         /// Si MarcarOcurrenciaAsociada es true, tambien marca la ocurrencia y activa dependientes.
+        /// NOTA: Solo marca como ejecutado. El envio real de correos se hace en el Service.
         /// </summary>
         public async Task<ResultadoEjecucionDTO> EjecutarActividadManualmenteAsync(EjecutarActividadManualDTO request)
         {
             try
             {
-                // 1. Obtener datos de la actividad
-                var parameters = new DynamicParameters();
-                parameters.Add("@IdActividadDetalleCongelada", request.IdActividadDetalleCongelada, DbType.Int32);
-                parameters.Add("@IdDisparadorCongelado", request.IdDisparadorCongelado, DbType.Int32);
-
-                string queryActividad = await _dapperRepository.QuerySPDapperAsync(
-                    "pla.SP_GestionDocenteActividadesPendientesEjecucion",
-                    parameters
-                );
-
-                if (string.IsNullOrEmpty(queryActividad) || queryActividad.Contains("[]"))
-                {
-                    return new ResultadoEjecucionDTO
-                    {
-                        Exitoso = false,
-                        Error = "Actividad no encontrada o ya ejecutada"
-                    };
-                }
-
-                var actividades = JsonConvert.DeserializeObject<List<ActividadPendienteDTO>>(queryActividad);
-                var actividad = actividades?.FirstOrDefault(a =>
-                    a.IdActividadDetalleCongelada == request.IdActividadDetalleCongelada &&
-                    a.IdDisparadorCongelado == request.IdDisparadorCongelado
+                // 1. Obtener datos de la actividad sin filtros de estado (para ejecucion manual)
+                var actividad = await ObtenerActividadParaEjecucionManualAsync(
+                    request.IdActividadDetalleCongelada,
+                    request.IdDisparadorCongelado
                 );
 
                 if (actividad == null)
@@ -1004,12 +1046,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     };
                 }
 
-                // 2. Simular ejecución (TODO: implementar servicios reales)
+                // 2. Simular ejecución (la logica real de envio se hace en el Service)
                 string mensajeResultado = string.Empty;
 
-                if (actividad.IdTipoActividad == 1) // Automática
+                if (actividad.IdTipoActividad == 1) // Automática (Email/WhatsApp)
                 {
-                    mensajeResultado = $"[EJECUCION MANUAL] Actividad automatica ejecutada - Plantilla: {actividad.IdPlantilla}, Contacto: {actividad.IdGestionContacto}";
+                    mensajeResultado = $"[EJECUCION MANUAL] Actividad automatica marcada - Plantilla: {actividad.IdPlantilla}, Contacto: {actividad.IdGestionContacto}";
                 }
                 else if (actividad.IdTipoActividad == 2) // Manual
                 {

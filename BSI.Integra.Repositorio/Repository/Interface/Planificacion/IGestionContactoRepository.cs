@@ -40,6 +40,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         Task<ResultadoEjecucionDTO> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request);
 
         // Métodos para ejecución manual
+        Task<ActividadPendienteDTO> ObtenerActividadParaEjecucionManualAsync(int idActividadDetalleCongelada, int idDisparadorCongelado);
         Task<ResultadoEjecucionDTO> EjecutarActividadManualmenteAsync(EjecutarActividadManualDTO request);
         Task<ResultadoEjecucionDTO> AdelantarFechaActividadAsync(AdelantarActividadDTO request);
         Task<List<ActividadDependienteDTO>> ObtenerActividadesDependientesAsync(int idActividadDetalleCongelada);

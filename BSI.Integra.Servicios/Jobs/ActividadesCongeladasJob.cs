@@ -1,5 +1,8 @@
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
+using BSI.Integra.Aplicacion.Transversal.Service.Interface;
+using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
@@ -13,13 +16,22 @@ namespace BSI.Integra.Servicios.Jobs
     public class ActividadesCongeladasJob
     {
         private readonly IGestionContactoService _gestionContactoService;
+        private readonly IGestionDocenteActividadService _gestionDocenteActividadService;
+        private readonly IPersonalService _personalService;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<ActividadesCongeladasJob> _logger;
 
         public ActividadesCongeladasJob(
             IGestionContactoService gestionContactoService,
+            IGestionDocenteActividadService gestionDocenteActividadService,
+            IPersonalService personalService,
+            IUnitOfWork unitOfWork,
             ILogger<ActividadesCongeladasJob> logger)
         {
             _gestionContactoService = gestionContactoService;
+            _gestionDocenteActividadService = gestionDocenteActividadService;
+            _personalService = personalService;
+            _unitOfWork = unitOfWork;
             _logger = logger;
         }
 
@@ -154,12 +166,96 @@ namespace BSI.Integra.Servicios.Jobs
         /// </summary>
         private async Task<string> EjecutarActividadAutomaticaAsync(ActividadPendienteDTO actividad)
         {
-            // TODO: Implementar servicios de envio en siguiente paso
-            // Por ahora solo simulamos la ejecucion
+            try
+            {
+                _logger.LogInformation($"Iniciando ejecucion automatica - IdGestionContacto: {actividad.IdGestionContacto}, IdPlantilla: {actividad.IdPlantilla}, IdPlantillaBase: {actividad.IdPlantillaBase}");
 
-            await Task.Delay(100); // Simular procesamiento
+                // 1. Obtener datos de la gestion de contacto para obtener el docente
+                var gestionContacto = await _unitOfWork.GestionContactoRepository.ObtenerPorIdAsync(actividad.IdGestionContacto);
+                if (gestionContacto == null || gestionContacto.Id == 0)
+                {
+                    throw new Exception($"No se encontro la gestion de contacto con Id {actividad.IdGestionContacto}");
+                }
 
-            return $"[SIMULACION] Actividad automatica ejecutada - Plantilla: {actividad.IdPlantilla}, Contacto: {actividad.IdGestionContacto}";
+                if (!gestionContacto.IdClasificacionPersona.HasValue)
+                {
+                    throw new Exception($"La gestion de contacto {actividad.IdGestionContacto} no tiene clasificacion de persona asociada");
+                }
+
+                // 2. Obtener datos del docente
+                var docente = _unitOfWork.DocentePostulanteRepository.ObtenerDocenteDTOPorIdClasificacionPersona(gestionContacto.IdClasificacionPersona.Value);
+                if (docente == null || string.IsNullOrWhiteSpace(docente.Correo))
+                {
+                    throw new Exception($"No se encontro el correo del docente para la clasificacion de persona {gestionContacto.IdClasificacionPersona.Value}");
+                }
+
+                // 3. Generar la plantilla con los datos reemplazados
+                _logger.LogInformation($"Generando plantilla {actividad.IdPlantilla} para gestion contacto {actividad.IdGestionContacto}");
+                var plantillaGenerada = _gestionDocenteActividadService.GenerarPlantillaDocente(new ReemplazoEtiquetaPlantillaDocenteDTO
+                {
+                    IdGestionContacto = actividad.IdGestionContacto,
+                    IdPlantilla = actividad.IdPlantilla
+                });
+
+                // 4. Verificar el tipo de plantilla y ejecutar segun corresponda
+                if (actividad.IdPlantillaBase == 2) // Email
+                {
+                    if (string.IsNullOrWhiteSpace(plantillaGenerada.EmailReemplazado.Asunto) ||
+                        string.IsNullOrWhiteSpace(plantillaGenerada.EmailReemplazado.CuerpoHTML))
+                    {
+                        throw new Exception("La plantilla de email generada esta vacia");
+                    }
+
+                    // 5. Obtener credenciales de Gmail desde configuracion
+                    var configCorreo = _unitOfWork.ConfiguracionIntegraRepository.ObtenerPorClaves("GMAIL", "CORREO_REMITENTE");
+                    var configClave = _unitOfWork.ConfiguracionIntegraRepository.ObtenerPorClaves("GMAIL", "CLAVE_APLICACION");
+
+                    if (configCorreo == null || string.IsNullOrWhiteSpace(configCorreo.Valor1))
+                    {
+                        throw new Exception("No se encontro la configuracion del correo remitente de Gmail");
+                    }
+
+                    if (configClave == null || string.IsNullOrWhiteSpace(configClave.Valor1))
+                    {
+                        throw new Exception("No se encontro la configuracion de la clave de aplicacion de Gmail");
+                    }
+
+                    // 6. Enviar el correo
+                    _logger.LogInformation($"Enviando correo a {docente.Correo} con asunto: {plantillaGenerada.EmailReemplazado.Asunto}");
+
+                    bool enviado = _personalService.EnviarCorreoGmail(
+                        emailDestinatario: docente.Correo,
+                        emailRemitente: configCorreo.Valor1,
+                        personal: "BSG Institute - Planificacion Docente",
+                        clave: configClave.Valor1,
+                        mensaje: plantillaGenerada.EmailReemplazado.CuerpoHTML,
+                        asunto: plantillaGenerada.EmailReemplazado.Asunto
+                    );
+
+                    if (!enviado)
+                    {
+                        throw new Exception("El servicio de envio de correo retorno false");
+                    }
+
+                    _logger.LogInformation($"Correo enviado exitosamente a {docente.Correo}");
+                    return $"Email enviado exitosamente a {docente.Correo} - Asunto: {plantillaGenerada.EmailReemplazado.Asunto}";
+                }
+                else if (actividad.IdPlantillaBase == 8) // WhatsApp
+                {
+                    // TODO: Implementar envio de WhatsApp en siguiente fase
+                    _logger.LogWarning($"Envio de WhatsApp aun no implementado - IdPlantilla: {actividad.IdPlantilla}");
+                    return $"[PENDIENTE] WhatsApp - Plantilla: {actividad.IdPlantilla}, Contacto: {docente.Celular}";
+                }
+                else
+                {
+                    throw new Exception($"Tipo de plantilla base no soportado: {actividad.IdPlantillaBase}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error ejecutando actividad automatica {actividad.IdActividadDetalleCongelada}");
+                throw new Exception($"Error en actividad automatica: {ex.Message}", ex);
+            }
         }
 
         /// <summary>
