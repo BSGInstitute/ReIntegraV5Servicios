@@ -25,16 +25,22 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
 
         /// Autor: Jose Vega
         /// Fecha: 19/02/2026
-        /// Versión: 1.0
+        /// Versión: 1.1
         /// <summary>
-        /// Obtiene la lista de docentes que tienen cursos asignados con su personal asignado.
+        /// Obtiene la lista de docentes que tienen cursos asignados.
+        /// Se aplica Distinct y OrderBy en memoria.
         /// </summary>
-        /// <returns>Lista de DocenteConCursoDTO.</returns>
         public List<DocenteConCursoDTO> ObtenerDocentesConCursos()
         {
             try
             {
-                return _unitOfWork.GestionDocenteAgendaRepository.ObtenerDocentesConCursos();
+                var lista = _unitOfWork.GestionDocenteAgendaRepository.ObtenerDocentesConCursos();
+                return lista
+                    .GroupBy(x => new { x.IdProveedor, x.IdPEspecifico })
+                    .Select(g => g.First())
+                    .OrderBy(x => x.NombreDocente)
+                    .ThenBy(x => x.NombreCurso)
+                    .ToList();
             }
             catch (Exception ex)
             {
@@ -169,6 +175,72 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     ActividadesAgenda = actividadesAgenda,
                     Cantidad = cantidad
                 };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 03/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la lista de docentes que comparten el mismo centro de costo que la gestión de contacto proporcionada.
+        /// Aplica agrupación por proveedor y curso en memoria.
+        /// </summary>
+        /// <param name="idGestionContacto">Identificador de la gestión de contacto base.</param>
+        /// <returns>Lista de DocenteConCursoDTO.</returns>
+        public List<DocenteConCursoDTO> ObtenerDocentesPorGestionContacto(int idGestionContacto)
+        {
+            try
+            {
+                var lista = _unitOfWork.GestionDocenteAgendaRepository.ObtenerDocentesPorGestionContacto(idGestionContacto);
+                return lista
+                    .GroupBy(x => new { x.IdProveedor, x.IdPEspecifico })
+                    .Select(g => g.First())
+                    .OrderBy(x => x.NombreDocente)
+                    .ThenBy(x => x.NombreCurso)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 03/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene información adicional del docente: email, últimas comunicaciones, encuestas y cantidad de estudiantes.
+        /// </summary>
+        /// <param name="idProveedor">Identificador del docente.</param>
+        /// <param name="idPEspecifico">Identificador del curso.</param>
+        /// <returns>InformacionFaltanteDocenteDTO.</returns>
+        public InformacionFaltanteDocenteDTO ObtenerInformacionFaltanteDocente(int idProveedor, int idPEspecifico)
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteAgendaRepository.ObtenerInformacionFaltanteDocente(idProveedor, idPEspecifico);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 03/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el detalle de un correo enviado al docente por su ID.
+        /// </summary>
+        public CorreoDetalleDocenteDTO ObtenerDetalleCorreo(int idCorreo)
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteAgendaRepository.ObtenerDetalleCorreo(idCorreo);
             }
             catch (Exception ex)
             {

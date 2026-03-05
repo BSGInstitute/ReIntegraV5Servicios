@@ -86,8 +86,15 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     };
                     configurarEvaluacion.PreguntaEvaluacionTrabajos.Add(preguntaEvaluacionTrabajo);
                 }
-                _unitOfWork.ConfigurarEvaluacionTrabajoRepository.Add(configurarEvaluacion);
+
+                var resultado = _unitOfWork.ConfigurarEvaluacionTrabajoRepository.Add(configurarEvaluacion);
                 _unitOfWork.Commit();
+                //return true;
+                if (configurarEvaluacionTrabajoDTO.criterioTareas != null && configurarEvaluacionTrabajoDTO.criterioTareas.Count > 0) {
+                    foreach (var criterio in configurarEvaluacionTrabajoDTO.criterioTareas) {
+                        _unitOfWork.ConfigurarEvaluacionTrabajoRepository.InsertarCriterioConfiguracion(resultado.Id, criterio.idCriterioTarea, usuario);
+                    }
+                }
                 return true;
 
             }
@@ -168,6 +175,16 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 }
                 _unitOfWork.ConfigurarEvaluacionTrabajoRepository.Update(configurarEvaluacionTrabajo);
                 _unitOfWork.Commit();
+
+                _unitOfWork.ConfigurarEvaluacionTrabajoRepository.EliminarCriteriosPorConfiguracion(configurarEvaluacionTrabajo.Id, usuario);
+
+                if (configurarEvaluacionTrabajoDTO.criterioTareas != null && configurarEvaluacionTrabajoDTO.criterioTareas.Count > 0) {
+                    foreach (var criterio in configurarEvaluacionTrabajoDTO.criterioTareas)
+                    {
+                        _unitOfWork.ConfigurarEvaluacionTrabajoRepository.InsertarCriterioConfiguracion(configurarEvaluacionTrabajo.Id, criterio.idCriterioTarea, usuario);
+                    }
+                }
+                
 
                 return true;
             }

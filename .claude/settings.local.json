@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dotnet build:*)"
+      "Bash(dotnet build:*)",
+      "Bash(git:*)",
+      "Bash(cd /c/Proyectos/GithubCopilot/ServiciosV5 && npm audit 2>&1)",
+      "Bash(cd /c/Proyectos/GithubCopilot/ServiciosV5 && dotnet list package --vulnerable 2>&1)"
     ]
   }
 }

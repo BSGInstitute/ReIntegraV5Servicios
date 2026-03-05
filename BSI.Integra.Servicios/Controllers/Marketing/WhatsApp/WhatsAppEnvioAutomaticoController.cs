@@ -1,12 +1,11 @@
 ﻿using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
-using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;using BSI.Integra.Repositorio.UnitOfWork;
+using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace BSI.Integra.Servicios.Controllers.Marketing.WhatsApp
 {

@@ -406,29 +406,51 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TGastoFinancieroCronogramaDetalle> TGastoFinancieroCronogramaDetalles { get; set; } = null!;
         public virtual DbSet<TGestionContacto> TGestionContactos { get; set; } = null!;
         public virtual DbSet<TGestionContactoActividadDetalleSesion> TGestionContactoActividadDetalleSesions { get; set; } = null!;
+        public virtual DbSet<TGestionContactoActividadSesionCongeladaLog> TGestionContactoActividadSesionCongeladaLogs { get; set; } = null!;
+        public virtual DbSet<TGestionContactoActividadSesionCongeladum> TGestionContactoActividadSesionCongelada { get; set; } = null!;
         public virtual DbSet<TGestionContactoDocenteFlujo> TGestionContactoDocenteFlujos { get; set; } = null!;
+        public virtual DbSet<TGestionContactoFlujoActividadAgregadaLog> TGestionContactoFlujoActividadAgregadaLogs { get; set; } = null!;
+        public virtual DbSet<TGestionContactoFlujoActividadAgregadum> TGestionContactoFlujoActividadAgregada { get; set; } = null!;
+        public virtual DbSet<TGestionContactoFlujoCongelado> TGestionContactoFlujoCongelados { get; set; } = null!;
+        public virtual DbSet<TGestionContactoFlujoCongeladoLog> TGestionContactoFlujoCongeladoLogs { get; set; } = null!;
         public virtual DbSet<TGestionContactoLog> TGestionContactoLogs { get; set; } = null!;
         public virtual DbSet<TGestionDocenteActividadCabecera> TGestionDocenteActividadCabeceras { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteActividadCabeceraCongeladaLog> TGestionDocenteActividadCabeceraCongeladaLogs { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteActividadCabeceraCongeladum> TGestionDocenteActividadCabeceraCongelada { get; set; } = null!;
         public virtual DbSet<TGestionDocenteActividadCabeceraFlujo> TGestionDocenteActividadCabeceraFlujos { get; set; } = null!;
         public virtual DbSet<TGestionDocenteActividadDetalle> TGestionDocenteActividadDetalles { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteActividadDetalleCongeladaLog> TGestionDocenteActividadDetalleCongeladaLogs { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteActividadDetalleCongeladum> TGestionDocenteActividadDetalleCongelada { get; set; } = null!;
         public virtual DbSet<TGestionDocenteActividadDetalleTipo> TGestionDocenteActividadDetalleTipos { get; set; } = null!;
         public virtual DbSet<TGestionDocenteCategoriaGeneralTiempo> TGestionDocenteCategoriaGeneralTiempos { get; set; } = null!;
         public virtual DbSet<TGestionDocenteCategorium> TGestionDocenteCategoria { get; set; } = null!;
         public virtual DbSet<TGestionDocenteConfianzaUmbralNivel> TGestionDocenteConfianzaUmbralNivels { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteDisparadorCongelado> TGestionDocenteDisparadorCongelados { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteDisparadorCongeladoLog> TGestionDocenteDisparadorCongeladoLogs { get; set; } = null!;
         public virtual DbSet<TGestionDocenteDisparadorDetalle> TGestionDocenteDisparadorDetalles { get; set; } = null!;
         public virtual DbSet<TGestionDocenteDisparadorEventoTipo> TGestionDocenteDisparadorEventoTipos { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteDisparadorEventoTipoCongelado> TGestionDocenteDisparadorEventoTipoCongelados { get; set; } = null!;
         public virtual DbSet<TGestionDocenteDisparadorFlujoTipo> TGestionDocenteDisparadorFlujoTipos { get; set; } = null!;
         public virtual DbSet<TGestionDocenteDisparadorOcurrenciaDetalle> TGestionDocenteDisparadorOcurrenciaDetalles { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteDisparadorOcurrenciaDetalleCongelado> TGestionDocenteDisparadorOcurrenciaDetalleCongelados { get; set; } = null!;
         public virtual DbSet<TGestionDocenteDisparadorReglaTiempo> TGestionDocenteDisparadorReglaTiempos { get; set; } = null!;
         public virtual DbSet<TGestionDocenteDisparadorReglaTiempoFijo> TGestionDocenteDisparadorReglaTiempoFijos { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteDisparadorReglaTiempoFijoCongelado> TGestionDocenteDisparadorReglaTiempoFijoCongelados { get; set; } = null!;
         public virtual DbSet<TGestionDocenteDisparadorReglaTiempoRelativo> TGestionDocenteDisparadorReglaTiempoRelativos { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteDisparadorReglaTiempoRelativoCongelado> TGestionDocenteDisparadorReglaTiempoRelativoCongelados { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteDisparadorReglaTiempoRelativoReferenciaCongelado> TGestionDocenteDisparadorReglaTiempoRelativoReferenciaCongelados { get; set; } = null!;
         public virtual DbSet<TGestionDocenteDisparadorReglaTiempoRelativoReferencium> TGestionDocenteDisparadorReglaTiempoRelativoReferencia { get; set; } = null!;
         public virtual DbSet<TGestionDocenteEstado> TGestionDocenteEstados { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteEstadoEjecucion> TGestionDocenteEstadoEjecucions { get; set; } = null!;
         public virtual DbSet<TGestionDocenteFlujo> TGestionDocenteFlujos { get; set; } = null!;
         public virtual DbSet<TGestionDocenteIaEntrenamientoClasificacionTipo> TGestionDocenteIaEntrenamientoClasificacionTipos { get; set; } = null!;
         public virtual DbSet<TGestionDocenteIaEntrenamientoEjemplo> TGestionDocenteIaEntrenamientoEjemplos { get; set; } = null!;
         public virtual DbSet<TGestionDocenteModoMarcado> TGestionDocenteModoMarcados { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteOcurrenciaCongeladaIaConfiguracion> TGestionDocenteOcurrenciaCongeladaIaConfiguracions { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteOcurrenciaCongeladaLog> TGestionDocenteOcurrenciaCongeladaLogs { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteOcurrenciaCongeladum> TGestionDocenteOcurrenciaCongelada { get; set; } = null!;
         public virtual DbSet<TGestionDocenteOcurrenciaIaConfiguracion> TGestionDocenteOcurrenciaIaConfiguracions { get; set; } = null!;
+        public virtual DbSet<TGestionDocenteOcurrenciaIaEjemploCongeladum> TGestionDocenteOcurrenciaIaEjemploCongelada { get; set; } = null!;
         public virtual DbSet<TGestionDocenteOcurrenciaTipo> TGestionDocenteOcurrenciaTipos { get; set; } = null!;
         public virtual DbSet<TGestionDocenteOcurrencium> TGestionDocenteOcurrencia { get; set; } = null!;
         public virtual DbSet<TGestionDocenteReferenciaTiempo> TGestionDocenteReferenciaTiempos { get; set; } = null!;
@@ -953,6 +975,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TTagParametroSeoPw> TTagParametroSeoPws { get; set; } = null!;
         public virtual DbSet<TTagPw> TTagPws { get; set; } = null!;
         public virtual DbSet<TTamanioEmpresa> TTamanioEmpresas { get; set; } = null!;
+        public virtual DbSet<TTareaCriterio> TTareaCriterios { get; set; } = null!;
+        public virtual DbSet<TTareaCriterioConfiguracion> TTareaCriterioConfiguracions { get; set; } = null!;
+        public virtual DbSet<TTareaCriterioSubCriterio> TTareaCriterioSubCriterios { get; set; } = null!;
+        public virtual DbSet<TTareaSubCriterio> TTareaSubCriterios { get; set; } = null!;
         public virtual DbSet<TTarifario> TTarifarios { get; set; } = null!;
         public virtual DbSet<TTarifarioDetalleAlterno> TTarifarioDetalleAlternos { get; set; } = null!;
         public virtual DbSet<TTiempoCapacitacion> TTiempoCapacitacions { get; set; } = null!;
@@ -17621,6 +17647,16 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsConcurrencyToken()
                     .HasComment("Campo de sistema automatico que guarda la version del registro");
 
+                entity.Property(e => e.UrlArchivoCalificacionExcelente)
+                    .HasMaxLength(750)
+                    .IsUnicode(false)
+                    .HasComment("URL publica de acceso al archivo almacenado en el storage");
+
+                entity.Property(e => e.UrlArchivoInstruccionTarea)
+                    .HasMaxLength(750)
+                    .IsUnicode(false)
+                    .HasComment("URL del archivo almacenado en el storage");
+
                 entity.Property(e => e.UsuarioCreacion)
                     .HasMaxLength(50)
                     .IsUnicode(false)
@@ -24686,6 +24722,122 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasConstraintName("FK_GestionContactoActividadDetalleSesion_Sesion");
             });
 
+            modelBuilder.Entity<TGestionContactoActividadSesionCongeladaLog>(entity =>
+            {
+                entity.ToTable("T_GestionContactoActividadSesionCongeladaLog", "pla");
+
+                entity.HasComment("Log de cambios en actividades asignadas a sesiones. Rastrea transiciones de estado.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del registro de log. Clave primaria.");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 del cambio. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.IdGestionContactoActividadSesionCongelada).HasComment("Identificador de la asignación actividad-sesión. Clave foránea a T_GestionContactoActividadSesionCongelada.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucionAnterior)
+                    .HasColumnName("IdGestionDocenteEstadoEjecucion_Anterior")
+                    .HasComment("Identificador del estado anterior. NULLABLE.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucionNuevo)
+                    .HasColumnName("IdGestionDocenteEstadoEjecucion_Nuevo")
+                    .HasComment("Identificador del estado nuevo.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que registró el cambio. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro. Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionContactoActividadSesionCongeladaNavigation)
+                    .WithMany(p => p.TGestionContactoActividadSesionCongeladaLogs)
+                    .HasForeignKey(d => d.IdGestionContactoActividadSesionCongelada)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionContactoActividadSesionCongeladaLog_IdGestionContactoActividadSesionCongelada");
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionAnteriorNavigation)
+                    .WithMany(p => p.TGestionContactoActividadSesionCongeladaLogIdGestionDocenteEstadoEjecucionAnteriorNavigations)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucionAnterior);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNuevoNavigation)
+                    .WithMany(p => p.TGestionContactoActividadSesionCongeladaLogIdGestionDocenteEstadoEjecucionNuevoNavigations)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucionNuevo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionContactoActividadSesionCongeladum>(entity =>
+            {
+                entity.ToTable("T_GestionContactoActividadSesionCongelada", "pla");
+
+                entity.HasComment("Asigna actividad congelada a sesión específica de PEspecifico. Vincula actividades cabecera congeladas con sesiones académicas específicas. Define qué actividades congeladas aplican para qué sesiones.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la asignación de actividad congelada a sesión académica. Clave primaria. Generado automáticamente por IDENTITY.");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo de la asignación. 1 = Asignación activa (la actividad se ejecutará en esta sesión), 0 = Asignación inactiva (la actividad NO se ejecutará). Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora exacta en UTC-5 (Hora Estándar de Perú) cuando se realizó la asignación. Marca el momento de vinculación entre actividad y sesión. Formato: YYYY-MM-DD HH:MM:SS. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación de la asignación. Se actualiza automáticamente con cada cambio. Formato: YYYY-MM-DD HH:MM:SS. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.IdGestionDocenteActividadCabeceraCongelada).HasComment("Identificador de la actividad cabecera congelada que se asigna a la sesión. Clave foránea a T_GestionDocenteActividadCabeceraCongelada. La actividad congelada que será ejecutada en esta sesión.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucion).HasComment("Identificador del estado de ejecución de la asignación a sesión. Referencia a T_GestionDocenteEstadoEjecucion. Permite rastrear si la asignación está lista, en progreso, ejecutada, fallida, etc. NULLABLE - Puede ser nulo.");
+
+                entity.Property(e => e.IdPespecificoSesion)
+                    .HasColumnName("IdPEspecificoSesion")
+                    .HasComment("Identificador de la sesión académica específica (PEspecifico). Referencia a T_PEspecificoSesion. Define a qué sesión académica se asigna la actividad. Ejemplo: Sesión 2026-1 de Matemática 101, Sección A.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Número de versión para control de concurrencia optimista. Generado automáticamente por SQL Server (TIMESTAMP). Previene conflictos en actualizaciones simultáneas. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó la asignación de la actividad a la sesión. Máximo 50 caracteres. Referencia al usuario que ejecutó la operación. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Último usuario que modificó la asignación. Máximo 50 caracteres. Se actualiza con cada cambio. Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionDocenteActividadCabeceraCongeladaNavigation)
+                    .WithMany(p => p.TGestionContactoActividadSesionCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteActividadCabeceraCongelada)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionContactoActividadSesionCongelada_IdGestionDocenteActividadCabeceraCongelada");
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNavigation)
+                    .WithMany(p => p.TGestionContactoActividadSesionCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucion);
+
+                entity.HasOne(d => d.IdPespecificoSesionNavigation)
+                    .WithMany(p => p.TGestionContactoActividadSesionCongelada)
+                    .HasForeignKey(d => d.IdPespecificoSesion)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
             modelBuilder.Entity<TGestionContactoDocenteFlujo>(entity =>
             {
                 entity.ToTable("T_GestionContactoDocenteFlujo", "pla");
@@ -24734,6 +24886,259 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasForeignKey(d => d.IdGestionDocenteFlujo)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_GestionContactoDocenteFlujo_T_GestionDocenteFlujo_IdGestionDocenteFlujo");
+            });
+
+            modelBuilder.Entity<TGestionContactoFlujoActividadAgregadaLog>(entity =>
+            {
+                entity.ToTable("T_GestionContactoFlujoActividadAgregadaLog", "pla");
+
+                entity.HasComment("Log de cambios en actividades agregadas. Rastrea transiciones de estado.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del registro de log. Clave primaria.");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 del cambio. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.IdGestionContactoFlujoActividadAgregada).HasComment("Identificador de la agregación actividad-flujo. Clave foránea a T_GestionContactoFlujoActividadAgregada.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucionAnterior)
+                    .HasColumnName("IdGestionDocenteEstadoEjecucion_Anterior")
+                    .HasComment("Identificador del estado anterior. NULLABLE.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucionNuevo)
+                    .HasColumnName("IdGestionDocenteEstadoEjecucion_Nuevo")
+                    .HasComment("Identificador del estado nuevo.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que registró el cambio. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro. Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionContactoFlujoActividadAgregadaNavigation)
+                    .WithMany(p => p.TGestionContactoFlujoActividadAgregadaLogs)
+                    .HasForeignKey(d => d.IdGestionContactoFlujoActividadAgregada)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionAnteriorNavigation)
+                    .WithMany(p => p.TGestionContactoFlujoActividadAgregadaLogIdGestionDocenteEstadoEjecucionAnteriorNavigations)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucionAnterior);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNuevoNavigation)
+                    .WithMany(p => p.TGestionContactoFlujoActividadAgregadaLogIdGestionDocenteEstadoEjecucionNuevoNavigations)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucionNuevo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionContactoFlujoActividadAgregadum>(entity =>
+            {
+                entity.ToTable("T_GestionContactoFlujoActividadAgregada", "pla");
+
+                entity.HasComment("Registro de actividades cabecera agregadas al flujo congelado. Rastrea qué actividades se han añadido a qué flujos y en qué orden de ejecución. Vincula actividades maestras con sus versiones congeladas dentro de un flujo específico.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del registro de agregación de actividad a flujo. Clave primaria. Generado automáticamente por IDENTITY.");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo de la agregación. 1 = Agregación activa (la actividad se ejecutará en el flujo), 0 = Agregación inactiva/eliminada (la actividad NO se ejecutará). Permite deshabilitar actividades sin eliminar el registro. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora exacta en UTC-5 (Hora Estándar de Perú) cuando se agregó la actividad al flujo. Marca el momento de la operación. Formato: YYYY-MM-DD HH:MM:SS. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación del registro de agregación. Se actualiza con cambios (reordenamiento, cambio de estado, etc.). Formato: YYYY-MM-DD HH:MM:SS. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.IdGestionContactoFlujoCongelado).HasComment("Identificador del flujo congelado al cual se agregó la actividad. Clave foránea a T_GestionContactoFlujoCongelado. El flujo padre que contiene esta actividad. Todos los registros con el mismo IdGestionContactoFlujoCongelado pertenecen al mismo flujo.");
+
+                entity.Property(e => e.IdGestionDocenteActividadCabecera).HasComment("Identificador de la actividad cabecera maestra que se agregó. Referencia a T_GestionDocenteActividadCabecera (tabla de maestro). Permite rastrear la actividad original de la cual se creó la versión congelada. Propósito: auditoría y vinculación con maestro.");
+
+                entity.Property(e => e.IdGestionDocenteActividadCabeceraCongelada).HasComment("Identificador de la copia congelada creada. Clave foránea a T_GestionDocenteActividadCabeceraCongelada. Apunta a tabla de congelamiento normal. Esta es la versión congelada que realmente se ejecutará dentro del flujo congelado.");
+
+                entity.Property(e => e.Orden).HasComment("Orden de la actividad agregada en el flujo. Número secuencial: 1 = Primera actividad a ejecutar, 2 = Segunda actividad, 3 = Tercera, etc. Define la secuencia de ejecución de las actividades en el flujo. Rango: 1-999. Debe ser único por cada IdGestionContactoFlujoCongelado.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Número de versión para control de concurrencia optimista. Generado automáticamente por SQL Server (TIMESTAMP). Previene conflictos cuando múltiples usuarios intentan modificar simultáneamente. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó la agregación de la actividad al flujo. Máximo 50 caracteres. Referencia al usuario que ejecutó la operación de agregar la actividad. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Último usuario que modificó el registro de agregación. Máximo 50 caracteres. Se actualiza con cambios (reorden, cambio de estado, etc.). Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionContactoFlujoCongeladoNavigation)
+                    .WithMany(p => p.TGestionContactoFlujoActividadAgregada)
+                    .HasForeignKey(d => d.IdGestionContactoFlujoCongelado)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteActividadCabeceraNavigation)
+                    .WithMany(p => p.TGestionContactoFlujoActividadAgregada)
+                    .HasForeignKey(d => d.IdGestionDocenteActividadCabecera)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteActividadCabeceraCongeladaNavigation)
+                    .WithMany(p => p.TGestionContactoFlujoActividadAgregada)
+                    .HasForeignKey(d => d.IdGestionDocenteActividadCabeceraCongelada)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionContactoFlujoActividadAgregada_IdGestionDocenteActividadCabeceraCongelada");
+            });
+
+            modelBuilder.Entity<TGestionContactoFlujoCongelado>(entity =>
+            {
+                entity.ToTable("T_GestionContactoFlujoCongelado", "pla");
+
+                entity.HasComment("Copia congelada del flujo de gestión de contactos para docentes. Incluye todos los campos del maestro más configuración de asignación. Captura el estado inmutable del flujo en un momento específico.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la copia congelada del flujo. Clave primaria. Generado automáticamente por IDENTITY.");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasComment("Descripción detallada del flujo congelado. Proporciona contexto adicional sobre el propósito y alcance del flujo. Máximo 1000 caracteres. Puede ser nula. Ejemplo: \"Flujo automático para recordar asistencia a estudiantes activos\".");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo del registro. 1 = Activo (el flujo se puede usar), 0 = Inactivo (el flujo está deshabilitado). Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora exacta en UTC-5 (Hora Estándar de Perú) cuando se congeló el flujo. Marca el momento de captura del estado inmutable. Formato: YYYY-MM-DD HH:MM:SS. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación del registro congelado. Se actualiza automáticamente con cada cambio. Formato: YYYY-MM-DD HH:MM:SS. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.IdGestionContactoDocenteFlujo).HasComment("Identificador único que referencia la relación entre contacto y flujo de docente. Campo UNIQUE. Garantiza que cada relación contacto-flujo tenga una única copia congelada. Clave foránea que vincula con tabla padre.");
+
+                entity.Property(e => e.IdGestionDocenteCategoria).HasComment("Identificador de la categoría a la que pertenece el flujo (ej: seguimiento, recordatorio, evaluación, comunicación). Referencia a tabla catálogo T_GestionDocenteCategoria. Clasifica por tipo de flujo.");
+
+                entity.Property(e => e.IdGestionDocenteEstado).HasComment("Identificador del estado administrativo actual del flujo (activo, suspendido, finalizado, archivado, etc.). Referencia a catálogo T_GestionDocenteEstado. NO confundir con IdGestionDocenteEstadoEjecucion.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucion).HasComment("Identificador del estado de ejecución actual del flujo (por ejecutar, en progreso, ejecutada, fallida, cancelada, etc.). Referencia a T_GestionDocenteEstadoEjecucion. Indica progreso de ejecución operacional.");
+
+                entity.Property(e => e.IdGestionDocenteFlujo).HasComment("Identificador del flujo docente original (sin congelar) del cual se crea esta copia. Referencia la configuración base del flujo. Permite rastrear el maestro.");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(300)
+                    .IsUnicode(false)
+                    .HasComment("Nombre descriptivo del flujo congelado. Copia del nombre original del flujo al momento del congelamiento. Máximo 300 caracteres. Ejemplo: \"Recordatorio de Asistencia Semanal\".");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Número de versión para control de concurrencia optimista. Generado automáticamente por SQL Server (TIMESTAMP). Previene conflictos en actualizaciones simultáneas. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro del congelamiento. Máximo 50 caracteres. Referencia a usuario del sistema que ejecutó la operación de congelamiento. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Último usuario que modificó este registro congelado. Máximo 50 caracteres. Se actualiza cada vez que hay cambios en el flujo congelado. Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionContactoDocenteFlujoNavigation)
+                    .WithMany(p => p.TGestionContactoFlujoCongelados)
+                    .HasForeignKey(d => d.IdGestionContactoDocenteFlujo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteCategoriaNavigation)
+                    .WithMany(p => p.TGestionContactoFlujoCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteCategoria)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoNavigation)
+                    .WithMany(p => p.TGestionContactoFlujoCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteEstado)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNavigation)
+                    .WithMany(p => p.TGestionContactoFlujoCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucion)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteFlujoNavigation)
+                    .WithMany(p => p.TGestionContactoFlujoCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteFlujo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionContactoFlujoCongeladoLog>(entity =>
+            {
+                entity.ToTable("T_GestionContactoFlujoCongeladoLog", "pla");
+
+                entity.HasComment("Log de cambios en flujos congelados. Rastrea transiciones de estado de ejecución de flujos congelados.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del registro de log. Clave primaria. Generado automáticamente.");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo del registro log. 1 = Activo, 0 = Inactivo. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora exacta en UTC-5 del cambio de estado. Marca temporal precisa. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación del log. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.IdGestionContactoFlujoCongelado).HasComment("Identificador del flujo congelado. Clave foránea a T_GestionContactoFlujoCongelado. Referencia el registro modificado.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucionAnterior)
+                    .HasColumnName("IdGestionDocenteEstadoEjecucion_Anterior")
+                    .HasComment("Identificador del estado de ejecución anterior. Referencia a T_GestionDocenteEstadoEjecucion. NULLABLE. Puede ser nulo si es el primer cambio de estado.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucionNuevo)
+                    .HasColumnName("IdGestionDocenteEstadoEjecucion_Nuevo")
+                    .HasComment("Identificador del nuevo estado de ejecución. Referencia a T_GestionDocenteEstadoEjecucion. Estado al cual cambió la entidad.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que registró el cambio de estado. Máximo 50 caracteres. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro del log. Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionContactoFlujoCongeladoNavigation)
+                    .WithMany(p => p.TGestionContactoFlujoCongeladoLogs)
+                    .HasForeignKey(d => d.IdGestionContactoFlujoCongelado)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionAnteriorNavigation)
+                    .WithMany(p => p.TGestionContactoFlujoCongeladoLogIdGestionDocenteEstadoEjecucionAnteriorNavigations)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucionAnterior);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNuevoNavigation)
+                    .WithMany(p => p.TGestionContactoFlujoCongeladoLogIdGestionDocenteEstadoEjecucionNuevoNavigations)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucionNuevo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
             modelBuilder.Entity<TGestionContactoLog>(entity =>
@@ -24936,6 +25341,151 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
+            modelBuilder.Entity<TGestionDocenteActividadCabeceraCongeladaLog>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteActividadCabeceraCongeladaLog", "pla");
+
+                entity.HasComment("Log de cambios en actividades cabecera congeladas. Rastrea transiciones de estado.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del registro de log. Clave primaria. Generado automáticamente.");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 del cambio. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.IdGestionDocenteActividadCabeceraCongelada).HasComment("Identificador de la actividad cabecera congelada. Clave foránea a T_GestionDocenteActividadCabeceraCongelada.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucionAnterior)
+                    .HasColumnName("IdGestionDocenteEstadoEjecucion_Anterior")
+                    .HasComment("Identificador del estado anterior. NULLABLE. Puede ser nulo si es el primer cambio.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucionNuevo)
+                    .HasColumnName("IdGestionDocenteEstadoEjecucion_Nuevo")
+                    .HasComment("Identificador del estado nuevo. Estado al cual cambió la entidad.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que registró el cambio. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro. Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionDocenteActividadCabeceraCongeladaNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadCabeceraCongeladaLogs)
+                    .HasForeignKey(d => d.IdGestionDocenteActividadCabeceraCongelada)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteActividadCabeceraCongeladaLog_IdGestionDocenteActividadCabeceraCongelada");
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionAnteriorNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadCabeceraCongeladaLogIdGestionDocenteEstadoEjecucionAnteriorNavigations)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucionAnterior);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNuevoNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadCabeceraCongeladaLogIdGestionDocenteEstadoEjecucionNuevoNavigations)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucionNuevo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionDocenteActividadCabeceraCongeladum>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteActividadCabeceraCongelada", "pla");
+
+                entity.HasComment("Copia congelada de la actividad cabecera. Captura la estructura principal de la actividad al momento del congelamiento. Una actividad cabecera puede tener múltiples actividades detalle. Incluye todos los campos del maestro.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la actividad cabecera congelada. Clave primaria. Generado automáticamente por IDENTITY.");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasComment("Descripción detallada de qué realiza esta actividad en el flujo. Máximo 1000 caracteres. Opcional. Ejemplo: \"Actividad principal que coordina el envío de recordatorios a estudiantes con baja asistencia\".");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo. 1 = Activo, 0 = Inactivo. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 del congelamiento de la actividad. Formato: YYYY-MM-DD HH:MM:SS. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.IdGestionContactoFlujoCongelado).HasComment("Identificador de la copia congelada del flujo al que pertenece esta actividad. Clave foránea que establece la relación padre con T_GestionContactoFlujoCongelado.");
+
+                entity.Property(e => e.IdGestionDocenteActividadCabecera).HasComment("Identificador de la actividad cabecera original (sin congelar) de la cual se realiza la copia. Referencia el maestro para propósitos de auditoría y rastrabilidad.");
+
+                entity.Property(e => e.IdGestionDocenteCategoria).HasComment("Identificador de la categoría de la actividad (comunicación, seguimiento, evaluación, recordatorio). Referencia a catálogo T_GestionDocenteCategoria. Clasifica el tipo de actividad.");
+
+                entity.Property(e => e.IdGestionDocenteEstado).HasComment("Identificador del estado administrativo de la actividad (activa, suspendida, archivada, finalizada). Referencia a catálogo T_GestionDocenteEstado. Estado administrativo.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucion).HasComment("Identificador del estado de ejecución (por ejecutar, en ejecución, ejecutada, fallida, cancelada, reintentando). Referencia a T_GestionDocenteEstadoEjecucion. Indica progreso de ejecución operacional.");
+
+                entity.Property(e => e.IdGestionDocenteFlujo).HasComment("Identificador del flujo original al cual pertenecía la actividad. Permite rastrear la jerarquía original completa para auditoría.");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(300)
+                    .IsUnicode(false)
+                    .HasComment("Nombre descriptivo de la actividad cabecera. Copia del nombre al momento del congelamiento. Máximo 300 caracteres. Ejemplo: \"Envío de Recordatorio de Asistencia\".");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Generado automáticamente. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó el congelamiento. Máximo 50 caracteres. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Último usuario que modificó este registro congelado. Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionContactoFlujoCongeladoNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadCabeceraCongelada)
+                    .HasForeignKey(d => d.IdGestionContactoFlujoCongelado)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteActividadCabeceraNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadCabeceraCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteActividadCabecera)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteCategoriaNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadCabeceraCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteCategoria)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadCabeceraCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteEstado)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadCabeceraCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucion)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteFlujoNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadCabeceraCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteFlujo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
             modelBuilder.Entity<TGestionDocenteActividadCabeceraFlujo>(entity =>
             {
                 entity.ToTable("T_GestionDocenteActividadCabeceraFlujo", "pla");
@@ -25049,6 +25599,154 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.HasOne(d => d.IdPlantillaMedioComunicacionNavigation)
                     .WithMany(p => p.TGestionDocenteActividadDetalles)
+                    .HasForeignKey(d => d.IdPlantillaMedioComunicacion)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionDocenteActividadDetalleCongeladaLog>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteActividadDetalleCongeladaLog", "pla");
+
+                entity.HasComment("Log de cambios en actividades detalle congeladas. Rastrea transiciones de estado.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del registro de log. Clave primaria.");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 del cambio. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.IdGestionDocenteActividadDetalleCongelada).HasComment("Identificador de la actividad detalle congelada. Clave foránea a T_GestionDocenteActividadDetalleCongelada.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucionAnterior)
+                    .HasColumnName("IdGestionDocenteEstadoEjecucion_Anterior")
+                    .HasComment("Identificador del estado anterior. NULLABLE. Puede ser nulo.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucionNuevo)
+                    .HasColumnName("IdGestionDocenteEstadoEjecucion_Nuevo")
+                    .HasComment("Identificador del estado nuevo.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que registró el cambio. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro. Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionDocenteActividadDetalleCongeladaNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadDetalleCongeladaLogs)
+                    .HasForeignKey(d => d.IdGestionDocenteActividadDetalleCongelada)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteActividadDetalleCongeladaLog_IdGestionDocenteActividadDetalleCongelada");
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionAnteriorNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadDetalleCongeladaLogIdGestionDocenteEstadoEjecucionAnteriorNavigations)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucionAnterior);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNuevoNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadDetalleCongeladaLogIdGestionDocenteEstadoEjecucionNuevoNavigations)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucionNuevo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionDocenteActividadDetalleCongeladum>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteActividadDetalleCongelada", "pla");
+
+                entity.HasComment("Copia congelada de la actividad detalle. Contiene la configuración específica de ejecución, incluyendo medios de comunicación y disparadores asociados. Incluye todos los campos del maestro más configuración de ejecución por sesión.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la actividad detalle congelada. Clave primaria. Generado automáticamente por IDENTITY.");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo. 1 = Activo, 0 = Inactivo. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 del congelamiento. Formato: YYYY-MM-DD HH:MM:SS. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.IdGestionDocenteActividadCabecera).HasComment("Identificador de la actividad cabecera original. Permite rastrear la estructura original completa para auditoría.");
+
+                entity.Property(e => e.IdGestionDocenteActividadCabeceraCongelada).HasComment("Identificador de la actividad cabecera congelada padre. Clave foránea que establece relación jerárquica con T_GestionDocenteActividadCabeceraCongelada.");
+
+                entity.Property(e => e.IdGestionDocenteActividadDetalle).HasComment("Identificador de la actividad detalle original (sin congelar). Referencia el maestro para propósitos de auditoría.");
+
+                entity.Property(e => e.IdGestionDocenteActividadDetalleTipo).HasComment("Identificador del tipo de actividad detalle (email, SMS, llamada, mensaje, notificación, etc.). Define cómo se ejecutará la actividad. Referencia a T_GestionDocenteActividadDetalleTipo.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorDetalle).HasComment("Identificador del disparador que inicia la ejecución de esta actividad detalle. Define cuándo ejecutar la actividad (fecha fija, tiempo relativo, ocurrencia previa, evento sistema). Referencia a T_GestionDocenteDisparadorDetalle.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucion).HasComment("Identificador del estado de ejecución actual (por ejecutar, en progreso, ejecutada, fallida, cancelada, reintentando). Referencia a T_GestionDocenteEstadoEjecucion. Indica progreso operacional.");
+
+                entity.Property(e => e.IdPlantillaMedioComunicacion).HasComment("Identificador de la plantilla de medio de comunicación a usar (email template, SMS template, template de mensaje, etc.). Define el contenido y formato de envío. Referencia a mkt.T_PlantillaMedioComunicacion.");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(300)
+                    .IsUnicode(false)
+                    .HasComment("Nombre descriptivo de la actividad detalle. Máximo 300 caracteres. Ejemplo: \"Envío de Email de Recordatorio Semanal\" o \"Notificación SMS a Estudiantes\".");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Generado automáticamente. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó el congelamiento. Máximo 50 caracteres. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Último usuario que modificó el registro congelado. Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionDocenteActividadCabeceraNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadDetalleCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteActividadCabecera)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteActividadCabeceraCongeladaNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadDetalleCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteActividadCabeceraCongelada)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteActividadDetalleCongelada_IdGestionDocenteActividadCabeceraCongelada");
+
+                entity.HasOne(d => d.IdGestionDocenteActividadDetalleNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadDetalleCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteActividadDetalle)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteActividadDetalleTipoNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadDetalleCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteActividadDetalleTipo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorDetalleNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadDetalleCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorDetalle)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadDetalleCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucion)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdPlantillaMedioComunicacionNavigation)
+                    .WithMany(p => p.TGestionDocenteActividadDetalleCongelada)
                     .HasForeignKey(d => d.IdPlantillaMedioComunicacion)
                     .OnDelete(DeleteBehavior.ClientSetNull);
             });
@@ -25225,6 +25923,132 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Usuario que modificó el registro");
             });
 
+            modelBuilder.Entity<TGestionDocenteDisparadorCongelado>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteDisparadorCongelado", "pla");
+
+                entity.HasComment("Copia congelada del disparador. Un disparador es la condición que inicia la ejecución de una actividad detalle. Soporta cuatro tipos: FECHA_FIJA, TIEMPO_RELATIVO, OCURRENCIA_PREVIA, EVENTO_SISTEMA. Incluye fecha calculada según tipo de asignación.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del disparador congelado. Clave primaria. Generado automáticamente por IDENTITY.");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo. 1 = Activo, 0 = Inactivo. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 del congelamiento. Formato: YYYY-MM-DD HH:MM:SS. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.IdGestionDocenteActividadDetalleCongelada).HasComment("Identificador de la actividad detalle congelada a la cual pertenece este disparador. Clave foránea a T_GestionDocenteActividadDetalleCongelada. Establece relación jerárquica.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorDetalle).HasComment("Identificador del disparador detalle original (sin congelar). Referencia el maestro para propósitos de auditoría.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorFlujoTipo).HasComment("Identificador del tipo de disparador en el flujo. Referencia a T_GestionDocenteDisparadorFlujoTipo. Clasifica la naturaleza del disparador.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucion).HasComment("Identificador del estado de ejecución del disparador (por ejecutar, en progreso, ejecutado, fallido, cancelado). Referencia a T_GestionDocenteEstadoEjecucion.");
+
+                entity.Property(e => e.IdGestionDocenteOcurrenciaCongelada).HasComment("Identificador de la ocurrencia congelada previa. Usado cuando TipoDisparador = OCURRENCIA_PREVIA para indicar qué ocurrencia debe marcarse primero. Referencia a T_GestionDocenteOcurrenciaCongelada. Puede ser nulo.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Generado automáticamente. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó el congelamiento. Máximo 50 caracteres. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Último usuario que modificó el registro congelado. Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionDocenteActividadDetalleCongeladaNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteActividadDetalleCongelada)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorDetalleNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorDetalle)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorFlujoTipoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorFlujoTipo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucion)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteOcurrenciaCongeladaNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteOcurrenciaCongelada);
+            });
+
+            modelBuilder.Entity<TGestionDocenteDisparadorCongeladoLog>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteDisparadorCongeladoLog", "pla");
+
+                entity.HasComment("Log de cambios en disparadores congelados. Rastrea transiciones de estado.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del registro de log. Clave primaria.");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 del cambio. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorCongelado).HasComment("Identificador del disparador congelado. Clave foránea a T_GestionDocenteDisparadorCongelado.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucionAnterior)
+                    .HasColumnName("IdGestionDocenteEstadoEjecucion_Anterior")
+                    .HasComment("Identificador del estado anterior. NULLABLE.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucionNuevo)
+                    .HasColumnName("IdGestionDocenteEstadoEjecucion_Nuevo")
+                    .HasComment("Identificador del estado nuevo.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que registró el cambio. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro. Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorCongeladoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorCongeladoLogs)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorCongelado)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionAnteriorNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorCongeladoLogIdGestionDocenteEstadoEjecucionAnteriorNavigations)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucionAnterior);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNuevoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorCongeladoLogIdGestionDocenteEstadoEjecucionNuevoNavigations)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucionNuevo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
             modelBuilder.Entity<TGestionDocenteDisparadorDetalle>(entity =>
             {
                 entity.ToTable("T_GestionDocenteDisparadorDetalle", "pla");
@@ -25315,6 +26139,78 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.HasOne(d => d.IdGestionDocenteDisparadorDetalleNavigation)
                     .WithMany(p => p.TGestionDocenteDisparadorEventoTipos)
                     .HasForeignKey(d => d.IdGestionDocenteDisparadorDetalle)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionDocenteDisparadorEventoTipoCongelado>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteDisparadorEventoTipoCongelado", "pla");
+
+                entity.HasComment("Copia congelada de los tipos de eventos que pueden servir como disparadores del sistema. Define eventos externos que desencadenan actividades. Ejemplo: Asistencia registrada, Calificación publicada, etc.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único. Clave primaria. Generado automáticamente.");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Descripción del evento y cuándo se dispara. Máximo 500 caracteres. Opcional. Ejemplo: \"Se dispara cuando un estudiante registra su asistencia en el sistema\".");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 del congelamiento. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorCongelado).HasComment("Identificador del disparador congelado. Clave foránea a T_GestionDocenteDisparadorCongelado.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorDetalle).HasComment("Identificador del disparador detalle original. Referencia para auditoría.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorEventoTipo).HasComment("Identificador del tipo de evento original. Referencia para auditoría.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucion).HasComment("Identificador del estado de ejecución. Referencia a T_GestionDocenteEstadoEjecucion.");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del tipo de evento. Máximo 200 caracteres. Ejemplo: \"Asistencia registrada\", \"Calificación publicada\", \"Comentario recibido\", \"Tarea entregada\".");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó el congelamiento. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Último usuario que modificó. Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorCongeladoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorEventoTipoCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorCongelado)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorDetalleNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorEventoTipoCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorDetalle)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorEventoTipoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorEventoTipoCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorEventoTipo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorEventoTipoCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucion)
                     .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
@@ -25409,6 +26305,79 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasConstraintName("FK_T_GestionDocenteDetalleDisparadorOcurrencia_T_GestionDocenteOcurrencia_IdGestionDocenteOcurrencia_Previa");
             });
 
+            modelBuilder.Entity<TGestionDocenteDisparadorOcurrenciaDetalleCongelado>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteDisparadorOcurrenciaDetalleCongelado", "pla");
+
+                entity.HasComment("Copia congelada de disparadores que dependen de ocurrencias previas. Define que una actividad se ejecuta solo después de que otra ocurrencia ha sido marcada.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único. Clave primaria. Generado automáticamente.");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 del congelamiento. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorCongelado).HasComment("Identificador del disparador congelado. Clave foránea a T_GestionDocenteDisparadorCongelado.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorDetalle).HasComment("Identificador del disparador detalle original. Referencia para auditoría.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorOcurrenciaDetalle).HasComment("Identificador del disparador por ocurrencia original. Referencia para auditoría.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucion).HasComment("Identificador del estado de ejecución. Referencia a T_GestionDocenteEstadoEjecucion.");
+
+                entity.Property(e => e.IdGestionDocenteOcurrenciaCongeladaPrevia)
+                    .HasColumnName("IdGestionDocenteOcurrenciaCongelada_Previa")
+                    .HasComment("Identificador de la ocurrencia congelada que debe ocurrir primero. Establece la dependencia. Clave foránea a T_GestionDocenteOcurrenciaCongelada. Esta ocurrencia DEBE ser marcada antes de que se ejecute la actividad.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó el congelamiento. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Último usuario que modificó. Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorCongeladoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorOcurrenciaDetalleCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorCongelado)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorDetalleNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorOcurrenciaDetalleCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorDetalle)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorOcurrenciaDetalleNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorOcurrenciaDetalleCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorOcurrenciaDetalle)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteDisparadorOcurrenciaDetalleCongelado_IdGestionDocenteDisparadorOcurrenciaDetalle");
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorOcurrenciaDetalleCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucion)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteOcurrenciaCongeladaPreviaNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorOcurrenciaDetalleCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteOcurrenciaCongeladaPrevia)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteDisparadorOcurrenciaDetalleCongelado_IdGestionDocenteOcurrenciaCongelada_Previa");
+            });
+
             modelBuilder.Entity<TGestionDocenteDisparadorReglaTiempo>(entity =>
             {
                 entity.ToTable("T_GestionDocenteDisparadorReglaTiempo", "pla");
@@ -25500,6 +26469,81 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
+            modelBuilder.Entity<TGestionDocenteDisparadorReglaTiempoFijoCongelado>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteDisparadorReglaTiempoFijoCongelado", "pla");
+
+                entity.HasComment("Copia congelada de la regla de tiempo fijo para disparadores. Define una fecha y hora exacta para la ejecución de la actividad.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la regla de tiempo fijo congelada. Clave primaria. Generado automáticamente.");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo. 1 = Activo, 0 = Inactivo. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.Fecha)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora exacta en UTC-5 de ejecución del disparador. Formato: YYYY-MM-DD HH:MM:SS. Esta es la fecha calculada/asignada para esta instancia específica. Ejemplo: 2026-03-15 14:30:00.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 del congelamiento. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorCongelado).HasComment("Identificador del disparador congelado al cual pertenece esta regla. Clave foránea a T_GestionDocenteDisparadorCongelado.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorDetalle).HasComment("Identificador del disparador detalle original. Permite rastrear la estructura original para auditoría.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorReglaTiempo).HasComment("Identificador de la regla de tiempo genérica. Referencia la configuración base del disparador.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorReglaTiempoFijo).HasComment("Identificador de la regla de tiempo fijo original. Referencia para auditoría.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucion).HasComment("Identificador del estado de ejecución. Referencia a T_GestionDocenteEstadoEjecucion.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Generado automáticamente. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó el congelamiento. Máximo 50 caracteres. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Último usuario que modificó el registro. Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorCongeladoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoFijoCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorCongelado)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorDetalleNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoFijoCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorDetalle)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorReglaTiempoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoFijoCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorReglaTiempo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteDisparadorReglaTiempoFijoCongelado_IdGestionDocenteDisparadorReglaTiempo");
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorReglaTiempoFijoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoFijoCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorReglaTiempoFijo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteDisparadorReglaTiempoFijoCongelado_IdGestionDocenteDisparadorReglaTiempoFijo");
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoFijoCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucion)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
             modelBuilder.Entity<TGestionDocenteDisparadorReglaTiempoRelativo>(entity =>
             {
                 entity.ToTable("T_GestionDocenteDisparadorReglaTiempoRelativo", "pla");
@@ -25555,6 +26599,161 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoRelativos)
                     .HasForeignKey(d => d.IdGestionDocenteUnidadTiempo)
                     .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionDocenteDisparadorReglaTiempoRelativoCongelado>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteDisparadorReglaTiempoRelativoCongelado", "pla");
+
+                entity.HasComment("Copia congelada de la regla de tiempo relativo para disparadores. Define un desplazamiento de tiempo desde una referencia (ej: 3 días antes del inicio de sesión).");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la regla de tiempo relativo congelada. Clave primaria. Generado automáticamente.");
+
+                entity.Property(e => e.Cantidad).HasComment("Número de unidades de tiempo para el desplazamiento. Ejemplo: 3 (para 3 días, 3 horas, etc. según IdGestionDocenteUnidadTiempo). Puede ser negativo para desplazamientos previos. Rango: -999 a 999.");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo. 1 = Activo, 0 = Inactivo. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 del congelamiento. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorCongelado).HasComment("Identificador del disparador congelado. Clave foránea a T_GestionDocenteDisparadorCongelado.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorDetalle).HasComment("Identificador del disparador detalle original. Referencia para auditoría.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorReglaTiempo).HasComment("Identificador de la regla de tiempo genérica. Referencia la configuración base.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorReglaTiempoRelativo).HasComment("Identificador de la regla de tiempo relativo original. Referencia para auditoría.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucion).HasComment("Identificador del estado de ejecución. Referencia a T_GestionDocenteEstadoEjecucion.");
+
+                entity.Property(e => e.IdGestionDocenteUnidadTiempo).HasComment("Identificador de la unidad de tiempo (DIAS, HORAS, MINUTOS, SEMANAS, MESES). Referencia a catálogo T_GestionDocenteUnidadTiempo. Define la escala de tiempo.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Generado automáticamente. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó el congelamiento. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Último usuario que modificó el registro. Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorCongeladoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoRelativoCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorCongelado)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteDisparadorReglaTiempoRelativoCongelado_IdGestionDocenteDisparadorCongelado");
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorDetalleNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoRelativoCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorDetalle)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorReglaTiempoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoRelativoCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorReglaTiempo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteDisparadorReglaTiempoRelativoCongelado_IdGestionDocenteDisparadorReglaTiempo");
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorReglaTiempoRelativoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoRelativoCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorReglaTiempoRelativo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteDisparadorReglaTiempoRelativoCongelado_IdGestionDocenteDisparadorReglaTiempoRelativo");
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoRelativoCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucion)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteUnidadTiempoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoRelativoCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteUnidadTiempo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionDocenteDisparadorReglaTiempoRelativoReferenciaCongelado>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteDisparadorReglaTiempoRelativoReferenciaCongelado", "pla");
+
+                entity.HasComment("Copia congelada de la referencia de tiempo para reglas relativas. Define el punto de referencia desde el cual se calcula el desplazamiento relativo.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único. Clave primaria. Generado automáticamente.");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 del congelamiento. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorReglaTiempoRelativo).HasComment("Identificador de la regla de tiempo relativo original. Referencia para auditoría.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorReglaTiempoRelativoCongelado).HasComment("Identificador de la regla de tiempo relativo congelada padre. Clave foránea.");
+
+                entity.Property(e => e.IdGestionDocenteDisparadorReglaTiempoRelativoReferencia).HasComment("Identificador de la referencia de tiempo relativo original. Referencia para auditoría.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucion).HasComment("Identificador del estado de ejecución. Referencia a T_GestionDocenteEstadoEjecucion.");
+
+                entity.Property(e => e.IdGestionDocenteReferenciaTiempo).HasComment("Identificador de la referencia de tiempo. Valores: INICIO_SESION, FIN_SESION, FECHA_MATRICULA, FECHA_ACTIVIDAD, FECHA_EVALUACION, etc. Define el punto de referencia desde donde se calcula el desplazamiento.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó el congelamiento. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Último usuario que modificó. Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorReglaTiempoRelativoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoRelativoReferenciaCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorReglaTiempoRelativo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteDisparadorReglaTiempoRelativoReferenciaCongelado_IdGestionDocenteDisparadorReglaTiempoRelativo");
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorReglaTiempoRelativoCongeladoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoRelativoReferenciaCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorReglaTiempoRelativoCongelado)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteDisparadorReglaTiempoRelativoReferenciaCongelado_IdGestionDocenteDisparadorReglaTiempoRelativoCongelado");
+
+                entity.HasOne(d => d.IdGestionDocenteDisparadorReglaTiempoRelativoReferenciaNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoRelativoReferenciaCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteDisparadorReglaTiempoRelativoReferencia)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteDisparadorReglaTiempoRelativoReferenciaCongelado_IdGestionDocenteDisparadorReglaTiempoRelativoReferencia");
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoRelativoReferenciaCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteDisparadorReglaTiempoRelativoReferenciaCongelado_IdGestionDocenteEstadoEjecucion");
+
+                entity.HasOne(d => d.IdGestionDocenteReferenciaTiempoNavigation)
+                    .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoRelativoReferenciaCongelados)
+                    .HasForeignKey(d => d.IdGestionDocenteReferenciaTiempo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteDisparadorReglaTiempoRelativoReferenciaCongelado_IdGestionDocenteReferenciaTiempo");
             });
 
             modelBuilder.Entity<TGestionDocenteDisparadorReglaTiempoRelativoReferencium>(entity =>
@@ -25648,6 +26847,55 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que modificó el registro");
+            });
+
+            modelBuilder.Entity<TGestionDocenteEstadoEjecucion>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteEstadoEjecucion", "pla");
+
+                entity.HasComment("Catálogo de estados de ejecución: EJECUTADA, POR_EJECUTAR, PENDIENTE, EN_PROGRESO, FALLIDA, CANCELADA, REINTENTANDO. Centraliza todos los estados que pueden tener las entidades en ejecución. Tabla maestra de referencia.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del estado de ejecución. Clave primaria. Generado automáticamente por IDENTITY.");
+
+                entity.Property(e => e.Codigo)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Código único e inmutable del estado. Valores válidos: EJECUTADA, POR_EJECUTAR, PENDIENTE, EN_PROGRESO, FALLIDA, CANCELADA, REINTENTANDO. Máximo 50 caracteres. Campo UNIQUE. Identificador textual usado en código.");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Descripción detallada del estado. Máximo 500 caracteres. Aclara qué significa el estado y cuándo se usa. Opcional. Ejemplo: \"La entidad se ejecutó exitosamente. No se requieren acciones adicionales.\"");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de si el registro está activo/disponible. 1 = Activo (puede usarse), 0 = Inactivo (obsoleto). Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de creación del registro. Formato: YYYY-MM-DD HH:MM:SS. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre descriptivo legible del estado. Máximo 100 caracteres. Ejemplo: \"Ejecutada correctamente\", \"Esperando ejecución\", \"En proceso de ejecución\", \"Falló en ejecución\", etc.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Generado automáticamente. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro en el catálogo. Máximo 50 caracteres. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Último usuario que modificó el registro. Máximo 50 caracteres. Campo de auditoría obligatorio.");
             });
 
             modelBuilder.Entity<TGestionDocenteFlujo>(entity =>
@@ -25847,6 +27095,228 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Usuario que modificó el registro");
             });
 
+            modelBuilder.Entity<TGestionDocenteOcurrenciaCongeladaIaConfiguracion>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteOcurrenciaCongeladaIaConfiguracion", "pla");
+
+                entity.HasComment("Copia congelada de la configuración de Inteligencia Artificial para ocurrencias. Define el prompt y niveles de confianza para análisis automático de ocurrencias mediante IA.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único. Clave primaria. Generado automáticamente.");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 del congelamiento. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.IdGestionDocenteConfianzaUmbralNivel).HasComment("Identificador del nivel de umbral de confianza para aceptar la clasificación IA. Valores: BAJO (>50%), MEDIO (>70%), ALTO (>85%), MUY_ALTO (>95%). Define cuán segura debe ser la IA para registrar automáticamente la ocurrencia.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucion).HasComment("Identificador del estado de ejecución. Referencia a T_GestionDocenteEstadoEjecucion.");
+
+                entity.Property(e => e.IdGestionDocenteOcurrencia).HasComment("Identificador de la ocurrencia original. Referencia para auditoría.");
+
+                entity.Property(e => e.IdGestionDocenteOcurrenciaCongelada).HasComment("Identificador de la ocurrencia congelada a la cual pertenece esta configuración IA. Clave foránea a T_GestionDocenteOcurrenciaCongelada.");
+
+                entity.Property(e => e.IdGestionDocenteOcurrenciaIaConfiguracion).HasComment("Identificador de la configuración IA original. Referencia para auditoría.");
+
+                entity.Property(e => e.Prompt)
+                    .HasColumnType("text")
+                    .HasComment("Instrucción detallada para el modelo de IA. Especifica cómo clasificar comentarios, textos o datos para determinar si la ocurrencia se marcó. Puede ser muy extenso. Ejemplo: \"Analiza el siguiente comentario del docente. Si contiene palabras positivas sobre asistencia, responde SI, si no, responde NO.\"");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó el congelamiento. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Último usuario que modificó. Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionDocenteConfianzaUmbralNivelNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaCongeladaIaConfiguracions)
+                    .HasForeignKey(d => d.IdGestionDocenteConfianzaUmbralNivel)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaCongeladaIaConfiguracions)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucion)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteOcurrenciaNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaCongeladaIaConfiguracions)
+                    .HasForeignKey(d => d.IdGestionDocenteOcurrencia)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteOcurrenciaCongeladaNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaCongeladaIaConfiguracions)
+                    .HasForeignKey(d => d.IdGestionDocenteOcurrenciaCongelada)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteOcurrenciaIaConfiguracionNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaCongeladaIaConfiguracions)
+                    .HasForeignKey(d => d.IdGestionDocenteOcurrenciaIaConfiguracion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteOcurrenciaCongeladaIaConfiguracion_IdGestionDocenteOcurrenciaIaConfiguracion");
+            });
+
+            modelBuilder.Entity<TGestionDocenteOcurrenciaCongeladaLog>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteOcurrenciaCongeladaLog", "pla");
+
+                entity.HasComment("Log de cambios en ocurrencias congeladas. Rastrea transiciones de estado.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del registro de log. Clave primaria.");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 del cambio. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucionAnterior)
+                    .HasColumnName("IdGestionDocenteEstadoEjecucion_Anterior")
+                    .HasComment("Identificador del estado anterior. NULLABLE.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucionNuevo)
+                    .HasColumnName("IdGestionDocenteEstadoEjecucion_Nuevo")
+                    .HasComment("Identificador del estado nuevo.");
+
+                entity.Property(e => e.IdGestionDocenteOcurrenciaCongelada).HasComment("Identificador de la ocurrencia congelada. Clave foránea a T_GestionDocenteOcurrenciaCongelada.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que registró el cambio. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó el registro. Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionAnteriorNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaCongeladaLogIdGestionDocenteEstadoEjecucionAnteriorNavigations)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucionAnterior);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNuevoNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaCongeladaLogIdGestionDocenteEstadoEjecucionNuevoNavigations)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucionNuevo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteOcurrenciaCongeladaNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaCongeladaLogs)
+                    .HasForeignKey(d => d.IdGestionDocenteOcurrenciaCongelada)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionDocenteOcurrenciaCongeladum>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteOcurrenciaCongelada", "pla");
+
+                entity.HasComment("Copia congelada de ocurrencia. Una ocurrencia es un evento registrable que ocurre durante la ejecución de una actividad. Ejemplo: Asistencia registrada, Tarea completada, Problema resuelto. Incluye todos los campos del maestro.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único. Clave primaria. Generado automáticamente.");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Descripción detallada de qué representa esta ocurrencia. Máximo 500 caracteres. Opcional. Ejemplo: \"Marca que el estudiante asistió correctamente a la clase\".");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 del congelamiento. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.IdGestionDocenteActividadDetalle).HasComment("Identificador de la actividad detalle original. Referencia para auditoría.");
+
+                entity.Property(e => e.IdGestionDocenteActividadDetalleCongelada).HasComment("Identificador de la actividad detalle congelada a la cual pertenece esta ocurrencia. Clave foránea a T_GestionDocenteActividadDetalleCongelada. Establece relación jerárquica.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucion).HasComment("Identificador del estado de ejecución. Referencia a T_GestionDocenteEstadoEjecucion.");
+
+                entity.Property(e => e.IdGestionDocenteModoMarcado).HasComment("Identificador del modo de marcado (MANUAL, AUTOMATICO, CONFIRMACION). Referencia a T_GestionDocenteModoMarcado. Define cómo se registra la ocurrencia. MANUAL = por usuario, AUTOMATICO = por sistema, CONFIRMACION = usuario confirma sis registró.");
+
+                entity.Property(e => e.IdGestionDocenteOcurrencia).HasComment("Identificador de la ocurrencia original (sin congelar). Referencia el maestro para auditoría.");
+
+                entity.Property(e => e.IdGestionDocenteOcurrenciaTipo).HasComment("Identificador del tipo de ocurrencia (POSITIVA, NEGATIVA, NEUTRAL). Referencia a T_GestionDocenteOcurrenciaTipo. Clasifica el resultado de la ocurrencia. POSITIVA = algo bueno ocurrió, NEGATIVA = algo malo, NEUTRAL = informativo.");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Nombre descriptivo de la ocurrencia. Máximo 200 caracteres. Ejemplo: \"Asistencia confirmada\", \"Tarea enviada\", \"Evaluación completada\", \"Problema resuelto\".");
+
+                entity.Property(e => e.RequiereComentario).HasComment("Indicador de si se requiere comentario para marcar la ocurrencia. 1 = Obligatorio proporcionador comentario, 0 = Opcional o no requerido.");
+
+                entity.Property(e => e.RequiereFechaHora).HasComment("Indicador de si se requiere fecha y hora para marcar la ocurrencia. 1 = Obligatorio capturar fecha/hora, 0 = Opcional o no requerido.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó el congelamiento. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Último usuario que modificó. Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionDocenteActividadDetalleNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteActividadDetalle)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteActividadDetalleCongeladaNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteActividadDetalleCongelada)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucion)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteModoMarcadoNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteModoMarcado)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteOcurrenciaNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteOcurrencia)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteOcurrenciaTipoNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteOcurrenciaTipo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
             modelBuilder.Entity<TGestionDocenteOcurrenciaIaConfiguracion>(entity =>
             {
                 entity.ToTable("T_GestionDocenteOcurrenciaIaConfiguracion", "pla");
@@ -25898,6 +27368,84 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .WithMany(p => p.TGestionDocenteOcurrenciaIaConfiguracions)
                     .HasForeignKey(d => d.IdGestionDocenteOcurrencia)
                     .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionDocenteOcurrenciaIaEjemploCongeladum>(entity =>
+            {
+                entity.ToTable("T_GestionDocenteOcurrenciaIaEjemploCongelada", "pla");
+
+                entity.HasComment("Copia congelada de ejemplo de entrenamiento IA. Son instancias de\r\n  texto etiquetadas (positivas/negativas) usadas para entrenar y validar el modelo de clasificación de IA.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del ejemplo de entrenamiento IA congelado. Clave\r\n  primaria. Generado automáticamente por IDENTITY.");
+
+                entity.Property(e => e.EsPositivo).HasComment("Indicador de clasificación correcta del ejemplo. 1 = Ejemplo positivo\r\n   (la ocurrencia SÍ se cumple), 0 = Ejemplo negativo (la ocurrencia NO se cumple). Used for training the AI model to\r\n  recognize correct vs incorrect cases.");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de estado activo/inactivo del registro. 1 = Activo (el\r\n  ejemplo se usa para entrenamiento), 0 = Inactivo (el ejemplo está deshabilitado). Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora exacta en UTC-5 (Hora Estándar de Perú) cuando se\r\n  congeló el ejemplo. Marca el momento de captura del estado. Formato: YYYY-MM-DD HH:MM:SS. Campo de auditoría\r\n  obligatorio.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en UTC-5 de la última modificación del registro\r\n  congelado. Se actualiza automáticamente con cada cambio. Formato: YYYY-MM-DD HH:MM:SS. Campo de auditoría\r\n  obligatorio.");
+
+                entity.Property(e => e.IdGestionDocenteEstadoEjecucion).HasComment("Identificador del estado de ejecución del ejemplo. Referencia a\r\n  T_GestionDocenteEstadoEjecucion. Indica si el ejemplo está pendiente, en uso, archivado, etc.");
+
+                entity.Property(e => e.IdGestionDocenteIaEntrenamientoClasificacionTipo).HasComment("Identificador del tipo de clasificación del ejemplo. Valores válidos:\r\n   ENTRENAMIENTO (para entrenar el modelo), VALIDACION (para validar el modelo entrenado), PRUEBA (para pruebas\r\n  finales). Define el propósito del ejemplo.");
+
+                entity.Property(e => e.IdGestionDocenteIaEntrenamientoEjemplo).HasComment("Identificador del ejemplo de entrenamiento original (sin congelar).\r\n  Referencia el maestro para auditoría. Permite rastrear la versión original.");
+
+                entity.Property(e => e.IdGestionDocenteOcurrenciaCongeladaIaConfiguracion).HasComment("Identificador de la configuración IA congelada a la cual pertenece\r\n  este ejemplo. Clave foránea a T_GestionDocenteOcurrenciaCongeladaIaConfiguracion. Establece relación jerárquica.");
+
+                entity.Property(e => e.IdGestionDocenteOcurrenciaIaConfiguracion).HasComment("Identificador de la configuración IA original (sin congelar).\r\n  Referencia el maestro para auditoría. Permite rastrear la configuración original.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Número de versión para control de concurrencia optimista. Generado\r\n  automáticamente por SQL Server (TIMESTAMP). Previene conflictos en actualizaciones simultáneas. Campo de auditoría\r\n  obligatorio.");
+
+                entity.Property(e => e.TextoEjemplo)
+                    .HasColumnType("text")
+                    .HasComment("Texto del ejemplo usado para entrenamiento de la IA. Puede ser un\r\n  comentario, mensaje, o cualquier entrada que el modelo debe aprender a clasificar. Ejemplo: \"Excelente participación\r\n  en clase, muy buena asistencia.\" Puede ser muy extenso (TEXT).");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó el congelamiento del ejemplo. Máximo 50\r\n  caracteres. Referencia al usuario del sistema que ejecutó la operación. Campo de auditoría obligatorio.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Último usuario que modificó este registro congelado. Máximo 50\r\n  caracteres. Se actualiza cada vez que hay cambios. Campo de auditoría obligatorio.");
+
+                entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaIaEjemploCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteEstadoEjecucion)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteIaEntrenamientoClasificacionTipoNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaIaEjemploCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteIaEntrenamientoClasificacionTipo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteOcurrenciaIaEjemploCongelada_IdGestionDocenteIaEntrenamientoClasificacionTipo");
+
+                entity.HasOne(d => d.IdGestionDocenteIaEntrenamientoEjemploNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaIaEjemploCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteIaEntrenamientoEjemplo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionDocenteOcurrenciaCongeladaIaConfiguracionNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaIaEjemploCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteOcurrenciaCongeladaIaConfiguracion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteOcurrenciaIaEjemploCongelada_IdGestionDocenteOcurrenciaCongeladaIaConfiguracion");
+
+                entity.HasOne(d => d.IdGestionDocenteOcurrenciaIaConfiguracionNavigation)
+                    .WithMany(p => p.TGestionDocenteOcurrenciaIaEjemploCongelada)
+                    .HasForeignKey(d => d.IdGestionDocenteOcurrenciaIaConfiguracion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GestionDocenteOcurrenciaIaEjemploCongelada_IdGestionDocenteOcurrenciaIaConfiguracion");
             });
 
             modelBuilder.Entity<TGestionDocenteOcurrenciaTipo>(entity =>
@@ -36756,6 +38304,17 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.Id).HasComment("Es primary key");
 
+                entity.Property(e => e.CertificadoBsg)
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasColumnName("CertificadoBSG")
+                    .HasComment("URI de Archivo en blob storage del certificado del partner emitido por BSG");
+
+                entity.Property(e => e.CertificadoLogo)
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasComment("URI de Imagen en blob storage del logo de certificacion del partner");
+
                 entity.Property(e => e.Descripcion)
                     .IsUnicode(false)
                     .HasComment("Descripcion completa");
@@ -36807,6 +38366,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(150)
                     .IsUnicode(false)
                     .HasComment("Nombre completo del partner");
+
+                entity.Property(e => e.PaginaLink)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("URL de la pagina web del partner");
 
                 entity.Property(e => e.Posicion).HasComment("La pocision de como se visualizara el listado de partner");
 
@@ -56417,6 +57981,188 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.Property(e => e.UsuarioModificacion)
                     .HasMaxLength(50)
                     .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TTareaCriterio>(entity =>
+            {
+                entity.ToTable("T_TareaCriterio", "pla");
+
+                entity.HasComment("Tabla que almacena los criterios de evaluación asociados a las tareas de planificación");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Activo).HasComment("Indica si el criterio esta activo para su uso en evaluaciones");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(300)
+                    .HasComment("Descripcion detallada del criterio de tarea");
+
+                entity.Property(e => e.Escala).HasComment("Valor de escala de calificacion asignado al criterio");
+
+                entity.Property(e => e.Estado).HasComment("Creado o eliminado");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de modificacion");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(300)
+                    .HasComment("Nombre del criterio de tarea");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .HasComment("Sistema Automatico Usuario de creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TTareaCriterioConfiguracion>(entity =>
+            {
+                entity.ToTable("T_TareaCriterioConfiguracion", "pla");
+
+                entity.HasComment("Tabla pivote que relaciona los criterios de tarea con las configuraciones de evaluación de trabajo");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Estado).HasComment("Creado o eliminado");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de modificacion");
+
+                entity.Property(e => e.IdConfigurarEvaluacionTrabajo).HasComment("Identificador de la tabla pla.T_ConfigurarEvaluacionTrabajo");
+
+                entity.Property(e => e.IdTareaCriterio).HasComment("Identificador de la tabla pla.T_CriterioTarea");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de modificacion");
+
+                entity.HasOne(d => d.IdConfigurarEvaluacionTrabajoNavigation)
+                    .WithMany(p => p.TTareaCriterioConfiguracions)
+                    .HasForeignKey(d => d.IdConfigurarEvaluacionTrabajo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_TareaCriterioConfiguracion_T_ConfigurarEvaluacionTrabajo");
+
+                entity.HasOne(d => d.IdTareaCriterioNavigation)
+                    .WithMany(p => p.TTareaCriterioConfiguracions)
+                    .HasForeignKey(d => d.IdTareaCriterio)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_TareaCriterioConfiguracion_T_TareaCriterio");
+            });
+
+            modelBuilder.Entity<TTareaCriterioSubCriterio>(entity =>
+            {
+                entity.ToTable("T_TareaCriterioSubCriterio", "pla");
+
+                entity.HasComment("Tabla pivote que relaciona los criterios de tarea con sus subcriterios (relacion N:N)");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Estado).HasComment("Creado o eliminado");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de modificacion");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .HasComment("Sistema Automatico Usuario de creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .HasComment("Sistema Automatico Usuario de modificacion");
+
+                entity.HasOne(d => d.IdTareaCriterioNavigation)
+                    .WithMany(p => p.TTareaCriterioSubCriterios)
+                    .HasForeignKey(d => d.IdTareaCriterio)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_TareaCriterioSubCriterio_T_TareaCriterio");
+
+                entity.HasOne(d => d.IdTareaSubCriterioNavigation)
+                    .WithMany(p => p.TTareaCriterioSubCriterios)
+                    .HasForeignKey(d => d.IdTareaSubCriterio)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_TareaCriterioSubCriterio_T_TareaSubCriterio");
+            });
+
+            modelBuilder.Entity<TTareaSubCriterio>(entity =>
+            {
+                entity.ToTable("T_TareaSubCriterio", "pla");
+
+                entity.HasComment("Tabla que almacena los subcriterios de evaluacion asociados a los criterios de tarea");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Activo).HasComment("Indica si el subcriterio esta activo para su uso en evaluaciones");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(300)
+                    .HasComment("Descripcion detallada del subcriterio de tarea");
+
+                entity.Property(e => e.Escala).HasComment("Valor de escala de calificacion asignado al subcriterio");
+
+                entity.Property(e => e.Estado).HasComment("Creado o eliminado");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de modificacion");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(300)
+                    .HasComment("Nombre del subcriterio de tarea");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .HasComment("Sistema Automatico Usuario de creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
                     .HasComment("Sistema Automatico Usuario de modificacion");
             });
 

@@ -82,8 +82,10 @@
         public int? IdTipoReporte { get; set; }
         public string? TipoReporte { get; set; }
         public int? IdSolicitudCategoria { get; set; }
+        public int? IdSolicitud { get; set; }
         public int? IdSubCategoria { get; set; }
         public int? IdEstadoSolicitud { get; set; }
+        public string? DetalleSolucion { get; set; }
 
         // Campos de Solicitante
         public int? IdSolicitante { get; set; }
@@ -108,6 +110,8 @@
         public DateTime? FechaModificacionSolicitud { get; set; }
         public int? IdControlSolicitudOrigen { get; set; }
         public string? ControlSolicitudOrigen { get; set; }
+        //GrabacionCentral
+        public string? GrabacionCentral { get; set; }
     }
 
     public class ActividadAgendaV2DTO
@@ -342,5 +346,31 @@
         public string FechaComparacion { get; set; }
         public int IdAsesor { get; set; }
         public MetricasDTO Metricas { get; set; }
+    }
+
+    public class MetricaComparativaATCDTO
+    {
+        public int Hoy { get; set; }
+        public int Ayer { get; set; }
+        public int Porcentaje { get; set; }
+        public string Estado { get; set; }
+    }
+
+    public class MetricasATCDTO
+    {
+        public MetricaComparativaATCDTO LlamadasTotales { get; set; }
+        public MetricaComparativaATCDTO LlamadasEfectivas { get; set; }
+        public MetricaComparativaATCDTO CompromisosPago { get; set; }
+        public MetricaComparativaATCDTO MontoRecaudado { get; set; }
+        public MetricaComparativaATCDTO MinutosTotalesTelefono { get; set; }
+    }
+
+    public class MetricasActividadesATCDTO
+    {
+        public bool Success { get; set; }
+        public string Fecha { get; set; }
+        public string FechaComparacion { get; set; }
+        public int IdPersonal { get; set; }
+        public MetricasATCDTO Metricas { get; set; }
     }
 }

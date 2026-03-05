@@ -11,6 +11,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public TGestionDocenteOcurrencium()
         {
             TGestionDocenteDisparadorOcurrenciaDetalles = new HashSet<TGestionDocenteDisparadorOcurrenciaDetalle>();
+            TGestionDocenteOcurrenciaCongelada = new HashSet<TGestionDocenteOcurrenciaCongeladum>();
+            TGestionDocenteOcurrenciaCongeladaIaConfiguracions = new HashSet<TGestionDocenteOcurrenciaCongeladaIaConfiguracion>();
             TGestionDocenteOcurrenciaIaConfiguracions = new HashSet<TGestionDocenteOcurrenciaIaConfiguracion>();
         }
 
@@ -75,6 +77,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual TGestionDocenteModoMarcado IdGestionDocenteModoMarcadoNavigation { get; set; } = null!;
         public virtual TGestionDocenteOcurrenciaTipo IdGestionDocenteOcurrenciaTipoNavigation { get; set; } = null!;
         public virtual ICollection<TGestionDocenteDisparadorOcurrenciaDetalle> TGestionDocenteDisparadorOcurrenciaDetalles { get; set; }
+        public virtual ICollection<TGestionDocenteOcurrenciaCongeladum> TGestionDocenteOcurrenciaCongelada { get; set; }
+        public virtual ICollection<TGestionDocenteOcurrenciaCongeladaIaConfiguracion> TGestionDocenteOcurrenciaCongeladaIaConfiguracions { get; set; }
         public virtual ICollection<TGestionDocenteOcurrenciaIaConfiguracion> TGestionDocenteOcurrenciaIaConfiguracions { get; set; }
     }
 }

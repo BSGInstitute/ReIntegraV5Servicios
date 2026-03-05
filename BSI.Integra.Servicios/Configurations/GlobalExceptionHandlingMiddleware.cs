@@ -44,7 +44,7 @@ namespace BSI.Integra.Servicios.Configurations
             //stackTrace = ex.StackTrace;
             var exceptionType = ex.GetType();
 
-            //message = ex.Message;
+            //message = ex.Message; 
             message = FormatMessage(ex.Message, ref codigoError);
             if (exceptionType == typeof(BadRequestException))
             {
