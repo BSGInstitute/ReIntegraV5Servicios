@@ -1,4 +1,6 @@
+using BSI.Integra.Aplicacion.Marketing.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
+using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -19,10 +21,12 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
     public class GestionDocenteAgendaController : ControllerBase
     {
         private readonly IGestionDocenteAgendaService _gestionDocenteAgendaService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public GestionDocenteAgendaController(IGestionDocenteAgendaService gestionDocenteAgendaService)
+        public GestionDocenteAgendaController(IGestionDocenteAgendaService gestionDocenteAgendaService, IUnitOfWork unitOfWork)
         {
             _gestionDocenteAgendaService = gestionDocenteAgendaService;
+            _unitOfWork = unitOfWork;
         }
 
         /// Tipo Función: GET
@@ -217,6 +221,34 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
                 var detalle = _gestionDocenteAgendaService.ObtenerDetalleCorreo(idCorreo);
                 if (detalle == null) return NotFound(new { Exito = false, Mensaje = "No se encontró el correo." });
                 return Ok(detalle);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 05/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el body HTML de un correo enviado al docente, conectándose via IMAP
+        /// con las credenciales del asesor (personal remitente).
+        /// </summary>
+        /// <param name="idAsesor">ID del personal que envió el correo (para obtener credenciales IMAP).</param>
+        /// <param name="idCorreo">ID del mensaje en el servidor IMAP.</param>
+        /// <param name="folder">Carpeta IMAP (ej: "INBOX", "[Gmail]/Sent Mail"). Por defecto "INBOX".</param>
+        /// <returns>ActionResult con CorreoBodyDTO (EmailBody + ArchivosAdjuntos).</returns>
+        [HttpGet("ObtenerCorreoBody/{idAsesor}/{idCorreo}")]
+        public IActionResult ObtenerCorreoBody(int idAsesor, int idCorreo, [FromQuery] string folder)
+        {
+            try
+            {
+                var servicioGmailCliente = new GmailClienteService(_unitOfWork);
+                var resultado = servicioGmailCliente.ObtenerCorreoBody(idAsesor, idCorreo, folder);
+                if (resultado == null) return NotFound(new { Exito = false, Mensaje = "No se encontró el correo." });
+                return Ok(resultado);
             }
             catch (Exception ex)
             {

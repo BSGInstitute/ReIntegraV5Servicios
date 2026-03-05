@@ -55,7 +55,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                             ISNULL(CONCAT(PER.Apellidos, ', ', PER.Nombres), '') AS PersonalAsignado,
                             GC.Id AS IdGestionContacto,
                             GDF.Id AS IdFlujo,
-                            GDF.Nombre AS NombreFlujo
+                            GDF.Nombre AS NombreFlujo,
+                            GDC.Id AS IdCategoria,
+                            GDC.Nombre AS NombreCategoria
                         FROM pla.T_GestionContacto GC
                         INNER JOIN conf.T_ClasificacionPersona CP ON GC.IdClasificacionPersona = CP.Id AND CP.IdTipoPersona = 4 AND CP.Estado = 1
                         INNER JOIN fin.T_Proveedor P ON CP.IdTablaOriginal = P.Id AND P.Estado = 1
@@ -63,6 +65,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                         LEFT JOIN pla.T_PEspecifico PE ON PE.IdCentroCosto = GC.IdCentroCosto AND PE.Estado = 1
                         INNER JOIN pla.T_GestionContactoDocenteFlujo GCDF ON GCDF.IdGestionContacto = GC.Id AND GCDF.Estado = 1
                         INNER JOIN pla.T_GestionDocenteFlujo GDF ON GCDF.IdGestionDocenteFlujo = GDF.Id AND GDF.Estado = 1
+                        LEFT JOIN pla.T_GestionDocenteCategoria GDC ON GDF.IdGestionDocenteCategoria = GDC.Id
                         WHERE GC.Estado = 1";
 
                 var resultadoDB = _dapperRepository.QueryDapper(query, null);
@@ -95,6 +98,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                             P.Email,
                             P.IdPersonal_Asignado AS IdPersonalAsignado,
                             ISNULL(CONCAT(PER.Apellidos, ', ', PER.Nombres), '') AS PersonalAsignado,
+                            PA.Id AS IdPais,
                             ISNULL(PA.NombrePais, '') AS Pais,
                             ISNULL(C.Nombre, '') AS Ciudad
                         FROM fin.T_Proveedor P
@@ -403,6 +407,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     info.HistorialCorreos = JsonConvert.DeserializeObject<List<CorreoResumenDocenteDTO>>(resultadoCorreosDB)
                         .OrderByDescending(x => x.FechaEnvio)
                         .ToList();
+                }
+
+                // Puntaje global (promedio de encuestas de todos los cursos del docente)
+                var resultadoPuntajeDB = _dapperRepository.QuerySPDapper("pla.SP_DocentePuntajeGlobalObtener", new { IdProveedor = idProveedor });
+                if (!string.IsNullOrEmpty(resultadoPuntajeDB) && !resultadoPuntajeDB.Contains("[]"))
+                {
+                    var puntajeResult = JsonConvert.DeserializeObject<List<InformacionFaltanteDocenteDTO>>(resultadoPuntajeDB).FirstOrDefault();
+                    if (puntajeResult != null)
+                    {
+                        info.PuntajeGlobal = puntajeResult.PuntajeGlobal;
+                    }
                 }
 
                 return info;

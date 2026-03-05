@@ -20,6 +20,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int IdGestionContacto { get; set; }
         public int IdFlujo { get; set; }
         public string NombreFlujo { get; set; }
+        public int? IdCategoria { get; set; }
+        public string NombreCategoria { get; set; }
     }
 
     public class DocenteAgendaDetalleDTO
@@ -56,6 +58,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string Email { get; set; }
         public int? IdPersonalAsignado { get; set; }
         public string PersonalAsignado { get; set; }
+        public int? IdPais { get; set; }
         public string Pais { get; set; }
         public string Ciudad { get; set; }
     }
@@ -176,7 +179,12 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int? IdProgramaGeneral { get; set; }
         public string ProgramaGeneral { get; set; }
         public DateTime? ProximaClase { get; set; }
-        
+        public string HorarioClases { get; set; }
+        public int? IdPais { get; set; }
+        public decimal? PuntajeGlobal { get; set; }
+        public int? IdCategoria { get; set; }
+        public string NombreCategoria { get; set; }
+
         public decimal? EncuestaPromedio { get; set; }
         public int? EncuestaCantidad { get; set; }
         public string EncuestaUltimoComentario { get; set; }
@@ -205,6 +213,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public decimal? EncuestaPromedio { get; set; }
         public int? EncuestaCantidad { get; set; }
         public string EncuestaUltimoComentario { get; set; }
+        public decimal? PuntajeGlobal { get; set; }
         public int CantidadEstudiantes { get; set; }
         public List<WhatsAppHistorialDocenteDTO> HistorialWhatsApp { get; set; }
         public List<CorreoResumenDocenteDTO> HistorialCorreos { get; set; }
