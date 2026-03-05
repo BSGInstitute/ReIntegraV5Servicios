@@ -20,6 +20,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int IdGestionContacto { get; set; }
         public int IdFlujo { get; set; }
         public string NombreFlujo { get; set; }
+        public int? IdCategoria { get; set; }
+        public string NombreCategoria { get; set; }
     }
 
     public class DocenteAgendaDetalleDTO
@@ -56,6 +58,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string Email { get; set; }
         public int? IdPersonalAsignado { get; set; }
         public string PersonalAsignado { get; set; }
+        public int? IdPais { get; set; }
         public string Pais { get; set; }
         public string Ciudad { get; set; }
     }
@@ -176,7 +179,12 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int? IdProgramaGeneral { get; set; }
         public string ProgramaGeneral { get; set; }
         public DateTime? ProximaClase { get; set; }
-        
+        public string HorarioClases { get; set; }
+        public int? IdPais { get; set; }
+        public decimal? PuntajeGlobal { get; set; }
+        public int? IdCategoria { get; set; }
+        public string NombreCategoria { get; set; }
+
         public decimal? EncuestaPromedio { get; set; }
         public int? EncuestaCantidad { get; set; }
         public string EncuestaUltimoComentario { get; set; }
@@ -195,8 +203,87 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
     /// </summary>
     public class CargarActividadPorTabResultadoDTO
     {
-        public Dictionary<string, List<ActividadAgendaPlanificacionDTO>> ActividadesAgenda { get; set; }
+        public Dictionary<string, List<ActividadAgendaAgrupadaDTO>> ActividadesAgenda { get; set; }
         public int Cantidad { get; set; }
+    }
+
+    /// Autor: Jose Vega
+    /// Fecha: 05/03/2026
+    /// Versión: 1.1
+    /// <summary>
+    /// Las actividades se anidan jerárquicamente: Actividades (cabeceras) → Detalles.
+    /// </summary>
+    public class ActividadAgendaAgrupadaDTO
+    {
+        public int IdProveedor { get; set; }
+        public string NombreDocente { get; set; }
+        public string Celular { get; set; }
+        public string Celular2 { get; set; }
+        public string Contacto1 { get; set; }
+        public string Contacto2 { get; set; }
+        public string Correo { get; set; }
+        public int IdGestionContacto { get; set; }
+        public int? IdPersonal_Asignado { get; set; }
+        public string PersonalAsignado { get; set; }
+        public int? IdGestionDocenteFlujo { get; set; }
+        public string NombreFlujo { get; set; }
+
+        public int? IdCentroCosto { get; set; }
+        public string NombreCentroCosto { get; set; }
+        public string CodigoCentroCosto { get; set; }
+
+        public string ActividadesCabecera { get; set; }
+        public int? NumeroActividades { get; set; }
+        public string Pais { get; set; }
+        public string Ciudad { get; set; }
+        public int? IdPEspecifico { get; set; }
+        public string NombreCurso { get; set; }
+        public string CodigoCurso { get; set; }
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaTermino { get; set; }
+        public int? IdProgramaGeneral { get; set; }
+        public string ProgramaGeneral { get; set; }
+        public DateTime? ProximaClase { get; set; }
+        public string HorarioClases { get; set; }
+        public int? IdPais { get; set; }
+        public decimal? PuntajeGlobal { get; set; }
+        public int? IdCategoria { get; set; }
+        public string NombreCategoria { get; set; }
+
+        public decimal? EncuestaPromedio { get; set; }
+        public int? EncuestaCantidad { get; set; }
+        public string EncuestaUltimoComentario { get; set; }
+
+        public string UsuarioWeb { get; set; }
+        public string ContraseniaWeb { get; set; }
+        public DateTime? FechaInscritoWeb { get; set; }
+
+        public List<ActividadCabeceraItemDTO> Actividades { get; set; }
+    }
+
+    /// Autor: Jose Vega
+    /// Fecha: 05/03/2026
+    /// Versión: 1.0
+    /// <summary>
+    /// DTO hijo nivel 1: representa una actividad cabecera con sus detalles anidados.
+    /// </summary>
+    public class ActividadCabeceraItemDTO
+    {
+        public int? IdActividadCabecera { get; set; }
+        public string NombreActividadCabecera { get; set; }
+        public List<ActividadDetalleItemDTO> Detalles { get; set; }
+    }
+
+    /// Autor: Jose Vega
+    /// Fecha: 05/03/2026
+    /// Versión: 1.0
+    /// <summary>
+    /// DTO hijo nivel 2: representa una actividad detalle dentro de una cabecera.
+    /// </summary>
+    public class ActividadDetalleItemDTO
+    {
+        public int? IdActividadDetalle { get; set; }
+        public string NombreActividadDetalle { get; set; }
     }
 
     public class InformacionFaltanteDocenteDTO
@@ -205,6 +292,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public decimal? EncuestaPromedio { get; set; }
         public int? EncuestaCantidad { get; set; }
         public string EncuestaUltimoComentario { get; set; }
+        public decimal? PuntajeGlobal { get; set; }
         public int CantidadEstudiantes { get; set; }
         public List<WhatsAppHistorialDocenteDTO> HistorialWhatsApp { get; set; }
         public List<CorreoResumenDocenteDTO> HistorialCorreos { get; set; }
