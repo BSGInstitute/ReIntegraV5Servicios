@@ -27,5 +27,10 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         Task<List<ActividadPendienteDTO>> ObtenerActividadesPendientesAsync();
         Task<ResultadoEjecucionDTO> ActualizarEstadoActividadAsync(ActualizarEstadoRequestDTO request);
         Task<ResultadoEjecucionDTO> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request);
+
+        // Métodos para ejecución manual de actividades
+        Task<ResultadoEjecucionDTO> EjecutarActividadManualmenteAsync(EjecutarActividadManualDTO request);
+        Task<ResultadoEjecucionDTO> AdelantarFechaActividadAsync(AdelantarActividadDTO request);
+        Task<List<ActividadDependienteDTO>> ObtenerActividadesDependientesAsync(int idActividadDetalleCongelada);
     }
 }

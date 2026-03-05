@@ -235,5 +235,50 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int IdRegistro { get; set; }
         public string Mensaje { get; set; }
         public string Error { get; set; }
+        public DateTime? NuevaFecha { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para ejecutar una actividad manualmente sin esperar a Hangfire
+    /// </summary>
+    public class EjecutarActividadManualDTO
+    {
+        public int IdActividadDetalleCongelada { get; set; }
+        public int IdDisparadorCongelado { get; set; }
+        public string UsuarioEjecucion { get; set; }
+        public bool MarcarOcurrenciaAsociada { get; set; } = false;
+        public int? IdGestionDocenteOcurrenciaCongelada { get; set; }
+        public string ComentarioOcurrencia { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para consultar actividades dependientes de una actividad
+    /// </summary>
+    public class ActividadDependienteDTO
+    {
+        public int IdActividadDetalleCongelada { get; set; }
+        public string NombreActividad { get; set; }
+        public string TipoDisparador { get; set; }
+        public string NombreOcurrencia { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para marcar una actividad manual como completada
+    /// </summary>
+    public class MarcarActividadCompletadaDTO
+    {
+        public int IdActividadDetalleCongelada { get; set; }
+        public int IdDisparadorCongelado { get; set; }
+        public string Comentario { get; set; }
+        public string UsuarioEjecucion { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para adelantar la fecha de ejecución de una actividad
+    /// </summary>
+    public class AdelantarActividadDTO
+    {
+        public int IdDisparadorCongelado { get; set; }
+        public string UsuarioModificacion { get; set; }
     }
 }

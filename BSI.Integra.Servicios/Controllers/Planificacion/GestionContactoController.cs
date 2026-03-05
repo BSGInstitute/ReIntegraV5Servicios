@@ -456,5 +456,193 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             }
         }
 
+        /// Autor: Lolo Zaa
+        /// Fecha: 05/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Ejecuta una actividad especifica inmediatamente sin esperar al ciclo de Hangfire.
+        /// Util para pruebas o ejecuciones forzadas por el usuario.
+        /// </summary>
+        /// <param name="request">Datos de la actividad a ejecutar</param>
+        /// <returns>Resultado de la ejecucion</returns>
+        [HttpPost("[action]")]
+        public async Task<IActionResult> EjecutarActividadManualmente([FromBody] EjecutarActividadManualDTO request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(new { Exito = false, Mensaje = "Modelo invalido", Errores = ModelState });
+
+                var resultado = await _gestionContactoService.EjecutarActividadManualmenteAsync(request);
+
+                if (resultado.Exitoso)
+                {
+                    return Ok(new
+                    {
+                        Exito = true,
+                        Mensaje = "Actividad ejecutada correctamente",
+                        IdEjecucion = resultado.IdRegistro,
+                        MensajeResultado = resultado.Mensaje
+                    });
+                }
+                else
+                {
+                    return BadRequest(new
+                    {
+                        Exito = false,
+                        Mensaje = "Error al ejecutar actividad",
+                        Error = resultado.Error
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Exito = false,
+                    Mensaje = ex.Message,
+                    Detalle = ex.InnerException?.Message
+                });
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 05/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Marca una actividad manual como completada despues de que el usuario realizo la tarea.
+        /// Solo aplica para actividades tipo Manual (IdTipoActividad = 2).
+        /// </summary>
+        /// <param name="request">Datos de la actividad completada</param>
+        /// <returns>Resultado de la operacion</returns>
+        [HttpPost("[action]")]
+        public async Task<IActionResult> MarcarActividadManualCompletada([FromBody] MarcarActividadCompletadaDTO request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(new { Exito = false, Mensaje = "Modelo invalido", Errores = ModelState });
+
+                var resultado = await _gestionContactoService.ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
+                {
+                    IdActividadDetalleCongelada = request.IdActividadDetalleCongelada,
+                    IdDisparadorCongelado = request.IdDisparadorCongelado,
+                    CodigoNuevoEstado = "EJECUTADO",
+                    MensajeResultado = $"Completada manualmente por {request.UsuarioEjecucion}. {request.Comentario}",
+                    UsuarioModificacion = request.UsuarioEjecucion
+                });
+
+                if (resultado.Exitoso)
+                {
+                    return Ok(new
+                    {
+                        Exito = true,
+                        Mensaje = "Actividad marcada como completada",
+                        IdEjecucion = resultado.IdRegistro
+                    });
+                }
+                else
+                {
+                    return BadRequest(new
+                    {
+                        Exito = false,
+                        Mensaje = resultado.Error
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Exito = false,
+                    Mensaje = ex.Message,
+                    Detalle = ex.InnerException?.Message
+                });
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 05/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Adelanta la fecha de ejecucion de una actividad para que Hangfire la procese
+        /// en el siguiente ciclo (5 minutos).
+        /// </summary>
+        /// <param name="request">Datos de la actividad a adelantar</param>
+        /// <returns>Resultado de la operacion con la nueva fecha programada</returns>
+        [HttpPost("[action]")]
+        public async Task<IActionResult> AdelantarEjecucionActividad([FromBody] AdelantarActividadDTO request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(new { Exito = false, Mensaje = "Modelo invalido", Errores = ModelState });
+
+                var resultado = await _gestionContactoService.AdelantarFechaActividadAsync(request);
+
+                if (resultado.Exitoso)
+                {
+                    return Ok(new
+                    {
+                        Exito = true,
+                        Mensaje = "Fecha adelantada. La actividad sera procesada por Hangfire en el proximo ciclo (5 minutos)",
+                        NuevaFechaProgramada = resultado.NuevaFecha
+                    });
+                }
+                else
+                {
+                    return BadRequest(new
+                    {
+                        Exito = false,
+                        Mensaje = resultado.Error
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Exito = false,
+                    Mensaje = ex.Message,
+                    Detalle = ex.InnerException?.Message
+                });
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 05/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las actividades que dependen de una actividad especifica.
+        /// Busca actividades con disparador OCURRENCIA_PREVIA vinculadas a la misma ocurrencia.
+        /// </summary>
+        /// <param name="idActividadDetalleCongelada">ID de la actividad a consultar</param>
+        /// <returns>Lista de actividades dependientes</returns>
+        [HttpGet("[action]/{idActividadDetalleCongelada}")]
+        public async Task<IActionResult> ObtenerActividadesDependientes(int idActividadDetalleCongelada)
+        {
+            try
+            {
+                var dependientes = await _gestionContactoService.ObtenerActividadesDependientesAsync(idActividadDetalleCongelada);
+
+                return Ok(new
+                {
+                    Exito = true,
+                    TieneDependientes = dependientes.Any(),
+                    CantidadDependientes = dependientes.Count,
+                    Dependientes = dependientes
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Exito = false,
+                    Mensaje = ex.Message,
+                    Detalle = ex.InnerException?.Message
+                });
+            }
+        }
+
     }
 }
