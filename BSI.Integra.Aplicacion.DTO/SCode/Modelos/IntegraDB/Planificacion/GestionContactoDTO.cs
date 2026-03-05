@@ -236,6 +236,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string Mensaje { get; set; }
         public string Error { get; set; }
         public DateTime? NuevaFecha { get; set; }
+        public ActividadPendienteDTO DatosActividad { get; set; }
     }
 
     /// <summary>

@@ -1,6 +1,9 @@
 using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
+using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -14,12 +17,18 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
     [EnableCors("CorsVista")]
     public class GestionContactoController : ControllerBase
     {
-        private IGestionContactoService _gestionContactoService;
+        private readonly IGestionContactoService _gestionContactoService;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IGestionDocenteActividadService _gestionDocenteActividadService;
 
         public GestionContactoController(
-            IGestionContactoService gestionContactoService)
+            IGestionContactoService gestionContactoService,
+            IUnitOfWork unitOfWork,
+            IGestionDocenteActividadService gestionDocenteActividadService)
         {
             _gestionContactoService = gestionContactoService;
+            _unitOfWork = unitOfWork;
+            _gestionDocenteActividadService = gestionDocenteActividadService;
         }
 
         /// Autor: Jose Vega
@@ -477,12 +486,33 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
 
                 if (resultado.Exitoso)
                 {
+                    // Si la actividad requiere envio de correo, enviarlo usando CorreoController
+                    string mensajeCorreo = null;
+                    if (resultado.DatosActividad != null &&
+                        resultado.DatosActividad.IdTipoActividad == 1 &&
+                        resultado.DatosActividad.IdPlantillaBase == 2)
+                    {
+                        try
+                        {
+                            mensajeCorreo = await EnviarCorreoActividadAsync(resultado.DatosActividad);
+                        }
+                        catch (Exception ex)
+                        {
+                            return BadRequest(new
+                            {
+                                Exito = false,
+                                Mensaje = "Actividad ejecutada pero error al enviar correo",
+                                Error = ex.Message
+                            });
+                        }
+                    }
+
                     return Ok(new
                     {
                         Exito = true,
                         Mensaje = "Actividad ejecutada correctamente",
                         IdEjecucion = resultado.IdRegistro,
-                        MensajeResultado = resultado.Mensaje
+                        MensajeResultado = mensajeCorreo ?? resultado.Mensaje
                     });
                 }
                 else
@@ -504,6 +534,71 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                     Detalle = ex.InnerException?.Message
                 });
             }
+        }
+
+        /// <summary>
+        /// Metodo privado para enviar correo usando CorreoController
+        /// </summary>
+        private async Task<string> EnviarCorreoActividadAsync(ActividadPendienteDTO actividad)
+        {
+            // 1. Obtener gestion de contacto y docente
+            var gestionContacto = await _unitOfWork.GestionContactoRepository.ObtenerPorIdAsync(actividad.IdGestionContacto);
+            if (gestionContacto == null || !gestionContacto.IdClasificacionPersona.HasValue)
+            {
+                throw new Exception("No se encontro la gestion de contacto o no tiene clasificacion de persona");
+            }
+
+            var docente = _unitOfWork.DocentePostulanteRepository.ObtenerDocenteDTOPorIdClasificacionPersona(gestionContacto.IdClasificacionPersona.Value);
+            if (docente == null || string.IsNullOrWhiteSpace(docente.Correo))
+            {
+                throw new Exception("No se encontro el correo del docente");
+            }
+
+            // 2. Generar plantilla
+            var plantillaGenerada = _gestionDocenteActividadService.GenerarPlantillaDocente(new ReemplazoEtiquetaPlantillaDocenteDTO
+            {
+                IdGestionContacto = actividad.IdGestionContacto,
+                IdPlantilla = actividad.IdPlantilla
+            });
+
+            if (string.IsNullOrWhiteSpace(plantillaGenerada.EmailReemplazado.Asunto) ||
+                string.IsNullOrWhiteSpace(plantillaGenerada.EmailReemplazado.CuerpoHTML))
+            {
+                throw new Exception("La plantilla de email generada esta vacia");
+            }
+
+            // 3. Obtener email del asesor sistema
+            var asesorSistema = _unitOfWork.PersonalRepository.FirstById(6205);
+            if (asesorSistema == null)
+            {
+                throw new Exception("No se encontro el asesor sistema con Id 6205");
+            }
+
+            // 4. Preparar parametros para EnviarMensajeGmail
+            var parametrosCorreo = new EnviarMensajeGmailDTO
+            {
+                IdAsesor = 6205,
+                Remitente = asesorSistema.Email,
+                Destinatario = docente.Correo,
+                Asunto = plantillaGenerada.EmailReemplazado.Asunto,
+                Mensaje = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(plantillaGenerada.EmailReemplazado.CuerpoHTML)),
+                Usuario = "MANUAL",
+                DestinatarioCc = "",
+                DestinatarioBcc = "",
+                envioGrupo = false,
+                Files = null
+            };
+
+            // 5. Llamar a CorreoController para enviar
+            var correoController = new CorreoController(_unitOfWork);
+            var resultado = correoController.EnviarMensajeGmail(parametrosCorreo);
+
+            if (resultado is BadRequestObjectResult badRequest)
+            {
+                throw new Exception($"Error al enviar correo: {badRequest.Value}");
+            }
+
+            return $"Email enviado exitosamente a {docente.Correo} - Asunto: {plantillaGenerada.EmailReemplazado.Asunto}";
         }
 
         /// Autor: Lolo Zaa

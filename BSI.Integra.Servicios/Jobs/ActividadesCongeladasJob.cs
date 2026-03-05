@@ -1,11 +1,13 @@
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
-using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
+using BSI.Integra.Servicios.Controllers;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace BSI.Integra.Servicios.Jobs
@@ -17,20 +19,18 @@ namespace BSI.Integra.Servicios.Jobs
     {
         private readonly IGestionContactoService _gestionContactoService;
         private readonly IGestionDocenteActividadService _gestionDocenteActividadService;
-        private readonly IPersonalService _personalService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<ActividadesCongeladasJob> _logger;
+        private const int ID_ASESOR_SISTEMA = 6205;
 
         public ActividadesCongeladasJob(
             IGestionContactoService gestionContactoService,
             IGestionDocenteActividadService gestionDocenteActividadService,
-            IPersonalService personalService,
             IUnitOfWork unitOfWork,
             ILogger<ActividadesCongeladasJob> logger)
         {
             _gestionContactoService = gestionContactoService;
             _gestionDocenteActividadService = gestionDocenteActividadService;
-            _personalService = personalService;
             _unitOfWork = unitOfWork;
             _logger = logger;
         }
@@ -206,35 +206,38 @@ namespace BSI.Integra.Servicios.Jobs
                         throw new Exception("La plantilla de email generada esta vacia");
                     }
 
-                    // 5. Obtener credenciales de Gmail desde configuracion
-                    var configCorreo = _unitOfWork.ConfiguracionIntegraRepository.ObtenerPorClaves("GMAIL", "CORREO_REMITENTE");
-                    var configClave = _unitOfWork.ConfiguracionIntegraRepository.ObtenerPorClaves("GMAIL", "CLAVE_APLICACION");
-
-                    if (configCorreo == null || string.IsNullOrWhiteSpace(configCorreo.Valor1))
+                    // 5. Obtener email del remitente (asesor sistema)
+                    var personalRepo = _unitOfWork.PersonalRepository;
+                    var asesorSistema = personalRepo.FirstById(ID_ASESOR_SISTEMA);
+                    if (asesorSistema == null)
                     {
-                        throw new Exception("No se encontro la configuracion del correo remitente de Gmail");
+                        throw new Exception($"No se encontro el asesor sistema con Id {ID_ASESOR_SISTEMA}");
                     }
 
-                    if (configClave == null || string.IsNullOrWhiteSpace(configClave.Valor1))
+                    // 6. Preparar parametros para el endpoint EnviarMensajeGmail
+                    var parametrosCorreo = new EnviarMensajeGmailDTO
                     {
-                        throw new Exception("No se encontro la configuracion de la clave de aplicacion de Gmail");
-                    }
+                        IdAsesor = ID_ASESOR_SISTEMA,
+                        Remitente = asesorSistema.Email,
+                        Destinatario = docente.Correo,
+                        Asunto = plantillaGenerada.EmailReemplazado.Asunto,
+                        Mensaje = Convert.ToBase64String(Encoding.UTF8.GetBytes(plantillaGenerada.EmailReemplazado.CuerpoHTML)),
+                        Usuario = "HANGFIRE",
+                        DestinatarioCc = "",
+                        DestinatarioBcc = "",
+                        envioGrupo = false,
+                        Files = null
+                    };
 
-                    // 6. Enviar el correo
+                    // 7. Usar el controlador de correo para enviar
                     _logger.LogInformation($"Enviando correo a {docente.Correo} con asunto: {plantillaGenerada.EmailReemplazado.Asunto}");
 
-                    bool enviado = _personalService.EnviarCorreoGmail(
-                        emailDestinatario: docente.Correo,
-                        emailRemitente: configCorreo.Valor1,
-                        personal: "BSG Institute - Planificacion Docente",
-                        clave: configClave.Valor1,
-                        mensaje: plantillaGenerada.EmailReemplazado.CuerpoHTML,
-                        asunto: plantillaGenerada.EmailReemplazado.Asunto
-                    );
+                    var correoController = new CorreoController(_unitOfWork);
+                    var resultado = correoController.EnviarMensajeGmail(parametrosCorreo);
 
-                    if (!enviado)
+                    if (resultado is Microsoft.AspNetCore.Mvc.BadRequestObjectResult badRequest)
                     {
-                        throw new Exception("El servicio de envio de correo retorno false");
+                        throw new Exception($"Error al enviar correo: {badRequest.Value}");
                     }
 
                     _logger.LogInformation($"Correo enviado exitosamente a {docente.Correo}");
