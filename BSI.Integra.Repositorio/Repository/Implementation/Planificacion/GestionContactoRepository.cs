@@ -808,12 +808,16 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                var actividades = await _dataAccess.QueryAsync<ActividadPendienteDTO>(
+                var parameters = new DynamicParameters();
+                string resultado = await _dapperRepository.QuerySPDapperAsync(
                     "pla.SP_GestionDocenteActividadesPendientesEjecucion",
-                    commandType: System.Data.CommandType.StoredProcedure
+                    parameters
                 );
 
-                return actividades.ToList();
+                if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
+                    return new List<ActividadPendienteDTO>();
+
+                return JsonConvert.DeserializeObject<List<ActividadPendienteDTO>>(resultado);
             }
             catch (Exception)
             {
@@ -831,26 +835,36 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                var parameters = new
-                {
-                    IdActividadDetalleCongelada = request.IdActividadDetalleCongelada,
-                    IdDisparadorCongelado = request.IdDisparadorCongelado,
-                    CodigoNuevoEstado = request.CodigoNuevoEstado,
-                    MensajeResultado = request.MensajeResultado,
-                    MensajeError = request.MensajeError,
-                    UsuarioModificacion = request.UsuarioModificacion
-                };
+                var parameters = new DynamicParameters();
+                parameters.Add("@IdActividadDetalleCongelada", request.IdActividadDetalleCongelada, DbType.Int32);
+                parameters.Add("@IdDisparadorCongelado", request.IdDisparadorCongelado, DbType.Int32);
+                parameters.Add("@CodigoNuevoEstado", request.CodigoNuevoEstado, DbType.String, size: 50);
+                parameters.Add("@MensajeResultado", request.MensajeResultado, DbType.String);
+                parameters.Add("@MensajeError", request.MensajeError, DbType.String);
+                parameters.Add("@UsuarioModificacion", request.UsuarioModificacion, DbType.String, size: 50);
 
-                var resultado = await _dataAccess.QueryFirstOrDefaultAsync<dynamic>(
+                string resultado = await _dapperRepository.QuerySPDapperAsync(
                     "pla.SP_GestionDocenteActividadActualizarEstado",
-                    parameters,
-                    commandType: System.Data.CommandType.StoredProcedure
+                    parameters
                 );
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    var resultadoObj = JsonConvert.DeserializeObject<dynamic>(resultado);
+                    var primerElemento = ((Newtonsoft.Json.Linq.JArray)resultadoObj)[0];
+
+                    return new ResultadoEjecucionDTO
+                    {
+                        Exitoso = true,
+                        IdRegistro = (int)(primerElemento["IdEjecucion"] ?? 0),
+                        Mensaje = "Estado actualizado correctamente"
+                    };
+                }
 
                 return new ResultadoEjecucionDTO
                 {
                     Exitoso = true,
-                    IdRegistro = resultado?.IdEjecucion ?? 0,
+                    IdRegistro = 0,
                     Mensaje = "Estado actualizado correctamente"
                 };
             }
@@ -874,25 +888,35 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                var parameters = new
-                {
-                    IdGestionDocenteOcurrenciaCongelada = request.IdGestionDocenteOcurrenciaCongelada,
-                    IdGestionContacto = request.IdGestionContacto,
-                    Comentario = request.Comentario,
-                    FechaHoraOcurrencia = request.FechaHoraOcurrencia,
-                    UsuarioCreacion = request.UsuarioCreacion
-                };
+                var parameters = new DynamicParameters();
+                parameters.Add("@IdGestionDocenteOcurrenciaCongelada", request.IdGestionDocenteOcurrenciaCongelada, DbType.Int32);
+                parameters.Add("@IdGestionContacto", request.IdGestionContacto, DbType.Int32);
+                parameters.Add("@Comentario", request.Comentario, DbType.String);
+                parameters.Add("@FechaHoraOcurrencia", request.FechaHoraOcurrencia, DbType.DateTime);
+                parameters.Add("@UsuarioCreacion", request.UsuarioCreacion, DbType.String, size: 50);
 
-                var resultado = await _dataAccess.QueryFirstOrDefaultAsync<dynamic>(
+                string resultado = await _dapperRepository.QuerySPDapperAsync(
                     "pla.SP_GestionDocenteOcurrenciaMarcar",
-                    parameters,
-                    commandType: System.Data.CommandType.StoredProcedure
+                    parameters
                 );
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    var resultadoObj = JsonConvert.DeserializeObject<dynamic>(resultado);
+                    var primerElemento = ((Newtonsoft.Json.Linq.JArray)resultadoObj)[0];
+
+                    return new ResultadoEjecucionDTO
+                    {
+                        Exitoso = true,
+                        IdRegistro = (int)(primerElemento["IdOcurrenciaMarcada"] ?? 0),
+                        Mensaje = "Ocurrencia marcada correctamente"
+                    };
+                }
 
                 return new ResultadoEjecucionDTO
                 {
                     Exitoso = true,
-                    IdRegistro = resultado?.IdOcurrenciaMarcada ?? 0,
+                    IdRegistro = 0,
                     Mensaje = "Ocurrencia marcada correctamente"
                 };
             }
