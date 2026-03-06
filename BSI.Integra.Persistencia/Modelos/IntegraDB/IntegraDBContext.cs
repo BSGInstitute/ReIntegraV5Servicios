@@ -678,6 +678,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TPespecificoParticipacionDocente> TPespecificoParticipacionDocentes { get; set; } = null!;
         public virtual DbSet<TPespecificoParticipacionExpositor> TPespecificoParticipacionExpositors { get; set; } = null!;
         public virtual DbSet<TPespecificoSesion> TPespecificoSesions { get; set; } = null!;
+        public virtual DbSet<TPespecificoSesionEstado> TPespecificoSesionEstados { get; set; } = null!;
+        public virtual DbSet<TPespecificoSesionEstadoObservacion> TPespecificoSesionEstadoObservacions { get; set; } = null!;
         public virtual DbSet<TPgeneral> TPgenerals { get; set; } = null!;
         public virtual DbSet<TPgeneralAsubPgeneral> TPgeneralAsubPgenerals { get; set; } = null!;
         public virtual DbSet<TPgeneralAsubPgeneralVersionPrograma> TPgeneralAsubPgeneralVersionProgramas { get; set; } = null!;
@@ -41442,6 +41444,94 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Usuario de modificacion del registro");
 
                 entity.Property(e => e.Version).HasComment("indica la version del cronograma");
+            });
+
+            modelBuilder.Entity<TPespecificoSesionEstado>(entity =>
+            {
+                entity.ToTable("T_PEspecificoSesionEstado", "pla");
+
+                entity.HasComment("Esta tabla almacena el estado de la sesion");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Estado).HasComment("Estado del SubCargo");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha Creacion del Control Envio");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha Modificacion del Control Envio");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Descripcion del control en el que se encuentra la ejecucion");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del Control Envio");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario Creacion del Control Envio");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario Modificacion del Control Envio");
+            });
+
+            modelBuilder.Entity<TPespecificoSesionEstadoObservacion>(entity =>
+            {
+                entity.ToTable("T_PEspecificoSesionEstadoObservacion", "pla");
+
+                entity.HasComment("Esta tabla almacena la observacion del estado de la sesion");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha Creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha Modificacion del registro");
+
+                entity.Property(e => e.IdPespecificoSesionEstado)
+                    .HasColumnName("IdPEspecificoSesionEstado")
+                    .HasComment("Foreign Key con la tabla de T_PEspecificoSesionEstado");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Observacion por Estado de Curso");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario Creacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario Modificacion del registro");
+
+                entity.HasOne(d => d.IdPespecificoSesionEstadoNavigation)
+                    .WithMany(p => p.TPespecificoSesionEstadoObservacions)
+                    .HasForeignKey(d => d.IdPespecificoSesionEstado)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_PEspecificoSesionEstadoObservacion_T_PEspecificoSesionEstado");
             });
 
             modelBuilder.Entity<TPgeneral>(entity =>
