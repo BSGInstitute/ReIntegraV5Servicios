@@ -245,9 +245,67 @@ namespace BSI.Integra.Servicios.Jobs
                 }
                 else if (actividad.IdPlantillaBase == 8) // WhatsApp
                 {
-                    // TODO: Implementar envio de WhatsApp en siguiente fase
-                    _logger.LogWarning($"Envio de WhatsApp aun no implementado - IdPlantilla: {actividad.IdPlantilla}");
-                    return $"[PENDIENTE] WhatsApp - Plantilla: {actividad.IdPlantilla}, Contacto: {docente.Celular}";
+                    return null;
+                    //if (string.IsNullOrWhiteSpace(plantillaGenerada.WhatsAppReemplazado.Plantilla))
+                    //{
+                    //    throw new Exception("La plantilla de WhatsApp generada esta vacia");
+                    //}
+
+                    //if (string.IsNullOrWhiteSpace(docente.Celular))
+                    //{
+                    //    throw new Exception($"El docente no tiene numero de celular registrado");
+                    //}
+
+                    //// Obtener IdProveedor desde ClasificacionPersona
+                    //var clasificacionPersona = _unitOfWork.ClasificacionPersonaRepository.FirstById(gestionContacto.IdClasificacionPersona.Value);
+                    //if (clasificacionPersona == null)
+                    //{
+                    //    throw new Exception($"No se encontro la clasificacion de persona {gestionContacto.IdClasificacionPersona.Value}");
+                    //}
+
+                    //// Validar que sea tipo Proveedor (IdTipoPersona = 4)
+                    //if (clasificacionPersona.IdTipoPersona != 4)
+                    //{
+                    //    throw new Exception($"La clasificacion de persona debe ser de tipo Proveedor (IdTipoPersona = 4), pero es {clasificacionPersona.IdTipoPersona}");
+                    //}
+
+                    //// IdTablaOriginal contiene el IdProveedor
+                    //int idProveedor = clasificacionPersona.IdTablaOriginal;
+
+                    //// Preparar parametros para el endpoint WhatsAppMensajeApiGraphPlanificacion
+                    //var parametrosWhatsApp = new WhatsAppEnviarMensajePlaDTO
+                    //{
+                    //    WaTo = docente.Celular,
+                    //    WaType = "text",
+                    //    WaBody = plantillaGenerada.WhatsAppReemplazado.Plantilla,
+                    //    IdPais = 51, // Peru
+                    //    IdPersonal = ID_ASESOR_SISTEMA,
+                    //    IdProveedor = idProveedor,
+                    //    usuario = "HANGFIRE"
+                    //};
+
+                    //// Usar el controlador de WhatsApp para enviar
+                    //_logger.LogInformation($"Enviando WhatsApp a {docente.Celular} (IdProveedor: {idProveedor})");
+
+                    //var whatsAppController = new WebHookWhatsAppController(_unitOfWork);
+                    //var resultado = await whatsAppController.WhatsAppMensajeApiGraphPlanificacion(parametrosWhatsApp);
+
+                    //if (resultado is Microsoft.AspNetCore.Mvc.BadRequestObjectResult badRequest)
+                    //{
+                    //    throw new Exception($"Error al enviar WhatsApp: {badRequest.Value}");
+                    //}
+
+                    //if (resultado is Microsoft.AspNetCore.Mvc.OkObjectResult okResult)
+                    //{
+                    //    var respuesta = okResult.Value as WhatsAppMensajeEnviadoRespuestaMarketingDTO;
+                    //    if (respuesta != null && !respuesta.EstadoMensaje)
+                    //    {
+                    //        throw new Exception($"Error al enviar WhatsApp: {respuesta.Mensaje}");
+                    //    }
+                    //}
+
+                    //_logger.LogInformation($"WhatsApp enviado exitosamente a {docente.Celular}");
+                    //return $"WhatsApp enviado exitosamente a {docente.Celular}";
                 }
                 else
                 {

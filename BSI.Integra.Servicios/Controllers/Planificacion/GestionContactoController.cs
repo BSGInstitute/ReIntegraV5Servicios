@@ -487,21 +487,26 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 if (resultado.Exitoso)
                 {
                     // Si la actividad requiere envio de correo, enviarlo usando CorreoController
-                    string mensajeCorreo = null;
-                    if (resultado.DatosActividad != null &&
-                        resultado.DatosActividad.IdTipoActividad == 1 &&
-                        resultado.DatosActividad.IdPlantillaBase == 2)
+                    string mensajeEnvio = null;
+                    if (resultado.DatosActividad != null && resultado.DatosActividad.IdTipoActividad == 1)
                     {
                         try
                         {
-                            mensajeCorreo = await EnviarCorreoActividadAsync(resultado.DatosActividad);
+                            if (resultado.DatosActividad.IdPlantillaBase == 2) // Email
+                            {
+                                mensajeEnvio = await EnviarCorreoActividadAsync(resultado.DatosActividad);
+                            }
+                            else if (resultado.DatosActividad.IdPlantillaBase == 8) // WhatsApp
+                            {
+                                mensajeEnvio = await EnviarWhatsAppActividadAsync(resultado.DatosActividad);
+                            }
                         }
                         catch (Exception ex)
                         {
                             return BadRequest(new
                             {
                                 Exito = false,
-                                Mensaje = "Actividad ejecutada pero error al enviar correo",
+                                Mensaje = "Actividad ejecutada pero error al enviar mensaje",
                                 Error = ex.Message
                             });
                         }
@@ -512,7 +517,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                         Exito = true,
                         Mensaje = "Actividad ejecutada correctamente",
                         IdEjecucion = resultado.IdRegistro,
-                        MensajeResultado = mensajeCorreo ?? resultado.Mensaje
+                        MensajeResultado = mensajeEnvio ?? resultado.Mensaje
                     });
                 }
                 else
@@ -599,6 +604,86 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             }
 
             return $"Email enviado exitosamente a {docente.Correo} - Asunto: {plantillaGenerada.EmailReemplazado.Asunto}";
+        }
+
+        /// <summary>
+        /// Metodo privado para enviar WhatsApp usando WebHookWhatsAppController
+        /// </summary>
+        private async Task<string> EnviarWhatsAppActividadAsync(ActividadPendienteDTO actividad)
+        {
+            return null;
+            //// 1. Obtener gestion de contacto y docente
+            //var gestionContacto = await _unitOfWork.GestionContactoRepository.ObtenerPorIdAsync(actividad.IdGestionContacto);
+            //if (gestionContacto == null || !gestionContacto.IdClasificacionPersona.HasValue)
+            //{
+            //    throw new Exception("No se encontro la gestion de contacto o no tiene clasificacion de persona");
+            //}
+
+            //var docente = _unitOfWork.DocentePostulanteRepository.ObtenerDocenteDTOPorIdClasificacionPersona(gestionContacto.IdClasificacionPersona.Value);
+            //if (docente == null || string.IsNullOrWhiteSpace(docente.Celular))
+            //{
+            //    throw new Exception("No se encontro el celular del docente");
+            //}
+
+            //// 2. Generar plantilla
+            //var plantillaGenerada = _gestionDocenteActividadService.GenerarPlantillaDocente(new ReemplazoEtiquetaPlantillaDocenteDTO
+            //{
+            //    IdGestionContacto = actividad.IdGestionContacto,
+            //    IdPlantilla = actividad.IdPlantilla
+            //});
+
+            //if (string.IsNullOrWhiteSpace(plantillaGenerada.WhatsAppReemplazado.Plantilla))
+            //{
+            //    throw new Exception("La plantilla de WhatsApp generada esta vacia");
+            //}
+
+            //// 3. Obtener IdProveedor desde ClasificacionPersona
+            //var clasificacionPersona = _unitOfWork.ClasificacionPersonaRepository.FirstById(gestionContacto.IdClasificacionPersona.Value);
+            //if (clasificacionPersona == null)
+            //{
+            //    throw new Exception($"No se encontro la clasificacion de persona {gestionContacto.IdClasificacionPersona.Value}");
+            //}
+
+            //// Validar que sea tipo Proveedor (IdTipoPersona = 4)
+            //if (clasificacionPersona.IdTipoPersona != 4)
+            //{
+            //    throw new Exception($"La clasificacion de persona debe ser de tipo Proveedor (IdTipoPersona = 4), pero es {clasificacionPersona.IdTipoPersona}");
+            //}
+
+            //// IdTablaOriginal contiene el IdProveedor
+            //int idProveedor = clasificacionPersona.IdTablaOriginal;
+
+            //// 4. Preparar parametros para WhatsAppMensajeApiGraphPlanificacion
+            //var parametrosWhatsApp = new WhatsAppEnviarMensajePlaDTO
+            //{
+            //    WaTo = docente.Celular,
+            //    WaType = "text",
+            //    WaBody = plantillaGenerada.WhatsAppReemplazado.Plantilla,
+            //    IdPais = 51, // Peru
+            //    IdPersonal = 6205,
+            //    IdProveedor = idProveedor,
+            //    usuario = "MANUAL"
+            //};
+
+            //// 5. Llamar a WebHookWhatsAppController para enviar
+            //var whatsAppController = new WebHookWhatsAppController(_unitOfWork);
+            //var resultado = await whatsAppController.WhatsAppMensajeApiGraphPlanificacion(parametrosWhatsApp);
+
+            //if (resultado is BadRequestObjectResult badRequest)
+            //{
+            //    throw new Exception($"Error al enviar WhatsApp: {badRequest.Value}");
+            //}
+
+            //if (resultado is OkObjectResult okResult)
+            //{
+            //    var respuesta = okResult.Value as WhatsAppMensajeEnviadoRespuestaMarketingDTO;
+            //    if (respuesta != null && !respuesta.EstadoMensaje)
+            //    {
+            //        throw new Exception($"Error al enviar WhatsApp: {respuesta.Mensaje}");
+            //    }
+            //}
+
+            //return $"WhatsApp enviado exitosamente a {docente.Celular}";
         }
 
         /// Autor: Lolo Zaa

@@ -500,10 +500,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                  ELSE p.RazonSocial
                             END
                         )), 'Sin nombre') AS DocenteNombre,
-                        CASE WHEN gc.IdCentroCosto IS NOT NULL
-                             THEN 'asignado-al-curso' ELSE 'general'
-                        END AS TipoOportunidad,
-                    	C.IdPais,
+	                    GDC.Id,
+	                    GDC.Nombre,
+   	                    C.IdPais,
                         COALESCE(cc.Nombre, '')  AS Curso,
                         COALESCE(gdf.Nombre, '') AS FlujoAsignado
                     FROM pla.T_GestionContacto gc WITH(NOLOCK)
@@ -512,13 +511,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     LEFT JOIN fin.T_Proveedor p WITH(NOLOCK)
                         ON p.Id = cp.IdTablaOriginal
                     LEFT JOIN conf.T_Ciudad C
-                    	ON p.IdCiudad=c.Id AND c.Estado=1
+   	                    ON p.IdCiudad=c.Id AND c.Estado=1
                     LEFT JOIN pla.T_CentroCosto cc WITH(NOLOCK)
                         ON cc.Id = gc.IdCentroCosto
                     LEFT JOIN pla.T_GestionContactoDocenteFlujo gcdf WITH(NOLOCK)
                         ON gcdf.IdGestionContacto = gc.Id AND gcdf.Estado = 1
                     LEFT JOIN pla.T_GestionDocenteFlujo gdf WITH(NOLOCK)
                         ON gdf.Id = gcdf.IdGestionDocenteFlujo
+                    LEFT JOIN pla.T_GestionDocenteCategoria GDC WITH(NOLOCK)
+	                    ON GDC.Id = gdf.IdGestionDocenteCategoria
                     WHERE gc.Estado = 1
                       AND (@Busqueda IS NULL OR @Busqueda = ''
                            OR p.RazonSocial LIKE '%' + @Busqueda + '%'
@@ -573,6 +574,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 string query = @"
                     SELECT DISTINCT
                         p.Id AS Id,
+	                    cp.IdTipoPersona,
+	                    tp.Nombre AS NombreTipoPersona,
                         COALESCE(LTRIM(RTRIM(
                             CASE WHEN p.Nombre1 IS NOT NULL AND p.Nombre1 <> ''
                                  THEN p.Nombre1 + ' ' + COALESCE(p.ApePaterno, '')
@@ -582,8 +585,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     FROM conf.T_ClasificacionPersona cp WITH(NOLOCK)
                     JOIN fin.T_Proveedor p WITH(NOLOCK)
                         ON p.Id = cp.IdTablaOriginal
+                    LEFT JOIN conf.T_TipoPersona tp WITH(NOLOCK)
+	                    ON tp.Id=cp.IdTipoPersona
                     WHERE cp.Estado = 1
                       AND p.Estado = 1
+                      AND tp.Id IN (4,6)
+                      AND tp.Estado =1
                     ORDER BY Nombre";
 
                 string resultado = _dapperRepository.QueryDapper(query, null);
