@@ -989,5 +989,8 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         ICriterioTareaRepository CriterioTareaRepository { get; }
         ISubCriterioTareaRepository SubCriterioTareaRepository { get; }
         IProyectoAplicacionRepository ProyectoAplicacionRepository { get; }
+        IPEspecificoSesionEstadoRepository PEspecificoSesionEstadoRepository { get; }
+
+        IPEspecificoSesionEstadoObservacionRepository PEspecificoSesionEstadoObservacionRepository { get; }
     }
 }
