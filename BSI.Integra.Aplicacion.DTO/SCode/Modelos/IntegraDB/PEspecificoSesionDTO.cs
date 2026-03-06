@@ -196,6 +196,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string ZonaHoraria { get; set; }
         public string EnvioCorreo { get; set; }
         public string EnvioWhatsApp { get; set; }
+        public string CelularWhatsApp { get; set; }
+        public int IdPais { get; set; }
     }
     public class SesionFiltroDTO
     {

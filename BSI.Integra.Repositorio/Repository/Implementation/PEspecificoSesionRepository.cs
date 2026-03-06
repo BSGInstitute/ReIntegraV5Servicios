@@ -1041,7 +1041,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var IdMatriculaCabecera = detalleSesionesFiltro.IdMatriculaCabecera;
                 var CodigoMatricula = detalleSesionesFiltro.CodigoMatricula;
 
-                string _query = "SELECT IdPGeneral, IdPEspecifico, IdSesion, IdCoordinadoraAcademica, EmailCoordinadoraAcademica, NombreCoordinadoraAcademica, IdMatriculaCabecera, CodigoMatricula, NombreAlumno, Email, CentroCosto, EstadoMatricula, Confirmo,EnvioCorreo, EnvioWhatsApp " +
+                string _query = "SELECT IdPGeneral, IdAlumno, IdPEspecifico, IdSesion, IdCoordinadoraAcademica, EmailCoordinadoraAcademica, NombreCoordinadoraAcademica, IdMatriculaCabecera, CodigoMatricula, NombreAlumno, Email, CentroCosto, EstadoMatricula, Confirmo, EnvioCorreo, EnvioWhatsApp, CelularWhatsApp, IdPais " +
                     "FROM pla.V_ObtenerDetalleSesionAlumnosWebinar WHERE IdSesion = @IdSesion";
                 if (IdPGeneral != 0)
                     _query += " and IdPGeneral=@IdPGeneral";
