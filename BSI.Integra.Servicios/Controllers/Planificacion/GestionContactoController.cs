@@ -489,8 +489,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                     // Si la actividad requiere envio de correo, enviarlo usando CorreoController
                     string mensajeCorreo = null;
                     if (resultado.DatosActividad != null &&
-                        resultado.DatosActividad.IdTipoActividad == 1 &&
-                        resultado.DatosActividad.IdPlantillaBase == 2)
+                        resultado.DatosActividad.IdTipoActividad == 1)
                     {
                         try
                         {

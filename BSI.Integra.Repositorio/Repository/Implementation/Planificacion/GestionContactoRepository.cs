@@ -830,8 +830,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 var parameters = new DynamicParameters();
-                parameters.Add("@IdActividadDetalleCongelada", request.IdActividadDetalleCongelada, DbType.Int32);
-                parameters.Add("@IdDisparadorCongelado", request.IdDisparadorCongelado, DbType.Int32);
+                parameters.Add("@IdGestionDocenteActividadDetalleCongelada", request.IdActividadDetalleCongelada, DbType.Int32);
+                parameters.Add("@IdGestionDocenteDisparadorCongelado", request.IdDisparadorCongelado, DbType.Int32);
                 parameters.Add("@CodigoNuevoEstado", request.CodigoNuevoEstado, DbType.String, size: 50);
                 parameters.Add("@MensajeResultado", request.MensajeResultado, DbType.String);
                 parameters.Add("@MensajeError", request.MensajeError, DbType.String);
