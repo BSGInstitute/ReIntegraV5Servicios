@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation
 {
-    public class PEspecificoSesionEstadoRepository : GenericRepository<TPEspecificoSesionEstado>, IPEspecificoSesionEstadoRepository
+    public class PEspecificoSesionEstadoRepository : GenericRepository<TPespecificoSesionEstado>, IPEspecificoSesionEstadoRepository
     {
         private Mapper _mapper;
 
@@ -24,21 +24,21 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             var config = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<TPEspecificoSesionEstado, PEspecificoSesionEstado>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TPespecificoSesionEstado, PEspecificoSesionEstado>(MemberList.None).ReverseMap();
                 cfg.CreateMap<PEspecificoSesionEstado, PEspecificoSesionEstadoDTO>(MemberList.None).ReverseMap();
-                cfg.CreateMap<PEspecificoSesionEstado, TPEspecificoSesionEstado>(MemberList.None).ReverseMap();
+                cfg.CreateMap<PEspecificoSesionEstado, TPespecificoSesionEstado>(MemberList.None).ReverseMap();
                 //cfg.CreateMap<THijo, Hijo>(MemberList.None).ReverseMap();
             });
             _mapper = new Mapper(config);
         }
 
         #region Metodos Base
-        private TPEspecificoSesionEstado MapeoEntidad(PEspecificoSesionEstado entidad)
+        private TPespecificoSesionEstado MapeoEntidad(PEspecificoSesionEstado entidad)
         {
             try
             {
                 //crea la entidad padre
-                TPEspecificoSesionEstado modelo = _mapper.Map<TPEspecificoSesionEstado>(entidad);
+                TPespecificoSesionEstado modelo = _mapper.Map<TPespecificoSesionEstado>(entidad);
 
                 //mapea los hijos
                 //if (entidad.ListadoHijoNivel1 != null && entidad.ListadoHijoNivel1.Count > 0)
@@ -58,7 +58,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public TPEspecificoSesionEstado Add(PEspecificoSesionEstado entidad)
+        public TPespecificoSesionEstado Add(PEspecificoSesionEstado entidad)
         {
             try
             {
@@ -72,7 +72,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public TPEspecificoSesionEstado Update(PEspecificoSesionEstado entidad)
+        public TPespecificoSesionEstado Update(PEspecificoSesionEstado entidad)
         {
             try
             {
@@ -103,11 +103,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         }
 
 
-        public IEnumerable<TPEspecificoSesionEstado> Add(IEnumerable<PEspecificoSesionEstado> listadoEntidad)
+        public IEnumerable<TPespecificoSesionEstado> Add(IEnumerable<PEspecificoSesionEstado> listadoEntidad)
         {
             try
             {
-                List<TPEspecificoSesionEstado> listado = new List<TPEspecificoSesionEstado>();
+                List<TPespecificoSesionEstado> listado = new List<TPespecificoSesionEstado>();
                 foreach (var entidad in listadoEntidad)
                 {
                     listado.Add(MapeoEntidad(entidad));
@@ -121,14 +121,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public IEnumerable<TPEspecificoSesionEstado> Update(IEnumerable<PEspecificoSesionEstado> listadoEntidad)
+        public IEnumerable<TPespecificoSesionEstado> Update(IEnumerable<PEspecificoSesionEstado> listadoEntidad)
         {
             try
             {
                 if (listadoEntidad == null)
                     throw new ArgumentNullException("El listado es nulo");
 
-                List<TPEspecificoSesionEstado> listado = new List<TPEspecificoSesionEstado>();
+                List<TPespecificoSesionEstado> listado = new List<TPespecificoSesionEstado>();
                 foreach (var entidad in listadoEntidad)
                 {
                     listado.Add(MapeoEntidad(entidad));

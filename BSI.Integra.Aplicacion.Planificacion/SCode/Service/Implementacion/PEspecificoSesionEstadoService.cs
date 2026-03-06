@@ -5,6 +5,7 @@ using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.GestionPersonas;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.GestionPersonas;
+using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using System;
 using System.Collections.Generic;
@@ -24,10 +25,10 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
             var config = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<TPEspecificoSesionEstado, PEspecificoSesionEstado>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TPespecificoSesionEstado, PEspecificoSesionEstado>(MemberList.None).ReverseMap();
                 cfg.CreateMap<PEspecificoSesionEstado, PEspecificoSesionEstadoDTO>(MemberList.None).ReverseMap();
                 cfg.CreateMap<PEspecificoSesionEstadoDTO, PEspecificoSesionEstado>(MemberList.None).ReverseMap();
-                cfg.CreateMap<TPEspecificoSesionEstado, PEspecificoSesionEstadoDTO>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TPespecificoSesionEstado, PEspecificoSesionEstadoDTO>(MemberList.None).ReverseMap();
             });
             _mapper = new Mapper(config);
         }

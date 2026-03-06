@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation
 {
-    public class PEspecificoSesionEstadoObservacionRepository : GenericRepository<TPEspecificoSesionEstadoObservacion>, IPEspecificoSesionEstadoObservacionRepository
+    public class PEspecificoSesionEstadoObservacionRepository : GenericRepository<TPespecificoSesionEstadoObservacion>, IPEspecificoSesionEstadoObservacionRepository
     {
         private Mapper _mapper;
 
@@ -21,21 +21,21 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             var config = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<TPEspecificoSesionEstadoObservacion, PEspecificoSesionEstadoObservacion>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TPespecificoSesionEstadoObservacion, PEspecificoSesionEstadoObservacion>(MemberList.None).ReverseMap();
                 cfg.CreateMap<PEspecificoSesionEstadoObservacion, PEspecificoSesionEstadoObservacionDTO>(MemberList.None).ReverseMap();
-                cfg.CreateMap<PEspecificoSesionEstadoObservacion, TPEspecificoSesionEstadoObservacion>(MemberList.None).ReverseMap();
+                cfg.CreateMap<PEspecificoSesionEstadoObservacion, TPespecificoSesionEstadoObservacion>(MemberList.None).ReverseMap();
                 //cfg.CreateMap<THijo, Hijo>(MemberList.None).ReverseMap();
             });
             _mapper = new Mapper(config);
         }
 
         #region Metodos Base
-        private TPEspecificoSesionEstadoObservacion MapeoEntidad(PEspecificoSesionEstadoObservacion entidad)
+        private TPespecificoSesionEstadoObservacion MapeoEntidad(PEspecificoSesionEstadoObservacion entidad)
         {
             try
             {
                 //crea la entidad padre
-                TPEspecificoSesionEstadoObservacion modelo = _mapper.Map<TPEspecificoSesionEstadoObservacion>(entidad);
+                TPespecificoSesionEstadoObservacion modelo = _mapper.Map<TPespecificoSesionEstadoObservacion>(entidad);
 
                 //mapea los hijos
                 //if (entidad.ListadoHijoNivel1 != null && entidad.ListadoHijoNivel1.Count > 0)
@@ -55,7 +55,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public TPEspecificoSesionEstadoObservacion Add(PEspecificoSesionEstadoObservacion entidad)
+        public TPespecificoSesionEstadoObservacion Add(PEspecificoSesionEstadoObservacion entidad)
         {
             try
             {
@@ -69,7 +69,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public TPEspecificoSesionEstadoObservacion Update(PEspecificoSesionEstadoObservacion entidad)
+        public TPespecificoSesionEstadoObservacion Update(PEspecificoSesionEstadoObservacion entidad)
         {
             try
             {
@@ -100,11 +100,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         }
 
 
-        public IEnumerable<TPEspecificoSesionEstadoObservacion> Add(IEnumerable<PEspecificoSesionEstadoObservacion> listadoEntidad)
+        public IEnumerable<TPespecificoSesionEstadoObservacion> Add(IEnumerable<PEspecificoSesionEstadoObservacion> listadoEntidad)
         {
             try
             {
-                List<TPEspecificoSesionEstadoObservacion> listado = new List<TPEspecificoSesionEstadoObservacion>();
+                List<TPespecificoSesionEstadoObservacion> listado = new List<TPespecificoSesionEstadoObservacion>();
                 foreach (var entidad in listadoEntidad)
                 {
                     listado.Add(MapeoEntidad(entidad));
@@ -118,14 +118,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public IEnumerable<TPEspecificoSesionEstadoObservacion> Update(IEnumerable<PEspecificoSesionEstadoObservacion> listadoEntidad)
+        public IEnumerable<TPespecificoSesionEstadoObservacion> Update(IEnumerable<PEspecificoSesionEstadoObservacion> listadoEntidad)
         {
             try
             {
                 if (listadoEntidad == null)
                     throw new ArgumentNullException("El listado es nulo");
 
-                List<TPEspecificoSesionEstadoObservacion> listado = new List<TPEspecificoSesionEstadoObservacion>();
+                List<TPespecificoSesionEstadoObservacion> listado = new List<TPespecificoSesionEstadoObservacion>();
                 foreach (var entidad in listadoEntidad)
                 {
                     listado.Add(MapeoEntidad(entidad));

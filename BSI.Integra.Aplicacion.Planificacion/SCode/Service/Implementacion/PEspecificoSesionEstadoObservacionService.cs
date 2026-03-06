@@ -3,6 +3,7 @@ using BSI.Integra.Aplicacion.Base.Exceptions;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
+using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using System;
 using System.Collections.Generic;
@@ -22,10 +23,10 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
             var config = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<TPEspecificoSesionEstadoObservacion, PEspecificoSesionEstadoObservacion>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TPespecificoSesionEstadoObservacion, PEspecificoSesionEstadoObservacion>(MemberList.None).ReverseMap();
                 cfg.CreateMap<PEspecificoSesionEstadoObservacion, PEspecificoSesionEstadoObservacionDTO>(MemberList.None).ReverseMap();
                 cfg.CreateMap<PEspecificoSesionEstadoObservacionDTO, PEspecificoSesionEstadoObservacion>(MemberList.None).ReverseMap();
-                cfg.CreateMap<TPEspecificoSesionEstadoObservacion, PEspecificoSesionEstadoObservacionDTO>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TPespecificoSesionEstadoObservacion, PEspecificoSesionEstadoObservacionDTO>(MemberList.None).ReverseMap();
             });
             _mapper = new Mapper(config);
         }

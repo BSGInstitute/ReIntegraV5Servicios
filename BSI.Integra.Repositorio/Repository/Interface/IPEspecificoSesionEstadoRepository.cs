@@ -11,15 +11,15 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Repositorio.Repository.Interface
 {
-    public interface IPEspecificoSesionEstadoRepository : IGenericRepository<TPEspecificoSesionEstado>
+    public interface IPEspecificoSesionEstadoRepository : IGenericRepository<TPespecificoSesionEstado>
     {
         #region Metodos Base
-        TPEspecificoSesionEstado Add(PEspecificoSesionEstado entidad);
-        TPEspecificoSesionEstado Update(PEspecificoSesionEstado entidad);
+        TPespecificoSesionEstado Add(PEspecificoSesionEstado entidad);
+        TPespecificoSesionEstado Update(PEspecificoSesionEstado entidad);
         bool Delete(int id, string usuario);
 
-        IEnumerable<TPEspecificoSesionEstado> Add(IEnumerable<PEspecificoSesionEstado> listadoEntidad);
-        IEnumerable<TPEspecificoSesionEstado> Update(IEnumerable<PEspecificoSesionEstado> listadoEntidad);
+        IEnumerable<TPespecificoSesionEstado> Add(IEnumerable<PEspecificoSesionEstado> listadoEntidad);
+        IEnumerable<TPespecificoSesionEstado> Update(IEnumerable<PEspecificoSesionEstado> listadoEntidad);
         bool Delete(IEnumerable<int> listadoIds, string usuario);
         #endregion
         IEnumerable<PEspecificoSesionEstadoDTO> Obtener();
