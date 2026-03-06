@@ -29,14 +29,14 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string Correo { get; set; }
         public DateTime? UltimaInteraccionProgresivo { get; set; }
     }
-    public class OportunidadCompletaDTO : OportunidadRemarketingEmbudoDTO
+    public class OportunidadCompletaDTO : OportunidadUltimoCambioDTO
     {
-        public int CantidadTotalOportunidades { get; set; }
-        public int CantidadOportunidadesCerradas { get; set; }
+        public int OcurrenciasEjecutadas { get; set; }
+        public DateTime? UltimaInteraccionPortal { get; set; }
+        public int CentroCostoRegistrado { get; set; }
+        public DateTime? FechaUltimoWhatsapp { get; set; }
         public int LlamadasEfectivas { get; set; }
         public string Score { get; set; }
-
-        public bool TieneOportunidadesCerradas => CantidadOportunidadesCerradas > 0;
     }
     public class RemarketingEmbudoNivelDescripcionDTO
     {
@@ -80,5 +80,35 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     {
         public int TotalRegistros { get; set; }
         public List<OportunidadScoreDTO> Scores { get; set; } = new List<OportunidadScoreDTO>();
+    }
+    public class InteracccionPortalUltimaInteraccionDTO
+    {
+        public int IdAlumno { get; set; }
+        public DateTime FechaUltimaInteraccion { get; set; }
+    }
+    public class ActividadEjecutadaReporteDTO
+    {
+        public int IdAlumno { get; set; }
+        public int IdOportunidad { get; set; }
+        public int NumeroOcurrenciasEjecutadas { get; set; }
+    }
+    public class AlumnoCentroCostoRegistroDTO
+    {
+        public int IdAlumno { get; set; }
+        public int OportunidadCantidad { get; set; }
+    }
+    public class WhatsappUltimoMensajeEnviadoDTO
+    {
+        public int IdAlumno { get; set; }
+        public DateTime WhatsappMensajeFechaEnvio { get; set; }
+    }
+    public class OportunidadUltimoCambioDTO
+    {
+        public int IdOportunidad { get; set; }
+        public int IdAlumno { get; set; }
+        public string FaseOportunidadActual { get; set; }
+        public string ClasificacionProbabilidad { get; set; }
+        public DateTime FechaCreacionOportunidad { get; set; }
+        public int CantidadOportunidad { get; set; }
     }
 }
