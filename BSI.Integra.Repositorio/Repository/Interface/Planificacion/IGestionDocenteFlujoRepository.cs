@@ -11,7 +11,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         TGestionDocenteFlujo Update(GestionDocenteFlujo entidad);
         IEnumerable<GestionDocenteEstadoDTO> ObtenerEstadosFlujo();
         IEnumerable<GestionDocenteCategoriaDTO> ObtenerCategorias();
-        IEnumerable<GestionDocenteActividadCabeceraListaDTO> ObtenerActividadesCabecera();
+        IEnumerable<GestionDocenteActividadCabeceraListaDTO> ObtenerActividadesCabecera(int? idCategoria = null);
         GestionDocenteFlujoOutputDTO ObtenerFlujoPorId(int id);
     }
 }

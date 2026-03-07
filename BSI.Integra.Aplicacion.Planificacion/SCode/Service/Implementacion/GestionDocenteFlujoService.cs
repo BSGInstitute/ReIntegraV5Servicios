@@ -251,12 +251,13 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// <summary>
         /// Obtiene todas las actividades cabecera disponibles para asociar a flujos.
         /// </summary>
+        /// <param name="idCategoria">Identificador opcional de la categoría docente para filtrar.</param>
         /// <returns>Colección de GestionDocenteActividadCabeceraListaDTO.</returns>
-        public IEnumerable<GestionDocenteActividadCabeceraListaDTO> ObtenerActividadesCabecera()
+        public IEnumerable<GestionDocenteActividadCabeceraListaDTO> ObtenerActividadesCabecera(int? idCategoria = null)
         {
             try
             {
-                return _unitOfWork.GestionDocenteFlujoRepository.ObtenerActividadesCabecera();
+                return _unitOfWork.GestionDocenteFlujoRepository.ObtenerActividadesCabecera(idCategoria);
             }
             catch (Exception ex)
             {

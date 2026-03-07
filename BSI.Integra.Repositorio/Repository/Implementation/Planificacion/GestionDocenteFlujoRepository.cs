@@ -92,13 +92,19 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
-        public IEnumerable<GestionDocenteActividadCabeceraListaDTO> ObtenerActividadesCabecera()
+        public IEnumerable<GestionDocenteActividadCabeceraListaDTO> ObtenerActividadesCabecera(int? idCategoria = null)
         {
             try
             {
                 IEnumerable<GestionDocenteActividadCabeceraListaDTO> actividades = new List<GestionDocenteActividadCabeceraListaDTO>();
                 string _query = "SELECT Id, Nombre, Descripcion, IdGestionDocenteEstado, IdGestionDocenteCategoria FROM pla.T_GestionDocenteActividadCabecera WHERE Estado = 1";
-                var resultadoDB = _dapperRepository.QueryDapper(_query, null);
+                
+                if (idCategoria.HasValue)
+                {
+                    _query += " AND IdGestionDocenteCategoria = @IdCategoria";
+                }
+
+                var resultadoDB = _dapperRepository.QueryDapper(_query, new { IdCategoria = idCategoria });
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
                     actividades = JsonConvert.DeserializeObject<IEnumerable<GestionDocenteActividadCabeceraListaDTO>>(resultadoDB);

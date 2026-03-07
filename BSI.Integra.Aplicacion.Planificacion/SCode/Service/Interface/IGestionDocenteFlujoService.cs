@@ -12,7 +12,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         Task<List<GestionDocenteFlujoDTO>> ObtenerTodoAsync();
         IEnumerable<GestionDocenteEstadoDTO> ObtenerEstadosFlujo();
         IEnumerable<GestionDocenteCategoriaDTO> ObtenerCategorias();
-        IEnumerable<GestionDocenteActividadCabeceraListaDTO> ObtenerActividadesCabecera();
+        IEnumerable<GestionDocenteActividadCabeceraListaDTO> ObtenerActividadesCabecera(int? idCategoria = null);
         GestionDocenteFlujoOutputDTO ObtenerFlujoPorId(int id);
         Task<FlujoCompletoDTO> ObtenerFlujoCompletoAsync(int id);
         Task<int> DuplicarFlujoAsync(DuplicarFlujoRequestDTO request);

@@ -160,15 +160,15 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
         /// Fecha: 03/02/2026
         /// Versión: 1.0
         /// <summary>
-        /// Endpoint que obtiene todas las actividades cabecera disponibles para asociar a flujos.
+        /// Endpoint que obtiene todas las actividades cabecera disponibles para asociar a flujos, permitiendo filtrar por categoría.
         /// </summary>
         /// <returns>ActionResult con la lista de actividades cabecera.</returns>
         [HttpGet("ObtenerActividadesCabecera")]
-        public IActionResult ObtenerActividadesCabecera()
+        public IActionResult ObtenerActividadesCabecera([FromQuery] int? idCategoria = null)
         {
             try
             {
-                var lista = _gestionDocenteFlujoService.ObtenerActividadesCabecera();
+                var lista = _gestionDocenteFlujoService.ObtenerActividadesCabecera(idCategoria);
                 return Ok(lista);
             }
             catch (Exception ex)
