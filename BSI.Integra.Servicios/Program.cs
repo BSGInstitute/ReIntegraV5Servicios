@@ -232,6 +232,9 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<BSI.Integra.Repositorio.Repository.Interface.IAdwordsConversionRepository, BSI.Integra.Repositorio.Repository.Implementation.AdwordsConversionRepository>();
 builder.Services.AddScoped<BSI.Integra.Aplicacion.Transversal.Service.Interface.IAdwordsConversionService, BSI.Integra.Aplicacion.Transversal.Service.Implementacion.AdwordsConversionService>();
 
+// WhatsApp Service
+builder.Services.AddScoped<BSI.Integra.Aplicacion.Transversal.Service.Interface.IWhatsAppMensajeEnviadoApiPlanificacionService, BSI.Integra.Aplicacion.Transversal.Service.Implementacion.WhatsAppMensajeEnviadoApiPlanificacionService>();
+
 var connectionString = builder.Configuration.GetConnectionString("IntegraDB");
 // Registrar Hangfire
 builder.Services.AddHangfire(config =>

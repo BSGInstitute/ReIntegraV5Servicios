@@ -341,16 +341,19 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
 
         /// Autor: Lolo Zaa
         /// Fecha: 21/02/2026
-        /// Version: 1.0
+        /// Version: 2.1
         /// <summary>
         /// Congela un flujo de gestión docente con todas sus actividades, disparadores,
         /// ocurrencias y configuración IA asociadas.
+        /// Para flujos de categoría General, se puede especificar la fecha de inicio del flujo.
         /// </summary>
-        public async Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo)
+        /// <param name="idGestionContactoDocenteFlujo">ID del vínculo entre gestión contacto y flujo docente</param>
+        /// <param name="fechaInicioFlujoCongelado">Fecha de inicio opcional (solo aplica para flujos categoría General)</param>
+        public async Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo, DateTime? fechaInicioFlujoCongelado = null)
         {
             try
             {
-                return await _unitOfWork.GestionContactoRepository.CongelarFlujoDocenteAsync(idGestionContactoDocenteFlujo);
+                return await _unitOfWork.GestionContactoRepository.CongelarFlujoDocenteAsync(idGestionContactoDocenteFlujo, fechaInicioFlujoCongelado);
             }
             catch (Exception)
             {

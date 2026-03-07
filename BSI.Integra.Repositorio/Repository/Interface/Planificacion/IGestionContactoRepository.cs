@@ -29,7 +29,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         ProveedorClasificacionDTO ObtenerClasificacionPorProveedor(int idProveedor);
         IEnumerable<EstadoGestionContactoDTO> ObtenerEstadosGestionContacto();
         TGestionContactoDocenteFlujo InsertarGestionContactoDocenteFlujo(InsertarGestionContactoDocenteFlujoDTO dto);
-        Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo);
+        Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo, DateTime? fechaInicioFlujoCongelado = null);
         OportunidadDocenteListResponseDTO ObtenerOportunidadesDocente(string busqueda, int pagina, int porPagina);
         IEnumerable<ComboDTO> ObtenerDocentes();
         Task<ActividadesFlujoPorCategoriaResponseDTO> ObtenerActividadesFlujoPorCategoriaAsync(int idGestionContactoDocenteFlujo);

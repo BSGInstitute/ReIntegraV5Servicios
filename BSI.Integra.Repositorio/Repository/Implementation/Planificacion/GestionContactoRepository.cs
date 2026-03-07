@@ -429,18 +429,23 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
         /// Autor: Lolo Zaa
         /// Fecha: 21/02/2026
-        /// Version: 1.0
+        /// Version: 2.1
         /// <summary>
-        /// Congela un flujo de gestión docente invocando el SP pla.SP_CongelamientoFlujoDocente.
+        /// Congela un flujo de gestión docente invocando el SP pla.SP_FlujoDocenteCongelar.
         /// El usuario de creación está hardcodeado como 'sgradosn'.
+        /// Para flujos de categoría General (IdGestionDocenteCategoria = 1), se puede especificar
+        /// la fecha de inicio del flujo congelado. Si no se proporciona, el SP usará NULL.
         /// </summary>
-        public async Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo)
+        /// <param name="idGestionContactoDocenteFlujo">ID del vínculo entre gestión contacto y flujo docente</param>
+        /// <param name="fechaInicioFlujoCongelado">Fecha de inicio opcional (solo aplica para flujos categoría General)</param>
+        public async Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo, DateTime? fechaInicioFlujoCongelado = null)
         {
             try
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@IdGestionContactoDocenteFlujo", idGestionContactoDocenteFlujo, DbType.Int32);
                 parameters.Add("@UsuarioCreacion", "sgradosn", DbType.String, size: 50);
+                parameters.Add("@FechaInicioFlujoCongelado", fechaInicioFlujoCongelado, DbType.DateTime);
 
                 await _dapperRepository.QuerySPDapperAsync(
                     "pla.SP_FlujoDocenteCongelar",
@@ -1053,47 +1058,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     };
                 }
 
-                // 2. Simular ejecución (la logica real de envio se hace en el Service)
-                string mensajeResultado = string.Empty;
-
-                if (actividad.IdTipoActividad == 1) // Automática (Email/WhatsApp)
+                // 2. Retornar datos de la actividad para que el controller haga el envio
+                // El controller actualizara el estado despues del envio (exitoso o fallido)
+                return new ResultadoEjecucionDTO
                 {
-                    mensajeResultado = $"[EJECUCION MANUAL] Actividad automatica marcada - Plantilla: {actividad.IdPlantilla}, Contacto: {actividad.IdGestionContacto}";
-                }
-                else if (actividad.IdTipoActividad == 2) // Manual
-                {
-                    mensajeResultado = $"[EJECUCION MANUAL] Notificacion creada para contacto: {actividad.IdGestionContacto}";
-                }
-
-                // 3. Actualizar estado a EJECUTADO
-                var resultado = await ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
-                {
-                    IdActividadDetalleCongelada = request.IdActividadDetalleCongelada,
-                    IdDisparadorCongelado = request.IdDisparadorCongelado,
-                    CodigoNuevoEstado = "EJECUTADO",
-                    MensajeResultado = mensajeResultado,
-                    UsuarioModificacion = request.UsuarioEjecucion
-                });
-
-                if (!resultado.Exitoso)
-                    return resultado;
-
-                // 4. Si se debe marcar la ocurrencia asociada, marcarla (esto activa dependientes)
-                if (request.MarcarOcurrenciaAsociada && request.IdGestionDocenteOcurrenciaCongelada.HasValue)
-                {
-                    var resultadoOcurrencia = await MarcarOcurrenciaAsync(new MarcarOcurrenciaRequestDTO
-                    {
-                        IdGestionDocenteOcurrenciaCongelada = request.IdGestionDocenteOcurrenciaCongelada.Value,
-                        IdGestionContacto = actividad.IdGestionContacto,
-                        Comentario = request.ComentarioOcurrencia ?? "Ocurrencia marcada automaticamente por ejecucion manual",
-                        FechaHoraOcurrencia = DateTime.Now,
-                        UsuarioCreacion = request.UsuarioEjecucion
-                    });
-
-                    resultado.Mensaje = $"{resultado.Mensaje}. {resultadoOcurrencia.Mensaje}";
-                }
-
-                return resultado;
+                    Exitoso = true,
+                    IdRegistro = actividad.IdActividadDetalleCongelada,
+                    Mensaje = "Actividad lista para ejecutar",
+                    DatosActividad = actividad
+                };
             }
             catch (Exception ex)
             {
