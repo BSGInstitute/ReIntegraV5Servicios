@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Persistencia.IntegraDBMongo.Config
 {
-    internal class IntegraDBMongoSettings
+    public class MongoDBSettings
     {
+        public string ConnectionString { get; set; } = string.Empty;
+        public string DatabaseName { get; set; } = string.Empty;
     }
 }

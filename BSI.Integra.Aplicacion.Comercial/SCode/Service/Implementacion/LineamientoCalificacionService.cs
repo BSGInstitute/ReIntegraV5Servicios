@@ -10,8 +10,11 @@ using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Comercial;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
+using BSI.Integra.Repositorio.IntegraDBMongo.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using DocumentFormat.OpenXml.EMMA;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -21,7 +24,6 @@ using System.Text.Unicode;
 using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad.TranscriptionDTO;
 using FaseDTO = BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial.FaseDTO;
 using TransicionFase = BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial.TransicionFase;
-
 
 namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 {
@@ -35,14 +37,23 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
     {
         private IUnitOfWork _unitOfWork;
         private Mapper _mapper;
+        private IMongoDocumentRepository _mongoRepo;
 
+        // Constructor original (solo UnitOfWork) - PARA ATRÁS COMPATIBLE
         public LineamientoCalificacionService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+            _mongoRepo = null;
 
             var config = new MapperConfiguration(cfg => cfg.CreateMap<TLineamientoCalificacion, LineamientoCalificacion>(MemberList.None).ReverseMap());
             _mapper = new Mapper(config);
         }
+        public LineamientoCalificacionService(IUnitOfWork unitOfWork, IMongoDocumentRepository mongoRepo)
+            : this(unitOfWork)
+        {
+            _mongoRepo = mongoRepo;
+        }
+
         #region Metodos Base
         public LineamientoCalificacion Add(LineamientoCalificacion entidad)
         {
@@ -859,7 +870,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 var datos = _unitOfWork.LineamientoCalificacionRepository.ObtenerConfiguracionCambioFaseOportunidad(item.IdFaseOportunidad_Ant, item.IdFaseOportunidad);
 
                 var transicionesAgrupadas = datos
-                    .GroupBy(t => new {
+                    .GroupBy(t => new
+                    {
                         t.IdTransicionFaseOportunidad,
                         t.IdFaseOrigen,
                         t.NombreFaseOrigen,
@@ -883,7 +895,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             NombreFaseDestino = g.Key.NombreFaseDestino,
                             CodigoFaseDestino = g.Key.CodigoFaseDestino
                         },
-                        Criterios = g.GroupBy(c => new {
+                        Criterios = g.GroupBy(c => new
+                        {
                             c.IdCriterio,
                             c.OrdenCriterio,
                             c.NombreCriterio
@@ -1055,8 +1068,215 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             resultados = (await Task.WhenAll(tasks)).ToList();
             return resultados;
         }
+        public async Task<IEnumerable<LlamadaProcesoAutoDTO>> ObtenerInformacionCalificacionAutomatica(
+         int IdTipoProcesoProgramado,
+         int IdPersonalAreaTrabajo,
+         DateTime? FechaDesde = null)
+        {
+            try
+            {
+                if (FechaDesde == null)
+                    FechaDesde = DateTime.Now;
 
-        /// Tipo Función: GET
+                long fechaMilis = new DateTimeOffset(FechaDesde.Value).ToUnixTimeMilliseconds();
+
+                var pipeline = new List<BsonDocument>
+        {
+            new BsonDocument("$match",
+                new BsonDocument("FechaReal",
+                    new BsonDocument("$gte", fechaMilis))
+            ),
+
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_LlamadaWebphoneCruceCentralTresCx"},
+                {"localField","Id"},
+                {"foreignField","IdActividadDetalle"},
+                {"as","LWCCTCX"}
+            }),
+
+            new BsonDocument("$unwind","$LWCCTCX"),
+
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_Oportunidad"},
+                {"localField","IdOportunidad"},
+                {"foreignField","Id"},
+                {"as","O"}
+            }),
+
+            new BsonDocument("$unwind","$O"),
+
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_OportunidadLog"},
+                {"localField","O.Id"},
+                {"foreignField","IdOportunidad"},
+                {"as","OLOG"}
+            }),
+
+            new BsonDocument("$unwind","$OLOG"),
+
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_FaseOportunidad"},
+                {"localField","OLOG.IdFaseOportunidad_Ant"},
+                {"foreignField","Id"},
+                {"as","FOI"}
+            }),
+
+            new BsonDocument("$unwind","$FOI"),
+
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_FaseOportunidad"},
+                {"localField","OLOG.IdFaseOportunidad"},
+                {"foreignField","Id"},
+                {"as","FOD"}
+            }),
+
+            new BsonDocument("$unwind","$FOD"),
+
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_Alumno"},
+                {"localField","O.IdAlumno"},
+                {"foreignField","Id"},
+                {"as","A"}
+            }),
+
+            new BsonDocument("$unwind","$A"),
+
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_MatriculaCabecera"},
+                {"localField","O.IdAlumno"},
+                {"foreignField","IdAlumno"},
+                {"as","MC"}
+            }),
+
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_OcurrenciaAlterno"},
+                {"localField","IdOcurrenciaAlterno"},
+                {"foreignField","Id"},
+                {"as","OA_ALT"}
+            }),
+
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_EstadoOcurrencia"},
+                {"localField","OA_ALT.IdEstadoOcurrencia"},
+                {"foreignField","Id"},
+                {"as","EO_ALT"}
+            }),
+
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_Ocurrencia"},
+                {"localField","IdOcurrencia"},
+                {"foreignField","Id"},
+                {"as","OA"}
+            }),
+
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_EstadoOcurrencia"},
+                {"localField","OA.IdEstadoOcurrencia"},
+                {"foreignField","Id"},
+                {"as","EO"}
+            }),
+
+            new BsonDocument("$lookup",
+                new BsonDocument{
+                    {"from","T_ClasificacionPersona"},
+                    {"let", new BsonDocument("idAlumno","$O.IdAlumno")},
+                    {"pipeline", new BsonArray{
+                        new BsonDocument("$match",
+                            new BsonDocument{
+                                {"$expr", new BsonDocument("$eq",
+                                    new BsonArray{"$IdTablaOriginal","$$idAlumno"})},
+                                {"IdTipoPersona",1}
+                            }),
+                        new BsonDocument("$limit",1)
+                    }},
+                    {"as","CP"}
+                }
+            ),
+
+            new BsonDocument("$unwind",
+                new BsonDocument{
+                    {"path","$CP"},
+                    {"preserveNullAndEmptyArrays",true}
+                }
+            ),
+
+            new BsonDocument("$match",
+                new BsonDocument{
+                    {"O.IdPersonalAreaTrabajo",IdPersonalAreaTrabajo},
+                    {"LWCCTCX.EsLlamadaTranscrita",true},
+                    {"$or", new BsonArray{
+                        new BsonDocument("LWCCTCX.EsLlamadaCalificada",false),
+                        new BsonDocument("LWCCTCX.EsLlamadaCalificada",BsonNull.Value)
+                    }}
+                }
+            ),
+
+            new BsonDocument("$project",
+                new BsonDocument{
+                    {"IdActividadDetalle","$Id"},
+                    {"LlamadaWebphoneCruceCentralTresCx","$LWCCTCX.Id"},
+                    {"IdOportunidad","$O.Id"},
+                    {"IdPersonal_Asignado","$O.IdPersonal_Asignado"},
+                    {"IdPersonalAreaTrabajo","$O.IdPersonalAreaTrabajo"},
+                    {"IdAlumno","$A.Id"},
+                    {"CodigoMatricula",
+                        new BsonDocument("$arrayElemAt",
+                            new BsonArray{"$MC.CodigoMatricula",0})},
+                    {"IdMatriculaCabecera",
+                        new BsonDocument("$arrayElemAt",
+                            new BsonArray{"$MC.Id",0})},
+                    {"IdPEspecifico",
+                        new BsonDocument("$arrayElemAt",
+                            new BsonArray{"$MC.IdPEspecifico",0})},
+                    {"IdCodigoPais","$A.IdCodigoPais"},
+                    {"IdCentroCosto","$O.IdCentroCosto"},
+                    {"IdClasificacionPersona","$CP.Id"},
+                    {"Comentario","$Comentario"},
+                    {"IdOcurrenciaAlterno","$IdOcurrenciaAlterno"},
+                    {"IdOcurrenciaActividadAlterno","$IdOcurrenciaActividadAlterno"},
+                    {"IdOcurrenciaActividad","$IdOcurrenciaActividad"},
+                    {"IdOcurrencia","$IdOcurrencia"},
+                    {"NombreOcurrencia",
+                        new BsonDocument("$arrayElemAt",
+                            new BsonArray{"$OA.Nombre",0})},
+                    {"NombreOcurrenciaAlterno",
+                        new BsonDocument("$arrayElemAt",
+                            new BsonArray{"$OA_ALT.Nombre",0})},
+                    {"IdOportunidadLog","$OLOG.Id"},
+                    {"IdFaseOportunidad_Ant","$OLOG.IdFaseOportunidad_Ant"},
+                    {"IdFaseOportunidad","$OLOG.IdFaseOportunidad"},
+                    {"FaseOportunidad_Ant","$FOI.Codigo"},
+                    {"FaseOportunidad","$FOD.Codigo"},
+                    {"UrlAudio","$LWCCTCX.UrlAudio"},
+                    {"UrlAudio2","$LWCCTCX.UrlAudio2"},
+                    {"Origen","$LWCCTCX.Origen"},
+                    {"DuracionContestoCentral","$LWCCTCX.DuracionContestoCentral"},
+                    {"esLlamadaTranscrita",
+                        new BsonDocument("$ifNull",
+                            new BsonArray{"$LWCCTCX.EsLlamadaTranscrita",false})},
+                    {"esLlamadaCalificada",
+                        new BsonDocument("$ifNull",
+                            new BsonArray{"$LWCCTCX.EsLlamadaCalificada",false})},
+                    {"FechaLlamada","$LWCCTCX.FechaInicioLlamadaCentral"}
+                }
+            )
+        };
+                var resultados = await _mongoRepo.FindWithAggregateAsync(
+                                             "T_ActividadDetalle",
+                                             pipeline.ToArray()
+                                         );
+
+                return resultados
+                    .Select(x => BsonSerializer.Deserialize<LlamadaProcesoAutoDTO>(x))
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al consultar MongoDB: {ex.Message}", ex);
+            }
+        }
+
+
         /// Autor: Lolo Zaa
         /// Fecha: 02/01/2025
         /// Versión: 1.0
@@ -1306,13 +1526,15 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     audio_url = transcripcionManualDTO.Audio_Url?.Trim(),
                     locale = transcripcionManualDTO.Locale,
                     ocurrencia = transcripcionManualDTO.Ocurrencia,
-                    historialReprogramaciones = transcripcionManualDTO.HistorialReprogramaciones?.Select(h => new {
+                    historialReprogramaciones = transcripcionManualDTO.HistorialReprogramaciones?.Select(h => new
+                    {
                         IdLlamada = h.IdLlamada,
                         EstadoOcurrencia = h.EstadoOcurrencia,
                         ocurrencia = h.Ocurrencia,
                         Fecha = h.Fecha
                     }).ToList(),
-                    informacionFases = transcripcionManualDTO.InformacionFases?.Select(f => new {
+                    informacionFases = transcripcionManualDTO.InformacionFases?.Select(f => new
+                    {
                         IdTransicionFaseOportunidad = f.IdTransicionFaseOportunidad,
                         FaseOrigen = new
                         {
@@ -1326,11 +1548,13 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             NombreFaseDestino = f.FaseDestino.NombreFaseDestino,
                             CodigoFaseDestino = f.FaseDestino.CodigoFaseDestino
                         },
-                        Criterios = f.Criterios?.Select(c => new {
+                        Criterios = f.Criterios?.Select(c => new
+                        {
                             IdCriterio = c.IdCriterio,
                             OrdenCriterio = c.OrdenCriterio,
                             NombreCriterio = c.NombreCriterio,
-                            Lineamientos = c.Lineamientos?.Select(l => new {
+                            Lineamientos = c.Lineamientos?.Select(l => new
+                            {
                                 IdLineamientoCalificacionFase = l.IdLineamientoCalificacionFase,
                                 OrdenLineamiento = l.OrdenLineamiento,
                                 NombreLineamientoCalificacionFase = l.NombreLineamientoCalificacionFase,
@@ -1912,7 +2136,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                 break;
                             case 3: //Area Clientes - filtra lineamientos según estado de matrícula
                                 brochure = await BuildBrochureClientesAsync(item, serviceInformacionPrograma, solicitudOperacionesService, alumnoService);
-                                var configuracionLineamento = this.ObtenerConfiguracionLineamientoATC(item.EstadoMatricula,item.SubEstadoMatricula);
+                                var configuracionLineamento = this.ObtenerConfiguracionLineamientoATC(item.EstadoMatricula, item.SubEstadoMatricula);
                                 lineamientosParaPayload = this.CalcularLineamientosATC(configuracionLineamento, lineamientos);
                                 break;
                             default:
@@ -2103,7 +2327,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             ),
 
             };
-        ////
+            ////
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json")
@@ -2128,9 +2352,9 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     await semaphore.WaitAsync();
                     try
                     {
-                    
 
-                       
+
+
                         // Determinar el tipo de validación según IdOcurrenciaAlterno
                         bool esConvenioVoz = item.IdOcurrenciaAlterno == ID_OCURRENCIA_CONVENIO_VOZ;
                         string tipoValidacion = esConvenioVoz ? "Convenio de Voz" : "Proceso de Venta";
@@ -4436,7 +4660,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             .ToList()
                     };
                 })
-                .OrderByDescending(o => o.Validaciones.Max(v => v.FechaValidacion)) 
+                .OrderByDescending(o => o.Validaciones.Max(v => v.FechaValidacion))
                 .ToList();
 
             return new ReporteValidacionMatriculaResponseV2
@@ -4481,9 +4705,9 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         FechaInicioLlamadaCentral = first.FechaInicioLlamadaCentral,
                         DuracionContestoCentral = first.DuracionContestoCentral,
                         IdAlumno = first.IdAlumno,
-                        CodigoMatricula=first.CodigoMatricula,
-                        EstadoMatricula=first.EstadoMatricula,
-                        SubEstadoMatricula=first.SubEstadoMatricula,
+                        CodigoMatricula = first.CodigoMatricula,
+                        EstadoMatricula = first.EstadoMatricula,
+                        SubEstadoMatricula = first.SubEstadoMatricula,
                         NombreCliente = first.NombreCliente,
                         IdAsesor = first.IdAsesor,
                         NombreAsesor = first.NombreAsesor,
@@ -5237,17 +5461,17 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 switch (configuracionLineamento)
                 {
                     case "PAGOATRASADO":
-                        faseIdsPermitidos = new List<int> {333,334,335,336,337};
+                        faseIdsPermitidos = new List<int> { 333, 334, 335, 336, 337 };
                         break;
                     case "PREREPORTE":
-                        faseIdsPermitidos = new List<int> { 327,328,329,330,331,332 };
+                        faseIdsPermitidos = new List<int> { 327, 328, 329, 330, 331, 332 };
                         break;
                     case "REPORTADO":
-                        faseIdsPermitidos = new List<int> {321,322,323,324,325,326 };
+                        faseIdsPermitidos = new List<int> { 321, 322, 323, 324, 325, 326 };
                         break;
                     case "GENERICO":
                     default:
-                        faseIdsPermitidos = new List<int> { 318,319,320 };
+                        faseIdsPermitidos = new List<int> { 318, 319, 320 };
                         break;
                 }
 

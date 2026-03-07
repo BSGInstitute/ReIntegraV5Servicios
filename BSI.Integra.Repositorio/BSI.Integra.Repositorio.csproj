@@ -24,8 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="IntegraDBMongo\Interface\" />
-    <Folder Include="IntegraDBMongo\Implementacion\" />
     <Folder Include="Repository\Implementation\Marketing\FacebookLeadsRecuperacionDatos\" />
     <Folder Include="Repository\Implementation\Transversal\" />
     <Folder Include="Repository\Interface\Transversal\" />

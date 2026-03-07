@@ -1,8 +1,10 @@
 ﻿using BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion;
 using BSI.Integra.Aplicacion.Comercial.SCode.Service.Interface;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Comercial;
+using BSI.Integra.Repositorio.IntegraDBMongo.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -23,9 +25,12 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
     public class LineamientoCalificacionController : Controller
     {
         private IUnitOfWork unitOfWork;
-        public LineamientoCalificacionController(IUnitOfWork unitOfWork)
+        private IMongoDocumentRepository _mongoRepo;
+        public LineamientoCalificacionController(IUnitOfWork unitOfWork,
+        IMongoDocumentRepository mongoRepo)
         {
             this.unitOfWork = unitOfWork;
+            this._mongoRepo = mongoRepo;
         }
         /// Tipo Función: POST
         /// Autor: Joseph Llanque
@@ -1120,8 +1125,30 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
                 return BadRequest(ex.Message);
             }
         }
-
-
+        [Route("[action]")]
+        [HttpPost]
+        public async Task<ActionResult<IEnumerable<LlamadaProcesoAutoDTO>>> ObtenerInformacionCalificacionAutomatica([FromBody] CalificacionAutomaticaRequestDTO request)
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork, _mongoRepo);
+                var resultado = await lineamientoCalificacionService.ObtenerInformacionCalificacionAutomatica(
+                    request.IdTipoProcesoProgramado ?? 4,
+                    request.IdPersonalAreaTrabajo,
+                    request.FechaDesde.Value);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        public class CalificacionAutomaticaRequestDTO
+{
+    public int? IdTipoProcesoProgramado { get; set; }
+    public int IdPersonalAreaTrabajo { get; set; }
+    public DateTime? FechaDesde { get; set; }
+}
         /// Tipo Función: POST
         /// Autor: Jose Vega
         /// Fecha: 24/09/2025
@@ -1162,7 +1189,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
         /// </summary>
         /// <returns> List<ComboDTO> </returns>
         [Route("[action]")]
-        [HttpGet]   
+        [HttpGet]
         public async Task<ActionResult<List<bool>>> CalificacionAuto()
         {
             try
@@ -1423,7 +1450,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
         [HttpPost("[Action]")]
         public IActionResult ReporteCalificacionClientesVentas([FromBody] ReporteCalificacionRequestV2 request)
         {
-           if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
             try
             {
@@ -1639,7 +1666,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
             }
         }
 
-         /// Tipo Función: POST
+        /// Tipo Función: POST
         /// Autor: Lolo Zaa
         /// Fecha: 27/11/2025
         /// Versión: 1.0
