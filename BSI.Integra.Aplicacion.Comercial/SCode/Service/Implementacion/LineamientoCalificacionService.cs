@@ -1078,49 +1078,117 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 if (FechaDesde == null)
                     FechaDesde = DateTime.Now;
 
+                int idPersonalAreaVentas = 8;
+                int idPersonalAtencionCliente = 3;
+                int idEstadoOcurrenciaActivo = 1;
+                string origenWavixSaliente = "Wavix Saliente";
+
                 long fechaMilis = new DateTimeOffset(FechaDesde.Value).ToUnixTimeMilliseconds();
 
                 var pipeline = new List<BsonDocument>
         {
+            // 1. Filtrar T_ActividadDetalle por FechaReal
             new BsonDocument("$match",
                 new BsonDocument("FechaReal",
                     new BsonDocument("$gte", fechaMilis))
             ),
 
+            // 2. Lookup T_LlamadaWebphoneCruceCentralTresCx
             new BsonDocument("$lookup", new BsonDocument{
                 {"from","T_LlamadaWebphoneCruceCentralTresCx"},
                 {"localField","Id"},
                 {"foreignField","IdActividadDetalle"},
                 {"as","LWCCTCX"}
             }),
-
             new BsonDocument("$unwind","$LWCCTCX"),
 
+            // 3. Filtrar llamadas transcritas y no calificadas + excluir 6 estados inválidos
+            new BsonDocument("$match",
+                new BsonDocument{
+                    {"LWCCTCX.EsLlamadaTranscrita", true},
+                    {"$or", new BsonArray{
+                        new BsonDocument("LWCCTCX.EsLlamadaCalificada", false),
+                        new BsonDocument("LWCCTCX.EsLlamadaCalificada", BsonNull.Value)
+                    }},
+                    {"$nor", new BsonArray{
+                        new BsonDocument{
+                            {"LWCCTCX.Origen", new BsonDocument("$ne", origenWavixSaliente)},
+                            {"LWCCTCX.EstadoLlamadaCentral", "Llamada sin respuesta"},
+                            {"LWCCTCX.SubEstadoLlamadaCentral", "Llamada Sin Definir"}
+                        },
+                        new BsonDocument{
+                            {"LWCCTCX.Origen", new BsonDocument("$ne", origenWavixSaliente)},
+                            {"LWCCTCX.EstadoLlamadaCentral", "Llamada sin respuesta"},
+                            {"LWCCTCX.SubEstadoLlamadaCentral", "Corta el asesor durante el timbrado"}
+                        },
+                        new BsonDocument{
+                            {"LWCCTCX.Origen", new BsonDocument("$ne", origenWavixSaliente)},
+                            {"LWCCTCX.EstadoLlamadaCentral", "Casilla de Voz"},
+                            {"LWCCTCX.SubEstadoLlamadaCentral", "Llamada Sin Definir"}
+                        },
+                        new BsonDocument{
+                            {"LWCCTCX.Origen", new BsonDocument("$ne", origenWavixSaliente)},
+                            {"LWCCTCX.EstadoLlamadaCentral", "Casilla de Voz"},
+                            {"LWCCTCX.SubEstadoLlamadaCentral", "Contestado terminado por el cliente"}
+                        },
+                        new BsonDocument{
+                            {"LWCCTCX.Origen", new BsonDocument("$ne", origenWavixSaliente)},
+                            {"LWCCTCX.EstadoLlamadaCentral", "Numero no existe"},
+                            {"LWCCTCX.SubEstadoLlamadaCentral", "Llamada Sin Definir"}
+                        },
+                        new BsonDocument{
+                            {"LWCCTCX.Origen", new BsonDocument("$ne", origenWavixSaliente)},
+                            {"LWCCTCX.EstadoLlamadaCentral", "Casilla de Voz"},
+                            {"LWCCTCX.SubEstadoLlamadaCentral", "Entra casilla de voz terminado por el asesor"}
+                        }
+                    }}
+                }
+            ),
+
+            // 4. Lookup T_Oportunidad
             new BsonDocument("$lookup", new BsonDocument{
                 {"from","T_Oportunidad"},
                 {"localField","IdOportunidad"},
                 {"foreignField","Id"},
                 {"as","O"}
             }),
-
             new BsonDocument("$unwind","$O"),
 
-            new BsonDocument("$lookup", new BsonDocument{
-                {"from","T_OportunidadLog"},
-                {"localField","O.Id"},
-                {"foreignField","IdOportunidad"},
-                {"as","OLOG"}
-            }),
+            // 5. Filtrar por IdPersonalAreaTrabajo
+            new BsonDocument("$match",
+                new BsonDocument("O.IdPersonalAreaTrabajo", IdPersonalAreaTrabajo)
+            ),
 
+            // 6. Lookup T_OportunidadLog y validar que OLOG.IdActividadDetalle == ACT.Id
+            new BsonDocument("$lookup",
+                new BsonDocument{
+                    {"from","T_OportunidadLog"},
+                    {"let", new BsonDocument{
+                        {"oportunidadId","$O.Id"},
+                        {"actividadId","$Id"}
+                    }},
+                    {"pipeline", new BsonArray{
+                        new BsonDocument("$match",
+                            new BsonDocument("$expr",
+                                new BsonDocument("$and", new BsonArray{
+                                    new BsonDocument("$eq", new BsonArray{"$IdOportunidad","$$oportunidadId"}),
+                                    new BsonDocument("$eq", new BsonArray{"$IdActividadDetalle","$$actividadId"})
+                                })
+                            )
+                        )
+                    }},
+                    {"as","OLOG"}
+                }
+            ),
             new BsonDocument("$unwind","$OLOG"),
 
+            // 7. Lookup FaseOportunidad (anterior y destino)
             new BsonDocument("$lookup", new BsonDocument{
                 {"from","T_FaseOportunidad"},
                 {"localField","OLOG.IdFaseOportunidad_Ant"},
                 {"foreignField","Id"},
                 {"as","FOI"}
             }),
-
             new BsonDocument("$unwind","$FOI"),
 
             new BsonDocument("$lookup", new BsonDocument{
@@ -1129,18 +1197,18 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 {"foreignField","Id"},
                 {"as","FOD"}
             }),
-
             new BsonDocument("$unwind","$FOD"),
 
+            // 8. Lookup T_Alumno
             new BsonDocument("$lookup", new BsonDocument{
                 {"from","T_Alumno"},
                 {"localField","O.IdAlumno"},
                 {"foreignField","Id"},
                 {"as","A"}
             }),
-
             new BsonDocument("$unwind","$A"),
 
+            // 9. Lookup T_MatriculaCabecera (LEFT JOIN)
             new BsonDocument("$lookup", new BsonDocument{
                 {"from","T_MatriculaCabecera"},
                 {"localField","O.IdAlumno"},
@@ -1148,6 +1216,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 {"as","MC"}
             }),
 
+            // 10. Lookup OcurrenciaAlterno (para Ventas)
             new BsonDocument("$lookup", new BsonDocument{
                 {"from","T_OcurrenciaAlterno"},
                 {"localField","IdOcurrenciaAlterno"},
@@ -1155,6 +1224,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 {"as","OA_ALT"}
             }),
 
+            // 11. Lookup EstadoOcurrencia para OA_ALT
             new BsonDocument("$lookup", new BsonDocument{
                 {"from","T_EstadoOcurrencia"},
                 {"localField","OA_ALT.IdEstadoOcurrencia"},
@@ -1162,6 +1232,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 {"as","EO_ALT"}
             }),
 
+            // 12. Lookup Ocurrencia (para AtencionCliente)
             new BsonDocument("$lookup", new BsonDocument{
                 {"from","T_Ocurrencia"},
                 {"localField","IdOcurrencia"},
@@ -1169,6 +1240,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 {"as","OA"}
             }),
 
+            // 13. Lookup EstadoOcurrencia para OA
             new BsonDocument("$lookup", new BsonDocument{
                 {"from","T_EstadoOcurrencia"},
                 {"localField","OA.IdEstadoOcurrencia"},
@@ -1176,6 +1248,21 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 {"as","EO"}
             }),
 
+            // 14. Filtro condicional de EstadoOcurrencia según área
+            new BsonDocument("$match",
+                new BsonDocument("$or", new BsonArray{
+                    new BsonDocument{
+                        {"O.IdPersonalAreaTrabajo", idPersonalAreaVentas},
+                        {"EO_ALT.Id", idEstadoOcurrenciaActivo}
+                    },
+                    new BsonDocument{
+                        {"O.IdPersonalAreaTrabajo", idPersonalAtencionCliente},
+                        {"EO.Id", idEstadoOcurrenciaActivo}
+                    }
+                })
+            ),
+
+            // 15. Lookup T_ClasificacionPersona (CROSS APPLY equivalente)
             new BsonDocument("$lookup",
                 new BsonDocument{
                     {"from","T_ClasificacionPersona"},
@@ -1192,29 +1279,82 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     {"as","CP"}
                 }
             ),
+            // CROSS APPLY: si no hay ClasificacionPersona, el registro se descarta (como en el SP)
+            new BsonDocument("$unwind","$CP"),
 
-            new BsonDocument("$unwind",
+            // 16. Lookup T_ProcesoAsesor + T_ProcesoProgramado + T_ProcesoFaseRango
+            new BsonDocument("$lookup",
                 new BsonDocument{
-                    {"path","$CP"},
-                    {"preserveNullAndEmptyArrays",true}
+                    {"from","T_ProcesoAsesor"},
+                    {"let", new BsonDocument("idPersonalAsignado","$O.IdPersonal_Asignado")},
+                    {"pipeline", new BsonArray{
+                        new BsonDocument("$match",
+                            new BsonDocument{
+                                {"$expr", new BsonDocument("$eq", new BsonArray{"$IdPersonal","$$idPersonalAsignado"})},
+                                {"Estado", true}
+                            })
+                    }},
+                    {"as","PA"}
                 }
             ),
+            new BsonDocument("$unwind","$PA"),
 
+            new BsonDocument("$lookup",
+                new BsonDocument{
+                    {"from","T_ProcesoProgramado"},
+                    {"let", new BsonDocument("idProcesoProgramado","$PA.IdProcesoProgramado")},
+                    {"pipeline", new BsonArray{
+                        new BsonDocument("$match",
+                            new BsonDocument{
+                                {"$expr", new BsonDocument("$eq", new BsonArray{"$Id","$$idProcesoProgramado"})},
+                                {"Estado", true},
+                                {"Activo", true},
+                                {"IdTipoProcesoProgramado", IdTipoProcesoProgramado}
+                            })
+                    }},
+                    {"as","PP"}
+                }
+            ),
+            new BsonDocument("$unwind","$PP"),
+
+            new BsonDocument("$lookup",
+                new BsonDocument{
+                    {"from","T_ProcesoFaseRango"},
+                    {"let", new BsonDocument{
+                        {"idProcesoAsesor","$PA.Id"},
+                        {"idFaseOrigen","$OLOG.IdFaseOportunidad_Ant"},
+                        {"idFaseDestino","$OLOG.IdFaseOportunidad"}
+                    }},
+                    {"pipeline", new BsonArray{
+                        new BsonDocument("$match",
+                            new BsonDocument("$expr",
+                                new BsonDocument("$and", new BsonArray{
+                                    new BsonDocument("$eq", new BsonArray{"$IdProcesoAsesor","$$idProcesoAsesor"}),
+                                    new BsonDocument("$eq", new BsonArray{"$Estado", true}),
+                                    new BsonDocument("$or", new BsonArray{
+                                        new BsonDocument("$eq", new BsonArray{"$IdFaseOportunidad_Origen", 0}),
+                                        new BsonDocument("$eq", new BsonArray{"$IdFaseOportunidad_Origen", "$$idFaseOrigen"})
+                                    }),
+                                    new BsonDocument("$or", new BsonArray{
+                                        new BsonDocument("$eq", new BsonArray{"$IdFaseOportunidad_Destino", 0}),
+                                        new BsonDocument("$eq", new BsonArray{"$IdFaseOportunidad_Destino", "$$idFaseDestino"})
+                                    })
+                                })
+                            )
+                        )
+                    }},
+                    {"as","PFR"}
+                }
+            ),
             new BsonDocument("$match",
-                new BsonDocument{
-                    {"O.IdPersonalAreaTrabajo",IdPersonalAreaTrabajo},
-                    {"LWCCTCX.EsLlamadaTranscrita",true},
-                    {"$or", new BsonArray{
-                        new BsonDocument("LWCCTCX.EsLlamadaCalificada",false),
-                        new BsonDocument("LWCCTCX.EsLlamadaCalificada",BsonNull.Value)
-                    }}
-                }
+                new BsonDocument("PFR.0", new BsonDocument("$exists", true))
             ),
 
+            // 17. Proyección final
             new BsonDocument("$project",
                 new BsonDocument{
                     {"IdActividadDetalle","$Id"},
-                    {"LlamadaWebphoneCruceCentralTresCx","$LWCCTCX.Id"},
+                    {"IdLlamadaWebphoneCruceCentralTresCx","$LWCCTCX.Id"},
                     {"IdOportunidad","$O.Id"},
                     {"IdPersonal_Asignado","$O.IdPersonal_Asignado"},
                     {"IdPersonalAreaTrabajo","$O.IdPersonalAreaTrabajo"},
@@ -1249,12 +1389,30 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     {"FaseOportunidad","$FOD.Codigo"},
                     {"UrlAudio","$LWCCTCX.UrlAudio"},
                     {"UrlAudio2","$LWCCTCX.UrlAudio2"},
+                    {"UrlAudioProcesado",
+                        new BsonDocument("$switch",
+                            new BsonDocument{
+                                {"branches", new BsonArray{
+                                    new BsonDocument{
+                                        {"case", new BsonDocument("$and", new BsonArray{
+                                            new BsonDocument("$eq", new BsonArray{"$LWCCTCX.Origen", origenWavixSaliente}),
+                                            new BsonDocument("$ne", new BsonArray{"$LWCCTCX.UrlAudio2", BsonNull.Value})
+                                        })},
+                                        {"then", "$LWCCTCX.UrlAudio2"}
+                                    },
+                                    new BsonDocument{
+                                        {"case", new BsonDocument("$ne", new BsonArray{"$LWCCTCX.UrlAudio", BsonNull.Value})},
+                                        {"then", "$LWCCTCX.UrlAudio"}
+                                    }
+                                }},
+                                {"default", BsonNull.Value}
+                            })},
                     {"Origen","$LWCCTCX.Origen"},
                     {"DuracionContestoCentral","$LWCCTCX.DuracionContestoCentral"},
-                    {"esLlamadaTranscrita",
+                    {"EsLlamadaTranscrita",
                         new BsonDocument("$ifNull",
                             new BsonArray{"$LWCCTCX.EsLlamadaTranscrita",false})},
-                    {"esLlamadaCalificada",
+                    {"EsLlamadaCalificada",
                         new BsonDocument("$ifNull",
                             new BsonArray{"$LWCCTCX.EsLlamadaCalificada",false})},
                     {"FechaLlamada","$LWCCTCX.FechaInicioLlamadaCentral"}
