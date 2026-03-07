@@ -1308,7 +1308,10 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             if (idPlantillaBase == PlantillaBase.Email)
                 plantillaCorreo.Cuerpo = plantillaCorreo.Cuerpo.Replace(etiqueta, valor ?? "");
             else if (idPlantillaBase == PlantillaBase.WhatsappFacebook)
-                listaObjetoWhatsApp.FirstOrDefault(x => x.Codigo.Equals(etiqueta)).Texto = valor ?? "";
+            {
+                var item = listaObjetoWhatsApp.FirstOrDefault(x => x.Codigo.Equals(etiqueta));
+                if (item != null) item.Texto = valor ?? "";
+            }
         }
 
         /// Autor: Jose Vega

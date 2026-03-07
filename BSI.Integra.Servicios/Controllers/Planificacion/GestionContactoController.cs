@@ -2,12 +2,18 @@ using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.Marketing.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
+using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion.WhatsAppMensajeEnviadoApiPlanificacionDTO;
 
 
 namespace BSI.Integra.Servicios.Controllers.Planificacion
@@ -486,21 +492,30 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
 
                 if (resultado.Exitoso)
                 {
-                    // Si la actividad requiere envio de correo, enviarlo usando CorreoController
-                    string mensajeCorreo = null;
+                    // Si la actividad es automatica (IdTipoActividad == 1), enviar segun medio de comunicacion
+                    string mensajeEnvio = null;
                     if (resultado.DatosActividad != null &&
                         resultado.DatosActividad.IdTipoActividad == 1)
                     {
                         try
                         {
-                            mensajeCorreo = await EnviarCorreoActividadAsync(resultado.DatosActividad);
+                            if (resultado.DatosActividad.IdPlantillaBase == 2)
+                            {
+                                // Email
+                                mensajeEnvio = await EnviarCorreoActividadAsync(resultado.DatosActividad);
+                            }
+                            else if (resultado.DatosActividad.IdPlantillaBase == 8)
+                            {
+                                // WhatsApp
+                                mensajeEnvio = await EnviarWhatsAppActividadAsync(resultado.DatosActividad);
+                            }
                         }
                         catch (Exception ex)
                         {
                             return BadRequest(new
                             {
                                 Exito = false,
-                                Mensaje = "Actividad ejecutada pero error al enviar correo",
+                                Mensaje = "Actividad ejecutada pero error al enviar mensaje",
                                 Error = ex.Message
                             });
                         }
@@ -511,7 +526,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                         Exito = true,
                         Mensaje = "Actividad ejecutada correctamente",
                         IdEjecucion = resultado.IdRegistro,
-                        MensajeResultado = mensajeCorreo ?? resultado.Mensaje
+                        MensajeResultado = mensajeEnvio ?? resultado.Mensaje
                     });
                 }
                 else
@@ -536,7 +551,8 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         }
 
         /// <summary>
-        /// Metodo privado para enviar correo usando CorreoController
+        /// Metodo privado para enviar correo de actividad automatica.
+        /// Usa servicios directamente sin depender de CorreoController ni HttpContext.
         /// </summary>
         private async Task<string> EnviarCorreoActividadAsync(ActividadPendienteDTO actividad)
         {
@@ -553,7 +569,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 throw new Exception("No se encontro el correo del docente");
             }
 
-            // 2. Generar plantilla
+            // 2. Generar plantilla con etiquetas reemplazadas
             var plantillaGenerada = _gestionDocenteActividadService.GenerarPlantillaDocente(new ReemplazoEtiquetaPlantillaDocenteDTO
             {
                 IdGestionContacto = actividad.IdGestionContacto,
@@ -566,38 +582,158 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 throw new Exception("La plantilla de email generada esta vacia");
             }
 
-            // 3. Obtener email del asesor sistema
-            var asesorSistema = _unitOfWork.PersonalRepository.FirstById(6205);
-            if (asesorSistema == null)
+            // 3. Obtener datos del asesor remitente
+            var personalService = new PersonalService(_unitOfWork);
+            var asesor = _unitOfWork.PersonalRepository.FirstById(6205);
+            if (asesor == null)
             {
                 throw new Exception("No se encontro el asesor sistema con Id 6205");
             }
 
-            // 4. Preparar parametros para EnviarMensajeGmail
-            var parametrosCorreo = new EnviarMensajeGmailDTO
+            // 4. Obtener credenciales SMTP del asesor
+            var gmailClienteService = new GmailClienteService(_unitOfWork);
+            var credenciales = gmailClienteService.ObtenerClienteCredencial(6205);
+            if (credenciales == null)
             {
-                IdAsesor = 6205,
-                Remitente = asesorSistema.Email,
-                Destinatario = docente.Correo,
-                Asunto = plantillaGenerada.EmailReemplazado.Asunto,
-                Mensaje = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(plantillaGenerada.EmailReemplazado.CuerpoHTML)),
-                Usuario = "MANUAL",
-                DestinatarioCc = "",
-                DestinatarioBcc = "",
-                envioGrupo = false,
-                Files = null
-            };
-
-            // 5. Llamar a CorreoController para enviar
-            var correoController = new CorreoController(_unitOfWork);
-            var resultado = correoController.EnviarMensajeGmail(parametrosCorreo);
-
-            if (resultado is BadRequestObjectResult badRequest)
-            {
-                throw new Exception($"Error al enviar correo: {badRequest.Value}");
+                throw new Exception("No se encontraron credenciales de correo para el asesor sistema");
             }
 
+            // 5. Preparar datos del correo
+            var mailData = new TMKMailDataDTO
+            {
+                Sender = credenciales.EmailAsesor,
+                Recipient = docente.Correo,
+                Subject = plantillaGenerada.EmailReemplazado.Asunto,
+                Message = plantillaGenerada.EmailReemplazado.CuerpoHTML,
+                Cc = "",
+                Bcc = "",
+                AttachedFiles = null,
+                RemitenteC = string.Concat(asesor.Nombres, " ", asesor.Apellidos)
+            };
+
+            // 6. Enviar via SMTP sin archivos adjuntos
+            var filtroBandejaCorreo = new FiltroBandejaCorreoService(_unitOfWork);
+            IList<Microsoft.AspNetCore.Http.IFormFile> sinArchivos = new List<Microsoft.AspNetCore.Http.IFormFile>();
+            var rptEnvio = filtroBandejaCorreo.envioEmailAdjuntoOperaciones(
+                credenciales.EmailAsesor,
+                credenciales.PasswordCorreo,
+                mailData,
+                sinArchivos
+            );
+
+            if (rptEnvio.codigo != "200")
+            {
+                throw new Exception($"Error SMTP al enviar correo: {rptEnvio.respuesta}");
+            }
+
+            // 7. Registrar correo enviado en GmailCorreo
+            var gmailCorreoService = new GmailCorreoService(_unitOfWork);
+            var gmailCorreo = new GmailCorreo
+            {
+                IdEtiqueta = 1,
+                Asunto = plantillaGenerada.EmailReemplazado.Asunto,
+                Fecha = DateTime.Now,
+                EmailBody = plantillaGenerada.EmailReemplazado.CuerpoHTML,
+                Seen = false,
+                Remitente = credenciales.EmailAsesor,
+                Cc = "",
+                Bcc = "",
+                Destinatarios = docente.Correo,
+                IdPersonal = asesor.Id,
+                IdClasificacionPersona = gestionContacto.IdClasificacionPersona,
+                Estado = true,
+                FechaCreacion = DateTime.Now,
+                FechaModificacion = DateTime.Now,
+                UsuarioCreacion = "EJECUCION_MANUAL",
+                UsuarioModificacion = "EJECUCION_MANUAL"
+            };
+            gmailCorreoService.Add(gmailCorreo);
+
             return $"Email enviado exitosamente a {docente.Correo} - Asunto: {plantillaGenerada.EmailReemplazado.Asunto}";
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 06/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Metodo privado para enviar WhatsApp de actividad automatica.
+        /// Usa WhatsAppMensajeEnviadoApiPlanificacionService directamente.
+        /// </summary>
+        private async Task<string> EnviarWhatsAppActividadAsync(ActividadPendienteDTO actividad)
+        {
+            // 1. Obtener gestion de contacto y docente
+            var gestionContacto = await _unitOfWork.GestionContactoRepository.ObtenerPorIdAsync(actividad.IdGestionContacto);
+            if (gestionContacto == null || !gestionContacto.IdClasificacionPersona.HasValue)
+            {
+                throw new Exception("No se encontro la gestion de contacto o no tiene clasificacion de persona");
+            }
+
+            var docente = _unitOfWork.DocentePostulanteRepository.ObtenerDocenteDTOPorIdClasificacionPersona(gestionContacto.IdClasificacionPersona.Value);
+            if (docente == null || string.IsNullOrWhiteSpace(docente.Celular))
+            {
+                throw new Exception("No se encontro el celular del docente");
+            }
+
+            // 2. Obtener IdProveedor desde ClasificacionPersona
+            var clasificacionPersona = _unitOfWork.ClasificacionPersonaRepository.FirstById(gestionContacto.IdClasificacionPersona.Value);
+            if (clasificacionPersona == null)
+            {
+                throw new Exception("No se encontro la clasificacion de persona");
+            }
+            int idProveedor = clasificacionPersona.IdTablaOriginal;
+
+            // 3. Generar plantilla WhatsApp con etiquetas reemplazadas
+            var plantillaGenerada = _gestionDocenteActividadService.GenerarPlantillaDocente(new ReemplazoEtiquetaPlantillaDocenteDTO
+            {
+                IdGestionContacto = actividad.IdGestionContacto,
+                IdPlantilla = actividad.IdPlantilla
+            });
+
+            if (plantillaGenerada.WhatsAppReemplazado == null ||
+                string.IsNullOrWhiteSpace(plantillaGenerada.WhatsAppReemplazado.Plantilla))
+            {
+                throw new Exception("La plantilla de WhatsApp generada esta vacia");
+            }
+
+            // 4. Mapear etiquetas PascalCase a camelCase con indice posicional
+            var datosPlantilla = new List<DatosPlantillaWhatsAppDTO>();
+            if (plantillaGenerada.WhatsAppReemplazado.ListaEtiquetas != null)
+            {
+                int indice = 1;
+                foreach (var etiqueta in plantillaGenerada.WhatsAppReemplazado.ListaEtiquetas)
+                {
+                    datosPlantilla.Add(new DatosPlantillaWhatsAppDTO
+                    {
+                        codigo = indice.ToString(),
+                        texto = etiqueta.Texto ?? ""
+                    });
+                    indice++;
+                }
+            }
+
+            // 5. Construir y enviar mensaje WhatsApp por plantilla
+            var whatsAppService = new WhatsAppMensajeEnviadoApiPlanificacionService(_unitOfWork);
+            var parametros = new WhatsAppMensajePlantillaPlaDTO
+            {
+                WaTo = docente.Celular,
+                WaBody = plantillaGenerada.WhatsAppReemplazado.Plantilla,
+                WaCaption = null,
+                WaTypeMensaje = 1,
+                IdPlantilla = actividad.IdPlantilla,
+                IdPais = 51, // Peru por defecto
+                IdProveedor = idProveedor,
+                IdPersonal = 6205, // Asesor sistema
+                DatosPlantillaWhatsApp = datosPlantilla
+            };
+
+            var resultado = whatsAppService.EnvioMensajePorPlantilla(parametros, "EJECUCION_MANUAL", 6205);
+
+            if (!resultado.Estado)
+            {
+                throw new Exception($"Error al enviar WhatsApp: {resultado.Mensaje}");
+            }
+
+            return $"WhatsApp enviado exitosamente a {docente.Celular} - Plantilla: {plantillaGenerada.WhatsAppReemplazado.Plantilla}";
         }
 
         /// Autor: Lolo Zaa
