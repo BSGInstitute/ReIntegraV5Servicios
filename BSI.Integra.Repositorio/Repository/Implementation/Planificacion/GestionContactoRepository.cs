@@ -429,18 +429,23 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
         /// Autor: Lolo Zaa
         /// Fecha: 21/02/2026
-        /// Version: 1.0
+        /// Version: 2.1
         /// <summary>
-        /// Congela un flujo de gestión docente invocando el SP pla.SP_CongelamientoFlujoDocente.
+        /// Congela un flujo de gestión docente invocando el SP pla.SP_FlujoDocenteCongelar.
         /// El usuario de creación está hardcodeado como 'sgradosn'.
+        /// Para flujos de categoría General (IdGestionDocenteCategoria = 1), se puede especificar
+        /// la fecha de inicio del flujo congelado. Si no se proporciona, el SP usará NULL.
         /// </summary>
-        public async Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo)
+        /// <param name="idGestionContactoDocenteFlujo">ID del vínculo entre gestión contacto y flujo docente</param>
+        /// <param name="fechaInicioFlujoCongelado">Fecha de inicio opcional (solo aplica para flujos categoría General)</param>
+        public async Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo, DateTime? fechaInicioFlujoCongelado = null)
         {
             try
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@IdGestionContactoDocenteFlujo", idGestionContactoDocenteFlujo, DbType.Int32);
                 parameters.Add("@UsuarioCreacion", "sgradosn", DbType.String, size: 50);
+                parameters.Add("@FechaInicioFlujoCongelado", fechaInicioFlujoCongelado, DbType.DateTime);
 
                 await _dapperRepository.QuerySPDapperAsync(
                     "pla.SP_FlujoDocenteCongelar",
@@ -500,10 +505,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                  ELSE p.RazonSocial
                             END
                         )), 'Sin nombre') AS DocenteNombre,
-                        CASE WHEN gc.IdCentroCosto IS NOT NULL
-                             THEN 'asignado-al-curso' ELSE 'general'
-                        END AS TipoOportunidad,
-                    	C.IdPais,
+                        GDC.Id AS IdCategoria,
+                        GDC.Nombre AS NombreCategoria,
+                        C.IdPais,
                         COALESCE(cc.Nombre, '')  AS Curso,
                         COALESCE(gdf.Nombre, '') AS FlujoAsignado
                     FROM pla.T_GestionContacto gc WITH(NOLOCK)
@@ -512,13 +516,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     LEFT JOIN fin.T_Proveedor p WITH(NOLOCK)
                         ON p.Id = cp.IdTablaOriginal
                     LEFT JOIN conf.T_Ciudad C
-                    	ON p.IdCiudad=c.Id AND c.Estado=1
+                        ON p.IdCiudad=c.Id AND c.Estado=1
                     LEFT JOIN pla.T_CentroCosto cc WITH(NOLOCK)
                         ON cc.Id = gc.IdCentroCosto
                     LEFT JOIN pla.T_GestionContactoDocenteFlujo gcdf WITH(NOLOCK)
                         ON gcdf.IdGestionContacto = gc.Id AND gcdf.Estado = 1
                     LEFT JOIN pla.T_GestionDocenteFlujo gdf WITH(NOLOCK)
                         ON gdf.Id = gcdf.IdGestionDocenteFlujo
+                    LEFT JOIN pla.T_GestionDocenteCategoria GDC WITH(NOLOCK)
+                        ON GDC.Id = gdf.IdGestionDocenteCategoria
                     WHERE gc.Estado = 1
                       AND (@Busqueda IS NULL OR @Busqueda = ''
                            OR p.RazonSocial LIKE '%' + @Busqueda + '%'
@@ -561,18 +567,22 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
         /// Autor: Joseph Llanque
         /// Fecha: 23/02/2026
-        /// Version: 1.0
+        /// Version: 1.1
         /// <summary>
         /// Obtiene el listado de docentes (proveedores con clasificacion persona activa)
         /// para el combo de seleccion en oportunidades de tipo General.
+        /// Retorna Id, IdTipoPersona, NombreTipoPersona y Nombre del docente.
+        /// Filtra por tipos de persona: 4 (Proveedor) y 6 (otro tipo).
         /// </summary>
-        public IEnumerable<ComboDTO> ObtenerDocentes()
+        public IEnumerable<DocenteComboDTO> ObtenerDocentes()
         {
             try
             {
                 string query = @"
                     SELECT DISTINCT
                         p.Id AS Id,
+                        cp.IdTipoPersona,
+                        tp.Nombre AS NombreTipoPersona,
                         COALESCE(LTRIM(RTRIM(
                             CASE WHEN p.Nombre1 IS NOT NULL AND p.Nombre1 <> ''
                                  THEN p.Nombre1 + ' ' + COALESCE(p.ApePaterno, '')
@@ -582,15 +592,19 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     FROM conf.T_ClasificacionPersona cp WITH(NOLOCK)
                     JOIN fin.T_Proveedor p WITH(NOLOCK)
                         ON p.Id = cp.IdTablaOriginal
+                    LEFT JOIN conf.T_TipoPersona tp WITH(NOLOCK)
+                        ON tp.Id=cp.IdTipoPersona
                     WHERE cp.Estado = 1
                       AND p.Estado = 1
+                      AND tp.Id IN (4,6)
+                      AND tp.Estado =1
                     ORDER BY Nombre";
 
                 string resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                    return JsonConvert.DeserializeObject<IEnumerable<ComboDTO>>(resultado);
+                    return JsonConvert.DeserializeObject<IEnumerable<DocenteComboDTO>>(resultado);
 
-                return new List<ComboDTO>();
+                return new List<DocenteComboDTO>();
             }
             catch (Exception ex)
             {
@@ -1046,47 +1060,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     };
                 }
 
-                // 2. Simular ejecución (la logica real de envio se hace en el Service)
-                string mensajeResultado = string.Empty;
-
-                if (actividad.IdTipoActividad == 1) // Automática (Email/WhatsApp)
+                // 2. Retornar datos de la actividad para que el controller haga el envio
+                // El controller actualizara el estado despues del envio (exitoso o fallido)
+                return new ResultadoEjecucionDTO
                 {
-                    mensajeResultado = $"[EJECUCION MANUAL] Actividad automatica marcada - Plantilla: {actividad.IdPlantilla}, Contacto: {actividad.IdGestionContacto}";
-                }
-                else if (actividad.IdTipoActividad == 2) // Manual
-                {
-                    mensajeResultado = $"[EJECUCION MANUAL] Notificacion creada para contacto: {actividad.IdGestionContacto}";
-                }
-
-                // 3. Actualizar estado a EJECUTADO
-                var resultado = await ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
-                {
-                    IdActividadDetalleCongelada = request.IdActividadDetalleCongelada,
-                    IdDisparadorCongelado = request.IdDisparadorCongelado,
-                    CodigoNuevoEstado = "EJECUTADO",
-                    MensajeResultado = mensajeResultado,
-                    UsuarioModificacion = request.UsuarioEjecucion
-                });
-
-                if (!resultado.Exitoso)
-                    return resultado;
-
-                // 4. Si se debe marcar la ocurrencia asociada, marcarla (esto activa dependientes)
-                if (request.MarcarOcurrenciaAsociada && request.IdGestionDocenteOcurrenciaCongelada.HasValue)
-                {
-                    var resultadoOcurrencia = await MarcarOcurrenciaAsync(new MarcarOcurrenciaRequestDTO
-                    {
-                        IdGestionDocenteOcurrenciaCongelada = request.IdGestionDocenteOcurrenciaCongelada.Value,
-                        IdGestionContacto = actividad.IdGestionContacto,
-                        Comentario = request.ComentarioOcurrencia ?? "Ocurrencia marcada automaticamente por ejecucion manual",
-                        FechaHoraOcurrencia = DateTime.Now,
-                        UsuarioCreacion = request.UsuarioEjecucion
-                    });
-
-                    resultado.Mensaje = $"{resultado.Mensaje}. {resultadoOcurrencia.Mensaje}";
-                }
-
-                return resultado;
+                    Exitoso = true,
+                    IdRegistro = actividad.IdActividadDetalleCongelada,
+                    Mensaje = "Actividad lista para ejecutar",
+                    DatosActividad = actividad
+                };
             }
             catch (Exception ex)
             {

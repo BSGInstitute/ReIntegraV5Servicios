@@ -1,7 +1,9 @@
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
+using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Controllers;
 using Microsoft.Extensions.Logging;
@@ -19,6 +21,7 @@ namespace BSI.Integra.Servicios.Jobs
     {
         private readonly IGestionContactoService _gestionContactoService;
         private readonly IGestionDocenteActividadService _gestionDocenteActividadService;
+        private readonly IWhatsAppMensajeEnviadoApiPlanificacionService _whatsAppService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<ActividadesCongeladasJob> _logger;
         private const int ID_ASESOR_SISTEMA = 6205;
@@ -26,11 +29,13 @@ namespace BSI.Integra.Servicios.Jobs
         public ActividadesCongeladasJob(
             IGestionContactoService gestionContactoService,
             IGestionDocenteActividadService gestionDocenteActividadService,
+            IWhatsAppMensajeEnviadoApiPlanificacionService whatsAppService,
             IUnitOfWork unitOfWork,
             ILogger<ActividadesCongeladasJob> logger)
         {
             _gestionContactoService = gestionContactoService;
             _gestionDocenteActividadService = gestionDocenteActividadService;
+            _whatsAppService = whatsAppService;
             _unitOfWork = unitOfWork;
             _logger = logger;
         }
@@ -245,9 +250,54 @@ namespace BSI.Integra.Servicios.Jobs
                 }
                 else if (actividad.IdPlantillaBase == 8) // WhatsApp
                 {
-                    // TODO: Implementar envio de WhatsApp en siguiente fase
-                    _logger.LogWarning($"Envio de WhatsApp aun no implementado - IdPlantilla: {actividad.IdPlantilla}");
-                    return $"[PENDIENTE] WhatsApp - Plantilla: {actividad.IdPlantilla}, Contacto: {docente.Celular}";
+                    if (string.IsNullOrWhiteSpace(plantillaGenerada.WhatsAppReemplazado.Plantilla))
+                    {
+                        throw new Exception("La plantilla de WhatsApp generada esta vacia");
+                    }
+
+                    if (string.IsNullOrWhiteSpace(docente.Celular))
+                    {
+                        throw new Exception($"El docente no tiene numero de celular registrado");
+                    }
+
+                    // Obtener IdProveedor desde ClasificacionPersona
+                    var clasificacionPersona = _unitOfWork.ClasificacionPersonaRepository.FirstById(gestionContacto.IdClasificacionPersona.Value);
+                    if (clasificacionPersona == null)
+                    {
+                        throw new Exception($"No se encontro la clasificacion de persona {gestionContacto.IdClasificacionPersona.Value}");
+                    }
+
+                    // Validar que sea tipo Proveedor (IdTipoPersona = 4)
+                    if (clasificacionPersona.IdTipoPersona != 4)
+                    {
+                        throw new Exception($"La clasificacion de persona debe ser de tipo Proveedor (IdTipoPersona = 4), pero es {clasificacionPersona.IdTipoPersona}");
+                    }
+
+                    // IdTablaOriginal contiene el IdProveedor
+                    int idProveedor = clasificacionPersona.IdTablaOriginal;
+
+                    // Preparar DTO para envio de WhatsApp
+                    var mensajeDto = new WhatsAppMensajeTextoPlaDTO
+                    {
+                        WaTo = docente.Celular,
+                        WaBody = plantillaGenerada.WhatsAppReemplazado.Plantilla,
+                        IdPais = 51, // Peru
+                        IdProveedor = idProveedor,
+                        IdPersonal = ID_ASESOR_SISTEMA
+                    };
+
+                    // Enviar WhatsApp usando el servicio
+                    _logger.LogInformation($"Enviando WhatsApp a {docente.Celular} (IdProveedor: {idProveedor})");
+
+                    bool enviado = _whatsAppService.EnvioMensajePorTexto(mensajeDto, "HANGFIRE", ID_ASESOR_SISTEMA);
+
+                    if (!enviado)
+                    {
+                        throw new Exception("Error al enviar WhatsApp");
+                    }
+
+                    _logger.LogInformation($"WhatsApp enviado exitosamente a {docente.Celular}");
+                    return $"WhatsApp enviado exitosamente a {docente.Celular}";
                 }
                 else
                 {

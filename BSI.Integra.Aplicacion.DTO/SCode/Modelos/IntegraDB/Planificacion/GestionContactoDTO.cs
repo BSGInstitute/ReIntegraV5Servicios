@@ -100,15 +100,23 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string UsuarioCreacion { get; set; }
     }
 
+    public class DocenteComboDTO
+    {
+        public int Id { get; set; }
+        public int IdTipoPersona { get; set; }
+        public string NombreTipoPersona { get; set; }
+        public string Nombre { get; set; }
+    }
+
     public class OportunidadDocenteListItemDTO
     {
         public int Id { get; set; }
         public int? DocenteId { get; set; }
         public string DocenteNombre { get; set; }
-        public string TipoOportunidad { get; set; }
+        public int? IdCategoria { get; set; }
+        public string NombreCategoria { get; set; }
+        public int? IdPais { get; set; }
         public string Curso { get; set; }
-        public int? PaisId { get; set; }
-
         public string FlujoAsignado { get; set; }
     }
 

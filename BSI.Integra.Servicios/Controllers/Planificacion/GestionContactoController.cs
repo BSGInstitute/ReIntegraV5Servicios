@@ -1,5 +1,6 @@
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Marketing.Service.Implementacion;
@@ -26,15 +27,18 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         private readonly IGestionContactoService _gestionContactoService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IGestionDocenteActividadService _gestionDocenteActividadService;
+        private readonly IWhatsAppMensajeEnviadoApiPlanificacionService _whatsAppService;
 
         public GestionContactoController(
             IGestionContactoService gestionContactoService,
             IUnitOfWork unitOfWork,
-            IGestionDocenteActividadService gestionDocenteActividadService)
+            IGestionDocenteActividadService gestionDocenteActividadService,
+            IWhatsAppMensajeEnviadoApiPlanificacionService whatsAppService)
         {
             _gestionContactoService = gestionContactoService;
             _unitOfWork = unitOfWork;
             _gestionDocenteActividadService = gestionDocenteActividadService;
+            _whatsAppService = whatsAppService;
         }
 
         /// Autor: Jose Vega
@@ -223,20 +227,26 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
 
         /// Autor: Lolo Zaa
         /// Fecha: 21/02/2026
-        /// Version: 1.0
+        /// Version: 2.1
         /// <summary>
         /// Congela un flujo de gestión docente con todas sus actividades, disparadores,
         /// ocurrencias y configuración IA asociadas. Crea copias congeladas en estado
         /// POR_EJECUTAR para ejecución posterior.
+        /// Para flujos de categoría General, se puede especificar la fecha de inicio del flujo.
         /// </summary>
         /// <param name="idGestionContactoDocenteFlujo">ID del vínculo entre gestión contacto y flujo docente a congelar</param>
+        /// <param name="fechaInicioFlujoCongelado">Fecha de inicio opcional (formato ISO 8601, ejemplo: 2026-03-01T00:00:00). Solo aplica para flujos categoría General</param>
         /// <returns>ID del flujo congelado creado</returns>
         [HttpPost("[action]/{idGestionContactoDocenteFlujo}")]
-        public async Task<IActionResult> CongelarFlujoDocente(int idGestionContactoDocenteFlujo)
+        public async Task<IActionResult> CongelarFlujoDocente(
+            int idGestionContactoDocenteFlujo,
+            [FromQuery] DateTime? fechaInicioFlujoCongelado = null)
         {
             try
             {
-                var idFlujoCongelado = await _gestionContactoService.CongelarFlujoDocenteAsync(idGestionContactoDocenteFlujo);
+                var idFlujoCongelado = await _gestionContactoService.CongelarFlujoDocenteAsync(
+                    idGestionContactoDocenteFlujo,
+                    fechaInicioFlujoCongelado);
 
                 return Ok(new
                 {
@@ -259,9 +269,11 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
 
         /// Autor: Joseph Llanque
         /// Fecha: 23/02/2026
-        /// Version: 1.0
+        /// Version: 1.1
         /// <summary>
         /// Obtiene el listado de docentes para el combo del formulario General.
+        /// Retorna: Id (proveedor), IdTipoPersona, NombreTipoPersona y Nombre (docente).
+        /// Filtra por tipos de persona: 4 (Proveedor) y 6.
         /// </summary>
         [HttpGet("[action]")]
         public IActionResult ObtenerDocentes()
@@ -490,7 +502,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
 
                 var resultado = await _gestionContactoService.EjecutarActividadManualmenteAsync(request);
 
-                if (resultado.Exitoso)
+                if (resultado.Exitoso && resultado.DatosActividad != null)
                 {
                     // Si la actividad es automatica (IdTipoActividad == 1), enviar segun medio de comunicacion
                     string mensajeEnvio = null;
@@ -734,6 +746,73 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             }
 
             return $"WhatsApp enviado exitosamente a {docente.Celular} - Plantilla: {plantillaGenerada.WhatsAppReemplazado.Plantilla}";
+        }
+
+        /// <summary>
+        /// Metodo privado para enviar WhatsApp usando WhatsAppMensajeEnviadoApiPlanificacionService
+        /// </summary>
+        private async Task<string> EnviarWhatsAppActividadAsync(ActividadPendienteDTO actividad)
+        {
+            // 1. Obtener gestion de contacto y docente
+            var gestionContacto = await _unitOfWork.GestionContactoRepository.ObtenerPorIdAsync(actividad.IdGestionContacto);
+            if (gestionContacto == null || !gestionContacto.IdClasificacionPersona.HasValue)
+            {
+                throw new Exception("No se encontro la gestion de contacto o no tiene clasificacion de persona");
+            }
+
+            var docente = _unitOfWork.DocentePostulanteRepository.ObtenerDocenteDTOPorIdClasificacionPersona(gestionContacto.IdClasificacionPersona.Value);
+            if (docente == null || string.IsNullOrWhiteSpace(docente.Celular))
+            {
+                throw new Exception("No se encontro el celular del docente");
+            }
+
+            // 2. Generar plantilla
+            var plantillaGenerada = _gestionDocenteActividadService.GenerarPlantillaDocente(new ReemplazoEtiquetaPlantillaDocenteDTO
+            {
+                IdGestionContacto = actividad.IdGestionContacto,
+                IdPlantilla = actividad.IdPlantilla
+            });
+
+            if (string.IsNullOrWhiteSpace(plantillaGenerada.WhatsAppReemplazado.Plantilla))
+            {
+                throw new Exception("La plantilla de WhatsApp generada esta vacia");
+            }
+
+            // 3. Obtener IdProveedor desde ClasificacionPersona
+            var clasificacionPersona = _unitOfWork.ClasificacionPersonaRepository.FirstById(gestionContacto.IdClasificacionPersona.Value);
+            if (clasificacionPersona == null)
+            {
+                throw new Exception($"No se encontro la clasificacion de persona {gestionContacto.IdClasificacionPersona.Value}");
+            }
+
+            // Validar que sea tipo Proveedor (IdTipoPersona = 4)
+            if (clasificacionPersona.IdTipoPersona != 4)
+            {
+                throw new Exception($"La clasificacion de persona debe ser de tipo Proveedor (IdTipoPersona = 4), pero es {clasificacionPersona.IdTipoPersona}");
+            }
+
+            // IdTablaOriginal contiene el IdProveedor
+            int idProveedor = clasificacionPersona.IdTablaOriginal;
+
+            // 4. Preparar DTO para envio de WhatsApp
+            var mensajeDto = new WhatsAppMensajeTextoPlaDTO
+            {
+                WaTo = docente.Celular,
+                WaBody = plantillaGenerada.WhatsAppReemplazado.Plantilla,
+                IdPais = 51, // Peru
+                IdProveedor = idProveedor,
+                IdPersonal = 6205
+            };
+
+            // 5. Enviar WhatsApp usando el servicio
+            bool enviado = _whatsAppService.EnvioMensajePorTexto(mensajeDto, "MANUAL", 6205);
+
+            if (!enviado)
+            {
+                throw new Exception("Error al enviar WhatsApp");
+            }
+
+            return $"WhatsApp enviado exitosamente a {docente.Celular}";
         }
 
         /// Autor: Lolo Zaa
