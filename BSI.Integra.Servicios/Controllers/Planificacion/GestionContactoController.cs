@@ -264,9 +264,11 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
 
         /// Autor: Joseph Llanque
         /// Fecha: 23/02/2026
-        /// Version: 1.0
+        /// Version: 1.1
         /// <summary>
         /// Obtiene el listado de docentes para el combo del formulario General.
+        /// Retorna: Id (proveedor), IdTipoPersona, NombreTipoPersona y Nombre (docente).
+        /// Filtra por tipos de persona: 4 (Proveedor) y 6.
         /// </summary>
         [HttpGet("[action]")]
         public IActionResult ObtenerDocentes()

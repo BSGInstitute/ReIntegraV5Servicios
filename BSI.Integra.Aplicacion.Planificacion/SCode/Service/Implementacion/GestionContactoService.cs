@@ -330,11 +330,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
 
         /// Autor: Joseph Llanque
         /// Fecha: 23/02/2026
-        /// Version: 1.0
+        /// Version: 1.1
         /// <summary>
         /// Obtiene el listado de docentes para el combo de tipo General.
+        /// Incluye Id, IdTipoPersona, NombreTipoPersona y Nombre.
         /// </summary>
-        public IEnumerable<ComboDTO> ObtenerDocentes()
+        public IEnumerable<DocenteComboDTO> ObtenerDocentes()
         {
             return _unitOfWork.GestionContactoRepository.ObtenerDocentes();
         }

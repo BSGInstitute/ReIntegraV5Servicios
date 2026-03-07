@@ -505,9 +505,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                  ELSE p.RazonSocial
                             END
                         )), 'Sin nombre') AS DocenteNombre,
-	                    GDC.Id,
-	                    GDC.Nombre,
-   	                    C.IdPais,
+                        GDC.Id AS IdCategoria,
+                        GDC.Nombre AS NombreCategoria,
+                        C.IdPais,
                         COALESCE(cc.Nombre, '')  AS Curso,
                         COALESCE(gdf.Nombre, '') AS FlujoAsignado
                     FROM pla.T_GestionContacto gc WITH(NOLOCK)
@@ -516,7 +516,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     LEFT JOIN fin.T_Proveedor p WITH(NOLOCK)
                         ON p.Id = cp.IdTablaOriginal
                     LEFT JOIN conf.T_Ciudad C
-   	                    ON p.IdCiudad=c.Id AND c.Estado=1
+                        ON p.IdCiudad=c.Id AND c.Estado=1
                     LEFT JOIN pla.T_CentroCosto cc WITH(NOLOCK)
                         ON cc.Id = gc.IdCentroCosto
                     LEFT JOIN pla.T_GestionContactoDocenteFlujo gcdf WITH(NOLOCK)
@@ -524,7 +524,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     LEFT JOIN pla.T_GestionDocenteFlujo gdf WITH(NOLOCK)
                         ON gdf.Id = gcdf.IdGestionDocenteFlujo
                     LEFT JOIN pla.T_GestionDocenteCategoria GDC WITH(NOLOCK)
-	                    ON GDC.Id = gdf.IdGestionDocenteCategoria
+                        ON GDC.Id = gdf.IdGestionDocenteCategoria
                     WHERE gc.Estado = 1
                       AND (@Busqueda IS NULL OR @Busqueda = ''
                            OR p.RazonSocial LIKE '%' + @Busqueda + '%'
@@ -567,20 +567,22 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
         /// Autor: Joseph Llanque
         /// Fecha: 23/02/2026
-        /// Version: 1.0
+        /// Version: 1.1
         /// <summary>
         /// Obtiene el listado de docentes (proveedores con clasificacion persona activa)
         /// para el combo de seleccion en oportunidades de tipo General.
+        /// Retorna Id, IdTipoPersona, NombreTipoPersona y Nombre del docente.
+        /// Filtra por tipos de persona: 4 (Proveedor) y 6 (otro tipo).
         /// </summary>
-        public IEnumerable<ComboDTO> ObtenerDocentes()
+        public IEnumerable<DocenteComboDTO> ObtenerDocentes()
         {
             try
             {
                 string query = @"
                     SELECT DISTINCT
                         p.Id AS Id,
-	                    cp.IdTipoPersona,
-	                    tp.Nombre AS NombreTipoPersona,
+                        cp.IdTipoPersona,
+                        tp.Nombre AS NombreTipoPersona,
                         COALESCE(LTRIM(RTRIM(
                             CASE WHEN p.Nombre1 IS NOT NULL AND p.Nombre1 <> ''
                                  THEN p.Nombre1 + ' ' + COALESCE(p.ApePaterno, '')
@@ -591,7 +593,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     JOIN fin.T_Proveedor p WITH(NOLOCK)
                         ON p.Id = cp.IdTablaOriginal
                     LEFT JOIN conf.T_TipoPersona tp WITH(NOLOCK)
-	                    ON tp.Id=cp.IdTipoPersona
+                        ON tp.Id=cp.IdTipoPersona
                     WHERE cp.Estado = 1
                       AND p.Estado = 1
                       AND tp.Id IN (4,6)
@@ -600,9 +602,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
                 string resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                    return JsonConvert.DeserializeObject<IEnumerable<ComboDTO>>(resultado);
+                    return JsonConvert.DeserializeObject<IEnumerable<DocenteComboDTO>>(resultado);
 
-                return new List<ComboDTO>();
+                return new List<DocenteComboDTO>();
             }
             catch (Exception ex)
             {
