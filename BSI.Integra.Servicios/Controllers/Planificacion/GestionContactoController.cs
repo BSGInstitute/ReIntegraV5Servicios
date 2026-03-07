@@ -6,6 +6,7 @@ using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Marketing.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
+using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
@@ -246,7 +247,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             {
                 var idFlujoCongelado = await _gestionContactoService.CongelarFlujoDocenteAsync(
                     idGestionContactoDocenteFlujo,
-                    fechaInicioFlujoCongelado);
+                    fechaInicioFlujoCongelado);     
 
                 return Ok(new
                 {
@@ -664,89 +665,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             return $"Email enviado exitosamente a {docente.Correo} - Asunto: {plantillaGenerada.EmailReemplazado.Asunto}";
         }
 
-        /// Autor: Lolo Zaa
-        /// Fecha: 06/03/2026
-        /// Version: 1.0
-        /// <summary>
-        /// Metodo privado para enviar WhatsApp de actividad automatica.
-        /// Usa WhatsAppMensajeEnviadoApiPlanificacionService directamente.
-        /// </summary>
-        private async Task<string> EnviarWhatsAppActividadAsync(ActividadPendienteDTO actividad)
-        {
-            // 1. Obtener gestion de contacto y docente
-            var gestionContacto = await _unitOfWork.GestionContactoRepository.ObtenerPorIdAsync(actividad.IdGestionContacto);
-            if (gestionContacto == null || !gestionContacto.IdClasificacionPersona.HasValue)
-            {
-                throw new Exception("No se encontro la gestion de contacto o no tiene clasificacion de persona");
-            }
-
-            var docente = _unitOfWork.DocentePostulanteRepository.ObtenerDocenteDTOPorIdClasificacionPersona(gestionContacto.IdClasificacionPersona.Value);
-            if (docente == null || string.IsNullOrWhiteSpace(docente.Celular))
-            {
-                throw new Exception("No se encontro el celular del docente");
-            }
-
-            // 2. Obtener IdProveedor desde ClasificacionPersona
-            var clasificacionPersona = _unitOfWork.ClasificacionPersonaRepository.FirstById(gestionContacto.IdClasificacionPersona.Value);
-            if (clasificacionPersona == null)
-            {
-                throw new Exception("No se encontro la clasificacion de persona");
-            }
-            int idProveedor = clasificacionPersona.IdTablaOriginal;
-
-            // 3. Generar plantilla WhatsApp con etiquetas reemplazadas
-            var plantillaGenerada = _gestionDocenteActividadService.GenerarPlantillaDocente(new ReemplazoEtiquetaPlantillaDocenteDTO
-            {
-                IdGestionContacto = actividad.IdGestionContacto,
-                IdPlantilla = actividad.IdPlantilla
-            });
-
-            if (plantillaGenerada.WhatsAppReemplazado == null ||
-                string.IsNullOrWhiteSpace(plantillaGenerada.WhatsAppReemplazado.Plantilla))
-            {
-                throw new Exception("La plantilla de WhatsApp generada esta vacia");
-            }
-
-            // 4. Mapear etiquetas PascalCase a camelCase con indice posicional
-            var datosPlantilla = new List<DatosPlantillaWhatsAppDTO>();
-            if (plantillaGenerada.WhatsAppReemplazado.ListaEtiquetas != null)
-            {
-                int indice = 1;
-                foreach (var etiqueta in plantillaGenerada.WhatsAppReemplazado.ListaEtiquetas)
-                {
-                    datosPlantilla.Add(new DatosPlantillaWhatsAppDTO
-                    {
-                        codigo = indice.ToString(),
-                        texto = etiqueta.Texto ?? ""
-                    });
-                    indice++;
-                }
-            }
-
-            // 5. Construir y enviar mensaje WhatsApp por plantilla
-            var whatsAppService = new WhatsAppMensajeEnviadoApiPlanificacionService(_unitOfWork);
-            var parametros = new WhatsAppMensajePlantillaPlaDTO
-            {
-                WaTo = docente.Celular,
-                WaBody = plantillaGenerada.WhatsAppReemplazado.Plantilla,
-                WaCaption = null,
-                WaTypeMensaje = 1,
-                IdPlantilla = actividad.IdPlantilla,
-                IdPais = 51, // Peru por defecto
-                IdProveedor = idProveedor,
-                IdPersonal = 6205, // Asesor sistema
-                DatosPlantillaWhatsApp = datosPlantilla
-            };
-
-            var resultado = whatsAppService.EnvioMensajePorPlantilla(parametros, "EJECUCION_MANUAL", 6205);
-
-            if (!resultado.Estado)
-            {
-                throw new Exception($"Error al enviar WhatsApp: {resultado.Mensaje}");
-            }
-
-            return $"WhatsApp enviado exitosamente a {docente.Celular} - Plantilla: {plantillaGenerada.WhatsAppReemplazado.Plantilla}";
-        }
+        
 
         /// <summary>
         /// Metodo privado para enviar WhatsApp usando WhatsAppMensajeEnviadoApiPlanificacionService

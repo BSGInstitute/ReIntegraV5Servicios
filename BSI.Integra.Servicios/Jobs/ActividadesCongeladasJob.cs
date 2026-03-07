@@ -11,6 +11,7 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion.WhatsAppMensajeEnviadoApiPlanificacionDTO;
 
 namespace BSI.Integra.Servicios.Jobs
 {
