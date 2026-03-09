@@ -173,7 +173,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 List<PEspecificoSesionEstadoObservacionDTO> rpta = new List<PEspecificoSesionEstadoObservacionDTO>();
                 var query = @"
                     SELECT
-	                    Id,Nombre
+	                    Id,Nombre,IdPEspecificoSesionEstado
                     FROM pla.T_PEspecificoSesionEstadoObservacion
                     WHERE Estado = 1 ORDER BY Id DESC";
                 var resultado = _dapperRepository.QueryDapper(query, null);
@@ -203,6 +203,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var query = @"
                     SELECT
 	                    Id,
+                        IdPEspecificoSesionEstado,
 	                    Nombre,
 	                    Estado,
 	                    UsuarioCreacion,

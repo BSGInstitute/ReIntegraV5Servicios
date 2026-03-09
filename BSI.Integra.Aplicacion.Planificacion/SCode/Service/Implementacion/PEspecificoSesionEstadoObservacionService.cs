@@ -60,6 +60,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     PEspecificoSesionEstadoObservacion entidad = new()
                     {
                         Nombre = dto.Nombre,
+                        IdPEspecificoSesionEstado = dto.IdPEspecificoSesionEstado,
                         Estado = true,
                         UsuarioCreacion = usuario,
                         UsuarioModificacion = usuario,
@@ -104,6 +105,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         if (entidad != null && entidad.Id != 0)
                         {
                             entidad.Nombre = dto.Nombre;
+                            entidad.IdPEspecificoSesionEstado = dto.IdPEspecificoSesionEstado;
                             entidad.UsuarioModificacion = usuario;
                             entidad.FechaModificacion = DateTime.Now;
                             var respuesta = _unitOfWork.PEspecificoSesionEstadoObservacionRepository.Update(entidad);
