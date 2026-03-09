@@ -10,7 +10,8 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
-
+using System.Security.Claims;
+using BSI.Integra.Servicios.Helpers;
 
 namespace BSI.Integra.Servicios.Controllers.Planificacion
 {
@@ -258,6 +259,50 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                     Mensaje = ex.Message,
                     Detalle = ex.InnerException?.Message,
                     Inner2  = ex.InnerException?.InnerException?.Message
+                });
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 09/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Congela una actividad cabecera especifica de un flujo de gestion docente con todas sus
+        /// dependencias (detalles, disparadores, ocurrencias, IA), asociandola EXCLUSIVAMENTE a las 
+        /// sesiones enviadas en el cuerpo de la peticion.
+        /// </summary>
+        /// <param name="dto">Objeto DTO con el Id del flujo, Id de Actividad Cabecera y Lista de Ids de Sesiones</param>
+        /// <returns>ID del flujo padre congelado donde se anido la actividad</returns>
+        [HttpPost("[action]")]
+        public async Task<IActionResult> CongelarActividadPorSesiones([FromBody] CongelarActividadSesionesDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
+                string usuarioCreacion = registroClaimToken.UserName;
+
+                var idFlujoCongelado = await _gestionContactoService.CongelarActividadPorSesionesAsync(dto, usuarioCreacion);
+
+                return Ok(new
+                {
+                    Exito = true,
+                    Mensaje = "Actividad congelada y asociada a las sesiones correctamente",
+                    IdFlujoCongelado = idFlujoCongelado
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Exito = false,
+                    Mensaje = ex.Message,
+                    Detalle = ex.InnerException?.Message,
+                    Inner2 = ex.InnerException?.InnerException?.Message
                 });
             }
         }
