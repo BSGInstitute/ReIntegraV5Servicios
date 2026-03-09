@@ -53,35 +53,73 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         /// <returns>PEspecificoSesionEstadoObservacionDTO</returns>
         public PEspecificoSesionEstadoObservacionDTO Insertar(PEspecificoSesionEstadoObservacionDTO dto, string usuario)
         {
-            try
+            if (dto == null)
+                throw new BadRequestException("Entidad nula");
+
+            if (string.IsNullOrWhiteSpace(dto.Descripcion))
+                throw new BadRequestException("La descripción es obligatoria");
+
+            if (dto.Observaciones == null || !dto.Observaciones.Any())
+                throw new BadRequestException("Debe enviar al menos una observación");
+
+            var fechaActual = DateTime.Now;
+
+            // 1. Insertar cabecera
+            PEspecificoSesionEstadoObservacion cabecera = new()
             {
-                if (dto != null)
+                Descripcion = dto.Descripcion,
+                IdPEspecificoSesionEstado = dto.IdPEspecificoSesionEstado,
+                Estado = true,
+                UsuarioCreacion = usuario,
+                UsuarioModificacion = usuario,
+                FechaCreacion = fechaActual,
+                FechaModificacion = fechaActual
+            };
+
+            var cabeceraInsertada = _unitOfWork.PEspecificoSesionEstadoObservacionRepository.Add(cabecera);
+            _unitOfWork.Commit();
+
+            // 2. Insertar detalles
+            var detallesInsertados = new List<PEspecificoSesionEstadoObservacionDetalle>();
+
+            foreach (var item in dto.Observaciones.OrderBy(x => x.Orden))
+            {
+                PEspecificoSesionEstadoObservacionDetalle detalle = new()
                 {
-                    PEspecificoSesionEstadoObservacion entidad = new()
-                    {
-                        Nombre = dto.Nombre,
-                        IdPEspecificoSesionEstado = dto.IdPEspecificoSesionEstado,
-                        Estado = true,
-                        UsuarioCreacion = usuario,
-                        UsuarioModificacion = usuario,
-                        FechaCreacion = DateTime.Now,
-                        FechaModificacion = DateTime.Now,
-                    };
-                    var respuesta = _unitOfWork.PEspecificoSesionEstadoObservacionRepository.Add(entidad);
-                    _unitOfWork.Commit();
-                    entidad.Id = respuesta.Id;
-                    var resultado = _mapper.Map<PEspecificoSesionEstadoObservacionDTO>(respuesta);
+                    Nombre = item.Contenido,
+                    IdPEspecificoSesionEstadoObservacion = cabeceraInsertada.Id,
+                    Orden = item.Orden,
+                    Estado = true,
+                    UsuarioCreacion = usuario,
+                    UsuarioModificacion = usuario,
+                    FechaCreacion = fechaActual,
+                    FechaModificacion = fechaActual
+                };
 
-
-                    return resultado;
-                }
-                else
-                    throw new BadRequestException("Entidad Nula");
+                var detalleInsertado = _unitOfWork.PEspecificoSesionEstadoObservacionDetalleRepository.Add(detalle);
+                detallesInsertados.Add(detalleInsertado);
             }
-            catch (Exception)
+
+            _unitOfWork.Commit();
+
+            // 3. Retornar respuesta
+            var resultado = new PEspecificoSesionEstadoObservacionDTO
             {
-                throw;
-            }
+                Id = cabeceraInsertada.Id,
+                Descripcion = cabeceraInsertada.Descripcion,
+                IdPEspecificoSesionEstado = cabeceraInsertada.IdPEspecificoSesionEstado,
+                Observaciones = detallesInsertados
+                    .OrderBy(x => x.Orden)
+                    .Select(x => new PEspecificoSesionEstadoObservacionDetalleDTO
+                    {
+                        Id = x.Id,
+                        Contenido = x.Nombre,
+                        Orden = x.Orden
+                    })
+                    .ToList()
+            };
+
+            return resultado;
         }
         /// Metodo Actualizar
         /// Autor: Marco Jose Villanueva Torres

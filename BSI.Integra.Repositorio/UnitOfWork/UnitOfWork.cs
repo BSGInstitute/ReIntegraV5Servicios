@@ -8289,7 +8289,14 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _pEspecificoSesionEstadoObservacionRepository ?? new PEspecificoSesionEstadoObservacionRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
-
+        private IPEspecificoSesionEstadoObservacionDetalleRepository _pEspecificoSesionEstadoObservacionDetalleRepository;
+        IPEspecificoSesionEstadoObservacionDetalleRepository IUnitOfWork.PEspecificoSesionEstadoObservacionDetalleRepository
+        {
+            get
+            {
+                return _pEspecificoSesionEstadoObservacionDetalleRepository ?? new PEspecificoSesionEstadoObservacionDetalleRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
 
 
     }

@@ -13,29 +13,29 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation
 {
-    public class PEspecificoSesionEstadoObservacionRepository : GenericRepository<TPespecificoSesionEstadoObservacion>, IPEspecificoSesionEstadoObservacionRepository
+    public class PEspecificoSesionEstadoObservacionDetalleRepository : GenericRepository<TPEspecificoSesionEstadoObservacionDetalle>, IPEspecificoSesionEstadoObservacionDetalleRepository
     {
         private Mapper _mapper;
 
-        public PEspecificoSesionEstadoObservacionRepository(IntegraDBContext context, IConnectionFactory connectionFactory, IDapperRepository dapperRepository) : base(context, connectionFactory, dapperRepository)
+        public PEspecificoSesionEstadoObservacionDetalleRepository(IntegraDBContext context, IConnectionFactory connectionFactory, IDapperRepository dapperRepository) : base(context, connectionFactory, dapperRepository)
         {
             var config = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<TPespecificoSesionEstadoObservacion, PEspecificoSesionEstadoObservacion>(MemberList.None).ReverseMap();
-                cfg.CreateMap<PEspecificoSesionEstadoObservacion, PEspecificoSesionEstadoObservacionDTO>(MemberList.None).ReverseMap();
-                cfg.CreateMap<PEspecificoSesionEstadoObservacion, TPespecificoSesionEstadoObservacion>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TPEspecificoSesionEstadoObservacionDetalle, PEspecificoSesionEstadoObservacionDetalle>(MemberList.None).ReverseMap();
+                cfg.CreateMap<PEspecificoSesionEstadoObservacionDetalle, PEspecificoSesionEstadoObservacionDetalleDTO>(MemberList.None).ReverseMap();
+                cfg.CreateMap<PEspecificoSesionEstadoObservacionDetalle, TPEspecificoSesionEstadoObservacionDetalle>(MemberList.None).ReverseMap();
                 //cfg.CreateMap<THijo, Hijo>(MemberList.None).ReverseMap();
             });
             _mapper = new Mapper(config);
         }
 
         #region Metodos Base
-        private TPespecificoSesionEstadoObservacion MapeoEntidad(PEspecificoSesionEstadoObservacion entidad)
+        private TPEspecificoSesionEstadoObservacionDetalle MapeoEntidad(PEspecificoSesionEstadoObservacionDetalle entidad)
         {
             try
             {
                 //crea la entidad padre
-                TPespecificoSesionEstadoObservacion modelo = _mapper.Map<TPespecificoSesionEstadoObservacion>(entidad);
+                TPEspecificoSesionEstadoObservacionDetalle modelo = _mapper.Map<TPEspecificoSesionEstadoObservacionDetalle>(entidad);
 
                 //mapea los hijos
                 //if (entidad.ListadoHijoNivel1 != null && entidad.ListadoHijoNivel1.Count > 0)
@@ -55,13 +55,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public TPespecificoSesionEstadoObservacion Add(PEspecificoSesionEstadoObservacion entidad)
+        public TPEspecificoSesionEstadoObservacionDetalle Add(PEspecificoSesionEstadoObservacionDetalle entidad)
         {
             try
             {
-                var PEspecificoSesionEstadoObservacion = MapeoEntidad(entidad);
-                base.Insert(PEspecificoSesionEstadoObservacion);
-                return PEspecificoSesionEstadoObservacion;
+                var PEspecificoSesionEstadoObservacionDetalle = MapeoEntidad(entidad);
+                base.Insert(PEspecificoSesionEstadoObservacionDetalle);
+                return PEspecificoSesionEstadoObservacionDetalle;
             }
             catch (Exception ex)
             {
@@ -69,16 +69,16 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public TPespecificoSesionEstadoObservacion Update(PEspecificoSesionEstadoObservacion entidad)
+        public TPEspecificoSesionEstadoObservacionDetalle Update(PEspecificoSesionEstadoObservacionDetalle entidad)
         {
             try
             {
-                var PEspecificoSesionEstadoObservacion = MapeoEntidad(entidad);
+                var PEspecificoSesionEstadoObservacionDetalle = MapeoEntidad(entidad);
                 var entidadExistente = base.FirstBy(w => w.Id == entidad.Id, s => new { s.RowVersion });
-                PEspecificoSesionEstadoObservacion.RowVersion = entidadExistente.RowVersion;
+                PEspecificoSesionEstadoObservacionDetalle.RowVersion = entidadExistente.RowVersion;
 
-                base.Update(PEspecificoSesionEstadoObservacion);
-                return PEspecificoSesionEstadoObservacion;
+                base.Update(PEspecificoSesionEstadoObservacionDetalle);
+                return PEspecificoSesionEstadoObservacionDetalle;
             }
             catch (Exception ex)
             {
@@ -100,11 +100,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         }
 
 
-        public IEnumerable<TPespecificoSesionEstadoObservacion> Add(IEnumerable<PEspecificoSesionEstadoObservacion> listadoEntidad)
+        public IEnumerable<TPEspecificoSesionEstadoObservacionDetalle> Add(IEnumerable<PEspecificoSesionEstadoObservacionDetalle> listadoEntidad)
         {
             try
             {
-                List<TPespecificoSesionEstadoObservacion> listado = new List<TPespecificoSesionEstadoObservacion>();
+                List<TPEspecificoSesionEstadoObservacionDetalle> listado = new List<TPEspecificoSesionEstadoObservacionDetalle>();
                 foreach (var entidad in listadoEntidad)
                 {
                     listado.Add(MapeoEntidad(entidad));
@@ -118,14 +118,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public IEnumerable<TPespecificoSesionEstadoObservacion> Update(IEnumerable<PEspecificoSesionEstadoObservacion> listadoEntidad)
+        public IEnumerable<TPEspecificoSesionEstadoObservacionDetalle> Update(IEnumerable<PEspecificoSesionEstadoObservacionDetalle> listadoEntidad)
         {
             try
             {
                 if (listadoEntidad == null)
                     throw new ArgumentNullException("El listado es nulo");
 
-                List<TPespecificoSesionEstadoObservacion> listado = new List<TPespecificoSesionEstadoObservacion>();
+                List<TPEspecificoSesionEstadoObservacionDetalle> listado = new List<TPEspecificoSesionEstadoObservacionDetalle>();
                 foreach (var entidad in listadoEntidad)
                 {
                     listado.Add(MapeoEntidad(entidad));
@@ -163,23 +163,23 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// Fecha: 15/04/2024
         /// Version: 1.0
         /// <summary>
-        /// Obtiene todos los registros de T_PEspecificoSesionEstadoObservacion.
+        /// Obtiene todos los registros de T_PEspecificoSesionEstadoObservacionDetalle.
         /// </summary>
-        /// <returns> List<PEspecificoSesionEstadoObservacionDTO> </returns>
-        public IEnumerable<PEspecificoSesionEstadoObservacionDTO> Obtener()
+        /// <returns> List<PEspecificoSesionEstadoObservacionDetalleDTO> </returns>
+        public IEnumerable<PEspecificoSesionEstadoObservacionDetalleDTO> Obtener()
         {
             try
             {
-                List<PEspecificoSesionEstadoObservacionDTO> rpta = new List<PEspecificoSesionEstadoObservacionDTO>();
+                List<PEspecificoSesionEstadoObservacionDetalleDTO> rpta = new List<PEspecificoSesionEstadoObservacionDetalleDTO>();
                 var query = @"
                     SELECT
-	                    Id,Descripcion,IdPEspecificoSesionEstado
-                    FROM pla.T_PEspecificoSesionEstadoObservacion
+	                    Id,Nombre AS Contenido,IdPEspecificoSesionEstadoObservacion
+                    FROM pla.T_PEspecificoSesionEstadoObservacionDetalle
                     WHERE Estado = 1 ORDER BY Id DESC";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
-                    rpta = JsonConvert.DeserializeObject<List<PEspecificoSesionEstadoObservacionDTO>>(resultado);
+                    rpta = JsonConvert.DeserializeObject<List<PEspecificoSesionEstadoObservacionDetalleDTO>>(resultado);
 
                 }
                 return rpta;
@@ -195,28 +195,28 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene el registro por el Primary Key
         /// </summary>
-        /// <returns >PEspecificoSesionEstadoObservacion || null</returns>
-        public PEspecificoSesionEstadoObservacion? ObtenerPorId(int id)
+        /// <returns >PEspecificoSesionEstadoObservacionDetalle || null</returns>
+        public PEspecificoSesionEstadoObservacionDetalle? ObtenerPorId(int id)
         {
             try
             {
                 var query = @"
                     SELECT
 	                    Id,
-                        IdPEspecificoSesionEstado,
-	                    Descripcion,
+                        IdPEspecificoSesionEstadoObservacion,
+	                    Nombre,
 	                    Estado,
 	                    UsuarioCreacion,
 	                    UsuarioModificacion,
 	                    FechaCreacion,
 	                    FechaModificacion,
 	                    RowVersion
-                    FROM pla.T_PEspecificoSesionEstadoObservacion
+                    FROM pla.T_PEspecificoSesionEstadoObservacionDetalle
                     WHERE Id=@id AND estado=1";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { id });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
-                    return JsonConvert.DeserializeObject<PEspecificoSesionEstadoObservacion>(resultado)!;
+                    return JsonConvert.DeserializeObject<PEspecificoSesionEstadoObservacionDetalle>(resultado)!;
                 }
                 return null;
             }

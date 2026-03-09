@@ -992,5 +992,6 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IPEspecificoSesionEstadoRepository PEspecificoSesionEstadoRepository { get; }
 
         IPEspecificoSesionEstadoObservacionRepository PEspecificoSesionEstadoObservacionRepository { get; }
+        IPEspecificoSesionEstadoObservacionDetalleRepository PEspecificoSesionEstadoObservacionDetalleRepository { get; }
     }
 }
