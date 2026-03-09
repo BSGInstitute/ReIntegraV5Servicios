@@ -953,6 +953,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TSolicitudInterna> TSolicitudInternas { get; set; } = null!;
         public virtual DbSet<TSolicitudOperacione> TSolicitudOperaciones { get; set; } = null!;
         public virtual DbSet<TSolicitudOperacionesAccesoTemporalDetalle> TSolicitudOperacionesAccesoTemporalDetalles { get; set; } = null!;
+        public virtual DbSet<TSolicitudProblema> TSolicitudProblemas { get; set; } = null!;
         public virtual DbSet<TSolicitudSubCategorium> TSolicitudSubCategoria { get; set; } = null!;
         public virtual DbSet<TSolicitudTi> TSolicitudTis { get; set; } = null!;
         public virtual DbSet<TSolicitudTicategorium> TSolicitudTicategoria { get; set; } = null!;
@@ -56426,7 +56427,14 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
             {
                 entity.ToTable("T_SolicitudCategoria", "ope");
 
+                entity.HasComment("Esta tabla agrupa las solicitudes por categoria de producto");
+
                 entity.Property(e => e.Id).HasComment("Clave primaria de la tabla");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasComment("Descripcion de la categoria");
 
                 entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
 
@@ -56811,6 +56819,88 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .WithMany(p => p.TSolicitudOperacionesAccesoTemporalDetalles)
                     .HasForeignKey(d => d.IdSolicitudOperaciones)
                     .HasConstraintName("FK_T_SolicitudOperacionesAccesoTemporalDetalle_T_SolicitudOperaciones");
+            });
+
+            modelBuilder.Entity<TSolicitudProblema>(entity =>
+            {
+                entity.ToTable("T_SolicitudProblema", "ope");
+
+                entity.HasComment("Esta tabla registra solicitudes de problemas para su seguimiento adecuado");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria de la tabla");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasComment("Descripción del problema");
+
+                entity.Property(e => e.DescripcionSolucion)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasComment("Descripción de solucion");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de modificacion");
+
+                entity.Property(e => e.IdPersonalRevision)
+                    .HasColumnName("IdPersonal_Revision")
+                    .HasComment("Llave foranea 1 de T_Personal");
+
+                entity.Property(e => e.IdPersonalSolucion)
+                    .HasColumnName("IdPersonal_Solucion")
+                    .HasComment("Llave foranea 2 de T_Personal");
+
+                entity.Property(e => e.IdSolicitudCategoria).HasComment("Llave foranea de T_SolicitudCategoria");
+
+                entity.Property(e => e.Prioridad)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasComment("Prioridad de la solicitud");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.Titulo)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasComment("Titulo del problema");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de modificacion");
+
+                entity.HasOne(d => d.IdPersonalRevisionNavigation)
+                    .WithMany(p => p.TSolicitudProblemaIdPersonalRevisionNavigations)
+                    .HasForeignKey(d => d.IdPersonalRevision)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_PersonalRevisor");
+
+                entity.HasOne(d => d.IdPersonalSolucionNavigation)
+                    .WithMany(p => p.TSolicitudProblemaIdPersonalSolucionNavigations)
+                    .HasForeignKey(d => d.IdPersonalSolucion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_PersonalSGestion");
+
+                entity.HasOne(d => d.IdSolicitudCategoriaNavigation)
+                    .WithMany(p => p.TSolicitudProblemas)
+                    .HasForeignKey(d => d.IdSolicitudCategoria)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_SolicitudCategoriaa");
             });
 
             modelBuilder.Entity<TSolicitudSubCategorium>(entity =>
