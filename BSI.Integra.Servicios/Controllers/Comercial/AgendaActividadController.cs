@@ -461,6 +461,21 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             return Ok(_agendaActividadService.ObtenerHistorialInteraccionesPorIdOportunidad3cx(idOportunidad));
         }
 
+        /// Tipo Función: GET
+        /// Autor: Carlos Crispin Riquelme
+        /// Fecha: 27//11/2023
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el Historial de Interacciones de la Oportunidad por su Id
+        /// </summary>
+        /// <param name="idActividadDetalle">Id de la Oportunidad</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("[action]/{idActividadDetalle}")]
+        public IActionResult ObtenerRecomendacionesPorIdActividadDetalle(int idActividadDetalle)
+        {
+            return Ok(_agendaActividadService.ObtenerRecomendacionesPorIdActividadDetalle(idActividadDetalle));
+        }
+
 
         /// Tipo Función: GET
         /// Autor: Joseph Llanque

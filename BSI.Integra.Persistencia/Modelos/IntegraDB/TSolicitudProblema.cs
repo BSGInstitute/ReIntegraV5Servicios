@@ -4,28 +4,38 @@ using System.Collections.Generic;
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     /// <summary>
-    /// Esta tabla agrupa las solicitudes por categoria de producto
+    /// Esta tabla registra solicitudes de problemas para su seguimiento adecuado
     /// </summary>
-    public partial class TSolicitudCategorium
+    public partial class TSolicitudProblema
     {
-        public TSolicitudCategorium()
-        {
-            TSolicitudProblemas = new HashSet<TSolicitudProblema>();
-            TSolicitudSubCategoria = new HashSet<TSolicitudSubCategorium>();
-        }
-
         /// <summary>
-        /// Clave primaria de la tabla
+        /// Llave primaria de la tabla
         /// </summary>
         public int Id { get; set; }
         /// <summary>
-        /// Nombre de la solicitud
+        /// Descripción del problema
         /// </summary>
-        public string Nombre { get; set; } = null!;
+        public string? Descripcion { get; set; }
         /// <summary>
-        /// Llave foranea de T_SolicitudTipoReporte
+        /// Descripción de solucion
         /// </summary>
-        public int? IdSolicitudTipoReporte { get; set; }
+        public string? DescripcionSolucion { get; set; }
+        /// <summary>
+        /// Prioridad de la solicitud
+        /// </summary>
+        public string Prioridad { get; set; } = null!;
+        /// <summary>
+        /// Llave foranea de T_SolicitudCategoria
+        /// </summary>
+        public int IdSolicitudCategoria { get; set; }
+        /// <summary>
+        /// Llave foranea 1 de T_Personal
+        /// </summary>
+        public int IdPersonalRevision { get; set; }
+        /// <summary>
+        /// Llave foranea 2 de T_Personal
+        /// </summary>
+        public int IdPersonalSolucion { get; set; }
         /// <summary>
         /// Estado del registro (creado o eliminado)
         /// </summary>
@@ -51,16 +61,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
         /// <summary>
-        /// Id de migracion (Si es que es migracion)
+        /// Titulo del problema
         /// </summary>
-        public int? IdMigracion { get; set; }
-        /// <summary>
-        /// Descripcion de la categoria
-        /// </summary>
-        public string? Descripcion { get; set; }
+        public string? Titulo { get; set; }
 
-        public virtual TSolicitudTipoReporte? IdSolicitudTipoReporteNavigation { get; set; }
-        public virtual ICollection<TSolicitudProblema> TSolicitudProblemas { get; set; }
-        public virtual ICollection<TSolicitudSubCategorium> TSolicitudSubCategoria { get; set; }
+        public virtual TPersonal IdPersonalRevisionNavigation { get; set; } = null!;
+        public virtual TPersonal IdPersonalSolucionNavigation { get; set; } = null!;
+        public virtual TSolicitudCategorium IdSolicitudCategoriaNavigation { get; set; } = null!;
     }
 }

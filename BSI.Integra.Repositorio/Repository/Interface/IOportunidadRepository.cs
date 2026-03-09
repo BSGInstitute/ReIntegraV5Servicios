@@ -105,6 +105,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         PersonalAlumnoDTO ObtenerOportunidadPorNumero(int idCentroCosto, string numero);
         OportunidadTiempoCapacitacionDTO ObtenerTiempoCapacitacionPorIdOportunidad(int idOportunidad);
         List<Oportunidad> ObtenerPorIdAlumno(int idAlumno);
+        List<RecomendacionDTO> ObtenerRecomendacionesPorIdActividadDetalle(int idActividadDetalle);
         FlagActualizarCorreoDTO VerificacionOportunidades(int idAlumnoPrincipal, int idAlumnoSecundario);
         FlagReasignacionDTO ResignacionOportunidades(int idAlumnoPrincipal, int idAlumnoSecundario);
         List<OportunidadProgramadaManualDTO> ObtenerProgramacionManualConsecutivos();
