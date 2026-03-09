@@ -11,7 +11,7 @@ namespace BSI.Integra.Aplicacion.DTO
     public class CongelarActividadSesionesDTO
     {
         public int IdGestionContactoDocenteFlujo { get; set; }
-        public int IdActividadCabecera { get; set; }
-        public List<int> ListaIdSesiones { get; set; }
+        public int IdGestionDocenteActividadCabecera { get; set; }
+        public List<int> IdPEspecificoSesion_Lista { get; set; }
     }
 }

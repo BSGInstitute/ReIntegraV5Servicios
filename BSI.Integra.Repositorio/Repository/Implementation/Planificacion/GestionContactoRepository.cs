@@ -468,14 +468,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         /// Congela una cabecera de actividad especifica y la asocia unicamente a una lista de sesiones.
         /// Invoca el SP pla.SP_ActividadDocenteCongelarPorSesiones.
         /// </summary>
-        public async Task<int> CongelarActividadPorSesionesAsync(int idGestionContactoDocenteFlujo, int idActividadCabecera, string idsSesiones, string usuarioCreacion)
+        public async Task<int> CongelarActividadPorSesionesAsync(int idGestionContactoDocenteFlujo, int idGestionDocenteActividadCabecera, string idPEspecificoSesion_Lista, string usuarioCreacion)
         {
             try
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@IdGestionContactoDocenteFlujo", idGestionContactoDocenteFlujo, DbType.Int32);
-                parameters.Add("@IdActividadCabecera", idActividadCabecera, DbType.Int32);
-                parameters.Add("@IdsSesiones", idsSesiones, DbType.String);
+                parameters.Add("@IdGestionDocenteActividadCabecera", idGestionDocenteActividadCabecera, DbType.Int32);
+                parameters.Add("@IdPEspecificoSesion_Lista", idPEspecificoSesion_Lista, DbType.String);
                 parameters.Add("@UsuarioCreacion", usuarioCreacion, DbType.String, size: 50);
 
                 await _dapperRepository.QuerySPDapperAsync(

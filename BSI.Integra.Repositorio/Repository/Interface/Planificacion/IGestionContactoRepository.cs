@@ -30,7 +30,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         IEnumerable<EstadoGestionContactoDTO> ObtenerEstadosGestionContacto();
         TGestionContactoDocenteFlujo InsertarGestionContactoDocenteFlujo(InsertarGestionContactoDocenteFlujoDTO dto);
         Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo, DateTime? fechaInicioFlujoCongelado = null);
-        Task<int> CongelarActividadPorSesionesAsync(int idGestionContactoDocenteFlujo, int idActividadCabecera, string idsSesiones, string usuarioCreacion);
+        Task<int> CongelarActividadPorSesionesAsync(int idGestionContactoDocenteFlujo, int idGestionDocenteActividadCabecera, string idPEspecificoSesion_Lista, string usuarioCreacion);
         OportunidadDocenteListResponseDTO ObtenerOportunidadesDocente(string busqueda, int pagina, int porPagina);
         IEnumerable<DocenteComboDTO> ObtenerDocentes();
         Task<ActividadesFlujoPorCategoriaResponseDTO> ObtenerActividadesFlujoPorCategoriaAsync(int idGestionContactoDocenteFlujo);

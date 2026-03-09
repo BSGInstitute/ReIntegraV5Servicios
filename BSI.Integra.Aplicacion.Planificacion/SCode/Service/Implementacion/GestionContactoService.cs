@@ -372,14 +372,14 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         {
             try
             {
-                string idsSesiones = dto.ListaIdSesiones != null && dto.ListaIdSesiones.Any()
-                    ? string.Join(",", dto.ListaIdSesiones)
+                string idPEspecificoSesion_Lista = dto.IdPEspecificoSesion_Lista != null && dto.IdPEspecificoSesion_Lista.Any()
+                    ? string.Join(",", dto.IdPEspecificoSesion_Lista)
                     : string.Empty;
 
                 return await _unitOfWork.GestionContactoRepository.CongelarActividadPorSesionesAsync(
                     dto.IdGestionContactoDocenteFlujo,
-                    dto.IdActividadCabecera,
-                    idsSesiones,
+                    dto.IdGestionDocenteActividadCabecera,
+                    idPEspecificoSesion_Lista,
                     usuarioCreacion
                 );
             }
