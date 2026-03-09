@@ -1,4 +1,4 @@
-using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion.WhatsAppMensajeEnviadoApiPlanificacionDTO;
 
 namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
 {

@@ -2,15 +2,18 @@ using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.Marketing.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
-using BSI.Integra.Servicios.Controllers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion.WhatsAppMensajeEnviadoApiPlanificacionDTO;
 
 namespace BSI.Integra.Servicios.Jobs
 {
@@ -219,30 +222,29 @@ namespace BSI.Integra.Servicios.Jobs
                         throw new Exception($"No se encontro el asesor sistema con Id {ID_ASESOR_SISTEMA}");
                     }
 
-                    // 6. Preparar parametros para el endpoint EnviarMensajeGmail
-                    var parametrosCorreo = new EnviarMensajeGmailDTO
+                    // 6. Preparar parametros para EnviarMensajeCorreoPla
+                    var parametrosCorreo = new ParametrosEnviarMensajePlaDTO
                     {
-                        IdAsesor = ID_ASESOR_SISTEMA,
                         Remitente = asesorSistema.Email,
                         Destinatario = docente.Correo,
                         Asunto = plantillaGenerada.EmailReemplazado.Asunto,
                         Mensaje = Convert.ToBase64String(Encoding.UTF8.GetBytes(plantillaGenerada.EmailReemplazado.CuerpoHTML)),
-                        Usuario = "HANGFIRE",
                         DestinatarioCc = "",
                         DestinatarioBcc = "",
-                        envioGrupo = false,
+                        IdGestionContacto = actividad.IdGestionContacto,
+                        IdClasificacionPersona = gestionContacto.IdClasificacionPersona,
                         Files = null
                     };
 
-                    // 7. Usar el controlador de correo para enviar
+                    // 7. Enviar correo usando el servicio directamente
                     _logger.LogInformation($"Enviando correo a {docente.Correo} con asunto: {plantillaGenerada.EmailReemplazado.Asunto}");
 
-                    var correoController = new CorreoController(_unitOfWork);
-                    var resultado = correoController.EnviarMensajeGmail(parametrosCorreo);
+                    var gmailCorreoService = new GmailCorreoService(_unitOfWork);
+                    var enviado = await gmailCorreoService.EnviarMensajeCorreoPla(parametrosCorreo, new List<IFormFile>(), "HANGFIRE");
 
-                    if (resultado is Microsoft.AspNetCore.Mvc.BadRequestObjectResult badRequest)
+                    if (!enviado)
                     {
-                        throw new Exception($"Error al enviar correo: {badRequest.Value}");
+                        throw new Exception("Error al enviar correo");
                     }
 
                     _logger.LogInformation($"Correo enviado exitosamente a {docente.Correo}");

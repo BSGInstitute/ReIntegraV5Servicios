@@ -1,6 +1,16 @@
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using System.Collections.Generic;
 
-namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
+namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
+{
+    /// Autor: Lolo Zaa
+    /// Fecha: 06/03/2026
+    /// <summary>
+    /// DTOs para el envio de mensajes WhatsApp desde Planificacion.
+    /// Patron basado en WhatsAppMensajeEnviadoApiComercialDTO (Comercial)
+    /// pero usando IdProveedor en lugar de IdAlumno.
+    /// </summary>
+    public class WhatsAppMensajeEnviadoApiPlanificacionDTO
 {
     public class WhatsAppMensajeTextoPlaDTO
     {
@@ -66,4 +76,5 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public string Mensaje { get; set; }
         public bool Estado { get; set; }
     }
+}
 }

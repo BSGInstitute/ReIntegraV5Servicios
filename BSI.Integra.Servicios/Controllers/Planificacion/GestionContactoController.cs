@@ -3,15 +3,21 @@ using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.Marketing.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
+using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Claims;
 using BSI.Integra.Servicios.Helpers;
+using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion.WhatsAppMensajeEnviadoApiPlanificacionDTO;
 
 namespace BSI.Integra.Servicios.Controllers.Planificacion
 {
@@ -242,7 +248,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             {
                 var idFlujoCongelado = await _gestionContactoService.CongelarFlujoDocenteAsync(
                     idGestionContactoDocenteFlujo,
-                    fechaInicioFlujoCongelado);
+                    fechaInicioFlujoCongelado);     
 
                 return Ok(new
                 {
@@ -544,68 +550,33 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
 
                 if (resultado.Exitoso && resultado.DatosActividad != null)
                 {
+                    // Si la actividad es automatica (IdTipoActividad == 1), enviar segun medio de comunicacion
                     string mensajeEnvio = null;
-                    bool envioExitoso = false;
-                    string mensajeError = null;
-
-                    // Si es actividad automática (Email/WhatsApp), intentar enviar
-                    if (resultado.DatosActividad.IdTipoActividad == 1)
+                    if (resultado.DatosActividad != null &&
+                        resultado.DatosActividad.IdTipoActividad == 1)
                     {
                         try
                         {
-                            if (resultado.DatosActividad.IdPlantillaBase == 2) // Email
+                            if (resultado.DatosActividad.IdPlantillaBase == 2)
                             {
+                                // Email
                                 mensajeEnvio = await EnviarCorreoActividadAsync(resultado.DatosActividad);
                             }
-                            else if (resultado.DatosActividad.IdPlantillaBase == 8) // WhatsApp
+                            else if (resultado.DatosActividad.IdPlantillaBase == 8)
                             {
+                                // WhatsApp
                                 mensajeEnvio = await EnviarWhatsAppActividadAsync(resultado.DatosActividad);
                             }
-                            envioExitoso = true;
                         }
                         catch (Exception ex)
                         {
-                            envioExitoso = false;
-                            mensajeError = ex.Message;
+                            return BadRequest(new
+                            {
+                                Exito = false,
+                                Mensaje = "Actividad ejecutada pero error al enviar mensaje",
+                                Error = ex.Message
+                            });
                         }
-                    }
-                    else
-                    {
-                        // Actividad manual (tipo 2) - siempre exitosa
-                        envioExitoso = true;
-                        mensajeEnvio = $"Actividad manual marcada para contacto: {resultado.DatosActividad.IdGestionContacto}";
-                    }
-
-                    // Actualizar estado según resultado del envío
-                    var actualizacionEstado = await _gestionContactoService.ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
-                    {
-                        IdActividadDetalleCongelada = request.IdActividadDetalleCongelada,
-                        IdDisparadorCongelado = request.IdDisparadorCongelado,
-                        CodigoNuevoEstado = envioExitoso ? "EJECUTADO" : "NO_EJECUTADO",
-                        MensajeResultado = envioExitoso ? mensajeEnvio : null,
-                        MensajeError = envioExitoso ? null : mensajeError,
-                        UsuarioModificacion = request.UsuarioEjecucion
-                    });
-
-                    if (!actualizacionEstado.Exitoso)
-                    {
-                        return BadRequest(new
-                        {
-                            Exito = false,
-                            Mensaje = "Error al actualizar estado de actividad",
-                            Error = actualizacionEstado.Error
-                        });
-                    }
-
-                    // Si el envío falló, retornar error
-                    if (!envioExitoso)
-                    {
-                        return BadRequest(new
-                        {
-                            Exito = false,
-                            Mensaje = "Error al enviar mensaje",
-                            Error = mensajeError
-                        });
                     }
 
                     return Ok(new
@@ -613,7 +584,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                         Exito = true,
                         Mensaje = "Actividad ejecutada correctamente",
                         IdEjecucion = resultado.IdRegistro,
-                        MensajeResultado = mensajeEnvio
+                        MensajeResultado = mensajeEnvio ?? resultado.Mensaje
                     });
                 }
                 else
@@ -638,7 +609,8 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         }
 
         /// <summary>
-        /// Metodo privado para enviar correo usando CorreoController
+        /// Metodo privado para enviar correo de actividad automatica.
+        /// Usa servicios directamente sin depender de CorreoController ni HttpContext.
         /// </summary>
         private async Task<string> EnviarCorreoActividadAsync(ActividadPendienteDTO actividad)
         {
@@ -655,7 +627,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 throw new Exception("No se encontro el correo del docente");
             }
 
-            // 2. Generar plantilla
+            // 2. Generar plantilla con etiquetas reemplazadas
             var plantillaGenerada = _gestionDocenteActividadService.GenerarPlantillaDocente(new ReemplazoEtiquetaPlantillaDocenteDTO
             {
                 IdGestionContacto = actividad.IdGestionContacto,
@@ -668,39 +640,77 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 throw new Exception("La plantilla de email generada esta vacia");
             }
 
-            // 3. Obtener email del asesor sistema
-            var asesorSistema = _unitOfWork.PersonalRepository.FirstById(6205);
-            if (asesorSistema == null)
+            // 3. Obtener datos del asesor remitente
+            var personalService = new PersonalService(_unitOfWork);
+            var asesor = _unitOfWork.PersonalRepository.FirstById(6205);
+            if (asesor == null)
             {
                 throw new Exception("No se encontro el asesor sistema con Id 6205");
             }
 
-            // 4. Preparar parametros para EnviarMensajeGmail
-            var parametrosCorreo = new EnviarMensajeGmailDTO
+            // 4. Obtener credenciales SMTP del asesor
+            var gmailClienteService = new GmailClienteService(_unitOfWork);
+            var credenciales = gmailClienteService.ObtenerClienteCredencial(6205);
+            if (credenciales == null)
             {
-                IdAsesor = 6205,
-                Remitente = asesorSistema.Email,
-                Destinatario = docente.Correo,
-                Asunto = plantillaGenerada.EmailReemplazado.Asunto,
-                Mensaje = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(plantillaGenerada.EmailReemplazado.CuerpoHTML)),
-                Usuario = "MANUAL",
-                DestinatarioCc = "",
-                DestinatarioBcc = "",
-                envioGrupo = false,
-                Files = null
+                throw new Exception("No se encontraron credenciales de correo para el asesor sistema");
+            }
+
+            // 5. Preparar datos del correo
+            var mailData = new TMKMailDataDTO
+            {
+                Sender = credenciales.EmailAsesor,
+                Recipient = docente.Correo,
+                Subject = plantillaGenerada.EmailReemplazado.Asunto,
+                Message = plantillaGenerada.EmailReemplazado.CuerpoHTML,
+                Cc = "",
+                Bcc = "",
+                AttachedFiles = null,
+                RemitenteC = string.Concat(asesor.Nombres, " ", asesor.Apellidos)
             };
 
-            // 5. Llamar a CorreoController para enviar
-            var correoController = new CorreoController(_unitOfWork);
-            var resultado = correoController.EnviarMensajeGmail(parametrosCorreo);
+            // 6. Enviar via SMTP sin archivos adjuntos
+            var filtroBandejaCorreo = new FiltroBandejaCorreoService(_unitOfWork);
+            IList<Microsoft.AspNetCore.Http.IFormFile> sinArchivos = new List<Microsoft.AspNetCore.Http.IFormFile>();
+            var rptEnvio = filtroBandejaCorreo.envioEmailAdjuntoOperaciones(
+                credenciales.EmailAsesor,
+                credenciales.PasswordCorreo,
+                mailData,
+                sinArchivos
+            );
 
-            if (resultado is BadRequestObjectResult badRequest)
+            if (rptEnvio.codigo != "200")
             {
-                throw new Exception($"Error al enviar correo: {badRequest.Value}");
+                throw new Exception($"Error SMTP al enviar correo: {rptEnvio.respuesta}");
             }
+
+            // 7. Registrar correo enviado en GmailCorreo
+            var gmailCorreoService = new GmailCorreoService(_unitOfWork);
+            var gmailCorreo = new GmailCorreo
+            {
+                IdEtiqueta = 1,
+                Asunto = plantillaGenerada.EmailReemplazado.Asunto,
+                Fecha = DateTime.Now,
+                EmailBody = plantillaGenerada.EmailReemplazado.CuerpoHTML,
+                Seen = false,
+                Remitente = credenciales.EmailAsesor,
+                Cc = "",
+                Bcc = "",
+                Destinatarios = docente.Correo,
+                IdPersonal = asesor.Id,
+                IdClasificacionPersona = gestionContacto.IdClasificacionPersona,
+                Estado = true,
+                FechaCreacion = DateTime.Now,
+                FechaModificacion = DateTime.Now,
+                UsuarioCreacion = "EJECUCION_MANUAL",
+                UsuarioModificacion = "EJECUCION_MANUAL"
+            };
+            gmailCorreoService.Add(gmailCorreo);
 
             return $"Email enviado exitosamente a {docente.Correo} - Asunto: {plantillaGenerada.EmailReemplazado.Asunto}";
         }
+
+        
 
         /// <summary>
         /// Metodo privado para enviar WhatsApp usando WhatsAppMensajeEnviadoApiPlanificacionService

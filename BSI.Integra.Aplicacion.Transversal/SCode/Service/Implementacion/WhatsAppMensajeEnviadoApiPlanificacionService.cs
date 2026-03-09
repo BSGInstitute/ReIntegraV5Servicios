@@ -13,8 +13,17 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
+using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion.WhatsAppMensajeEnviadoApiPlanificacionDTO;
+
 namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 {
+    /// Autor: Lolo Zaa
+    /// Fecha: 06/03/2026
+    /// <summary>
+    /// Servicio de envio de mensajes WhatsApp para Planificacion.
+    /// Patron basado en WhatsAppMensajeEnviadoApiComercialService
+    /// pero usando IdProveedor y endpoint de Planificacion.
+    /// </summary>
     public class WhatsAppMensajeEnviadoApiPlanificacionService : IWhatsAppMensajeEnviadoApiPlanificacionService
     {
         private IUnitOfWork _unitOfWork;
@@ -60,15 +69,15 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 }
 
                 var serializedResult = Serializer.Serialize(objetoWhatsAppHook);
-                string url = "https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";
-
+                ////string url = "https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";
+                string url = "https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";//local
                 RespuestaMensajeWhatsappPlaDTO respuesta = new RespuestaMensajeWhatsappPlaDTO();
                 try
                 {
                     datoRespuesta = Task.Run(() => UrlPostAsync(url, serializedResult)).Result;
                     try
                     {
-                        var resultado = _unitOfWork.WhatsAppMensajeEnviadoRepository.InsertarMensajesLogJsonEnvios(json.IdProveedor, json.WaTo, datoRespuesta.Mensaje);
+                        _unitOfWork.WhatsAppMensajeEnviadoRepository.InsertarMensajesLogJsonEnvios(null, json.WaTo, datoRespuesta.Mensaje);
                         if (datoRespuesta.Mensaje.Contains("131026"))
                         {
                             respuesta.Mensaje = "El docente no tiene whatsapp activo o esta inhabilitado temporalmente!!!";
@@ -82,7 +91,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     }
                     catch (Exception ex)
                     {
-                        var resultado = _unitOfWork.WhatsAppMensajeEnviadoRepository.InsertarMensajesLogJsonEnvios(json.IdProveedor, json.WaTo, ex.Message);
+                        _unitOfWork.WhatsAppMensajeEnviadoRepository.InsertarMensajesLogJsonEnvios(null, json.WaTo, ex.Message);
                     }
 
                     respuesta.Estado = datoRespuesta.EstadoMensaje;
@@ -90,7 +99,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 }
                 catch (Exception ex)
                 {
-                    var resultado = _unitOfWork.WhatsAppMensajeEnviadoRepository.InsertarMensajesLogJsonEnvios(json.IdProveedor, json.WaTo, ex.Message);
+                    _unitOfWork.WhatsAppMensajeEnviadoRepository.InsertarMensajesLogJsonEnvios(null, json.WaTo, ex.Message);
                 }
                 respuesta.Estado = true;
                 respuesta.Mensaje = "Fallo algo al momento de enviar el whatsapp, volver a intentar!!!";
@@ -133,8 +142,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 objetoWhatsAppHook.DatosPlantillaWhatsApp = null;
 
                 var serializedResult = Serializer.Serialize(objetoWhatsAppHook);
-                string url = "https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";
-
+                //string url = "https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";
+                string url = "https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";
                 try
                 {
                     datoRespuesta = Task.Run(() => UrlPostAsync(url, serializedResult)).Result;
@@ -179,7 +188,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 objetoWhatsAppHook.DatosPlantillaWhatsApp = null;
 
                 var serializedResult = Serializer.Serialize(objetoWhatsAppHook);
-                string url = "https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";
+                //string url = "https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";//LOCAL
+                string url = "https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";
 
                 try
                 {

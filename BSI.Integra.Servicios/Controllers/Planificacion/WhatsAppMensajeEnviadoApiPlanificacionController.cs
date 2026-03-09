@@ -8,8 +8,20 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
+using System;
+
+using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion.WhatsAppMensajeEnviadoApiPlanificacionDTO;
+
 namespace BSI.Integra.Servicios.Controllers.Planificacion
 {
+    /// Controlador: WhatsAppMensajeEnviadoApiPlanificacionController
+    /// Autor: Lolo Zaa
+    /// Fecha: 06/03/2026
+    /// <summary>
+    /// Gestion de envio de mensajes WhatsApp para Planificacion.
+    /// Patron basado en WhatsAppMensajeEnviadoApiComercialController
+    /// pero usando IdProveedor y endpoint de Planificacion.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     [EnableCors("CorsVista")]
@@ -35,7 +47,8 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 json.WaBody = json.WaBody.Replace("\t", "   ");
                 json.WaBody = json.WaBody.Replace("\n", "   ");
 
-                return Ok(new WhatsAppMensajeEnviadoApiPlanificacionService(_unitOfWork).EnvioMensajePorTexto(json, _tokenManager.UserName, (json.IdPersonal == null ? _tokenManager.IdPersonal : json.IdPersonal.Value)));
+                return Ok(new WhatsAppMensajeEnviadoApiPlanificacionService(_unitOfWork)
+                    .EnvioMensajePorTexto(json, _tokenManager.UserName, (json.IdPersonal == null ? _tokenManager.IdPersonal : json.IdPersonal.Value)));
             }
             catch (Exception ex)
             {
@@ -52,7 +65,8 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             try
             {
                 var token = _tokenManager;
-                return Ok(new WhatsAppMensajeEnviadoApiPlanificacionService(_unitOfWork).EnvioMensajePorPlantilla(json, token.UserName, (json.IdPersonal == null ? token.IdPersonal : json.IdPersonal.Value)));
+                return Ok(new WhatsAppMensajeEnviadoApiPlanificacionService(_unitOfWork)
+                    .EnvioMensajePorPlantilla(json, token.UserName, (json.IdPersonal == null ? token.IdPersonal : json.IdPersonal.Value)));
             }
             catch (Exception ex)
             {
@@ -69,7 +83,8 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             try
             {
                 var token = _tokenManager;
-                return Ok(new WhatsAppMensajeEnviadoApiPlanificacionService(_unitOfWork).EnvioMensajePorArchivo(json, token.UserName, (json.IdPersonal == null ? token.IdPersonal : json.IdPersonal.Value)));
+                return Ok(new WhatsAppMensajeEnviadoApiPlanificacionService(_unitOfWork)
+                    .EnvioMensajePorArchivo(json, token.UserName, (json.IdPersonal == null ? token.IdPersonal : json.IdPersonal.Value)));
             }
             catch (Exception ex)
             {
