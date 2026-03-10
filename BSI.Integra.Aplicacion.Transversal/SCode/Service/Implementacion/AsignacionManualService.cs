@@ -4098,7 +4098,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         {
             try
             {
-                var url = $"http://ia-remarketing-api.bsginstitute.com/api/score_contacto/consulta_score?id_oportunidad={IdOportunidad}";
+                var url = $"http://ia-remarketing-api.bsginstitute.com/api/score_contacto/procesar_oportunidad?id_oportunidad={IdOportunidad}";
                 using (var client = new HttpClient())
                 {
                     var response = client.PostAsync(url, null).GetAwaiter().GetResult();
