@@ -684,12 +684,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                             Actividades = sesionGroup
                                 .GroupBy(r => new
                                 {
+                                    r.IdGestionDocenteActividadCabecera,
                                     r.IdGestionDocenteActividadCabeceraCongelada,
                                     r.NombreCabecera,
                                     r.DescripcionCabecera
                                 })
                                 .Select(cabeceraGroup => new ActividadCabeceraDTO
                                 {
+                                    IdGestionDocenteActividadCabecera= cabeceraGroup.Key.IdGestionDocenteActividadCabecera,
                                     IdGestionDocenteActividadCabeceraCongelada = cabeceraGroup.Key.IdGestionDocenteActividadCabeceraCongelada,
                                     NombreCabecera = cabeceraGroup.Key.NombreCabecera,
                                     DescripcionCabecera = cabeceraGroup.Key.DescripcionCabecera,
@@ -704,6 +706,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                         })
                                         .Select(detalleGroup => new ActividadDetalleDTO
                                         {
+                                            IdGestionDocenteActividadCabecera = cabeceraGroup.Key.IdGestionDocenteActividadCabecera,
                                             IdGestionDocenteActividadDetalleCongelada = detalleGroup.Key.IdGestionDocenteActividadDetalleCongelada,
                                             NombreDetalle = detalleGroup.Key.NombreDetalle,
                                             NombrePlantilla = detalleGroup.Key.NombrePlantilla,
@@ -735,6 +738,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     {
                         IdCategoria = 2,
                         NombreCategoria = "Ejecucion Curso",
+                        IdGestionDocenteActividadCabecera = registrosPlanos.First().IdGestionDocenteActividadCabecera,
                         Sesiones = sesiones,
                         Actividades = new List<ActividadCabeceraDTO>()
                     };
@@ -745,18 +749,21 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     var actividades = registrosPlanos
                         .GroupBy(r => new
                         {
+                            r.IdGestionDocenteActividadCabecera,
                             r.IdGestionDocenteActividadCabeceraCongelada,
                             r.NombreCabecera,
                             r.DescripcionCabecera
                         })
                         .Select(cabeceraGroup => new ActividadCabeceraDTO
                         {
+                            IdGestionDocenteActividadCabecera = cabeceraGroup.Key.IdGestionDocenteActividadCabecera,
                             IdGestionDocenteActividadCabeceraCongelada = cabeceraGroup.Key.IdGestionDocenteActividadCabeceraCongelada,
                             NombreCabecera = cabeceraGroup.Key.NombreCabecera,
                             DescripcionCabecera = cabeceraGroup.Key.DescripcionCabecera,
                             Detalles = cabeceraGroup
                                 .GroupBy(r => new
                                 {
+                                    r.IdGestionDocenteActividadCabecera,
                                     r.IdGestionDocenteActividadDetalleCongelada,
                                     r.NombreDetalle,
                                     r.NombrePlantilla,
@@ -765,6 +772,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                 })
                                 .Select(detalleGroup => new ActividadDetalleDTO
                                 {
+                                    IdGestionDocenteActividadCabecera = cabeceraGroup.Key.IdGestionDocenteActividadCabecera,
                                     IdGestionDocenteActividadDetalleCongelada = detalleGroup.Key.IdGestionDocenteActividadDetalleCongelada,
                                     NombreDetalle = detalleGroup.Key.NombreDetalle,
                                     NombrePlantilla = detalleGroup.Key.NombrePlantilla,
@@ -795,6 +803,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     {
                         IdCategoria = 1,
                         NombreCategoria = "General",
+                        IdGestionDocenteActividadCabecera = registrosPlanos.First().IdGestionDocenteActividadCabecera,
                         Sesiones = new List<SesionConActividadesDTO>(),
                         Actividades = actividades
                     };
@@ -941,6 +950,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         // DTO interno para deserializar resultado plano del SP
         private class ActividadFlujoRawDTO
         {
+            public int IdGestionDocenteActividadCabecera { get; set; }
             public int IdGestionDocenteActividadCabeceraCongelada { get; set; }
             public string NombreCabecera { get; set; }
             public string DescripcionCabecera { get; set; }

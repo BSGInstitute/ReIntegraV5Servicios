@@ -134,6 +134,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
     {
         public int IdCategoria { get; set; }
         public string NombreCategoria { get; set; }
+        public int IdGestionDocenteActividadCabecera { get; set; }
         public IEnumerable<SesionConActividadesDTO> Sesiones { get; set; }
         public IEnumerable<ActividadCabeceraDTO> Actividades { get; set; }
     }
@@ -141,6 +142,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
     public class SesionConActividadesDTO
     {
         public int IdSesion { get; set; }
+        public int IdGestionDocenteActividadCabecera { get; set; }
         public int NumeroSesion { get; set; }
         public DateTime? FechaInicioSesion { get; set; }
         public int? IdPEspecifico { get; set; }
@@ -152,6 +154,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
     public class ActividadCabeceraDTO
     {
+        public int IdGestionDocenteActividadCabecera { get; set; }
         public int IdGestionDocenteActividadCabeceraCongelada { get; set; }
         public string NombreCabecera { get; set; }
         public string DescripcionCabecera { get; set; }
@@ -160,6 +163,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
     public class ActividadDetalleDTO
     {
+        public int IdGestionDocenteActividadCabecera { get; set; }
         public int IdGestionDocenteActividadDetalleCongelada { get; set; }
         public string NombreDetalle { get; set; }
         public string NombrePlantilla { get; set; }
