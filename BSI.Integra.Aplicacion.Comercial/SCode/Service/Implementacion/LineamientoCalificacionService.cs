@@ -964,7 +964,11 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
         public async Task<List<bool>> TranscripcionAutoV2(int idPersonalAreaTrabajo)
         {
-            IEnumerable<LlamadaProcesoAutoDTO> items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente(idPersonalAreaTrabajo);
+            TimeZoneInfo peruTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SA Pacific Standard Time");
+            DateTime fechaHoraPeruActual = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, peruTimeZone);
+            DateTime fechaDesde = fechaHoraPeruActual.Date.AddDays(-1);
+             //IEnumerable<LlamadaProcesoAutoDTO> items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente(idPersonalAreaTrabajo);
+            IEnumerable<LlamadaProcesoAutoDTO> items = await ObtenerInformacionCalificacionAutomatica( 2, idPersonalAreaTrabajo, fechaDesde);
 
             var resultados = new List<bool>();
 

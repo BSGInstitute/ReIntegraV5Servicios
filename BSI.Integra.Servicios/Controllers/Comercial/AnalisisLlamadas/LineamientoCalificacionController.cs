@@ -1116,7 +1116,7 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
         {
             try
             {
-                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork, _mongoRepo);
                 var resultado = await lineamientoCalificacionService.TranscripcionAutoV2(idPersonalAreaTrabajo);
                 return Ok(resultado);
             }
