@@ -20,6 +20,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         Task<int> InsertarGestionContactoDocenteFlujoAsync(InsertarGestionContactoDocenteFlujoDTO dto);
         Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo, DateTime? fechaInicioFlujoCongelado = null);
         Task<int> CongelarActividadPorSesionesAsync(CongelarActividadSesionesDTO dto, string usuarioCreacion);
+        Task<int> AgregarActividadExtraCongeladaAsync(AgregarActividadExtraCongeladaDTO dto, string usuarioCreacion);
         OportunidadDocenteListResponseDTO ObtenerOportunidadesDocente(string busqueda, int pagina, int porPagina);
         IEnumerable<DocenteComboDTO> ObtenerDocentes();
         Task<ActividadesFlujoPorCategoriaResponseDTO> ObtenerActividadesFlujoPorCategoriaAsync(int idGestionContactoDocenteFlujo);

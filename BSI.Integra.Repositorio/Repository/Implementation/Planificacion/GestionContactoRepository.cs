@@ -491,6 +491,36 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 10/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Agrega una actividad extra a un flujo ya congelado.
+        /// Invoca el SP pla.SP_ActividadDocenteAgregarExtraCongelada.
+        /// </summary>
+        public async Task<int> AgregarActividadExtraCongeladaAsync(int idGestionContactoFlujoCongelado, int idGestionDocenteActividadCabecera, string idPEspecificoSesion_Lista, string usuarioCreacion)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@IdGestionContactoFlujoCongelado", idGestionContactoFlujoCongelado, DbType.Int32);
+                parameters.Add("@IdGestionDocenteActividadCabecera", idGestionDocenteActividadCabecera, DbType.Int32);
+                parameters.Add("@IdPEspecificoSesion_Lista", idPEspecificoSesion_Lista, DbType.String);
+                parameters.Add("@UsuarioCreacion", usuarioCreacion, DbType.String, size: 50);
+
+                await _dapperRepository.QuerySPDapperAsync(
+                    "pla.SP_ActividadDocenteAgregarExtraCongelada",
+                    parameters
+                );
+
+                return idGestionContactoFlujoCongelado;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en AgregarActividadExtraCongeladaAsync(): {ex.Message}", ex);
+            }
+        }
+
         /// Autor: Joseph Llanque
         /// Fecha: 23/02/2026
         /// Version: 1.0
