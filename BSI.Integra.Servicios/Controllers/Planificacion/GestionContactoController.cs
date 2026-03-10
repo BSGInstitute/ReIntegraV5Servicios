@@ -313,6 +313,49 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 10/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Agrega y congela una actividad extra a un flujo de gestión docente que ya se encuentra operando.
+        /// El SP se encarga de calcular el orden dinámico y realiza validaciones transaccionales estrictas.
+        /// </summary>
+        /// <param name="dto">Objeto DTO con el Id del flujo congelado, Id de Actividad Cabecera Maestra y Lista de Ids de Sesiones</param>
+        /// <returns>ID del flujo congelado donde se anidó la actividad</returns>
+        [HttpPost("[action]")]
+        public async Task<IActionResult> AgregarActividadExtraCongelada([FromBody] AgregarActividadExtraCongeladaDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
+                string usuarioCreacion = registroClaimToken.UserName;
+
+                var idFlujoCongelado = await _gestionContactoService.AgregarActividadExtraCongeladaAsync(dto, usuarioCreacion);
+
+                return Ok(new
+                {
+                    Exito = true,
+                    Mensaje = "Actividad extra agregada al flujo correctamente.",
+                    IdFlujoCongelado = idFlujoCongelado
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Exito = false,
+                    Mensaje = ex.Message,
+                    Detalle = ex.InnerException?.Message,
+                    Inner2 = ex.InnerException?.InnerException?.Message
+                });
+            }
+        }
+
         /// Autor: Joseph Llanque
         /// Fecha: 23/02/2026
         /// Version: 1.1

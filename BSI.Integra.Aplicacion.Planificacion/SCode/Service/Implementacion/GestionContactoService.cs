@@ -389,6 +389,34 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 10/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Agrega una actividad extra a un flujo ya congelado.
+        /// Transforma la lista de sesiones en un CSV.
+        /// </summary>
+        public async Task<int> AgregarActividadExtraCongeladaAsync(AgregarActividadExtraCongeladaDTO dto, string usuarioCreacion)
+        {
+            try
+            {
+                string idPEspecificoSesion_Lista = dto.IdPEspecificoSesion_Lista != null && dto.IdPEspecificoSesion_Lista.Any()
+                    ? string.Join(",", dto.IdPEspecificoSesion_Lista)
+                    : string.Empty;
+
+                return await _unitOfWork.GestionContactoRepository.AgregarActividadExtraCongeladaAsync(
+                    dto.IdGestionContactoFlujoCongelado,
+                    dto.IdGestionDocenteActividadCabecera,
+                    idPEspecificoSesion_Lista,
+                    usuarioCreacion
+                );
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         /// Autor: Joseph Llanque
         /// Fecha: 28/02/2026
         /// Version: 1.0
