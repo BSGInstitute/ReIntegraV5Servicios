@@ -6,25 +6,24 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     /// <summary>
     /// Esta tabla almacena la observacion del estado de la sesion
     /// </summary>
-    public partial class TPespecificoSesionEstadoObservacion
+    public partial class TPespecificoSesionEstadoObservacionDetalle
     {
-        public TPespecificoSesionEstadoObservacion()
-        {
-            TPespecificoSesionEstadoObservacionDetalles = new HashSet<TPespecificoSesionEstadoObservacionDetalle>();
-        }
-
         /// <summary>
         /// Es primary key
         /// </summary>
         public int Id { get; set; }
         /// <summary>
-        /// Descripcion de las Observaciones por Estado de Curso
+        /// Observacion por Estado de Curso
         /// </summary>
-        public string? Descripcion { get; set; }
+        public string? Nombre { get; set; }
         /// <summary>
-        /// Foreign Key con la tabla de T_PEspecificoSesionEstado
+        /// Foreign Key con la tabla de T_PEspecificoSesionEstadoObservacionDetalle
         /// </summary>
-        public int IdPespecificoSesionEstado { get; set; }
+        public int IdPespecificoSesionEstadoObservacion { get; set; }
+        /// <summary>
+        /// Orden de las Observaciones
+        /// </summary>
+        public int Orden { get; set; }
         /// <summary>
         /// Estado del registro
         /// </summary>
@@ -50,7 +49,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
 
-        public virtual TPespecificoSesionEstado IdPespecificoSesionEstadoNavigation { get; set; } = null!;
-        public virtual ICollection<TPespecificoSesionEstadoObservacionDetalle> TPespecificoSesionEstadoObservacionDetalles { get; set; }
+        public virtual TPespecificoSesionEstadoObservacion IdPespecificoSesionEstadoObservacionNavigation { get; set; } = null!;
     }
 }
