@@ -362,6 +362,33 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 09/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Congela una cabecera de actividad especifica y la asocia unicamente a una lista de sesiones enviadas.
+        /// </summary>
+        public async Task<int> CongelarActividadPorSesionesAsync(CongelarActividadSesionesDTO dto, string usuarioCreacion)
+        {
+            try
+            {
+                string idPEspecificoSesion_Lista = dto.IdPEspecificoSesion_Lista != null && dto.IdPEspecificoSesion_Lista.Any()
+                    ? string.Join(",", dto.IdPEspecificoSesion_Lista)
+                    : string.Empty;
+
+                return await _unitOfWork.GestionContactoRepository.CongelarActividadPorSesionesAsync(
+                    dto.IdGestionContactoDocenteFlujo,
+                    dto.IdGestionDocenteActividadCabecera,
+                    idPEspecificoSesion_Lista,
+                    usuarioCreacion
+                );
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         /// Autor: Joseph Llanque
         /// Fecha: 28/02/2026
         /// Version: 1.0

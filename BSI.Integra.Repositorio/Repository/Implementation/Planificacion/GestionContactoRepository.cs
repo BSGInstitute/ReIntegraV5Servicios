@@ -461,6 +461,36 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 09/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Congela una cabecera de actividad especifica y la asocia unicamente a una lista de sesiones.
+        /// Invoca el SP pla.SP_ActividadDocenteCongelarPorSesiones.
+        /// </summary>
+        public async Task<int> CongelarActividadPorSesionesAsync(int idGestionContactoDocenteFlujo, int idGestionDocenteActividadCabecera, string idPEspecificoSesion_Lista, string usuarioCreacion)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@IdGestionContactoDocenteFlujo", idGestionContactoDocenteFlujo, DbType.Int32);
+                parameters.Add("@IdGestionDocenteActividadCabecera", idGestionDocenteActividadCabecera, DbType.Int32);
+                parameters.Add("@IdPEspecificoSesion_Lista", idPEspecificoSesion_Lista, DbType.String);
+                parameters.Add("@UsuarioCreacion", usuarioCreacion, DbType.String, size: 50);
+
+                await _dapperRepository.QuerySPDapperAsync(
+                    "pla.SP_ActividadDocenteCongelarPorSesiones",
+                    parameters
+                );
+
+                return idGestionContactoDocenteFlujo;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en CongelarActividadPorSesionesAsync(): {ex.Message}", ex);
+            }
+        }
+
         /// Autor: Joseph Llanque
         /// Fecha: 23/02/2026
         /// Version: 1.0
