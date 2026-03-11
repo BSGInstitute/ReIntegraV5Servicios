@@ -29,28 +29,6 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
             _unitOfWork = unitOfWork;
         }
 
-        /// Tipo Función: GET
-        /// Autor: Jose Vega
-        /// Fecha: 19/02/2026
-        /// Versión: 1.0
-        /// <summary>
-        /// Endpoint que obtiene la lista de docentes que tienen cursos asignados,
-        /// con su respectivo curso y personal asignado.
-        /// </summary>
-        /// <returns>ActionResult con la lista de DocenteConCursoDTO.</returns>
-        [HttpGet("ObtenerDocentesConCursos")]
-        public IActionResult ObtenerDocentesConCursos()
-        {
-            try
-            {
-                var lista = _gestionDocenteAgendaService.ObtenerDocentesConCursos();
-                return Ok(lista);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Exito = false, Mensaje = ex.Message });
-            }
-        }
 
         /// Tipo Función: GET
         /// Autor: Jose Vega
