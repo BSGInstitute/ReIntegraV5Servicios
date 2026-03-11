@@ -10,7 +10,7 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
     public class PEspecificoSesionEstadoObservacionDetalle : BaseIntegraEntity
     {
         public string Nombre { get; set; } = null!;
-        public int IdPEspecificoSesionEstadoObservacion { get; set; }
+        public int IdPespecificoSesionEstadoObservacion { get; set; }
         public int Orden { get; set; }
    
     }

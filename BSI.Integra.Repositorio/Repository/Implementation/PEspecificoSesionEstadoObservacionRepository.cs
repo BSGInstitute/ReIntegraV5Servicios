@@ -166,27 +166,40 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// Obtiene todos los registros de T_PEspecificoSesionEstadoObservacion.
         /// </summary>
         /// <returns> List<PEspecificoSesionEstadoObservacionDTO> </returns>
-        public IEnumerable<PEspecificoSesionEstadoObservacionDTO> Obtener()
+        public IEnumerable<PEspecificoSesionEstadoObservacionQueryDTO> Obtener()
         {
             try
             {
-                List<PEspecificoSesionEstadoObservacionDTO> rpta = new List<PEspecificoSesionEstadoObservacionDTO>();
-                var query = @"
-                    SELECT
-	                    Id,Descripcion,IdPEspecificoSesionEstado
-                    FROM pla.T_PEspecificoSesionEstadoObservacion
-                    WHERE Estado = 1 ORDER BY Id DESC";
-                var resultado = _dapperRepository.QueryDapper(query, null);
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                {
-                    rpta = JsonConvert.DeserializeObject<List<PEspecificoSesionEstadoObservacionDTO>>(resultado);
+                List<PEspecificoSesionEstadoObservacionQueryDTO> rpta = new();
 
+                var query = @"
+                            SELECT
+                                o.Id,
+                                o.Descripcion,
+                                o.IdPEspecificoSesionEstado,
+                                d.Id AS DetalleId,
+                                d.Nombre AS DetalleNombre,
+                                d.IdPEspecificoSesionEstadoObservacion,
+                                d.Orden
+                            FROM pla.T_PEspecificoSesionEstadoObservacion o
+                            LEFT JOIN pla.T_PEspecificoSesionEstadoObservacionDetalle d
+                                ON d.IdPEspecificoSesionEstadoObservacion = o.Id
+                                AND d.Estado = 1
+                            WHERE o.Estado = 1";
+
+                var resultado = _dapperRepository.QueryDapper(query, null);
+
+                if (!string.IsNullOrWhiteSpace(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<PEspecificoSesionEstadoObservacionQueryDTO>>(resultado)
+                           ?? new List<PEspecificoSesionEstadoObservacionQueryDTO>();
                 }
+
                 return rpta;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+                throw;
             }
         }
         /// Autor: Marco Jose Villanueva Torres.

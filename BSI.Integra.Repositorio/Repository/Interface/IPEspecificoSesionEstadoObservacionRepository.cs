@@ -20,7 +20,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<TPespecificoSesionEstadoObservacion> Update(IEnumerable<PEspecificoSesionEstadoObservacion> listadoEntidad);
         bool Delete(IEnumerable<int> listadoIds, string usuario);
         #endregion
-        IEnumerable<PEspecificoSesionEstadoObservacionDTO> Obtener();
+        IEnumerable<PEspecificoSesionEstadoObservacionQueryDTO> Obtener();
         PEspecificoSesionEstadoObservacion? ObtenerPorId(int id);
     }
 }

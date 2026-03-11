@@ -44,6 +44,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? IdPersonalAsignado { get; set; }
         [StringLength(100)]
         public string? Alias { get; set; }
+        public bool? EsDocente { get; set; }
         public List<ProveedorTipoServicioDTO> ListaProveedorTipoServicio { get; set; }
         public ProveedorDTO()
         {
@@ -108,6 +109,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? IdDetraccion { get; set; }
         public int? IdPersonalAsignado { get; set; }
         public int? idPrestacionRegistro { get; set; }
+        public bool? esDocente { get; set; }
         public List<ProveedorTipoServicioDTO> ListaProveedorTipoServicio { get; set; }
         public ProveedorWEnvioDTO()
         {

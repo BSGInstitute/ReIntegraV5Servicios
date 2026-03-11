@@ -92,6 +92,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Alias para los docentes.
         /// </summary>
         public string? Alias { get; set; }
+        public bool? EsDocente { get; set; }
 
         public virtual ICollection<TCabeceraGestionContacto> TCabeceraGestionContactos { get; set; }
         public virtual ICollection<TConvocatoriaPersonal> TConvocatoriaPersonals { get; set; }

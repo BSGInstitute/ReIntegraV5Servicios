@@ -26,6 +26,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 cfg.CreateMap<TPespecificoSesionEstadoObservacion, PEspecificoSesionEstadoObservacion>(MemberList.None).ReverseMap();
                 cfg.CreateMap<PEspecificoSesionEstadoObservacion, PEspecificoSesionEstadoObservacionDTO>(MemberList.None).ReverseMap();
                 cfg.CreateMap<PEspecificoSesionEstadoObservacionDTO, PEspecificoSesionEstadoObservacion>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TPespecificoSesionEstadoObservacionDetalle, PEspecificoSesionEstadoObservacionDetalle>(MemberList.None).ReverseMap();
+                cfg.CreateMap<PEspecificoSesionEstadoObservacionDetalle, TPespecificoSesionEstadoObservacionDetalle>(MemberList.None).ReverseMap();
                 cfg.CreateMap<TPespecificoSesionEstadoObservacion, PEspecificoSesionEstadoObservacionDTO>(MemberList.None).ReverseMap();
             });
             _mapper = new Mapper(config);
@@ -39,7 +41,38 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         /// <returns> Lista CategoriaPreguntaDTO </returns>
         public IEnumerable<PEspecificoSesionEstadoObservacionDTO> Obtener()
         {
-            return _unitOfWork.PEspecificoSesionEstadoObservacionRepository.Obtener();
+            var filas = _unitOfWork.PEspecificoSesionEstadoObservacionRepository.Obtener();
+
+            if (filas == null || !filas.Any())
+                return new List<PEspecificoSesionEstadoObservacionDTO>();
+
+            var resultado = filas
+                .GroupBy(x => new
+                {
+                    x.Id,
+                    x.Descripcion,
+                    x.IdPEspecificoSesionEstado
+                })
+                .Select(g => new PEspecificoSesionEstadoObservacionDTO
+                {
+                    Id = g.Key.Id,
+                    Descripcion = g.Key.Descripcion,
+                    IdPEspecificoSesionEstado = g.Key.IdPEspecificoSesionEstado,
+                    Observaciones = g
+                        .Where(x => x.DetalleId.HasValue)
+                        .OrderBy(x => x.Orden)
+                        .Select(x => new PEspecificoSesionEstadoObservacionDetalleDTO
+                        {
+                            Id = x.DetalleId ?? 0,
+                            Nombre = x.DetalleNombre,
+                            IdPEspecificoSesionEstadoObservacion = x.IdPEspecificoSesionEstadoObservacion ?? 0,
+                            Orden = x.Orden ?? 0
+                        })
+                        .ToList()
+                })
+                .ToList();
+
+            return resultado;
         }
 
         /// Autor: Villanueva Torres Marco Jose
@@ -64,7 +97,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
             var fechaActual = DateTime.Now;
 
-            // 1. Insertar cabecera
             PEspecificoSesionEstadoObservacion cabecera = new()
             {
                 Descripcion = dto.Descripcion,
@@ -79,15 +111,15 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             var cabeceraInsertada = _unitOfWork.PEspecificoSesionEstadoObservacionRepository.Add(cabecera);
             _unitOfWork.Commit();
 
-            // 2. Insertar detalles
+       
             var detallesInsertados = new List<PEspecificoSesionEstadoObservacionDetalle>();
 
             foreach (var item in dto.Observaciones.OrderBy(x => x.Orden))
             {
                 PEspecificoSesionEstadoObservacionDetalle detalle = new()
                 {
-                    Nombre = item.Contenido,
-                    IdPEspecificoSesionEstadoObservacion = cabeceraInsertada.Id,
+                    Nombre = item.Nombre,
+                    IdPespecificoSesionEstadoObservacion = cabeceraInsertada.Id,
                     Orden = item.Orden,
                     Estado = true,
                     UsuarioCreacion = usuario,
@@ -96,24 +128,24 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     FechaModificacion = fechaActual
                 };
 
-                var detalleInsertado = _unitOfWork.PEspecificoSesionEstadoObservacionDetalleRepository.Add(detalle);
-                detallesInsertados.Add(detalleInsertado);
+                _unitOfWork.PEspecificoSesionEstadoObservacionDetalleRepository.Add(detalle);
+                detallesInsertados.Add(detalle);
             }
 
             _unitOfWork.Commit();
 
-            // 3. Retornar respuesta
+    
             var resultado = new PEspecificoSesionEstadoObservacionDTO
             {
                 Id = cabeceraInsertada.Id,
                 Descripcion = cabeceraInsertada.Descripcion,
-                IdPEspecificoSesionEstado = cabeceraInsertada.IdPEspecificoSesionEstado,
+                IdPEspecificoSesionEstado = cabeceraInsertada.IdPespecificoSesionEstado,
                 Observaciones = detallesInsertados
                     .OrderBy(x => x.Orden)
                     .Select(x => new PEspecificoSesionEstadoObservacionDetalleDTO
                     {
                         Id = x.Id,
-                        Contenido = x.Nombre,
+                        Nombre = x.Nombre,
                         Orden = x.Orden
                     })
                     .ToList()
@@ -132,39 +164,93 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
         public PEspecificoSesionEstadoObservacionDTO Actualizar(PEspecificoSesionEstadoObservacionDTO dto, string usuario)
         {
-            try
+            if (dto == null)
+                throw new BadRequestException("Entidad nula");
+
+            if (dto.Id <= 0)
+                throw new BadRequestException("El id es obligatorio");
+
+            if (string.IsNullOrWhiteSpace(dto.Descripcion))
+                throw new BadRequestException("La descripción es obligatoria");
+
+            if (dto.Observaciones == null || !dto.Observaciones.Any())
+                throw new BadRequestException("Debe enviar al menos una observación");
+
+            if (dto.Observaciones.Any(x => string.IsNullOrWhiteSpace(x.Nombre)))
+                throw new BadRequestException("El nombre de la observación es obligatorio");
+
+            var fechaActual = DateTime.Now;
+
+       
+            var cabecera = _unitOfWork.PEspecificoSesionEstadoObservacionRepository.ObtenerPorId(dto.Id);
+
+            if (cabecera == null)
+                throw new BadRequestException("No se encontró el registro");
+
+     
+            cabecera.Descripcion = dto.Descripcion;
+            cabecera.IdPEspecificoSesionEstado = dto.IdPEspecificoSesionEstado;
+            cabecera.UsuarioModificacion = usuario;
+            cabecera.FechaModificacion = fechaActual;
+
+            _unitOfWork.PEspecificoSesionEstadoObservacionRepository.Update(cabecera);
+
+ 
+            var detallesActuales = _unitOfWork.PEspecificoSesionEstadoObservacionDetalleRepository
+                .ObtenerPorId(dto.Id)
+                .ToList();
+
+            foreach (var detalleActual in detallesActuales)
             {
-                PEspecificoSesionEstadoObservacion? entidad = new();
-                if (dto != null)
+                detalleActual.Estado = false;
+                detalleActual.UsuarioModificacion = usuario;
+                detalleActual.FechaModificacion = fechaActual;
+
+                _unitOfWork.PEspecificoSesionEstadoObservacionDetalleRepository.Update(detalleActual);
+            }
+
+  
+            var detallesInsertados = new List<PEspecificoSesionEstadoObservacionDetalle>();
+
+            foreach (var item in dto.Observaciones.OrderBy(x => x.Orden))
+            {
+                PEspecificoSesionEstadoObservacionDetalle detalle = new()
                 {
-                    if (dto.Id != 0)
-                    {
-                        entidad = _unitOfWork.PEspecificoSesionEstadoObservacionRepository.ObtenerPorId(dto.Id);
-                        if (entidad != null && entidad.Id != 0)
-                        {
-                            entidad.Nombre = dto.Nombre;
-                            entidad.IdPEspecificoSesionEstado = dto.IdPEspecificoSesionEstado;
-                            entidad.UsuarioModificacion = usuario;
-                            entidad.FechaModificacion = DateTime.Now;
-                            var respuesta = _unitOfWork.PEspecificoSesionEstadoObservacionRepository.Update(entidad);
-                            _unitOfWork.Commit();
+                    Nombre = item.Nombre,
+                    IdPespecificoSesionEstadoObservacion = cabecera.Id,
+                    Orden = item.Orden,
+                    Estado = true,
+                    UsuarioCreacion = usuario,
+                    UsuarioModificacion = usuario,
+                    FechaCreacion = fechaActual,
+                    FechaModificacion = fechaActual
+                };
 
-
-                            return dto;
-                        }
-                        else
-                            throw new BadRequestException("Entidad no encontrada");
-                    }
-                    else
-                        throw new BadRequestException("Id Entidad 0");
-                }
-                else
-                    throw new BadRequestException("Entidad Nula");
+                _unitOfWork.PEspecificoSesionEstadoObservacionDetalleRepository.Add(detalle);
+                detallesInsertados.Add(detalle);
             }
-            catch (Exception)
+
+            _unitOfWork.Commit();
+
+   
+            var resultado = new PEspecificoSesionEstadoObservacionDTO
             {
-                throw;
-            }
+                Id = cabecera.Id,
+                Descripcion = cabecera.Descripcion,
+                IdPEspecificoSesionEstado = cabecera.IdPEspecificoSesionEstado,
+                Observaciones = detallesInsertados
+                    .OrderBy(x => x.Orden)
+                    .Select(x => new PEspecificoSesionEstadoObservacionDetalleDTO
+                    {
+                        Id = x.Id,
+                        Nombre = x.Nombre,
+                        IdPEspecificoSesionEstadoObservacion = x.IdPespecificoSesionEstadoObservacion,
+                        Orden = x.Orden
+                    })
+                    .ToList()
+            };
+
+            return resultado;
         }
 
 
@@ -180,24 +266,34 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         {
             try
             {
-                if (id == 0)
-                {
-                    throw new BadRequestException($"Id 0 no valido");
-                }
-                var entidad = _unitOfWork.PEspecificoSesionEstadoObservacionRepository.ObtenerPorId(id);
-                if (entidad != null && entidad.Id != 0)
-                {
-                    var respuesta = _unitOfWork.PEspecificoSesionEstadoObservacionRepository.Delete(id, usuario);
+                if (id <= 0)
+                    throw new BadRequestException($"Id {id} no válido");
 
-                    _unitOfWork.Commit();
-                    return respuesta;
-                }
-                else
+                var entidad = _unitOfWork.PEspecificoSesionEstadoObservacionRepository.ObtenerPorId(id);
+
+                if (entidad == null || entidad.Id == 0)
+                    throw new BadRequestException($"No se encontró la entidad con el id {id}");
+
+          
+                var detalles = _unitOfWork.PEspecificoSesionEstadoObservacionDetalleRepository
+                    .ObtenerPorId(id)
+                    .ToList();
+
+            
+                if (detalles.Any())
                 {
-                    throw new BadRequestException($"No se encontro la entidad con el id {id}");
+                    var idsDetalles = detalles.Select(x => x.Id).ToList();
+                    _unitOfWork.PEspecificoSesionEstadoObservacionDetalleRepository.Delete(idsDetalles, usuario);
                 }
+
+           
+                var respuesta = _unitOfWork.PEspecificoSesionEstadoObservacionRepository.Delete(id, usuario);
+
+                _unitOfWork.Commit();
+
+                return respuesta;
             }
-            catch (Exception)
+            catch
             {
                 throw;
             }

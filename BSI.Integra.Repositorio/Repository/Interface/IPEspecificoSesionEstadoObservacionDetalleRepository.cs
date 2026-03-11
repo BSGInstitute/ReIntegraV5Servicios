@@ -9,18 +9,18 @@ using System.Threading.Tasks;
 
 namespace BSI.Integra.Repositorio.Repository.Interface
 {
-    public interface IPEspecificoSesionEstadoObservacionDetalleRepository : IGenericRepository<TPEspecificoSesionEstadoObservacionDetalle>
+    public interface IPEspecificoSesionEstadoObservacionDetalleRepository : IGenericRepository<TPespecificoSesionEstadoObservacionDetalle>
     {
         #region Metodos Base
-        TPEspecificoSesionEstadoObservacionDetalle Add(PEspecificoSesionEstadoObservacionDetalle entidad);
-        TPEspecificoSesionEstadoObservacionDetalle Update(PEspecificoSesionEstadoObservacionDetalle entidad);
+        TPespecificoSesionEstadoObservacionDetalle Add(PEspecificoSesionEstadoObservacionDetalle entidad);
+        TPespecificoSesionEstadoObservacionDetalle Update(PEspecificoSesionEstadoObservacionDetalle entidad);
         bool Delete(int id, string usuario);
 
-        IEnumerable<TPEspecificoSesionEstadoObservacionDetalle> Add(IEnumerable<PEspecificoSesionEstadoObservacionDetalle> listadoEntidad);
-        IEnumerable<TPEspecificoSesionEstadoObservacionDetalle> Update(IEnumerable<PEspecificoSesionEstadoObservacionDetalle> listadoEntidad);
+        IEnumerable<TPespecificoSesionEstadoObservacionDetalle> Add(IEnumerable<PEspecificoSesionEstadoObservacionDetalle> listadoEntidad);
+        IEnumerable<TPespecificoSesionEstadoObservacionDetalle> Update(IEnumerable<PEspecificoSesionEstadoObservacionDetalle> listadoEntidad);
         bool Delete(IEnumerable<int> listadoIds, string usuario);
         #endregion
         IEnumerable<PEspecificoSesionEstadoObservacionDetalleDTO> Obtener();
-        PEspecificoSesionEstadoObservacionDetalle? ObtenerPorId(int id);
+        IEnumerable<PEspecificoSesionEstadoObservacionDetalle> ObtenerPorId(int id);
     }
 }
