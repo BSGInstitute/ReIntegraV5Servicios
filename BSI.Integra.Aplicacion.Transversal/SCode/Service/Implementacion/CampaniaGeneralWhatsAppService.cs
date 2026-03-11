@@ -3,6 +3,7 @@ using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.WhatsApp;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -127,13 +128,13 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         #endregion
 
 
-        public List<ObtenerCampaniaGeneralDetalleWhatsAppDTO> ? ObtenerCampaniaGeneralDetalleWhatsApp(IdDTO id)
+        public List<ObtenerCampaniaGeneralDetalleWhatsAppDTO>? ObtenerCampaniaGeneralDetalleWhatsApp(IdDTO id)
         {
             try
             {
 
                 List<ObtenerCampaniaGeneralDetalleWhatsAppGrupoDTO> modelo = _unitOfWork.CampaniaGeneralWhatsAppRepository.ObtenerCampaniaGeneralDetalleWhatsApp(id);
-                List<ObtenerCampaniaGeneralDetalleWhatsAppDTO> ? resultadoAgrupado = new List<ObtenerCampaniaGeneralDetalleWhatsAppDTO>();
+                List<ObtenerCampaniaGeneralDetalleWhatsAppDTO>? resultadoAgrupado = new List<ObtenerCampaniaGeneralDetalleWhatsAppDTO>();
 
                 resultadoAgrupado = modelo.GroupBy(x => new { x.Id, x.NombreCampaniaGeneralWhatsApp, x.FechaInicioEnvioWhatsapp, x.HoraEnvio }).Select(x => new ObtenerCampaniaGeneralDetalleWhatsAppDTO
                 {
@@ -141,7 +142,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     NombreCampaniaGeneralWhatsApp = x.Key.NombreCampaniaGeneralWhatsApp,
                     FechaInicioEnvioWhatsapp = x.Key.FechaInicioEnvioWhatsapp,
                     HoraEnvio = x.Key.HoraEnvio,
-                    ObtenerCampaniaGeneralDetallePrioridadWhatsApp = x.GroupBy(y => new { y.IdCampaniaGeneralDetalleWhatsApp, y.NombreCampaniaOrigen, y.Prioridad, y.Nombre, y.ActivarMasivo, y.Programados,y.CantidadBase, y.Enviados }).Select(y => new ObtenerCampaniaGeneralDetallePrioridadWhatsAppDTO
+                    ObtenerCampaniaGeneralDetallePrioridadWhatsApp = x.GroupBy(y => new { y.IdCampaniaGeneralDetalleWhatsApp, y.NombreCampaniaOrigen, y.Prioridad, y.Nombre, y.ActivarMasivo, y.Programados, y.CantidadBase, y.Enviados }).Select(y => new ObtenerCampaniaGeneralDetallePrioridadWhatsAppDTO
                     {
                         IdCampaniaGeneralDetalleWhatsApp = y.Key.IdCampaniaGeneralDetalleWhatsApp,
                         NombreCampaniaOrigen = y.Key.NombreCampaniaOrigen,
@@ -208,7 +209,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw ex;
             }
         }
-        public List<ObtenerCampaniaGeneralGrillaWhatsAppDTO> ObtenerCampaniaGeneralGrillaWhatsApp( )
+        public List<ObtenerCampaniaGeneralGrillaWhatsAppDTO> ObtenerCampaniaGeneralGrillaWhatsApp()
         {
             try
             {
@@ -383,7 +384,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             }
         }
 
-        public bool InsertarCampaniaGeneralDetalleResponsableWhatsApp(InsertarCampaniaGeneralDetalleResponsableWhatsAppDTO json , string usuario)
+        public bool InsertarCampaniaGeneralDetalleResponsableWhatsApp(InsertarCampaniaGeneralDetalleResponsableWhatsAppDTO json, string usuario)
         {
             try
             {
@@ -708,12 +709,12 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
 
 
-                    }
+            }
             catch (Exception ex)
-                    {
+            {
                 throw ex;
             }
-                    }
+        }
         public bool EnvioMensajeArchivoFacebook(WhatsAppMensajeArchivoFacebookDTO json, int idPersonal, string usuario)
         {
             try
@@ -962,6 +963,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                         valor = programaPorb[1].Nombre;
                                     else if (Etiqueta.Contains("Top3_Programa_Mayor_Prob"))
                                         valor = programaPorb[2].Nombre;
+                                    else if (Etiqueta.Contains("tRemarketingMensajeGenerado.Contenido"))
+                                        valor = Task.Run(() => ObtenerContenidoMensajeRemarketingPorAlumno(alumnoEtiqueta.IdAlumno)).GetAwaiter().GetResult();
                                     if (valor != null)
                                     {
                                         valor = valor.Replace("#$%", "<br>");
@@ -1216,6 +1219,45 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 07/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el contenido del mensaje más reciente generado por la IA para un alumno específico,
+        /// sin necesidad de un identificador de llamada. Se usa en el reemplazo de la etiqueta {tRemarketingMensajeGenerado.Contenido}.
+        /// </summary>
+        /// <param name="idAlumno">ID del alumno</param>
+        /// <returns>Contenido del mensaje más reciente o cadena vacía si no existe</returns>
+        private async Task<string> ObtenerContenidoMensajeRemarketingPorAlumno(int idAlumno)
+        {
+            try
+            {
+                //string url = $"http://ia-remarketing-api.bsginstitute.com/testing/api/generacion_mensaje/consulta_mensaje_alumno?id_alumno={idAlumno}&con_argumentos=false";
+                string url = $"http://ia-remarketing-api.bsginstitute.com/api/generacion_mensaje/consulta_mensaje_alumno?id_alumno={idAlumno}&con_argumentos=false";
+
+
+                using (var client = new HttpClient())
+                {
+                    var response = await client.PostAsync(url, null);
+                    var responseContent = await response.Content.ReadAsStringAsync();
+
+                    if (!response.IsSuccessStatusCode)
+                        return string.Empty;
+
+                    var resultado = JsonConvert.DeserializeObject<List<MensajeGeneradoIA>>(responseContent);
+
+                    if (resultado == null || !resultado.Any())
+                        return string.Empty;
+
+                    return resultado[0].contenido ?? string.Empty;
+                }
+            }
+            catch
+            {
+                return string.Empty;
             }
         }
     }
