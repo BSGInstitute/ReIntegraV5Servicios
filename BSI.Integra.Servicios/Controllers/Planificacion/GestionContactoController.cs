@@ -812,7 +812,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             };
 
             // 5. Enviar WhatsApp usando el servicio
-            bool enviado = _whatsAppService.EnvioMensajePorTexto(mensajeDto, "MANUAL", 6205);
+            bool enviado = _whatsAppService.EnvioMensajePorTexto(mensajeDto, "AUTOMATICO-M", 6205);
 
             if (!enviado)
             {

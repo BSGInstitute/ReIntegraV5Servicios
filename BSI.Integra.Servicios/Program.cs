@@ -237,23 +237,23 @@ builder.Services.AddScoped<BSI.Integra.Aplicacion.Transversal.Service.Interface.
 
 var connectionString = builder.Configuration.GetConnectionString("IntegraDB");
 // Registrar Hangfire
-builder.Services.AddHangfire(config =>
-    config.UseSqlServerStorage(connectionString));
-builder.Services.AddHangfireServer();
+//builder.Services.AddHangfire(config =>
+//    config.UseSqlServerStorage(connectionString));
+//builder.Services.AddHangfireServer();
 
-// Registrar el Job de Actividades Congeladas
-builder.Services.AddScoped<BSI.Integra.Servicios.Jobs.ActividadesCongeladasJob>();
+//// Registrar el Job de Actividades Congeladas
+//builder.Services.AddScoped<BSI.Integra.Servicios.Jobs.ActividadesCongeladasJob>();
 
 var app = builder.Build();
 
 // Dashboard opcional
-app.UseHangfireDashboard("/hangfire");
+//app.UseHangfireDashboard("/hangfire");
 
 // Configurar Job Recurrente: Procesar actividades congeladas cada 5 minutos
-RecurringJob.AddOrUpdate<BSI.Integra.Servicios.Jobs.ActividadesCongeladasJob>(
-    "procesar-actividades-congeladas",
-    job => job.ProcesarActividadesPendientesAsync(),
-    "*/5 * * * *"); // Cada 5 minutos
+//RecurringJob.AddOrUpdate<BSI.Integra.Servicios.Jobs.ActividadesCongeladasJob>(
+//    "procesar-actividades-congeladas",
+//    job => job.ProcesarActividadesPendientesAsync(),
+//    "*/5 * * * *"); // Cada 5 minutos
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
