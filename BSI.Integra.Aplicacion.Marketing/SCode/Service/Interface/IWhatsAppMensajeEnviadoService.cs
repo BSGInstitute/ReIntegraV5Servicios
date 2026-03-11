@@ -28,6 +28,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Interface
         List<WhatsAppMensajesDTO> ListaUltimoMensajeChats(int idPersonal);
         List<WhatsAppMensajesDTO> HistorialChatsRecibido(int idPersonal, string numero, string area, int idTipoAgenda);
         string ObtenerMensajeMultimedia(string waId);
+        string ObtenerMensajeMultimediaPla(string waId);
         PersonalAlumnoDTO ObtenerConversacionNumero(string numero);
         PersonalNumeroMinimoChatDTO ObtenerAsesorConMenorChat();
         bool ValidarPlantillasEnviadas(string plantilla, string numero);
