@@ -323,7 +323,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
     public class CorreoResumenDocenteDTO
     {
-        public int IdMandrilEnvioCorreoGestion { get; set; }
+        public int IdCorreo { get; set; }
         public string Asunto { get; set; }
         public DateTime? FechaEnvio { get; set; }
         public string PersonalRemitente { get; set; }
@@ -333,7 +333,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
     public class CorreoDetalleDocenteDTO
     {
-        public int IdMandrilEnvioCorreoGestion { get; set; }
+        public int IdCorreo { get; set; }
         public string Asunto { get; set; }
         public DateTime? FechaEnvio { get; set; }
         public int? EstadoEnvio { get; set; }
