@@ -432,14 +432,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         /// Fecha: 03/03/2026
         /// Versión: 1.0
         /// <summary>
-        /// Obtiene el detalle de un correo enviado al docente por su ID de T_MandrilEnvioCorreoGestion.
+        /// Obtiene el detalle de un correo enviado al docente por su ID de mkt.T_GmailCorreo.
         /// </summary>
         public CorreoDetalleDocenteDTO ObtenerDetalleCorreo(int idCorreo)
         {
             try
             {
                 CorreoDetalleDocenteDTO detalle = null;
-                var resultadoDB = _dapperRepository.QuerySPDapper("pla.SP_DocenteCorreoDetalleObtener", new { IdMandrilEnvioCorreoGestion = idCorreo });
+                var resultadoDB = _dapperRepository.QuerySPDapper("pla.SP_DocenteCorreoDetalleObtener", new { IdCorreo = idCorreo });
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
                     detalle = JsonConvert.DeserializeObject<List<CorreoDetalleDocenteDTO>>(resultadoDB).FirstOrDefault();
