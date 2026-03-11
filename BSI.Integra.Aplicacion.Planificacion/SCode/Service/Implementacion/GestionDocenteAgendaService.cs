@@ -23,30 +23,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             _unitOfWork = unitOfWork;
         }
 
-        /// Autor: Jose Vega
-        /// Fecha: 19/02/2026
-        /// Versión: 1.1
-        /// <summary>
-        /// Obtiene la lista de docentes que tienen cursos asignados.
-        /// Se aplica Distinct y OrderBy en memoria.
-        /// </summary>
-        public List<DocenteConCursoDTO> ObtenerDocentesConCursos()
-        {
-            try
-            {
-                var lista = _unitOfWork.GestionDocenteAgendaRepository.ObtenerDocentesConCursos();
-                return lista
-                    .GroupBy(x => new { x.IdProveedor, x.IdPEspecifico })
-                    .Select(g => g.First())
-                    .OrderBy(x => x.NombreDocente)
-                    .ThenBy(x => x.NombreCurso)
-                    .ToList();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
 
         /// Autor: Jose Vega
         /// Fecha: 19/02/2026
@@ -67,10 +43,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 if (cabecera == null) return null;
 
                 DocenteAgendaFlujoDTO flujo = null;
-                if (idGestionContacto.HasValue)
-                {
-                    flujo = _unitOfWork.GestionDocenteAgendaRepository.ObtenerFlujoDocente(idGestionContacto.Value);
-                }
 
                 var cronogramas = _unitOfWork.GestionDocenteAgendaRepository.ObtenerCronogramasDocente(idProveedor, idPEspecifico);
 
