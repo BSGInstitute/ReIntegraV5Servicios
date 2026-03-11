@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 {
-    /// Autor: Joseph Llanque
+    /// Autor: Jose Vega
     /// Fecha: 20/02/2026
     /// Versión: 1.0
     /// <summary>
@@ -29,56 +29,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             _connectionFactory = connectionFactory;
             _dapperRepository = dapperRepository;
-        }
-
-        /// <summary>
-        /// Obtiene la lista plana de docentes con sus cursos y el flujo asignado.
-        /// Basado en T_GestionContacto para encontrar más docentes asignados a centros de costo.
-        /// </summary>
-        public List<DocenteConCursoDTO> ObtenerDocentesConCursos()
-        {
-            try
-            {
-                List<DocenteConCursoDTO> lista = new List<DocenteConCursoDTO>();
-                string query = @"
-                        SELECT
-                            P.Id AS IdProveedor,
-                            CASE
-                                WHEN LEN(CONCAT(P.Nombre1, ' ', P.Nombre2, ' ', P.ApePaterno, ' ', P.ApeMaterno)) = 0
-                                    THEN P.RazonSocial
-                                ELSE CONCAT(P.Nombre1, ' ', P.Nombre2, ' ', P.ApePaterno, ' ', P.ApeMaterno)
-                            END AS NombreDocente,
-                            PE.Id AS IdPEspecifico,
-                            PE.Nombre AS NombreCurso,
-                            PE.Codigo AS CodigoCurso,
-                            P.IdPersonal_Asignado AS IdPersonalAsignado,
-                            ISNULL(CONCAT(PER.Apellidos, ', ', PER.Nombres), '') AS PersonalAsignado,
-                            GC.Id AS IdGestionContacto,
-                            GDF.Id AS IdFlujo,
-                            GDF.Nombre AS NombreFlujo,
-                            GDC.Id AS IdCategoria,
-                            GDC.Nombre AS NombreCategoria
-                        FROM pla.T_GestionContacto GC
-                        INNER JOIN conf.T_ClasificacionPersona CP ON GC.IdClasificacionPersona = CP.Id AND CP.IdTipoPersona = 4 AND CP.Estado = 1
-                        INNER JOIN fin.T_Proveedor P ON CP.IdTablaOriginal = P.Id AND P.Estado = 1
-                        LEFT JOIN gp.T_Personal PER ON P.IdPersonal_Asignado = PER.Id
-                        LEFT JOIN pla.T_PEspecifico PE ON PE.IdCentroCosto = GC.IdCentroCosto AND PE.Estado = 1
-                        INNER JOIN pla.T_GestionContactoDocenteFlujo GCDF ON GCDF.IdGestionContacto = GC.Id AND GCDF.Estado = 1
-                        INNER JOIN pla.T_GestionDocenteFlujo GDF ON GCDF.IdGestionDocenteFlujo = GDF.Id AND GDF.Estado = 1
-                        LEFT JOIN pla.T_GestionDocenteCategoria GDC ON GDF.IdGestionDocenteCategoria = GDC.Id
-                        WHERE GC.Estado = 1";
-
-                var resultadoDB = _dapperRepository.QueryDapper(query, null);
-                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
-                {
-                    lista = JsonConvert.DeserializeObject<List<DocenteConCursoDTO>>(resultadoDB);
-                }
-                return lista;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
         }
 
         public DocenteAgendaCabeceraDTO ObtenerCabeceraDocente(int idProveedor)
@@ -114,37 +64,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     cabecera = lista?.FirstOrDefault();
                 }
                 return cabecera;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public DocenteAgendaFlujoDTO ObtenerFlujoDocente(int idGestionContacto)
-        {
-            try
-            {
-                DocenteAgendaFlujoDTO flujo = null;
-                string query = @"
-                        SELECT
-                            GCDF.Id AS IdGestionContactoDocenteFlujo,
-                            GDF.Id AS IdFlujo,
-                            GDF.Nombre AS NombreFlujo,
-                            GDF.Descripcion AS DescripcionFlujo
-                        FROM pla.T_GestionContactoDocenteFlujo GCDF
-                        INNER JOIN pla.T_GestionDocenteFlujo GDF ON GCDF.IdGestionDocenteFlujo = GDF.Id
-                        WHERE GCDF.IdGestionContacto = @IdGestionContacto
-                            AND GCDF.Estado = 1
-                            AND GDF.Estado = 1";
-
-                var resultadoDB = _dapperRepository.QueryDapper(query, new { IdGestionContacto = idGestionContacto });
-                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
-                {
-                    var lista = JsonConvert.DeserializeObject<List<DocenteAgendaFlujoDTO>>(resultadoDB);
-                    flujo = lista?.FirstOrDefault();
-                }
-                return flujo;
             }
             catch (Exception ex)
             {
@@ -218,7 +137,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
-        /// Autor: Joseph Llanque
+        /// Autor: Jose Vega
         /// Fecha: 24/02/2026
         /// Versión: 1.0
         /// <summary>
@@ -262,7 +181,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
-        /// Autor: Joseph Llanque
+        /// Autor: Jose Vega
         /// Fecha: 24/02/2026
         /// Versión: 1.0
         /// <summary>
@@ -306,7 +225,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
-        /// Autor: Joseph Llanque
+        /// Autor: Jose Vega
         /// Fecha: 24/02/2026
         /// Versión: 1.0
         /// <summary>
