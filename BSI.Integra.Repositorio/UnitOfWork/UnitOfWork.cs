@@ -8433,5 +8433,13 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _subCriterioTareaRepository ?? new SubCriterioTareaRepository(_dapperRepository);
             }
         }
+        private IProyectoAplicacionRepository _proyectoAplicacionRepository;
+        IProyectoAplicacionRepository IUnitOfWork.ProyectoAplicacionRepository
+        {
+            get
+            {
+                return _proyectoAplicacionRepository ?? new ProyectoAplicacionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
     }
 }

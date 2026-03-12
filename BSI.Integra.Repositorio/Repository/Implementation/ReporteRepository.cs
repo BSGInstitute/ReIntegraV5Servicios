@@ -572,10 +572,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 IEnumerable<ReporteCambiosDeFaseOportunidadDTO> items = new List<ReporteCambiosDeFaseOportunidadDTO>();
                 const int idFaseOportunidadBIC = 4;
                 const int idFaseOportunidadE = 11;
+                const int idFaseOportunidadNS = 36;
+                const int idFaseOportunidadBIC1 = 1;
+                const int idFaseOportunidadBIC2 = 14;
+
+
                 var listaFaseOportunidadExcluir = new List<int>(){
                      idFaseOportunidadBIC,
                      idFaseOportunidadE,
-                    36 //Fase ISM
+                     idFaseOportunidadNS, //Fase ISM
+                     idFaseOportunidadBIC1,
+                     idFaseOportunidadBIC2
                     };
                 var query1 = $@"
                         SELECT COUNT(Cambio) AS NumeroRegistros, 
@@ -1807,7 +1814,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                             WHERE Estado = 1 
                                 AND FechaLog between @FechaInicio  and @FechaFin {filtros.Filtro}
                                 AND IdFaseOrigen != IdFaseDestino 
-                                AND IdFaseDestinoCalculado Not In (4, 7, 9, 11, 28, 32, 33, 34,29)
+                                AND IdFaseDestinoCalculado Not In (4, 7, 9, 11, 28, 32, 33, 34,29, 1, 14)
                             GROUP BY Cambio,FaseOrigen, FaseDestino";
 
                 var queryRespuesta = await _dapperRepository.QueryDapperAsync(query, new

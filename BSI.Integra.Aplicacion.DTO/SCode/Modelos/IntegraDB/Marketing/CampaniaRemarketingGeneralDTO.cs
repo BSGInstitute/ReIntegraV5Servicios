@@ -70,7 +70,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing
         public List<ElementoConfiguracionCampaniaDTO> MediosEnvio { get; set; }
         public ElementoConfiguracionCampaniaDTO TipoMensaje { get; set; }
         public ElementoConfiguracionCampaniaDTO LogicaEnvio { get; set; }
-        public ElementoConfiguracionCampaniaDTO CategoriaArgumento { get; set; }
+        public ElementoConfiguracionCampaniaDTO? CategoriaArgumento { get; set; }
         public List<int> Prioridades { get; set; }
         public string? RemitenteCorreo { get; set; }
         public string? RemitenteNombre { get; set; }
@@ -150,7 +150,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing
         public DateTime FechaEnvioProgramada { get; set; }
         public List<int>? MediosEnvio { get; set; } = new();
         public string IdentificadorLlamadaIA { get; set; }
-        public int CategoriaArgumento { get; set; }
+        public int? CategoriaArgumento { get; set; }
         public List<int>? Prioridades { get; set; } = new();
     }
 

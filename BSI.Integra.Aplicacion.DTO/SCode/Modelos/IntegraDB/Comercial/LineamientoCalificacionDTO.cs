@@ -4,6 +4,7 @@ using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using Google.Api.Ads.AdWords.v201809;
 using Mandrill.Utilities;
+using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -303,6 +304,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public string locale { get; set; }
         public string ocurrencia { get; set; }
     }
+    [BsonIgnoreExtraElements]
     public class LlamadaProcesoAutoDTO
     {
         public int IdActividadDetalle { get; set; }
@@ -1692,5 +1694,10 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial
         public int IdOportunidad { get; set; }
         public List<ValidacionMatriculaConLlamadasDTO> Validaciones { get; set; } = new List<ValidacionMatriculaConLlamadasDTO>();
     }
-
+    public class CalificacionAutomaticaRequestDTO
+    {
+        public int? IdTipoProcesoProgramado { get; set; }
+        public int IdPersonalAreaTrabajo { get; set; }
+        public DateTime? FechaDesde { get; set; }
+    }
 }

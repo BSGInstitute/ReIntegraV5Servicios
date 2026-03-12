@@ -1009,5 +1009,6 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IGestionDocenteAgendaRepository GestionDocenteAgendaRepository { get; }
         ICriterioTareaRepository CriterioTareaRepository { get; }
         ISubCriterioTareaRepository SubCriterioTareaRepository { get; }
+        IProyectoAplicacionRepository ProyectoAplicacionRepository { get; }
     }
 }

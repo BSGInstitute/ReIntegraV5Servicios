@@ -1,10 +1,11 @@
 using BSI.Integra.Aplicacion.Comercial.Service.Implementacion;
-using BSI.Integra.Aplicacion.Comercial.Service.Interface;
-using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion;
-using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.Configuracion;
 using BSI.Integra.Aplicacion.Comercial.Service.Implementacion;
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
+using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion;
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion;
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.Configuracion;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.Messenger;
@@ -25,22 +26,28 @@ using BSI.Integra.Aplicacion.Transversal.Helper;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Infrastructure;
+using BSI.Integra.Persistencia.IntegraDBMongo.Config;
+using BSI.Integra.Persistencia.IntegraDBMongo.Context;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDBInteraccion;
+using BSI.Integra.Repositorio.IntegraDBMongo.Implementacion;
+using BSI.Integra.Repositorio.IntegraDBMongo.Interface;
 using BSI.Integra.Repositorio.Repository;
+using BSI.Integra.Repositorio.Repository.Implementation;
+using BSI.Integra.Repositorio.Repository.Implementation.Comercial;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.CampaniaMailingWhatsapp;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.Configuracion;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.Messenger;
-using BSI.Integra.Repositorio.Repository.Implementation.Comercial;
 using BSI.Integra.Repositorio.Repository.IntegraDBInteraccion.DapperRepository;
 using BSI.Integra.Repositorio.Repository.IntegraDBInteraccion.UnitOfWork;
+using BSI.Integra.Repositorio.Repository.Interface;
+using BSI.Integra.Repositorio.Repository.Interface.Comercial;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.Configuracion;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.FacebookLeadsRecuperacionDatos;
-using BSI.Integra.Repositorio.Repository.Interface.Marketing.Messenger;
-using BSI.Integra.Repositorio.Repository.Interface.Comercial;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.FacebookLeadsRecuperacionDatos;
+using BSI.Integra.Repositorio.Repository.Interface.Marketing.Messenger;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Configurations;
 using BSI.Integra.Servicios.Helpers;
@@ -51,9 +58,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SI.Integra.Repositorio.Repository.IntegraDBInteraccion.DapperRepository;
 using System.Text;
-using BSI.Integra.Repositorio.Repository.Interface;
-using BSI.Integra.Repositorio.Repository.Implementation;
-using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion;
 
 
 
@@ -241,19 +245,22 @@ builder.Services.AddHangfire(config =>
     config.UseSqlServerStorage(connectionString));
 builder.Services.AddHangfireServer();
 
-//// Registrar el Job de Actividades Congeladas
-//builder.Services.AddScoped<BSI.Integra.Servicios.Jobs.ActividadesCongeladasJob>();
+/// Conexion Base de Datos MongoDB 
+builder.Services.Configure<MongoDBSettings>(
+    builder.Configuration.GetSection("MongoDBSettings"));
+
+// Registro de contexto MongoDB (Singleton para reutilizar conexión)
+builder.Services.AddSingleton<MongoDBContext>();
+
+// Registro del repositorio (Scoped para cada request)
+builder.Services.AddScoped<IMongoDocumentRepository, MongoDocumentRepository>();
+
 
 var app = builder.Build();
 
 // Dashboard opcional
 app.UseHangfireDashboard("/hangfire");
-
-// Configurar Job Recurrente: Procesar actividades congeladas cada 5 minutos
-//RecurringJob.AddOrUpdate<BSI.Integra.Servicios.Jobs.ActividadesCongeladasJob>(
-//    "procesar-actividades-congeladas",
-//    job => job.ProcesarActividadesPendientesAsync(),
-//    "*/5 * * * *"); // Cada 5 minutos
+ 
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
