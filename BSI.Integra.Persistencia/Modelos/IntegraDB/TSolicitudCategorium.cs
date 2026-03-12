@@ -50,6 +50,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Id de migracion (Si es que es migracion)
         /// </summary>
         public int? IdMigracion { get; set; }
+        public string Descripcion { get; set; } = null!;
 
         public virtual TSolicitudTipoReporte? IdSolicitudTipoReporteNavigation { get; set; }
         public virtual ICollection<TSolicitudSubCategorium> TSolicitudSubCategoria { get; set; }

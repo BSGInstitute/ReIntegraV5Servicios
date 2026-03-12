@@ -8,9 +8,10 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 {
     public class SolicitudSubCategoriaDTO
     {
-        public int Id { get; set; } 
+        public int Id { get; set; }
         public string Nombre { get; set; } = null!;
-        public int? IdSolicitudCategoria { get; set; } 
+        public int? IdSolicitudCategoria { get; set; }
+        public string? Titulo { get; set; } 
         public bool Estado { get; set; } 
         public string UsuarioCreacion { get; set; } = null!; 
         public string UsuarioModificacion { get; set; } = null!; 
@@ -25,6 +26,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string Nombre { get; set; } = null!;
         public int? IdSolicitudCategoria { get; set; }
         public string Usuario { get; set; }
+        public string? Titulo { get; set; }
     }
     public class SolicitudProblemaEntradaDTO
     {
@@ -36,6 +38,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdSolicitudCategoria { get; set; }
         public int IdPersonalRevision { get; set; }
         public int IdPersonalSolucion { get; set; }
+
+        public string Titulo { get; set; }
         public string Usuario { get; set; }
     }
     public class ComboSolicitudDTO
@@ -43,6 +47,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int Id { get; set; }
         public int IdSolicitudTipoReporte { get; set; }
         public string Nombre { get; set; }
+        public string Descripcion { get; set; }
     }
     public class ComboSubCategoriaDTO
     {
@@ -50,5 +55,6 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdSolicitudCategoria { get; set; }
         public string Nombre { get; set; }
         public string DescripcionSolucion { get; set; }
+        public string Titulo { get; set; }
     }
 }

@@ -228,7 +228,7 @@ var connectionString = builder.Configuration.GetConnectionString("IntegraDB");
 // Registrar Hangfire
 builder.Services.AddHangfire(config =>
     config.UseSqlServerStorage(connectionString));
-builder.Services.AddHangfireServer();
+//builder.Services.AddHangfireServer();
 
 var app = builder.Build();
 
