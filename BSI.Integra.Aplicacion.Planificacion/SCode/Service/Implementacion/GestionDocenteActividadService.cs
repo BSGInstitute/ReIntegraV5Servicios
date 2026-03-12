@@ -94,11 +94,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     await ProcesarTipoDisparadorAsync(request, disparadorModel.Id, usuario, fechaActual);
 
                     // 3. Crear Detalle de Actividad
+                    var idPlantilla = request.Detalle.IdPlantillaMedioComunicacion;
                     var gestionDocenteActividadDetalle = new GestionDocenteActividadDetalle
                     {
                         IdGestionDocenteActividadCabecera = request.Detalle.IdGestionDocenteActividadCabecera,
                         IdGestionDocenteActividadDetalleTipo = request.Detalle.IdGestionDocenteActividadDetalleTipo,
-                        IdPlantillaMedioComunicacion = request.Detalle.IdPlantillaMedioComunicacion,
+                        IdPlantillaMedioComunicacion = (idPlantilla.HasValue && idPlantilla.Value > 0) ? idPlantilla.Value : null,
                         IdGestionDocenteDisparadorDetalle = disparadorModel.Id,
                         Nombre = request.Detalle.Nombre,
                         Estado = true,
@@ -1353,6 +1354,173 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 _unitOfWork.GestionDocenteActividadCabeceraRepository.Update(entidad);
                 await _unitOfWork.CommitAsync();
                 return true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 12/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Elimina un detalle de actividad y toda su jerarquía asociada mediante eliminación lógica (soft-delete).
+        /// Elimina en cascada: ocurrencias (con config IA y ejemplos), sesión, disparador (con reglas de tiempo y referencias).
+        /// Usa TransactionScope para garantizar atomicidad.
+        /// </summary>
+        /// <param name="id">Identificador del detalle a eliminar.</param>
+        /// <param name="usuario">Usuario que realiza la operación.</param>
+        public async Task<bool> EliminarDetalleAsync(int id, string usuario)
+        {
+            try
+            {
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    // 1. Obtener el detalle para conocer su disparador
+                    var detalle = _unitOfWork.GestionDocenteActividadDetalleRepository
+                        .GetAll()
+                        .FirstOrDefault(x => x.Id == id && x.Estado == true);
+
+                    if (detalle == null)
+                        throw new ArgumentException($"Detalle con id {id} no encontrado o ya fue eliminado");
+
+                    int idDisparador = detalle.IdGestionDocenteDisparadorDetalle;
+
+                    // 2. Eliminar ocurrencias hijas y su configuración IA
+                    var ocurrencias = _unitOfWork.GestionDocenteOcurrenciaRepository
+                        .GetAll()
+                        .Where(x => x.IdGestionDocenteActividadDetalle == id && x.Estado == true)
+                        .ToList();
+
+                    foreach (var ocu in ocurrencias)
+                    {
+                        var iaConfigs = _unitOfWork.GestionDocenteOcurrenciaIaConfiguracionRepository
+                            .GetAll()
+                            .Where(x => x.IdGestionDocenteOcurrencia == ocu.Id && x.Estado == true)
+                            .ToList();
+
+                        foreach (var iaConfig in iaConfigs)
+                        {
+                            var ejemplos = _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository
+                                .GetAll()
+                                .Where(x => x.IdGestionDocenteOcurrenciaIaConfiguracion == iaConfig.Id && x.Estado == true)
+                                .ToList();
+
+                            foreach (var ejemplo in ejemplos)
+                            {
+                                _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository.Delete(ejemplo.Id, usuario);
+                            }
+
+                            _unitOfWork.GestionDocenteOcurrenciaIaConfiguracionRepository.Delete(iaConfig.Id, usuario);
+                        }
+
+                        _unitOfWork.GestionDocenteOcurrenciaRepository.Delete(ocu.Id, usuario);
+                    }
+
+                    // 3. Eliminar sesión asociada (tipo cronograma)
+                    var sesiones = _unitOfWork.GestionContactoActividadDetalleSesionRepository
+                        .GetAll()
+                        .Where(x => x.IdGestionDocenteActividadDetalle == id && x.Estado == true)
+                        .ToList();
+
+                    foreach (var sesion in sesiones)
+                    {
+                        _unitOfWork.GestionContactoActividadDetalleSesionRepository.Delete(sesion.Id, usuario);
+                    }
+
+                    // 4a. Eliminar regla tiempo fijo (tipo 1)
+                    var reglasFijas = _unitOfWork.GestionDocenteDisparadorReglaTiempoFijoRepository
+                        .GetAll()
+                        .Where(x => x.IdGestionDocenteDisparadorDetalle == idDisparador && x.Estado == true)
+                        .ToList();
+
+                    foreach (var regla in reglasFijas)
+                    {
+                        _unitOfWork.GestionDocenteDisparadorReglaTiempoFijoRepository.Delete(regla.Id, usuario);
+                    }
+
+                    // 4b. Eliminar regla tiempo relativo y sus referencias (tipo 2 y 3)
+                    var reglasRelativas = _unitOfWork.GestionDocenteDisparadorReglaTiempoRelativoRepository
+                        .GetAll()
+                        .Where(x => x.IdGestionDocenteDisparadorDetalle == idDisparador && x.Estado == true)
+                        .ToList();
+
+                    foreach (var reglaRel in reglasRelativas)
+                    {
+                        var referencias = _unitOfWork.GestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository
+                            .GetAll()
+                            .Where(x => x.IdGestionDocenteDisparadorReglaTiempoRelativo == reglaRel.Id && x.Estado == true)
+                            .ToList();
+
+                        foreach (var referencia in referencias)
+                        {
+                            _unitOfWork.GestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository.Delete(referencia.Id, usuario);
+                        }
+
+                        _unitOfWork.GestionDocenteDisparadorReglaTiempoRelativoRepository.Delete(reglaRel.Id, usuario);
+                    }
+
+                    // 4c. Eliminar ocurrencia detalle del disparador (tipo 2)
+                    var ocurrenciasDisparador = _unitOfWork.GestionDocenteDisparadorOcurrenciaDetalleRepository
+                        .GetAll()
+                        .Where(x => x.IdGestionDocenteDisparadorDetalle == idDisparador && x.Estado == true)
+                        .ToList();
+
+                    foreach (var ocuDisp in ocurrenciasDisparador)
+                    {
+                        _unitOfWork.GestionDocenteDisparadorOcurrenciaDetalleRepository.Delete(ocuDisp.Id, usuario);
+                    }
+
+                    // 5. Eliminar el disparador
+                    _unitOfWork.GestionDocenteDisparadorDetalleRepository.Delete(idDisparador, usuario);
+
+                    // 6. Eliminar el detalle
+                    _unitOfWork.GestionDocenteActividadDetalleRepository.Delete(id, usuario);
+
+                    await _unitOfWork.CommitAsync();
+                    scope.Complete();
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 12/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza un detalle de actividad existente eliminándolo y recreándolo con los nuevos datos.
+        /// Usa TransactionScope para garantizar atomicidad de la operación delete + create.
+        /// </summary>
+        /// <param name="idDetalleAnterior">ID del detalle a reemplazar.</param>
+        /// <param name="request">DTO con los datos del nuevo detalle.</param>
+        /// <param name="usuario">Usuario que realiza la operación.</param>
+        public async Task<int> ActualizarDetalleAsync(int idDetalleAnterior, InsertarActividadDetalleRequestDTO request, string usuario)
+        {
+            try
+            {
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    await EliminarDetalleAsync(idDetalleAnterior, usuario);
+
+                    int nuevoId = await InsertarDetalleAsync(request);
+
+                    if (request.Ocurrencias != null)
+                    {
+                        foreach (var ocuRequest in request.Ocurrencias)
+                        {
+                            ocuRequest.Ocurrencia.IdGestionDocenteActividadDetalle = nuevoId;
+                            await InsertarOcurrenciaAsync(ocuRequest);
+                        }
+                    }
+
+                    scope.Complete();
+                    return nuevoId;
+                }
             }
             catch (Exception)
             {

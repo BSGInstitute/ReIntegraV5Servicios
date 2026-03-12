@@ -644,5 +644,59 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
                 return BadRequest(new { Exito = false, Mensaje = ex.Message });
             }
         }
+
+        /// Tipo Funcion: DELETE
+        /// Autor: Joseph Llanque
+        /// Fecha: 12/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Endpoint que elimina un detalle de actividad y toda su jerarquia asociada (eliminacion logica en cascada).
+        /// </summary>
+        /// <param name="id">Identificador del detalle a eliminar.</param>
+        /// <param name="usuario">Usuario que realiza la operacion.</param>
+        /// <returns>ActionResult con el resultado de la operacion.</returns>
+        [HttpDelete("EliminarDetalle")]
+        public async Task<IActionResult> EliminarDetalle(int id, string usuario)
+        {
+            try
+            {
+                var rpta = await _gestionDocenteActividadService.EliminarDetalleAsync(id, usuario);
+                return Ok(new { Exito = rpta });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        /// Tipo Funcion: PUT
+        /// Autor: Joseph Llanque
+        /// Fecha: 12/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Endpoint que actualiza un detalle de actividad existente (elimina el anterior y crea uno nuevo con los datos proporcionados).
+        /// </summary>
+        /// <param name="request">DTO con el ID del detalle anterior y los datos del nuevo detalle.</param>
+        /// <returns>ActionResult con el Id del nuevo detalle creado.</returns>
+        [HttpPut("ActualizarDetalle")]
+        public async Task<IActionResult> ActualizarDetalle([FromBody] ActualizarActividadDetalleRequestDTO request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(new { Exito = false, Mensaje = "Modelo invalido", Errores = ModelState });
+
+                var nuevoId = await _gestionDocenteActividadService.ActualizarDetalleAsync(
+                    request.IdDetalleAnterior,
+                    request.NuevoDetalle,
+                    request.NuevoDetalle.Detalle.Usuario
+                );
+                return Ok(new { Exito = true, Id = nuevoId });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
     }
 }

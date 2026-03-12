@@ -51,8 +51,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                             PA.Id AS IdPais,
                             ISNULL(PA.NombrePais, '') AS Pais,
                             ISNULL(C.Nombre, '') AS Ciudad
-                        FROM fin.T_Proveedor P
-                        LEFT JOIN gp.T_Personal PER ON P.IdPersonal_Asignado = PER.Id
+                        FROM pla.T_GestionContacto AS GC WITH (NOLOCK)
+                		INNER JOIN conf.T_ClasificacionPersona AS CP WITH (NOLOCK)
+                				ON GC.IdClasificacionPersona = CP.Id
+                				AND CP.IdTipoPersona = 4
+				                AND CP.Estado = 1
+                        INNER JOIN fin.T_Proveedor AS P WITH (NOLOCK)
+				        ON CP.IdTablaOriginal = P.Id AND P.Estado = 1
+                        LEFT JOIN gp.T_Personal PER ON GC.IdPersonal_Asignado = PER.Id
                         LEFT JOIN conf.T_Ciudad C ON P.IdCiudad = C.Id
                         LEFT JOIN conf.T_Pais PA ON C.IdPais = PA.Id
                         WHERE P.Id = @IdProveedor AND P.Estado = 1";
@@ -364,6 +370,97 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     detalle = JsonConvert.DeserializeObject<List<CorreoDetalleDocenteDTO>>(resultadoDB).FirstOrDefault();
                 }
                 return detalle;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el flujo asignado al docente a partir de su IdGestionContacto.
+        /// Consulta T_GestionContactoDocenteFlujo JOIN T_GestionDocenteFlujo para retornar
+        /// el ID del vínculo (requerido por ObtenerActividadesFlujoPorCategoria) y los datos del flujo.
+        /// </summary>
+        public DocenteAgendaFlujoDTO ObtenerFlujoDocente(int idGestionContacto)
+        {
+            try
+            {
+                DocenteAgendaFlujoDTO flujo = null;
+                string query = @"
+                        SELECT
+                            gcdf.Id AS IdGestionContactoDocenteFlujo,
+                            gdf.Id AS IdFlujo,
+                            gdf.Nombre AS NombreFlujo,
+                            ISNULL(gdf.Descripcion, '') AS DescripcionFlujo
+                        FROM pla.T_GestionContactoDocenteFlujo gcdf WITH(NOLOCK)
+                        INNER JOIN pla.T_GestionDocenteFlujo gdf WITH(NOLOCK)
+                            ON gdf.Id = gcdf.IdGestionDocenteFlujo
+                        WHERE gcdf.IdGestionContacto = @IdGestionContacto
+                            AND gcdf.Estado = 1";
+
+                var resultadoDB = _dapperRepository.QueryDapper(query, new { IdGestionContacto = idGestionContacto });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    flujo = JsonConvert.DeserializeObject<List<DocenteAgendaFlujoDTO>>(resultadoDB).FirstOrDefault();
+                }
+                return flujo;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el body HTML y archivos adjuntos de un correo desde mkt.T_GmailCorreo (BD),
+        /// sin conectarse a IMAP. El IdCorreo es el PK de T_GmailCorreo.
+        /// </summary>
+        public CorreoBodyDTO ObtenerCorreoBodyDB(int idCorreo)
+        {
+            try
+            {
+                var resultado = new CorreoBodyDTO();
+
+                // Obtener el body del correo
+                string queryCorreo = @"
+                    SELECT ISNULL(EmailBody, '') AS EmailBody
+                    FROM mkt.T_GmailCorreo WITH(NOLOCK)
+                    WHERE Id = @IdCorreo AND Estado = 1";
+
+                var resultadoCorreoDB = _dapperRepository.QueryDapper(queryCorreo, new { IdCorreo = idCorreo });
+                if (!string.IsNullOrEmpty(resultadoCorreoDB) && !resultadoCorreoDB.Contains("[]"))
+                {
+                    var correo = JsonConvert.DeserializeObject<List<CorreoBodyDTO>>(resultadoCorreoDB).FirstOrDefault();
+                    if (correo != null)
+                    {
+                        resultado.EmailBody = correo.EmailBody;
+                    }
+                }
+
+                // Obtener archivos adjuntos
+                string queryAdjuntos = @"
+                    SELECT
+                        Id,
+                        IdGmailCorreo AS IdCorreo,
+                        Nombre AS NombreArchivo,
+                        ISNULL(UrlArchivoRepositorio, '') AS UrlArchivoRepositorio
+                    FROM mkt.T_GmailCorreoArchivoAdjunto WITH(NOLOCK)
+                    WHERE IdGmailCorreo = @IdCorreo AND Estado = 1";
+
+                var resultadoAdjuntosDB = _dapperRepository.QueryDapper(queryAdjuntos, new { IdCorreo = idCorreo });
+                if (!string.IsNullOrEmpty(resultadoAdjuntosDB) && !resultadoAdjuntosDB.Contains("[]"))
+                {
+                    resultado.ArchivosAdjuntos = JsonConvert.DeserializeObject<List<CorreoArchivoAdjuntoDTO>>(resultadoAdjuntosDB);
+                }
+
+                return resultado;
             }
             catch (Exception ex)
             {
