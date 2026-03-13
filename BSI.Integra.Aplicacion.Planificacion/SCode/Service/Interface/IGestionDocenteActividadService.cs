@@ -38,5 +38,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         (PlantillaEmailMandrillDTO EmailReemplazado, PlantillaWhatsAppCalculadoDTO WhatsAppReemplazado) GenerarPlantillaDocente(ReemplazoEtiquetaPlantillaDocenteDTO request);
         List<PlantillaDisponiblePlanificacionDTO> ObtenerPlantillasPlanificacion(int idModuloSistemaV5, int idPlantillaBase, string area);
         Task<bool> ActualizarCabeceraAsync(GestionDocenteActividadCabeceraDTO dto);
+        Task<bool> EliminarDetalleAsync(int id, string usuario);
+        Task<int> ActualizarDetalleAsync(int idDetalleAnterior, InsertarActividadDetalleRequestDTO request, string usuario);
     }
 }

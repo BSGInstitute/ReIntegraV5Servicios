@@ -19,7 +19,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int Id { get; set; }
         public int IdGestionDocenteActividadCabecera { get; set; }
         public int IdGestionDocenteActividadDetalleTipo { get; set; }
-        public int IdPlantillaMedioComunicacion { get; set; }
+        public int? IdPlantillaMedioComunicacion { get; set; }
         public int IdGestionDocenteDisparadorDetalle { get; set; }
         public string Nombre { get; set; }
         public string Usuario { get; set; }
@@ -391,5 +391,17 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int IdPlantilla { get; set; }
         public string NombrePlantilla { get; set; }
         public bool EstadoPlantilla { get; set; }
+    }
+
+    /// Autor: Joseph Llanque
+    /// Fecha: 12/03/2026
+    /// Versión: 1.0
+    /// <summary>
+    /// DTO para actualizar un detalle de actividad existente (elimina el anterior y crea uno nuevo).
+    /// </summary>
+    public class ActualizarActividadDetalleRequestDTO
+    {
+        public int IdDetalleAnterior { get; set; }
+        public InsertarActividadDetalleRequestDTO NuevoDetalle { get; set; }
     }
 }

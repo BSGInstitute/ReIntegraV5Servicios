@@ -1,3 +1,6 @@
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Aplicacion.Marketing.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
@@ -226,6 +229,61 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
                 var servicioGmailCliente = new GmailClienteService(_unitOfWork);
                 var resultado = servicioGmailCliente.ObtenerCorreoBody(idAsesor, idCorreo, folder);
                 if (resultado == null) return NotFound(new { Exito = false, Mensaje = "No se encontró el correo." });
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el body HTML y archivos adjuntos de un correo desde la base de datos (mkt.T_GmailCorreo),
+        /// sin conectarse a IMAP. Usa el IdCorreo como PK de la tabla.
+        /// </summary>
+        /// <param name="idCorreo">PK de mkt.T_GmailCorreo.</param>
+        /// <returns>ActionResult con CorreoBodyDTO (EmailBody + ArchivosAdjuntos).</returns>
+        [HttpGet("ObtenerCorreoBodyDB/{idCorreo}")]
+        public IActionResult ObtenerCorreoBodyDB(int idCorreo)
+        {
+            try
+            {
+                var resultado = _unitOfWork.GestionDocenteAgendaRepository.ObtenerCorreoBodyDB(idCorreo);
+                if (resultado == null || string.IsNullOrEmpty(resultado.EmailBody))
+                    return NotFound(new { Exito = false, Mensaje = "No se encontró el correo." });
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 11/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene correos recibidos desde IMAP filtrados por los criterios del FiltroKendo
+        /// (ej. remitente = email del docente). Replica la lógica de Correo/ObtenerCorreoRecibido
+        /// para uso exclusivo del módulo de planificación.
+        /// </summary>
+        /// <param name="filtro">Filtros de bandeja: IdAsesor, Folder, paginación y FiltroKendo.</param>
+        /// <returns>ActionResult con BandejaCorreoDTO (ListaCorreos + TotalEnviados).</returns>
+        [HttpPost("ObtenerCorreoRecibido")]
+        public IActionResult ObtenerCorreoRecibido([FromBody] FiltroBandejaCorreoDTO filtro)
+        {
+            try
+            {
+                if (filtro.IdAsesor <= 0)
+                    return BadRequest(new { Exito = false, Mensaje = "El IdAsesor es requerido." });
+
+                var bandejaCorreoService = new BandejaCorreoService(_unitOfWork);
+                var resultado = bandejaCorreoService.ObtenerCorreoRecibido(filtro);
                 return Ok(resultado);
             }
             catch (Exception ex)

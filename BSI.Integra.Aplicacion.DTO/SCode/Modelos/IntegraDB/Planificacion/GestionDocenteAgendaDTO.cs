@@ -12,7 +12,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
     {
         public int IdProveedor { get; set; }
         public string NombreDocente { get; set; }
-        public int IdPEspecifico { get; set; }
+        public int? IdPEspecifico { get; set; }
         public string NombreCurso { get; set; }
         public string CodigoCurso { get; set; }
         public int? IdPersonalAsignado { get; set; }
@@ -336,9 +336,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int IdCorreo { get; set; }
         public string Asunto { get; set; }
         public DateTime? FechaEnvio { get; set; }
-        public int? EstadoEnvio { get; set; }
+        public Boolean? EstadoEnvio { get; set; }
         public string PersonalRemitente { get; set; }
         public string CorreoDestinatario { get; set; }
-        public int? IdCentroCosto { get; set; }
     }
 }

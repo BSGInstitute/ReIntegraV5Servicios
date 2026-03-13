@@ -43,6 +43,10 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 if (cabecera == null) return null;
 
                 DocenteAgendaFlujoDTO flujo = null;
+                if (idGestionContacto.HasValue)
+                {
+                    flujo = _unitOfWork.GestionDocenteAgendaRepository.ObtenerFlujoDocente(idGestionContacto.Value);
+                }
 
                 var cronogramas = _unitOfWork.GestionDocenteAgendaRepository.ObtenerCronogramasDocente(idProveedor, idPEspecifico);
 

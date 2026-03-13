@@ -796,6 +796,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
                     return new ActividadesFlujoPorCategoriaResponseDTO
                     {
+                        IdGestionContactoFlujoCongelado = primerRegistro.IdGestionContactoFlujoCongelado,
                         IdCategoria = 2,
                         NombreCategoria = "Ejecucion Curso",
                         IdGestionDocenteActividadCabecera = registrosPlanos.First().IdGestionDocenteActividadCabecera,
@@ -861,6 +862,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
                     return new ActividadesFlujoPorCategoriaResponseDTO
                     {
+                        IdGestionContactoFlujoCongelado = primerRegistro.IdGestionContactoFlujoCongelado,
                         IdCategoria = 1,
                         NombreCategoria = "General",
                         IdGestionDocenteActividadCabecera = registrosPlanos.First().IdGestionDocenteActividadCabecera,
@@ -1012,6 +1014,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             public int IdGestionDocenteActividadCabecera { get; set; }
             public int IdGestionDocenteActividadCabeceraCongelada { get; set; }
+            public int IdGestionContactoFlujoCongelado { get; set; }
             public string NombreCabecera { get; set; }
             public string DescripcionCabecera { get; set; }
             public int IdGestionDocenteActividadDetalleCongelada { get; set; }

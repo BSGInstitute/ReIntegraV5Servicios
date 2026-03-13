@@ -296,6 +296,15 @@ namespace BSI.Integra.Servicios.Controllers
                 }
                 parametrosEntrada.Destinatario = parametrosEntrada.Destinatario.Replace("<", "").Replace(">", "");
 
+                // Resolver IdClasificacionPersona desde el email del destinatario si no viene en el DTO
+                int? idClasificacionPersona = parametrosEntrada.IdClasificacionPersona;
+                if (idClasificacionPersona == null || idClasificacionPersona == 0)
+                {
+                    var validarEmail = unitOfWork.AlumnoRepository.ValidarEmailProveedor(parametrosEntrada.Destinatario);
+                    if (validarEmail != null)
+                        idClasificacionPersona = validarEmail.Id;
+                }
+
                 var gmailCorreoBO = new GmailCorreo
                 {
                     IdEtiqueta = 1,//sent:1 , inbox:2
@@ -308,6 +317,7 @@ namespace BSI.Integra.Servicios.Controllers
                     Bcc = parametrosEntrada.DestinatarioBcc,
                     Destinatarios = parametrosEntrada.Destinatario,
                     IdPersonal = asesor.Id,
+                    IdClasificacionPersona = idClasificacionPersona,
                     Estado = true,
                     FechaCreacion = DateTime.Now,
                     FechaModificacion = DateTime.Now,

@@ -132,6 +132,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
     public class ActividadesFlujoPorCategoriaResponseDTO
     {
+        public int IdGestionContactoFlujoCongelado { get; set; }
         public int IdCategoria { get; set; }
         public string NombreCategoria { get; set; }
         public int IdGestionDocenteActividadCabecera { get; set; }
