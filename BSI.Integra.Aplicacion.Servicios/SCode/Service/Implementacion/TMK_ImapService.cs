@@ -340,6 +340,51 @@ namespace BSI.Integra.Aplicacion.Servicios.Service.Implementacion
                 throw new Exception(e.Message);
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 12/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene correos nuevos basados en el último UID procesado.
+        /// </summary>
+        /// <param name="lastUid">Último UID guardado en BD. Si es 0, sincroniza los últimos 30 días.</param>
+        /// <returns>Colección de sobres (Envelopes)</returns>
+        public EnvelopeCollection ObtenerCorreosNuevosDesdeUid(long lastUid)
+        {
+            UidCollection nuevosUids;
+            if (lastUid == 0)
+            {
+                DateTime sinceDate = DateTime.Now.AddDays(-30);
+                nuevosUids = (UidCollection)_imap.Search(true, "SINCE \"" + ImapUtils.GetImapDateString(sinceDate) + "\"", null);
+            }
+            else
+            {
+                nuevosUids = (UidCollection)_imap.Search(true, $"UID {lastUid + 1}:*", null);
+
+                // IMAP puede devolver el último UID existente si lastUid+1 no existe.
+                // Filtramos UIDs que ya fueron procesados.
+                if (nuevosUids != null && nuevosUids.Count > 0)
+                {
+                    var filtrados = new UidCollection();
+                    foreach (long uid in nuevosUids)
+                    {
+                        if (uid > lastUid)
+                        {
+                            filtrados.Add(uid);
+                        }
+                    }
+                    nuevosUids = filtrados;
+                }
+            }
+
+            if (nuevosUids != null && nuevosUids.Count > 0)
+            {
+                return _imap.DownloadEnvelopes(nuevosUids.ToString(), true, EnvelopeParts.All, 0);
+            }
+
+            return new EnvelopeCollection();
+        }
+
         /// Autor: Jashin Salazar Taco.
         /// Fecha: 19/08/2022
         /// Version: 1.0

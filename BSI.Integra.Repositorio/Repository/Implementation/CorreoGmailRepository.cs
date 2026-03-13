@@ -28,6 +28,68 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             });
             _mapper = new Mapper(config);
         }
+
+        #region Metodos Base
+        private TCorreoGmail MapeoEntidad(CorreoGmail entidad)
+        {
+            try
+            {
+                //crea la entidad padre
+                TCorreoGmail modelo = _mapper.Map<TCorreoGmail>(entidad);
+
+                return modelo;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public TCorreoGmail Add(CorreoGmail entidad)
+        {
+            try
+            {
+                var CorreoGmail = MapeoEntidad(entidad);
+                base.Insert(CorreoGmail);
+                return CorreoGmail;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public bool Update(CorreoGmail entidad)
+        {
+            try
+            {
+                var CorreoGmail = MapeoEntidad(entidad);
+                var entidadExistente = base.FirstBy(w => w.Id == entidad.Id, s => new { s.RowVersion });
+                CorreoGmail.RowVersion = entidadExistente.RowVersion;
+
+                base.Update(CorreoGmail);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public bool Delete(int id, string usuario)
+        {
+            try
+            {
+                base.Delete(id, usuario);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
         /// Autor: Gilmer Quispe.
         /// Fecha: 10/11/2022
         /// <summary>
@@ -405,6 +467,42 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
 
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 12/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el último UID (GmailCorreoId) almacenado para un personal específico en el INBOX.
+        /// </summary>
+        /// <param name="idPersonal">Id del personal</param>
+        /// <returns>El UID más alto como long, o 0 si no hay registros.</returns>
+        public long ObtenerUltimoUidPorPersonal(int idPersonal)
+        {
+            try
+            {
+                var query = @"
+                    SELECT ISNULL(MAX(GmailCorreoId), 0) AS UltimoUid
+                    FROM mkt.T_CorreoGmail WITH(NOLOCK)
+                    WHERE IdPersonal = @IdPersonal
+                      AND IdGmailFolder = 1
+                      AND Estado = 1";
+
+                var resultado = _dapperRepository.FirstOrDefault(query, new { IdPersonal = idPersonal });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    var dict = JsonConvert.DeserializeObject<Dictionary<string, long>>(resultado);
+                    if (dict != null)
+                    {
+                        return dict.Values.FirstOrDefault();
+                    }
+                }
+                return 0;
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
         }
     }
 }
