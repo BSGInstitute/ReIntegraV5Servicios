@@ -395,6 +395,140 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(Ex.Message);
             }
         }
+
+
+
+        /// TipoFuncion: POST
+        /// Autor: Alexis Arroyo
+        /// Fecha: 13/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Enviar mensaje Gmail.
+        /// </summary>
+        /// <returns></returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult EnviarMensajeGmailATC([FromForm] EnviarMensajeGmailDTO parametrosEntrada)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var personalService = new PersonalService(unitOfWork);
+                var gmailCorreoService = new GmailCorreoService(unitOfWork);
+                var interaccionService = new InteraccionService(unitOfWork);
+                var mandrilEnvioCorreoService = new MandrilEnvioCorreoService(unitOfWork);
+                var asesor = personalService.ObtenerNombreApellido(parametrosEntrada.Remitente);
+                var Mailservice = new TMK_MailService();
+
+                parametrosEntrada.DestinatarioCc = parametrosEntrada.DestinatarioCc ?? "";
+                parametrosEntrada.DestinatarioBcc = parametrosEntrada.DestinatarioBcc ?? "";
+
+                byte[] dataMensaje = Convert.FromBase64String(parametrosEntrada.Mensaje);
+                var mensajeCorreo = Encoding.UTF8.GetString(dataMensaje);
+
+                if (!mensajeCorreo.Contains("https://repositorioweb.blob.core.windows.net/firmas/"))
+                {
+                    string firma = string.Empty;
+                    string[] separacionEmail = asesor.Email.Split('@');
+                    firma = "<img src='https://repositorioweb.blob.core.windows.net/firmas/" + separacionEmail[0] + ".png' />";
+                    mensajeCorreo += "<br/>--<br/>" + firma;
+                }
+                parametrosEntrada.Destinatario = parametrosEntrada.Destinatario.Replace("<", "").Replace(">", "");
+
+                var gmailCorreoBO = new GmailCorreo
+                {
+                    IdEtiqueta = 1,//sent:1 , inbox:2
+                    Asunto = parametrosEntrada.Asunto,
+                    Fecha = DateTime.Now,
+                    EmailBody = mensajeCorreo,
+                    Seen = false,
+                    Remitente = parametrosEntrada.Remitente,
+                    Cc = parametrosEntrada.DestinatarioCc,
+                    Bcc = parametrosEntrada.DestinatarioBcc,
+                    Destinatarios = parametrosEntrada.Destinatario,
+                    IdPersonal = asesor.Id,
+                    Estado = true,
+                    FechaCreacion = DateTime.Now,
+                    FechaModificacion = DateTime.Now,
+                    UsuarioCreacion = parametrosEntrada.Usuario,
+                    UsuarioModificacion = parametrosEntrada.Usuario
+                };
+                var interacion = new Interaccion();
+                if (parametrosEntrada.IdActividadDetalle != null)
+                {
+                    interacion.IdActividadDetalle = parametrosEntrada.IdActividadDetalle;
+                    interacion.IdTipoInteraccionGeneral = 1;
+                    interacion.Fecha = DateTime.Now;
+                    interacion.Estado = true;
+                    interacion.FechaCreacion = DateTime.Now;
+                    interacion.FechaModificacion = DateTime.Now;
+                    interacion.UsuarioCreacion = parametrosEntrada.Usuario;
+                    interacion.UsuarioModificacion = parametrosEntrada.Usuario;
+                }
+                TMKMailDataDTO mailData = new TMKMailDataDTO
+                {
+                    Sender = parametrosEntrada.Remitente,
+                    Recipient = parametrosEntrada.Destinatario,
+                    Subject = parametrosEntrada.Asunto,
+                    Message = mensajeCorreo,
+                    Cc = parametrosEntrada.DestinatarioCc,
+                    Bcc = parametrosEntrada.DestinatarioBcc,
+                    AttachedFiles = null,
+                    RemitenteC = asesor.Nombres + ' ' + asesor.Apellidos
+                };
+                Mailservice.SetData(mailData);
+                if (parametrosEntrada.Files != null)
+                {
+                    foreach (var file in parametrosEntrada.Files)
+                    {
+                        Mailservice.SetFiles(file);
+                    }
+                }
+                var filtroBandejaCorreo = new FiltroBandejaCorreoService(unitOfWork);
+                var gmailClienteService = new GmailClienteService(unitOfWork);
+                CorreoClienteCredencialDTO correoClienteCredencialDTO = gmailClienteService.ObtenerClienteCredencial(parametrosEntrada.IdAsesor);
+                IList<IFormFile> Files = Request.Form.Files.ToList();
+                EstadoCorreoSmtpDTO rptEnvio = new();
+                if (correoClienteCredencialDTO != null)
+                {
+                    if (parametrosEntrada.envioGrupo == true)
+                    {
+                        var listaEmails = parametrosEntrada.GrupoEmail.Split(',');
+                        {
+                            foreach (var item in listaEmails)
+                                mailData.Recipient = item;
+                            rptEnvio = filtroBandejaCorreo.envioEmailAdjuntoOperaciones(correoClienteCredencialDTO.EmailAsesor, correoClienteCredencialDTO.PasswordCorreo, mailData, Files);
+                        }
+                    }
+                    else
+                    {
+                        rptEnvio = filtroBandejaCorreo.envioEmailAdjuntoOperaciones(correoClienteCredencialDTO.EmailAsesor, correoClienteCredencialDTO.PasswordCorreo, mailData, Files);
+                    }
+                    if (rptEnvio.codigo != "200")
+                        return BadRequest(rptEnvio.respuesta);
+                }
+                using (
+                    var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    gmailCorreoService.Add(gmailCorreoBO);
+                    if (parametrosEntrada.IdActividadDetalle != null)
+                    {
+                        interaccionService.Add(interacion);
+                    }
+                    scope.Complete();
+                }
+                return Ok(true);
+            }
+            catch (Exception Ex)
+            {
+                return BadRequest(Ex.Message);
+            }
+        }
+
+
         /// TipoFuncion: POST
         /// Autor: Gilmer Quispe.
         /// Fecha: 10/11/2022
