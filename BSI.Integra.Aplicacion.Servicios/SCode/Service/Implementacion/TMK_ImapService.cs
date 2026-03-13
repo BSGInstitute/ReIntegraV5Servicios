@@ -388,9 +388,13 @@ namespace BSI.Integra.Aplicacion.Servicios.Service.Implementacion
                 case "spam": return "[Gmail]/Spam";
                 case "trash": return "[Gmail]/Papelera";
                 case "drafts": return "[Gmail]/Borradores";
+                case "starred": return "[Gmail]/Destacados";
+                case "snoozed": return "[Gmail]/Pospuestos";
                 case "[gmail]/spam": return "[Gmail]/Spam";
                 case "[gmail]/trash": return "[Gmail]/Papelera";
                 case "[gmail]/drafts": return "[Gmail]/Borradores";
+                case "[gmail]/starred": return "[Gmail]/Destacados";
+                case "[gmail]/snoozed": return "[Gmail]/Pospuestos";
                 default: return folder;
             }
         }
