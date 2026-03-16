@@ -14,5 +14,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         PEspecificoSesionEstadoDTO Insertar(PEspecificoSesionEstadoDTO dto, string usuario);
         PEspecificoSesionEstadoDTO Actualizar(PEspecificoSesionEstadoDTO dto, string usuario);
         bool Eliminar(int id, string usuario);
+        bool ActualizarEstadoCurso(EstadoCursoDTO dto, string usuario);
+        bool ActualizarEstadoObservacion(EstadoCursoObservacionDTO dto, string usuario);
     }
 }

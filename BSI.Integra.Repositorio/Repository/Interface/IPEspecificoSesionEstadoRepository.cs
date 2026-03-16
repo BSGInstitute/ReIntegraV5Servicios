@@ -24,5 +24,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         #endregion
         IEnumerable<PEspecificoSesionEstadoDTO> Obtener();
         PEspecificoSesionEstado? ObtenerPorId(int id);
+        void ActualizarEstadoCurso(EstadoCursoDTO dto, string usuario);
+        void ActualizarEstadoObservacion(EstadoCursoObservacionDTO dto, string usuario);
     }
 }

@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation
 {
@@ -227,6 +228,44 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception($"#FR-OPI-001@Error en ObtenerPorId(), {ex.Message}");
             }
         }
+        public void ActualizarEstadoCurso(EstadoCursoDTO dto, string usuario)
+        {
+            try
+            {
+                var query = "pla.SP_TPEspecificoSesion_ActualizarPEspecificoSesionEstado";
+                var parametros = new
+                {
+                    Id = dto.Id,
+                    IdPEspecificoSesionEstado = dto.IdPEspecificoSesionEstado,
+                    UsuarioModificacion = usuario
+                };
 
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(query, parametros);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ActualizarEstadoCurso() {ex.Message}", ex);
+            }
+        }
+
+        public void ActualizarEstadoObservacion(EstadoCursoObservacionDTO dto, string usuario)
+        {
+            try
+            {
+                var query = "pla.SP_TPEspecificoSesion_ActualizarPEspecificoSesionEstadoObservacionDetalle";
+                var parametros = new
+                {
+                    Id = dto.Id,
+                    IdPEspecificoSesionEstadoObservacionDetalle = dto.IdPEspecificoSesionEstadoObservacionDetalle,
+                    UsuarioModificacion = usuario
+                };
+
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(query, parametros);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ActualizarEstadoObservacion() {ex.Message}", ex);
+            }
+        }
     }
 }

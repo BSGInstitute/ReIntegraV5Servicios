@@ -96,5 +96,19 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             var respuesta = _PEspecificoSesionEstadoService.Eliminar(id, _tokenManager.UserName);
             return Ok(respuesta);
         }
+
+
+        [HttpPut("[action]")]
+        public IActionResult ActualizarEstadoCurso([FromBody] EstadoCursoDTO dto)
+        {
+            var respuesta = _PEspecificoSesionEstadoService.ActualizarEstadoCurso(dto, _tokenManager.UserName);
+            return Ok(respuesta);
+        }
+        [HttpPut("[action]")]
+        public IActionResult ActualizarEstadoObservacion([FromBody] EstadoCursoObservacionDTO dto)
+        {
+            var respuesta = _PEspecificoSesionEstadoService.ActualizarEstadoObservacion(dto, _tokenManager.UserName);
+            return Ok(respuesta);
+        }
     }
 }

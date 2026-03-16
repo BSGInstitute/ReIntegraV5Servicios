@@ -2019,7 +2019,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var query = @"SELECT DISTINCT 
                                 Id, FechaHoraInicio, Duracion, DuracionTotal, Curso, IdExpositor, IdProveedor, IdAmbiente, IdCiudad, PEspecificoHijoId, 
-                                Tipo, IdModalidadCurso, Comentario, EsSesionInicio, IdCentroCosto, Grupo, GrupoSesion, TieneFur, MostrarPortalWeb 
+                                Tipo, IdModalidadCurso, Comentario, EsSesionInicio, IdCentroCosto, Grupo, GrupoSesion, TieneFur, MostrarPortalWeb ,IdPEspecificoSesionEstadoObservacionDetalle,IdPEspecificoSesionEstado
                               FROM 
                                 [pla].[V_ObtenerCronogramaGrupoDuplicadoSesionIndividual] 
                               WHERE 
@@ -2056,7 +2056,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     condicion = @" AND PEspecificoHijoId IN @listaPespecifico ";
                 }
                 string query = @$"
-                        SELECT DISTINCT Id, FechaHoraInicio, Duracion, DuracionTotal, Curso, IdExpositor, IdProveedor, IdAmbiente, IdCiudad, PEspecificoHijoId, Tipo, IdModalidadCurso, Comentario, EsSesionInicio, IdCentroCosto, Grupo, GrupoSesion, TieneFur, MostrarPortalWeb, IdCiclo, IdPeriodoLectivo
+                        SELECT DISTINCT Id, FechaHoraInicio, Duracion, DuracionTotal, Curso, IdExpositor, IdProveedor, IdAmbiente, IdCiudad, PEspecificoHijoId, Tipo, IdModalidadCurso, Comentario, EsSesionInicio, IdCentroCosto, Grupo, GrupoSesion, TieneFur, MostrarPortalWeb, IdCiclo, IdPeriodoLectivo,IdPEspecificoSesionEstado,IdPEspecificoSesionEstadoObservacionDetalle
                         FROM [pla].[V_ObtenerCronogramaGrupoDuplicado] 
                         WHERE Estado=1 AND PEspecificoPadreId=@idPEspecifico AND Grupo=@numeroGrupo {condicion}
                         ORDER BY FechaHoraInicio ASC, PEspecificoHijoId ASC;";

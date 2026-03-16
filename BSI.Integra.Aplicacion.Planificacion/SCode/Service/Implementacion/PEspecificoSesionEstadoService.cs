@@ -164,5 +164,17 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw;
             }
         }
+
+        public bool ActualizarEstadoCurso(EstadoCursoDTO dto , string usuario)
+        {
+            _unitOfWork.PEspecificoSesionEstadoRepository.ActualizarEstadoCurso(dto,usuario);
+            return true;
+        }
+        public bool ActualizarEstadoObservacion(EstadoCursoObservacionDTO dto, string usuario)
+        {
+            _unitOfWork.PEspecificoSesionEstadoRepository.ActualizarEstadoObservacion(dto, usuario);
+            return true;
+        }
+
     }
 }
