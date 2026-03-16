@@ -181,7 +181,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    PorcentajeCuotas,
 	                    CuotasAdicionales,
 	                    IdTipoDescuentoNivelAprobacion,
-	                    TipoPrograma
+	                    AplicaProgramaCompleto
                     FROM pla.T_TipoDescuento
                     WHERE Estado = 1 ORDER BY id DESC ";
                 var resultado = _dapperRepository.QueryDapper(query, null);
@@ -220,7 +220,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    PorcentajeCuotas,
 	                    CuotasAdicionales,
 	                    IdTipoDescuentoNivelAprobacion,
-	                    TipoPrograma,
+	                    AplicaProgramaCompleto,
 	                    Estado,
 	                    FechaCreacion,
 	                    FechaModificacion,
@@ -266,7 +266,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    PorcentajeCuotas,
 	                    CuotasAdicionales,
 	                    IdTipoDescuentoNivelAprobacion,
-	                    TipoPrograma,
+	                    AplicaProgramaCompleto,
 	                    Estado,
 	                    FechaCreacion,
 	                    FechaModificacion,
@@ -313,7 +313,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    PorcentajeCuotas,
 	                    CuotasAdicionales,
 	                    IdTipoDescuentoNivelAprobacion,
-	                    TipoPrograma,
+	                    AplicaProgramaCompleto,
 	                    Estado,
 	                    FechaCreacion,
 	                    FechaModificacion,
@@ -465,7 +465,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         PorcentajeCuotas,
                         CuotasAdicionales,
                         IdTipoDescuentoNivelAprobacion,
-                        TipoPrograma
+                        AplicaProgramaCompleto
                     FROM pla.T_TipoDescuento
                     WHERE Estado = 1
                     ORDER BY Id DESC";

@@ -12,7 +12,7 @@
         public int? PorcentajeCuotas { get; set; }
         public int? CuotasAdicionales { get; set; }
         public int? IdTipoDescuentoNivelAprobacion { get; set; }
-        public bool? TipoPrograma { get; set; }
+        public bool? AplicaProgramaCompleto { get; set; }
     }
     public class TipoDescuentoComboDTO
     {
@@ -53,7 +53,7 @@
         public int? PorcentajeCuotas { get; set; }
         public int? CuotasAdicionales { get; set; }
         public int? IdTipoDescuentoNivelAprobacion { get; set; }
-        public bool? TipoPrograma { get; set; }
+        public bool? AplicaProgramaCompleto { get; set; }
         public List<string> TipoDescuentoAsesorCoordinadorPw { get; set; }
 
     }
@@ -75,7 +75,7 @@
         public int? PorcentajeCuotas { get; set; }
         public int? CuotasAdicionales { get; set; }
         public int? IdTipoDescuentoNivelAprobacion { get; set; }
-        public bool? TipoPrograma { get; set; }
+        public bool? AplicaProgramaCompleto { get; set; }
     }
 
     public class TipoDescuentoNivelAprobacionDTO
