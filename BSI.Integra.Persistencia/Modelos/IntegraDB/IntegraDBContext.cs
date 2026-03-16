@@ -25902,9 +25902,14 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Fecha de modificación del registro");
 
                 entity.Property(e => e.Nombre)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Nombre del nivel de confianza");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Descripcion del nivel de confianza con rango porcentual y comportamiento del sistema");
 
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
@@ -25912,12 +25917,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Versión de fila para control de concurrencia");
 
                 entity.Property(e => e.UsuarioCreacion)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que creó el registro");
 
                 entity.Property(e => e.UsuarioModificacion)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que modificó el registro");
             });
@@ -26282,12 +26287,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Versión de fila para control de concurrencia");
 
                 entity.Property(e => e.UsuarioCreacion)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que creó el registro");
 
                 entity.Property(e => e.UsuarioModificacion)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que modificó el registro");
 
@@ -26974,7 +26979,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Fecha de modificación del registro");
 
                 entity.Property(e => e.Nombre)
-                    .HasMaxLength(1)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasComment("Nombre del tipo de clasificación");
 
@@ -26984,12 +26989,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Versión de fila para control de concurrencia");
 
                 entity.Property(e => e.UsuarioCreacion)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que creó el registro");
 
                 entity.Property(e => e.UsuarioModificacion)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que modificó el registro");
             });
@@ -27024,17 +27029,17 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Versión de fila para control de concurrencia");
 
                 entity.Property(e => e.TextoEjemplo)
-                    .HasMaxLength(1)
+                    .HasMaxLength(500)
                     .IsUnicode(false)
                     .HasComment("Texto de ejemplo para entrenamiento (ej: Sí, confirmo mi asistencia)");
 
                 entity.Property(e => e.UsuarioCreacion)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que creó el registro");
 
                 entity.Property(e => e.UsuarioModificacion)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que modificó el registro");
 
@@ -27339,7 +27344,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.Property(e => e.IdGestionDocenteOcurrencia).HasComment("Llave foránea a la tabla T_GestionDocenteOcurrencia");
 
                 entity.Property(e => e.Prompt)
-                    .HasMaxLength(1)
+                    .HasMaxLength(4000)
                     .IsUnicode(false)
                     .HasComment("Prompt o instrucción para el modelo de IA");
 
@@ -27349,12 +27354,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Versión de fila para control de concurrencia");
 
                 entity.Property(e => e.UsuarioCreacion)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que creó el registro");
 
                 entity.Property(e => e.UsuarioModificacion)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que modificó el registro");
 

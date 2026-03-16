@@ -5,12 +5,14 @@ using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
 using BSI.Integra.Aplicacion.Servicios.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Helper;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
+using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using System.Globalization;
@@ -43,8 +45,115 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 cfg.CreateMap<TComprobantePagoOportunidad, ComprobantePagoOportunidad>(MemberList.None).ReverseMap();
                 cfg.CreateMap<TCalidadProcesamientoAlterno, CalidadProcesamientoAlterno>(MemberList.None).ReverseMap();
                 cfg.CreateMap<DatosOportunidadDTO, Oportunidad>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TActividadDetalleGestionContacto, ActividadDetalleGestionContacto>(MemberList.None).ReverseMap();
+                cfg.CreateMap<TGestionContacto, GestionContacto>(MemberList.None).ReverseMap();
             });
             _mapper = new Mapper(config);
+        }
+
+        public async Task<bool> FinalizarYProgramarGestionAsync(FinalizarProgramarGestionPlaDTO dto)
+        {
+            if (dto.ActividadAntigua.IdGestionContacto == 0)
+                throw new ArgumentException("IdGestionContacto es requerido");
+            using (TransactionScope scope = new TransactionScope(TransactionScopeOption.RequiresNew, TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    // 1. Obtener Gestión (Oportunidad Docente)
+                    var gestionDTO = await _unitOfWork.GestionContactoRepository.ObtenerPorIdAsync(dto.ActividadAntigua.IdGestionContacto);
+
+                    if (gestionDTO == null) throw new Exception("Gestión no encontrada");
+
+                    var gestionBO = new GestionContacto
+                    {
+                        Id                       = gestionDTO.Id,
+                        IdCentroCosto            = gestionDTO.IdCentroCosto,
+                        IdPersonalAsignado       = gestionDTO.IdPersonal_Asignado,
+                        IdClasificacionPersona   = gestionDTO.IdClasificacionPersona,
+                        IdFaseGestionContacto    = gestionDTO.IdFaseGestionContacto ?? 0,
+                        IdOrigen                 = gestionDTO.IdOrigen,
+                        UltimoComentario         = gestionDTO.UltimoComentario,
+                        IdEstadoGestionContacto  = gestionDTO.IdEstadoGestionContacto ?? 0,
+                        UsuarioCreacion          = gestionDTO.UsuarioCreacion,
+                        UsuarioModificacion      = gestionDTO.UsuarioModificacion,
+                        FechaCreacion            = gestionDTO.FechaCreacion,
+                        FechaModificacion        = gestionDTO.FechaModificacion,
+                        Estado                   = true
+                    };
+
+                    // 2. Cerrar Actividad Antigua
+                    var actividadAntigua = await _unitOfWork.ActividadDetalleGestionContactoRepository.ObtenerPorIdAsync(dto.ActividadAntigua.Id);
+
+                    if (actividadAntigua != null)
+                    {
+                        actividadAntigua.FechaReal = DateTime.Now;
+                        actividadAntigua.DuracionReal = 0;
+                        actividadAntigua.Estado = true;
+                        //actividadAntigua.IdOcurrencia = dto.ActividadAntigua.IdOcurrencia; -- PENDIENTE DE AJUSTE
+                        actividadAntigua.Comentario = dto.ActividadAntigua.Comentario;
+                        actividadAntigua.UsuarioModificacion = dto.Filtro?.Usuario;
+                        actividadAntigua.FechaModificacion = DateTime.Now;
+
+                        _unitOfWork.ActividadDetalleGestionContactoRepository.Update(actividadAntigua);
+                    }
+
+                    // 3. Programar Nueva Actividad
+                    if (DateTime.TryParse(dto.DatosGestion?.UltimaFechaProgramada, out DateTime fechaProgramada))
+                    {
+                        var actividadNueva = new ActividadDetalleGestionContacto
+                        {
+                            IdGestionContacto = dto.ActividadAntigua.IdGestionContacto,
+                            FechaProgramada = fechaProgramada,
+                            Estado = true,
+                            IdActividadCabecera = 1,
+                            Comentario = "Reprogramación",
+                            UsuarioCreacion = dto.Filtro?.Usuario,
+                            UsuarioModificacion = dto.Filtro?.Usuario,
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now
+                        };
+
+                        //await _unitOfWork.ActividadDetalleGestionContactoRepository.AddAsync(actividadNueva); -- PENDIENTE DE AJUSTE
+
+                        // 4. Bloqueo de Agenda
+                        var horaBloqueada = new HoraBloqueada
+                        {
+                            IdPersonal = dto.DatosGestion?.IdPersonalAsignado,
+                            Fecha = fechaProgramada.Date,
+                            Hora = fechaProgramada,
+                            Estado = true,
+                            UsuarioCreacion = dto.Filtro?.Usuario,
+                            UsuarioModificacion = dto.Filtro?.Usuario,
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now
+                        };
+
+                        //await _unitOfWork.HoraBloqueadaRepository.AddAsync(horaBloqueada); -- PENDIENTE DE AJUSTE
+                    }
+
+                    // 5. Actualizar Gestión
+                    // Lógica de cambio de fase
+                    if (dto.DatosGestion?.IdFaseGestionContacto.HasValue == true && dto.DatosGestion.IdFaseGestionContacto > 0)
+                    {
+                        gestionBO.IdFaseGestionContacto = dto.DatosGestion.IdFaseGestionContacto.Value;
+                    }
+
+                    gestionBO.UltimoComentario = dto.DatosGestion?.UltimoComentario;
+                    gestionBO.UsuarioModificacion = dto.Filtro?.Usuario;
+                    gestionBO.FechaModificacion = DateTime.Now;
+
+                    _unitOfWork.GestionContactoRepository.Update(gestionBO);
+
+                    await _unitOfWork.CommitAsync();
+                    scope.Complete();
+
+                    return true;
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
         }
 
         /// Autor: Gilmer Quispe

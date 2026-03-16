@@ -16,6 +16,8 @@ using BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Sendingblue;
 using BSI.Integra.Aplicacion.Marketing.Service.Interface.Sendingblue;
 using BSI.Integra.Aplicacion.Operaciones.Service.Implementacion;
 using BSI.Integra.Aplicacion.Operaciones.Service.Interface;
+using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion;
+using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
 using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
@@ -155,7 +157,13 @@ builder.Services.AddTransient<ICrucigramaProgramaCapacitacionService, Crucigrama
 builder.Services.AddTransient<IProgramaGeneralMaterialEstudioAdicionalService, ProgramaGeneralMaterialEstudioAdicionalService>();
 builder.Services.AddTransient<ICourierService, CourierService>();
 builder.Services.AddTransient<ICourierDetalleService, CourierDetalleService>();
+builder.Services.AddTransient<IGestionContactoService, GestionContactoService>();
+builder.Services.AddTransient<IDocentePostulanteService, DocentePostulanteService>();
+builder.Services.AddTransient<IFaseGestionContactoService, FaseGestionContactoService>();
 builder.Services.AddTransient<IMatriculaFormularioProgresivoService, MatriculaFormularioProgresivoService>();
+builder.Services.AddTransient<IGestionDocenteActividadService, GestionDocenteActividadService>();
+builder.Services.AddTransient<IGestionDocenteFlujoService, GestionDocenteFlujoService>();
+builder.Services.AddTransient<IGestionDocenteAgendaService, GestionDocenteAgendaService>();
 
 builder.Services.AddTransient<ITransicionFaseOportunidadService, TransicionFaseOportunidadService>();
 builder.Services.AddTransient<ITransicionFaseOportunidadRepository, TransicionFaseOportunidadRepository>();
@@ -228,8 +236,11 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<BSI.Integra.Repositorio.Repository.Interface.IAdwordsConversionRepository, BSI.Integra.Repositorio.Repository.Implementation.AdwordsConversionRepository>();
 builder.Services.AddScoped<BSI.Integra.Aplicacion.Transversal.Service.Interface.IAdwordsConversionService, BSI.Integra.Aplicacion.Transversal.Service.Implementacion.AdwordsConversionService>();
 
+// WhatsApp Service
+builder.Services.AddScoped<BSI.Integra.Aplicacion.Transversal.Service.Interface.IWhatsAppMensajeEnviadoApiPlanificacionService, BSI.Integra.Aplicacion.Transversal.Service.Implementacion.WhatsAppMensajeEnviadoApiPlanificacionService>();
+
 var connectionString = builder.Configuration.GetConnectionString("IntegraDB");
-// Registrar Hangfire
+//Registrar Hangfire
 builder.Services.AddHangfire(config =>
     config.UseSqlServerStorage(connectionString));
 builder.Services.AddHangfireServer();
