@@ -1,0 +1,1531 @@
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
+using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
+using BSI.Integra.Persistencia.Modelos.IntegraDB;
+using BSI.Integra.Repositorio.UnitOfWork;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Transactions;
+
+namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
+{
+    public class GestionDocenteActividadService : IGestionDocenteActividadService
+    {
+        private readonly IUnitOfWork _unitOfWork;
+
+        public GestionDocenteActividadService(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 29/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Inserta una cabecera de actividad docente en la base de datos.
+        /// </summary>
+        /// <param name="dto">DTO con los datos de la cabecera de actividad.</param>
+        public async Task<int> InsertarCabeceraAsync(GestionDocenteActividadCabeceraDTO dto)
+        {
+            try
+            {
+                DateTime fechaActual = DateTime.Now;
+
+                var gestionDocenteActividadCabecera = new GestionDocenteActividadCabecera
+                {
+                    Nombre = dto.Nombre,
+                    Descripcion = dto.Descripcion,
+                    IdGestionDocenteEstado = dto.IdGestionDocenteEstado,
+                    IdGestionDocenteCategoria = dto.IdGestionDocenteCategoria,
+                    Estado = true,
+                    UsuarioCreacion = dto.Usuario,
+                    UsuarioModificacion = dto.Usuario,
+                    FechaCreacion = fechaActual,
+                    FechaModificacion = fechaActual
+                };
+
+                var model = _unitOfWork.GestionDocenteActividadCabeceraRepository.Add(gestionDocenteActividadCabecera);
+                await _unitOfWork.CommitAsync();
+
+                return model.Id;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 29/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Inserta un detalle de actividad con su disparador, reglas de tiempo y referencias asociadas según el tipo de disparador.
+        /// Usa TransactionScope para garantizar atomicidad entre los múltiples commits.
+        /// </summary>
+        /// <param name="request">DTO con detalle, disparador, reglas de tiempo y referencias.</param>
+        public async Task<int> InsertarDetalleAsync(InsertarActividadDetalleRequestDTO request)
+        {
+            try
+            {
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    DateTime fechaActual = DateTime.Now;
+                    string usuario = request.Detalle.Usuario;
+
+                    // 1. Crear el Disparador Detalle
+                    var gestionDocenteDisparadorDetalle = new GestionDocenteDisparadorDetalle
+                    {
+                        IdGestionDocenteDisparadorFlujoTipo = request.Disparador.IdGestionDocenteDisparadorFlujoTipo,
+                        Estado = true,
+                        UsuarioCreacion = usuario,
+                        UsuarioModificacion = usuario,
+                        FechaCreacion = fechaActual,
+                        FechaModificacion = fechaActual
+                    };
+                    var disparadorModel = _unitOfWork.GestionDocenteDisparadorDetalleRepository.Add(gestionDocenteDisparadorDetalle);
+                    await _unitOfWork.CommitAsync();
+
+                    // 2. Procesar según el tipo de disparador
+                    await ProcesarTipoDisparadorAsync(request, disparadorModel.Id, usuario, fechaActual);
+
+                    // 3. Crear Detalle de Actividad
+                    var idPlantilla = request.Detalle.IdPlantillaMedioComunicacion;
+                    var gestionDocenteActividadDetalle = new GestionDocenteActividadDetalle
+                    {
+                        IdGestionDocenteActividadCabecera = request.Detalle.IdGestionDocenteActividadCabecera,
+                        IdGestionDocenteActividadDetalleTipo = request.Detalle.IdGestionDocenteActividadDetalleTipo,
+                        IdPlantillaMedioComunicacion = (idPlantilla.HasValue && idPlantilla.Value > 0) ? idPlantilla.Value : null,
+                        IdGestionDocenteDisparadorDetalle = disparadorModel.Id,
+                        Nombre = request.Detalle.Nombre,
+                        Estado = true,
+                        UsuarioCreacion = usuario,
+                        UsuarioModificacion = usuario,
+                        FechaCreacion = fechaActual,
+                        FechaModificacion = fechaActual
+                    };
+
+                    var model = _unitOfWork.GestionDocenteActividadDetalleRepository.Add(gestionDocenteActividadDetalle);
+                    await _unitOfWork.CommitAsync();
+
+                    // 4. Si es tipo disparador 3 (Basado en Cronograma) insertar en T_GestionContactoActividadDetalleSesion
+                    if (request.Disparador.IdGestionDocenteDisparadorFlujoTipo == 3 && request.IdGestionDocenteSesion.HasValue)
+                    {
+                        var actividadDetalleSesion = new GestionContactoActividadDetalleSesion
+                        {
+                            IdGestionDocenteActividadDetalle = model.Id,
+                            IdGestionDocenteSesion = request.IdGestionDocenteSesion.Value,
+                            Estado = true,
+                            UsuarioCreacion = usuario,
+                            UsuarioModificacion = usuario,
+                            FechaCreacion = fechaActual,
+                            FechaModificacion = fechaActual
+                        };
+
+                        _unitOfWork.GestionContactoActividadDetalleSesionRepository.Add(actividadDetalleSesion);
+                        await _unitOfWork.CommitAsync();
+                    }
+
+                    scope.Complete();
+                    return model.Id;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Procesa el tipo de disparador y crea los registros correspondientes según el tipo:
+        /// 1 = Primera Actividad (Tiempo Fijo), 2 = Basado en Ocurrencia Anterior, 3 = Basado en Cronograma.
+        /// </summary>
+        private async Task ProcesarTipoDisparadorAsync(InsertarActividadDetalleRequestDTO request, int idDisparadorDetalle, string usuario, DateTime fechaActual)
+        {
+            switch (request.Disparador.IdGestionDocenteDisparadorFlujoTipo)
+            {
+                case 1: // Primera Actividad (Tiempo Fijo)
+                    await ProcesarDisparadorTiempoFijoAsync(request.ReglaTiempoFijo, idDisparadorDetalle, usuario, fechaActual);
+                    break;
+
+                case 2: // Basado en Ocurrencia Anterior
+                    await ProcesarDisparadorOcurrenciaAnteriorAsync(request.ReglaTiempoRelativo, request.OcurrenciaDetalle, idDisparadorDetalle, usuario, fechaActual);
+                    break;
+
+                case 3: // Basado en Cronograma
+                    await ProcesarDisparadorCronogramaAsync(request.ReglaTiempoRelativo, request.ReferenciaRelativa, idDisparadorDetalle, usuario, fechaActual);
+                    break;
+
+                default:
+                    throw new ArgumentException($"Tipo de disparador no válido: {request.Disparador.IdGestionDocenteDisparadorFlujoTipo}");
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Tipo 1: Primera Actividad - Tiempo Fijo.
+        /// Guarda fecha específica en T_GestionDocenteDisparadorReglaTiempoFijo.
+        /// </summary>
+        private async Task ProcesarDisparadorTiempoFijoAsync(GestionDocenteDisparadorReglaTiempoFijoDTO dto, int idDisparadorDetalle, string usuario, DateTime fechaActual)
+        {
+            if (dto == null)
+                throw new ArgumentException("La regla de tiempo fijo es requerida para el disparador de tipo Primera Actividad");
+
+            int idReglaTiempoFijo = _unitOfWork.GestionDocenteDisparadorReglaTiempoFijoRepository.ObtenerIdReglaTiempoPorTipo("FIJO");
+
+            var reglaFija = new GestionDocenteDisparadorReglaTiempoFijo
+            {
+                IdGestionDocenteDisparadorReglaTiempo = idReglaTiempoFijo,
+                IdGestionDocenteDisparadorDetalle = idDisparadorDetalle,
+                Fecha = dto.Fecha,
+                Estado = true,
+                UsuarioCreacion = usuario,
+                UsuarioModificacion = usuario,
+                FechaCreacion = fechaActual,
+                FechaModificacion = fechaActual
+            };
+
+            _unitOfWork.GestionDocenteDisparadorReglaTiempoFijoRepository.Add(reglaFija);
+            await _unitOfWork.CommitAsync();
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Tipo 2: Basado en Ocurrencia Anterior.
+        /// Guarda cantidad y unidad de tiempo en T_GestionDocenteDisparadorReglaTiempoRelativo
+        /// y la ocurrencia anterior en T_GestionDocenteDisparadorOcurrenciaDetalle.
+        /// </summary>
+        private async Task ProcesarDisparadorOcurrenciaAnteriorAsync(GestionDocenteDisparadorReglaTiempoRelativoDTO reglaDto, GestionDocenteDisparadorOcurrenciaDetalleDTO ocurrenciaDto, int idDisparadorDetalle, string usuario, DateTime fechaActual)
+        {
+            if (reglaDto == null)
+                throw new ArgumentException("La regla de tiempo relativo es requerida para el disparador Basado en Ocurrencia Anterior");
+
+            if (ocurrenciaDto == null)
+                throw new ArgumentException("La ocurrencia anterior es requerida para el disparador Basado en Ocurrencia Anterior");
+
+            int idReglaTiempoRelativo = _unitOfWork.GestionDocenteDisparadorReglaTiempoFijoRepository.ObtenerIdReglaTiempoPorTipo("RELATIVO");
+
+            // Crear regla de tiempo relativo
+            var reglaRelativa = new GestionDocenteDisparadorReglaTiempoRelativo
+            {
+                IdGestionDocenteDisparadorReglaTiempo = idReglaTiempoRelativo,
+                IdGestionDocenteDisparadorDetalle = idDisparadorDetalle,
+                Cantidad = reglaDto.Cantidad,
+                IdGestionDocenteUnidadTiempo = reglaDto.IdGestionDocenteUnidadTiempo,
+                Estado = true,
+                UsuarioCreacion = usuario,
+                UsuarioModificacion = usuario,
+                FechaCreacion = fechaActual,
+                FechaModificacion = fechaActual
+            };
+
+            _unitOfWork.GestionDocenteDisparadorReglaTiempoRelativoRepository.Add(reglaRelativa);
+
+            // Crear referencia a ocurrencia anterior
+            var disparadorOcurrencia = new GestionDocenteDisparadorOcurrenciaDetalle
+            {
+                IdGestionDocenteDisparadorDetalle = idDisparadorDetalle,
+                IdGestionDocenteOcurrenciaPrevia = ocurrenciaDto.IdGestionDocenteOcurrenciaPrevia,
+                Estado = true,
+                UsuarioCreacion = usuario,
+                UsuarioModificacion = usuario,
+                FechaCreacion = fechaActual,
+                FechaModificacion = fechaActual
+            };
+
+            _unitOfWork.GestionDocenteDisparadorOcurrenciaDetalleRepository.Add(disparadorOcurrencia);
+            await _unitOfWork.CommitAsync();
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Tipo 3: Basado en Cronograma.
+        /// Guarda cantidad y unidad de tiempo en T_GestionDocenteDisparadorReglaTiempoRelativo
+        /// y la referencia de tiempo (antes/después de sesión) en T_GestionDocenteDisparadorReglaTiempoRelativoReferencia.
+        /// </summary>
+        private async Task ProcesarDisparadorCronogramaAsync(GestionDocenteDisparadorReglaTiempoRelativoDTO reglaDto, GestionDocenteDisparadorReglaTiempoRelativoReferenciaDTO referenciaDto, int idDisparadorDetalle, string usuario, DateTime fechaActual)
+        {
+            if (reglaDto == null)
+                throw new ArgumentException("La regla de tiempo relativo es requerida para el disparador Basado en Cronograma");
+
+            if (referenciaDto == null)
+                throw new ArgumentException("La referencia de tiempo (antes/después) es requerida para el disparador Basado en Cronograma");
+
+            int idReglaTiempoRelativo = _unitOfWork.GestionDocenteDisparadorReglaTiempoFijoRepository.ObtenerIdReglaTiempoPorTipo("RELATIVO");
+
+            // Crear regla de tiempo relativo
+            var reglaRelativa = new GestionDocenteDisparadorReglaTiempoRelativo
+            {
+                IdGestionDocenteDisparadorReglaTiempo = idReglaTiempoRelativo,
+                IdGestionDocenteDisparadorDetalle = idDisparadorDetalle,
+                Cantidad = reglaDto.Cantidad,
+                IdGestionDocenteUnidadTiempo = reglaDto.IdGestionDocenteUnidadTiempo,
+                Estado = true,
+                UsuarioCreacion = usuario,
+                UsuarioModificacion = usuario,
+                FechaCreacion = fechaActual,
+                FechaModificacion = fechaActual
+            };
+
+            var reglaRelativaModel = _unitOfWork.GestionDocenteDisparadorReglaTiempoRelativoRepository.Add(reglaRelativa);
+            await _unitOfWork.CommitAsync();
+
+            // Crear referencia de tiempo (antes/después de sesión)
+            var referenciaRelativa = new GestionDocenteDisparadorReglaTiempoRelativoReferencia
+            {
+                IdGestionDocenteDisparadorReglaTiempoRelativo = reglaRelativaModel.Id,
+                IdGestionDocenteReferenciaTiempo = referenciaDto.IdGestionDocenteReferenciaTiempo,
+                Estado = true,
+                UsuarioCreacion = usuario,
+                UsuarioModificacion = usuario,
+                FechaCreacion = fechaActual,
+                FechaModificacion = fechaActual
+            };
+
+            _unitOfWork.GestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository.Add(referenciaRelativa);
+            await _unitOfWork.CommitAsync();
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 04/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Inserta una ocurrencia asociada a un detalle de actividad, incluyendo configuración IA y ejemplos de entrenamiento si el modo es Automático o Warm.
+        /// Usa TransactionScope para garantizar atomicidad entre los múltiples commits.
+        /// </summary>
+        /// <param name="request">DTO con ocurrencia, configuración IA y ejemplos de entrenamiento.</param>
+        public async Task<int> InsertarOcurrenciaAsync(InsertarOcurrenciaRequestDTO request)
+        {
+            try
+            {
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    var dto = request.Ocurrencia;
+                    DateTime fechaActual = DateTime.Now;
+                    string usuario = dto.Usuario;
+
+                    // 1. Insertar la ocurrencia
+                    var gestionDocenteOcurrencia = new GestionDocenteOcurrencia
+                    {
+                        Nombre = dto.Nombre,
+                        Descripcion = dto.Descripcion,
+                        IdGestionDocenteOcurrenciaTipo = dto.IdGestionDocenteOcurrenciaTipo,
+                        IdGestionDocenteActividadDetalle = dto.IdGestionDocenteActividadDetalle,
+                        IdGestionDocenteModoMarcado = dto.IdGestionDocenteModoMarcado,
+                        RequiereComentario = dto.RequiereComentario,
+                        RequiereFechaHora = dto.RequiereFechaHora,
+                        Estado = true,
+                        UsuarioCreacion = usuario,
+                        UsuarioModificacion = usuario,
+                        FechaCreacion = fechaActual,
+                        FechaModificacion = fechaActual
+                    };
+
+                    var model = _unitOfWork.GestionDocenteOcurrenciaRepository.Add(gestionDocenteOcurrencia);
+                    await _unitOfWork.CommitAsync();
+
+                    // 2. Para Automatico (2) y Warm (3), insertar configuración IA y ejemplos de entrenamiento
+                    if (dto.IdGestionDocenteModoMarcado == 2 || dto.IdGestionDocenteModoMarcado == 3)
+                    {
+                        await ProcesarConfiguracionIaAsync(request, model.Id, usuario, fechaActual);
+                    }
+
+                    scope.Complete();
+                    return model.Id;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 04/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Procesa la configuración de IA para modos de marcado Automático (2) y Warm (3).
+        /// Inserta en T_GestionDocenteOcurrenciaIaConfiguracion y T_GestionDocenteIaEntrenamientoEjemplo.
+        /// </summary>
+        private async Task ProcesarConfiguracionIaAsync(InsertarOcurrenciaRequestDTO request, int idOcurrencia, string usuario, DateTime fechaActual)
+        {
+            if (request.IaConfiguracion == null)
+                throw new ArgumentException("La configuración de IA es requerida para los modos de marcado Automático y Warm");
+
+            // Insertar configuración IA
+            var iaConfiguracion = new GestionDocenteOcurrenciaIaConfiguracion
+            {
+                Prompt = request.IaConfiguracion.Prompt,
+                IdGestionDocenteConfianzaUmbralNivel = request.IaConfiguracion.IdGestionDocenteConfianzaUmbralNivel,
+                IdGestionDocenteOcurrencia = idOcurrencia,
+                Estado = true,
+                UsuarioCreacion = usuario,
+                UsuarioModificacion = usuario,
+                FechaCreacion = fechaActual,
+                FechaModificacion = fechaActual
+            };
+
+            var iaConfigModel = _unitOfWork.GestionDocenteOcurrenciaIaConfiguracionRepository.Add(iaConfiguracion);
+            await _unitOfWork.CommitAsync();
+
+            // Insertar ejemplos de entrenamiento
+            if (request.EjemplosEntrenamiento != null && request.EjemplosEntrenamiento.Count > 0)
+            {
+                foreach (var ejemploDto in request.EjemplosEntrenamiento)
+                {
+                    var ejemplo = new GestionDocenteIaEntrenamientoEjemplo
+                    {
+                        IdGestionDocenteOcurrenciaIaConfiguracion = iaConfigModel.Id,
+                        IdGestionDocenteIaEntrenamientoClasificacionTipo = ejemploDto.IdGestionDocenteIaEntrenamientoClasificacionTipo,
+                        TextoEjemplo = ejemploDto.TextoEjemplo,
+                        EsPositivo = ejemploDto.EsPositivo,
+                        Estado = true,
+                        UsuarioCreacion = usuario,
+                        UsuarioModificacion = usuario,
+                        FechaCreacion = fechaActual,
+                        FechaModificacion = fechaActual
+                    };
+
+                    _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository.Add(ejemplo);
+                }
+                await _unitOfWork.CommitAsync();
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 28/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Procesa la inserción maestro de una actividad completa: cabecera, detalles con disparadores y ocurrencias en una sola transacción.
+        /// Usa TransactionScope para garantizar atomicidad de toda la operación.
+        /// </summary>
+        /// <param name="dto">DTO maestro con cabecera y detalles (cada detalle incluye sus ocurrencias).</param>
+        public async Task<int> ProcesarMaestroActividadAsync(MaestroGestionDocenteActividadDTO dto)
+        {
+            try
+            {
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    // 1. Insertar Cabecera
+                    int idCabecera = await InsertarCabeceraAsync(dto.Cabecera);
+
+                    // 2. Insertar Detalles con sus Ocurrencias
+                    foreach (var detRequest in dto.Detalles)
+                    {
+                        detRequest.Detalle.IdGestionDocenteActividadCabecera = idCabecera;
+                        int idDetalle = await InsertarDetalleAsync(detRequest);
+
+                        // 3. Insertar Ocurrencias asociadas a este detalle
+                        if (detRequest.Ocurrencias != null)
+                        {
+                            foreach (var ocuRequest in detRequest.Ocurrencias)
+                            {
+                                ocuRequest.Ocurrencia.IdGestionDocenteActividadDetalle = idDetalle;
+                                await InsertarOcurrenciaAsync(ocuRequest);
+                            }
+                        }
+                    }
+
+                    scope.Complete();
+                    return idCabecera;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 30/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Asocia una actividad cabecera a un flujo docente creando un registro en T_GestionDocenteActividadCabeceraFlujo.
+        /// </summary>
+        /// <param name="dto">DTO con IdGestionDocenteFlujo e IdGestionDocenteActividadCabecera.</param>
+        public async Task<int> AsociarActividadAFlujoAsync(GestionDocenteActividadCabeceraFlujoDTO dto)
+        {
+            try
+            {
+                DateTime fechaActual = DateTime.Now;
+
+                var entidad = new GestionDocenteActividadCabeceraFlujo
+                {
+                    IdGestionDocenteFlujo = dto.IdGestionDocenteFlujo,
+                    IdGestionDocenteActividadCabecera = dto.IdGestionDocenteActividadCabecera,
+                    Estado = true,
+                    UsuarioCreacion = dto.Usuario,
+                    UsuarioModificacion = dto.Usuario,
+                    FechaCreacion = fechaActual,
+                    FechaModificacion = fechaActual
+                };
+
+                var model = _unitOfWork.GestionDocenteActividadCabeceraFlujoRepository.Add(entidad);
+                await _unitOfWork.CommitAsync();
+
+                return model.Id;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 30/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Desasocia una actividad cabecera de un flujo docente mediante eliminación lógica.
+        /// </summary>
+        /// <param name="id">Identificador de la asociación actividad-flujo.</param>
+        /// <param name="usuario">Usuario que realiza la operación.</param>
+        public async Task<bool> DesasociarActividadDeFlujoAsync(int id, string usuario)
+        {
+            try
+            {
+                _unitOfWork.GestionDocenteActividadCabeceraFlujoRepository.Delete(id, usuario);
+                await _unitOfWork.CommitAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 30/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todas las actividades cabecera asociadas a un flujo específico.
+        /// </summary>
+        /// <param name="idFlujo">Identificador del flujo docente.</param>
+        public async Task<List<GestionDocenteActividadCabeceraFlujoDTO>> ObtenerActividadesPorFlujoAsync(int idFlujo)
+        {
+            try
+            {
+                var lista = _unitOfWork.GestionDocenteActividadCabeceraFlujoRepository
+                    .GetAll()
+                    .Where(x => x.IdGestionDocenteFlujo == idFlujo && x.Estado)
+                    .ToList();
+
+                var resultado = lista.Select(x => new GestionDocenteActividadCabeceraFlujoDTO
+                {
+                    Id = x.Id,
+                    IdGestionDocenteFlujo = x.IdGestionDocenteFlujo,
+                    IdGestionDocenteActividadCabecera = x.IdGestionDocenteActividadCabecera,
+                    Estado = x.Estado
+                }).ToList();
+
+                return await Task.FromResult(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 05/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de sesiones docentes activas desde pla.T_GestionDocenteSesion.
+        /// </summary>
+        public IEnumerable<GestionDocenteSesionDTO> ObtenerSesiones()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerSesiones();
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 05/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todas las ocurrencias activas registradas en el sistema.
+        /// </summary>
+        public IEnumerable<GestionDocenteOcurrenciaDTO> ObtenerOcurrencias()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteOcurrenciaRepository.ObtenerOcurrencias();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 05/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de niveles de umbral de confianza para configuración IA.
+        /// </summary>
+        public IEnumerable<GestionDocenteConfianzaUmbralNivelDTO> ObtenerConfianzaUmbralNiveles()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerConfianzaUmbralNiveles();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 05/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de tipos de ocurrencia (Manual, Automático, Warm).
+        /// </summary>
+        public IEnumerable<GestionDocenteOcurrenciaTipoDTO> ObtenerOcurrenciaTipos()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerOcurrenciaTipos();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 05/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de referencias de tiempo (Antes de sesión, Después de sesión).
+        /// </summary>
+        public IEnumerable<GestionDocenteReferenciaTiempoDTO> ObtenerReferenciasTiempo()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReferenciasTiempo();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 07/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de tipos de actividad detalle.
+        /// </summary>
+        public IEnumerable<GestionDocenteActividadDetalleTipoDTO> ObtenerActividadDetalleTipos()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerActividadDetalleTipos();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 11/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de tipos de disparador de flujo (1ra Actividad, Ocurrencia Anterior, Cronograma).
+        /// </summary>
+        public IEnumerable<GestionDocenteDisparadorFlujoTipoDTO> ObtenerDisparadorFlujoTipos()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDisparadorFlujoTipos();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 13/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de unidades de tiempo (Minutos, Horas, Días) desde pla.T_GestionDocenteUnidadTiempo.
+        /// </summary>
+        public IEnumerable<GestionDocenteUnidadTiempoDTO> ObtenerUnidadesTiempo()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerUnidadesTiempo();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 13/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los tres tipos de disparador de flujo con sus catálogos de configuración ensamblados por tipo:
+        /// Tipo 1 solo nombre, Tipo 2 con unidades de tiempo y ocurrencias, Tipo 3 con momentos y unidades de tiempo.
+        /// </summary>
+        public List<object> ObtenerDisparadorFlujoTiposConfiguracion()
+        {
+            try
+            {
+                var tipos = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDisparadorFlujoTipos().ToList();
+                if (!tipos.Any()) return new List<object>();
+
+                var unidadesTiempo = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerUnidadesTiempo().ToList();
+                var referenciasTiempo = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReferenciasTiempo().ToList();
+                var ocurrencias = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerOcurrenciasReferencia().ToList();
+
+                return tipos.Select<GestionDocenteDisparadorFlujoTipoDTO, object>(t =>
+                {
+                    switch (t.Id)
+                    {
+                        case 1:
+                            return new DisparadorFlujoTipoPrimeraActividadConfigDTO
+                            {
+                                Id = t.Id,
+                                Nombre = t.Nombre
+                            };
+                        case 2:
+                            return new DisparadorFlujoTipoOcurrenciaConfigDTO
+                            {
+                                Id = t.Id,
+                                Nombre = t.Nombre,
+                                Tiempo = unidadesTiempo,
+                                Ocurrencias = ocurrencias
+                            };
+                        case 3:
+                            return new DisparadorFlujoTipoCronogramaConfigDTO
+                            {
+                                Id = t.Id,
+                                Nombre = t.Nombre,
+                                Momento = referenciasTiempo,
+                                Tiempo = unidadesTiempo
+                            };
+                        default:
+                            return new DisparadorFlujoTipoPrimeraActividadConfigDTO
+                            {
+                                Id = t.Id,
+                                Nombre = t.Nombre
+                            };
+                    }
+                }).ToList();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 07/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de modos de marcado de ocurrencia (Manual, Automático, Warm).
+        /// </summary>
+        public IEnumerable<GestionDocenteModoMarcadoDTO> ObtenerModosMarcado()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerModosMarcado();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 07/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de medios de comunicación activos desde pla.T_MedioComunicacion.
+        /// </summary>
+        public IEnumerable<GestionDocenteMedioComunicacionDTO> ObtenerMediosComunicacion()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerMediosComunicacion();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 07/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de plantillas de medio de comunicación con sus plantillas y medios asociados.
+        /// </summary>
+        public IEnumerable<GestionDocentePlantillaMedioComunicacionDTO> ObtenerPlantillasMedioComunicacion()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerPlantillasMedioComunicacion();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 16/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene las plantillas de medio de comunicación filtradas por un medio de comunicación específico.
+        /// </summary>
+        /// <param name="idMedioComunicacion">Identificador del medio de comunicación.</param>
+        public IEnumerable<GestionDocentePlantillaMedioComunicacionDTO> ObtenerPlantillasMedioComunicacionPorMedioComunicacion(int idMedioComunicacion)
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerPlantillasMedioComunicacion()
+                    .Where(x => x.IdMedioComunicacion == idMedioComunicacion);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 11/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene todos los disparadores activos con sus reglas de tiempo ensambladas por tipo
+        /// (Tiempo Fijo, Ocurrencia Anterior, Cronograma) usando DTOs específicos para eliminar campos null.
+        /// </summary>
+        public List<object> ObtenerDisparadorReglaTiempo()
+        {
+            try
+            {
+                var disparadores = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDisparadorReglaTiempo().ToList();
+                if (!disparadores.Any()) return new List<object>();
+
+                var disparadorIds = string.Join(",", disparadores.Select(d => d.IdGestionDocenteDisparadorDetalle));
+
+                var reglasFijo = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReglasTiempoFijoPorDisparadores(disparadorIds).ToList();
+                var reglasRelativo = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReglasTiempoRelativoPorDisparadores(disparadorIds).ToList();
+
+                var referenciasRelativas = new List<GestionDocenteDisparadorReglaTiempoRelativoReferenciaOutputDTO>();
+                if (reglasRelativo.Any())
+                {
+                    var reglasRelativoIds = string.Join(",", reglasRelativo.Select(r => r.IdGestionDocenteDisparadorReglaTiempoRelativo));
+                    referenciasRelativas = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReferenciasRelativasPorReglas(reglasRelativoIds).ToList();
+                }
+
+                var disparadoresOcurrencia = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDisparadoresOcurrenciaPorIds(disparadorIds).ToList();
+
+                return disparadores.Select<GestionDocenteDisparadorDetalleOutputDTO, object>(d =>
+                {
+                    switch (d.IdGestionDocenteDisparadorFlujoTipo)
+                    {
+                        case 1:
+                            return new DisparadorTiempoFijoDTO
+                            {
+                                DisparadorDetalle = d,
+                                ReglaTiempoFijo = reglasFijo.FirstOrDefault(r => r.IdGestionDocenteDisparadorDetalle == d.IdGestionDocenteDisparadorDetalle)
+                            };
+                        case 2:
+                            return new DisparadorOcurrenciaAnteriorDTO
+                            {
+                                DisparadorDetalle = d,
+                                ReglaTiempoRelativo = reglasRelativo.FirstOrDefault(r => r.IdGestionDocenteDisparadorDetalle == d.IdGestionDocenteDisparadorDetalle),
+                                OcurrenciaDetalle = disparadoresOcurrencia.FirstOrDefault(o => o.IdGestionDocenteDisparadorDetalle == d.IdGestionDocenteDisparadorDetalle)
+                            };
+                        case 3:
+                            var reglaRelativo = reglasRelativo.FirstOrDefault(r => r.IdGestionDocenteDisparadorDetalle == d.IdGestionDocenteDisparadorDetalle);
+                            return new DisparadorCronogramaDTO
+                            {
+                                DisparadorDetalle = d,
+                                ReglaTiempoRelativo = reglaRelativo,
+                                ReferenciaRelativa = reglaRelativo != null
+                                    ? referenciasRelativas.FirstOrDefault(r => r.IdGestionDocenteDisparadorReglaTiempoRelativo == reglaRelativo.IdGestionDocenteDisparadorReglaTiempoRelativo)
+                                    : null
+                            };
+                        default:
+                            return new DisparadorDetalleCompletoDTO { DisparadorDetalle = d };
+                    }
+                }).ToList();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 06/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la actividad cabecera completa con toda su jerarquía: detalles, disparadores, reglas de tiempo,
+        /// sesiones, ocurrencias, configuración IA y ejemplos de entrenamiento.
+        /// </summary>
+        /// <param name="id">Identificador de la actividad cabecera.</param>
+        public async Task<ActividadCabeceraCompletaDTO> ObtenerActividadCabeceraCompletaAsync(int id)
+        {
+            try
+            {
+                // 1. Obtener cabecera
+                var cabecera = await _unitOfWork.GestionDocenteActividadCabeceraRepository.ObtenerCabeceraPorIdAsync(id);
+                if (cabecera == null) return null;
+
+                // 2. Obtener detalles de la cabecera
+                var detallesResult = await _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDetallesPorCabeceraAsync(id);
+                var detalles = detallesResult.ToList();
+                if (!detalles.Any())
+                {
+                    return new ActividadCabeceraCompletaDTO { Cabecera = cabecera, Detalles = new List<ActividadDetalleCompletoDTO>() };
+                }
+
+                // 3. Obtener IDs para consultas en lote
+                var detalleIds = string.Join(",", detalles.Select(d => d.IdGestionDocenteActividadDetalle));
+                var disparadorIds = string.Join(",", detalles.Select(d => d.IdGestionDocenteDisparadorDetalle));
+
+                // 4. Obtener disparadores, reglas y sesiones en paralelo
+                var disparadoresTask = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDisparadoresPorIdsAsync(disparadorIds);
+                var reglasFijoTask = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReglasTiempoFijoPorDisparadoresAsync(disparadorIds);
+                var reglasRelativoTask = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReglasTiempoRelativoPorDisparadoresAsync(disparadorIds);
+                var disparadoresOcurrenciaTask = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerDisparadoresOcurrenciaPorIdsAsync(disparadorIds);
+                var sesionesTask = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerSesionesPorDetallesAsync(detalleIds);
+                var ocurrenciasTask = _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerOcurrenciasPorDetallesAsync(detalleIds);
+
+                await Task.WhenAll(disparadoresTask, reglasFijoTask, reglasRelativoTask, disparadoresOcurrenciaTask, sesionesTask, ocurrenciasTask);
+
+                var disparadores = (await disparadoresTask).ToList();
+                var reglasFijo = (await reglasFijoTask).ToList();
+                var reglasRelativo = (await reglasRelativoTask).ToList();
+                var disparadoresOcurrencia = (await disparadoresOcurrenciaTask).ToList();
+                var sesiones = (await sesionesTask).ToList();
+                var ocurrencias = (await ocurrenciasTask).ToList();
+
+                // 5. Obtener referencias relativas (si hay reglas relativas)
+                var referenciasRelativas = new List<GestionDocenteDisparadorReglaTiempoRelativoReferenciaOutputDTO>();
+                if (reglasRelativo.Any())
+                {
+                    var reglasRelativoIds = string.Join(",", reglasRelativo.Select(r => r.IdGestionDocenteDisparadorReglaTiempoRelativo));
+                    referenciasRelativas = (await _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerReferenciasRelativasPorReglasAsync(reglasRelativoIds)).ToList();
+                }
+
+                // 6. Obtener configuraciones IA (si hay ocurrencias)
+                var iaConfiguraciones = new List<OcurrenciaIaConfiguracionCompletaDTO>();
+                var ejemplosEntrenamiento = new List<GestionDocenteIaEntrenamientoEjemploOutputDTO>();
+                if (ocurrencias.Any())
+                {
+                    var ocurrenciaIds = string.Join(",", ocurrencias.Select(o => o.IdGestionDocenteOcurrencia));
+                    iaConfiguraciones = (await _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerIaConfiguracionesPorOcurrenciasAsync(ocurrenciaIds)).ToList();
+
+                    if (iaConfiguraciones.Any())
+                    {
+                        var iaConfigIds = string.Join(",", iaConfiguraciones.Select(c => c.IdGestionDocenteOcurrenciaIaConfiguracion));
+                        ejemplosEntrenamiento = (await _unitOfWork.GestionDocenteActividadDetalleRepository.ObtenerEjemplosEntrenamientoPorConfiguracionesAsync(iaConfigIds)).ToList();
+                    }
+                }
+
+                // Ensamblar: asignar ejemplos a configuraciones IA
+                foreach (var config in iaConfiguraciones)
+                {
+                    config.EjemplosEntrenamiento = ejemplosEntrenamiento
+                        .Where(e => e.IdGestionDocenteOcurrenciaIaConfiguracion == config.IdGestionDocenteOcurrenciaIaConfiguracion)
+                        .ToList();
+                }
+
+                // Ensamblar: crear ocurrencias completas
+                var ocurrenciasCompletas = ocurrencias.Select(o => new OcurrenciaCompletaDTO
+                {
+                    Ocurrencia = o,
+                    IaConfiguracion = iaConfiguraciones.FirstOrDefault(c => c.IdGestionDocenteOcurrencia == o.IdGestionDocenteOcurrencia)
+                }).ToList();
+
+                // Ensamblar: crear detalles completos
+                var detallesCompletos = detalles.Select(d =>
+                {
+                    var idDisparador = d.IdGestionDocenteDisparadorDetalle;
+                    var disparador = disparadores.FirstOrDefault(dp => dp.IdGestionDocenteDisparadorDetalle == idDisparador);
+                    var reglaFijo = reglasFijo.FirstOrDefault(r => r.IdGestionDocenteDisparadorDetalle == idDisparador);
+                    var reglaRelativo = reglasRelativo.FirstOrDefault(r => r.IdGestionDocenteDisparadorDetalle == idDisparador);
+                    var referenciaRelativa = reglaRelativo != null
+                        ? referenciasRelativas.FirstOrDefault(r => r.IdGestionDocenteDisparadorReglaTiempoRelativo == reglaRelativo.IdGestionDocenteDisparadorReglaTiempoRelativo)
+                        : null;
+                    var ocurrenciaDetalle = disparadoresOcurrencia.FirstOrDefault(o => o.IdGestionDocenteDisparadorDetalle == idDisparador);
+
+                    return new ActividadDetalleCompletoDTO
+                    {
+                        Detalle = d,
+                        Disparador = new DisparadorDetalleCompletoDTO
+                        {
+                            DisparadorDetalle = disparador,
+                            ReglaTiempoFijo = reglaFijo,
+                            ReglaTiempoRelativo = reglaRelativo,
+                            ReferenciaRelativa = referenciaRelativa,
+                            OcurrenciaDetalle = ocurrenciaDetalle
+                        },
+                        Sesion = sesiones.FirstOrDefault(s => s.IdGestionDocenteActividadDetalle == d.IdGestionDocenteActividadDetalle),
+                        Ocurrencias = ocurrenciasCompletas.Where(o => o.Ocurrencia.IdGestionDocenteActividadDetalle == d.IdGestionDocenteActividadDetalle).ToList()
+                    };
+                }).ToList();
+
+                return new ActividadCabeceraCompletaDTO
+                {
+                    Cabecera = cabecera,
+                    Detalles = detallesCompletos
+                };
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IEnumerable<GestionDocenteIaEntrenamientoClasificacionTipoDTO> ObtenerClasificacionTipos()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository.ObtenerClasificacionTipos();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public IEnumerable<GestionDocenteIaEntrenamientoEjemploOutputDTO> ObtenerEjemplosEntrenamientoPorConfiguracion(int idIaConfiguracion)
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository.ObtenerEjemplosEntrenamientoPorConfiguracion(idIaConfiguracion);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<int> InsertarEjemploEntrenamientoAsync(InsertarEjemploEntrenamientoRequestDTO request)
+        {
+            try
+            {
+                DateTime fechaActual = DateTime.Now;
+                var entidad = new GestionDocenteIaEntrenamientoEjemplo
+                {
+                    IdGestionDocenteOcurrenciaIaConfiguracion = request.IdGestionDocenteOcurrenciaIaConfiguracion,
+                    IdGestionDocenteIaEntrenamientoClasificacionTipo = request.IdGestionDocenteIaEntrenamientoClasificacionTipo,
+                    TextoEjemplo = request.TextoEjemplo,
+                    EsPositivo = request.EsPositivo,
+                    Estado = true,
+                    UsuarioCreacion = request.Usuario,
+                    UsuarioModificacion = request.Usuario,
+                    FechaCreacion = fechaActual,
+                    FechaModificacion = fechaActual
+                };
+                var model = _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository.Add(entidad);
+                await _unitOfWork.CommitAsync();
+                return model.Id;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> ActualizarEjemploEntrenamientoAsync(ActualizarEjemploEntrenamientoRequestDTO request)
+        {
+            try
+            {
+                var existente = _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository.FirstById(request.Id);
+                if (existente == null)
+                    throw new ArgumentException("$No se encontro el ejemplo de entrenamiento con Id {request.Id}");
+
+                var entidad = new GestionDocenteIaEntrenamientoEjemplo
+                {
+                    Id = existente.Id,
+                    IdGestionDocenteOcurrenciaIaConfiguracion = existente.IdGestionDocenteOcurrenciaIaConfiguracion,
+                    IdGestionDocenteIaEntrenamientoClasificacionTipo = request.IdGestionDocenteIaEntrenamientoClasificacionTipo,
+                    TextoEjemplo = request.TextoEjemplo,
+                    EsPositivo = request.EsPositivo,
+                    Estado = existente.Estado,
+                    UsuarioCreacion = existente.UsuarioCreacion,
+                    FechaCreacion = existente.FechaCreacion,
+                    UsuarioModificacion = request.Usuario,
+                    FechaModificacion = DateTime.Now
+                };
+                _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository.Update(entidad);
+                await _unitOfWork.CommitAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> EliminarEjemploEntrenamientoAsync(int id, string usuario)
+        {
+            try
+            {
+                _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository.Delete(id, usuario);
+                await _unitOfWork.CommitAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 25/02/2026
+        /// Versión: 2.0
+        /// <summary>
+        /// Obtiene las plantillas disponibles para la agenda de planificación docente
+        /// mediante el SP pla.SP_PlantillaModuloSistemaObtener.
+        /// </summary>
+        /// <param name="idModuloSistemaV5">Id del módulo del sistema V5.</param>
+        /// <param name="idPlantillaBase">Id del tipo de plantilla (2=Email, 8=WhatsApp).</param>
+        /// <param name="area">Nombre del área de trabajo del personal logueado.</param>
+        /// <returns>Lista de PlantillaDisponiblePlanificacionDTO.</returns>
+        public List<PlantillaDisponiblePlanificacionDTO> ObtenerPlantillasPlanificacion(int idModuloSistemaV5, int idPlantillaBase, string area)
+        {
+            try
+            {
+                var personalAreaTrabajo = _unitOfWork.PersonalAreaTrabajoRepository.FirstBy(w => w.Codigo == area && w.Estado == true);
+                if (personalAreaTrabajo == null)
+                    throw new Exception($"No se encontró el área de trabajo '{area}'.");
+
+                return _unitOfWork.PlantillaClaveValorRepository.ObtenerPlantillasModuloAgendaPlanificacion(
+                    idModuloSistemaV5,
+                    idPlantillaBase,
+                    personalAreaTrabajo.Id
+                );
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 19/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Genera una plantilla de email o WhatsApp para docentes, reemplazando las etiquetas con datos reales
+        /// del docente, coordinador y curso asociado a la gestión de contacto.
+        /// </summary>
+        /// <param name="request">DTO con IdGestionContacto e IdPlantilla.</param>
+        /// <returns>Tupla con PlantillaEmailMandrillDTO y PlantillaWhatsAppCalculadoDTO.</returns>
+        public (PlantillaEmailMandrillDTO EmailReemplazado, PlantillaWhatsAppCalculadoDTO WhatsAppReemplazado) GenerarPlantillaDocente(ReemplazoEtiquetaPlantillaDocenteDTO request)
+        {
+            PlantillaAsuntoCuerpoDTO plantillaCorreo = new();
+            List<DatoPlantillaWhatsAppDTO> listaObjetoWhatsApp = new();
+            int idPlantillaBase = 0;
+
+            PlantillaEmailMandrillDTO emailReemplazado = new();
+            PlantillaWhatsAppCalculadoDTO whatsAppReemplazado = new();
+
+                // 1. Obtener GestionContacto
+                var gestionContacto = _unitOfWork.GestionContactoRepository.ObtenerPorIdAsync(request.IdGestionContacto).Result;
+                if (gestionContacto == null || gestionContacto.Id == 0)
+                    throw new Exception("Gestión de contacto no existente!");
+
+                // 2. Obtener datos del docente resolviendo a través de ClasificacionPersona
+                // (soporta Proveedor tipo 4 y DocentePostulante tipo 6)
+                DocentePostulanteDTO docente = null;
+                if (gestionContacto.IdClasificacionPersona.HasValue)
+                {
+                    docente = _unitOfWork.DocentePostulanteRepository.ObtenerDocenteDTOPorIdClasificacionPersona(gestionContacto.IdClasificacionPersona.Value);
+                }
+                if (docente == null)
+                    throw new Exception("Docente no encontrado para la clasificación de persona indicada!");
+
+                // 3. Obtener Personal (coordinador/asesor)
+                Personal personal = null;
+                if (gestionContacto.IdPersonal_Asignado.HasValue)
+                {
+                    personal = _unitOfWork.PersonalRepository.ObtenerPorId(gestionContacto.IdPersonal_Asignado.Value);
+                }
+
+                // 4. Obtener CentroCosto (curso)
+                CentroCosto centroCosto = null;
+                if (gestionContacto.IdCentroCosto.HasValue)
+                {
+                    centroCosto = _unitOfWork.CentroCostoRepository.ObtenerPorId(gestionContacto.IdCentroCosto.Value);
+                }
+
+                // 5. Obtener Plantilla
+                var plantilla = _unitOfWork.PlantillaRepository.ObtenerPorId(request.IdPlantilla);
+                if (plantilla == null || plantilla.Id == 0)
+                    throw new Exception("Plantilla no válida!");
+
+                // 6. Obtener Asunto y Cuerpo
+                plantillaCorreo = _unitOfWork.PlantillaRepository.ObtenerPlantillaCorreo(plantilla.Id);
+
+                // 7. Extraer etiquetas del cuerpo
+                var listaEtiqueta = plantillaCorreo.Cuerpo
+                    .Split("{", StringSplitOptions.None)
+                    .Where(o => o.Contains("}"))
+                    .Select(o => o.Split("}", StringSplitOptions.None).First());
+
+                listaObjetoWhatsApp = listaEtiqueta.Select(x => new DatoPlantillaWhatsAppDTO
+                {
+                    Codigo = string.Concat("{", x, "}"),
+                    Texto = ""
+                }).ToList();
+
+                idPlantillaBase = plantilla.IdPlantillaBase;
+
+                // 8. Reemplazar etiquetas del docente
+                ReemplazarCuerpoCorreoWhatsAppDocente("{tDocente.Nombre1}", docente.Nombre1, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                ReemplazarAsuntoCorreoDocente("{tDocente.Nombre1}", docente.Nombre1, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+
+                ReemplazarCuerpoCorreoWhatsAppDocente("{tDocente.Nombre2}", docente.Nombre2, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                ReemplazarAsuntoCorreoDocente("{tDocente.Nombre2}", docente.Nombre2, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+
+                ReemplazarCuerpoCorreoWhatsAppDocente("{tDocente.ApellidoPaterno}", docente.ApellidoPaterno, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                ReemplazarAsuntoCorreoDocente("{tDocente.ApellidoPaterno}", docente.ApellidoPaterno, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+
+                ReemplazarCuerpoCorreoWhatsAppDocente("{tDocente.ApellidoMaterno}", docente.ApellidoMaterno, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                ReemplazarAsuntoCorreoDocente("{tDocente.ApellidoMaterno}", docente.ApellidoMaterno, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+
+                ReemplazarCuerpoCorreoWhatsAppDocente("{tDocente.NombreCompleto}", docente.NombreCompleto, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                ReemplazarAsuntoCorreoDocente("{tDocente.NombreCompleto}", docente.NombreCompleto, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+
+                ReemplazarCuerpoCorreoWhatsAppDocente("{tDocente.Correo}", docente.Correo, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                ReemplazarAsuntoCorreoDocente("{tDocente.Correo}", docente.Correo, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+
+                ReemplazarCuerpoCorreoWhatsAppDocente("{tDocente.Celular}", docente.Celular, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                ReemplazarAsuntoCorreoDocente("{tDocente.Celular}", docente.Celular, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+
+                ReemplazarCuerpoCorreoWhatsAppDocente("{tDocente.Telefono}", docente.Telefono, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                ReemplazarAsuntoCorreoDocente("{tDocente.Telefono}", docente.Telefono, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+
+                ReemplazarCuerpoCorreoWhatsAppDocente("{tDocente.NumeroDocumento}", docente.NumeroDocumento, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                ReemplazarAsuntoCorreoDocente("{tDocente.NumeroDocumento}", docente.NumeroDocumento, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+
+                ReemplazarCuerpoCorreoWhatsAppDocente("{tDocente.Ciudad}", docente.NombreCiudad, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                ReemplazarAsuntoCorreoDocente("{tDocente.Ciudad}", docente.NombreCiudad, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+
+                // 9. Reemplazar etiquetas del personal (coordinador/asesor)
+                if (personal != null)
+                {
+                    ReemplazarCuerpoCorreoWhatsAppDocente("{tPersonal.Nombre1}", personal.Nombre1, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                    ReemplazarAsuntoCorreoDocente("{tPersonal.Nombre1}", personal.Nombre1, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+
+                    string nombreCompletoPersonal = $"{personal.Nombres} {personal.Apellidos}".Trim();
+                    ReemplazarCuerpoCorreoWhatsAppDocente("{tPersonal.NombreCompleto}", nombreCompletoPersonal, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                    ReemplazarAsuntoCorreoDocente("{tPersonal.NombreCompleto}", nombreCompletoPersonal, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+
+                    ReemplazarCuerpoCorreoWhatsAppDocente("{tPersonal.email}", personal.Email, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                    ReemplazarAsuntoCorreoDocente("{tPersonal.email}", personal.Email, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+
+                    ReemplazarCuerpoCorreoWhatsAppDocente("{tPersonal.Anexo}", personal.Anexo, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                    ReemplazarAsuntoCorreoDocente("{tPersonal.Anexo}", personal.Anexo, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+
+                    ReemplazarCuerpoCorreoWhatsAppDocente("{tPersonal.Telefono}", personal.Central, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                    ReemplazarAsuntoCorreoDocente("{tPersonal.Telefono}", personal.Central, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+
+                    ReemplazarCuerpoCorreoWhatsAppDocente("{tPersonal.UrlFirmaCorreos}", personal.UrlFirmaCorreos, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                    ReemplazarAsuntoCorreoDocente("{tPersonal.UrlFirmaCorreos}", personal.UrlFirmaCorreos, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                }
+
+                // 10. Reemplazar etiquetas del centro de costo (curso)
+                if (centroCosto != null)
+                {
+                    ReemplazarCuerpoCorreoWhatsAppDocente("{tCentroCosto.Nombre}", centroCosto.Nombre, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                    ReemplazarAsuntoCorreoDocente("{tCentroCosto.Nombre}", centroCosto.Nombre, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+
+                    ReemplazarCuerpoCorreoWhatsAppDocente("{tCentroCosto.Codigo}", centroCosto.Codigo, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                    ReemplazarAsuntoCorreoDocente("{tCentroCosto.Codigo}", centroCosto.Codigo, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                }
+
+                // 11. Reemplazar valores dinámicos
+                DateTime fechaActual = DateTime.Now;
+                ReemplazarCuerpoCorreoWhatsAppDocente("{ValorDinamico.AnioFechaActual}", fechaActual.Year.ToString(), idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                ReemplazarAsuntoCorreoDocente("{ValorDinamico.AnioFechaActual}", fechaActual.Year.ToString(), idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+
+                ReemplazarCuerpoCorreoWhatsAppDocente("{ValorDinamico.DiaFechaActual}", fechaActual.Day.ToString(), idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                ReemplazarAsuntoCorreoDocente("{ValorDinamico.DiaFechaActual}", fechaActual.Day.ToString(), idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+
+                string nombreMes = fechaActual.ToString("MMMM", new CultureInfo("es-ES"));
+                ReemplazarCuerpoCorreoWhatsAppDocente("{ValorDinamico.NombreMesFechaActual}", nombreMes, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+                ReemplazarAsuntoCorreoDocente("{ValorDinamico.NombreMesFechaActual}", nombreMes, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
+
+                // 12. Construir resultado según tipo de plantilla
+                if (plantilla.IdPlantillaBase == PlantillaBase.Email)
+                {
+                    emailReemplazado.Asunto = plantillaCorreo.Asunto;
+                    emailReemplazado.CuerpoHTML = plantillaCorreo.Cuerpo;
+                }
+                else if (plantilla.IdPlantillaBase == PlantillaBase.WhatsappFacebook)
+                {
+                    whatsAppReemplazado.Plantilla = plantillaCorreo.Cuerpo;
+                    whatsAppReemplazado.ListaEtiquetas = listaObjetoWhatsApp;
+
+                    foreach (var item in whatsAppReemplazado.ListaEtiquetas)
+                    {
+                        whatsAppReemplazado.Plantilla = whatsAppReemplazado.Plantilla.Replace(item.Codigo, item.Texto);
+                    }
+                }
+
+                return (emailReemplazado, whatsAppReemplazado);
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 19/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Reemplaza una etiqueta en el cuerpo de la plantilla para Email o en la lista de etiquetas para WhatsApp.
+        /// </summary>
+        /// <param name="etiqueta">Nombre de la etiqueta a reemplazar.</param>
+        /// <param name="valor">Valor con el que se reemplaza la etiqueta.</param>
+        private void ReemplazarCuerpoCorreoWhatsAppDocente(string etiqueta, string? valor, int idPlantillaBase, PlantillaAsuntoCuerpoDTO plantillaCorreo, List<DatoPlantillaWhatsAppDTO> listaObjetoWhatsApp)
+        {
+            if (idPlantillaBase == PlantillaBase.Email)
+                plantillaCorreo.Cuerpo = plantillaCorreo.Cuerpo.Replace(etiqueta, valor ?? "");
+            else if (idPlantillaBase == PlantillaBase.WhatsappFacebook)
+            {
+                var item = listaObjetoWhatsApp.FirstOrDefault(x => x.Codigo.Equals(etiqueta));
+                if (item != null) item.Texto = valor ?? "";
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 19/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Reemplaza una etiqueta en el asunto de la plantilla para Email.
+        /// </summary>
+        /// <param name="etiqueta">Nombre de la etiqueta a reemplazar.</param>
+        /// <param name="valor">Valor con el que se reemplaza la etiqueta.</param>
+        private void ReemplazarAsuntoCorreoDocente(string etiqueta, string? valor, int idPlantillaBase, PlantillaAsuntoCuerpoDTO plantillaCorreo, List<DatoPlantillaWhatsAppDTO> listaObjetoWhatsApp)
+        {
+            if (idPlantillaBase == PlantillaBase.Email)
+                plantillaCorreo.Asunto = plantillaCorreo.Asunto.Replace(etiqueta, valor ?? "");
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 19/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza los datos de una cabecera de actividad docente existente.
+        /// </summary>
+        /// <param name=dto>DTO con los datos actualizados de la cabecera.</param>
+        public async Task<bool> ActualizarCabeceraAsync(GestionDocenteActividadCabeceraDTO dto)
+        {
+            try
+            {
+                var entidad = new GestionDocenteActividadCabecera
+                {
+                    Id = dto.Id,
+                    Nombre = dto.Nombre,
+                    Descripcion = dto.Descripcion,
+                    IdGestionDocenteEstado = dto.IdGestionDocenteEstado,
+                    IdGestionDocenteCategoria = dto.IdGestionDocenteCategoria,
+                    Estado = dto.Estado,
+                    UsuarioModificacion = dto.Usuario,
+                    FechaModificacion = DateTime.Now
+                };
+                _unitOfWork.GestionDocenteActividadCabeceraRepository.Update(entidad);
+                await _unitOfWork.CommitAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 12/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Elimina un detalle de actividad y toda su jerarquía asociada mediante eliminación lógica (soft-delete).
+        /// Elimina en cascada: ocurrencias (con config IA y ejemplos), sesión, disparador (con reglas de tiempo y referencias).
+        /// Usa TransactionScope para garantizar atomicidad.
+        /// </summary>
+        /// <param name="id">Identificador del detalle a eliminar.</param>
+        /// <param name="usuario">Usuario que realiza la operación.</param>
+        public async Task<bool> EliminarDetalleAsync(int id, string usuario)
+        {
+            try
+            {
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    // 1. Obtener el detalle para conocer su disparador
+                    var detalle = _unitOfWork.GestionDocenteActividadDetalleRepository
+                        .GetAll()
+                        .FirstOrDefault(x => x.Id == id && x.Estado == true);
+
+                    if (detalle == null)
+                        throw new ArgumentException($"Detalle con id {id} no encontrado o ya fue eliminado");
+
+                    int idDisparador = detalle.IdGestionDocenteDisparadorDetalle;
+
+                    // 2. Eliminar ocurrencias hijas y su configuración IA
+                    var ocurrencias = _unitOfWork.GestionDocenteOcurrenciaRepository
+                        .GetAll()
+                        .Where(x => x.IdGestionDocenteActividadDetalle == id && x.Estado == true)
+                        .ToList();
+
+                    foreach (var ocu in ocurrencias)
+                    {
+                        var iaConfigs = _unitOfWork.GestionDocenteOcurrenciaIaConfiguracionRepository
+                            .GetAll()
+                            .Where(x => x.IdGestionDocenteOcurrencia == ocu.Id && x.Estado == true)
+                            .ToList();
+
+                        foreach (var iaConfig in iaConfigs)
+                        {
+                            var ejemplos = _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository
+                                .GetAll()
+                                .Where(x => x.IdGestionDocenteOcurrenciaIaConfiguracion == iaConfig.Id && x.Estado == true)
+                                .ToList();
+
+                            foreach (var ejemplo in ejemplos)
+                            {
+                                _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository.Delete(ejemplo.Id, usuario);
+                            }
+
+                            _unitOfWork.GestionDocenteOcurrenciaIaConfiguracionRepository.Delete(iaConfig.Id, usuario);
+                        }
+
+                        _unitOfWork.GestionDocenteOcurrenciaRepository.Delete(ocu.Id, usuario);
+                    }
+
+                    // 3. Eliminar sesión asociada (tipo cronograma)
+                    var sesiones = _unitOfWork.GestionContactoActividadDetalleSesionRepository
+                        .GetAll()
+                        .Where(x => x.IdGestionDocenteActividadDetalle == id && x.Estado == true)
+                        .ToList();
+
+                    foreach (var sesion in sesiones)
+                    {
+                        _unitOfWork.GestionContactoActividadDetalleSesionRepository.Delete(sesion.Id, usuario);
+                    }
+
+                    // 4a. Eliminar regla tiempo fijo (tipo 1)
+                    var reglasFijas = _unitOfWork.GestionDocenteDisparadorReglaTiempoFijoRepository
+                        .GetAll()
+                        .Where(x => x.IdGestionDocenteDisparadorDetalle == idDisparador && x.Estado == true)
+                        .ToList();
+
+                    foreach (var regla in reglasFijas)
+                    {
+                        _unitOfWork.GestionDocenteDisparadorReglaTiempoFijoRepository.Delete(regla.Id, usuario);
+                    }
+
+                    // 4b. Eliminar regla tiempo relativo y sus referencias (tipo 2 y 3)
+                    var reglasRelativas = _unitOfWork.GestionDocenteDisparadorReglaTiempoRelativoRepository
+                        .GetAll()
+                        .Where(x => x.IdGestionDocenteDisparadorDetalle == idDisparador && x.Estado == true)
+                        .ToList();
+
+                    foreach (var reglaRel in reglasRelativas)
+                    {
+                        var referencias = _unitOfWork.GestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository
+                            .GetAll()
+                            .Where(x => x.IdGestionDocenteDisparadorReglaTiempoRelativo == reglaRel.Id && x.Estado == true)
+                            .ToList();
+
+                        foreach (var referencia in referencias)
+                        {
+                            _unitOfWork.GestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository.Delete(referencia.Id, usuario);
+                        }
+
+                        _unitOfWork.GestionDocenteDisparadorReglaTiempoRelativoRepository.Delete(reglaRel.Id, usuario);
+                    }
+
+                    // 4c. Eliminar ocurrencia detalle del disparador (tipo 2)
+                    var ocurrenciasDisparador = _unitOfWork.GestionDocenteDisparadorOcurrenciaDetalleRepository
+                        .GetAll()
+                        .Where(x => x.IdGestionDocenteDisparadorDetalle == idDisparador && x.Estado == true)
+                        .ToList();
+
+                    foreach (var ocuDisp in ocurrenciasDisparador)
+                    {
+                        _unitOfWork.GestionDocenteDisparadorOcurrenciaDetalleRepository.Delete(ocuDisp.Id, usuario);
+                    }
+
+                    // 5. Eliminar el disparador
+                    _unitOfWork.GestionDocenteDisparadorDetalleRepository.Delete(idDisparador, usuario);
+
+                    // 6. Eliminar el detalle
+                    _unitOfWork.GestionDocenteActividadDetalleRepository.Delete(id, usuario);
+
+                    await _unitOfWork.CommitAsync();
+                    scope.Complete();
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 12/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza un detalle de actividad existente eliminándolo y recreándolo con los nuevos datos.
+        /// Usa TransactionScope para garantizar atomicidad de la operación delete + create.
+        /// </summary>
+        /// <param name="idDetalleAnterior">ID del detalle a reemplazar.</param>
+        /// <param name="request">DTO con los datos del nuevo detalle.</param>
+        /// <param name="usuario">Usuario que realiza la operación.</param>
+        public async Task<int> ActualizarDetalleAsync(int idDetalleAnterior, InsertarActividadDetalleRequestDTO request, string usuario)
+        {
+            try
+            {
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    await EliminarDetalleAsync(idDetalleAnterior, usuario);
+
+                    int nuevoId = await InsertarDetalleAsync(request);
+
+                    if (request.Ocurrencias != null)
+                    {
+                        foreach (var ocuRequest in request.Ocurrencias)
+                        {
+                            ocuRequest.Ocurrencia.IdGestionDocenteActividadDetalle = nuevoId;
+                            await InsertarOcurrenciaAsync(ocuRequest);
+                        }
+                    }
+
+                    scope.Complete();
+                    return nuevoId;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+    }
+}

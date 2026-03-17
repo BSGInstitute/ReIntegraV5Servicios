@@ -502,6 +502,26 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                 throw new Exception(e.Message);
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 11/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene mensaje multimedia de WhatsApp (Planificación)
+        /// </summary>
+        /// <param name="waId"> Id de chat WhatsApp </param>
+        /// <returns> String </returns>
+        public string ObtenerMensajeMultimediaPla(string waId)
+        {
+            try
+            {
+                return _unitOfWork.WhatsAppMensajeEnviadoRepository.ObtenerMensajeMultimediaPla(waId);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
         /// Autor: Gilmer Qm
         /// Fecha: 15/03/2023
         /// <summary>

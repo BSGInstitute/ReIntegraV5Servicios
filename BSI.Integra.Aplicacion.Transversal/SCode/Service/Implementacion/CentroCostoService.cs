@@ -206,7 +206,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         /// </summary>
         /// <param name="valor">Nombre Parcial de Centro de Costo</param>
         /// <returns> List<ComboDTO> </returns>
-        public IEnumerable<ComboDTO> ObtenerFiltroAutocomplete(string valor)
+        public IEnumerable<ComboDTO>ObtenerFiltroAutocomplete(string valor)
         {
             return _unitOfWork.CentroCostoRepository.ObtenerFiltroAutocomplete(valor);
         }

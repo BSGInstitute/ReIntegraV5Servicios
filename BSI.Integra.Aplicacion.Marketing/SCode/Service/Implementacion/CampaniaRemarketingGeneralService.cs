@@ -259,8 +259,9 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
 
             //Llamada a la api IA para generar los textos
             RespuestaIdentificadorLlamadaIA resultado = new RespuestaIdentificadorLlamadaIA();
+            string nombreCategoria = request.CategoriaArgumento?.Nombre ?? string.Empty;
             resultado = await GenerarMensajesIAPorListaAlumnos(request.MediosEnvio[0].Nombre, request.TipoMensaje.Nombre, request.LogicaEnvio.Nombre,
-                                                                request.CategoriaArgumento.Nombre, idsAlumno, request.Prioridades);
+                                                                nombreCategoria, idsAlumno, request.Prioridades);
 
             request.IdentificadorLlamadaIA = resultado.id_llamada;
 
@@ -513,10 +514,12 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
         /// </summary>
         /// <returns>Identificador de la llamada IA</returns>
         public async Task<RespuestaIdentificadorLlamadaIA> GenerarMensajesIAPorListaAlumnos(string canal, string tipoMensaje, string logicaEnvio,
-                                                                                            string categoriaArgumento, List<int> idsAlumno, List<int> versionesArgumento)
+                                                                                            string? categoriaArgumento, List<int> idsAlumno, List<int> versionesArgumento)
         {
             string tipoMensajeTransformado = tipoMensaje.ToUpper().Replace(" ", "_");
             string logicaEnvioTransformado = logicaEnvio.ToUpper().Replace(" ", "_");
+
+            string categoriaValida = categoriaArgumento ?? string.Empty;
 
             //string baseUrl = "http://ia-remarketing-api.bsginstitute.com/testing/api/generacion_mensaje/generar_mensaje_mult";
             string baseUrl = "http://ia-remarketing-api.bsginstitute.com/api/generacion_mensaje/generar_mensaje_mult";
@@ -525,7 +528,8 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
                  $"canal={Uri.EscapeDataString(canal)}&" +
                  $"tipo_mensaje={Uri.EscapeDataString(tipoMensajeTransformado)}&" +
                  $"logica_envio={Uri.EscapeDataString(logicaEnvioTransformado)}&" +
-                 $"categoria_argumento={Uri.EscapeDataString(categoriaArgumento)}";
+                 $"categoria_argumento={Uri.EscapeDataString(categoriaValida)}";
+
 
             var body = new
             {

@@ -3,10 +3,14 @@ using System.Collections.Generic;
 
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
+    /// <summary>
+    /// Esta tabla agrupa las solicitudes por categoria de producto
+    /// </summary>
     public partial class TSolicitudCategorium
     {
         public TSolicitudCategorium()
         {
+            TSolicitudProblemas = new HashSet<TSolicitudProblema>();
             TSolicitudSubCategoria = new HashSet<TSolicitudSubCategorium>();
         }
 
@@ -50,9 +54,13 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Id de migracion (Si es que es migracion)
         /// </summary>
         public int? IdMigracion { get; set; }
-        public string Descripcion { get; set; } = null!;
+        /// <summary>
+        /// Descripcion de la categoria
+        /// </summary>
+        public string? Descripcion { get; set; }
 
         public virtual TSolicitudTipoReporte? IdSolicitudTipoReporteNavigation { get; set; }
+        public virtual ICollection<TSolicitudProblema> TSolicitudProblemas { get; set; }
         public virtual ICollection<TSolicitudSubCategorium> TSolicitudSubCategoria { get; set; }
     }
 }

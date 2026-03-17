@@ -46,6 +46,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
 
         private const int IdOportunidadValida = 2000;
         private const int IdAlumnoActual = 6000;
+        private const int IdPersonalAsignadoValido = 42;
 
         [TestInitialize]
         public void Setup()
@@ -94,7 +95,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
             ConfigurarBuscarSimilaresYContar(expectedNormalizado, correo: null);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado, $"Falló para: {descripcion}");
@@ -136,7 +137,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
             ConfigurarBuscarSimilaresYContar(expectedNormalizado, correo: null);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado, $"Falló para: {descripcion}");
@@ -161,7 +162,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
             ConfigurarBuscarSimilaresYContar(expectedNormalizado, correo: null);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado, $"Falló para: {descripcion}");
@@ -201,7 +202,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
             ConfigurarBuscarSimilaresYContar(expectedNormalizado, correo: null);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado, $"Falló para: {descripcion}");
@@ -233,7 +234,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
             ConfigurarBuscarSimilaresYContar(expectedNormalizado, correo: null);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado, $"Falló para: {descripcion}");
@@ -261,7 +262,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
             ConfigurarBuscarSimilaresYContar(expectedNormalizado, correo: null);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado, $"Falló para: {descripcion}");
@@ -287,10 +288,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
         {
             // Arrange — correo null también → sin contacto normalizable → no llama LIKE
             ConfigurarSpAlumno(telefono: telefonoRaw, correo: null, idPais: idPais);
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado, $"Falló para: {descripcion}");
@@ -315,7 +316,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
             ConfigurarBuscarSimilaresYContar("234567", correo: null);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert — documenta el comportamiento: "234567" va al LIKE
             Assert.IsTrue(resultado);
@@ -331,7 +332,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
             ConfigurarSpAlumno(telefono: "+549111234567", correo: null, idPais: 54);
             ConfigurarBuscarSimilaresYContar("9111234567", correo: null);
 
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             Assert.IsTrue(resultado);
             _oportunidadRepoMock.Verify(
@@ -345,7 +346,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
             ConfigurarSpAlumno(telefono: "5215551234567", correo: null, idPais: 52);
             ConfigurarBuscarSimilaresYContar("15551234567", correo: null);
 
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             Assert.IsTrue(resultado);
             _oportunidadRepoMock.Verify(
@@ -360,7 +361,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
             ConfigurarSpAlumno(telefono: "599123456", correo: null, idPais: 593);
             ConfigurarBuscarSimilaresYContar("599123456", correo: null);
 
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             Assert.IsTrue(resultado);
             _oportunidadRepoMock.Verify(
@@ -406,7 +407,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
             ConfigurarBuscarSimilaresYContar(telefono: null, correo: expectedNormalizado);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado, $"Falló para: {descripcion}");
@@ -434,7 +435,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
             ConfigurarBuscarSimilaresYContar(telefono: null, correo: expectedNormalizado);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado, $"Falló para: {descripcion}");
@@ -464,7 +465,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
             ConfigurarBuscarSimilaresYContar(telefono: null, correo: expectedNormalizado);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado, $"Falló para: {descripcion}");
@@ -492,10 +493,10 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
         {
             // Arrange — teléfono null también → sin contacto normalizable → no llama LIKE
             ConfigurarSpAlumno(telefono: null, correo: correoRaw, idPais: null);
-            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual)).Returns(1);
+            _oportunidadRepoMock.Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido)).Returns(1);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado, $"Falló para: {descripcion}");
@@ -524,7 +525,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
             ConfigurarBuscarSimilaresYContar(expectedTel, expectedCorreo);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado, $"Falló para: {descripcion}");
@@ -550,7 +551,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
             ConfigurarBuscarSimilaresYContar(telefono: null, correo: correoNormalizado);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado, $"Falló para: {descripcion}");
@@ -578,7 +579,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
             ConfigurarBuscarSimilaresYContar(expectedTel, correo: null);
 
             // Act
-            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida);
+            var resultado = _service.ValidarLeadRn2Async(IdOportunidadValida, IdPersonalAsignadoValido);
 
             // Assert
             Assert.IsTrue(resultado, $"Falló para: {descripcion}");
@@ -617,7 +618,7 @@ namespace BSI.Integra.PruebasUnitarias.Comercial.Rn2
                 .Returns(new List<AlumnoSimilarRn2DTO>());
 
             _oportunidadRepoMock
-                .Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual))
+                .Setup(r => r.ContarOportunidadesPorIdAlumno(IdAlumnoActual, IdPersonalAsignadoValido))
                 .Returns(1);
         }
     }

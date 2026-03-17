@@ -31,7 +31,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// <summary>
         /// Llave foránea a la tabla T_PlantillaMedioComunicacion
         /// </summary>
-        public int IdPlantillaMedioComunicacion { get; set; }
+        public int? IdPlantillaMedioComunicacion { get; set; }
         /// <summary>
         /// Llave foránea a la tabla T_GestionDocenteDisparadorDetalle
         /// </summary>
@@ -68,7 +68,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual TGestionDocenteActividadCabecera IdGestionDocenteActividadCabeceraNavigation { get; set; } = null!;
         public virtual TGestionDocenteActividadDetalleTipo IdGestionDocenteActividadDetalleTipoNavigation { get; set; } = null!;
         public virtual TGestionDocenteDisparadorDetalle IdGestionDocenteDisparadorDetalleNavigation { get; set; } = null!;
-        public virtual TPlantillaMedioComunicacion IdPlantillaMedioComunicacionNavigation { get; set; } = null!;
+        public virtual TPlantillaMedioComunicacion? IdPlantillaMedioComunicacionNavigation { get; set; }
         public virtual ICollection<TGestionContactoActividadDetalleSesion> TGestionContactoActividadDetalleSesions { get; set; }
         public virtual ICollection<TGestionDocenteActividadDetalleCongeladum> TGestionDocenteActividadDetalleCongelada { get; set; }
         public virtual ICollection<TGestionDocenteOcurrencium> TGestionDocenteOcurrencia { get; set; }

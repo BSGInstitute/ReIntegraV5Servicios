@@ -1127,6 +1127,35 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// </summary>
         /// <param name="email">Email a Validar</param>
         /// <returns> AlumnoEmailDTO </returns>
+        public AlumnoEmailDTO? ValidarEmailProveedor(string email)
+        {
+            try
+            {
+                var validacion = new AlumnoEmailDTO();
+                string queryAlumno = @"
+                    SELECT Id, Email
+                    FROM [mkt].[V_TProveedor_ValidarEmail]
+                    WHERE Email = @email";
+                var resultado = _dapperRepository.FirstOrDefault(queryAlumno, new { email });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<AlumnoEmailDTO>(resultado);
+                }
+                return null;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+        /// Autor: Erick Marcelo Quispe.
+        /// Fecha: 19/08/2022
+        /// Version: 1.0
+        /// <summary>
+        /// Validar Email 1 - Alumno
+        /// </summary>
+        /// <param name="email">Email a Validar</param>
+        /// <returns> AlumnoEmailDTO </returns>
         public AlumnoEmailPrincipalDTO ValidarEmailPrincipal(string email)
         {
             try

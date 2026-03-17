@@ -39,6 +39,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         bool InsertaSMSOportunidadUsuario(string celular, int idPersonal, int idAlumno, string mensaje, int parteMensaje, int idPais, string usuario);
         ValorIntDTO InsertaSMSOportunidad(int idOportunidad, DateTime fechaEnvio);
         AlumnoEmailDTO? ValidarEmail1Alumno(string email);
+        AlumnoEmailDTO? ValidarEmailProveedor(string email);
         AlumnoEmailDTO ValidarEmail2Alumno(string email);
         AlumnoCuponDTO ObtenerCuponPorIdAlumno(int idAlumno);
         ValorIntDTO InsertarSolicitudVisualizarDatosOportunidad(int idOportunidad, int idPersonal);
