@@ -2418,6 +2418,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 pEspecifico.IdCursoMoodlePrueba = dto.IdCursoMoodlePrueba;
                 pEspecifico.CursoIndividual = dto.CursoIndividual;
                 pEspecifico.UrlDocumentoCronograma = dto.UrlDocumentoCronograma;
+                pEspecifico.UrlDocumentoCronogramaGrupos = dto.UrlDocumentoCronogramaGrupos;
                 pEspecifico.IdTipoProgramaCarrera = dto.IdTipoProgramaCarrera;
                 pEspecifico.UsuarioModificacion = usuario;
                 pEspecifico.FechaModificacion = DateTime.Now;
@@ -2425,11 +2426,11 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 pEspecifico.TutorVirtualActivo = dto.TutorVirtualActivo;
                 var resultado = _unitOfWork.PEspecificoRepository.Update(pEspecifico);
                 var listaCursosHijos = _unitOfWork.PespecificoPadrePespecificoHijoRepository.ObtenerInformacionPespecificosHijos(dto.Id);
-                foreach(var EspecificoHijo in listaCursosHijos)
+                foreach (var EspecificoHijo in listaCursosHijos)
                 {
                     var pEspecificoHijo = _unitOfWork.PEspecificoRepository.ObtenerPorId(EspecificoHijo.Id);
                     pEspecificoHijo.ResumenClaseActivo = dto.ResumenClaseActivo;
-                    pEspecificoHijo.TutorVirtualActivo = dto.TutorVirtualActivo; 
+                    pEspecificoHijo.TutorVirtualActivo = dto.TutorVirtualActivo;
                     _unitOfWork.PEspecificoRepository.Update(pEspecificoHijo);
                     if (dto.ResumenClaseActivo == true)
                     {
