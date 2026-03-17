@@ -243,7 +243,7 @@ var connectionString = builder.Configuration.GetConnectionString("IntegraDB");
 //Registrar Hangfire
 builder.Services.AddHangfire(config =>
     config.UseSqlServerStorage(connectionString));
-//builder.Services.AddHangfireServer();
+builder.Services.AddHangfireServer();
 
 /// Conexion Base de Datos MongoDB 
 builder.Services.Configure<MongoDBSettings>(
