@@ -958,6 +958,35 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         }
 
         /// Autor: Lolo Zaa
+        /// Fecha: 17/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene los disparadores ejecutados cuyos resultados (ocurrencias) estan
+        /// pendientes de clasificacion por el servicio externo de IA.
+        /// Llama a pla.SP_GestionDocenteDisparadorPendienteClasificacion.
+        /// </summary>
+        public async Task<List<DisparadorPendienteClasificacionDTO>> ObtenerDisparadoresPendientesClasificacionAsync()
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                string resultado = await _dapperRepository.QuerySPDapperAsync(
+                    "pla.SP_GestionDocenteDisparadorPendienteClasificacion",
+                    parameters
+                );
+
+                if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
+                    return new List<DisparadorPendienteClasificacionDTO>();
+
+                return JsonConvert.DeserializeObject<List<DisparadorPendienteClasificacionDTO>>(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Lolo Zaa
         /// Fecha: 03/03/2026
         /// Version: 2.0
         /// <summary>
@@ -983,26 +1012,31 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                         parameters
                     );
 
-                    if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
+                    if (string.IsNullOrEmpty(resultado))
                     {
                         return new ResultadoEjecucionDTO
                         {
                             Exitoso = false,
-                            Error = "No se pudo marcar la ocurrencia"
+                            Error = "El SP no retorno respuesta"
                         };
                     }
 
-                    var disparadoresData = JsonConvert.DeserializeObject<List<DisparadorConversionDTO>>(resultado);
-                    if (disparadoresData == null || !disparadoresData.Any())
+                    var disparadoresData = JsonConvert.DeserializeObject<List<DisparadorConversionDTO>>(resultado)
+                        ?? new List<DisparadorConversionDTO>();
+
+                    /** Si no hay disparadores dependientes la ocurrencia igual se marco correctamente **/
+                    if (!disparadoresData.Any())
                     {
+                        await transaction.CommitAsync();
                         return new ResultadoEjecucionDTO
                         {
-                            Exitoso = false,
-                            Error = "No se obtuvieron datos de la ocurrencia marcada"
+                            Exitoso    = true,
+                            IdRegistro = 0,
+                            Mensaje    = "Ocurrencia marcada correctamente. Sin disparadores dependientes."
                         };
                     }
 
-                    int idOcurrenciaMarcada = disparadoresData.First().IdGestionDocenteOcurrenciaMarcada;
+                    int idOcurrenciaMarcada   = disparadoresData.First().IdGestionDocenteOcurrenciaMarcada;
                     DateTime fechaHoraMarcado = DateTime.Now;
 
                     // 2. Procesar cada disparador en backend (inserciones padre-hijo)
@@ -1025,7 +1059,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                         var reglaFija = new TGestionDocenteDisparadorReglaTiempoFijoCongelado
                         {
                             IdGestionDocenteDisparadorCongelado = disparador.IdGestionDocenteDisparadorCongelado,
-                            IdGestionDocenteDisparadorReglaTiempoFijo = null,
+                            IdGestionDocenteDisparadorReglaTiempoFijo = 0,
                             IdGestionDocenteDisparadorReglaTiempo = regla.Id,
                             IdGestionDocenteDisparadorDetalle = disparador.IdGestionDocenteDisparadorDetalle,
                             Fecha = disparador.FechaCalculada,
@@ -1054,20 +1088,20 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                             // Log de disparador
                             var logDisparador = new TGestionDocenteDisparadorCongeladoLog
                             {
-                                IdGestionDocenteDisparadorCongelado = disparador.IdGestionDocenteDisparadorCongelado,
-                                IdGestionDocenteEstadoEjecucion_Anterior = estadoAnterior,
-                                IdGestionDocenteEstadoEjecucion_Nuevo = disparador.IdGestionDocenteEstadoPorEjecutar,
-                                Estado = true,
-                                UsuarioCreacion = request.UsuarioCreacion,
+                                IdGestionDocenteDisparadorCongelado        = disparador.IdGestionDocenteDisparadorCongelado,
+                                IdGestionDocenteEstadoEjecucionAnterior    = estadoAnterior,
+                                IdGestionDocenteEstadoEjecucionNuevo       = disparador.IdGestionDocenteEstadoPorEjecutar,
+                                Estado              = true,
+                                UsuarioCreacion     = request.UsuarioCreacion,
                                 UsuarioModificacion = request.UsuarioCreacion,
-                                FechaCreacion = fechaHoraMarcado,
-                                FechaModificacion = fechaHoraMarcado
+                                FechaCreacion       = fechaHoraMarcado,
+                                FechaModificacion   = fechaHoraMarcado
                             };
                             _dbContext.TGestionDocenteDisparadorCongeladoLogs.Add(logDisparador);
                         }
 
                         // Actualizar actividad detalle si es necesario
-                        var actividadDetalle = await _dbContext.TGestionDocenteActividadDetalleCongeladas
+                        var actividadDetalle = await _dbContext.TGestionDocenteActividadDetalleCongelada
                             .FindAsync(disparador.IdGestionDocenteActividadDetalleCongelada);
 
                         if (actividadDetalle != null && actividadDetalle.IdGestionDocenteEstadoEjecucion != disparador.IdGestionDocenteEstadoPorEjecutar)
@@ -1081,14 +1115,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                             // Log de actividad
                             var logActividad = new TGestionDocenteActividadDetalleCongeladaLog
                             {
-                                IdGestionDocenteActividadDetalleCongelada = disparador.IdGestionDocenteActividadDetalleCongelada,
-                                IdGestionDocenteEstadoEjecucion_Anterior = estadoAnteriorActividad,
-                                IdGestionDocenteEstadoEjecucion_Nuevo = disparador.IdGestionDocenteEstadoPorEjecutar,
-                                Estado = true,
-                                UsuarioCreacion = request.UsuarioCreacion,
+                                IdGestionDocenteActividadDetalleCongelada  = disparador.IdGestionDocenteActividadDetalleCongelada,
+                                IdGestionDocenteEstadoEjecucionAnterior    = estadoAnteriorActividad,
+                                IdGestionDocenteEstadoEjecucionNuevo       = disparador.IdGestionDocenteEstadoPorEjecutar,
+                                Estado              = true,
+                                UsuarioCreacion     = request.UsuarioCreacion,
                                 UsuarioModificacion = request.UsuarioCreacion,
-                                FechaCreacion = fechaHoraMarcado,
-                                FechaModificacion = fechaHoraMarcado
+                                FechaCreacion       = fechaHoraMarcado,
+                                FechaModificacion   = fechaHoraMarcado
                             };
                             _dbContext.TGestionDocenteActividadDetalleCongeladaLogs.Add(logActividad);
                         }

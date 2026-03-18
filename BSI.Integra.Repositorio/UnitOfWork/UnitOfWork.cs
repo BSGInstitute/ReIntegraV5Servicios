@@ -8433,5 +8433,6 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _subCriterioTareaRepository ?? new SubCriterioTareaRepository(_dapperRepository);
             }
         }
+
     }
 }
