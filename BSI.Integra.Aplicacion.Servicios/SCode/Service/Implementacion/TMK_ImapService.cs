@@ -21,9 +21,9 @@ namespace BSI.Integra.Aplicacion.Servicios.Service.Implementacion
                 _imap.Login(email, passwordCorreo);
                 _imap.SelectFolder(@folder);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw new Exception("El usuario no tiene credenciales para iniciar sesión.");
+                throw new Exception($"Error de autenticación IMAP para {email}: {ex.Message}", ex);
             }
         }
         /// Autor: Jashin Salazar Taco.

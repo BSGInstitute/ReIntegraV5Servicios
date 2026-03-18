@@ -244,9 +244,6 @@ builder.Services.AddHangfireServer();
 //// Registrar el Job de Actividades Congeladas
 //builder.Services.AddScoped<BSI.Integra.Servicios.Jobs.ActividadesCongeladasJob>();
 
-// Registrar el Worker de Sincronización de Gmail para Planificación
-builder.Services.AddHostedService<BSI.Integra.Servicios.Jobs.GmailPlaBackgroundWorker>();
-
 var app = builder.Build();
 
 // Dashboard opcional

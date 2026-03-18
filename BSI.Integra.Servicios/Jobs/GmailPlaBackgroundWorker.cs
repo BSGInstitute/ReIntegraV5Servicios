@@ -40,7 +40,7 @@ namespace BSI.Integra.Servicios.Jobs
             _logger = logger;
             _serviceProvider = serviceProvider;
             _signalRUrl = configuration["SignalR:ChatCorreoPlanificacionUrl"] ?? "https://localhost:7288/hubChatCorreoPlanificacion";
-            _pollingIntervalSeconds = configuration.GetValue<int>("SignalR:PollingIntervalSeconds", 60);
+            _pollingIntervalSeconds = configuration.GetValue<int>("SignalR:PollingIntervalSeconds", 180);
         }
 
         public override async Task StartAsync(CancellationToken cancellationToken)
@@ -82,7 +82,9 @@ namespace BSI.Integra.Servicios.Jobs
             using (var scopeListado = _serviceProvider.CreateScope())
             {
                 var uowListado = scopeListado.ServiceProvider.GetRequiredService<IUnitOfWork>();
-                clientesGmail = uowListado.GmailClienteRepository.GetBy(x => x.Estado == true).ToList();
+                clientesGmail = uowListado.GmailClienteRepository
+                    .ObtenerGmailClientePorAreaTrabajo(7)
+                    .ToList();
             }
 
             if (!clientesGmail.Any())
@@ -119,6 +121,13 @@ namespace BSI.Integra.Servicios.Jobs
 
             // 1. Obtener el ultimo UID guardado para este asesor en el INBOX (FolderId 1)
             long lastUid = unitOfWork.CorreoGmailRepository.ObtenerUltimoUidPorPersonal(cliente.IdAsesor.Value);
+
+            if (string.IsNullOrWhiteSpace(cliente.PasswordCorreo))
+            {
+                _logger.LogWarning("El asesor {Email} no tiene password configurado. Saltando sincronización.", 
+                    cliente.EmailAsesor);
+                return;
+            }
 
             // 2. Conectar al servicio IMAP usando AliasEmailAsesor (credencial de login IMAP) con fallback a EmailAsesor
             var loginEmail = cliente.AliasEmailAsesor ?? cliente.EmailAsesor;

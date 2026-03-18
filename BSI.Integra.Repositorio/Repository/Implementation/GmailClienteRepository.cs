@@ -285,5 +285,29 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        public IEnumerable<TGmailCliente> ObtenerGmailClientePorAreaTrabajo(int idPersonalAreaTrabajo)
+        {
+            try
+            {
+                var query = @"
+                    SELECT gc.*
+                    FROM mkt.T_GmailCliente gc
+                    INNER JOIN gp.T_Personal p ON gc.IdAsesor = p.Id AND p.Estado = 1
+                    WHERE gc.Estado = 1
+                      AND p.IdPersonalAreaTrabajo = @IdPersonalAreaTrabajo
+                      AND p.Activo = 1";
+                var resultado = _dapperRepository.QueryDapper(query, new { IdPersonalAreaTrabajo = idPersonalAreaTrabajo });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<List<TGmailCliente>>(resultado)!;
+                }
+                return new List<TGmailCliente>();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }
