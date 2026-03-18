@@ -237,18 +237,18 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// Para flujos de categoría General, se puede especificar la fecha de inicio del flujo.
         /// </summary>
         /// <param name="idGestionContactoDocenteFlujo">ID del vínculo entre gestión contacto y flujo docente a congelar</param>
-        /// <param name="fechaInicioFlujoCongelado">Fecha de inicio opcional (formato ISO 8601, ejemplo: 2026-03-01T00:00:00). Solo aplica para flujos categoría General</param>
+        /// <param name="body">Body con la fecha de inicio opcional (formato ISO 8601, ejemplo: 2026-03-01T00:00:00). Solo aplica para flujos categoría General</param>
         /// <returns>ID del flujo congelado creado</returns>
         [HttpPost("[action]/{idGestionContactoDocenteFlujo}")]
         public async Task<IActionResult> CongelarFlujoDocente(
             int idGestionContactoDocenteFlujo,
-            [FromQuery] DateTime? fechaInicioFlujoCongelado = null)
+            [FromBody] CongelarFlujoDocenteBodyDTO body)
         {
             try
             {
                 var idFlujoCongelado = await _gestionContactoService.CongelarFlujoDocenteAsync(
                     idGestionContactoDocenteFlujo,
-                    fechaInicioFlujoCongelado);     
+                    body?.FechaInicioFlujo);
 
                 return Ok(new
                 {
