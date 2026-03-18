@@ -361,7 +361,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 string query = "EXEC fin.SP_ProveedorClasificacionPorId @IdProveedor";
                 string resultado = _dapperRepository.QueryDapper(query, new { IdProveedor = idProveedor });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                    return JsonConvert.DeserializeObject<IEnumerable<ProveedorClasificacionDTO>>(resultado).FirstOrDefault();
+                {
+                    var lista = JsonConvert.DeserializeObject<IEnumerable<ProveedorClasificacionDTO>>(resultado);
+                    // Prioridad: tipo 4 (Proveedor) primero; si no existe, cualquier clasificación disponible.
+                    return lista.FirstOrDefault(x => x.IdTipoPersona == 4) ?? lista.FirstOrDefault();
+                }
                 return null;
             }
             catch (Exception ex)
@@ -540,8 +544,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     FROM pla.T_GestionContacto gc WITH(NOLOCK)
                     LEFT JOIN conf.T_ClasificacionPersona cp WITH(NOLOCK)
                         ON cp.Id = gc.IdClasificacionPersona
+                    -- Tipo 4: Proveedor
                     LEFT JOIN fin.T_Proveedor p WITH(NOLOCK)
-                        ON p.Id = cp.IdTablaOriginal
+                        ON p.Id = cp.IdTablaOriginal AND cp.IdTipoPersona = 4
+                    -- Tipo 6: DocentePostulante
+                    LEFT JOIN pla.T_DocentePostulante dp WITH(NOLOCK)
+                        ON dp.Id = cp.IdTablaOriginal AND cp.IdTipoPersona = 6
                     LEFT JOIN pla.T_CentroCosto cc WITH(NOLOCK)
                         ON cc.Id = gc.IdCentroCosto
                     LEFT JOIN pla.T_GestionContactoDocenteFlujo gcdf WITH(NOLOCK)
@@ -550,33 +558,47 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                         ON gdf.Id = gcdf.IdGestionDocenteFlujo
                     WHERE gc.Estado = 1
                       AND (@Busqueda IS NULL OR @Busqueda = ''
-                           OR p.RazonSocial LIKE '%' + @Busqueda + '%'
-                           OR p.Nombre1    LIKE '%' + @Busqueda + '%'
-                           OR cc.Nombre    LIKE '%' + @Busqueda + '%'
-                           OR gdf.Nombre   LIKE '%' + @Busqueda + '%')";
+                           OR p.RazonSocial     LIKE '%' + @Busqueda + '%'
+                           OR p.Nombre1         LIKE '%' + @Busqueda + '%'
+                           OR dp.Nombre1        LIKE '%' + @Busqueda + '%'
+                           OR dp.ApellidoPaterno LIKE '%' + @Busqueda + '%'
+                           OR cc.Nombre         LIKE '%' + @Busqueda + '%'
+                           OR gdf.Nombre        LIKE '%' + @Busqueda + '%')";
 
                 string queryData = @"
                     SELECT
                         gc.Id,
                         gc.IdClasificacionPersona AS DocenteId,
                         COALESCE(LTRIM(RTRIM(
-                            CASE WHEN p.Nombre1 IS NOT NULL AND p.Nombre1 <> ''
-                                 THEN p.Nombre1 + ' ' + COALESCE(p.ApePaterno, '')
-                                 ELSE p.RazonSocial
+                            CASE
+                                WHEN cp.IdTipoPersona = 6
+                                    THEN dp.Nombre1 + ' ' +
+                                         COALESCE(dp.Nombre2 + ' ', '') +
+                                         COALESCE(dp.ApellidoPaterno, '') + ' ' +
+                                         COALESCE(dp.ApellidoMaterno, '')
+                                WHEN p.Nombre1 IS NOT NULL AND p.Nombre1 <> ''
+                                    THEN p.Nombre1 + ' ' + COALESCE(p.ApePaterno, '')
+                                ELSE p.RazonSocial
                             END
                         )), 'Sin nombre') AS DocenteNombre,
                         GDC.Id AS IdCategoria,
                         GDC.Nombre AS NombreCategoria,
-                        C.IdPais,
+                        COALESCE(C.IdPais, CDP.IdPais) AS IdPais,
                         COALESCE(cc.Nombre, '')  AS Curso,
                         COALESCE(gdf.Nombre, '') AS FlujoAsignado
                     FROM pla.T_GestionContacto gc WITH(NOLOCK)
                     LEFT JOIN conf.T_ClasificacionPersona cp WITH(NOLOCK)
                         ON cp.Id = gc.IdClasificacionPersona
+                    -- Tipo 4: Proveedor
                     LEFT JOIN fin.T_Proveedor p WITH(NOLOCK)
-                        ON p.Id = cp.IdTablaOriginal
-                    LEFT JOIN conf.T_Ciudad C
-                        ON p.IdCiudad=c.Id AND c.Estado=1
+                        ON p.Id = cp.IdTablaOriginal AND cp.IdTipoPersona = 4
+                    LEFT JOIN conf.T_Ciudad C WITH(NOLOCK)
+                        ON C.Id = p.IdCiudad AND C.Estado = 1
+                    -- Tipo 6: DocentePostulante
+                    LEFT JOIN pla.T_DocentePostulante dp WITH(NOLOCK)
+                        ON dp.Id = cp.IdTablaOriginal AND cp.IdTipoPersona = 6
+                    LEFT JOIN conf.T_Ciudad CDP WITH(NOLOCK)
+                        ON CDP.Id = dp.IdCiudad AND CDP.Estado = 1
                     LEFT JOIN pla.T_CentroCosto cc WITH(NOLOCK)
                         ON cc.Id = gc.IdCentroCosto
                     LEFT JOIN pla.T_GestionContactoDocenteFlujo gcdf WITH(NOLOCK)
@@ -587,10 +609,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                         ON GDC.Id = gdf.IdGestionDocenteCategoria
                     WHERE gc.Estado = 1
                       AND (@Busqueda IS NULL OR @Busqueda = ''
-                           OR p.RazonSocial LIKE '%' + @Busqueda + '%'
-                           OR p.Nombre1    LIKE '%' + @Busqueda + '%'
-                           OR cc.Nombre    LIKE '%' + @Busqueda + '%'
-                           OR gdf.Nombre   LIKE '%' + @Busqueda + '%')
+                           OR p.RazonSocial      LIKE '%' + @Busqueda + '%'
+                           OR p.Nombre1          LIKE '%' + @Busqueda + '%'
+                           OR dp.Nombre1         LIKE '%' + @Busqueda + '%'
+                           OR dp.ApellidoPaterno  LIKE '%' + @Busqueda + '%'
+                           OR cc.Nombre          LIKE '%' + @Busqueda + '%'
+                           OR gdf.Nombre         LIKE '%' + @Busqueda + '%')
                     ORDER BY gc.FechaCreacion DESC
                     OFFSET @Offset ROWS FETCH NEXT @PorPagina ROWS ONLY";
 
@@ -639,8 +663,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 string query = @"
+                    -- Tipo 4: Proveedor (fin.T_Proveedor)
+                    -- Id = cp.Id (ClasificacionPersona) para evitar colisión con IDs de tipo 6
                     SELECT DISTINCT
-                        p.Id AS Id,
+                        cp.Id AS Id,
                         cp.IdTipoPersona,
                         tp.Nombre AS NombreTipoPersona,
                         COALESCE(LTRIM(RTRIM(
@@ -648,16 +674,43 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                  THEN p.Nombre1 + ' ' + COALESCE(p.ApePaterno, '')
                                  ELSE p.RazonSocial
                             END
-                        )), 'Sin nombre') AS Nombre
+                        )), 'Sin nombre') AS Nombre,
+                        p.Id AS IdTablaOriginal
                     FROM conf.T_ClasificacionPersona cp WITH(NOLOCK)
                     JOIN fin.T_Proveedor p WITH(NOLOCK)
                         ON p.Id = cp.IdTablaOriginal
                     LEFT JOIN conf.T_TipoPersona tp WITH(NOLOCK)
-                        ON tp.Id=cp.IdTipoPersona
+                        ON tp.Id = cp.IdTipoPersona
                     WHERE cp.Estado = 1
                       AND p.Estado = 1
-                      AND tp.Id IN (4,6)
-                      AND tp.Estado =1
+                      AND tp.Id = 4
+                      AND tp.Estado = 1
+
+                    UNION
+
+                    -- Tipo 6: DocentePostulante (pla.T_DocentePostulante)
+                    -- Id = cp.Id (ClasificacionPersona) para evitar colisión con IDs de tipo 4
+                    SELECT DISTINCT
+                        cp.Id AS Id,
+                        cp.IdTipoPersona,
+                        tp.Nombre AS NombreTipoPersona,
+                        COALESCE(LTRIM(RTRIM(
+                            dp.Nombre1 + ' ' +
+                            COALESCE(dp.Nombre2 + ' ', '') +
+                            COALESCE(dp.ApellidoPaterno, '') + ' ' +
+                            COALESCE(dp.ApellidoMaterno, '')
+                        )), 'Sin nombre') AS Nombre,
+                        dp.Id AS IdTablaOriginal
+                    FROM conf.T_ClasificacionPersona cp WITH(NOLOCK)
+                    JOIN pla.T_DocentePostulante dp WITH(NOLOCK)
+                        ON dp.Id = cp.IdTablaOriginal
+                    LEFT JOIN conf.T_TipoPersona tp WITH(NOLOCK)
+                        ON tp.Id = cp.IdTipoPersona
+                    WHERE cp.Estado = 1
+                      AND dp.Estado = 1
+                      AND tp.Id = 6
+                      AND tp.Estado = 1
+
                     ORDER BY Nombre";
 
                 string resultado = _dapperRepository.QueryDapper(query, null);

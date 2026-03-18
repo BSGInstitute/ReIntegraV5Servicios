@@ -58,7 +58,16 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
     public class CrearOportunidadDocenteDTO
     {
         public int? IdCentroCosto { get; set; }
-        public int IdProveedor { get; set; }
+        /// <summary>
+        /// ID de conf.T_ClasificacionPersona (cp.Id del combo ObtenerDocentes).
+        /// Enviar este campo para flujo "General" (docente postulante o proveedor desde el combo).
+        /// </summary>
+        public int? IdClasificacionPersona { get; set; }
+        /// <summary>
+        /// ID de fin.T_Proveedor. Enviar este campo para flujo "Asignado al Curso"
+        /// donde el proveedor viene de la cascada PE Específico → Proveedor.
+        /// </summary>
+        public int? IdProveedor { get; set; }
         public string UsuarioCreacion { get; set; }
     }
 
@@ -84,6 +93,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int IdClasificacionPersona { get; set; }
         public int IdProveedor { get; set; }
         public string RazonSocial { get; set; }
+        public int IdTipoPersona { get; set; }
     }
 
     public class EstadoGestionContactoDTO
@@ -102,10 +112,13 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
     public class DocenteComboDTO
     {
+        /// <summary>ID de conf.T_ClasificacionPersona — único en el sistema independiente del tipo.</summary>
         public int Id { get; set; }
         public int IdTipoPersona { get; set; }
         public string NombreTipoPersona { get; set; }
         public string Nombre { get; set; }
+        /// <summary>ID de la tabla de origen (fin.T_Proveedor.Id o pla.T_DocentePostulante.Id según IdTipoPersona).</summary>
+        public int IdTablaOriginal { get; set; }
     }
 
     public class OportunidadDocenteListItemDTO
@@ -296,6 +309,15 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string UsuarioModificacion { get; set; }
     }
 
+    /// <summary>
+    /// Body del endpoint CongelarFlujoDocente.
+    /// La fecha es opcional: si es null el backend usa la fecha actual.
+    /// </summary>
+    public class CongelarFlujoDocenteBodyDTO
+    {
+        /// <summary>Fecha de inicio del flujo en formato ISO 8601. Null = fecha actual.</summary>
+        public DateTime? FechaInicioFlujo { get; set; }
+    }
     /// <summary>
     /// DTO para conversión de disparadores de OCURRENCIA_PREVIA a TIEMPO_FIJO
     /// Retornado por el SP simplificado pla.SP_GestionDocenteOcurrenciaMarcar

@@ -40,5 +40,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         Task<bool> ActualizarCabeceraAsync(GestionDocenteActividadCabeceraDTO dto);
         Task<bool> EliminarDetalleAsync(int id, string usuario);
         Task<int> ActualizarDetalleAsync(int idDetalleAnterior, InsertarActividadDetalleRequestDTO request, string usuario);
+        Task<bool> ActualizarOcurrenciaAsync(ActualizarOcurrenciaRequestDTO request);
+        Task<bool> EliminarOcurrenciaAsync(int id, string usuario);
     }
 }
