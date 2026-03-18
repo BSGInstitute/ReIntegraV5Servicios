@@ -281,9 +281,25 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         {
             try
             {
-                var clasificacion = _unitOfWork.GestionContactoRepository.ObtenerClasificacionPorProveedor(dto.IdProveedor);
-                if (clasificacion == null)
-                    throw new Exception($"No se encontró clasificación de persona para el proveedor {dto.IdProveedor}.");
+                int idClasificacionPersona;
+
+                if (dto.IdClasificacionPersona.HasValue)
+                {
+                    // Flujo "General": el frontend envía cp.Id directamente desde el combo ObtenerDocentes.
+                    idClasificacionPersona = dto.IdClasificacionPersona.Value;
+                }
+                else if (dto.IdProveedor.HasValue)
+                {
+                    // Flujo "Asignado al Curso": el frontend envía IdProveedor desde la cascada PE → Proveedor.
+                    var clasificacion = _unitOfWork.GestionContactoRepository.ObtenerClasificacionPorProveedor(dto.IdProveedor.Value);
+                    if (clasificacion == null)
+                        throw new Exception($"No se encontró clasificación de persona para el proveedor {dto.IdProveedor.Value}.");
+                    idClasificacionPersona = clasificacion.IdClasificacionPersona;
+                }
+                else
+                {
+                    throw new Exception("Se debe enviar IdClasificacionPersona o IdProveedor.");
+                }
 
                 DateTime fechaActual = DateTime.Now;
 
@@ -291,7 +307,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 {
                     IdCentroCosto             = dto.IdCentroCosto,
                     IdPersonalAsignado        = 6205,
-                    IdClasificacionPersona    = clasificacion.IdClasificacionPersona,
+                    IdClasificacionPersona    = idClasificacionPersona,
                     IdFaseGestionContacto     = 2,
                     IdOrigen                  = 1124,
                     IdEstadoGestionContacto   = 1,
@@ -477,17 +493,17 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// <summary>
         /// Marca una ocurrencia y activa disparadores dependientes.
         /// </summary>
-        public async Task<ResultadoEjecucionDTO> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request)
-        {
-            try
-            {
-                return await _unitOfWork.GestionContactoRepository.MarcarOcurrenciaAsync(request);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
+        //public async Task<ResultadoEjecucionDTO> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request)
+        //{
+        //    try
+        //    {
+        //        return await _unitOfWork.GestionContactoRepository.MarcarOcurrenciaAsync(request);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        throw;
+        //    }
+        //}
 
         /// Autor: Lolo Zaa
         /// Fecha: 05/03/2026

@@ -361,7 +361,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 string query = "EXEC fin.SP_ProveedorClasificacionPorId @IdProveedor";
                 string resultado = _dapperRepository.QueryDapper(query, new { IdProveedor = idProveedor });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                    return JsonConvert.DeserializeObject<IEnumerable<ProveedorClasificacionDTO>>(resultado).FirstOrDefault();
+                {
+                    var lista = JsonConvert.DeserializeObject<IEnumerable<ProveedorClasificacionDTO>>(resultado);
+                    // Prioridad: tipo 4 (Proveedor) primero; si no existe, cualquier clasificación disponible.
+                    return lista.FirstOrDefault(x => x.IdTipoPersona == 4) ?? lista.FirstOrDefault();
+                }
                 return null;
             }
             catch (Exception ex)
@@ -540,8 +544,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     FROM pla.T_GestionContacto gc WITH(NOLOCK)
                     LEFT JOIN conf.T_ClasificacionPersona cp WITH(NOLOCK)
                         ON cp.Id = gc.IdClasificacionPersona
+                    -- Tipo 4: Proveedor
                     LEFT JOIN fin.T_Proveedor p WITH(NOLOCK)
-                        ON p.Id = cp.IdTablaOriginal
+                        ON p.Id = cp.IdTablaOriginal AND cp.IdTipoPersona = 4
+                    -- Tipo 6: DocentePostulante
+                    LEFT JOIN pla.T_DocentePostulante dp WITH(NOLOCK)
+                        ON dp.Id = cp.IdTablaOriginal AND cp.IdTipoPersona = 6
                     LEFT JOIN pla.T_CentroCosto cc WITH(NOLOCK)
                         ON cc.Id = gc.IdCentroCosto
                     LEFT JOIN pla.T_GestionContactoDocenteFlujo gcdf WITH(NOLOCK)
@@ -550,33 +558,47 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                         ON gdf.Id = gcdf.IdGestionDocenteFlujo
                     WHERE gc.Estado = 1
                       AND (@Busqueda IS NULL OR @Busqueda = ''
-                           OR p.RazonSocial LIKE '%' + @Busqueda + '%'
-                           OR p.Nombre1    LIKE '%' + @Busqueda + '%'
-                           OR cc.Nombre    LIKE '%' + @Busqueda + '%'
-                           OR gdf.Nombre   LIKE '%' + @Busqueda + '%')";
+                           OR p.RazonSocial     LIKE '%' + @Busqueda + '%'
+                           OR p.Nombre1         LIKE '%' + @Busqueda + '%'
+                           OR dp.Nombre1        LIKE '%' + @Busqueda + '%'
+                           OR dp.ApellidoPaterno LIKE '%' + @Busqueda + '%'
+                           OR cc.Nombre         LIKE '%' + @Busqueda + '%'
+                           OR gdf.Nombre        LIKE '%' + @Busqueda + '%')";
 
                 string queryData = @"
                     SELECT
                         gc.Id,
                         gc.IdClasificacionPersona AS DocenteId,
                         COALESCE(LTRIM(RTRIM(
-                            CASE WHEN p.Nombre1 IS NOT NULL AND p.Nombre1 <> ''
-                                 THEN p.Nombre1 + ' ' + COALESCE(p.ApePaterno, '')
-                                 ELSE p.RazonSocial
+                            CASE
+                                WHEN cp.IdTipoPersona = 6
+                                    THEN dp.Nombre1 + ' ' +
+                                         COALESCE(dp.Nombre2 + ' ', '') +
+                                         COALESCE(dp.ApellidoPaterno, '') + ' ' +
+                                         COALESCE(dp.ApellidoMaterno, '')
+                                WHEN p.Nombre1 IS NOT NULL AND p.Nombre1 <> ''
+                                    THEN p.Nombre1 + ' ' + COALESCE(p.ApePaterno, '')
+                                ELSE p.RazonSocial
                             END
                         )), 'Sin nombre') AS DocenteNombre,
                         GDC.Id AS IdCategoria,
                         GDC.Nombre AS NombreCategoria,
-                        C.IdPais,
+                        COALESCE(C.IdPais, CDP.IdPais) AS IdPais,
                         COALESCE(cc.Nombre, '')  AS Curso,
                         COALESCE(gdf.Nombre, '') AS FlujoAsignado
                     FROM pla.T_GestionContacto gc WITH(NOLOCK)
                     LEFT JOIN conf.T_ClasificacionPersona cp WITH(NOLOCK)
                         ON cp.Id = gc.IdClasificacionPersona
+                    -- Tipo 4: Proveedor
                     LEFT JOIN fin.T_Proveedor p WITH(NOLOCK)
-                        ON p.Id = cp.IdTablaOriginal
-                    LEFT JOIN conf.T_Ciudad C
-                        ON p.IdCiudad=c.Id AND c.Estado=1
+                        ON p.Id = cp.IdTablaOriginal AND cp.IdTipoPersona = 4
+                    LEFT JOIN conf.T_Ciudad C WITH(NOLOCK)
+                        ON C.Id = p.IdCiudad AND C.Estado = 1
+                    -- Tipo 6: DocentePostulante
+                    LEFT JOIN pla.T_DocentePostulante dp WITH(NOLOCK)
+                        ON dp.Id = cp.IdTablaOriginal AND cp.IdTipoPersona = 6
+                    LEFT JOIN conf.T_Ciudad CDP WITH(NOLOCK)
+                        ON CDP.Id = dp.IdCiudad AND CDP.Estado = 1
                     LEFT JOIN pla.T_CentroCosto cc WITH(NOLOCK)
                         ON cc.Id = gc.IdCentroCosto
                     LEFT JOIN pla.T_GestionContactoDocenteFlujo gcdf WITH(NOLOCK)
@@ -587,10 +609,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                         ON GDC.Id = gdf.IdGestionDocenteCategoria
                     WHERE gc.Estado = 1
                       AND (@Busqueda IS NULL OR @Busqueda = ''
-                           OR p.RazonSocial LIKE '%' + @Busqueda + '%'
-                           OR p.Nombre1    LIKE '%' + @Busqueda + '%'
-                           OR cc.Nombre    LIKE '%' + @Busqueda + '%'
-                           OR gdf.Nombre   LIKE '%' + @Busqueda + '%')
+                           OR p.RazonSocial      LIKE '%' + @Busqueda + '%'
+                           OR p.Nombre1          LIKE '%' + @Busqueda + '%'
+                           OR dp.Nombre1         LIKE '%' + @Busqueda + '%'
+                           OR dp.ApellidoPaterno  LIKE '%' + @Busqueda + '%'
+                           OR cc.Nombre          LIKE '%' + @Busqueda + '%'
+                           OR gdf.Nombre         LIKE '%' + @Busqueda + '%')
                     ORDER BY gc.FechaCreacion DESC
                     OFFSET @Offset ROWS FETCH NEXT @PorPagina ROWS ONLY";
 
@@ -639,8 +663,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 string query = @"
+                    -- Tipo 4: Proveedor (fin.T_Proveedor)
+                    -- Id = cp.Id (ClasificacionPersona) para evitar colisión con IDs de tipo 6
                     SELECT DISTINCT
-                        p.Id AS Id,
+                        cp.Id AS Id,
                         cp.IdTipoPersona,
                         tp.Nombre AS NombreTipoPersona,
                         COALESCE(LTRIM(RTRIM(
@@ -648,16 +674,43 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                  THEN p.Nombre1 + ' ' + COALESCE(p.ApePaterno, '')
                                  ELSE p.RazonSocial
                             END
-                        )), 'Sin nombre') AS Nombre
+                        )), 'Sin nombre') AS Nombre,
+                        p.Id AS IdTablaOriginal
                     FROM conf.T_ClasificacionPersona cp WITH(NOLOCK)
                     JOIN fin.T_Proveedor p WITH(NOLOCK)
                         ON p.Id = cp.IdTablaOriginal
                     LEFT JOIN conf.T_TipoPersona tp WITH(NOLOCK)
-                        ON tp.Id=cp.IdTipoPersona
+                        ON tp.Id = cp.IdTipoPersona
                     WHERE cp.Estado = 1
                       AND p.Estado = 1
-                      AND tp.Id IN (4,6)
-                      AND tp.Estado =1
+                      AND tp.Id = 4
+                      AND tp.Estado = 1
+
+                    UNION
+
+                    -- Tipo 6: DocentePostulante (pla.T_DocentePostulante)
+                    -- Id = cp.Id (ClasificacionPersona) para evitar colisión con IDs de tipo 4
+                    SELECT DISTINCT
+                        cp.Id AS Id,
+                        cp.IdTipoPersona,
+                        tp.Nombre AS NombreTipoPersona,
+                        COALESCE(LTRIM(RTRIM(
+                            dp.Nombre1 + ' ' +
+                            COALESCE(dp.Nombre2 + ' ', '') +
+                            COALESCE(dp.ApellidoPaterno, '') + ' ' +
+                            COALESCE(dp.ApellidoMaterno, '')
+                        )), 'Sin nombre') AS Nombre,
+                        dp.Id AS IdTablaOriginal
+                    FROM conf.T_ClasificacionPersona cp WITH(NOLOCK)
+                    JOIN pla.T_DocentePostulante dp WITH(NOLOCK)
+                        ON dp.Id = cp.IdTablaOriginal
+                    LEFT JOIN conf.T_TipoPersona tp WITH(NOLOCK)
+                        ON tp.Id = cp.IdTipoPersona
+                    WHERE cp.Estado = 1
+                      AND dp.Estado = 1
+                      AND tp.Id = 6
+                      AND tp.Estado = 1
+
                     ORDER BY Nombre";
 
                 string resultado = _dapperRepository.QueryDapper(query, null);
@@ -958,54 +1011,194 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         }
 
         /// Autor: Lolo Zaa
-        /// Fecha: 03/03/2026
+        /// Fecha: 17/03/2026
         /// Version: 1.0
         /// <summary>
-        /// Marca una ocurrencia y activa disparadores dependientes.
+        /// Obtiene los disparadores ejecutados cuyos resultados (ocurrencias) estan
+        /// pendientes de clasificacion por el servicio externo de IA.
+        /// Llama a pla.SP_GestionDocenteDisparadorPendienteClasificacion.
         /// </summary>
-        public async Task<ResultadoEjecucionDTO> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request)
+        public async Task<List<DisparadorPendienteClasificacionDTO>> ObtenerDisparadoresPendientesClasificacionAsync()
         {
             try
             {
                 var parameters = new DynamicParameters();
-                parameters.Add("@IdGestionDocenteOcurrenciaCongelada", request.IdGestionDocenteOcurrenciaCongelada, DbType.Int32);
-                parameters.Add("@IdGestionContacto", request.IdGestionContacto, DbType.Int32);
-                parameters.Add("@Comentario", request.Comentario, DbType.String);
-                parameters.Add("@FechaHoraOcurrencia", request.FechaHoraOcurrencia, DbType.DateTime);
-                parameters.Add("@UsuarioCreacion", request.UsuarioCreacion, DbType.String, size: 50);
-
                 string resultado = await _dapperRepository.QuerySPDapperAsync(
-                    "pla.SP_GestionDocenteOcurrenciaMarcar",
+                    "pla.SP_GestionDocenteDisparadorPendienteClasificacion",
                     parameters
                 );
 
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
+                    return new List<DisparadorPendienteClasificacionDTO>();
+
+                return JsonConvert.DeserializeObject<List<DisparadorPendienteClasificacionDTO>>(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 03/03/2026
+        /// Version: 2.0
+        /// <summary>
+        /// Marca una ocurrencia y activa disparadores dependientes convirtiendolos a TIEMPO_FIJO.
+        /// El SP pla.SP_GestionDocenteOcurrenciaMarcar inserta en T_GestionDocenteOcurrenciaMarcada
+        /// y retorna los disparadores dependientes. El C# procesa las inserciones padre-hijo.
+        /// </summary>
+        public async Task<ResultadoEjecucionDTO> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request)
+        {
+            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            {
+                try
                 {
-                    var resultadoObj = JsonConvert.DeserializeObject<dynamic>(resultado);
-                    var primerElemento = ((Newtonsoft.Json.Linq.JArray)resultadoObj)[0];
+                    var parameters = new DynamicParameters();
+                    parameters.Add("@IdGestionDocenteOcurrenciaCongelada", request.IdGestionDocenteOcurrenciaCongelada, DbType.Int32);
+                    parameters.Add("@IdGestionContacto",                   request.IdGestionContacto,                  DbType.Int32);
+                    parameters.Add("@Comentario",                          request.Comentario,                         DbType.String);
+                    parameters.Add("@FechaHoraOcurrencia",                 request.FechaHoraOcurrencia,                DbType.DateTime);
+                    parameters.Add("@UsuarioCreacion",                     request.UsuarioCreacion,                    DbType.String, size: 50);
+
+                    string resultado = await _dapperRepository.QuerySPDapperAsync(
+                        "pla.SP_GestionDocenteOcurrenciaMarcar",
+                        parameters
+                    );
+
+                    if (string.IsNullOrEmpty(resultado))
+                    {
+                        return new ResultadoEjecucionDTO
+                        {
+                            Exitoso = false,
+                            Error   = "El SP no retorno respuesta"
+                        };
+                    }
+
+                    var disparadoresData = JsonConvert.DeserializeObject<List<DisparadorConversionDTO>>(resultado)
+                        ?? new List<DisparadorConversionDTO>();
+
+                    /** Si no hay disparadores dependientes la ocurrencia igual se marco correctamente **/
+                    if (!disparadoresData.Any())
+                    {
+                        await transaction.CommitAsync();
+                        return new ResultadoEjecucionDTO
+                        {
+                            Exitoso    = true,
+                            IdRegistro = 0,
+                            Mensaje    = "Ocurrencia marcada correctamente. Sin disparadores dependientes."
+                        };
+                    }
+
+                    int idOcurrenciaMarcada   = disparadoresData.First().IdGestionDocenteOcurrenciaMarcada;
+                    DateTime fechaHoraMarcado = DateTime.Now;
+
+                    // Procesar cada disparador — inserciones padre-hijo
+                    foreach (var disparador in disparadoresData)
+                    {
+                        // Insertar regla de tiempo (tabla padre)
+                        var regla = new TGestionDocenteDisparadorReglaTiempo
+                        {
+                            TipoRegla           = "FIJO",
+                            Estado              = true,
+                            UsuarioCreacion     = request.UsuarioCreacion,
+                            UsuarioModificacion = request.UsuarioCreacion,
+                            FechaCreacion       = fechaHoraMarcado,
+                            FechaModificacion   = fechaHoraMarcado
+                        };
+                        _dbContext.TGestionDocenteDisparadorReglaTiempos.Add(regla);
+                        await _dbContext.SaveChangesAsync();
+
+                        // Insertar regla fija congelada (tabla hija)
+                        var reglaFija = new TGestionDocenteDisparadorReglaTiempoFijoCongelado
+                        {
+                            IdGestionDocenteDisparadorCongelado       = disparador.IdGestionDocenteDisparadorCongelado,
+                            IdGestionDocenteDisparadorReglaTiempoFijo = 0,
+                            IdGestionDocenteDisparadorReglaTiempo     = regla.Id,
+                            IdGestionDocenteDisparadorDetalle         = disparador.IdGestionDocenteDisparadorDetalle,
+                            Fecha                                     = disparador.FechaCalculada,
+                            IdGestionDocenteEstadoEjecucion           = disparador.IdGestionDocenteEstadoPorEjecutar,
+                            Estado              = true,
+                            UsuarioCreacion     = request.UsuarioCreacion,
+                            UsuarioModificacion = request.UsuarioCreacion,
+                            FechaCreacion       = fechaHoraMarcado,
+                            FechaModificacion   = fechaHoraMarcado
+                        };
+                        _dbContext.TGestionDocenteDisparadorReglaTiempoFijoCongelados.Add(reglaFija);
+
+                        // Actualizar disparador congelado
+                        var disparadorCongelado = await _dbContext.TGestionDocenteDisparadorCongelados
+                            .FindAsync(disparador.IdGestionDocenteDisparadorCongelado);
+
+                        if (disparadorCongelado != null)
+                        {
+                            var estadoAnterior = disparadorCongelado.IdGestionDocenteEstadoEjecucion;
+
+                            disparadorCongelado.IdGestionDocenteDisparadorFlujoTipo = 1;
+                            disparadorCongelado.IdGestionDocenteEstadoEjecucion     = disparador.IdGestionDocenteEstadoPorEjecutar;
+                            disparadorCongelado.UsuarioModificacion                 = request.UsuarioCreacion;
+                            disparadorCongelado.FechaModificacion                   = fechaHoraMarcado;
+
+                            var logDisparador = new TGestionDocenteDisparadorCongeladoLog
+                            {
+                                IdGestionDocenteDisparadorCongelado     = disparador.IdGestionDocenteDisparadorCongelado,
+                                IdGestionDocenteEstadoEjecucionAnterior = estadoAnterior,
+                                IdGestionDocenteEstadoEjecucionNuevo    = disparador.IdGestionDocenteEstadoPorEjecutar,
+                                Estado              = true,
+                                UsuarioCreacion     = request.UsuarioCreacion,
+                                UsuarioModificacion = request.UsuarioCreacion,
+                                FechaCreacion       = fechaHoraMarcado,
+                                FechaModificacion   = fechaHoraMarcado
+                            };
+                            _dbContext.TGestionDocenteDisparadorCongeladoLogs.Add(logDisparador);
+                        }
+
+                        // Actualizar actividad detalle si es necesario
+                        var actividadDetalle = await _dbContext.TGestionDocenteActividadDetalleCongelada
+                            .FindAsync(disparador.IdGestionDocenteActividadDetalleCongelada);
+
+                        if (actividadDetalle != null &&
+                            actividadDetalle.IdGestionDocenteEstadoEjecucion != disparador.IdGestionDocenteEstadoPorEjecutar)
+                        {
+                            var estadoAnteriorActividad = actividadDetalle.IdGestionDocenteEstadoEjecucion;
+
+                            actividadDetalle.IdGestionDocenteEstadoEjecucion = disparador.IdGestionDocenteEstadoPorEjecutar;
+                            actividadDetalle.UsuarioModificacion             = request.UsuarioCreacion;
+                            actividadDetalle.FechaModificacion               = fechaHoraMarcado;
+
+                            var logActividad = new TGestionDocenteActividadDetalleCongeladaLog
+                            {
+                                IdGestionDocenteActividadDetalleCongelada  = disparador.IdGestionDocenteActividadDetalleCongelada,
+                                IdGestionDocenteEstadoEjecucionAnterior    = estadoAnteriorActividad,
+                                IdGestionDocenteEstadoEjecucionNuevo       = disparador.IdGestionDocenteEstadoPorEjecutar,
+                                Estado              = true,
+                                UsuarioCreacion     = request.UsuarioCreacion,
+                                UsuarioModificacion = request.UsuarioCreacion,
+                                FechaCreacion       = fechaHoraMarcado,
+                                FechaModificacion   = fechaHoraMarcado
+                            };
+                            _dbContext.TGestionDocenteActividadDetalleCongeladaLogs.Add(logActividad);
+                        }
+                    }
+
+                    await _dbContext.SaveChangesAsync();
+                    await transaction.CommitAsync();
 
                     return new ResultadoEjecucionDTO
                     {
-                        Exitoso = true,
-                        IdRegistro = (int)(primerElemento["IdOcurrenciaMarcada"] ?? 0),
-                        Mensaje = "Ocurrencia marcada correctamente"
+                        Exitoso    = true,
+                        IdRegistro = idOcurrenciaMarcada,
+                        Mensaje    = $"Ocurrencia marcada correctamente. {disparadoresData.Count} disparador(es) convertido(s) a TIEMPO_FIJO"
                     };
                 }
-
-                return new ResultadoEjecucionDTO
+                catch (Exception ex)
                 {
-                    Exitoso = true,
-                    IdRegistro = 0,
-                    Mensaje = "Ocurrencia marcada correctamente"
-                };
-            }
-            catch (Exception ex)
-            {
-                return new ResultadoEjecucionDTO
-                {
-                    Exitoso = false,
-                    Error = $"Error al marcar ocurrencia: {ex.Message}"
-                };
+                    await transaction.RollbackAsync();
+                    return new ResultadoEjecucionDTO
+                    {
+                        Exitoso = false,
+                        Error   = $"Error al marcar ocurrencia: {ex.Message}"
+                    };
+                }
             }
         }
 

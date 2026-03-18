@@ -90,7 +90,13 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
             }
             catch (Exception ex)
             {
-                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+                return BadRequest(new
+                {
+                    Exito = false,
+                    Mensaje = ex.Message,
+                    Detalle = ex.InnerException?.Message,
+                    Inner2 = ex.InnerException?.InnerException?.Message
+                });
             }
         }
 
@@ -692,6 +698,63 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
                     request.NuevoDetalle.Detalle.Usuario
                 );
                 return Ok(new { Exito = true, Id = nuevoId });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Exito = false,
+                    Mensaje = ex.Message,
+                    Detalle = ex.InnerException?.Message,
+                    Inner2 = ex.InnerException?.InnerException?.Message
+                });
+            }
+        }
+
+        /// Tipo Funcion: PUT
+        /// Autor: Joseph Llanque
+        /// Fecha: 16/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Endpoint que actualiza una ocurrencia de actividad existente.
+        /// Gestiona automáticamente la configuración IA si el modo de marcado cambia a/desde Automático o Warm.
+        /// </summary>
+        /// <param name="request">DTO con el ID de la ocurrencia y los nuevos datos.</param>
+        /// <returns>ActionResult con el resultado de la operación.</returns>
+        [HttpPut("ActualizarOcurrencia")]
+        public async Task<IActionResult> ActualizarOcurrencia([FromBody] ActualizarOcurrenciaRequestDTO request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(new { Exito = false, Mensaje = "Modelo invalido", Errores = ModelState });
+
+                var rpta = await _gestionDocenteActividadService.ActualizarOcurrenciaAsync(request);
+                return Ok(new { Exito = rpta });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        /// Tipo Funcion: DELETE
+        /// Autor: Joseph Llanque
+        /// Fecha: 16/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Endpoint que elimina lógicamente una ocurrencia de actividad y su configuración IA asociada (si existe).
+        /// </summary>
+        /// <param name="id">Identificador de la ocurrencia a eliminar.</param>
+        /// <param name="usuario">Usuario que realiza la operación.</param>
+        /// <returns>ActionResult con el resultado de la operación.</returns>
+        [HttpDelete("EliminarOcurrencia")]
+        public async Task<IActionResult> EliminarOcurrencia(int id, string usuario)
+        {
+            try
+            {
+                var rpta = await _gestionDocenteActividadService.EliminarOcurrenciaAsync(id, usuario);
+                return Ok(new { Exito = rpta });
             }
             catch (Exception ex)
             {
