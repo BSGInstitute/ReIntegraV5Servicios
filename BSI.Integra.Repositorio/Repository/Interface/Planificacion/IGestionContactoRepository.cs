@@ -39,8 +39,12 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         // Métodos para Hangfire
         Task<List<ActividadPendienteDTO>> ObtenerActividadesPendientesAsync();
         Task<ResultadoEjecucionDTO> ActualizarEstadoActividadAsync(ActualizarEstadoRequestDTO request);
+<<<<<<< HEAD
         Task<List<DisparadorPendienteClasificacionDTO>> ObtenerDisparadoresPendientesClasificacionAsync();
         Task<ResultadoEjecucionDTO> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request);
+=======
+        //Task<ResultadoEjecucionDTO> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request);
+>>>>>>> ef01830da558217153269bfbd9e0750349260558
 
         // Métodos para ejecución manual
         Task<ActividadPendienteDTO> ObtenerActividadParaEjecucionManualAsync(int idActividadDetalleCongelada, int idDisparadorCongelado);
