@@ -37,20 +37,23 @@ namespace BSI.Integra.Servicios.Jobs
         {
             try
             {
-                _logger.LogInformation("=== INICIO: Procesamiento de actividades pendientes ===");
+                Console.WriteLine("╔══════════════════════════════════════════════════════════╗");
+                Console.WriteLine($"║  HANGFIRE - ActividadesCongeladasJob                     ║");
+                Console.WriteLine($"║  INICIO: {DateTime.Now:yyyy-MM-dd HH:mm:ss}                         ║");
+                Console.WriteLine("╚══════════════════════════════════════════════════════════╝");
 
-                // 1. Obtener actividades pendientes
                 var actividades = await _gestionContactoService.ObtenerActividadesPendientesAsync();
 
                 if (actividades == null || !actividades.Any())
                 {
+                    Console.WriteLine("  ✓ Sin actividades pendientes");
                     _logger.LogInformation("No hay actividades pendientes para procesar");
                     return;
                 }
 
+                Console.WriteLine($"  → {actividades.Count} actividad(es) pendiente(s) encontrada(s)");
                 _logger.LogInformation($"Se encontraron {actividades.Count} actividades pendientes");
 
-                // 2. Procesar cada actividad
                 int exitosas = 0;
                 int fallidas = 0;
 
@@ -58,6 +61,12 @@ namespace BSI.Integra.Servicios.Jobs
                 {
                     try
                     {
+                        Console.WriteLine($"  ┌─ Actividad ID: {actividad.IdActividadDetalleCongelada}");
+                        Console.WriteLine($"  │  Nombre:       {actividad.NombreActividad}");
+                        Console.WriteLine($"  │  Tipo:         {(actividad.IdTipoActividad == 1 ? "AUTOMATICA" : "MANUAL")}");
+                        Console.WriteLine($"  │  Canal:        {(actividad.IdPlantillaBase == 2 ? "EMAIL" : actividad.IdPlantillaBase == 8 ? "WHATSAPP" : $"IdPlantillaBase={actividad.IdPlantillaBase}")}");
+                        Console.WriteLine($"  │  Disparador:   {actividad.IdDisparadorCongelado}");
+
                         _logger.LogInformation($"Procesando actividad {actividad.IdActividadDetalleCongelada} - {actividad.NombreActividad}");
 
                         var resultado = await EjecutarActividadAsync(actividad);
@@ -65,35 +74,43 @@ namespace BSI.Integra.Servicios.Jobs
                         if (resultado.Exitoso)
                         {
                             exitosas++;
+                            Console.WriteLine($"  └─ ✅ EJECUTADA: {resultado.Mensaje}");
                             _logger.LogInformation($"Actividad {actividad.IdActividadDetalleCongelada} ejecutada correctamente");
                         }
                         else
                         {
                             fallidas++;
+                            Console.WriteLine($"  └─ ❌ FALLO: {resultado.Error}");
                             _logger.LogWarning($"Actividad {actividad.IdActividadDetalleCongelada} fallo: {resultado.Error}");
                         }
                     }
                     catch (Exception ex)
                     {
                         fallidas++;
+                        Console.WriteLine($"  └─ 💥 EXCEPCION: {ex.Message}");
                         _logger.LogError(ex, $"Error procesando actividad {actividad.IdActividadDetalleCongelada}");
 
-                        // Registrar el error en la base de datos
                         await _gestionContactoService.ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
                         {
                             IdActividadDetalleCongelada = actividad.IdActividadDetalleCongelada,
-                            IdDisparadorCongelado = actividad.IdDisparadorCongelado,
-                            CodigoNuevoEstado = "NO_EJECUTADO",
-                            MensajeError = $"Excepcion no controlada: {ex.Message}",
-                            UsuarioModificacion = "HANGFIRE"
+                            IdDisparadorCongelado       = actividad.IdDisparadorCongelado,
+                            CodigoNuevoEstado           = "NO_EJECUTADO",
+                            MensajeError                = $"Excepcion no controlada: {ex.Message}",
+                            UsuarioModificacion         = "HANGFIRE"
                         });
                     }
                 }
+
+                Console.WriteLine("╔══════════════════════════════════════════════════════════╗");
+                Console.WriteLine($"║  FIN: {actividades.Count} procesada(s) | ✅ {exitosas} exitosa(s) | ❌ {fallidas} fallida(s)");
+                Console.WriteLine($"║  {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                Console.WriteLine("╚══════════════════════════════════════════════════════════╝");
 
                 _logger.LogInformation($"=== FIN: Procesadas {actividades.Count} actividades. Exitosas: {exitosas}, Fallidas: {fallidas} ===");
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"💥 ERROR CRITICO en ActividadesCongeladasJob: {ex.Message}");
                 _logger.LogError(ex, "Error critico en el job de actividades congeladas");
                 throw;
             }
@@ -139,16 +156,20 @@ namespace BSI.Integra.Servicios.Jobs
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"  └─ 💥 NO_EJECUTADO — Actividad {actividad.IdActividadDetalleCongelada}");
+                Console.WriteLine($"       Motivo: {ex.Message}");
+                if (ex.InnerException != null)
+                    Console.WriteLine($"       Inner:  {ex.InnerException.Message}");
+
                 _logger.LogError(ex, $"Error ejecutando actividad {actividad.IdActividadDetalleCongelada}");
 
-                // Actualizar estado a NO_EJECUTADO
                 var resultado = await _gestionContactoService.ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
                 {
                     IdActividadDetalleCongelada = actividad.IdActividadDetalleCongelada,
-                    IdDisparadorCongelado = actividad.IdDisparadorCongelado,
-                    CodigoNuevoEstado = "NO_EJECUTADO",
-                    MensajeError = ex.Message,
-                    UsuarioModificacion = "HANGFIRE"
+                    IdDisparadorCongelado       = actividad.IdDisparadorCongelado,
+                    CodigoNuevoEstado           = "NO_EJECUTADO",
+                    MensajeError                = ex.Message,
+                    UsuarioModificacion         = "HANGFIRE"
                 });
 
                 return resultado;

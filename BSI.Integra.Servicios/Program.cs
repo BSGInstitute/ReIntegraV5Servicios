@@ -259,7 +259,8 @@ builder.Services.AddHangfireServer();
 builder.Services.AddTransient<BSI.Integra.Servicios.Jobs.ActividadesCongeladasJob>();
 
 // Registrar el Worker de Sincronización de Gmail para Planificación
-builder.Services.AddHostedService<BSI.Integra.Servicios.Jobs.GmailPlaBackgroundWorker>();
+// DESACTIVADO TEMPORALMENTE — reactivar después de probar Hangfire
+//builder.Services.AddHostedService<BSI.Integra.Servicios.Jobs.GmailPlaBackgroundWorker>();
 
 var app = builder.Build();
 
