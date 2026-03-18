@@ -1017,158 +1017,158 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         /// Marca una ocurrencia y activa disparadores dependientes convirtiendolos a TIEMPO_FIJO.
         /// Version 2.0: Refactorizada para eliminar cursor SQL y manejar inserciones padre-hijo en backend.
         /// </summary>
-        public async Task<ResultadoEjecucionDTO> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request)
-        {
-            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
-            {
-                try
-                {
-                    // 1. Llamar al SP simplificado que solo marca la ocurrencia y retorna disparadores a convertir
-                    var parameters = new DynamicParameters();
-                    parameters.Add("@IdGestionDocenteOcurrenciaCongelada", request.IdGestionDocenteOcurrenciaCongelada, DbType.Int32);
-                    parameters.Add("@IdGestionContacto", request.IdGestionContacto, DbType.Int32);
-                    parameters.Add("@Comentario", request.Comentario, DbType.String);
-                    parameters.Add("@FechaHoraOcurrencia", request.FechaHoraOcurrencia, DbType.DateTime);
-                    parameters.Add("@UsuarioCreacion", request.UsuarioCreacion, DbType.String, size: 50);
+        //public async Task<ResultadoEjecucionDTO> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request)
+        //{
+        //    using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+        //    {
+        //        try
+        //        {
+        //            // 1. Llamar al SP simplificado que solo marca la ocurrencia y retorna disparadores a convertir
+        //            var parameters = new DynamicParameters();
+        //            parameters.Add("@IdGestionDocenteOcurrenciaCongelada", request.IdGestionDocenteOcurrenciaCongelada, DbType.Int32);
+        //            parameters.Add("@IdGestionContacto", request.IdGestionContacto, DbType.Int32);
+        //            parameters.Add("@Comentario", request.Comentario, DbType.String);
+        //            parameters.Add("@FechaHoraOcurrencia", request.FechaHoraOcurrencia, DbType.DateTime);
+        //            parameters.Add("@UsuarioCreacion", request.UsuarioCreacion, DbType.String, size: 50);
 
-                    string resultado = await _dapperRepository.QuerySPDapperAsync(
-                        "pla.SP_GestionDocenteOcurrenciaMarcar",
-                        parameters
-                    );
+        //            string resultado = await _dapperRepository.QuerySPDapperAsync(
+        //                "pla.SP_GestionDocenteOcurrenciaMarcar",
+        //                parameters
+        //            );
 
-                    if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
-                    {
-                        return new ResultadoEjecucionDTO
-                        {
-                            Exitoso = false,
-                            Error = "No se pudo marcar la ocurrencia"
-                        };
-                    }
+        //            if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
+        //            {
+        //                return new ResultadoEjecucionDTO
+        //                {
+        //                    Exitoso = false,
+        //                    Error = "No se pudo marcar la ocurrencia"
+        //                };
+        //            }
 
-                    var disparadoresData = JsonConvert.DeserializeObject<List<DisparadorConversionDTO>>(resultado);
-                    if (disparadoresData == null || !disparadoresData.Any())
-                    {
-                        return new ResultadoEjecucionDTO
-                        {
-                            Exitoso = false,
-                            Error = "No se obtuvieron datos de la ocurrencia marcada"
-                        };
-                    }
+        //            var disparadoresData = JsonConvert.DeserializeObject<List<DisparadorConversionDTO>>(resultado);
+        //            if (disparadoresData == null || !disparadoresData.Any())
+        //            {
+        //                return new ResultadoEjecucionDTO
+        //                {
+        //                    Exitoso = false,
+        //                    Error = "No se obtuvieron datos de la ocurrencia marcada"
+        //                };
+        //            }
 
-                    int idOcurrenciaMarcada = disparadoresData.First().IdGestionDocenteOcurrenciaMarcada;
-                    DateTime fechaHoraMarcado = DateTime.Now;
+        //            int idOcurrenciaMarcada = disparadoresData.First().IdGestionDocenteOcurrenciaMarcada;
+        //            DateTime fechaHoraMarcado = DateTime.Now;
 
-                    // 2. Procesar cada disparador en backend (inserciones padre-hijo)
-                    foreach (var disparador in disparadoresData)
-                    {
-                        // Insertar regla de tiempo (tabla padre)
-                        var regla = new TGestionDocenteDisparadorReglaTiempo
-                        {
-                            TipoRegla = "FIJO",
-                            Estado = true,
-                            UsuarioCreacion = request.UsuarioCreacion,
-                            UsuarioModificacion = request.UsuarioCreacion,
-                            FechaCreacion = fechaHoraMarcado,
-                            FechaModificacion = fechaHoraMarcado
-                        };
-                        _dbContext.TGestionDocenteDisparadorReglaTiempos.Add(regla);
-                        await _dbContext.SaveChangesAsync(); // Obtener el Id generado
+        //            // 2. Procesar cada disparador en backend (inserciones padre-hijo)
+        //            foreach (var disparador in disparadoresData)
+        //            {
+        //                // Insertar regla de tiempo (tabla padre)
+        //                var regla = new TGestionDocenteDisparadorReglaTiempo
+        //                {
+        //                    TipoRegla = "FIJO",
+        //                    Estado = true,
+        //                    UsuarioCreacion = request.UsuarioCreacion,
+        //                    UsuarioModificacion = request.UsuarioCreacion,
+        //                    FechaCreacion = fechaHoraMarcado,
+        //                    FechaModificacion = fechaHoraMarcado
+        //                };
+        //                _dbContext.TGestionDocenteDisparadorReglaTiempos.Add(regla);
+        //                await _dbContext.SaveChangesAsync(); // Obtener el Id generado
 
-                        // Insertar regla fija congelada (tabla hija)
-                        var reglaFija = new TGestionDocenteDisparadorReglaTiempoFijoCongelado
-                        {
-                            IdGestionDocenteDisparadorCongelado = disparador.IdGestionDocenteDisparadorCongelado,
-                            IdGestionDocenteDisparadorReglaTiempoFijo = null,
-                            IdGestionDocenteDisparadorReglaTiempo = regla.Id,
-                            IdGestionDocenteDisparadorDetalle = disparador.IdGestionDocenteDisparadorDetalle,
-                            Fecha = disparador.FechaCalculada,
-                            IdGestionDocenteEstadoEjecucion = disparador.IdGestionDocenteEstadoPorEjecutar,
-                            Estado = true,
-                            UsuarioCreacion = request.UsuarioCreacion,
-                            UsuarioModificacion = request.UsuarioCreacion,
-                            FechaCreacion = fechaHoraMarcado,
-                            FechaModificacion = fechaHoraMarcado
-                        };
-                        _dbContext.TGestionDocenteDisparadorReglaTiempoFijoCongelados.Add(reglaFija);
+        //                // Insertar regla fija congelada (tabla hija)
+        //                var reglaFija = new TGestionDocenteDisparadorReglaTiempoFijoCongelado
+        //                {
+        //                    IdGestionDocenteDisparadorCongelado = disparador.IdGestionDocenteDisparadorCongelado,
+        //                    IdGestionDocenteDisparadorReglaTiempoFijo = null,
+        //                    IdGestionDocenteDisparadorReglaTiempo = regla.Id,
+        //                    IdGestionDocenteDisparadorDetalle = disparador.IdGestionDocenteDisparadorDetalle,
+        //                    Fecha = disparador.FechaCalculada,
+        //                    IdGestionDocenteEstadoEjecucion = disparador.IdGestionDocenteEstadoPorEjecutar,
+        //                    Estado = true,
+        //                    UsuarioCreacion = request.UsuarioCreacion,
+        //                    UsuarioModificacion = request.UsuarioCreacion,
+        //                    FechaCreacion = fechaHoraMarcado,
+        //                    FechaModificacion = fechaHoraMarcado
+        //                };
+        //                _dbContext.TGestionDocenteDisparadorReglaTiempoFijoCongelados.Add(reglaFija);
 
-                        // Actualizar disparador congelado
-                        var disparadorCongelado = await _dbContext.TGestionDocenteDisparadorCongelados
-                            .FindAsync(disparador.IdGestionDocenteDisparadorCongelado);
+        //                // Actualizar disparador congelado
+        //                var disparadorCongelado = await _dbContext.TGestionDocenteDisparadorCongelados
+        //                    .FindAsync(disparador.IdGestionDocenteDisparadorCongelado);
 
-                        if (disparadorCongelado != null)
-                        {
-                            var estadoAnterior = disparadorCongelado.IdGestionDocenteEstadoEjecucion;
+        //                if (disparadorCongelado != null)
+        //                {
+        //                    var estadoAnterior = disparadorCongelado.IdGestionDocenteEstadoEjecucion;
 
-                            disparadorCongelado.IdGestionDocenteDisparadorFlujoTipo = 1; // ACTIVIDAD_INICIAL
-                            disparadorCongelado.IdGestionDocenteEstadoEjecucion = disparador.IdGestionDocenteEstadoPorEjecutar;
-                            disparadorCongelado.UsuarioModificacion = request.UsuarioCreacion;
-                            disparadorCongelado.FechaModificacion = fechaHoraMarcado;
+        //                    disparadorCongelado.IdGestionDocenteDisparadorFlujoTipo = 1; // ACTIVIDAD_INICIAL
+        //                    disparadorCongelado.IdGestionDocenteEstadoEjecucion = disparador.IdGestionDocenteEstadoPorEjecutar;
+        //                    disparadorCongelado.UsuarioModificacion = request.UsuarioCreacion;
+        //                    disparadorCongelado.FechaModificacion = fechaHoraMarcado;
 
-                            // Log de disparador
-                            var logDisparador = new TGestionDocenteDisparadorCongeladoLog
-                            {
-                                IdGestionDocenteDisparadorCongelado = disparador.IdGestionDocenteDisparadorCongelado,
-                                IdGestionDocenteEstadoEjecucion_Anterior = estadoAnterior,
-                                IdGestionDocenteEstadoEjecucion_Nuevo = disparador.IdGestionDocenteEstadoPorEjecutar,
-                                Estado = true,
-                                UsuarioCreacion = request.UsuarioCreacion,
-                                UsuarioModificacion = request.UsuarioCreacion,
-                                FechaCreacion = fechaHoraMarcado,
-                                FechaModificacion = fechaHoraMarcado
-                            };
-                            _dbContext.TGestionDocenteDisparadorCongeladoLogs.Add(logDisparador);
-                        }
+        //                    // Log de disparador
+        //                    var logDisparador = new TGestionDocenteDisparadorCongeladoLog
+        //                    {
+        //                        IdGestionDocenteDisparadorCongelado = disparador.IdGestionDocenteDisparadorCongelado,
+        //                        IdGestionDocenteEstadoEjecucion_Anterior = estadoAnterior,
+        //                        IdGestionDocenteEstadoEjecucion_Nuevo = disparador.IdGestionDocenteEstadoPorEjecutar,
+        //                        Estado = true,
+        //                        UsuarioCreacion = request.UsuarioCreacion,
+        //                        UsuarioModificacion = request.UsuarioCreacion,
+        //                        FechaCreacion = fechaHoraMarcado,
+        //                        FechaModificacion = fechaHoraMarcado
+        //                    };
+        //                    _dbContext.TGestionDocenteDisparadorCongeladoLogs.Add(logDisparador);
+        //                }
 
-                        // Actualizar actividad detalle si es necesario
-                        var actividadDetalle = await _dbContext.TGestionDocenteActividadDetalleCongeladas
-                            .FindAsync(disparador.IdGestionDocenteActividadDetalleCongelada);
+        //                // Actualizar actividad detalle si es necesario
+        //                var actividadDetalle = await _dbContext.TGestionDocenteActividadDetalleCongeladas
+        //                    .FindAsync(disparador.IdGestionDocenteActividadDetalleCongelada);
 
-                        if (actividadDetalle != null && actividadDetalle.IdGestionDocenteEstadoEjecucion != disparador.IdGestionDocenteEstadoPorEjecutar)
-                        {
-                            var estadoAnteriorActividad = actividadDetalle.IdGestionDocenteEstadoEjecucion;
+        //                if (actividadDetalle != null && actividadDetalle.IdGestionDocenteEstadoEjecucion != disparador.IdGestionDocenteEstadoPorEjecutar)
+        //                {
+        //                    var estadoAnteriorActividad = actividadDetalle.IdGestionDocenteEstadoEjecucion;
 
-                            actividadDetalle.IdGestionDocenteEstadoEjecucion = disparador.IdGestionDocenteEstadoPorEjecutar;
-                            actividadDetalle.UsuarioModificacion = request.UsuarioCreacion;
-                            actividadDetalle.FechaModificacion = fechaHoraMarcado;
+        //                    actividadDetalle.IdGestionDocenteEstadoEjecucion = disparador.IdGestionDocenteEstadoPorEjecutar;
+        //                    actividadDetalle.UsuarioModificacion = request.UsuarioCreacion;
+        //                    actividadDetalle.FechaModificacion = fechaHoraMarcado;
 
-                            // Log de actividad
-                            var logActividad = new TGestionDocenteActividadDetalleCongeladaLog
-                            {
-                                IdGestionDocenteActividadDetalleCongelada = disparador.IdGestionDocenteActividadDetalleCongelada,
-                                IdGestionDocenteEstadoEjecucion_Anterior = estadoAnteriorActividad,
-                                IdGestionDocenteEstadoEjecucion_Nuevo = disparador.IdGestionDocenteEstadoPorEjecutar,
-                                Estado = true,
-                                UsuarioCreacion = request.UsuarioCreacion,
-                                UsuarioModificacion = request.UsuarioCreacion,
-                                FechaCreacion = fechaHoraMarcado,
-                                FechaModificacion = fechaHoraMarcado
-                            };
-                            _dbContext.TGestionDocenteActividadDetalleCongeladaLogs.Add(logActividad);
-                        }
-                    }
+        //                    // Log de actividad
+        //                    var logActividad = new TGestionDocenteActividadDetalleCongeladaLog
+        //                    {
+        //                        IdGestionDocenteActividadDetalleCongelada = disparador.IdGestionDocenteActividadDetalleCongelada,
+        //                        IdGestionDocenteEstadoEjecucion_Anterior = estadoAnteriorActividad,
+        //                        IdGestionDocenteEstadoEjecucion_Nuevo = disparador.IdGestionDocenteEstadoPorEjecutar,
+        //                        Estado = true,
+        //                        UsuarioCreacion = request.UsuarioCreacion,
+        //                        UsuarioModificacion = request.UsuarioCreacion,
+        //                        FechaCreacion = fechaHoraMarcado,
+        //                        FechaModificacion = fechaHoraMarcado
+        //                    };
+        //                    _dbContext.TGestionDocenteActividadDetalleCongeladaLogs.Add(logActividad);
+        //                }
+        //            }
 
-                    // Commit de todos los cambios
-                    await _dbContext.SaveChangesAsync();
-                    await transaction.CommitAsync();
+        //            // Commit de todos los cambios
+        //            await _dbContext.SaveChangesAsync();
+        //            await transaction.CommitAsync();
 
-                    return new ResultadoEjecucionDTO
-                    {
-                        Exitoso = true,
-                        IdRegistro = idOcurrenciaMarcada,
-                        Mensaje = $"Ocurrencia marcada correctamente. {disparadoresData.Count} disparador(es) convertido(s) a TIEMPO_FIJO"
-                    };
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-                    return new ResultadoEjecucionDTO
-                    {
-                        Exitoso = false,
-                        Error = $"Error al marcar ocurrencia: {ex.Message}"
-                    };
-                }
-            }
-        }
+        //            return new ResultadoEjecucionDTO
+        //            {
+        //                Exitoso = true,
+        //                IdRegistro = idOcurrenciaMarcada,
+        //                Mensaje = $"Ocurrencia marcada correctamente. {disparadoresData.Count} disparador(es) convertido(s) a TIEMPO_FIJO"
+        //            };
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            await transaction.RollbackAsync();
+        //            return new ResultadoEjecucionDTO
+        //            {
+        //                Exitoso = false,
+        //                Error = $"Error al marcar ocurrencia: {ex.Message}"
+        //            };
+        //        }
+        //    }
+        //}
 
         // DTO interno para deserializar resultado plano del SP
         private class ActividadFlujoRawDTO

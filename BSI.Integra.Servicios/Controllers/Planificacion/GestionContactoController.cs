@@ -533,44 +533,44 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// </summary>
         /// <param name="request">Datos de la ocurrencia a marcar</param>
         /// <returns>Resultado de la operacion con el ID de la ocurrencia marcada</returns>
-        [HttpPost("[action]")]
-        public async Task<IActionResult> MarcarOcurrencia([FromBody] MarcarOcurrenciaRequestDTO request)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                    return BadRequest(new { Exito = false, Mensaje = "Modelo invalido", Errores = ModelState });
+        //[HttpPost("[action]")]
+        //public async Task<IActionResult> MarcarOcurrencia([FromBody] MarcarOcurrenciaRequestDTO request)
+        //{
+        //    try
+        //    {
+        //        if (!ModelState.IsValid)
+        //            return BadRequest(new { Exito = false, Mensaje = "Modelo invalido", Errores = ModelState });
 
-                var resultado = await _gestionContactoService.MarcarOcurrenciaAsync(request);
+        //        var resultado = await _gestionContactoService.MarcarOcurrenciaAsync(request);
 
-                if (resultado.Exitoso)
-                {
-                    return Ok(new
-                    {
-                        Exito = true,
-                        Mensaje = resultado.Mensaje,
-                        IdOcurrenciaMarcada = resultado.IdRegistro
-                    });
-                }
-                else
-                {
-                    return BadRequest(new
-                    {
-                        Exito = false,
-                        Mensaje = resultado.Error
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new
-                {
-                    Exito = false,
-                    Mensaje = ex.Message,
-                    Detalle = ex.InnerException?.Message
-                });
-            }
-        }
+        //        if (resultado.Exitoso)
+        //        {
+        //            return Ok(new
+        //            {
+        //                Exito = true,
+        //                Mensaje = resultado.Mensaje,
+        //                IdOcurrenciaMarcada = resultado.IdRegistro
+        //            });
+        //        }
+        //        else
+        //        {
+        //            return BadRequest(new
+        //            {
+        //                Exito = false,
+        //                Mensaje = resultado.Error
+        //            });
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new
+        //        {
+        //            Exito = false,
+        //            Mensaje = ex.Message,
+        //            Detalle = ex.InnerException?.Message
+        //        });
+        //    }
+        //}
 
         /// Autor: Lolo Zaa
         /// Fecha: 05/03/2026
