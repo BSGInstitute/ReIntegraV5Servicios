@@ -318,4 +318,17 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         /// <summary>Fecha de inicio del flujo en formato ISO 8601. Null = fecha actual.</summary>
         public DateTime? FechaInicioFlujo { get; set; }
     }
+    /// <summary>
+    /// DTO para conversión de disparadores de OCURRENCIA_PREVIA a TIEMPO_FIJO
+    /// Retornado por el SP simplificado pla.SP_GestionDocenteOcurrenciaMarcar
+    /// </summary>
+    public class DisparadorConversionDTO
+    {
+        public int IdGestionDocenteOcurrenciaMarcada { get; set; }
+        public int IdGestionDocenteDisparadorCongelado { get; set; }
+        public int IdGestionDocenteActividadDetalleCongelada { get; set; }
+        public int IdGestionDocenteDisparadorDetalle { get; set; }
+        public DateTime FechaCalculada { get; set; }
+        public int IdGestionDocenteEstadoPorEjecutar { get; set; }
+    }
 }
