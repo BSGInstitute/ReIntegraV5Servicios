@@ -28,10 +28,10 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
         private Mapper _mapper;
         private readonly IReemplazoEtiquetaPlantillaService _reemplazoEtiquetaService;
         public List<GmailCorreoArchivoAdjuntoDTO> ListaGmailCorreoArchivoAdjunto = new List<GmailCorreoArchivoAdjuntoDTO>();
-        public GmailCorreoService(IUnitOfWork unitOfWork, IReemplazoEtiquetaPlantillaService reemplazoEtiquetaService)
+        public GmailCorreoService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _reemplazoEtiquetaService = reemplazoEtiquetaService;
+            _reemplazoEtiquetaService = new ReemplazoEtiquetaPlantillaService(_unitOfWork);
 
             var config = new MapperConfiguration(cfg =>
             {
