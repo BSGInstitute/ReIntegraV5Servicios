@@ -1483,6 +1483,47 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 11/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene mensaje multimedia de WhatsApp (Planificación)
+        /// </summary>
+        /// <param name="waId"> Id de chat WhatsApp </param>
+        /// <returns> String </returns>
+        public string ObtenerMensajeMultimediaPla(string waId)
+        {
+            try
+            {
+                // Se consulta en ambas tablas de planificación (Enviado y Recibido)
+                var query = @"
+                    SELECT WaBody FROM (
+                        SELECT WaBody FROM pla.T_WhatsAppMensajeEnviadoPla WHERE WaId = @WaId AND Estado = 1
+                        UNION ALL
+                        SELECT WaBody FROM pla.T_WhatsAppMensajeRecibidoPla WHERE WaId = @WaId AND Estado = 1
+                    ) AS Resultado";
+
+                var resultado = _dapperRepository.FirstOrDefault(query, new { WaId = waId });
+
+                if (string.IsNullOrEmpty(resultado) || resultado == "null") return null;
+
+                // Intentar deserializar por si el WaBody contiene el JSON del mensaje
+                try
+                {
+                    var dto = JsonConvert.DeserializeObject<WhatsAppHistorialMensajesDTO>(resultado);
+                    return dto.Mensaje;
+                }
+                catch
+                {
+                    return resultado;
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
         /// Autor: Gilmer Qm
         /// Fecha: 15/03/2023
         /// <summary>

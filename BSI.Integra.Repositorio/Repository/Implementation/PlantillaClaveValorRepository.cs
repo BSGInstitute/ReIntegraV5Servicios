@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -708,11 +709,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                string query = @"SELECT 
-                                    Id, Nombre 
-                                FROM 
+                string query = @"SELECT
+                                    Id, Nombre
+                                FROM
                                     mkt.V_ObtenerPlantillaDisponibleMailingAgendaOperaciones
-                                WHERE 
+                                WHERE
                                     Estado = 1";
                 var resultadoQuery = _dapperRepository.QueryDapper(query, new { });
                 return JsonConvert.DeserializeObject<List<FiltroDTO>>(resultadoQuery)!;
@@ -723,6 +724,26 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        public List<PlantillaDisponiblePlanificacionDTO> ObtenerPlantillasModuloAgendaPlanificacion(int idModuloSistemaV5, int idPlantillaBase, int idPersonalAreaTrabajo)
+        {
+            try
+            {
+                List<PlantillaDisponiblePlanificacionDTO> lista = new();
+                var resultado = _dapperRepository.QuerySPDapper(
+                    "[pla].[SP_PlantillaModuloSistemaObtener]",
+                    new { IdModuloSistemaV5 = idModuloSistemaV5, IdPlantillaBase = idPlantillaBase, IdPersonalAreaTrabajo = idPersonalAreaTrabajo }
+                );
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]") && resultado != "null")
+                {
+                    lista = JsonConvert.DeserializeObject<List<PlantillaDisponiblePlanificacionDTO>>(resultado)!;
+                }
+                return lista;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
         /// Autor: Adriana Chipana
         /// Fecha: 29/05/2023

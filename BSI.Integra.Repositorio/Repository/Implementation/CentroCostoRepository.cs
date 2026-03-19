@@ -301,7 +301,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// </summary>
         /// <param name="valor">Nombre Parcial de Centro de Costo</param>
         /// <returns> Lista de Combos de centro costo </returns>
-        public IEnumerable<ComboDTO> ObtenerFiltroAutocomplete(string valor)
+        public IEnumerable<ComboDTO>  ObtenerFiltroAutocomplete(string valor)
         {
             try
             {

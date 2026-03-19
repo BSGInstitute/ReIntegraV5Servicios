@@ -11,6 +11,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
             TConvocatoriaPersonals = new HashSet<TConvocatoriaPersonal>();
             TEsquemaEvaluacionPgeneralDetalles = new HashSet<TEsquemaEvaluacionPgeneralDetalle>();
             TEsquemaEvaluacionPgeneralProveedors = new HashSet<TEsquemaEvaluacionPgeneralProveedor>();
+            TProveedorPespecificos = new HashSet<TProveedorPespecifico>();
             TProveedorTipoServicios = new HashSet<TProveedorTipoServicio>();
             TSolicitudCertificadoFisicos = new HashSet<TSolicitudCertificadoFisico>();
         }
@@ -92,12 +93,16 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Alias para los docentes.
         /// </summary>
         public string? Alias { get; set; }
+        /// <summary>
+        /// Indica si es Docente Valido o No
+        /// </summary>
         public bool? EsDocente { get; set; }
 
         public virtual ICollection<TCabeceraGestionContacto> TCabeceraGestionContactos { get; set; }
         public virtual ICollection<TConvocatoriaPersonal> TConvocatoriaPersonals { get; set; }
         public virtual ICollection<TEsquemaEvaluacionPgeneralDetalle> TEsquemaEvaluacionPgeneralDetalles { get; set; }
         public virtual ICollection<TEsquemaEvaluacionPgeneralProveedor> TEsquemaEvaluacionPgeneralProveedors { get; set; }
+        public virtual ICollection<TProveedorPespecifico> TProveedorPespecificos { get; set; }
         public virtual ICollection<TProveedorTipoServicio> TProveedorTipoServicios { get; set; }
         public virtual ICollection<TSolicitudCertificadoFisico> TSolicitudCertificadoFisicos { get; set; }
     }

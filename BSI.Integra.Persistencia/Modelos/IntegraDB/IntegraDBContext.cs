@@ -847,6 +847,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TProveedorCampaniaIntegra> TProveedorCampaniaIntegras { get; set; } = null!;
         public virtual DbSet<TProveedorCriterioCalificacion> TProveedorCriterioCalificacions { get; set; } = null!;
         public virtual DbSet<TProveedorCuentaBanco> TProveedorCuentaBancos { get; set; } = null!;
+        public virtual DbSet<TProveedorPespecifico> TProveedorPespecificos { get; set; } = null!;
         public virtual DbSet<TProveedorSubCriterioCalificacion> TProveedorSubCriterioCalificacions { get; set; } = null!;
         public virtual DbSet<TProveedorTipoServicio> TProveedorTipoServicios { get; set; } = null!;
         public virtual DbSet<TPublicoObjetivoRespuestum> TPublicoObjetivoRespuesta { get; set; } = null!;
@@ -25902,9 +25903,14 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Fecha de modificación del registro");
 
                 entity.Property(e => e.Nombre)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Nombre del nivel de confianza");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Descripcion del nivel de confianza con rango porcentual y comportamiento del sistema");
 
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
@@ -25912,12 +25918,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Versión de fila para control de concurrencia");
 
                 entity.Property(e => e.UsuarioCreacion)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que creó el registro");
 
                 entity.Property(e => e.UsuarioModificacion)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que modificó el registro");
             });
@@ -26282,12 +26288,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Versión de fila para control de concurrencia");
 
                 entity.Property(e => e.UsuarioCreacion)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que creó el registro");
 
                 entity.Property(e => e.UsuarioModificacion)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que modificó el registro");
 
@@ -26974,7 +26980,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Fecha de modificación del registro");
 
                 entity.Property(e => e.Nombre)
-                    .HasMaxLength(1)
+                    .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasComment("Nombre del tipo de clasificación");
 
@@ -26984,12 +26990,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Versión de fila para control de concurrencia");
 
                 entity.Property(e => e.UsuarioCreacion)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que creó el registro");
 
                 entity.Property(e => e.UsuarioModificacion)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que modificó el registro");
             });
@@ -27024,17 +27030,17 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Versión de fila para control de concurrencia");
 
                 entity.Property(e => e.TextoEjemplo)
-                    .HasMaxLength(1)
+                    .HasMaxLength(500)
                     .IsUnicode(false)
                     .HasComment("Texto de ejemplo para entrenamiento (ej: Sí, confirmo mi asistencia)");
 
                 entity.Property(e => e.UsuarioCreacion)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que creó el registro");
 
                 entity.Property(e => e.UsuarioModificacion)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que modificó el registro");
 
@@ -27339,7 +27345,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.Property(e => e.IdGestionDocenteOcurrencia).HasComment("Llave foránea a la tabla T_GestionDocenteOcurrencia");
 
                 entity.Property(e => e.Prompt)
-                    .HasMaxLength(1)
+                    .HasMaxLength(4000)
                     .IsUnicode(false)
                     .HasComment("Prompt o instrucción para el modelo de IA");
 
@@ -27349,12 +27355,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Versión de fila para control de concurrencia");
 
                 entity.Property(e => e.UsuarioCreacion)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que creó el registro");
 
                 entity.Property(e => e.UsuarioModificacion)
-                    .HasMaxLength(1)
+                    .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que modificó el registro");
 
@@ -41400,6 +41406,14 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasColumnName("IdPEspecifico")
                     .HasComment("Es  foreing key T_PEspecifico");
 
+                entity.Property(e => e.IdPespecificoSesionEstado)
+                    .HasColumnName("IdPEspecificoSesionEstado")
+                    .HasComment("Foreign Key con la tabla de estados de sesion del programa especifico.");
+
+                entity.Property(e => e.IdPespecificoSesionEstadoObservacionDetalle)
+                    .HasColumnName("IdPEspecificoSesionEstadoObservacionDetalle")
+                    .HasComment("Foreign Key con la tabla de detalle de observaciones del estado de la sesion.");
+
                 entity.Property(e => e.IdProveedor).HasComment("Clave Foranea de la tabla fin.T_Proveedor");
 
                 entity.Property(e => e.IdSesionRa)
@@ -41413,6 +41427,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.Property(e => e.RegularizacionCorreoWebinar).HasComment("Flag de regularizacion de correo para webinar");
 
                 entity.Property(e => e.RegularizacionWhatsAppWebinar).HasComment("Flag de regularizacion de WhatsApp para webinar");
+
+                entity.Property(e => e.Reprogramacion).HasComment("Indica si la sesion fue reprogramada.");
 
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
@@ -41446,6 +41462,16 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Usuario de modificacion del registro");
 
                 entity.Property(e => e.Version).HasComment("indica la version del cronograma");
+
+                entity.HasOne(d => d.IdPespecificoSesionEstadoNavigation)
+                    .WithMany(p => p.TPespecificoSesions)
+                    .HasForeignKey(d => d.IdPespecificoSesionEstado)
+                    .HasConstraintName("FK_T_PEspecificoSesion_T_PEspecificoSesionEstado");
+
+                entity.HasOne(d => d.IdPespecificoSesionEstadoObservacionDetalleNavigation)
+                    .WithMany(p => p.TPespecificoSesions)
+                    .HasForeignKey(d => d.IdPespecificoSesionEstadoObservacionDetalle)
+                    .HasConstraintName("FK_T_PEspecificoSesion_T_PEspecificoSesionEstadoObservacionDetalle");
             });
 
             modelBuilder.Entity<TPespecificoSesionEstado>(entity =>
@@ -50125,6 +50151,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(500)
                     .IsUnicode(false);
 
+                entity.Property(e => e.EsDocente).HasComment("Indica si es Docente Valido o No");
+
                 entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
 
                 entity.Property(e => e.FechaCreacion)
@@ -50357,6 +50385,58 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TProveedorPespecifico>(entity =>
+            {
+                entity.ToTable("T_ProveedorPEspecifico", "pla");
+
+                entity.HasComment("Esta tabla almacena la relacion entre proveedores y programas especificos.");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico del registro.");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creacion del registro.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificacion del registro.");
+
+                entity.Property(e => e.IdPespecifico)
+                    .HasColumnName("IdPEspecifico")
+                    .HasComment("Foreign Key con la tabla pla.T_PEspecifico.");
+
+                entity.Property(e => e.IdProveedor).HasComment("Foreign Key con la tabla fin.T_Proveedor.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema que almacena automaticamente la version del registro.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de creacion del registro.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro.");
+
+                entity.HasOne(d => d.IdPespecificoNavigation)
+                    .WithMany(p => p.TProveedorPespecificos)
+                    .HasForeignKey(d => d.IdPespecifico)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_ProveedorPEspecifico_T_PEspecifico");
+
+                entity.HasOne(d => d.IdProveedorNavigation)
+                    .WithMany(p => p.TProveedorPespecificos)
+                    .HasForeignKey(d => d.IdProveedor)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_ProveedorPEspecifico_T_Proveedor");
             });
 
             modelBuilder.Entity<TProveedorSubCriterioCalificacion>(entity =>
@@ -59324,6 +59404,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsRowVersion()
                     .IsConcurrencyToken()
                     .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.TipoPrograma).HasComment("Descripcion del tipo de descuento");
 
                 entity.Property(e => e.UsuarioCreacion)
                     .HasMaxLength(50)

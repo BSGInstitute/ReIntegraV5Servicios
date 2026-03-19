@@ -1,6 +1,7 @@
 ﻿using BSI.Integra.Aplicacion.Comercial.Service.Implementacion;
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Transversal.Helper;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
@@ -96,6 +97,37 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             catch
             {
                 throw;
+            }
+        }
+
+        /// Tipo Función: POST 
+        /// Autor: Jose Vega
+        /// Fecha: 26/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// <summary>
+        /// Finaliza una actividad y programa una nueva (Módulo Planificación)
+        /// </summary>
+        /// <param name="dto">DTO de entrada para la funcion</param>
+        /// <returns>Ok</returns>
+        [Route("[Action]")]
+        [HttpPost]
+        public async Task<ActionResult> FinalizarYProgramarActividadPlanificacion([FromBody] FinalizarProgramarGestionPlaDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                IAgendaReprogramacionService agendaReprogramacionService = new AgendaReprogramacionService(_unitOfWork);
+                var respuesta = await agendaReprogramacionService.FinalizarYProgramarGestionAsync(dto);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
         /// Tipo Función: POST 

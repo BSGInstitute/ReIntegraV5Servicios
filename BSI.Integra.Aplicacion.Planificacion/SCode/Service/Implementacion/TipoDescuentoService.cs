@@ -68,6 +68,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         PorcentajeCuotas = dto.PorcentajeCuotas,
                         CuotasAdicionales = dto.CuotasAdicionales,
                         IdTipoDescuentoNivelAprobacion = dto.IdTipoDescuentoNivelAprobacion,
+                        AplicaProgramaCompleto = dto.AplicaProgramaCompleto,
                         UsuarioCreacion = usuario,
                         UsuarioModificacion = usuario,
                         FechaCreacion = DateTime.Now,
@@ -146,6 +147,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         tipoDescuento.PorcentajeCuotas = dto.PorcentajeCuotas;
                         tipoDescuento.CuotasAdicionales = dto.CuotasAdicionales;
                         tipoDescuento.IdTipoDescuentoNivelAprobacion = dto.IdTipoDescuentoNivelAprobacion;
+                        tipoDescuento.AplicaProgramaCompleto = dto.AplicaProgramaCompleto;
                         tipoDescuento.UsuarioModificacion = usuario;
                         tipoDescuento.FechaModificacion = DateTime.Now;
                         tipoDescuento.Estado = true;

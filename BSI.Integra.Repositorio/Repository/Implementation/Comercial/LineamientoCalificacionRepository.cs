@@ -1989,8 +1989,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
 
 
 
-
-
         public async Task<InsertRecomendacionResultDTO> ProcesarRecomendacionesBatch(RecomendacionLlamadaDTO recomendaciones)
         {
             try
