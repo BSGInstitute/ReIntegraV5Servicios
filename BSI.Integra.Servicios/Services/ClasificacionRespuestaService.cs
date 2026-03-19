@@ -71,7 +71,17 @@ namespace BSI.Integra.Servicios.Services
             var json     = JsonConvert.SerializeObject(requestBody);
             var content  = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("/api/automatizacion/clasificar-respuesta", content);
-            response.EnsureSuccessStatusCode();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync();
+                _logger.LogError(
+                    "Disparador {Id}: Python respondio HTTP {Status} — {Body}",
+                    disparador.IdDisparadorCongelado,
+                    (int)response.StatusCode,
+                    errorBody);
+                throw new Exception($"Python HTTP {(int)response.StatusCode}: {errorBody}");
+            }
 
             var body      = await response.Content.ReadAsStringAsync();
             var resultado = JsonConvert.DeserializeObject<ClasificacionRespuestaResponseDTO>(body)
