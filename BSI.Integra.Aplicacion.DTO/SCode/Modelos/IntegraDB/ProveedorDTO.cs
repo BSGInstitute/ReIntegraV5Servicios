@@ -128,5 +128,17 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string RazonSocial { get; set; }
     }
 
+    public class ProveedorDocenteDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public int? IdCiudad { get; set; }
+        public string? Telefono { get; set; }
+        public string Email { get; set; } = null!;
+        public string? Celular1 { get; set; }
+        public bool? EsPersonaValida { get; set; }
+        public string? Alias { get; set; }
+        public bool? EsDocente { get; set; }
+    }
 
 }

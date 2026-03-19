@@ -951,5 +951,13 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw ex;
             }
         }
+
+
+        public IEnumerable<ProveedorDocenteDTO> ObtenerDocentesActivos()
+        {
+            var resultado = _unitOfWork.ProveedorRepository.ObtenerDocentesActivos().ToList();
+         
+            return resultado;
+        }
     }
 }

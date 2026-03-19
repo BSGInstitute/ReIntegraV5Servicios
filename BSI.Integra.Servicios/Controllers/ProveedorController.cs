@@ -662,5 +662,16 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+
+        [HttpGet("[action]")]
+        public IActionResult ObtenerDocentesActivos()
+        {
+            IProveedorService reporteEncuestaInicialService = new ProveedorService(unitOfWork);
+            var resultado = reporteEncuestaInicialService.ObtenerDocentesActivos();
+            return Ok(resultado);
+        }
+
+        
     }
 }
