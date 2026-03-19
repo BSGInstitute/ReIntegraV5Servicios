@@ -176,6 +176,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public DateTime? FechaRegularizacionWhatsAppWebinar { get; set; }
 
+        public int? IdPEspecificoSesionEstado { get; set; }
+        public int? IdPEspecificoSesionEstadoObservacionDetalle { get; set; }
         public virtual ICollection<TGestionContactoActividadSesionCongeladum> TGestionContactoActividadSesionCongelada { get; set; }
         public virtual ICollection<TRecuperacionSesion> TRecuperacionSesions { get; set; }
     }
