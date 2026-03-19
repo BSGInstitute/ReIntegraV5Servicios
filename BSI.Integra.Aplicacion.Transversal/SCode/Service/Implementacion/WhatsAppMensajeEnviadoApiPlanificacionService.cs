@@ -142,8 +142,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 objetoWhatsAppHook.DatosPlantillaWhatsApp = null;
 
                 var serializedResult = Serializer.Serialize(objetoWhatsAppHook);
-                //string url = "https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";
-                string url = "https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";
+                string url = "https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";
+                //string url = "https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";
                 try
                 {
                     datoRespuesta = Task.Run(() => UrlPostAsync(url, serializedResult)).Result;

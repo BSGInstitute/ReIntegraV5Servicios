@@ -1095,8 +1095,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     // Procesar cada disparador — inserciones padre-hijo
                     foreach (var disparador in disparadoresData)
                     {
-                        // Insertar regla de tiempo (tabla padre)
-                        var regla = new TGestionDocenteDisparadorReglaTiempo
+                        // 1. Insertar regla de tiempo base (abuelo)
+                        var reglaTiempo = new TGestionDocenteDisparadorReglaTiempo
                         {
                             TipoRegla           = "FIJO",
                             Estado              = true,
@@ -1105,15 +1105,30 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                             FechaCreacion       = fechaHoraMarcado,
                             FechaModificacion   = fechaHoraMarcado
                         };
-                        _dbContext.TGestionDocenteDisparadorReglaTiempos.Add(regla);
+                        _dbContext.TGestionDocenteDisparadorReglaTiempos.Add(reglaTiempo);
                         await _dbContext.SaveChangesAsync();
 
-                        // Insertar regla fija congelada (tabla hija)
-                        var reglaFija = new TGestionDocenteDisparadorReglaTiempoFijoCongelado
+                        // 2. Insertar regla fija maestra (padre) — referencia el abuelo
+                        var reglaFijaMaestra = new TGestionDocenteDisparadorReglaTiempoFijo
+                        {
+                            IdGestionDocenteDisparadorReglaTiempo = reglaTiempo.Id,
+                            IdGestionDocenteDisparadorDetalle     = disparador.IdGestionDocenteDisparadorDetalle,
+                            Fecha               = disparador.FechaCalculada,
+                            Estado              = true,
+                            UsuarioCreacion     = request.UsuarioCreacion,
+                            UsuarioModificacion = request.UsuarioCreacion,
+                            FechaCreacion       = fechaHoraMarcado,
+                            FechaModificacion   = fechaHoraMarcado
+                        };
+                        _dbContext.TGestionDocenteDisparadorReglaTiempoFijos.Add(reglaFijaMaestra);
+                        await _dbContext.SaveChangesAsync();
+
+                        // 3. Insertar regla fija congelada (hijo) — referencia padre y abuelo
+                        var reglaFijaCongelada = new TGestionDocenteDisparadorReglaTiempoFijoCongelado
                         {
                             IdGestionDocenteDisparadorCongelado       = disparador.IdGestionDocenteDisparadorCongelado,
-                            IdGestionDocenteDisparadorReglaTiempoFijo = 0,
-                            IdGestionDocenteDisparadorReglaTiempo     = regla.Id,
+                            IdGestionDocenteDisparadorReglaTiempoFijo = reglaFijaMaestra.Id,
+                            IdGestionDocenteDisparadorReglaTiempo     = reglaTiempo.Id,
                             IdGestionDocenteDisparadorDetalle         = disparador.IdGestionDocenteDisparadorDetalle,
                             Fecha                                     = disparador.FechaCalculada,
                             IdGestionDocenteEstadoEjecucion           = disparador.IdGestionDocenteEstadoPorEjecutar,
@@ -1123,7 +1138,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                             FechaCreacion       = fechaHoraMarcado,
                             FechaModificacion   = fechaHoraMarcado
                         };
-                        _dbContext.TGestionDocenteDisparadorReglaTiempoFijoCongelados.Add(reglaFija);
+                        _dbContext.TGestionDocenteDisparadorReglaTiempoFijoCongelados.Add(reglaFijaCongelada);
 
                         // Actualizar disparador congelado
                         var disparadorCongelado = await _dbContext.TGestionDocenteDisparadorCongelados

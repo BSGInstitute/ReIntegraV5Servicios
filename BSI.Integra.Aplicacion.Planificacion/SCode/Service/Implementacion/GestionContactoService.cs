@@ -493,17 +493,17 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// <summary>
         /// Marca una ocurrencia y activa disparadores dependientes.
         /// </summary>
-        //public async Task<ResultadoEjecucionDTO> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request)
-        //{
-        //    try
-        //    {
-        //        return await _unitOfWork.GestionContactoRepository.MarcarOcurrenciaAsync(request);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        throw;
-        //    }
-        //}
+        public async Task<ResultadoEjecucionDTO> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request)
+        {
+            try
+            {
+                return await _unitOfWork.GestionContactoRepository.MarcarOcurrenciaAsync(request);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
         /// Autor: Lolo Zaa
         /// Fecha: 05/03/2026
