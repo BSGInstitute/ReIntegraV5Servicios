@@ -490,20 +490,24 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// Autor: Lolo Zaa
         /// Fecha: 03/03/2026
         /// Version: 1.0
+        /// Autor: Lolo Zaa
+        /// Fecha: 19/03/2026
+        /// Version: 2.0
         /// <summary>
-        /// Marca una ocurrencia y activa disparadores dependientes.
+        /// Marca una ocurrencia y activa disparadores dependientes convirtiendolos a TIEMPO_FIJO.
+        /// Orquesta el flujo delegando toda la persistencia al repositorio.
         /// </summary>
-        //public async Task<ResultadoEjecucionDTO> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request)
-        //{
-        //    try
-        //    {
-        //        return await _unitOfWork.GestionContactoRepository.MarcarOcurrenciaAsync(request);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        throw;
-        //    }
-        //}
+        public async Task<ResultadoEjecucionDTO> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request)
+        {
+            try
+            {
+                return await _unitOfWork.GestionContactoRepository.MarcarOcurrenciaConDisparadoresAsync(request);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
         /// Autor: Lolo Zaa
         /// Fecha: 05/03/2026

@@ -56,18 +56,40 @@ namespace BSI.Integra.Servicios.Services
                 "Procesando disparador {Id} — canal: {Canal}",
                 disparador.IdDisparadorCongelado, disparador.Canal);
 
-            /** Llamar al servicio Python con los datos del disparador **/
-            var json     = JsonConvert.SerializeObject(disparador);
+            /** Construir request — telefono sin '+' segun doc v3.1 **/
+            var requestBody = new
+            {
+                id_disparador_congelado = disparador.IdDisparadorCongelado,
+                email_docente           = disparador.EmailDocente,
+                telefono_docente        = disparador.TelefonoDocente?.TrimStart('+'),
+                id_asesor               = disparador.IdPersonal,
+                fecha_envio             = disparador.FechaEnvio.ToString("yyyy-MM-ddTHH:mm:ss"),
+                mensaje_enviado         = disparador.MensajeEnviado,
+                fecha_hora_inicio       = disparador.FechaHoraInicio?.ToString("yyyy-MM-ddTHH:mm:ss")
+            };
+
+            var json     = JsonConvert.SerializeObject(requestBody);
             var content  = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync("/api/automatizacion/clasificar-respuesta", content);
-            response.EnsureSuccessStatusCode();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync();
+                _logger.LogError(
+                    "Disparador {Id}: Python respondio HTTP {Status} — {Body}",
+                    disparador.IdDisparadorCongelado,
+                    (int)response.StatusCode,
+                    errorBody);
+                throw new Exception($"Python HTTP {(int)response.StatusCode}: {errorBody}");
+            }
 
             var body      = await response.Content.ReadAsStringAsync();
             var resultado = JsonConvert.DeserializeObject<ClasificacionRespuestaResponseDTO>(body)
                 ?? throw new Exception(
                     $"Respuesta vacia del servicio Python para disparador {disparador.IdDisparadorCongelado}");
 
-            if (!resultado.Clasificado)
+            // ESPERANDO — plazo no vencido, sin mensajes → no tocar BD
+            if (resultado.EstadoClasificacion == "ESPERANDO")
             {
                 _logger.LogDebug(
                     "Disparador {Id}: ESPERANDO — sin respuesta del docente aun",
@@ -75,28 +97,49 @@ namespace BSI.Integra.Servicios.Services
                 return;
             }
 
-            /** Resultado definitivo — marcar ocurrencia en BD **/
-            if (resultado.IdOcurrenciaCongelada.HasValue)
+            // CLASIFICADO — resultado definitivo
+            var clasificacion = resultado.Clasificacion;
+            if (clasificacion == null)
             {
-                _logger.LogInformation(
-                    "Disparador {Id}: CLASIFICADO → {Ocurrencia} (nivel: {Nivel})",
-                    disparador.IdDisparadorCongelado,
-                    resultado.NombreOcurrencia,
-                    resultado.NivelConfianza);
-
-                await _unitOfWork.GestionContactoRepository.MarcarOcurrenciaAsync(
-                    new MarcarOcurrenciaRequestDTO
-                    {
-                        IdGestionDocenteOcurrenciaCongelada = resultado.IdOcurrenciaCongelada.Value,
-                        IdGestionContacto                   = disparador.IdGestionContacto,
-                        UsuarioCreacion                     = "HANGFIRE"
-                    });
-            }
-            else
-            {
-                _logger.LogInformation(
-                    "Disparador {Id}: CLASIFICADO sin ocurrencia (ej: NO_RESPONDIO sin config en BD)",
+                _logger.LogWarning(
+                    "Disparador {Id}: CLASIFICADO pero sin detalle de clasificacion",
                     disparador.IdDisparadorCongelado);
+                return;
+            }
+
+            _logger.LogInformation(
+                "Disparador {Id}: CLASIFICADO → {Ocurrencia} | MarcadoAutomatico: {Auto} | Nivel: {Nivel}",
+                disparador.IdDisparadorCongelado,
+                clasificacion.NombreOcurrencia,
+                clasificacion.MarcadoAutomatico,
+                clasificacion.NivelConfianza);
+
+            // MarcadoAutomatico = true → el Python YA ejecuto el SP, no hacer nada
+            if (clasificacion.MarcadoAutomatico)
+            {
+                _logger.LogInformation(
+                    "Disparador {Id}: SP ya ejecutado por el Python. Actividades dependientes en POR_EJECUTAR.",
+                    disparador.IdDisparadorCongelado);
+                return;
+            }
+
+            // MarcadoAutomatico = false + tiene ocurrencia → sugerencia pendiente de aprobacion del asesor
+            if (!clasificacion.MarcadoAutomatico && clasificacion.IdOcurrenciaClasificada.HasValue)
+            {
+                _logger.LogInformation(
+                    "Disparador {Id}: Sugerencia pendiente de aprobacion del asesor (ocurrencia {IdOc})",
+                    disparador.IdDisparadorCongelado,
+                    clasificacion.IdOcurrenciaClasificada.Value);
+                return;
+            }
+
+            // MarcadoAutomatico = false + sin ocurrencia → asesor debe clasificar manualmente
+            if (!clasificacion.MarcadoAutomatico && !clasificacion.IdOcurrenciaClasificada.HasValue)
+            {
+                _logger.LogInformation(
+                    "Disparador {Id}: Sin clasificacion posible. El asesor debe clasificar manualmente.",
+                    disparador.IdDisparadorCongelado);
+                return;
             }
         }
     }

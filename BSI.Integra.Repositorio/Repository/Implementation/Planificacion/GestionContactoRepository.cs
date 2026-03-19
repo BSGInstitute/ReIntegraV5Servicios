@@ -1043,200 +1043,189 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         /// Fecha: 03/03/2026
         /// Version: 2.0
         /// <summary>
-        /// Marca una ocurrencia y activa disparadores dependientes convirtiendolos a TIEMPO_FIJO.
-        /// El SP pla.SP_GestionDocenteOcurrenciaMarcar inserta en T_GestionDocenteOcurrenciaMarcada
-        /// y retorna los disparadores dependientes. El C# procesa las inserciones padre-hijo.
+        /// Llama al SP pla.SP_GestionDocenteOcurrenciaMarcar que inserta en
+        /// T_GestionDocenteOcurrenciaMarcada y retorna los disparadores dependientes.
+        /// La logica de conversion de disparadores vive en GestionContactoService.
         /// </summary>
-        public async Task<ResultadoEjecucionDTO> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request)
+        public async Task<List<DisparadorConversionDTO>> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request)
         {
-            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            try
             {
-                try
-                {
-                    var parameters = new DynamicParameters();
-                    parameters.Add("@IdGestionDocenteOcurrenciaCongelada", request.IdGestionDocenteOcurrenciaCongelada, DbType.Int32);
-                    parameters.Add("@IdGestionContacto",                   request.IdGestionContacto,                  DbType.Int32);
-                    parameters.Add("@Comentario",                          request.Comentario,                         DbType.String);
-                    parameters.Add("@FechaHoraOcurrencia",                 request.FechaHoraOcurrencia,                DbType.DateTime);
-                    parameters.Add("@UsuarioCreacion",                     request.UsuarioCreacion,                    DbType.String, size: 50);
+                var parameters = new DynamicParameters();
+                parameters.Add("@IdGestionDocenteOcurrenciaCongelada", request.IdGestionDocenteOcurrenciaCongelada, DbType.Int32);
+                parameters.Add("@IdGestionContacto",                   request.IdGestionContacto,                  DbType.Int32);
+                parameters.Add("@Comentario",                          request.Comentario,                         DbType.String);
+                parameters.Add("@FechaHoraOcurrencia",                 request.FechaHoraOcurrencia,                DbType.DateTime);
+                parameters.Add("@UsuarioCreacion",                     request.UsuarioCreacion,                    DbType.String, size: 50);
 
-                    string resultado = await _dapperRepository.QuerySPDapperAsync(
-                        "pla.SP_GestionDocenteOcurrenciaMarcar",
-                        parameters
-                    );
+                string resultado = await _dapperRepository.QuerySPDapperAsync(
+                    "pla.SP_GestionDocenteOcurrenciaMarcar",
+                    parameters
+                );
 
-                    if (string.IsNullOrEmpty(resultado))
-                    {
-                        return new ResultadoEjecucionDTO
-                        {
-                            Exitoso = false,
-                            Error   = "El SP no retorno respuesta"
-                        };
-                    }
+                if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
+                    return new List<DisparadorConversionDTO>();
 
-                    var disparadoresData = JsonConvert.DeserializeObject<List<DisparadorConversionDTO>>(resultado)
-                        ?? new List<DisparadorConversionDTO>();
-
-                    /** Si no hay disparadores dependientes la ocurrencia igual se marco correctamente **/
-                    if (!disparadoresData.Any())
-                    {
-                        await transaction.CommitAsync();
-                        return new ResultadoEjecucionDTO
-                        {
-                            Exitoso    = true,
-                            IdRegistro = 0,
-                            Mensaje    = "Ocurrencia marcada correctamente. Sin disparadores dependientes."
-                        };
-                    }
-
-                    int idOcurrenciaMarcada   = disparadoresData.First().IdGestionDocenteOcurrenciaMarcada;
-                    DateTime fechaHoraMarcado = DateTime.Now;
-
-                    // Procesar cada disparador — inserciones padre-hijo
-                    foreach (var disparador in disparadoresData)
-                    {
-                        // Insertar regla de tiempo (tabla padre)
-                        var regla = new TGestionDocenteDisparadorReglaTiempo
-                        {
-                            TipoRegla           = "FIJO",
-                            Estado              = true,
-                            UsuarioCreacion     = request.UsuarioCreacion,
-                            UsuarioModificacion = request.UsuarioCreacion,
-                            FechaCreacion       = fechaHoraMarcado,
-                            FechaModificacion   = fechaHoraMarcado
-                        };
-                        _dbContext.TGestionDocenteDisparadorReglaTiempos.Add(regla);
-                        await _dbContext.SaveChangesAsync();
-
-                        // Insertar regla fija congelada (tabla hija)
-                        var reglaFija = new TGestionDocenteDisparadorReglaTiempoFijoCongelado
-                        {
-                            IdGestionDocenteDisparadorCongelado       = disparador.IdGestionDocenteDisparadorCongelado,
-                            IdGestionDocenteDisparadorReglaTiempoFijo = 0,
-                            IdGestionDocenteDisparadorReglaTiempo     = regla.Id,
-                            IdGestionDocenteDisparadorDetalle         = disparador.IdGestionDocenteDisparadorDetalle,
-                            Fecha                                     = disparador.FechaCalculada,
-                            IdGestionDocenteEstadoEjecucion           = disparador.IdGestionDocenteEstadoPorEjecutar,
-                            Estado              = true,
-                            UsuarioCreacion     = request.UsuarioCreacion,
-                            UsuarioModificacion = request.UsuarioCreacion,
-                            FechaCreacion       = fechaHoraMarcado,
-                            FechaModificacion   = fechaHoraMarcado
-                        };
-                        _dbContext.TGestionDocenteDisparadorReglaTiempoFijoCongelados.Add(reglaFija);
-
-                        // Actualizar disparador congelado
-                        var disparadorCongelado = await _dbContext.TGestionDocenteDisparadorCongelados
-                            .FindAsync(disparador.IdGestionDocenteDisparadorCongelado);
-
-                        if (disparadorCongelado != null)
-                        {
-                            var estadoAnterior = disparadorCongelado.IdGestionDocenteEstadoEjecucion;
-
-                            disparadorCongelado.IdGestionDocenteDisparadorFlujoTipo = 1;
-                            disparadorCongelado.IdGestionDocenteEstadoEjecucion     = disparador.IdGestionDocenteEstadoPorEjecutar;
-                            disparadorCongelado.UsuarioModificacion                 = request.UsuarioCreacion;
-                            disparadorCongelado.FechaModificacion                   = fechaHoraMarcado;
-
-                            var logDisparador = new TGestionDocenteDisparadorCongeladoLog
-                            {
-                                IdGestionDocenteDisparadorCongelado     = disparador.IdGestionDocenteDisparadorCongelado,
-                                IdGestionDocenteEstadoEjecucionAnterior = estadoAnterior,
-                                IdGestionDocenteEstadoEjecucionNuevo    = disparador.IdGestionDocenteEstadoPorEjecutar,
-                                Estado              = true,
-                                UsuarioCreacion     = request.UsuarioCreacion,
-                                UsuarioModificacion = request.UsuarioCreacion,
-                                FechaCreacion       = fechaHoraMarcado,
-                                FechaModificacion   = fechaHoraMarcado
-                            };
-                            _dbContext.TGestionDocenteDisparadorCongeladoLogs.Add(logDisparador);
-                        }
-
-                        // Actualizar actividad detalle si es necesario
-                        var actividadDetalle = await _dbContext.TGestionDocenteActividadDetalleCongelada
-                            .FindAsync(disparador.IdGestionDocenteActividadDetalleCongelada);
-
-                        if (actividadDetalle != null &&
-                            actividadDetalle.IdGestionDocenteEstadoEjecucion != disparador.IdGestionDocenteEstadoPorEjecutar)
-                        {
-                            var estadoAnteriorActividad = actividadDetalle.IdGestionDocenteEstadoEjecucion;
-
-                            actividadDetalle.IdGestionDocenteEstadoEjecucion = disparador.IdGestionDocenteEstadoPorEjecutar;
-                            actividadDetalle.UsuarioModificacion             = request.UsuarioCreacion;
-                            actividadDetalle.FechaModificacion               = fechaHoraMarcado;
-
-                            var logActividad = new TGestionDocenteActividadDetalleCongeladaLog
-                            {
-                                IdGestionDocenteActividadDetalleCongelada  = disparador.IdGestionDocenteActividadDetalleCongelada,
-                                IdGestionDocenteEstadoEjecucionAnterior    = estadoAnteriorActividad,
-                                IdGestionDocenteEstadoEjecucionNuevo       = disparador.IdGestionDocenteEstadoPorEjecutar,
-                                Estado              = true,
-                                UsuarioCreacion     = request.UsuarioCreacion,
-                                UsuarioModificacion = request.UsuarioCreacion,
-                                FechaCreacion       = fechaHoraMarcado,
-                                FechaModificacion   = fechaHoraMarcado
-                            };
-                            _dbContext.TGestionDocenteActividadDetalleCongeladaLogs.Add(logActividad);
-                        }
-                    }
-
-                    await _dbContext.SaveChangesAsync();
-                    await transaction.CommitAsync();
-
-                    return new ResultadoEjecucionDTO
-                    {
-                        Exitoso    = true,
-                        IdRegistro = idOcurrenciaMarcada,
-                        Mensaje    = $"Ocurrencia marcada correctamente. {disparadoresData.Count} disparador(es) convertido(s) a TIEMPO_FIJO"
-                    };
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-                    return new ResultadoEjecucionDTO
-                    {
-                        Exitoso = false,
-                        Error   = $"Error al marcar ocurrencia: {ex.Message}"
-                    };
-                }
+                return JsonConvert.DeserializeObject<List<DisparadorConversionDTO>>(resultado)
+                    ?? new List<DisparadorConversionDTO>();
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
-        // DTO interno para deserializar resultado plano del SP
-        private class ActividadFlujoRawDTO
+        /// Autor: Lolo Zaa
+        /// Fecha: 19/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Orquesta la persistencia completa del marcado de ocurrencia:
+        /// 1. Llama al SP (inserta ocurrencia marcada + retorna disparadores dependientes)
+        /// 2. Por cada disparador: crea regla de tiempo → regla fija → regla fija congelada
+        /// 3. Actualiza estados y genera logs de auditoria.
+        /// Todo dentro de una transaccion.
+        /// </summary>
+        public async Task<ResultadoEjecucionDTO> MarcarOcurrenciaConDisparadoresAsync(MarcarOcurrenciaRequestDTO request)
         {
-            public int IdGestionDocenteActividadCabecera { get; set; }
-            public int IdGestionDocenteActividadCabeceraCongelada { get; set; }
-            public int IdGestionContactoFlujoCongelado { get; set; }
-            public string NombreCabecera { get; set; }
-            public string DescripcionCabecera { get; set; }
-            public int IdGestionDocenteActividadDetalleCongelada { get; set; }
-            public string NombreDetalle { get; set; }
-            public int IdDisparadorCongelado { get; set; }
-            public string TipoDisparador { get; set; }
-            public DateTime? FechaProgramada { get; set; }
-            public DateTime? FechaFija { get; set; }
-            public int? CantidadTiempoRelativo { get; set; }
-            public string UnidadTiempo { get; set; }
-            public string CodigoReferenciaTiempo { get; set; }
-            public string NombreReferenciaTiempo { get; set; }
-            public string NombreEvento { get; set; }
-            public string OcurrenciaPrevia { get; set; }
-            public string NombrePlantilla { get; set; }
-            public string MedioComunicacion { get; set; }
-            public string EstadoEjecucionDetalle { get; set; }
-            public string EstadoEjecucionDisparador { get; set; }
-            public bool TieneFechaFija { get; set; }
-            public bool TieneTiempoRelativo { get; set; }
-            public bool TieneEvento { get; set; }
-            public bool TieneOcurrenciaPrevia { get; set; }
-            public int? IdSesion { get; set; }
-            public int? NumeroSesion { get; set; }
-            public DateTime? FechaInicioSesion { get; set; }
-            public int? IdPEspecifico { get; set; }
-            public string NombrePEspecifico { get; set; }
-            public int? IdProveedor { get; set; }
-            public string RazonSocialDocente { get; set; }
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            try
+            {
+                // 1. Llamar al SP — inserta ocurrencia marcada y retorna disparadores dependientes
+                var disparadoresData = await MarcarOcurrenciaAsync(request);
+
+                if (!disparadoresData.Any())
+                {
+                    await transaction.CommitAsync();
+                    return new ResultadoEjecucionDTO
+                    {
+                        Exitoso    = true,
+                        IdRegistro = 0,
+                        Mensaje    = "Ocurrencia marcada correctamente. Sin disparadores dependientes."
+                    };
+                }
+
+                int idOcurrenciaMarcada   = disparadoresData.First().IdGestionDocenteOcurrenciaMarcada;
+                DateTime fechaHoraMarcado = DateTime.Now;
+
+                foreach (var disparador in disparadoresData)
+                {
+                    // 2a. Regla de tiempo base (abuelo)
+                    var reglaTiempo = new TGestionDocenteDisparadorReglaTiempo
+                    {
+                        TipoRegla           = "FIJO",
+                        Estado              = true,
+                        UsuarioCreacion     = request.UsuarioCreacion,
+                        UsuarioModificacion = request.UsuarioCreacion,
+                        FechaCreacion       = fechaHoraMarcado,
+                        FechaModificacion   = fechaHoraMarcado
+                    };
+                    _dbContext.TGestionDocenteDisparadorReglaTiempos.Add(reglaTiempo);
+                    await _dbContext.SaveChangesAsync();
+
+                    // 2b. Regla fija maestra (padre)
+                    var reglaFijaMaestra = new TGestionDocenteDisparadorReglaTiempoFijo
+                    {
+                        IdGestionDocenteDisparadorReglaTiempo = reglaTiempo.Id,
+                        IdGestionDocenteDisparadorDetalle     = disparador.IdGestionDocenteDisparadorDetalle,
+                        Fecha               = disparador.FechaCalculada,
+                        Estado              = true,
+                        UsuarioCreacion     = request.UsuarioCreacion,
+                        UsuarioModificacion = request.UsuarioCreacion,
+                        FechaCreacion       = fechaHoraMarcado,
+                        FechaModificacion   = fechaHoraMarcado
+                    };
+                    _dbContext.TGestionDocenteDisparadorReglaTiempoFijos.Add(reglaFijaMaestra);
+                    await _dbContext.SaveChangesAsync();
+
+                    // 2c. Regla fija congelada (hijo)
+                    var reglaFijaCongelada = new TGestionDocenteDisparadorReglaTiempoFijoCongelado
+                    {
+                        IdGestionDocenteDisparadorCongelado       = disparador.IdGestionDocenteDisparadorCongelado,
+                        IdGestionDocenteDisparadorReglaTiempoFijo = reglaFijaMaestra.Id,
+                        IdGestionDocenteDisparadorReglaTiempo     = reglaTiempo.Id,
+                        IdGestionDocenteDisparadorDetalle         = disparador.IdGestionDocenteDisparadorDetalle,
+                        Fecha                                     = disparador.FechaCalculada,
+                        IdGestionDocenteEstadoEjecucion           = disparador.IdGestionDocenteEstadoPorEjecutar,
+                        Estado              = true,
+                        UsuarioCreacion     = request.UsuarioCreacion,
+                        UsuarioModificacion = request.UsuarioCreacion,
+                        FechaCreacion       = fechaHoraMarcado,
+                        FechaModificacion   = fechaHoraMarcado
+                    };
+                    _dbContext.TGestionDocenteDisparadorReglaTiempoFijoCongelados.Add(reglaFijaCongelada);
+
+                    // 2d. Actualizar disparador congelado
+                    var disparadorCongelado = await _dbContext.TGestionDocenteDisparadorCongelados
+                        .FindAsync(disparador.IdGestionDocenteDisparadorCongelado);
+
+                    if (disparadorCongelado != null)
+                    {
+                        var estadoAnterior = disparadorCongelado.IdGestionDocenteEstadoEjecucion;
+
+                        disparadorCongelado.IdGestionDocenteDisparadorFlujoTipo = 1;
+                        disparadorCongelado.IdGestionDocenteEstadoEjecucion     = disparador.IdGestionDocenteEstadoPorEjecutar;
+                        disparadorCongelado.UsuarioModificacion                 = request.UsuarioCreacion;
+                        disparadorCongelado.FechaModificacion                   = fechaHoraMarcado;
+
+                        _dbContext.TGestionDocenteDisparadorCongeladoLogs.Add(new TGestionDocenteDisparadorCongeladoLog
+                        {
+                            IdGestionDocenteDisparadorCongelado     = disparador.IdGestionDocenteDisparadorCongelado,
+                            IdGestionDocenteEstadoEjecucionAnterior = estadoAnterior,
+                            IdGestionDocenteEstadoEjecucionNuevo    = disparador.IdGestionDocenteEstadoPorEjecutar,
+                            Estado              = true,
+                            UsuarioCreacion     = request.UsuarioCreacion,
+                            UsuarioModificacion = request.UsuarioCreacion,
+                            FechaCreacion       = fechaHoraMarcado,
+                            FechaModificacion   = fechaHoraMarcado
+                        });
+                    }
+
+                    // 2e. Actualizar actividad detalle
+                    var actividadDetalle = await _dbContext.TGestionDocenteActividadDetalleCongelada
+                        .FindAsync(disparador.IdGestionDocenteActividadDetalleCongelada);
+
+                    if (actividadDetalle != null &&
+                        actividadDetalle.IdGestionDocenteEstadoEjecucion != disparador.IdGestionDocenteEstadoPorEjecutar)
+                    {
+                        var estadoAnteriorActividad = actividadDetalle.IdGestionDocenteEstadoEjecucion;
+
+                        actividadDetalle.IdGestionDocenteEstadoEjecucion = disparador.IdGestionDocenteEstadoPorEjecutar;
+                        actividadDetalle.UsuarioModificacion             = request.UsuarioCreacion;
+                        actividadDetalle.FechaModificacion               = fechaHoraMarcado;
+
+                        _dbContext.TGestionDocenteActividadDetalleCongeladaLogs.Add(new TGestionDocenteActividadDetalleCongeladaLog
+                        {
+                            IdGestionDocenteActividadDetalleCongelada  = disparador.IdGestionDocenteActividadDetalleCongelada,
+                            IdGestionDocenteEstadoEjecucionAnterior    = estadoAnteriorActividad,
+                            IdGestionDocenteEstadoEjecucionNuevo       = disparador.IdGestionDocenteEstadoPorEjecutar,
+                            Estado              = true,
+                            UsuarioCreacion     = request.UsuarioCreacion,
+                            UsuarioModificacion = request.UsuarioCreacion,
+                            FechaCreacion       = fechaHoraMarcado,
+                            FechaModificacion   = fechaHoraMarcado
+                        });
+                    }
+                }
+
+                await _dbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return new ResultadoEjecucionDTO
+                {
+                    Exitoso    = true,
+                    IdRegistro = idOcurrenciaMarcada,
+                    Mensaje    = $"Ocurrencia marcada correctamente. {disparadoresData.Count} disparador(es) convertido(s) a TIEMPO_FIJO"
+                };
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return new ResultadoEjecucionDTO
+                {
+                    Exitoso = false,
+                    Error   = $"Error al marcar ocurrencia: {ex.Message}"
+                };
+            }
         }
 
         /// Autor: Lolo Zaa

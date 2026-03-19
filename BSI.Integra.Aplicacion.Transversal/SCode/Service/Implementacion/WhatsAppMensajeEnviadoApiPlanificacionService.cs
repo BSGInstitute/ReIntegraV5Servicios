@@ -142,14 +142,25 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 objetoWhatsAppHook.DatosPlantillaWhatsApp = null;
 
                 var serializedResult = Serializer.Serialize(objetoWhatsAppHook);
-                //string url = "https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";
-                string url = "https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";
+                string url = "https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";
+                //string url = "https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";
                 try
                 {
                     datoRespuesta = Task.Run(() => UrlPostAsync(url, serializedResult)).Result;
+
+                    if (!datoRespuesta.EstadoMensaje)
+                    {
+                        Console.WriteLine($"[WhatsApp PLA] Hook respondio EstadoMensaje=false — Mensaje: {datoRespuesta.Mensaje} | WaId: {datoRespuesta.WaId}");
+                    }
+
                     return datoRespuesta.EstadoMensaje;
                 }
-                catch { }
+                catch (Exception hookEx)
+                {
+                    Console.WriteLine($"[WhatsApp PLA] Error llamando al hook: {hookEx.Message}");
+                    if (hookEx.InnerException != null)
+                        Console.WriteLine($"[WhatsApp PLA] Inner: {hookEx.InnerException.Message}");
+                }
                 return false;
             }
             catch (Exception ex)
