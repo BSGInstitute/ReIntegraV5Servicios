@@ -2590,5 +2590,103 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 return false;
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 19/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los valores de las etiquetas para el flujo de planificación
+        /// </summary>
+        /// <param name="idActividadDetalle"></param>
+        /// <param name="idCentroCosto"></param>
+        /// <returns></returns>
+        public ValoresEtiquetasPlanificacionDTO ObtenerValoresEtiquetasPlanificacion(int idActividadDetalle, int idCentroCosto)
+        {
+            try
+            {
+                string _query = @"
+                SELECT 
+                    -- {nombre_docente}
+                    CASE 
+                        WHEN cp.IdTipoPersona = 4 THEN p.Nombre1 + ' ' + p.ApePaterno + ' ' + p.ApeMaterno
+                        WHEN cp.IdTipoPersona = 6 THEN dp.Nombre + ' ' + dp.ApellidoPaterno + ' ' + dp.ApellidoMaterno
+                        ELSE ''
+                    END AS NombreDocente,
+                    -- {nombre_curso} / {nombre_curso_programa_hijo}
+                    pe.Nombre AS NombreCurso,
+                    pe.Nombre AS NombreCursoProgramaHijo,
+                    -- {nombre_pais}
+                    pais.Nombre AS NombrePais,
+                    -- {plazo_otorgado}
+                    CAST(med.FechaEntrega AS DATE) AS PlazoOtorgado,
+                    -- {tarifa}, {moneda}, {plazo_pago}
+                    hpp.Precio AS Tarifa,
+                    m.Nombre AS Moneda,
+                    conp.Nombre AS PlazoPago,
+                    -- {fecha_primera_sesion}
+                    (SELECT MIN(FechaHoraInicio) FROM pla.T_PEspecificoSesion WHERE IdPEspecifico = pe.Id AND Estado = 1) AS FechaPrimeraSesion
+                FROM 
+                    pla.T_PEspecifico pe
+                    LEFT JOIN pla.T_PEspecificoParticipacionExpositor ppe ON pe.Id = ppe.IdPEspecifico AND ppe.Estado = 1
+                    LEFT JOIN conf.T_ClasificacionPersona cp ON ppe.IdClasificacionPersona = cp.Id
+                    LEFT JOIN fin.T_Proveedor p ON cp.IdTablaOriginal = p.Id AND cp.IdTipoPersona = 4
+                    LEFT JOIN pla.T_DocentePostulante dp ON cp.IdTablaOriginal = dp.Id AND cp.IdTipoPersona = 6
+                    LEFT JOIN conf.T_Ciudad ciu ON p.IdCiudad = ciu.Id
+                    LEFT JOIN conf.T_Pais pais ON ciu.IdPais = pais.Id
+                    LEFT JOIN ope.T_MaterialPEspecificoDetalle med ON pe.Id = med.IdPEspecifico AND med.Estado = 1
+                    LEFT JOIN fin.T_HistoricoProductoProveedor hpp ON ppe.IdProveedor_FurHonorario = hpp.IdProveedor AND hpp.Estado = 1
+                    LEFT JOIN fin.T_Moneda m ON hpp.IdMoneda = m.Id
+                    LEFT JOIN fin.T_CondicionPago conp ON hpp.IdCondicionPago = conp.Id
+                WHERE 
+                    pe.IdCentroCosto = @IdCentroCosto 
+                    AND pe.Estado = 1";
+                var _queryRespuesta = _dapperRepository.FirstOrDefault(_query, new { IdCentroCosto = idCentroCosto });
+                if (_queryRespuesta != "null")
+                    return JsonConvert.DeserializeObject<ValoresEtiquetasPlanificacionDTO>(_queryRespuesta);
+                else
+                    return null;
+            }
+            catch (Exception Ex)
+            {
+                throw new Exception(Ex.Message);
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 19/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene las sesiones de planificación para el curso especificado
+        /// </summary>
+        /// <param name="idActividadDetalle"></param>
+        /// <returns></returns>
+        public List<SesionPlanificacionDTO> ObtenerSesionesPlanificacion(int idActividadDetalle)
+        {
+            try
+            {
+                string _query = @"
+                SELECT 
+                    FechaHoraInicio AS FechaSesion,
+                    CONVERT(VARCHAR(5), FechaHoraInicio, 108) AS HoraInicio,
+                    CONVERT(VARCHAR(5), DATEADD(MINUTE, Duracion, FechaHoraInicio), 108) AS HoraFin,
+                    Grupo AS Tema
+                FROM 
+                    pla.T_PEspecificoSesion
+                WHERE 
+                    IdPEspecifico = (SELECT pe.Id FROM pla.T_PEspecifico pe WHERE pe.IdCentroCosto = (SELECT IdCentroCosto FROM pla.T_PEspecifico WHERE Id = (SELECT IdPEspecifico FROM pla.T_PEspecificoSesion WHERE IdActividadDetalle = @IdActividadDetalle)) AND pe.Estado = 1)
+                    AND Estado = 1
+                ORDER BY 
+                    FechaHoraInicio ASC";
+                var _queryRespuesta = _dapperRepository.QueryDapper(_query, new { IdActividadDetalle = idActividadDetalle });
+                if (_queryRespuesta != "null")
+                    return JsonConvert.DeserializeObject<List<SesionPlanificacionDTO>>(_queryRespuesta);
+                else
+                    return new List<SesionPlanificacionDTO>();
+            }
+            catch (Exception Ex)
+            {
+                throw new Exception(Ex.Message);
+            }
+        }
     }
 }

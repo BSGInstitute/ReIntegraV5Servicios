@@ -6,6 +6,8 @@ using BSI.Integra.Aplicacion.Servicios.Service.Implementacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
+using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
+using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using Microsoft.AspNetCore.Http;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -24,10 +26,12 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
     {
         private IUnitOfWork _unitOfWork;
         private Mapper _mapper;
+        private readonly IReemplazoEtiquetaPlantillaService _reemplazoEtiquetaService;
         public List<GmailCorreoArchivoAdjuntoDTO> ListaGmailCorreoArchivoAdjunto = new List<GmailCorreoArchivoAdjuntoDTO>();
-        public GmailCorreoService(IUnitOfWork unitOfWork)
+        public GmailCorreoService(IUnitOfWork unitOfWork, IReemplazoEtiquetaPlantillaService reemplazoEtiquetaService)
         {
             _unitOfWork = unitOfWork;
+            _reemplazoEtiquetaService = reemplazoEtiquetaService;
 
             var config = new MapperConfiguration(cfg =>
             {
@@ -460,6 +464,9 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
 
                 byte[] dataMensaje = Convert.FromBase64String(informacionCorreo.Mensaje);
                 var mensajeCorreo = Encoding.UTF8.GetString(dataMensaje);
+
+                // Reemplazo de etiquetas de planificación
+                mensajeCorreo = _reemplazoEtiquetaService.ReemplazarEtiquetasPlanificacion(mensajeCorreo, informacionCorreo.IdActividadDetalle ?? 0, informacionCorreo.IdCentroCosto ?? 0);
 
                 if (!mensajeCorreo.Contains("https://repositorioweb.blob.core.windows.net/firmas/"))
                 {

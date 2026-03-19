@@ -2986,5 +2986,102 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw ex;
             }
         }
+        /// Autor: Jose Vega
+        /// Fecha: 19/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Reemplaza las etiquetas para el flujo de planificación
+        /// </summary>
+        /// <param name="contenido"></param>
+        /// <param name="idActividadDetalle"></param>
+        /// <param name="idCentroCosto"></param>
+        /// <returns></returns>
+        public string ReemplazarEtiquetasPlanificacion(string contenido, int idActividadDetalle, int idCentroCosto)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(contenido)) return contenido;
+                
+                if (idActividadDetalle <= 0 || idCentroCosto <= 0) return contenido;
+
+                // 1. Verificar si existen etiquetas escalares
+                bool tieneEtiquetasEscalares =
+                    contenido.Contains("{nombre_docente}") ||
+                    contenido.Contains("{nombre_curso}") ||
+                    contenido.Contains("{nombre_curso_programa_hijo}") ||
+                    contenido.Contains("{plazo_otorgado}") ||
+                    contenido.Contains("{fecha_primera_sesion}") ||
+                    contenido.Contains("{nombre_pais}") ||
+                    contenido.Contains("{tarifa}") ||
+                    contenido.Contains("{moneda}") ||
+                    contenido.Contains("{plazo_pago}");
+
+                if (tieneEtiquetasEscalares)
+                {
+                    var valores = _unitOfWork.PEspecificoRepository.ObtenerValoresEtiquetasPlanificacion(idActividadDetalle, idCentroCosto);
+                    if (valores != null)
+                    {
+                        contenido = contenido.Replace("{nombre_docente}", valores.NombreDocente ?? "");
+                        contenido = contenido.Replace("{nombre_curso}", valores.NombreCurso ?? "");
+                        contenido = contenido.Replace("{nombre_curso_programa_hijo}", valores.NombreCursoProgramaHijo ?? "");
+                        contenido = contenido.Replace("{plazo_otorgado}", valores.PlazoOtorgado ?? "");
+                        contenido = contenido.Replace("{fecha_primera_sesion}", valores.FechaPrimeraSesion ?? "");
+                        contenido = contenido.Replace("{nombre_pais}", valores.NombrePais ?? "");
+                        contenido = contenido.Replace("{tarifa}", valores.Tarifa ?? "");
+                        contenido = contenido.Replace("{moneda}", valores.Moneda ?? "");
+                        contenido = contenido.Replace("{plazo_pago}", valores.PlazoPago ?? "");
+                    }
+                }
+
+                // 2. Verificar si existe la tabla de sesiones
+                if (contenido.Contains("{tabla_sesiones}"))
+                {
+                    var sesiones = _unitOfWork.PEspecificoRepository.ObtenerSesionesPlanificacion(idActividadDetalle);
+                    string htmlTabla = GenerarTablaSesionesHtml(sesiones);
+                    contenido = contenido.Replace("{tabla_sesiones}", htmlTabla);
+                }
+
+                return contenido;
+            }
+            catch (Exception)
+            {
+                return contenido;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 19/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Genera una tabla HTML simple a partir de una lista de sesiones
+        /// </summary>
+        /// <param name="sesiones"></param>
+        /// <returns></returns>
+        private string GenerarTablaSesionesHtml(List<SesionPlanificacionDTO> sesiones)
+        {
+            if (sesiones == null || !sesiones.Any()) return "";
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; font-size: 12px;'>");
+            sb.Append("<thead style='background-color: #f2f2f2;'>");
+            sb.Append("<tr><th>Fecha</th><th>Hora Inicio</th><th>Hora Fin</th><th>Tema</th></tr>");
+            sb.Append("</thead>");
+            sb.Append("<tbody>");
+
+            foreach (var sesion in sesiones)
+            {
+                sb.Append("<tr>");
+                sb.Append($"<td>{(sesion.FechaSesion.HasValue ? sesion.FechaSesion.Value.ToString("dd/MM/yyyy") : "")}</td>");
+                sb.Append($"<td>{sesion.HoraInicio}</td>");
+                sb.Append($"<td>{sesion.HoraFin}</td>");
+                sb.Append($"<td>{sesion.Tema}</td>");
+                sb.Append("</tr>");
+            }
+
+            sb.Append("</tbody>");
+            sb.Append("</table>");
+
+            return sb.ToString();
+        }
     }
 }

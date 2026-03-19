@@ -103,5 +103,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         PEspecificoDetalleFechaByPGeneral ObtenerFechaInicioCursoPorIdPEspeficico(int idPEspecifico);
 		IEnumerable<PEspecificoByPGeneral> ObtenerPEspecificoByProgramaGeneral(int idPGeneral);
         public bool ActualizarConfiguracionPEspecificoAlumnoResumen(int idPEspecifico, string usuario);
+        ValoresEtiquetasPlanificacionDTO ObtenerValoresEtiquetasPlanificacion(int idActividadDetalle, int idCentroCosto);
+        List<SesionPlanificacionDTO> ObtenerSesionesPlanificacion(int idActividadDetalle);
     }
 }
