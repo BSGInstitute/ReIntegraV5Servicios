@@ -226,6 +226,42 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int IdPlantillaBase { get; set; }
         public int IdPlantilla { get; set; }
     }
+    // DTO interno para deserializar resultado plano del SP
+    public class ActividadFlujoRawDTO
+    {
+        public int IdGestionDocenteActividadCabecera { get; set; }
+        public int IdGestionDocenteActividadCabeceraCongelada { get; set; }
+        public int IdGestionContactoFlujoCongelado { get; set; }
+        public string NombreCabecera { get; set; }
+        public string DescripcionCabecera { get; set; }
+        public int IdGestionDocenteActividadDetalleCongelada { get; set; }
+        public string NombreDetalle { get; set; }
+        public int IdDisparadorCongelado { get; set; }
+        public string TipoDisparador { get; set; }
+        public DateTime? FechaProgramada { get; set; }
+        public DateTime? FechaFija { get; set; }
+        public int? CantidadTiempoRelativo { get; set; }
+        public string UnidadTiempo { get; set; }
+        public string CodigoReferenciaTiempo { get; set; }
+        public string NombreReferenciaTiempo { get; set; }
+        public string NombreEvento { get; set; }
+        public string OcurrenciaPrevia { get; set; }
+        public string NombrePlantilla { get; set; }
+        public string MedioComunicacion { get; set; }
+        public string EstadoEjecucionDetalle { get; set; }
+        public string EstadoEjecucionDisparador { get; set; }
+        public bool TieneFechaFija { get; set; }
+        public bool TieneTiempoRelativo { get; set; }
+        public bool TieneEvento { get; set; }
+        public bool TieneOcurrenciaPrevia { get; set; }
+        public int? IdSesion { get; set; }
+        public int? NumeroSesion { get; set; }
+        public DateTime? FechaInicioSesion { get; set; }
+        public int? IdPEspecifico { get; set; }
+        public string NombrePEspecifico { get; set; }
+        public int? IdProveedor { get; set; }
+        public string RazonSocialDocente { get; set; }
+    }
 
     /// <summary>
     /// DTO para actualizar el estado de una actividad después de su ejecución
