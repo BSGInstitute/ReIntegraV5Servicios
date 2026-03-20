@@ -59367,6 +59367,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.Id).HasComment("Es primary key");
 
+                entity.Property(e => e.Activo).HasComment("Indica si el registro se encuentra activo (1) o inactivo (0)");
+
                 entity.Property(e => e.Codigo)
                     .HasMaxLength(50)
                     .IsUnicode(false)
