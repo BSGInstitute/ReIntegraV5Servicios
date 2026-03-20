@@ -11,6 +11,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public TPespecificoSesionEstado()
         {
             TPespecificoSesionEstadoObservacions = new HashSet<TPespecificoSesionEstadoObservacion>();
+            TPespecificoSesions = new HashSet<TPespecificoSesion>();
         }
 
         /// <summary>
@@ -47,5 +48,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public byte[] RowVersion { get; set; } = null!;
 
         public virtual ICollection<TPespecificoSesionEstadoObservacion> TPespecificoSesionEstadoObservacions { get; set; }
+        public virtual ICollection<TPespecificoSesion> TPespecificoSesions { get; set; }
     }
 }
