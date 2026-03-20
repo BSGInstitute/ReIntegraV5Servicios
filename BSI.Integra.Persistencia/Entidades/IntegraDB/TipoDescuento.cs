@@ -17,6 +17,7 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
         public int? CuotasAdicionales { get; set; }
         public int? IdTipoDescuentoNivelAprobacion { get; set; }
         public bool? AplicaProgramaCompleto { get; set; }
+        public bool Activo { get; set; }
 
         //Para TipoDescuentoAsesorCoordinadorPw
         public List<TipoDescuentoAsesorCoordinadorPw> TipoDescuentoAsesorCoordinadorPw { get; set; }
