@@ -103,7 +103,16 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         PEspecificoDetalleFechaByPGeneral ObtenerFechaInicioCursoPorIdPEspeficico(int idPEspecifico);
 		IEnumerable<PEspecificoByPGeneral> ObtenerPEspecificoByProgramaGeneral(int idPGeneral);
         public bool ActualizarConfiguracionPEspecificoAlumnoResumen(int idPEspecifico, string usuario);
-        ValoresEtiquetasPlanificacionDTO ObtenerValoresEtiquetasPlanificacion(int idActividadDetalle, int idCentroCosto);
-        List<SesionPlanificacionDTO> ObtenerSesionesPlanificacion(int idActividadDetalle);
+        string ObtenerNombreDocentePlanificacion(int idClasificacionPersona);
+        string ObtenerNombreCursoPorCentroCosto(int idCentroCosto);
+        string ObtenerNombrePaisDocentePlanificacion(int idClasificacionPersona);
+        string ObtenerPlazoOtorgadoPorCentroCosto(int idCentroCosto);
+        string ObtenerTarifaDocentePorCentroCosto(int idCentroCosto);
+        string ObtenerMonedaDocentePorCentroCosto(int idCentroCosto);
+        string ObtenerPlazoPagoDocentePorCentroCosto(int idCentroCosto);
+        int ObtenerIncrementoZonaHorariaDocente(int idClasificacionPersona);
+        string ObtenerFechaPrimeraSesionPorCentroCosto(int idCentroCosto, int incrementoHoras = 0);
+        List<SesionPlanificacionDTO> ObtenerSesionesPlanificacion(int idCentroCosto, int incrementoHoras = 0);
+        List<CriterioEvaluacionPlanificacionDTO> ObtenerCriteriosEvaluacionPorCentroCosto(int idCentroCosto);
     }
 }
