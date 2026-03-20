@@ -80,8 +80,14 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Identificador de la solicitud de descuento asociada
         /// </summary>
         public int? IdTipoDescuentoNivelAprobacion { get; set; }
-        public bool? AplicaProgramaCompleto { get; set; }
-        public bool Activo { get; set; }
+        /// <summary>
+        /// Descripcion del tipo de descuento
+        /// </summary>
+        public bool? TipoPrograma { get; set; }
+        /// <summary>
+        /// Indica si el registro se encuentra activo (1) o inactivo (0)
+        /// </summary>
+        public bool? Activo { get; set; }
 
         public virtual ICollection<TMontoPagoLog> TMontoPagoLogIdTipoDescuentoModificadoNavigations { get; set; }
         public virtual ICollection<TMontoPagoLog> TMontoPagoLogIdTipoDescuentoOriginalNavigations { get; set; }
