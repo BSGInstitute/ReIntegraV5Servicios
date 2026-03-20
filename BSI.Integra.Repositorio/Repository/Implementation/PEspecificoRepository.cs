@@ -2796,6 +2796,37 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        public List<CriterioEvaluacionPlanificacionDTO> ObtenerCriteriosEvaluacionPorCentroCosto(int idCentroCosto)
+        {
+            try
+            {
+                string _query = @"
+                SELECT
+                    ROW_NUMBER() OVER (ORDER BY eed.Id) AS NumeroCriterio,
+                    ce.Nombre AS NombreCriterio,
+                    eed.Ponderacion AS Porcentaje
+                FROM pla.T_EsquemaEvaluacionDetalle eed
+                INNER JOIN pla.T_CriterioEvaluacion ce ON eed.IdCriterioEvaluacion = ce.Id
+                INNER JOIN pla.T_PEspecificoEsquema pee ON eed.IdEsquemaEvaluacion = pee.IdEsquemaEvaluacion
+                INNER JOIN pla.T_PEspecifico pe ON pee.IdPEspecifico = pe.Id
+                WHERE pe.IdCentroCosto = @IdCentroCosto
+                    AND pe.Estado = 1
+                    AND pee.Estado = 1
+                    AND eed.Estado = 1
+                    AND ce.Estado = 1
+                ORDER BY eed.Id";
+                var _queryRespuesta = _dapperRepository.QueryDapper(_query, new { IdCentroCosto = idCentroCosto });
+                if (_queryRespuesta != "null")
+                    return JsonConvert.DeserializeObject<List<CriterioEvaluacionPlanificacionDTO>>(_queryRespuesta);
+                else
+                    return new List<CriterioEvaluacionPlanificacionDTO>();
+            }
+            catch (Exception Ex)
+            {
+                throw new Exception(Ex.Message);
+            }
+        }
+
         #endregion
     }
 }
