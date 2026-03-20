@@ -340,4 +340,13 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string PersonalRemitente { get; set; }
         public string CorreoDestinatario { get; set; }
     }
+
+    /// <summary>
+    /// DTO para el contador de alertas del docente.
+    /// Retornado por pla.SP_GestionDocenteAlertasContador.
+    /// </summary>
+    public class ContadorAlertasDTO
+    {
+        public int TotalProveedorAlerta { get; set; }
+    }
 }

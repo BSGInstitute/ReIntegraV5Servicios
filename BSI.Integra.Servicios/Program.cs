@@ -251,30 +251,30 @@ builder.Services.AddHttpClient("PythonLlm", client =>
 
 var connectionString = builder.Configuration.GetConnectionString("IntegraDB");
 
-// Registrar Hangfire
-builder.Services.AddHangfire(config =>
-    config.UseSqlServerStorage(connectionString));
-builder.Services.AddHangfireServer();
+//// Registrar Hangfire
+//builder.Services.AddHangfire(config =>
+//    config.UseSqlServerStorage(connectionString));
+//builder.Services.AddHangfireServer();
 
 // Registrar el Job de Actividades Congeladas
-builder.Services.AddTransient<BSI.Integra.Servicios.Jobs.ActividadesCongeladasJob>();
+//builder.Services.AddTransient<BSI.Integra.Servicios.Jobs.ActividadesCongeladasJob>();
 
 var app = builder.Build();
 
 // Dashboard Hangfire
-app.UseHangfireDashboard("/hangfire");
+//app.UseHangfireDashboard("/hangfire");
 
 // Configurar Job Recurrente: Procesar actividades congeladas cada 5 minutos
-Hangfire.RecurringJob.AddOrUpdate<BSI.Integra.Servicios.Jobs.ActividadesCongeladasJob>(
-    "procesar-actividades-congeladas",
-    job => job.ProcesarActividadesPendientesAsync(),
-    "*/5 * * * *");
+//Hangfire.RecurringJob.AddOrUpdate<BSI.Integra.Servicios.Jobs.ActividadesCongeladasJob>(
+//    "procesar-actividades-congeladas",
+//    job => job.ProcesarActividadesPendientesAsync(),
+//    "*/5 * * * *");
 
 // Clasificacion de respuestas docentes — cada 1 minuto
-Hangfire.RecurringJob.AddOrUpdate<BSI.Integra.Servicios.Jobs.ClasificacionRespuestaJob>(
-    "clasificacion-respuestas-docentes",
-    job => job.ProcesarClasificacionesAsync(),
-    "* * * * *");
+//Hangfire.RecurringJob.AddOrUpdate<BSI.Integra.Servicios.Jobs.ClasificacionRespuestaJob>(
+//    "clasificacion-respuestas-docentes",
+//    job => job.ProcesarClasificacionesAsync(),
+//    "* * * * *");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

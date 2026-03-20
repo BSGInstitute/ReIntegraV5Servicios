@@ -263,6 +263,28 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
             }
         }
 
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 19/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el contador de alertas del docente ejecutando pla.SP_GestionDocenteAlertasContador.
+        /// </summary>
+        /// <returns>ActionResult con ContadorAlertasDTO.</returns>
+        [HttpGet("ObtenerContadorAlertas")]
+        public IActionResult ObtenerContadorAlertas()
+        {
+            try
+            {
+                var contador = _gestionDocenteAgendaService.ObtenerContadorAlertas();
+                return Ok(contador);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
         /// Tipo Función: POST
         /// Autor: Joseph Llanque
         /// Fecha: 11/03/2026

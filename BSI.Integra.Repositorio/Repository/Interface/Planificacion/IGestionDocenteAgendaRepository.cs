@@ -26,5 +26,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         /// sin conectarse a IMAP. El IdCorreo es el PK de T_GmailCorreo.
         /// </summary>
         CorreoBodyDTO ObtenerCorreoBodyDB(int idCorreo);
+        /// <summary>
+        /// Obtiene el contador de alertas del docente ejecutando pla.SP_GestionDocenteAlertasContador.
+        /// </summary>
+        ContadorAlertasDTO ObtenerContadorAlertas();
     }
 }

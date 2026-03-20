@@ -69,8 +69,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 }
 
                 var serializedResult = Serializer.Serialize(objetoWhatsAppHook);
-                ////string url = "https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";
-                string url = "https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";//local
+                string url = "https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";
+                //string url = "https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";//local
                 RespuestaMensajeWhatsappPlaDTO respuesta = new RespuestaMensajeWhatsappPlaDTO();
                 try
                 {
@@ -199,8 +199,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 objetoWhatsAppHook.DatosPlantillaWhatsApp = null;
 
                 var serializedResult = Serializer.Serialize(objetoWhatsAppHook);
-                //string url = "https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";//LOCAL
-                string url = "https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";
+                string url = "https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";//LOCAL
+                //string url = "https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphPlanificacion";
 
                 try
                 {

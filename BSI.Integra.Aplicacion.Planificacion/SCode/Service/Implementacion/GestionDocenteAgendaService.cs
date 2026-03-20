@@ -221,6 +221,24 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Joseph Llanque
+        /// Fecha: 19/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el contador de alertas del docente.
+        /// </summary>
+        public ContadorAlertasDTO ObtenerContadorAlertas()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteAgendaRepository.ObtenerContadorAlertas();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         /// Autor: Jose Vega
         /// Fecha: 05/03/2026
         /// Versión: 1.1

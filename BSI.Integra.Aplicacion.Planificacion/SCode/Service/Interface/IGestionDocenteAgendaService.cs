@@ -12,5 +12,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         List<DocenteConCursoDTO> ObtenerDocentesPorGestionContacto(int idGestionContacto);
         InformacionFaltanteDocenteDTO ObtenerInformacionFaltanteDocente(int idProveedor, int idPEspecifico);
         CorreoDetalleDocenteDTO ObtenerDetalleCorreo(int idCorreo);
+        ContadorAlertasDTO ObtenerContadorAlertas();
     }
 }

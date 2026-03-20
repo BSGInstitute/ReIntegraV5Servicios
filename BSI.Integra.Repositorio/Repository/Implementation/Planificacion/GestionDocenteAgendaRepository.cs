@@ -416,6 +416,30 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         }
 
         /// Autor: Joseph Llanque
+        /// Fecha: 19/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el contador de alertas del docente ejecutando pla.SP_GestionDocenteAlertasContador.
+        /// </summary>
+        public ContadorAlertasDTO ObtenerContadorAlertas()
+        {
+            try
+            {
+                ContadorAlertasDTO contador = new ContadorAlertasDTO();
+                var resultadoDB = _dapperRepository.QuerySPDapper("pla.SP_GestionDocenteAlertasContador", null);
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    contador = JsonConvert.DeserializeObject<List<ContadorAlertasDTO>>(resultadoDB).FirstOrDefault() ?? new ContadorAlertasDTO();
+                }
+                return contador;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Joseph Llanque
         /// Fecha: 11/03/2026
         /// Versión: 1.0
         /// <summary>
