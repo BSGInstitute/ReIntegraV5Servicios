@@ -25892,6 +25892,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.Id).HasComment("Identificador único del nivel de confianza");
 
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')")
+                    .HasComment("Descripcion del nivel de confianza con rango porcentual y comportamiento del sistema");
+
                 entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
 
                 entity.Property(e => e.FechaCreacion)
@@ -25906,11 +25912,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Nombre del nivel de confianza");
-
-                entity.Property(e => e.Descripcion)
-                    .HasMaxLength(200)
-                    .IsUnicode(false)
-                    .HasComment("Descripcion del nivel de confianza con rango porcentual y comportamiento del sistema");
 
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
@@ -43060,6 +43061,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.Property(e => e.FechaModificacion)
                     .HasColumnType("datetime")
                     .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.GruposAsignados).HasComment("Cantidad de grupos configurados por webinar por version de programa");
 
                 entity.Property(e => e.IdMigracion).HasComment("Id de la tabla Original al migrar");
 
