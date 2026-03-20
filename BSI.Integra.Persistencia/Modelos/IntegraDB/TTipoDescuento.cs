@@ -83,7 +83,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// <summary>
         /// Descripcion del tipo de descuento
         /// </summary>
-        public bool? TipoPrograma { get; set; }
+        public bool? AplicaProgramaCompleto { get; set; }
         /// <summary>
         /// Indica si el registro se encuentra activo (1) o inactivo (0)
         /// </summary>
