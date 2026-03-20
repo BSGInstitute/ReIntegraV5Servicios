@@ -20,6 +20,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     public class ParametrosEnviarMensajePlaDTO
     {
         public IList<IFormFile>? Files { get; set; }
+        public int? IdPlantilla { get; set; }
         public int? IdActividadDetalle { get; set; }
         public int? IdCentroCosto { get; set; }
         public int? IdGestionContacto { get; set; }
@@ -27,7 +28,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string? Remitente { get; set; }
         public string? Destinatario { get; set; }
         public string? Asunto { get; set; }
-        public string Mensaje { get; set; }
+        public string? Mensaje { get; set; }
         public string? DestinatarioCc { get; set; }
         public string? DestinatarioBcc { get; set; }
         public string? GrupoEmail { get; set; }

@@ -462,11 +462,26 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
 
                 var asesor = _unitOfWork.PersonalRepository.ObtenerNombreApellido(informacionCorreo.Remitente);
 
-                byte[] dataMensaje = Convert.FromBase64String(informacionCorreo.Mensaje);
-                var mensajeCorreo = Encoding.UTF8.GetString(dataMensaje);
+                string mensajeCorreo;
+                string asuntoCorreo;
+
+                if (informacionCorreo.IdPlantilla.HasValue && informacionCorreo.IdPlantilla.Value > 0)
+                {
+                    var plantillaCorreo = _unitOfWork.PlantillaRepository.ObtenerPlantillaCorreo(informacionCorreo.IdPlantilla.Value);
+                    if (plantillaCorreo == null)
+                        throw new BadRequestException("Plantilla no encontrada");
+                    mensajeCorreo = plantillaCorreo.Cuerpo;
+                    asuntoCorreo = plantillaCorreo.Asunto;
+                }
+                else
+                {
+                    byte[] dataMensaje = Convert.FromBase64String(informacionCorreo.Mensaje);
+                    mensajeCorreo = Encoding.UTF8.GetString(dataMensaje);
+                    asuntoCorreo = informacionCorreo.Asunto;
+                }
 
                 // Reemplazo de etiquetas de planificación
-                mensajeCorreo = _reemplazoEtiquetaService.ReemplazarEtiquetasPlanificacion(mensajeCorreo, informacionCorreo.IdActividadDetalle ?? 0, informacionCorreo.IdCentroCosto ?? 0);
+                mensajeCorreo = _reemplazoEtiquetaService.ReemplazarEtiquetasPlanificacion(mensajeCorreo, informacionCorreo.IdCentroCosto ?? 0, informacionCorreo.IdClasificacionPersona ?? 0);
 
                 if (!mensajeCorreo.Contains("https://repositorioweb.blob.core.windows.net/firmas/"))
                 {
@@ -483,7 +498,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                 {
                     Sender = informacionCorreo.Remitente,
                     Recipient = informacionCorreo.Destinatario,
-                    Subject = informacionCorreo.Asunto,
+                    Subject = asuntoCorreo,
                     Message = mensajeCorreo,
                     Cc = informacionCorreo.DestinatarioCc ?? "",
                     Bcc = informacionCorreo.DestinatarioBcc ?? "",
@@ -517,7 +532,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                         EstadoEnvio = 1,
                         IdMandrilTipoEnvio = 2, //Manual = 2 PENDIENTE AJUSTE DTO
                         FechaEnvio = DateTime.Now,
-                        Asunto = informacionCorreo.Asunto,
+                        Asunto = asuntoCorreo,
                         FkMandril = mensaje.MensajeId,
                         Estado = true,
                         FechaCreacion = DateTime.Now,
@@ -535,7 +550,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                     GmailCorreo gmailCorreo = new GmailCorreo
                     {
                         IdEtiqueta = 1,//sent:1 , inbox:2
-                        Asunto = informacionCorreo.Asunto,
+                        Asunto = asuntoCorreo,
                         Fecha = DateTime.Now,
                         EmailBody = mensajeCorreo,
                         Seen = false,

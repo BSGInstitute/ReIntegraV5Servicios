@@ -2996,47 +2996,76 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         /// <param name="idActividadDetalle"></param>
         /// <param name="idCentroCosto"></param>
         /// <returns></returns>
-        public string ReemplazarEtiquetasPlanificacion(string contenido, int idActividadDetalle, int idCentroCosto)
+        public string ReemplazarEtiquetasPlanificacion(string contenido, int idCentroCosto, int idClasificacionPersona)
         {
             try
             {
                 if (string.IsNullOrEmpty(contenido)) return contenido;
-                
-                if (idActividadDetalle <= 0 || idCentroCosto <= 0) return contenido;
+                if (idCentroCosto <= 0) return contenido;
 
-                // 1. Verificar si existen etiquetas escalares
-                bool tieneEtiquetasEscalares =
-                    contenido.Contains("{nombre_docente}") ||
-                    contenido.Contains("{nombre_curso}") ||
-                    contenido.Contains("{nombre_curso_programa_hijo}") ||
-                    contenido.Contains("{plazo_otorgado}") ||
-                    contenido.Contains("{fecha_primera_sesion}") ||
-                    contenido.Contains("{nombre_pais}") ||
-                    contenido.Contains("{tarifa}") ||
-                    contenido.Contains("{moneda}") ||
-                    contenido.Contains("{plazo_pago}");
-
-                if (tieneEtiquetasEscalares)
+                if (contenido.Contains("{nombre_docente}") && idClasificacionPersona > 0)
                 {
-                    var valores = _unitOfWork.PEspecificoRepository.ObtenerValoresEtiquetasPlanificacion(idActividadDetalle, idCentroCosto);
-                    if (valores != null)
-                    {
-                        contenido = contenido.Replace("{nombre_docente}", valores.NombreDocente ?? "");
-                        contenido = contenido.Replace("{nombre_curso}", valores.NombreCurso ?? "");
-                        contenido = contenido.Replace("{nombre_curso_programa_hijo}", valores.NombreCursoProgramaHijo ?? "");
-                        contenido = contenido.Replace("{plazo_otorgado}", valores.PlazoOtorgado ?? "");
-                        contenido = contenido.Replace("{fecha_primera_sesion}", valores.FechaPrimeraSesion ?? "");
-                        contenido = contenido.Replace("{nombre_pais}", valores.NombrePais ?? "");
-                        contenido = contenido.Replace("{tarifa}", valores.Tarifa ?? "");
-                        contenido = contenido.Replace("{moneda}", valores.Moneda ?? "");
-                        contenido = contenido.Replace("{plazo_pago}", valores.PlazoPago ?? "");
-                    }
+                    var valor = _unitOfWork.PEspecificoRepository.ObtenerNombreDocentePlanificacion(idClasificacionPersona);
+                    contenido = contenido.Replace("{nombre_docente}", valor ?? "");
                 }
 
-                // 2. Verificar si existe la tabla de sesiones
+                if (contenido.Contains("{nombre_curso}"))
+                {
+                    var valor = _unitOfWork.PEspecificoRepository.ObtenerNombreCursoPorCentroCosto(idCentroCosto);
+                    contenido = contenido.Replace("{nombre_curso}", valor ?? "");
+                }
+
+                if (contenido.Contains("{nombre_curso_programa_hijo}"))
+                {
+                    var valor = _unitOfWork.PEspecificoRepository.ObtenerNombreCursoPorCentroCosto(idCentroCosto);
+                    contenido = contenido.Replace("{nombre_curso_programa_hijo}", valor ?? "");
+                }
+
+                if (contenido.Contains("{nombre_pais}") && idClasificacionPersona > 0)
+                {
+                    var valor = _unitOfWork.PEspecificoRepository.ObtenerNombrePaisDocentePlanificacion(idClasificacionPersona);
+                    contenido = contenido.Replace("{nombre_pais}", valor ?? "");
+                }
+
+                if (contenido.Contains("{plazo_otorgado}"))
+                {
+                    var valor = _unitOfWork.PEspecificoRepository.ObtenerPlazoOtorgadoPorCentroCosto(idCentroCosto);
+                    contenido = contenido.Replace("{plazo_otorgado}", valor ?? "");
+                }
+
+                if (contenido.Contains("{tarifa}"))
+                {
+                    var valor = _unitOfWork.PEspecificoRepository.ObtenerTarifaDocentePorCentroCosto(idCentroCosto);
+                    contenido = contenido.Replace("{tarifa}", valor ?? "");
+                }
+
+                if (contenido.Contains("{moneda}"))
+                {
+                    var valor = _unitOfWork.PEspecificoRepository.ObtenerMonedaDocentePorCentroCosto(idCentroCosto);
+                    contenido = contenido.Replace("{moneda}", valor ?? "");
+                }
+
+                if (contenido.Contains("{plazo_pago}"))
+                {
+                    var valor = _unitOfWork.PEspecificoRepository.ObtenerPlazoPagoDocentePorCentroCosto(idCentroCosto);
+                    contenido = contenido.Replace("{plazo_pago}", valor ?? "");
+                }
+
+                int incrementoHoras = 0;
+                if (idClasificacionPersona > 0 && (contenido.Contains("{fecha_primera_sesion}") || contenido.Contains("{tabla_sesiones}")))
+                {
+                    incrementoHoras = _unitOfWork.PEspecificoRepository.ObtenerIncrementoZonaHorariaDocente(idClasificacionPersona);
+                }
+
+                if (contenido.Contains("{fecha_primera_sesion}"))
+                {
+                    var valor = _unitOfWork.PEspecificoRepository.ObtenerFechaPrimeraSesionPorCentroCosto(idCentroCosto, incrementoHoras);
+                    contenido = contenido.Replace("{fecha_primera_sesion}", valor ?? "");
+                }
+
                 if (contenido.Contains("{tabla_sesiones}"))
                 {
-                    var sesiones = _unitOfWork.PEspecificoRepository.ObtenerSesionesPlanificacion(idActividadDetalle);
+                    var sesiones = _unitOfWork.PEspecificoRepository.ObtenerSesionesPlanificacion(idCentroCosto, incrementoHoras);
                     string htmlTabla = GenerarTablaSesionesHtml(sesiones);
                     contenido = contenido.Replace("{tabla_sesiones}", htmlTabla);
                 }
