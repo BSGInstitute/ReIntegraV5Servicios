@@ -59369,6 +59369,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.Activo).HasComment("Indica si el registro se encuentra activo (1) o inactivo (0)");
 
+                entity.Property(e => e.AplicaProgramaCompleto).HasComment("Indica si el descuento aplica a programa completo (1) o a curso (0)");
+
                 entity.Property(e => e.Codigo)
                     .HasMaxLength(50)
                     .IsUnicode(false)
@@ -59409,8 +59411,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsRowVersion()
                     .IsConcurrencyToken()
                     .HasComment("Campo de sistema automatico que guarda la version del registro");
-
-                entity.Property(e => e.TipoPrograma).HasComment("Descripcion del tipo de descuento");
 
                 entity.Property(e => e.UsuarioCreacion)
                     .HasMaxLength(50)
