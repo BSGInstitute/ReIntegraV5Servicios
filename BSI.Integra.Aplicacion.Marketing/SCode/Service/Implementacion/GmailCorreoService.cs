@@ -760,5 +760,40 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                 throw ex;
             }
         }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 20/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Previsualiza un mensaje de planificación: carga la plantilla y reemplaza etiquetas
+        /// sin enviar el correo ni persistir nada.
+        /// </summary>
+        /// <param name="request">Datos de la plantilla y contexto de reemplazo</param>
+        /// <returns>PreviewMensajePlaResponseDTO con asunto y cuerpo HTML procesado</returns>
+        public PreviewMensajePlaResponseDTO PreviewMensajePla(PreviewMensajePlaRequestDTO request)
+        {
+            try
+            {
+                var plantillaCorreo = _unitOfWork.PlantillaRepository.ObtenerPlantillaCorreo(request.IdPlantilla);
+                if (plantillaCorreo == null)
+                    throw new BadRequestException("Plantilla no encontrada");
+
+                var asunto = plantillaCorreo.Asunto;
+                var cuerpo = plantillaCorreo.Cuerpo;
+
+                var cuerpoReemplazado = _reemplazoEtiquetaService
+                    .ReemplazarEtiquetasPlanificacion(cuerpo, request.IdCentroCosto, request.IdClasificacionPersona);
+
+                return new PreviewMensajePlaResponseDTO
+                {
+                    Asunto = asunto,
+                    CuerpoHtml = cuerpoReemplazado
+                };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

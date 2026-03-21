@@ -224,6 +224,45 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
+        /// TipoFuncion: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 20/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Previsualiza un mensaje de planificación: carga la plantilla y reemplaza etiquetas
+        /// sin enviar el correo.
+        /// </summary>
+        /// <param name="request">Datos de la plantilla y contexto de reemplazo</param>
+        /// <returns>PreviewMensajePlaResponseDTO con asunto y cuerpo HTML procesado</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult PreviewMensajePla([FromBody] PreviewMensajePlaRequestDTO request)
+        {
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+            var registroToken = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+            if (registroToken.TokenValida)
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                try
+                {
+                    IGmailCorreoService gmailCorreoService = new GmailCorreoService(unitOfWork);
+                    var resultado = gmailCorreoService.PreviewMensajePla(request);
+                    return Ok(resultado);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("No tiene acceso a la previsualización de Correos");
+            }
+        }
+
         /// TipoFuncion: GET
         /// Autor: Gilmer Quispe.
         /// Fecha: 26/08/2022
