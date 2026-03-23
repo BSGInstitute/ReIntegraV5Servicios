@@ -803,5 +803,25 @@ namespace BSI.Integra.Servicios.Controllers
 				throw;
 			}
 		}
+        /// Tipo Función: GET
+        /// Autor: Generado automáticamente
+        /// Fecha: 2026-03-19
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo completo de PEspecificos para carga masiva con filtrado local en frontend
+        /// </summary>
+        /// <returns>Lista de PEspecificoCatalogoDTO (Id, Nombre, Codigo)</returns>
+        [HttpGet("[action]")]
+        public IActionResult ObtenerCatalogo()
+        {
+            try
+            {
+                return Ok(_pEspecificoService.ObtenerCatalogoPEspecifico());
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 	}
 }

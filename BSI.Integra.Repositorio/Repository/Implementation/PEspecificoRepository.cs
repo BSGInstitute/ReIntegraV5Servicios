@@ -2590,5 +2590,30 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 return false;
             }
         }
+        /// Autor:Marco Jose Villanueva Torres
+        /// Fecha: 2026-03-19
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el catálogo completo de PEspecificos (Id, Nombre, Codigo) usando SP para carga masiva con filtrado en frontend
+        /// </summary>
+        /// <returns>Lista de PEspecificoCatalogoDTO</returns>
+        public IEnumerable<PEspecificoCatalogoDTO> ObtenerCatalogo()
+        {
+            try
+            {
+                List<PEspecificoCatalogoDTO> rpta = new();
+                string query = "pla.SP_PEspecificoListadoBase";
+                string resultado = _dapperRepository.QuerySPDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<PEspecificoCatalogoDTO>>(resultado)!;
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error en ObtenerCatalogo()", ex);
+            }
+        }
     }
 }

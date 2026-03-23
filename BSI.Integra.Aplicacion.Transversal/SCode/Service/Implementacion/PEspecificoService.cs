@@ -4579,5 +4579,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 		{
 			return _unitOfWork.PEspecificoRepository.ObtenerPEspecificoByProgramaGeneral(idPGeneral);
 		}
+        public IEnumerable<PEspecificoCatalogoDTO> ObtenerCatalogoPEspecifico()
+        {
+            return _unitOfWork.PEspecificoRepository.ObtenerCatalogo();
+        }
 	}
 }

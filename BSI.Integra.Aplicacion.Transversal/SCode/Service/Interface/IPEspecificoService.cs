@@ -55,5 +55,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         IEnumerable<ComboDTO> ObtenerProgramasEspecificosAdicional();
         IEnumerable<PEspecificoDetalleFechaByPGeneral> ObtenerFiltroV2PorIdPGeneral(int idPGeneral);
 		IEnumerable<PEspecificoByPGeneral> ObtenerPEspecificoByPGeneral(int idPGeneral);
+        IEnumerable<PEspecificoCatalogoDTO> ObtenerCatalogoPEspecifico();
 	}
 }

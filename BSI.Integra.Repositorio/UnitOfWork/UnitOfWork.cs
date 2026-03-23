@@ -8467,6 +8467,14 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private IProveedorPEspecificoRepository _proveedorPEspecificoRepository;
+        IProveedorPEspecificoRepository IUnitOfWork.ProveedorPEspecificoRepository
+        {
+            get
+            {
+                return _proveedorPEspecificoRepository ?? new ProveedorPEspecificoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
 
     }
 }
