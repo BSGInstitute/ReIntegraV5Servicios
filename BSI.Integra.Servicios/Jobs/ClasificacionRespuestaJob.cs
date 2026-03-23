@@ -1,4 +1,5 @@
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
+using Hangfire;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -28,6 +29,7 @@ namespace BSI.Integra.Servicios.Jobs
             _logger  = logger;
         }
 
+        [DisableConcurrentExecution(timeoutInSeconds: 120)]
         public async Task ProcesarClasificacionesAsync()
         {
             _logger.LogInformation("=== INICIO: Clasificacion de respuestas docentes ===");
@@ -50,8 +52,13 @@ namespace BSI.Integra.Servicios.Jobs
             {
                 try
                 {
-                    await _service.ProcesarDisparadorAsync(disparador);
-                    clasificados++;
+                    var estado = await _service.ProcesarDisparadorAsync(disparador);
+                    switch (estado)
+                    {
+                        case "ESPERANDO": esperando++; break;
+                        case "CLASIFICADO": clasificados++; break;
+                        default: clasificados++; break;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -62,8 +69,8 @@ namespace BSI.Integra.Servicios.Jobs
             }
 
             _logger.LogInformation(
-                "=== FIN: {Total} disparadores. Procesados: {C}, Fallidos: {F} ===",
-                disparadores.Count, clasificados, fallidos);
+                "=== FIN: {Total} disparadores. Clasificados: {C}, Esperando: {E}, Fallidos: {F} ===",
+                disparadores.Count, clasificados, esperando, fallidos);
         }
     }
 }

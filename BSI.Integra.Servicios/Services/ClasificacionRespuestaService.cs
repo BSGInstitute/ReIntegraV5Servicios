@@ -50,7 +50,7 @@ namespace BSI.Integra.Servicios.Services
         /// 2. Si Clasificado = true → marca la ocurrencia en BD.
         /// 3. Si Clasificado = false → no toca BD (ESPERANDO).
         /// </summary>
-        public async Task ProcesarDisparadorAsync(DisparadorPendienteClasificacionDTO disparador)
+        public async Task<string> ProcesarDisparadorAsync(DisparadorPendienteClasificacionDTO disparador)
         {
             _logger.LogInformation(
                 "Procesando disparador {Id} — canal: {Canal}",
@@ -94,7 +94,7 @@ namespace BSI.Integra.Servicios.Services
                 _logger.LogDebug(
                     "Disparador {Id}: ESPERANDO — sin respuesta del docente aun",
                     disparador.IdDisparadorCongelado);
-                return;
+                return "ESPERANDO";
             }
 
             // CLASIFICADO — resultado definitivo
@@ -104,7 +104,7 @@ namespace BSI.Integra.Servicios.Services
                 _logger.LogWarning(
                     "Disparador {Id}: CLASIFICADO pero sin detalle de clasificacion",
                     disparador.IdDisparadorCongelado);
-                return;
+                return "CLASIFICADO";
             }
 
             _logger.LogInformation(
@@ -120,7 +120,7 @@ namespace BSI.Integra.Servicios.Services
                 _logger.LogInformation(
                     "Disparador {Id}: SP ya ejecutado por el Python. Actividades dependientes en POR_EJECUTAR.",
                     disparador.IdDisparadorCongelado);
-                return;
+                return "CLASIFICADO";
             }
 
             // MarcadoAutomatico = false + tiene ocurrencia → sugerencia pendiente de aprobacion del asesor
@@ -130,7 +130,7 @@ namespace BSI.Integra.Servicios.Services
                     "Disparador {Id}: Sugerencia pendiente de aprobacion del asesor (ocurrencia {IdOc})",
                     disparador.IdDisparadorCongelado,
                     clasificacion.IdOcurrenciaClasificada.Value);
-                return;
+                return "SUGERIDO";
             }
 
             // MarcadoAutomatico = false + sin ocurrencia → asesor debe clasificar manualmente
@@ -139,8 +139,10 @@ namespace BSI.Integra.Servicios.Services
                 _logger.LogInformation(
                     "Disparador {Id}: Sin clasificacion posible. El asesor debe clasificar manualmente.",
                     disparador.IdDisparadorCongelado);
-                return;
+                return "MANUAL";
             }
+
+            return "CLASIFICADO";
         }
     }
 }

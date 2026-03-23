@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -1083,7 +1084,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         /// <summary>
         /// Orquesta la persistencia completa del marcado de ocurrencia:
         /// 1. Llama al SP (inserta ocurrencia marcada + retorna disparadores dependientes)
-        /// 2. Por cada disparador: crea regla de tiempo → regla fija → regla fija congelada
+        /// 2. Por cada disparador: crea regla fija congelada (solo tablas congeladas, sin tocar maestras)
         /// 3. Actualiza estados y genera logs de auditoria.
         /// Todo dentro de una transaccion.
         /// </summary>
@@ -1095,8 +1096,27 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 // 1. Llamar al SP — inserta ocurrencia marcada y retorna disparadores dependientes
                 var disparadoresData = await MarcarOcurrenciaAsync(request);
 
+                DateTime fechaHoraMarcado = DateTime.Now;
+
+                // 1b. Actualizar T_GestionDocenteOcurrenciaCongelada a EJECUTADO (siempre, con o sin dependientes)
+                int idEstadoEjecutado = await _dbContext.TGestionDocenteEstadoEjecucions
+                    .Where(e => e.Codigo == "EJECUTADO")
+                    .Select(e => e.Id)
+                    .FirstAsync();
+
+                var ocurrenciaCongelada = await _dbContext.TGestionDocenteOcurrenciaCongelada
+                    .FindAsync(request.IdGestionDocenteOcurrenciaCongelada);
+
+                if (ocurrenciaCongelada != null)
+                {
+                    ocurrenciaCongelada.IdGestionDocenteEstadoEjecucion = idEstadoEjecutado;
+                    ocurrenciaCongelada.UsuarioModificacion             = request.UsuarioCreacion;
+                    ocurrenciaCongelada.FechaModificacion               = fechaHoraMarcado;
+                }
+
                 if (!disparadoresData.Any())
                 {
+                    await _dbContext.SaveChangesAsync();
                     await transaction.CommitAsync();
                     return new ResultadoEjecucionDTO
                     {
@@ -1106,55 +1126,32 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     };
                 }
 
-                int idOcurrenciaMarcada   = disparadoresData.First().IdGestionDocenteOcurrenciaMarcada;
-                DateTime fechaHoraMarcado = DateTime.Now;
+                int idOcurrenciaMarcada = disparadoresData.First().IdGestionDocenteOcurrenciaMarcada;
 
                 foreach (var disparador in disparadoresData)
                 {
-                    // 2a. Regla de tiempo base (abuelo)
-                    var reglaTiempo = new TGestionDocenteDisparadorReglaTiempo
+                    // 2a. Regla fija congelada — solo toca tablas congeladas.
+                    // IdGestionDocenteDisparadorReglaTiempo viene del SP (relativo congelado existente).
+                    // IdGestionDocenteDisparadorReglaTiempoFijo es null porque el disparador era RELATIVO
+                    // y no existe maestro FIJO previo para este detalle.
+                    if (disparador.IdGestionDocenteDisparadorReglaTiempo.HasValue)
                     {
-                        TipoRegla           = "FIJO",
-                        Estado              = true,
-                        UsuarioCreacion     = request.UsuarioCreacion,
-                        UsuarioModificacion = request.UsuarioCreacion,
-                        FechaCreacion       = fechaHoraMarcado,
-                        FechaModificacion   = fechaHoraMarcado
-                    };
-                    _dbContext.TGestionDocenteDisparadorReglaTiempos.Add(reglaTiempo);
-                    await _dbContext.SaveChangesAsync();
-
-                    // 2b. Regla fija maestra (padre)
-                    var reglaFijaMaestra = new TGestionDocenteDisparadorReglaTiempoFijo
-                    {
-                        IdGestionDocenteDisparadorReglaTiempo = reglaTiempo.Id,
-                        IdGestionDocenteDisparadorDetalle     = disparador.IdGestionDocenteDisparadorDetalle,
-                        Fecha               = disparador.FechaCalculada,
-                        Estado              = true,
-                        UsuarioCreacion     = request.UsuarioCreacion,
-                        UsuarioModificacion = request.UsuarioCreacion,
-                        FechaCreacion       = fechaHoraMarcado,
-                        FechaModificacion   = fechaHoraMarcado
-                    };
-                    _dbContext.TGestionDocenteDisparadorReglaTiempoFijos.Add(reglaFijaMaestra);
-                    await _dbContext.SaveChangesAsync();
-
-                    // 2c. Regla fija congelada (hijo)
-                    var reglaFijaCongelada = new TGestionDocenteDisparadorReglaTiempoFijoCongelado
-                    {
-                        IdGestionDocenteDisparadorCongelado       = disparador.IdGestionDocenteDisparadorCongelado,
-                        IdGestionDocenteDisparadorReglaTiempoFijo = reglaFijaMaestra.Id,
-                        IdGestionDocenteDisparadorReglaTiempo     = reglaTiempo.Id,
-                        IdGestionDocenteDisparadorDetalle         = disparador.IdGestionDocenteDisparadorDetalle,
-                        Fecha                                     = disparador.FechaCalculada,
-                        IdGestionDocenteEstadoEjecucion           = disparador.IdGestionDocenteEstadoPorEjecutar,
-                        Estado              = true,
-                        UsuarioCreacion     = request.UsuarioCreacion,
-                        UsuarioModificacion = request.UsuarioCreacion,
-                        FechaCreacion       = fechaHoraMarcado,
-                        FechaModificacion   = fechaHoraMarcado
-                    };
-                    _dbContext.TGestionDocenteDisparadorReglaTiempoFijoCongelados.Add(reglaFijaCongelada);
+                        var reglaFijaCongelada = new TGestionDocenteDisparadorReglaTiempoFijoCongelado
+                        {
+                            IdGestionDocenteDisparadorCongelado       = disparador.IdGestionDocenteDisparadorCongelado,
+                            IdGestionDocenteDisparadorReglaTiempoFijo = null,
+                            IdGestionDocenteDisparadorReglaTiempo     = disparador.IdGestionDocenteDisparadorReglaTiempo.Value,
+                            IdGestionDocenteDisparadorDetalle         = disparador.IdGestionDocenteDisparadorDetalle,
+                            Fecha                                     = disparador.FechaCalculada,
+                            IdGestionDocenteEstadoEjecucion           = disparador.IdGestionDocenteEstadoPorEjecutar,
+                            Estado              = true,
+                            UsuarioCreacion     = request.UsuarioCreacion,
+                            UsuarioModificacion = request.UsuarioCreacion,
+                            FechaCreacion       = fechaHoraMarcado,
+                            FechaModificacion   = fechaHoraMarcado
+                        };
+                        _dbContext.TGestionDocenteDisparadorReglaTiempoFijoCongelados.Add(reglaFijaCongelada);
+                    }
 
                     // 2d. Actualizar disparador congelado
                     var disparadorCongelado = await _dbContext.TGestionDocenteDisparadorCongelados

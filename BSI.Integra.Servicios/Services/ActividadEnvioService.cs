@@ -1,6 +1,6 @@
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
-using BSI.Integra.Aplicacion.Marketing.Service.Implementacion;
+using BSI.Integra.Aplicacion.Marketing.Service.Interface;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
@@ -31,17 +31,20 @@ namespace BSI.Integra.Servicios.Services
         private readonly IGestionDocenteActividadService _gestionDocenteActividadService;
         private readonly IWhatsAppMensajeEnviadoApiPlanificacionService _whatsAppService;
         private readonly ILogger<ActividadEnvioService> _logger;
+        private readonly IGmailCorreoService _gmailCorreoService;
 
         public ActividadEnvioService(
             IUnitOfWork unitOfWork,
             IGestionDocenteActividadService gestionDocenteActividadService,
             IWhatsAppMensajeEnviadoApiPlanificacionService whatsAppService,
-            ILogger<ActividadEnvioService> logger)
+            ILogger<ActividadEnvioService> logger,
+            IGmailCorreoService gmailCorreoService)
         {
             _unitOfWork = unitOfWork;
             _gestionDocenteActividadService = gestionDocenteActividadService;
             _whatsAppService = whatsAppService;
             _logger = logger;
+            _gmailCorreoService = gmailCorreoService;
         }
 
         /// <summary>
@@ -52,16 +55,13 @@ namespace BSI.Integra.Servicios.Services
         public async Task<string> EnviarActividadAutomaticaAsync(
             ActividadPendienteDTO actividad, int idPersonal, string usuario)
         {
-            Console.WriteLine($"     → Enviando actividad automatica");
-            Console.WriteLine($"       IdGestionContacto: {actividad.IdGestionContacto}");
-            Console.WriteLine($"       IdPlantilla:       {actividad.IdPlantilla}");
-            Console.WriteLine($"       Canal:             {(actividad.IdPlantillaBase == 2 ? "EMAIL" : "WHATSAPP")}");
             _logger.LogInformation(
-                "Iniciando envio automatico - IdGestionContacto: {IdGC}, IdPlantilla: {IdP}, IdPlantillaBase: {IdPB}, Usuario: {U}",
-                actividad.IdGestionContacto, actividad.IdPlantilla, actividad.IdPlantillaBase, usuario);
+                "Iniciando envio automatico - IdGestionContacto: {IdGC}, IdPlantilla: {IdP}, IdPlantillaBase: {IdPB}, Canal: {Canal}, Usuario: {U}",
+                actividad.IdGestionContacto, actividad.IdPlantilla, actividad.IdPlantillaBase,
+                actividad.IdPlantillaBase == 2 ? "EMAIL" : "WHATSAPP", usuario);
 
             // 1. Resolver la gestion de contacto
-            Console.WriteLine($"       [1] Buscando GestionContacto Id={actividad.IdGestionContacto}");
+            _logger.LogInformation("[1] Buscando GestionContacto Id={IdGC}", actividad.IdGestionContacto);
             var gestionContacto = await _unitOfWork.GestionContactoRepository
                 .ObtenerPorIdAsync(actividad.IdGestionContacto);
 
@@ -71,21 +71,21 @@ namespace BSI.Integra.Servicios.Services
             if (!gestionContacto.IdClasificacionPersona.HasValue)
                 throw new Exception($"La gestion de contacto {actividad.IdGestionContacto} no tiene clasificacion de persona asociada");
 
-            Console.WriteLine($"       [1] OK — IdClasificacionPersona={gestionContacto.IdClasificacionPersona}");
+            _logger.LogInformation("[1] OK - IdClasificacionPersona={IdCP}", gestionContacto.IdClasificacionPersona);
 
             // 2. Resolver el docente
-            Console.WriteLine($"       [2] Buscando docente por IdClasificacionPersona={gestionContacto.IdClasificacionPersona.Value}");
+            _logger.LogInformation("[2] Buscando docente por IdClasificacionPersona={IdCP}", gestionContacto.IdClasificacionPersona.Value);
             var docente = _unitOfWork.DocentePostulanteRepository
                 .ObtenerDocenteDTOPorIdClasificacionPersona(gestionContacto.IdClasificacionPersona.Value);
 
             if (docente == null)
                 throw new Exception($"No se encontro el docente para la clasificacion de persona {gestionContacto.IdClasificacionPersona.Value}");
 
-            Console.WriteLine($"       [2] OK — Docente: {docente.Correo ?? "(sin correo)"} | Cel: {docente.Celular ?? "(sin celular)"}");
+            _logger.LogInformation("[2] OK - Docente: Correo={Correo}, Celular={Celular}",
+                docente.Correo ?? "(sin correo)", docente.Celular ?? "(sin celular)");
 
             // 3. Generar plantilla con etiquetas reemplazadas
-            Console.WriteLine($"       [3] Generando plantilla Id={actividad.IdPlantilla}");
-            _logger.LogInformation("Generando plantilla {IdPlantilla}", actividad.IdPlantilla);
+            _logger.LogInformation("[3] Generando plantilla Id={IdPlantilla}", actividad.IdPlantilla);
             var plantillaGenerada = _gestionDocenteActividadService.GenerarPlantillaDocente(
                 new ReemplazoEtiquetaPlantillaDocenteDTO
                 {
@@ -141,15 +141,13 @@ namespace BSI.Integra.Servicios.Services
                 Files                = null
             };
 
-            var gmailCorreoService = new GmailCorreoService(_unitOfWork);
-            var enviado = await gmailCorreoService.EnviarMensajeCorreoPla(
+            var enviado = await _gmailCorreoService.EnviarMensajeCorreoPla(
                 parametrosCorreo, new List<IFormFile>(), usuario);
 
             if (!enviado)
                 throw new Exception("Error al enviar correo");
 
-            Console.WriteLine($"       ✅ EMAIL enviado → {docente.Correo}");
-            _logger.LogInformation("Correo enviado exitosamente a {Correo}", docente.Correo);
+            _logger.LogInformation("EMAIL enviado exitosamente a {Correo}", docente.Correo);
             return $"Email enviado exitosamente a {docente.Correo} - Asunto: {plantilla.EmailReemplazado.Asunto}";
         }
 
@@ -202,8 +200,7 @@ namespace BSI.Integra.Servicios.Services
             if (!enviado)
                 throw new Exception("Error al enviar WhatsApp");
 
-            Console.WriteLine($"       ✅ WHATSAPP enviado → {docente.Celular}");
-            _logger.LogInformation("WhatsApp enviado exitosamente a {Celular}", docente.Celular);
+            _logger.LogInformation("WHATSAPP enviado exitosamente a {Celular}", docente.Celular);
             return $"WhatsApp enviado exitosamente a {docente.Celular}";
         }
     }

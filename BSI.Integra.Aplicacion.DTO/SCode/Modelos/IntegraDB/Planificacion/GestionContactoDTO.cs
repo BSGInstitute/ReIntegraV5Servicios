@@ -393,5 +393,6 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int IdGestionDocenteDisparadorDetalle { get; set; }
         public DateTime FechaCalculada { get; set; }
         public int IdGestionDocenteEstadoPorEjecutar { get; set; }
+        public int? IdGestionDocenteDisparadorReglaTiempo { get; set; }
     }
 }

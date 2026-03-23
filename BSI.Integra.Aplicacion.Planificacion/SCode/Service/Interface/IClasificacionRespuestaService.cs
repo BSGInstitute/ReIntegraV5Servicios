@@ -14,6 +14,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
     public interface IClasificacionRespuestaService
     {
         Task<List<DisparadorPendienteClasificacionDTO>> ObtenerDisparadoresPendientesAsync();
-        Task ProcesarDisparadorAsync(DisparadorPendienteClasificacionDTO disparador);
+        Task<string> ProcesarDisparadorAsync(DisparadorPendienteClasificacionDTO disparador);
     }
 }

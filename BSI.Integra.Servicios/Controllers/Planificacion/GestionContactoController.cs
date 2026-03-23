@@ -621,58 +621,42 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 int idPersonalLogueado = registroClaimToken.IdPersonal;
 
                 var resultado = await _gestionContactoService.EjecutarActividadManualmenteAsync(request);
-
+                
                 if (resultado.Exitoso && resultado.DatosActividad != null)
                 {
-                    string mensajeEnvio = null;
                     var usuario = request.UsuarioEjecucion ?? "MANUAL";
+                    string mensajeEnvio;
 
-                    if (resultado.DatosActividad.IdTipoActividad == 1)
+                    try
                     {
-                        // Actividad automatica: delegar envio al service unificado
-                        try
-                        {
-                            mensajeEnvio = await _actividadEnvioService.EnviarActividadAutomaticaAsync(
-                                resultado.DatosActividad, idPersonalLogueado, usuario);
+                        mensajeEnvio = await _actividadEnvioService.EnviarActividadAutomaticaAsync(
+                            resultado.DatosActividad, idPersonalLogueado, usuario);
 
-                            await _gestionContactoService.ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
-                            {
-                                IdActividadDetalleCongelada = resultado.DatosActividad.IdActividadDetalleCongelada,
-                                IdDisparadorCongelado       = resultado.DatosActividad.IdDisparadorCongelado,
-                                CodigoNuevoEstado           = "EJECUTADO",
-                                MensajeResultado            = mensajeEnvio,
-                                UsuarioModificacion         = usuario
-                            });
-                        }
-                        catch (Exception ex)
-                        {
-                            await _gestionContactoService.ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
-                            {
-                                IdActividadDetalleCongelada = resultado.DatosActividad.IdActividadDetalleCongelada,
-                                IdDisparadorCongelado       = resultado.DatosActividad.IdDisparadorCongelado,
-                                CodigoNuevoEstado           = "NO_EJECUTADO",
-                                MensajeError                = ex.Message,
-                                UsuarioModificacion         = usuario
-                            });
-
-                            return BadRequest(new
-                            {
-                                Exito   = false,
-                                Mensaje = "Actividad ejecutada pero error al enviar mensaje",
-                                Error   = ex.Message
-                            });
-                        }
-                    }
-                    else
-                    {
-                        // Actividad manual (IdTipoActividad == 2): el asesor ya la marco — solo confirmar estado
                         await _gestionContactoService.ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
                         {
                             IdActividadDetalleCongelada = resultado.DatosActividad.IdActividadDetalleCongelada,
                             IdDisparadorCongelado       = resultado.DatosActividad.IdDisparadorCongelado,
                             CodigoNuevoEstado           = "EJECUTADO",
-                            MensajeResultado            = "Ejecutado manualmente por asesor",
+                            MensajeResultado            = mensajeEnvio,
                             UsuarioModificacion         = usuario
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        await _gestionContactoService.ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
+                        {
+                            IdActividadDetalleCongelada = resultado.DatosActividad.IdActividadDetalleCongelada,
+                            IdDisparadorCongelado       = resultado.DatosActividad.IdDisparadorCongelado,
+                            CodigoNuevoEstado           = "NO_EJECUTADO",
+                            MensajeError                = ex.Message,
+                            UsuarioModificacion         = usuario
+                        });
+
+                        return BadRequest(new
+                        {
+                            Exito   = false,
+                            Mensaje = "Error al enviar el mensaje de la actividad",
+                            Error   = ex.Message
                         });
                     }
 
@@ -681,7 +665,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                         Exito            = true,
                         Mensaje          = "Actividad ejecutada correctamente",
                         IdEjecucion      = resultado.IdRegistro,
-                        MensajeResultado = mensajeEnvio ?? resultado.Mensaje
+                        MensajeResultado = mensajeEnvio
                     });
                 }
                 else

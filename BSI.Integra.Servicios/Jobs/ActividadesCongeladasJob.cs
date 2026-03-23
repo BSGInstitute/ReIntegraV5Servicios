@@ -2,6 +2,7 @@ using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Services;
+using Hangfire;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
@@ -33,6 +34,7 @@ namespace BSI.Integra.Servicios.Jobs
         /// Procesa todas las actividades pendientes de ejecucion
         /// Este metodo es llamado por Hangfire cada 5 minutos
         /// </summary>
+        [DisableConcurrentExecution(timeoutInSeconds: 300)]
         public async Task ProcesarActividadesPendientesAsync()
         {
             try
@@ -68,6 +70,13 @@ namespace BSI.Integra.Servicios.Jobs
                         Console.WriteLine($"  │  Disparador:   {actividad.IdDisparadorCongelado}");
 
                         _logger.LogInformation($"Procesando actividad {actividad.IdActividadDetalleCongelada} - {actividad.NombreActividad}");
+
+                        if (actividad.IdTipoActividad == 2)
+                        {
+                            Console.WriteLine($"  └─ ⏭ OMITIDA (manual) — pendiente del asesor");
+                            _logger.LogInformation("Actividad {Id} es Manual — omitida por Hangfire", actividad.IdActividadDetalleCongelada);
+                            continue;
+                        }
 
                         var resultado = await EjecutarActividadAsync(actividad);
 
