@@ -16,6 +16,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         IEnumerable<PEspecificoSesionProveedorDTO> ObtenerSesionesProveedorPorPEspecifico(int idPEspecifico);
         IEnumerable<ComboDTO> ObtenerGestionDocenteFlujos();
         Task<int> InsertarOportunidadDocenteAsync(CrearOportunidadDocenteDTO dto);
+        Task<int> ActualizarOportunidadDocenteAsync(ActualizarOportunidadDocenteDTO dto);
         IEnumerable<EstadoGestionContactoDTO> ObtenerEstadosGestionContacto();
         Task<int> InsertarGestionContactoDocenteFlujoAsync(InsertarGestionContactoDocenteFlujoDTO dto);
         Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo, DateTime? fechaInicioFlujoCongelado = null);

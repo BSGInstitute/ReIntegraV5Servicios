@@ -75,6 +75,27 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string UsuarioCreacion { get; set; }
     }
 
+    public class ActualizarOportunidadDocenteDTO
+    {
+        public int Id { get; set; }
+        public int? IdCentroCosto { get; set; }
+        /// <summary>
+        /// ID de conf.T_ClasificacionPersona (cp.Id del combo ObtenerDocentes).
+        /// Enviar este campo para flujo "General" (docente postulante o proveedor desde el combo).
+        /// </summary>
+        public int? IdClasificacionPersona { get; set; }
+        /// <summary>
+        /// ID de fin.T_Proveedor. Enviar este campo para flujo "Asignado al Curso"
+        /// donde el proveedor viene de la cascada PE Específico → Proveedor.
+        /// </summary>
+        public int? IdProveedor { get; set; }
+        /// <summary>
+        /// ID de gp.T_Personal. Personal asignado a la oportunidad (obligatorio).
+        /// </summary>
+        public int IdPersonalAsignado { get; set; }
+        public string UsuarioModificacion { get; set; }
+    }
+
     public class GestionContactoSimpleDTO
     {
         public int Id { get; set; }

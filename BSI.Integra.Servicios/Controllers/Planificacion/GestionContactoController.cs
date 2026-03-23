@@ -224,6 +224,36 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 23/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza una Gestión de Contacto como oportunidad docente.
+        /// Valida si existen cambios reales antes de proceder con la actualización en base de datos.
+        /// </summary>
+        [HttpPost("[action]")]
+        public async Task<IActionResult> ActualizarOportunidadDocente([FromBody] ActualizarOportunidadDocenteDTO dto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(new { Exito = false, Mensaje = "Modelo inválido", Errores = ModelState });
+
+                var idActualizado = await _gestionContactoService.ActualizarOportunidadDocenteAsync(dto);
+
+                return Ok(new { Exito = true, Mensaje = "Oportunidad docente procesada correctamente", Id = idActualizado });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Exito = false,
+                    Mensaje = ex.Message,
+                    Detalle = ex.InnerException?.Message
+                });
+            }
+        }
+
         /// Autor: Lolo Zaa
         /// Fecha: 21/02/2026
         /// Version: 2.1
