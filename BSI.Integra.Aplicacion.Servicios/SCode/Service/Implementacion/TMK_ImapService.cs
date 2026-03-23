@@ -19,11 +19,12 @@ namespace BSI.Integra.Aplicacion.Servicios.Service.Implementacion
             {
                 _imap.Connect("imap.gmail.com", 993);
                 _imap.Login(email, passwordCorreo);
+                folder = NormalizarCarpetaGmail(folder);
                 _imap.SelectFolder(@folder);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error de autenticación IMAP para {email}: {ex.Message}", ex);
+                throw new Exception($"Error al acceder a la carpeta '{folder}': {ex.Message}");
             }
         }
         /// Autor: Jashin Salazar Taco.
@@ -42,7 +43,7 @@ namespace BSI.Integra.Aplicacion.Servicios.Service.Implementacion
             byte[] archivo = null;
             try
             {
-                if (folder == "spam") folder = "[Gmail]/Spam";
+                folder = NormalizarCarpetaGmail(folder);
                 MailMessage msg = Imap.QuickDownloadMessage("imap.gmail.com", correo, pass, folder, id);
                 if (msg.Attachments.Count > 0)
                 {
@@ -85,7 +86,7 @@ namespace BSI.Integra.Aplicacion.Servicios.Service.Implementacion
             byte[] archivo = null;
             try
             {
-                if (folder == "spam") folder = "[Gmail]/Spam";
+                folder = NormalizarCarpetaGmail(folder);
                 var msg = Imap.QuickDownloadMessage("imap.gmail.com", correo, pass, folder, messageNumber);
                 if (msg.Attachments.Count > 0)
                 {
@@ -127,6 +128,7 @@ namespace BSI.Integra.Aplicacion.Servicios.Service.Implementacion
         {
             try
             {
+                folder = NormalizarCarpetaGmail(folder);
                 MailMessage mensaje = Imap.QuickDownloadMessage("imap.gmail.com", correo, pass, folder, id);
                 return mensaje;
             }
@@ -150,6 +152,7 @@ namespace BSI.Integra.Aplicacion.Servicios.Service.Implementacion
         {
             try
             {
+                folder = NormalizarCarpetaGmail(folder);
                 MailMessage mensaje = Imap.QuickDownloadMessage("imap.gmail.com", correo, pass, folder, messageNumber);
                 return mensaje;
             }
@@ -420,6 +423,24 @@ namespace BSI.Integra.Aplicacion.Servicios.Service.Implementacion
             {
 
                 throw new Exception(e.Message);
+            }
+        }
+
+        private static string NormalizarCarpetaGmail(string folder)
+        {
+            switch (folder.ToLower())
+            {
+                case "spam": return "[Gmail]/Spam";
+                case "trash": return "[Gmail]/Papelera";
+                case "drafts": return "[Gmail]/Borradores";
+                case "starred": return "[Gmail]/Destacados";
+                case "snoozed": return "[Gmail]/Pospuestos";
+                case "[gmail]/spam": return "[Gmail]/Spam";
+                case "[gmail]/trash": return "[Gmail]/Papelera";
+                case "[gmail]/drafts": return "[Gmail]/Borradores";
+                case "[gmail]/starred": return "[Gmail]/Destacados";
+                case "[gmail]/snoozed": return "[Gmail]/Pospuestos";
+                default: return folder;
             }
         }
     }

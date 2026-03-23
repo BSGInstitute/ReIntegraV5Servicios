@@ -123,7 +123,7 @@
 
     public class ObtenerListaAsesorDTO
     {
-        public int Id { get; set; }
+        public int Id { get; set; } 
         public String Coordinador { get; set; }
         public String Asesor { get; set; }
         public int? Prioridad { get; set; }

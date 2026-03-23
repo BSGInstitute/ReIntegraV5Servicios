@@ -19,7 +19,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         List<RemarketingEmbudoHistorico> Update(List<RemarketingEmbudoHistorico> listadoEntidad);
         bool Delete(List<int> listadoIds, string usuario);
         #endregion
-        public Task<bool> EvaluarEmbudoRemarketing(DateTime? FechaCorte);
+        public Task<bool> EvaluarEmbudoRemarketing();
+        public bool EvaluarEmbudoRemarketingAlumno(int IdAlumno, string Usuario);
         public List<RemarketingEmbudoEsquemaNivelDTO> ObtenerNivelEsquemaEmbudoRemarketing();
     }
 }

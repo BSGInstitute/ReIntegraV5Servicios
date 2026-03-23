@@ -181,6 +181,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string Email { get; set; }
         public int? IdControlSolicitudOrigen { get; set; }
         public string? ControlSolicitudOrigen { get; set; }
+        public string? TituloSubCategoria { get; set; }
     }
 
     public class FiltroSolicitudAlumnoDTO

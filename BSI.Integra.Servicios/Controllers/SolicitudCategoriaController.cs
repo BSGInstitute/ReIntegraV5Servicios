@@ -45,8 +45,9 @@ namespace BSI.Integra.Servicios.Controllers
                 var solicitudCategoria = new SolicitudCategoria();
                 solicitudCategoria.Nombre = solicitudCategoriaEntradaDTO.Nombre;
                 solicitudCategoria.IdSolicitudTipoReporte = solicitudCategoriaEntradaDTO.IdSolicitudTipoReporte;
+                solicitudCategoria.Descripcion = solicitudCategoriaEntradaDTO.Descripcion;
                 solicitudCategoria.UsuarioCreacion = solicitudCategoriaEntradaDTO.Usuario;
-                solicitudCategoria.UsuarioModificacion = solicitudCategoriaEntradaDTO.Usuario; 
+                solicitudCategoria.UsuarioModificacion = solicitudCategoriaEntradaDTO.Usuario;
                 solicitudCategoria.FechaCreacion = DateTime.Now;
                 solicitudCategoria.FechaModificacion = DateTime.Now;
                 solicitudCategoria.Estado = true;
@@ -83,6 +84,7 @@ namespace BSI.Integra.Servicios.Controllers
                     var solicitudCategoria = new SolicitudCategoria();
                     solicitudCategoria.Nombre = entidad.Nombre;
                     solicitudCategoria.IdSolicitudTipoReporte = entidad.IdSolicitudTipoReporte;
+                    solicitudCategoria.Descripcion = entidad.Descripcion;
                     solicitudCategoria.UsuarioCreacion = entidad.Usuario;
                     solicitudCategoria.UsuarioModificacion = entidad.Usuario;
                     solicitudCategoria.FechaCreacion = DateTime.Now;
@@ -121,6 +123,7 @@ namespace BSI.Integra.Servicios.Controllers
                 solicitudCategoria = solicitudCategoriaService.ObtenerPorId(solicitudCategoriaEntradaDTO.Id.Value);
                 solicitudCategoria.Nombre = solicitudCategoriaEntradaDTO.Nombre;
                 solicitudCategoria.IdSolicitudTipoReporte = solicitudCategoriaEntradaDTO.IdSolicitudTipoReporte;
+                solicitudCategoria.Descripcion = solicitudCategoriaEntradaDTO.Descripcion;
                 solicitudCategoria.UsuarioModificacion = solicitudCategoriaEntradaDTO.Usuario;
                 solicitudCategoria.FechaModificacion = DateTime.Now;
                 var resultado = solicitudCategoriaService.Update(solicitudCategoria);
@@ -158,6 +161,7 @@ namespace BSI.Integra.Servicios.Controllers
                     solicitudCategoria = solicitudCategoriaService.ObtenerPorId(entidad.Id.Value);
                     solicitudCategoria.IdSolicitudTipoReporte = entidad.IdSolicitudTipoReporte;
                     solicitudCategoria.Nombre = entidad.Nombre;
+                    solicitudCategoria.Descripcion = entidad.Descripcion;
                     solicitudCategoria.UsuarioModificacion = entidad.Usuario;
                     solicitudCategoria.FechaModificacion = DateTime.Now;
                 }

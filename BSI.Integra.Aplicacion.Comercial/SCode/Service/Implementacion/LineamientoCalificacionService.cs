@@ -10,8 +10,11 @@ using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Comercial;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
+using BSI.Integra.Repositorio.IntegraDBMongo.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using DocumentFormat.OpenXml.EMMA;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -21,7 +24,6 @@ using System.Text.Unicode;
 using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.Calidad.TranscriptionDTO;
 using FaseDTO = BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial.FaseDTO;
 using TransicionFase = BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial.TransicionFase;
-
 
 namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 {
@@ -35,14 +37,23 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
     {
         private IUnitOfWork _unitOfWork;
         private Mapper _mapper;
+        private IMongoDocumentRepository _mongoRepo;
 
+        // Constructor original (solo UnitOfWork) - PARA ATRÁS COMPATIBLE
         public LineamientoCalificacionService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+            _mongoRepo = null;
 
             var config = new MapperConfiguration(cfg => cfg.CreateMap<TLineamientoCalificacion, LineamientoCalificacion>(MemberList.None).ReverseMap());
             _mapper = new Mapper(config);
         }
+        public LineamientoCalificacionService(IUnitOfWork unitOfWork, IMongoDocumentRepository mongoRepo)
+            : this(unitOfWork)
+        {
+            _mongoRepo = mongoRepo;
+        }
+
         #region Metodos Base
         public LineamientoCalificacion Add(LineamientoCalificacion entidad)
         {
@@ -859,7 +870,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 var datos = _unitOfWork.LineamientoCalificacionRepository.ObtenerConfiguracionCambioFaseOportunidad(item.IdFaseOportunidad_Ant, item.IdFaseOportunidad);
 
                 var transicionesAgrupadas = datos
-                    .GroupBy(t => new {
+                    .GroupBy(t => new
+                    {
                         t.IdTransicionFaseOportunidad,
                         t.IdFaseOrigen,
                         t.NombreFaseOrigen,
@@ -883,7 +895,8 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             NombreFaseDestino = g.Key.NombreFaseDestino,
                             CodigoFaseDestino = g.Key.CodigoFaseDestino
                         },
-                        Criterios = g.GroupBy(c => new {
+                        Criterios = g.GroupBy(c => new
+                        {
                             c.IdCriterio,
                             c.OrdenCriterio,
                             c.NombreCriterio
@@ -951,7 +964,11 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
         public async Task<List<bool>> TranscripcionAutoV2(int idPersonalAreaTrabajo)
         {
-            IEnumerable<LlamadaProcesoAutoDTO> items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente(idPersonalAreaTrabajo);
+            TimeZoneInfo peruTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SA Pacific Standard Time");
+            DateTime fechaHoraPeruActual = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, peruTimeZone);
+            DateTime fechaDesde = fechaHoraPeruActual.Date.AddDays(-1);
+             //IEnumerable<LlamadaProcesoAutoDTO> items = _unitOfWork.LineamientoCalificacionRepository.ObtenerDatosConfiguracionTranscripcionAutoAtencionCliente(idPersonalAreaTrabajo);
+            IEnumerable<LlamadaProcesoAutoDTO> items = await ObtenerInformacionCalificacionAutomatica( 2, idPersonalAreaTrabajo, fechaDesde);
 
             var resultados = new List<bool>();
 
@@ -1055,8 +1072,373 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             resultados = (await Task.WhenAll(tasks)).ToList();
             return resultados;
         }
+        public async Task<IEnumerable<LlamadaProcesoAutoDTO>> ObtenerInformacionCalificacionAutomatica(
+         int IdTipoProcesoProgramado,
+         int IdPersonalAreaTrabajo,
+         DateTime? FechaDesde = null)
+        {
+            try
+            {
+                if (FechaDesde == null)
+                    FechaDesde = DateTime.Now;
 
-        /// Tipo Función: GET
+                int idPersonalAreaVentas = 8;
+                int idPersonalAtencionCliente = 3;
+                int idEstadoOcurrenciaActivo = 1;
+                string origenWavixSaliente = "Wavix Saliente";
+
+                long fechaMilis = new DateTimeOffset(FechaDesde.Value).ToUnixTimeMilliseconds();
+
+                var pipeline = new List<BsonDocument>
+        {
+            // 1. Filtrar T_ActividadDetalle por FechaReal
+            new BsonDocument("$match",
+                new BsonDocument("FechaReal",
+                    new BsonDocument("$gte", fechaMilis))
+            ),
+
+            // 2. Lookup T_LlamadaWebphoneCruceCentralTresCx
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_LlamadaWebphoneCruceCentralTresCx"},
+                {"localField","Id"},
+                {"foreignField","IdActividadDetalle"},
+                {"as","LWCCTCX"}
+            }),
+            new BsonDocument("$unwind","$LWCCTCX"),
+
+            // 3. Filtrar llamadas transcritas y no calificadas + excluir 6 estados inválidos
+            new BsonDocument("$match",
+                new BsonDocument{
+                    {"LWCCTCX.EsLlamadaTranscrita", true},
+                    {"$or", new BsonArray{
+                        new BsonDocument("LWCCTCX.EsLlamadaCalificada", false),
+                        new BsonDocument("LWCCTCX.EsLlamadaCalificada", BsonNull.Value)
+                    }},
+                    {"$nor", new BsonArray{
+                        new BsonDocument{
+                            {"LWCCTCX.Origen", new BsonDocument("$ne", origenWavixSaliente)},
+                            {"LWCCTCX.EstadoLlamadaCentral", "Llamada sin respuesta"},
+                            {"LWCCTCX.SubEstadoLlamadaCentral", "Llamada Sin Definir"}
+                        },
+                        new BsonDocument{
+                            {"LWCCTCX.Origen", new BsonDocument("$ne", origenWavixSaliente)},
+                            {"LWCCTCX.EstadoLlamadaCentral", "Llamada sin respuesta"},
+                            {"LWCCTCX.SubEstadoLlamadaCentral", "Corta el asesor durante el timbrado"}
+                        },
+                        new BsonDocument{
+                            {"LWCCTCX.Origen", new BsonDocument("$ne", origenWavixSaliente)},
+                            {"LWCCTCX.EstadoLlamadaCentral", "Casilla de Voz"},
+                            {"LWCCTCX.SubEstadoLlamadaCentral", "Llamada Sin Definir"}
+                        },
+                        new BsonDocument{
+                            {"LWCCTCX.Origen", new BsonDocument("$ne", origenWavixSaliente)},
+                            {"LWCCTCX.EstadoLlamadaCentral", "Casilla de Voz"},
+                            {"LWCCTCX.SubEstadoLlamadaCentral", "Contestado terminado por el cliente"}
+                        },
+                        new BsonDocument{
+                            {"LWCCTCX.Origen", new BsonDocument("$ne", origenWavixSaliente)},
+                            {"LWCCTCX.EstadoLlamadaCentral", "Numero no existe"},
+                            {"LWCCTCX.SubEstadoLlamadaCentral", "Llamada Sin Definir"}
+                        },
+                        new BsonDocument{
+                            {"LWCCTCX.Origen", new BsonDocument("$ne", origenWavixSaliente)},
+                            {"LWCCTCX.EstadoLlamadaCentral", "Casilla de Voz"},
+                            {"LWCCTCX.SubEstadoLlamadaCentral", "Entra casilla de voz terminado por el asesor"}
+                        }
+                    }}
+                }
+            ),
+
+            // 4. Lookup T_Oportunidad
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_Oportunidad"},
+                {"localField","IdOportunidad"},
+                {"foreignField","Id"},
+                {"as","O"}
+            }),
+            new BsonDocument("$unwind","$O"),
+
+            // 5. Filtrar por IdPersonalAreaTrabajo
+            new BsonDocument("$match",
+                new BsonDocument("O.IdPersonalAreaTrabajo", IdPersonalAreaTrabajo)
+            ),
+
+            // 6. Lookup T_OportunidadLog y validar que OLOG.IdActividadDetalle == ACT.Id
+            new BsonDocument("$lookup",
+                new BsonDocument{
+                    {"from","T_OportunidadLog"},
+                    {"let", new BsonDocument{
+                        {"oportunidadId","$O.Id"},
+                        {"actividadId","$Id"}
+                    }},
+                    {"pipeline", new BsonArray{
+                        new BsonDocument("$match",
+                            new BsonDocument("$expr",
+                                new BsonDocument("$and", new BsonArray{
+                                    new BsonDocument("$eq", new BsonArray{"$IdOportunidad","$$oportunidadId"}),
+                                    new BsonDocument("$eq", new BsonArray{"$IdActividadDetalle","$$actividadId"})
+                                })
+                            )
+                        )
+                    }},
+                    {"as","OLOG"}
+                }
+            ),
+            new BsonDocument("$unwind","$OLOG"),
+
+            // 7. Lookup FaseOportunidad (anterior y destino)
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_FaseOportunidad"},
+                {"localField","OLOG.IdFaseOportunidad_Ant"},
+                {"foreignField","Id"},
+                {"as","FOI"}
+            }),
+            new BsonDocument("$unwind","$FOI"),
+
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_FaseOportunidad"},
+                {"localField","OLOG.IdFaseOportunidad"},
+                {"foreignField","Id"},
+                {"as","FOD"}
+            }),
+            new BsonDocument("$unwind","$FOD"),
+
+            // 8. Lookup T_Alumno
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_Alumno"},
+                {"localField","O.IdAlumno"},
+                {"foreignField","Id"},
+                {"as","A"}
+            }),
+            new BsonDocument("$unwind","$A"),
+
+            // 9. Lookup T_MatriculaCabecera (LEFT JOIN)
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_MatriculaCabecera"},
+                {"localField","O.IdAlumno"},
+                {"foreignField","IdAlumno"},
+                {"as","MC"}
+            }),
+
+            // 10. Lookup OcurrenciaAlterno (para Ventas)
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_OcurrenciaAlterno"},
+                {"localField","IdOcurrenciaAlterno"},
+                {"foreignField","Id"},
+                {"as","OA_ALT"}
+            }),
+
+            // 11. Lookup EstadoOcurrencia para OA_ALT
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_EstadoOcurrencia"},
+                {"localField","OA_ALT.IdEstadoOcurrencia"},
+                {"foreignField","Id"},
+                {"as","EO_ALT"}
+            }),
+
+            // 12. Lookup Ocurrencia (para AtencionCliente)
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_Ocurrencia"},
+                {"localField","IdOcurrencia"},
+                {"foreignField","Id"},
+                {"as","OA"}
+            }),
+
+            // 13. Lookup EstadoOcurrencia para OA
+            new BsonDocument("$lookup", new BsonDocument{
+                {"from","T_EstadoOcurrencia"},
+                {"localField","OA.IdEstadoOcurrencia"},
+                {"foreignField","Id"},
+                {"as","EO"}
+            }),
+
+            // 14. Filtro condicional de EstadoOcurrencia según área
+            new BsonDocument("$match",
+                new BsonDocument("$or", new BsonArray{
+                    new BsonDocument{
+                        {"O.IdPersonalAreaTrabajo", idPersonalAreaVentas},
+                        {"EO_ALT.Id", idEstadoOcurrenciaActivo}
+                    },
+                    new BsonDocument{
+                        {"O.IdPersonalAreaTrabajo", idPersonalAtencionCliente},
+                        {"EO.Id", idEstadoOcurrenciaActivo}
+                    }
+                })
+            ),
+
+            // 15. Lookup T_ClasificacionPersona (CROSS APPLY equivalente)
+            new BsonDocument("$lookup",
+                new BsonDocument{
+                    {"from","T_ClasificacionPersona"},
+                    {"let", new BsonDocument("idAlumno","$O.IdAlumno")},
+                    {"pipeline", new BsonArray{
+                        new BsonDocument("$match",
+                            new BsonDocument{
+                                {"$expr", new BsonDocument("$eq",
+                                    new BsonArray{"$IdTablaOriginal","$$idAlumno"})},
+                                {"IdTipoPersona",1}
+                            }),
+                        new BsonDocument("$limit",1)
+                    }},
+                    {"as","CP"}
+                }
+            ),
+            // CROSS APPLY: si no hay ClasificacionPersona, el registro se descarta (como en el SP)
+            new BsonDocument("$unwind","$CP"),
+
+            // 16. Lookup T_ProcesoAsesor + T_ProcesoProgramado + T_ProcesoFaseRango
+            new BsonDocument("$lookup",
+                new BsonDocument{
+                    {"from","T_ProcesoAsesor"},
+                    {"let", new BsonDocument("idPersonalAsignado","$O.IdPersonal_Asignado")},
+                    {"pipeline", new BsonArray{
+                        new BsonDocument("$match",
+                            new BsonDocument{
+                                {"$expr", new BsonDocument("$eq", new BsonArray{"$IdPersonal","$$idPersonalAsignado"})},
+                                {"Estado", true}
+                            })
+                    }},
+                    {"as","PA"}
+                }
+            ),
+            new BsonDocument("$unwind","$PA"),
+
+            new BsonDocument("$lookup",
+                new BsonDocument{
+                    {"from","T_ProcesoProgramado"},
+                    {"let", new BsonDocument("idProcesoProgramado","$PA.IdProcesoProgramado")},
+                    {"pipeline", new BsonArray{
+                        new BsonDocument("$match",
+                            new BsonDocument{
+                                {"$expr", new BsonDocument("$eq", new BsonArray{"$Id","$$idProcesoProgramado"})},
+                                {"Estado", true},
+                                {"Activo", true},
+                                {"IdTipoProcesoProgramado", IdTipoProcesoProgramado}
+                            })
+                    }},
+                    {"as","PP"}
+                }
+            ),
+            new BsonDocument("$unwind","$PP"),
+
+            new BsonDocument("$lookup",
+                new BsonDocument{
+                    {"from","T_ProcesoFaseRango"},
+                    {"let", new BsonDocument{
+                        {"idProcesoAsesor","$PA.Id"},
+                        {"idFaseOrigen","$OLOG.IdFaseOportunidad_Ant"},
+                        {"idFaseDestino","$OLOG.IdFaseOportunidad"}
+                    }},
+                    {"pipeline", new BsonArray{
+                        new BsonDocument("$match",
+                            new BsonDocument("$expr",
+                                new BsonDocument("$and", new BsonArray{
+                                    new BsonDocument("$eq", new BsonArray{"$IdProcesoAsesor","$$idProcesoAsesor"}),
+                                    new BsonDocument("$eq", new BsonArray{"$Estado", true}),
+                                    new BsonDocument("$or", new BsonArray{
+                                        new BsonDocument("$eq", new BsonArray{"$IdFaseOportunidad_Origen", 0}),
+                                        new BsonDocument("$eq", new BsonArray{"$IdFaseOportunidad_Origen", "$$idFaseOrigen"})
+                                    }),
+                                    new BsonDocument("$or", new BsonArray{
+                                        new BsonDocument("$eq", new BsonArray{"$IdFaseOportunidad_Destino", 0}),
+                                        new BsonDocument("$eq", new BsonArray{"$IdFaseOportunidad_Destino", "$$idFaseDestino"})
+                                    })
+                                })
+                            )
+                        )
+                    }},
+                    {"as","PFR"}
+                }
+            ),
+            new BsonDocument("$match",
+                new BsonDocument("PFR.0", new BsonDocument("$exists", true))
+            ),
+
+            // 17. Proyección final
+            new BsonDocument("$project",
+                new BsonDocument{
+                    {"IdActividadDetalle","$Id"},
+                    {"IdLlamadaWebphoneCruceCentralTresCx","$LWCCTCX.Id"},
+                    {"IdOportunidad","$O.Id"},
+                    {"IdPersonal_Asignado","$O.IdPersonal_Asignado"},
+                    {"IdPersonalAreaTrabajo","$O.IdPersonalAreaTrabajo"},
+                    {"IdAlumno","$A.Id"},
+                    {"CodigoMatricula",
+                        new BsonDocument("$arrayElemAt",
+                            new BsonArray{"$MC.CodigoMatricula",0})},
+                    {"IdMatriculaCabecera",
+                        new BsonDocument("$arrayElemAt",
+                            new BsonArray{"$MC.Id",0})},
+                    {"IdPEspecifico",
+                        new BsonDocument("$arrayElemAt",
+                            new BsonArray{"$MC.IdPEspecifico",0})},
+                    {"IdCodigoPais","$A.IdCodigoPais"},
+                    {"IdCentroCosto","$O.IdCentroCosto"},
+                    {"IdClasificacionPersona","$CP.Id"},
+                    {"Comentario","$Comentario"},
+                    {"IdOcurrenciaAlterno","$IdOcurrenciaAlterno"},
+                    {"IdOcurrenciaActividadAlterno","$IdOcurrenciaActividadAlterno"},
+                    {"IdOcurrenciaActividad","$IdOcurrenciaActividad"},
+                    {"IdOcurrencia","$IdOcurrencia"},
+                    {"NombreOcurrencia",
+                        new BsonDocument("$arrayElemAt",
+                            new BsonArray{"$OA.Nombre",0})},
+                    {"NombreOcurrenciaAlterno",
+                        new BsonDocument("$arrayElemAt",
+                            new BsonArray{"$OA_ALT.Nombre",0})},
+                    {"IdOportunidadLog","$OLOG.Id"},
+                    {"IdFaseOportunidad_Ant","$OLOG.IdFaseOportunidad_Ant"},
+                    {"IdFaseOportunidad","$OLOG.IdFaseOportunidad"},
+                    {"FaseOportunidad_Ant","$FOI.Codigo"},
+                    {"FaseOportunidad","$FOD.Codigo"},
+                    {"UrlAudio","$LWCCTCX.UrlAudio"},
+                    {"UrlAudio2","$LWCCTCX.UrlAudio2"},
+                    {"UrlAudioProcesado",
+                        new BsonDocument("$switch",
+                            new BsonDocument{
+                                {"branches", new BsonArray{
+                                    new BsonDocument{
+                                        {"case", new BsonDocument("$and", new BsonArray{
+                                            new BsonDocument("$eq", new BsonArray{"$LWCCTCX.Origen", origenWavixSaliente}),
+                                            new BsonDocument("$ne", new BsonArray{"$LWCCTCX.UrlAudio2", BsonNull.Value})
+                                        })},
+                                        {"then", "$LWCCTCX.UrlAudio2"}
+                                    },
+                                    new BsonDocument{
+                                        {"case", new BsonDocument("$ne", new BsonArray{"$LWCCTCX.UrlAudio", BsonNull.Value})},
+                                        {"then", "$LWCCTCX.UrlAudio"}
+                                    }
+                                }},
+                                {"default", BsonNull.Value}
+                            })},
+                    {"Origen","$LWCCTCX.Origen"},
+                    {"DuracionContestoCentral","$LWCCTCX.DuracionContestoCentral"},
+                    {"EsLlamadaTranscrita",
+                        new BsonDocument("$ifNull",
+                            new BsonArray{"$LWCCTCX.EsLlamadaTranscrita",false})},
+                    {"EsLlamadaCalificada",
+                        new BsonDocument("$ifNull",
+                            new BsonArray{"$LWCCTCX.EsLlamadaCalificada",false})},
+                    {"FechaLlamada","$LWCCTCX.FechaInicioLlamadaCentral"}
+                }
+            )
+        };
+                var resultados = await _mongoRepo.FindWithAggregateAsync(
+                                             "T_ActividadDetalle",
+                                             pipeline.ToArray()
+                                         );
+
+                return resultados
+                    .Select(x => BsonSerializer.Deserialize<LlamadaProcesoAutoDTO>(x))
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al consultar MongoDB: {ex.Message}", ex);
+            }
+        }
+
+
         /// Autor: Lolo Zaa
         /// Fecha: 02/01/2025
         /// Versión: 1.0
@@ -1306,13 +1688,15 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     audio_url = transcripcionManualDTO.Audio_Url?.Trim(),
                     locale = transcripcionManualDTO.Locale,
                     ocurrencia = transcripcionManualDTO.Ocurrencia,
-                    historialReprogramaciones = transcripcionManualDTO.HistorialReprogramaciones?.Select(h => new {
+                    historialReprogramaciones = transcripcionManualDTO.HistorialReprogramaciones?.Select(h => new
+                    {
                         IdLlamada = h.IdLlamada,
                         EstadoOcurrencia = h.EstadoOcurrencia,
                         ocurrencia = h.Ocurrencia,
                         Fecha = h.Fecha
                     }).ToList(),
-                    informacionFases = transcripcionManualDTO.InformacionFases?.Select(f => new {
+                    informacionFases = transcripcionManualDTO.InformacionFases?.Select(f => new
+                    {
                         IdTransicionFaseOportunidad = f.IdTransicionFaseOportunidad,
                         FaseOrigen = new
                         {
@@ -1326,11 +1710,13 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             NombreFaseDestino = f.FaseDestino.NombreFaseDestino,
                             CodigoFaseDestino = f.FaseDestino.CodigoFaseDestino
                         },
-                        Criterios = f.Criterios?.Select(c => new {
+                        Criterios = f.Criterios?.Select(c => new
+                        {
                             IdCriterio = c.IdCriterio,
                             OrdenCriterio = c.OrdenCriterio,
                             NombreCriterio = c.NombreCriterio,
-                            Lineamientos = c.Lineamientos?.Select(l => new {
+                            Lineamientos = c.Lineamientos?.Select(l => new
+                            {
                                 IdLineamientoCalificacionFase = l.IdLineamientoCalificacionFase,
                                 OrdenLineamiento = l.OrdenLineamiento,
                                 NombreLineamientoCalificacionFase = l.NombreLineamientoCalificacionFase,
@@ -1912,7 +2298,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                                 break;
                             case 3: //Area Clientes - filtra lineamientos según estado de matrícula
                                 brochure = await BuildBrochureClientesAsync(item, serviceInformacionPrograma, solicitudOperacionesService, alumnoService);
-                                var configuracionLineamento = this.ObtenerConfiguracionLineamientoATC(item.EstadoMatricula,item.SubEstadoMatricula);
+                                var configuracionLineamento = this.ObtenerConfiguracionLineamientoATC(item.EstadoMatricula, item.SubEstadoMatricula);
                                 lineamientosParaPayload = this.CalcularLineamientosATC(configuracionLineamento, lineamientos);
                                 break;
                             default:
@@ -2103,7 +2489,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             ),
 
             };
-        ////
+            ////
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json")
@@ -2128,9 +2514,9 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     await semaphore.WaitAsync();
                     try
                     {
-                    
 
-                       
+
+
                         // Determinar el tipo de validación según IdOcurrenciaAlterno
                         bool esConvenioVoz = item.IdOcurrenciaAlterno == ID_OCURRENCIA_CONVENIO_VOZ;
                         string tipoValidacion = esConvenioVoz ? "Convenio de Voz" : "Proceso de Venta";
@@ -4436,7 +4822,7 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                             .ToList()
                     };
                 })
-                .OrderByDescending(o => o.Validaciones.Max(v => v.FechaValidacion)) 
+                .OrderByDescending(o => o.Validaciones.Max(v => v.FechaValidacion))
                 .ToList();
 
             return new ReporteValidacionMatriculaResponseV2
@@ -4481,9 +4867,9 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                         FechaInicioLlamadaCentral = first.FechaInicioLlamadaCentral,
                         DuracionContestoCentral = first.DuracionContestoCentral,
                         IdAlumno = first.IdAlumno,
-                        CodigoMatricula=first.CodigoMatricula,
-                        EstadoMatricula=first.EstadoMatricula,
-                        SubEstadoMatricula=first.SubEstadoMatricula,
+                        CodigoMatricula = first.CodigoMatricula,
+                        EstadoMatricula = first.EstadoMatricula,
+                        SubEstadoMatricula = first.SubEstadoMatricula,
                         NombreCliente = first.NombreCliente,
                         IdAsesor = first.IdAsesor,
                         NombreAsesor = first.NombreAsesor,
@@ -5237,17 +5623,17 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                 switch (configuracionLineamento)
                 {
                     case "PAGOATRASADO":
-                        faseIdsPermitidos = new List<int> {333,334,335,336,337};
+                        faseIdsPermitidos = new List<int> { 333, 334, 335, 336, 337 };
                         break;
                     case "PREREPORTE":
-                        faseIdsPermitidos = new List<int> { 327,328,329,330,331,332 };
+                        faseIdsPermitidos = new List<int> { 327, 328, 329, 330, 331, 332 };
                         break;
                     case "REPORTADO":
-                        faseIdsPermitidos = new List<int> {321,322,323,324,325,326 };
+                        faseIdsPermitidos = new List<int> { 321, 322, 323, 324, 325, 326 };
                         break;
                     case "GENERICO":
                     default:
-                        faseIdsPermitidos = new List<int> { 318,319,320 };
+                        faseIdsPermitidos = new List<int> { 318, 319, 320 };
                         break;
                 }
 

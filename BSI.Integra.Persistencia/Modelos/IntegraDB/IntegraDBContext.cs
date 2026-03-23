@@ -678,6 +678,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TPespecificoParticipacionDocente> TPespecificoParticipacionDocentes { get; set; } = null!;
         public virtual DbSet<TPespecificoParticipacionExpositor> TPespecificoParticipacionExpositors { get; set; } = null!;
         public virtual DbSet<TPespecificoSesion> TPespecificoSesions { get; set; } = null!;
+        public virtual DbSet<TPespecificoSesionEstado> TPespecificoSesionEstados { get; set; } = null!;
+        public virtual DbSet<TPespecificoSesionEstadoObservacion> TPespecificoSesionEstadoObservacions { get; set; } = null!;
+        public virtual DbSet<TPespecificoSesionEstadoObservacionDetalle> TPespecificoSesionEstadoObservacionDetalles { get; set; } = null!;
         public virtual DbSet<TPgeneral> TPgenerals { get; set; } = null!;
         public virtual DbSet<TPgeneralAsubPgeneral> TPgeneralAsubPgenerals { get; set; } = null!;
         public virtual DbSet<TPgeneralAsubPgeneralVersionPrograma> TPgeneralAsubPgeneralVersionProgramas { get; set; } = null!;
@@ -844,6 +847,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TProveedorCampaniaIntegra> TProveedorCampaniaIntegras { get; set; } = null!;
         public virtual DbSet<TProveedorCriterioCalificacion> TProveedorCriterioCalificacions { get; set; } = null!;
         public virtual DbSet<TProveedorCuentaBanco> TProveedorCuentaBancos { get; set; } = null!;
+        public virtual DbSet<TProveedorPespecifico> TProveedorPespecificos { get; set; } = null!;
         public virtual DbSet<TProveedorSubCriterioCalificacion> TProveedorSubCriterioCalificacions { get; set; } = null!;
         public virtual DbSet<TProveedorTipoServicio> TProveedorTipoServicios { get; set; } = null!;
         public virtual DbSet<TPublicoObjetivoRespuestum> TPublicoObjetivoRespuesta { get; set; } = null!;
@@ -951,6 +955,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TSolicitudInterna> TSolicitudInternas { get; set; } = null!;
         public virtual DbSet<TSolicitudOperacione> TSolicitudOperaciones { get; set; } = null!;
         public virtual DbSet<TSolicitudOperacionesAccesoTemporalDetalle> TSolicitudOperacionesAccesoTemporalDetalles { get; set; } = null!;
+        public virtual DbSet<TSolicitudProblema> TSolicitudProblemas { get; set; } = null!;
         public virtual DbSet<TSolicitudSubCategorium> TSolicitudSubCategoria { get; set; } = null!;
         public virtual DbSet<TSolicitudTi> TSolicitudTis { get; set; } = null!;
         public virtual DbSet<TSolicitudTicategorium> TSolicitudTicategoria { get; set; } = null!;
@@ -25887,6 +25892,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.Id).HasComment("Identificador único del nivel de confianza");
 
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')")
+                    .HasComment("Descripcion del nivel de confianza con rango porcentual y comportamiento del sistema");
+
                 entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
 
                 entity.Property(e => e.FechaCreacion)
@@ -25901,11 +25912,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Nombre del nivel de confianza");
-
-                entity.Property(e => e.Descripcion)
-                    .HasMaxLength(200)
-                    .IsUnicode(false)
-                    .HasComment("Descripcion del nivel de confianza con rango porcentual y comportamiento del sistema");
 
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
@@ -41401,6 +41407,14 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasColumnName("IdPEspecifico")
                     .HasComment("Es  foreing key T_PEspecifico");
 
+                entity.Property(e => e.IdPespecificoSesionEstado)
+                    .HasColumnName("IdPEspecificoSesionEstado")
+                    .HasComment("Foreign Key con la tabla de estados de sesion del programa especifico.");
+
+                entity.Property(e => e.IdPespecificoSesionEstadoObservacionDetalle)
+                    .HasColumnName("IdPEspecificoSesionEstadoObservacionDetalle")
+                    .HasComment("Foreign Key con la tabla de detalle de observaciones del estado de la sesion.");
+
                 entity.Property(e => e.IdProveedor).HasComment("Clave Foranea de la tabla fin.T_Proveedor");
 
                 entity.Property(e => e.IdSesionRa)
@@ -41414,6 +41428,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.Property(e => e.RegularizacionCorreoWebinar).HasComment("Flag de regularizacion de correo para webinar");
 
                 entity.Property(e => e.RegularizacionWhatsAppWebinar).HasComment("Flag de regularizacion de WhatsApp para webinar");
+
+                entity.Property(e => e.Reprogramacion).HasComment("Indica si la sesion fue reprogramada.");
 
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
@@ -41447,6 +41463,155 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Usuario de modificacion del registro");
 
                 entity.Property(e => e.Version).HasComment("indica la version del cronograma");
+
+                entity.HasOne(d => d.IdPespecificoSesionEstadoNavigation)
+                    .WithMany(p => p.TPespecificoSesions)
+                    .HasForeignKey(d => d.IdPespecificoSesionEstado)
+                    .HasConstraintName("FK_T_PEspecificoSesion_T_PEspecificoSesionEstado");
+
+                entity.HasOne(d => d.IdPespecificoSesionEstadoObservacionDetalleNavigation)
+                    .WithMany(p => p.TPespecificoSesions)
+                    .HasForeignKey(d => d.IdPespecificoSesionEstadoObservacionDetalle)
+                    .HasConstraintName("FK_T_PEspecificoSesion_T_PEspecificoSesionEstadoObservacionDetalle");
+            });
+
+            modelBuilder.Entity<TPespecificoSesionEstado>(entity =>
+            {
+                entity.ToTable("T_PEspecificoSesionEstado", "pla");
+
+                entity.HasComment("Esta tabla almacena el estado de la sesion");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Estado).HasComment("Estado del SubCargo");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha Creacion del Control Envio");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha Modificacion del Control Envio");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Descripcion del control en el que se encuentra la ejecucion");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del Control Envio");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario Creacion del Control Envio");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario Modificacion del Control Envio");
+            });
+
+            modelBuilder.Entity<TPespecificoSesionEstadoObservacion>(entity =>
+            {
+                entity.ToTable("T_PEspecificoSesionEstadoObservacion", "pla");
+
+                entity.HasComment("Esta tabla almacena la observacion del estado de la sesion");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Descripcion de las Observaciones por Estado de Curso");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha Creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha Modificacion del registro");
+
+                entity.Property(e => e.IdPespecificoSesionEstado)
+                    .HasColumnName("IdPEspecificoSesionEstado")
+                    .HasComment("Foreign Key con la tabla de T_PEspecificoSesionEstado");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario Creacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario Modificacion del registro");
+
+                entity.HasOne(d => d.IdPespecificoSesionEstadoNavigation)
+                    .WithMany(p => p.TPespecificoSesionEstadoObservacions)
+                    .HasForeignKey(d => d.IdPespecificoSesionEstado)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_PEspecificoSesionEstadoObservacion_T_PEspecificoSesionEstado");
+            });
+
+            modelBuilder.Entity<TPespecificoSesionEstadoObservacionDetalle>(entity =>
+            {
+                entity.ToTable("T_PEspecificoSesionEstadoObservacionDetalle", "pla");
+
+                entity.HasComment("Esta tabla almacena la observacion del estado de la sesion");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha Creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha Modificacion del registro");
+
+                entity.Property(e => e.IdPespecificoSesionEstadoObservacion)
+                    .HasColumnName("IdPEspecificoSesionEstadoObservacion")
+                    .HasComment("Foreign Key con la tabla de T_PEspecificoSesionEstadoObservacionDetalle");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Observacion por Estado de Curso");
+
+                entity.Property(e => e.Orden).HasComment("Orden de las Observaciones");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario Creacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario Modificacion del registro");
+
+                entity.HasOne(d => d.IdPespecificoSesionEstadoObservacionNavigation)
+                    .WithMany(p => p.TPespecificoSesionEstadoObservacionDetalles)
+                    .HasForeignKey(d => d.IdPespecificoSesionEstadoObservacion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_PEspecificoSesionEstadoObservacionDetalle_T_PEspecificoSesionEstadoObservacion");
             });
 
             modelBuilder.Entity<TPgeneral>(entity =>
@@ -42896,6 +43061,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.Property(e => e.FechaModificacion)
                     .HasColumnType("datetime")
                     .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.GruposAsignados).HasComment("Cantidad de grupos configurados por webinar por version de programa");
 
                 entity.Property(e => e.IdMigracion).HasComment("Id de la tabla Original al migrar");
 
@@ -49987,6 +50154,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(500)
                     .IsUnicode(false);
 
+                entity.Property(e => e.EsDocente).HasComment("Indica si es Docente Valido o No");
+
                 entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
 
                 entity.Property(e => e.FechaCreacion)
@@ -50219,6 +50388,58 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TProveedorPespecifico>(entity =>
+            {
+                entity.ToTable("T_ProveedorPEspecifico", "pla");
+
+                entity.HasComment("Esta tabla almacena la relacion entre proveedores y programas especificos.");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico del registro.");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de creacion del registro.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de modificacion del registro.");
+
+                entity.Property(e => e.IdPespecifico)
+                    .HasColumnName("IdPEspecifico")
+                    .HasComment("Foreign Key con la tabla pla.T_PEspecifico.");
+
+                entity.Property(e => e.IdProveedor).HasComment("Foreign Key con la tabla fin.T_Proveedor.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema que almacena automaticamente la version del registro.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de creacion del registro.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro.");
+
+                entity.HasOne(d => d.IdPespecificoNavigation)
+                    .WithMany(p => p.TProveedorPespecificos)
+                    .HasForeignKey(d => d.IdPespecifico)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_ProveedorPEspecifico_T_PEspecifico");
+
+                entity.HasOne(d => d.IdProveedorNavigation)
+                    .WithMany(p => p.TProveedorPespecificos)
+                    .HasForeignKey(d => d.IdProveedor)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_ProveedorPEspecifico_T_Proveedor");
             });
 
             modelBuilder.Entity<TProveedorSubCriterioCalificacion>(entity =>
@@ -56341,7 +56562,14 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
             {
                 entity.ToTable("T_SolicitudCategoria", "ope");
 
+                entity.HasComment("Esta tabla agrupa las solicitudes por categoria de producto");
+
                 entity.Property(e => e.Id).HasComment("Clave primaria de la tabla");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasComment("Descripcion de la categoria");
 
                 entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
 
@@ -56726,6 +56954,88 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .WithMany(p => p.TSolicitudOperacionesAccesoTemporalDetalles)
                     .HasForeignKey(d => d.IdSolicitudOperaciones)
                     .HasConstraintName("FK_T_SolicitudOperacionesAccesoTemporalDetalle_T_SolicitudOperaciones");
+            });
+
+            modelBuilder.Entity<TSolicitudProblema>(entity =>
+            {
+                entity.ToTable("T_SolicitudProblema", "ope");
+
+                entity.HasComment("Esta tabla registra solicitudes de problemas para su seguimiento adecuado");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria de la tabla");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasComment("Descripción del problema");
+
+                entity.Property(e => e.DescripcionSolucion)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasComment("Descripción de solucion");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de modificacion");
+
+                entity.Property(e => e.IdPersonalRevision)
+                    .HasColumnName("IdPersonal_Revision")
+                    .HasComment("Llave foranea 1 de T_Personal");
+
+                entity.Property(e => e.IdPersonalSolucion)
+                    .HasColumnName("IdPersonal_Solucion")
+                    .HasComment("Llave foranea 2 de T_Personal");
+
+                entity.Property(e => e.IdSolicitudCategoria).HasComment("Llave foranea de T_SolicitudCategoria");
+
+                entity.Property(e => e.Prioridad)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasComment("Prioridad de la solicitud");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.Titulo)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasComment("Titulo del problema");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de modificacion");
+
+                entity.HasOne(d => d.IdPersonalRevisionNavigation)
+                    .WithMany(p => p.TSolicitudProblemaIdPersonalRevisionNavigations)
+                    .HasForeignKey(d => d.IdPersonalRevision)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_PersonalRevisor");
+
+                entity.HasOne(d => d.IdPersonalSolucionNavigation)
+                    .WithMany(p => p.TSolicitudProblemaIdPersonalSolucionNavigations)
+                    .HasForeignKey(d => d.IdPersonalSolucion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_PersonalSGestion");
+
+                entity.HasOne(d => d.IdSolicitudCategoriaNavigation)
+                    .WithMany(p => p.TSolicitudProblemas)
+                    .HasForeignKey(d => d.IdSolicitudCategoria)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_SolicitudCategoriaa");
             });
 
             modelBuilder.Entity<TSolicitudSubCategorium>(entity =>
@@ -59056,6 +59366,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.ToTable("T_TipoDescuento", "pla");
 
                 entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Activo).HasComment("Indica si el registro se encuentra activo (1) o inactivo (0)");
+
+                entity.Property(e => e.AplicaProgramaCompleto).HasComment("Indica si el descuento aplica a programa completo (1) o a curso (0)");
 
                 entity.Property(e => e.Codigo)
                     .HasMaxLength(50)

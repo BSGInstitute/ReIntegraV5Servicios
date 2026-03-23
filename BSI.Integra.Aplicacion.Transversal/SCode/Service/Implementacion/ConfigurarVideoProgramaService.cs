@@ -1531,11 +1531,19 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                 foreach (var estructura in estructuraCapitulos)
                 {
-                    if (!string.IsNullOrEmpty(estructura.VideoIdBrightcove))
+                    var videoId = estructura.ReproduccionVideo switch
+                    {
+                        1 => estructura.VideoIdBrightcove,
+                        2 => estructura.VideoIdVimeo,
+                        _ => null
+                    };
+
+                    if (videoId is null) continue;
+
+                    if (!string.IsNullOrEmpty(videoId))
                     {
                         estructura.TieneVideo = true;
-
-                        if (diccionarioProcesados.TryGetValue(estructura.VideoIdBrightcove, out var videoProcesado))
+                        if (diccionarioProcesados.TryGetValue(videoId, out var videoProcesado))
                         {
                             estructura.EstadoProcesamiento = videoProcesado.EstadoProceso;
                             estructura.FechaProcesamiento = videoProcesado.FechaProcesamiento;

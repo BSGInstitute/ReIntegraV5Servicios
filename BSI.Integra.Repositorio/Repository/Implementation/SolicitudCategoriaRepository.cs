@@ -212,7 +212,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var comboDTOs = new List<ComboSolicitudDTO>();
-                var query = @"SELECT Id,Nombre,IdSolicitudTipoReporte
+                var query = @"SELECT Id,Nombre,IdSolicitudTipoReporte,Descripcion
                                 FROM ope.T_SolicitudCategoria 
                                 WHERE Estado =1";
                 var resultado = _dapperRepository.QueryDapper(query, null);
@@ -239,7 +239,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var categoriaDTOs = new List<TipoReporteCategoriaDTO>();
-                var query = @"SELECT idCategoria,nombreCategoria ,idTipoReporte,nombreReporte FROM ope.V_ObtenerCategoriaTipoReporte ORDER BY idCategoria desc";
+                var query = @"SELECT idCategoria,nombreCategoria ,idTipoReporte,nombreReporte,descripcionCategoria as descripcion FROM ope.V_ObtenerCategoriaTipoReporte ORDER BY idCategoria desc";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("[]"))
                 {
@@ -266,6 +266,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var categoriaDTOs = new List<TipoReporteSubCategoriaDTO>();
                 var query = @"SELECT idCategoria
 		                        ,nombreCategoria
+                                ,TituloProblema as titulo
 		                        ,idTipoReporte
 		                        ,nombreReporte
 		                        ,idProblema

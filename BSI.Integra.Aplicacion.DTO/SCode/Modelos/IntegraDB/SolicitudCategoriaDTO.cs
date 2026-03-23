@@ -11,6 +11,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int Id { get; set; }
         public string Nombre { get; set; } = null!;
         public int? IdSolicitudTipoReporte { get; set; }
+        public string? Descripcion { get; set; }
         public bool Estado { get; set; }
         public string UsuarioCreacion { get; set; } = null!;
         public string UsuarioModificacion { get; set; } = null!;
@@ -25,6 +26,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? IdSolicitudTipoReporte { get; set; }
         public string Nombre { get; set; } = null!;
         public string Usuario { get; set; }
+        public string Descripcion { get; set; }
     }
     public class TipoReporteCategoriaDTO
     {
@@ -33,6 +35,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int idTipoReporte { get; set; }
 
         public string nombreReporte { get; set; }
+        public string descripcion { get; set; }
     }
     public class TipoReporteSubCategoriaDTO
     {
@@ -52,5 +55,6 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string areaSolucion { get; set; }
         public int idPersonalSolucion { get; set; }
         public string personalSolución { get; set; }
+        public string titulo { get; set; }
     }
 }

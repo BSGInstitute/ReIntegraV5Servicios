@@ -144,11 +144,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                var sp = "pla.[SP_TareaCriterioSubCriterio_Listar]";
+                var sp = "pla.SP_CriterioSubCriterioObtener";
 
                 var resultado = _dapperRepository.QuerySPDapper(sp, new { IdTareaCriterio = idCriterio });
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                    resultado = resultado.Replace("\"IdTareaSubCriterio\":", "\"Id\":");
                     return JsonConvert.DeserializeObject<List<SubCriterioTareaDTO>>(resultado);
 
                 return new List<SubCriterioTareaDTO>();

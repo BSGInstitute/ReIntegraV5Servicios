@@ -45,6 +45,7 @@ namespace BSI.Integra.Servicios.Controllers
                 var solicitudCategoria = new SolicitudSubCategoria();
                 solicitudCategoria.Nombre = solicitudCategoriaEntradaDTO.Nombre;
                 solicitudCategoria.IdSolicitudCategoria = solicitudCategoriaEntradaDTO.IdSolicitudCategoria;
+                solicitudCategoria.Titulo = solicitudCategoriaEntradaDTO.Titulo;
                 solicitudCategoria.UsuarioCreacion = solicitudCategoriaEntradaDTO.Usuario;
                 solicitudCategoria.UsuarioModificacion = solicitudCategoriaEntradaDTO.Usuario;
                 solicitudCategoria.FechaCreacion = DateTime.Now;
@@ -83,6 +84,7 @@ namespace BSI.Integra.Servicios.Controllers
                     var solicitudCategoria = new SolicitudSubCategoria();
                     solicitudCategoria.Nombre = entidad.Nombre;
                     solicitudCategoria.IdSolicitudCategoria = entidad.IdSolicitudCategoria;
+                    solicitudCategoria.Titulo = entidad.Titulo;
                     solicitudCategoria.UsuarioCreacion = entidad.Usuario;
                     solicitudCategoria.UsuarioModificacion = entidad.Usuario;
                     solicitudCategoria.FechaCreacion = DateTime.Now;
@@ -121,6 +123,7 @@ namespace BSI.Integra.Servicios.Controllers
                 solicitudCategoria = solicitudCategoriaService.ObtenerPorId(solicitudCategoriaEntradaDTO.Id.Value);
                 solicitudCategoria.Nombre = solicitudCategoriaEntradaDTO.Nombre;
                 solicitudCategoria.IdSolicitudCategoria = solicitudCategoriaEntradaDTO.IdSolicitudCategoria;
+                solicitudCategoria.Titulo = solicitudCategoriaEntradaDTO.Titulo;
                 solicitudCategoria.UsuarioModificacion = solicitudCategoriaEntradaDTO.Usuario;
                 solicitudCategoria.FechaModificacion = DateTime.Now;
                 var resultado = solicitudCategoriaService.Update(solicitudCategoria);
@@ -158,6 +161,7 @@ namespace BSI.Integra.Servicios.Controllers
                     solicitudCategoria = solicitudCategoriaService.ObtenerPorId(entidad.Id.Value);
                     solicitudCategoria.IdSolicitudCategoria = entidad.IdSolicitudCategoria;
                     solicitudCategoria.Nombre = entidad.Nombre;
+                    solicitudCategoria.Titulo = entidad.Titulo;
                     solicitudCategoria.UsuarioModificacion = entidad.Usuario;
                     solicitudCategoria.FechaModificacion = DateTime.Now;
                 }

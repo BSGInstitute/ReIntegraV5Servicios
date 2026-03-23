@@ -1,15 +1,18 @@
 using BSI.Integra.Aplicacion.Comercial.Service.Implementacion;
-using BSI.Integra.Aplicacion.Comercial.Service.Interface;
-using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion;
-using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.Configuracion;
 using BSI.Integra.Aplicacion.Comercial.Service.Implementacion;
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
+using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion;
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion;
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.Configuracion;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.Messenger;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.Configuracion;
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.EsquemaRespuestas;
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.EsquemaRespuestas;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.Messenger;
 using BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Sendingblue;
 using BSI.Integra.Aplicacion.Marketing.Service.Interface.Sendingblue;
@@ -25,22 +28,30 @@ using BSI.Integra.Aplicacion.Transversal.Helper;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Infrastructure;
+using BSI.Integra.Persistencia.IntegraDBMongo.Config;
+using BSI.Integra.Persistencia.IntegraDBMongo.Context;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDBInteraccion;
+using BSI.Integra.Repositorio.IntegraDBMongo.Implementacion;
+using BSI.Integra.Repositorio.IntegraDBMongo.Interface;
 using BSI.Integra.Repositorio.Repository;
+using BSI.Integra.Repositorio.Repository.Implementation;
+using BSI.Integra.Repositorio.Repository.Implementation.Comercial;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.CampaniaMailingWhatsapp;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.Configuracion;
+using BSI.Integra.Repositorio.Repository.Implementation.Marketing.EsquemaRespuestas;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.Messenger;
-using BSI.Integra.Repositorio.Repository.Implementation.Comercial;
 using BSI.Integra.Repositorio.Repository.IntegraDBInteraccion.DapperRepository;
 using BSI.Integra.Repositorio.Repository.IntegraDBInteraccion.UnitOfWork;
+using BSI.Integra.Repositorio.Repository.Interface;
+using BSI.Integra.Repositorio.Repository.Interface.Comercial;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.Configuracion;
+using BSI.Integra.Repositorio.Repository.Interface.Marketing.EsquemaRespuestas;
+using BSI.Integra.Repositorio.Repository.Interface.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.Messenger;
-using BSI.Integra.Repositorio.Repository.Interface.Comercial;
-using BSI.Integra.Repositorio.Repository.Interface.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Configurations;
 using BSI.Integra.Servicios.Helpers;
@@ -51,9 +62,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SI.Integra.Repositorio.Repository.IntegraDBInteraccion.DapperRepository;
 using System.Text;
-using BSI.Integra.Repositorio.Repository.Interface;
-using BSI.Integra.Repositorio.Repository.Implementation;
-using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion;
 
 
 
@@ -175,17 +183,26 @@ builder.Services.AddScoped<ICampaniaRemarketingGeneralService, CampaniaRemarketi
 builder.Services.AddScoped<ICampaniaRemarketingGeneralRepository, CampaniaRemarketingGeneralRepository>();
 builder.Services.AddScoped<ICategoriaArgumentosService, CategoriaArgumentosService>();
 builder.Services.AddScoped<ICategoriaArgumentosRepository, CategoriaArgumentosRepository>();
+builder.Services.AddScoped<IEsquemaRespuestasService, EsquemaRespuestasService>();
+builder.Services.AddScoped<IEsquemaRespuestasRepository, EsquemaRespuestasRepository>();
+builder.Services.AddScoped<IConfiguracionExternaRepository, ConfiguracionExternaRepository>();
+builder.Services.AddScoped<IConfiguracionExternaService, ConfiguracionExternaService>();
+builder.Services.AddScoped<IChatbotActividadBotIARepository, ChatbotActividadBotIARepository>();
+builder.Services.AddScoped<IChatbotActividadBotIAService, ChatbotActividadBotIAService>();
 
 builder.Services.AddHttpContextAccessor();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.CustomSchemaIds(type => type.FullName?.Replace("+", "."));
+});
 
 builder.Services.AddHttpContextAccessor();
 
 
-builder.Services.AddHttpClient(); // Si no lo tienes ya
+builder.Services.AddHttpClient();
 builder.Services.AddScoped<IFacebookLeadsRecuperacionDatosService, FacebookLeadsRecuperacionDatosService>();
 
 // ============= INYECCIÓN DE DEPENDENCIAS - SISTEMA DE ESQUEMAS BOT IA WHATSAPP =============
@@ -243,7 +260,7 @@ builder.Services.AddScoped<BSI.Integra.Aplicacion.Planificacion.SCode.Service.In
 builder.Services.AddTransient<BSI.Integra.Servicios.Jobs.ClasificacionRespuestaJob>();
 builder.Services.AddHttpClient("PythonLlm", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:8000");
+    client.BaseAddress = new Uri("http://ia-automatizacion-planificacion-api.bsginstitute.com");
     client.Timeout     = TimeSpan.FromSeconds(30);
 });
 
@@ -255,6 +272,16 @@ var connectionString = builder.Configuration.GetConnectionString("IntegraDB");
 //builder.Services.AddHangfire(config =>
 //    config.UseSqlServerStorage(connectionString));
 //builder.Services.AddHangfireServer();
+
+/// Conexion Base de Datos MongoDB 
+builder.Services.Configure<MongoDBSettings>(
+    builder.Configuration.GetSection("MongoDBSettings"));
+
+// Registro de contexto MongoDB (Singleton para reutilizar conexión)
+builder.Services.AddSingleton<MongoDBContext>();
+
+// Registro del repositorio (Scoped para cada request)
+builder.Services.AddScoped<IMongoDocumentRepository, MongoDocumentRepository>();
 
 // Registrar el Job de Actividades Congeladas
 //builder.Services.AddTransient<BSI.Integra.Servicios.Jobs.ActividadesCongeladasJob>();

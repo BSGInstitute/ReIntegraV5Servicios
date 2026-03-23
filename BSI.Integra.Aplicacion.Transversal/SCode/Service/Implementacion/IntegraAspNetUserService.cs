@@ -34,32 +34,39 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         /// Valida el acceso por ip
         /// </summary>
         /// <param name="ipPublica"></param>
+////public void ValidarAcceso(string ipPublica)
+        ////{
+        ////    try
+        ////    {
+
+        ////        var resultado = _unitOfWork.IntegraAspNetUserRepository.ObtenerAccesoPorIp(ipPublica);
+
+        ////        if (resultado == null)
+        ////        {
+        ////            throw new UnauthorizedAccessRequestException("Usted no puede ingresar mediante su red actual");
+        ////        }
+        ////        else
+        ////        {
+        ////            if (resultado.FechaExpira != null)
+        ////            {
+        ////                if (resultado.FechaExpira < DateTime.Now)
+        ////                {
+        ////                    throw new UnauthorizedAccessRequestException("Los permisos de red ha finalizado");
+        ////                }
+        ////            }
+        ////        }
+        ////    }
+        ////    catch (Exception)
+        ////    {
+        ////        throw;
+        ////    }
+        //}
+
         public void ValidarAcceso(string ipPublica)
         {
-            try
-            {
 
-                var resultado = _unitOfWork.IntegraAspNetUserRepository.ObtenerAccesoPorIp(ipPublica);
-                
-                if (resultado == null)
-                {
-                    throw new UnauthorizedAccessRequestException("Usted no puede ingresar mediante su red actual");
-                }
-                else
-                {
-                    if (resultado.FechaExpira != null)
-                    {
-                        if (resultado.FechaExpira < DateTime.Now)
-                        {
-                            throw new UnauthorizedAccessRequestException("Los permisos de red ha finalizado");
-                        }
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            return;
+
         }
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 22/12/2023
