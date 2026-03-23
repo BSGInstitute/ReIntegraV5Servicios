@@ -2441,6 +2441,44 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.What
                 return ("Los datos enviados no pueden ser nulos o estar vacios.");
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 11/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene mensajes multimedia de WhatsApp (Planificación) por id de WhatsApp.
+        /// </summary>
+        /// <param name="waId"> Id de chat WhatsApp </param>
+        /// <returns> object </returns>
+        public object WhatsAppObtenerMensajeMultimediaPla(string waId)
+        {
+            if (waId != null)
+            {
+                try
+                {
+                    IWhatsAppMensajeEnviadoService _objetoMensaje = new WhatsAppMensajeEnviadoService(_unitOfWork);
+
+                    var _restultado = _objetoMensaje.ObtenerMensajeMultimediaPla(waId);
+
+                    if (_restultado != null)
+                    {
+                        return (_restultado);
+                    }
+                    else
+                    {
+                        return ("Error: Sin Datos");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return (ex);
+                }
+            }
+            else
+            {
+                return ("Los datos enviados no pueden ser nulos o estar vacios.");
+            }
+        }
         /// TipoFuncion: GET
         /// Autor: Gilmer Qm
         /// Fecha: 15/03/2023

@@ -8,6 +8,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     /// </summary>
     public partial class TGestionDocenteIaEntrenamientoEjemplo
     {
+        public TGestionDocenteIaEntrenamientoEjemplo()
+        {
+            TGestionDocenteOcurrenciaIaEjemploCongelada = new HashSet<TGestionDocenteOcurrenciaIaEjemploCongeladum>();
+        }
+
         /// <summary>
         /// Identificador único del ejemplo de entrenamiento
         /// </summary>
@@ -55,5 +60,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
         public virtual TGestionDocenteIaEntrenamientoClasificacionTipo IdGestionDocenteIaEntrenamientoClasificacionTipoNavigation { get; set; } = null!;
         public virtual TGestionDocenteOcurrenciaIaConfiguracion IdGestionDocenteOcurrenciaIaConfiguracionNavigation { get; set; } = null!;
+        public virtual ICollection<TGestionDocenteOcurrenciaIaEjemploCongeladum> TGestionDocenteOcurrenciaIaEjemploCongelada { get; set; }
     }
 }

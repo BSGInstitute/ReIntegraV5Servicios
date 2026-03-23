@@ -172,7 +172,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 List<PartnerPwDTO> rpta = new List<PartnerPwDTO>();
                 var query = @"
                     SELECT
-	                    Id,Nombre,
+	                    Id,
+                        Nombre,
                         ImgPrincipal,
                         ImgPrincipalAlf,
                         ImgSecundaria,
@@ -181,8 +182,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         DescripcionCorta,
                         Preguntas,
                         Posicion,
-                        IdPartner
-                        EncabezadoCorreoPartner
+                        IdPartner,
+                        EncabezadoCorreoPartner,
+                        PaginaLink,
+                        CertificadoLogo,
+                        CertificadoBSG
                     FROM pla.T_Partner_PW
                     WHERE Estado = 1 ORDER BY Id DESC";
                 var resultado = _dapperRepository.QueryDapper(query, null);
@@ -273,7 +277,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 						FechaCreacion,
 						FechaModificacion,
 						RowVersion,
-						IdMigracion
+						IdMigracion,
+						PaginaLink,
+						CertificadoLogo,
+						CertificadoBSG
                     FROM pla.T_Partner_PW
                     WHERE Estado = 1 AND Id = @idPartner";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { idPartner });

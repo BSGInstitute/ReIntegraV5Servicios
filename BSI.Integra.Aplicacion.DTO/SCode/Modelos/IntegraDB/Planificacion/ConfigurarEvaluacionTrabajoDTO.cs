@@ -34,6 +34,13 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public bool? HabilitarPreguntas { get; set; }
         public int? OrdenEvaluacion { get; set; }
         public List<PreguntaEvaluacionTrabajoDTO> PreguntaEvaluacionTrabajos { get; set; }
+
+        public List<CriterioTarea>? criterioTareas { get; set; }
+    }
+
+    public class CriterioTarea {
+        public int idCriterioTarea { get; set; }
+        public string? nombre { get; set; }
     }
     public class ConfigurarEvaluacionTrabajoDetalleDTO
     {
@@ -53,5 +60,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public bool? HabilitarInstrucciones { get; set; }
         public bool? HabilitarArchivo { get; set; }
         public bool? HabilitarPreguntas { get; set; }
+        public int? IdTareaCriterio { get; set; }
+        public string? NombreCriterio { get; set; }
+        public List<CriterioTarea>? criterioTareas { get; set; }
     }
 }

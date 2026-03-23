@@ -378,6 +378,33 @@ namespace BSI.Integra.Servicios.Controllers
                 throw;
             }
         }
+
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 11/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene mensajes multimedia de WhatsApp (Planificación) por id de WhatsApp.
+        /// </summary>
+        /// <returns> String </returns>
+        [Route("[action]/{waId}")]
+        [HttpGet]
+        public ActionResult WhatsAppObtenerMensajeMultimediaPla(string waId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                IWhatsAppMensajesService whatsAppMensajesService = new WhatsAppMensajesService(unitOfWork);
+                return Ok(whatsAppMensajesService.WhatsAppObtenerMensajeMultimediaPla(waId));
+            }
+            catch (Exception Ex)
+            {
+                throw;
+            }
+        }
         /// TipoFuncion: GET
         /// Autor: Gilmer Qm
         /// Fecha: 15/03/2023

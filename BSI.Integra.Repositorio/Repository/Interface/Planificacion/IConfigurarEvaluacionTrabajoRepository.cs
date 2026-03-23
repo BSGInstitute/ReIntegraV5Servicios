@@ -25,5 +25,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         IEnumerable<ConfigurarEvaluacionTrabajoDetalleDTO> ObtenerPorIdPGeneralIdSeccionFila(int idPGeneral, int idSeccion, int fila);
         IEnumerable<ConfigurarEvaluacionTrabajoDetalleDTO> ObtenerConDetallePorIdPGeneral(int idPGeneral);
         ConfigurarEvaluacionTrabajo ObtenerPorId(int id);
+        void InsertarCriterioConfiguracion(int idConfigurarEvaluacionTrabajo, int idTareaCriterio, string usuario);
+        void EliminarCriteriosPorConfiguracion(int idConfigurarEvaluacionTrabajo, string usuario);
     }
 }

@@ -61,6 +61,14 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Id de la tabla Original al migrar
         /// </summary>
         public Guid? IdMigracion { get; set; }
+        /// <summary>
+        /// URL del archivo almacenado en el storage
+        /// </summary>
+        public string? UrlArchivoInstruccionTarea { get; set; }
+        /// <summary>
+        /// URL publica de acceso al archivo almacenado en el storage
+        /// </summary>
+        public string? UrlArchivoCalificacionExcelente { get; set; }
 
         public virtual ICollection<TBandejaPendientePw> TBandejaPendientePws { get; set; }
         public virtual ICollection<TConfigurarEvaluacionTrabajo> TConfigurarEvaluacionTrabajos { get; set; }

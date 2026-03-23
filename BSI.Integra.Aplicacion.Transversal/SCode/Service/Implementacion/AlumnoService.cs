@@ -2432,6 +2432,19 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw e;
             }
         }
+
+
+        public AvanceAonlineAlumnoATCDTO obtenerDatosAvanceAonlineATC(int idMatriculaCabecera)
+        {
+            try
+            {
+                return _unitOfWork.AlumnoRepository.obtenerDatosAvanceAonlineATC(idMatriculaCabecera);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
         /// Autor: Joseph Llanque
         /// Fecha: 05/01/2023
         /// Version: 1.0
@@ -2450,6 +2463,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             {
                 throw e;
             }
+        }
+
+        public AvanceAonlineAlumnoEnHorasDTO ObtenerAvanceAonlineHoras(int idMatriculaCabecera) {
+            try
+            {
+                return _unitOfWork.AlumnoRepository.ObtenerAvanceAonlineHoras(idMatriculaCabecera); 
+            }
+            catch (Exception e) { throw e; }
         }
 
         /// Autor: Gilmer Quispe

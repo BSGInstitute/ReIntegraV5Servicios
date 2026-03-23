@@ -13,5 +13,6 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
         [StringLength(50)]
         public string Nombre { get; set; } = null!;
         public int? IdSolicitudTipoReporte { get; set; }
+        public string? Descripcion { get; set; }
     }
 }

@@ -8,6 +8,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     /// </summary>
     public partial class TGestionDocenteDisparadorEventoTipo
     {
+        public TGestionDocenteDisparadorEventoTipo()
+        {
+            TGestionDocenteDisparadorEventoTipoCongelados = new HashSet<TGestionDocenteDisparadorEventoTipoCongelado>();
+        }
+
         /// <summary>
         /// Identificador único del evento
         /// </summary>
@@ -50,5 +55,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public byte[] RowVersion { get; set; } = null!;
 
         public virtual TGestionDocenteDisparadorDetalle IdGestionDocenteDisparadorDetalleNavigation { get; set; } = null!;
+        public virtual ICollection<TGestionDocenteDisparadorEventoTipoCongelado> TGestionDocenteDisparadorEventoTipoCongelados { get; set; }
     }
 }

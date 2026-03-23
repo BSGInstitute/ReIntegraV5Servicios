@@ -7,6 +7,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TPespecificoSesion()
         {
+            TGestionContactoActividadSesionCongelada = new HashSet<TGestionContactoActividadSesionCongeladum>();
             TRecuperacionSesions = new HashSet<TRecuperacionSesion>();
         }
 
@@ -174,7 +175,22 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Fecha de regularizacion para el envio de Whatsapp
         /// </summary>
         public DateTime? FechaRegularizacionWhatsAppWebinar { get; set; }
+        /// <summary>
+        /// Foreign Key con la tabla de estados de sesion del programa especifico.
+        /// </summary>
+        public int? IdPespecificoSesionEstado { get; set; }
+        /// <summary>
+        /// Foreign Key con la tabla de detalle de observaciones del estado de la sesion.
+        /// </summary>
+        public int? IdPespecificoSesionEstadoObservacionDetalle { get; set; }
+        /// <summary>
+        /// Indica si la sesion fue reprogramada.
+        /// </summary>
+        public bool? Reprogramacion { get; set; }
 
+        public virtual TPespecificoSesionEstado? IdPespecificoSesionEstadoNavigation { get; set; }
+        public virtual TPespecificoSesionEstadoObservacionDetalle? IdPespecificoSesionEstadoObservacionDetalleNavigation { get; set; }
+        public virtual ICollection<TGestionContactoActividadSesionCongeladum> TGestionContactoActividadSesionCongelada { get; set; }
         public virtual ICollection<TRecuperacionSesion> TRecuperacionSesions { get; set; }
     }
 }

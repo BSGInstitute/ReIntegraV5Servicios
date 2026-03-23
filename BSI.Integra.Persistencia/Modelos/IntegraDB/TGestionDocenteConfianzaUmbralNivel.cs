@@ -10,6 +10,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TGestionDocenteConfianzaUmbralNivel()
         {
+            TGestionDocenteOcurrenciaCongeladaIaConfiguracions = new HashSet<TGestionDocenteOcurrenciaCongeladaIaConfiguracion>();
             TGestionDocenteOcurrenciaIaConfiguracions = new HashSet<TGestionDocenteOcurrenciaIaConfiguracion>();
         }
 
@@ -21,6 +22,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Nombre del nivel de confianza
         /// </summary>
         public string Nombre { get; set; } = null!;
+        /// <summary>
+        /// Descripcion del nivel de confianza con rango porcentual y comportamiento del sistema
+        /// </summary>
+        public string Descripcion { get; set; } = null!;
         /// <summary>
         /// Estado del registro (1=Activo, 0=Inactivo)
         /// </summary>
@@ -46,6 +51,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
 
+        public virtual ICollection<TGestionDocenteOcurrenciaCongeladaIaConfiguracion> TGestionDocenteOcurrenciaCongeladaIaConfiguracions { get; set; }
         public virtual ICollection<TGestionDocenteOcurrenciaIaConfiguracion> TGestionDocenteOcurrenciaIaConfiguracions { get; set; }
     }
 }

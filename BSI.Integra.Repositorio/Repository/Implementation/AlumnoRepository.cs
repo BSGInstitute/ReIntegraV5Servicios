@@ -185,7 +185,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    EsEliminadoPorRegularizacion,TieneOportunidad,TieneMatricula,EsRepetido,IdEstadoContactoWhatsApp,IdEstadoContactoMailing,
 	                    DireccionEnvioCertificado,UsarNuevaDireccionParaEnvio,CiudadEnvioCertificado,IdEstadoContactoWhatsApp_Secundario,CodigoPortal,
 	                    IdNumeroTipoDocumento,IdGenero,Municipio,IdMunicipioMexico,EstadoLugar,CodigoPostal,Colonia,IdAsentamientoMexico,IdCiudadMexico,Curp,Rfc
-                    FROM mkt.T_Alumno
+                    FROM mkt.V_TAlumno_Obtener
                     WHERE Estado = 1";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
@@ -324,7 +324,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         PrincipalResponsabilidadProfesional,
                         IdExperiencia,
                         IdTamanioEmpresaAgenda
-                    FROM mkt.T_Alumno
+                    FROM mkt.V_TAlumno_Obtener
                     WHERE Estado = 1 AND Id = @idAlumno";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { idAlumno });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
@@ -354,7 +354,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var query = @"
                     SELECT 
                         Email1 AS Valor
-                    FROM mkt.T_Alumno
+                    FROM mkt.V_TAlumno_Obtener
                     WHERE Estado = 1 AND Id = @idAlumno";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { idAlumno });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
@@ -408,7 +408,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var query = @"
                     SELECT Id,
                         Celular AS Valor
-                    FROM mkt.T_Alumno
+                    FROM mkt.V_TAlumno_Obtener
                     WHERE Estado = 1 AND Id = @idAlumno";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { idAlumno });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
@@ -550,7 +550,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         IdCiudadMexico,
                         Curp,
                         Rfc
-                    FROM mkt.T_Alumno
+                    FROM mkt.V_TAlumno_Obtener
                     WHERE Estado = 1 AND Id = @idAlumno";
                 var resultado = await _dapperRepository.FirstOrDefaultAsync(query, new { idAlumno });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
@@ -719,7 +719,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var query = @"SELECT 
                                     IdCiudad, IdCodigoPais 
                               FROM 
-                                    mkt.T_Alumno 
+                                    mkt.V_TAlumno_Obtener 
                               WHERE 
                                     Estado = 1 AND Id = @IdAlumno";
                 var resultadoQuery = _dapperRepository.FirstOrDefault(query, new { IdAlumno = idAlumno });
@@ -847,7 +847,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var query = @"
                     SELECT Id,Nombre1,Nombre2,ApellidoPaterno,ApellidoMaterno,Celular,Email1
-                    FROM mkt.T_Alumno
+                    FROM mkt.V_TAlumno_Obtener
                     WHERE Estado = 1 AND Celular = @celular";
                 var resultadoQuery = _dapperRepository.FirstOrDefault(query, new { celular });
                 if (!string.IsNullOrEmpty(resultadoQuery) && resultadoQuery != "null")
@@ -1127,6 +1127,35 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// </summary>
         /// <param name="email">Email a Validar</param>
         /// <returns> AlumnoEmailDTO </returns>
+        public AlumnoEmailDTO? ValidarEmailProveedor(string email)
+        {
+            try
+            {
+                var validacion = new AlumnoEmailDTO();
+                string queryAlumno = @"
+                    SELECT Id, Email
+                    FROM [mkt].[V_TProveedor_ValidarEmail]
+                    WHERE Email = @email";
+                var resultado = _dapperRepository.FirstOrDefault(queryAlumno, new { email });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<AlumnoEmailDTO>(resultado);
+                }
+                return null;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+        /// Autor: Erick Marcelo Quispe.
+        /// Fecha: 19/08/2022
+        /// Version: 1.0
+        /// <summary>
+        /// Validar Email 1 - Alumno
+        /// </summary>
+        /// <param name="email">Email a Validar</param>
+        /// <returns> AlumnoEmailDTO </returns>
         public AlumnoEmailPrincipalDTO ValidarEmailPrincipal(string email)
         {
             try
@@ -1299,7 +1328,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                string query = "SELECT Id, Email1, Email2 FROM mkt.T_Alumno WHERE Id = @IdAlumno";
+                string query = "SELECT Id, Email1, Email2 FROM mkt.V_TAlumno_Obtener WHERE Id = @IdAlumno";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { IdAlumno = idAlumno });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
@@ -1452,7 +1481,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                string queryAlumno = @"SELECT Id, Nombre1, Nombre2, ApellidoMaterno, ApellidoPaterno, Email1 FROM mkt.T_Alumno   WITH (NOLOCK) 
+                string queryAlumno = @"SELECT Id, Nombre1, Nombre2, ApellidoMaterno, ApellidoPaterno, Email1 FROM mkt.V_TAlumno_Obtener   WITH (NOLOCK) 
                                        WHERE Celular LIKE '%'+@numero+'%' OR Celular LIKE '%'+@numeroAlterno+'%'";
                 var resultado = _dapperRepository.FirstOrDefault(queryAlumno, new { numero = numero, numeroAlterno = numeroAlterno });
                 return JsonConvert.DeserializeObject<AlumnoPorCelularDTO>(resultado)!;
@@ -1871,7 +1900,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                 IdNumeroTipoDocumento,
                                 IdGenero,
                                 Comentario
-                            FROM mkt.T_Alumno
+                            FROM mkt.V_TAlumno_Obtener
                             WHERE Estado = 1";
             string email = string.Empty;
 
@@ -2011,7 +2040,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 		                Curp,
                         Rfc,
 		                IdCiudadMexico
-		            FROM mkt.T_Alumno
+		            FROM mkt.V_TAlumno_Obtener
                     WHERE Email1 = @Email1
                             AND Estado = 1";
             string email = string.Empty;
@@ -2040,7 +2069,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 if (Email1 != null && Email2 == null)
                 {
                     var query = @"SELECT Id,Nombre1,Nombre2,ApellidoPaterno,ApellidoMaterno,Telefono,Celular,Email1,Email2, " +
-                            "IdCodigoPais,IdCodigoRegionCiudad,IdAFormacion,IdATrabajo,IdIndustria,IdCargo FROM mkt.T_Alumno " +
+                            "IdCodigoPais,IdCodigoRegionCiudad,IdAFormacion,IdATrabajo,IdIndustria,IdCargo FROM mkt.V_TAlumno_Obtener " +
                             " WHERE Estado = 1 AND Email1 = @Email1";
                     var resultado = _dapperRepository.FirstOrDefault(query, new { Email1 });
                     if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]") && resultado != null && resultado != "null")
@@ -2056,7 +2085,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 else if (Email1 == null && Email2 != null)
                 {
                     var query = @"SELECT Id,Nombre1,Nombre2,ApellidoPaterno,ApellidoMaterno,Telefono,Celular,Email1,Email2, " +
-                            "IdCodigoPais,IdCodigoRegionCiudad,IdAFormacion,IdATrabajo,IdIndustria,IdCargo FROM mkt.T_Alumno " +
+                            "IdCodigoPais,IdCodigoRegionCiudad,IdAFormacion,IdATrabajo,IdIndustria,IdCargo FROM mkt.V_TAlumno_Obtener " +
                             " WHERE Estado = 1 AND Email2 = @Email2";
                     var resultado = _dapperRepository.FirstOrDefault(query, new { Email2 });
                     if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]") && resultado != null && resultado != "null")
@@ -2229,7 +2258,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                string query = "SELECT TOP 1 IdEstadoContactoWhatsApp FROM mkt.T_Alumno WHERE id = @IdAlumno";
+                string query = "SELECT TOP 1 IdEstadoContactoWhatsApp FROM mkt.V_TAlumno_Obtener WHERE id = @IdAlumno";
                 var queryDatosAlumno = _dapperRepository.FirstOrDefault(query, new { IdAlumno = idAlumno });
                 return JsonConvert.DeserializeObject<AlumnoInformacionDTO>(queryDatosAlumno)!;
             }
@@ -2287,7 +2316,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                      SELECT 
                                         Id, Nombre1, Nombre2, ApellidoPaterno, ApellidoMaterno, Direccion, DNI, Celular, Telefono, IdCiudad, NombreCiudad, IdCodigoPais, NombrePais, Email1 
                                      FROM 
-                                        mkt.T_Alumno 
+                                        mkt.V_TAlumno_Obtener 
                                      WHERE 
                                         Id = @Id AND Estado = 1";
                 var resultado = _dapperRepository.FirstOrDefault(queryAlumno, new { Id = id });
@@ -2464,6 +2493,28 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
         }
+
+
+
+        public AvanceAonlineAlumnoATCDTO obtenerDatosAvanceAonlineATC(int idMatriculaCabecera)
+        {
+            try
+            {
+                AvanceAonlineAlumnoATCDTO respuesta = new AvanceAonlineAlumnoATCDTO();
+                string _query = $@"[ope].[SP_AvanceAonlineAlumnoReporte]";
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(_query, new { IdMatriculaCabecera = idMatriculaCabecera });
+
+                if (!string.IsNullOrEmpty(resultado))
+                {
+                    respuesta = JsonConvert.DeserializeObject<AvanceAonlineAlumnoATCDTO>(resultado);
+                }
+                return respuesta;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
         /// Autor: Joseph Llanque
         /// Fecha: 12/07/2023
         /// Version: 1.0
@@ -2491,6 +2542,22 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
         }
+
+        public AvanceAonlineAlumnoEnHorasDTO ObtenerAvanceAonlineHoras(int idMatriculaCabecera) {
+            try {
+                AvanceAonlineAlumnoEnHorasDTO AlumnoResponse = new AvanceAonlineAlumnoEnHorasDTO();
+                string _query = "[ope].[SP_AvanceAlumnoPorHoras]";
+                var response = _dapperRepository.QuerySPFirstOrDefault(_query, new { IdMatriculaCabecera = idMatriculaCabecera });
+                if (!string.IsNullOrEmpty(response)) {
+                    AlumnoResponse = JsonConvert.DeserializeObject<AvanceAonlineAlumnoEnHorasDTO>(response);
+                }
+                return AlumnoResponse;
+            } catch (Exception e) { throw e; }
+
+        }
+
+
+
         /// <summary>
         /// Obtiene los alumnos de contactos a validarWhatsapp
         /// </summary>
@@ -2599,7 +2666,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var listaAlumnos = new List<AlumnoDTO>();
                 var saltar = cantidad * iterador;
-                string query = "SELECT * FROM mkt.T_Alumno  WITH (NOLOCK) WHERE IdCodigoPais=51 AND Celular!='' AND Celular!='-' AND Celular IS NOT NULL  AND Estado=1 ORDER BY Id ASC OFFSET @Saltar ROWS FETCH NEXT @Cantidad ROWS ONLY ";
+                string query = "SELECT * FROM mkt.V_TAlumno_Obtener  WITH (NOLOCK) WHERE IdCodigoPais=51 AND Celular!='' AND Celular!='-' AND Celular IS NOT NULL  AND Estado=1 ORDER BY Id ASC OFFSET @Saltar ROWS FETCH NEXT @Cantidad ROWS ONLY ";
                 var resultado = _dapperRepository.QueryDapper(query, new { Saltar = saltar, Cantidad = cantidad });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
@@ -2684,7 +2751,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var listaAlumnos = new List<AlumnoDTO>();
                 var saltar = cantidad * iterador;
-                string query = "SELECT * FROM mkt.T_Alumno WITH (NOLOCK)  WHERE IdCodigoPais=57 AND Celular!='' AND Celular!='-' AND Celular IS NOT NULL  AND Estado=1 ORDER BY Id ASC OFFSET @Saltar ROWS FETCH NEXT @Cantidad ROWS ONLY ";
+                string query = "SELECT * FROM mkt.V_TAlumno_Obtener WITH (NOLOCK)  WHERE IdCodigoPais=57 AND Celular!='' AND Celular!='-' AND Celular IS NOT NULL  AND Estado=1 ORDER BY Id ASC OFFSET @Saltar ROWS FETCH NEXT @Cantidad ROWS ONLY ";
                 var resultado = _dapperRepository.QueryDapper(query, new { Saltar = saltar, Cantidad = cantidad });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
@@ -2713,7 +2780,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var listaAlumnos = new List<AlumnoDTO>();
                 var saltar = cantidad * iterador;
-                string query = "SELECT * FROM mkt.T_Alumno  WITH (NOLOCK) WHERE IdCodigoPais=591 AND Celular!='' AND Celular!='-' AND Celular IS NOT NULL  AND Estado=1 ORDER BY Id ASC OFFSET @Saltar ROWS FETCH NEXT @Cantidad ROWS ONLY ";
+                string query = "SELECT * FROM mkt.V_TAlumno_Obtener  WITH (NOLOCK) WHERE IdCodigoPais=591 AND Celular!='' AND Celular!='-' AND Celular IS NOT NULL  AND Estado=1 ORDER BY Id ASC OFFSET @Saltar ROWS FETCH NEXT @Cantidad ROWS ONLY ";
                 var resultado = _dapperRepository.QueryDapper(query, new { Saltar = saltar, Cantidad = cantidad });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
@@ -2742,7 +2809,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var listaAlumnos = new List<AlumnoDTO>();
                 var saltar = cantidad * iterador;
-                string query = "SELECT * FROM mkt.T_Alumno WITH (NOLOCK) WHERE IdCodigoPais NOT IN (591,57,51) AND Celular!='' AND Celular!='-' AND Celular IS NOT NULL  AND Estado=1 ORDER BY Id ASC OFFSET @Saltar ROWS FETCH NEXT @Cantidad ROWS ONLY ";
+                string query = "SELECT * FROM mkt.V_TAlumno_Obtener WITH (NOLOCK) WHERE IdCodigoPais NOT IN (591,57,51) AND Celular!='' AND Celular!='-' AND Celular IS NOT NULL  AND Estado=1 ORDER BY Id ASC OFFSET @Saltar ROWS FETCH NEXT @Cantidad ROWS ONLY ";
                 var resultado = _dapperRepository.QueryDapper(query, new { Saltar = saltar, Cantidad = cantidad });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
@@ -2768,7 +2835,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var listaAlumnos = new List<AlumnoDTO>();
-                string query = "SELECT * FROM mkt.T_Alumno WITH (NOLOCK)  WHERE IdCodigoPais=51 AND Celular!='' AND Celular!='-' AND Celular IS NOT NULL  AND Estado=1 AND IdEstadoContactoWhatsApp IS NULL ";
+                string query = "SELECT * FROM mkt.V_TAlumno_Obtener WITH (NOLOCK)  WHERE IdCodigoPais=51 AND Celular!='' AND Celular!='-' AND Celular IS NOT NULL  AND Estado=1 AND IdEstadoContactoWhatsApp IS NULL ";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
@@ -2794,7 +2861,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var listaAlumnos = new List<AlumnoDTO>();
-                string query = "SELECT * FROM mkt.T_Alumno WITH (NOLOCK)  WHERE IdCodigoPais=57 AND Celular!='' AND Celular!='-' AND Celular IS NOT NULL  AND Estado=1 AND IdEstadoContactoWhatsApp IS NULL";
+                string query = "SELECT * FROM mkt.V_TAlumno_Obtener WITH (NOLOCK)  WHERE IdCodigoPais=57 AND Celular!='' AND Celular!='-' AND Celular IS NOT NULL  AND Estado=1 AND IdEstadoContactoWhatsApp IS NULL";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
@@ -2820,7 +2887,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var listaAlumnos = new List<AlumnoDTO>();
-                string query = "SELECT * FROM mkt.T_Alumno  WITH (NOLOCK) WHERE IdCodigoPais=591 AND Celular!='' AND Celular!='-' AND Celular IS NOT NULL  AND Estado=1 AND IdEstadoContactoWhatsApp IS NULL ";
+                string query = "SELECT * FROM mkt.V_TAlumno_Obtener  WITH (NOLOCK) WHERE IdCodigoPais=591 AND Celular!='' AND Celular!='-' AND Celular IS NOT NULL  AND Estado=1 AND IdEstadoContactoWhatsApp IS NULL ";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
@@ -2846,7 +2913,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var listaAlumnos = new List<AlumnoDTO>();
-                string query = "SELECT * FROM mkt.T_Alumno WITH (NOLOCK) WHERE IdCodigoPais NOT IN (591,57,51) AND Celular!='' AND Celular!='-' AND Celular IS NOT NULL  AND Estado=1 AND IdEstadoContactoWhatsApp IS NULL ";
+                string query = "SELECT * FROM mkt.V_TAlumno_Obtener WITH (NOLOCK) WHERE IdCodigoPais NOT IN (591,57,51) AND Celular!='' AND Celular!='-' AND Celular IS NOT NULL  AND Estado=1 AND IdEstadoContactoWhatsApp IS NULL ";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
@@ -2874,7 +2941,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 List<AlumnoReferidosDTO> cronogramaNota = new List<AlumnoReferidosDTO>();
                 string query = @"SELECT IdReferido,Id,Nombre1,Nombre2,ApellidoPaterno,ApellidoMaterno,Telefono,Celular,Email1,Email2,HoraPeru 
-                                FROM mkt.T_Alumno WHERE IdReferido = @IdReferido";
+                                FROM mkt.V_TAlumno_Obtener WHERE IdReferido = @IdReferido";
                 var resultado = _dapperRepository.QueryDapper(query, new { IdReferido = idReferido });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
@@ -2964,7 +3031,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 NombreCompletoAlumnoDTO rpta = new();
-                string query = @"SELECT Nombre1, Nombre2, ApellidoPaterno, ApellidoMaterno FROM mkt.T_Alumno WHERE id = @id";
+                string query = @"SELECT Nombre1, Nombre2, ApellidoPaterno, ApellidoMaterno FROM mkt.V_TAlumno_Obtener WHERE id = @id";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { id });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
@@ -3121,7 +3188,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
 
             string query = @"SELECT Id, Nombre1 as Nombre
-                            FROM mkt.T_Alumno
+                            FROM mkt.V_TAlumno_Obtener
                             WHERE DNI = @DNI;";
             var resultado = _dapperRepository.FirstOrDefault(query, new { DNI = valor.Valor });
             if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("null"))
@@ -3140,7 +3207,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                            'No'
                                    END AS Existe,
                                    Nombre1 AS Nombre
-                            FROM mkt.T_Alumno
+                            FROM mkt.V_TAlumno_Obtener
                             WHERE DNI = @DNI;";
             var resultado = _dapperRepository.FirstOrDefault(query, new { DNI = valor.Valor });
             if (!string.IsNullOrEmpty(resultado) && !resultado.Equals("null"))
