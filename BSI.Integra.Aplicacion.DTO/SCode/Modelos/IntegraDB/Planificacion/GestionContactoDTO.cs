@@ -68,6 +68,10 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         /// donde el proveedor viene de la cascada PE Específico → Proveedor.
         /// </summary>
         public int? IdProveedor { get; set; }
+        /// <summary>
+        /// ID de gp.T_Personal. Personal asignado a la oportunidad (obligatorio).
+        /// </summary>
+        public int IdPersonalAsignado { get; set; }
         public string UsuarioCreacion { get; set; }
     }
 
@@ -127,6 +131,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int? DocenteId { get; set; }
         public string DocenteNombre { get; set; }
         public int? IdCategoria { get; set; }
+        public int? IdCentroCosto { get; set; }
+        public int? IdPersonal_Asignado { get; set; }
         public string NombreCategoria { get; set; }
         public int? IdPais { get; set; }
         public string Curso { get; set; }

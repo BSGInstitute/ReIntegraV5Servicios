@@ -306,7 +306,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 var nuevaGestion = new GestionContacto
                 {
                     IdCentroCosto             = dto.IdCentroCosto,
-                    IdPersonalAsignado        = 6205,
+                    IdPersonalAsignado        = dto.IdPersonalAsignado,
                     IdClasificacionPersona    = idClasificacionPersona,
                     IdFaseGestionContacto     = 2,
                     IdOrigen                  = 1124,

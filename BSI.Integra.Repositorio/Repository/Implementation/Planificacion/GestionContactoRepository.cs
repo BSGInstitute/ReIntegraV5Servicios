@@ -583,6 +583,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                         )), 'Sin nombre') AS DocenteNombre,
                         GDC.Id AS IdCategoria,
                         GDC.Nombre AS NombreCategoria,
+                        gc.IdCentroCosto,
+	                    gc.IdPersonal_Asignado,
                         COALESCE(C.IdPais, CDP.IdPais) AS IdPais,
                         COALESCE(cc.Nombre, '')  AS Curso,
                         COALESCE(gdf.Nombre, '') AS FlujoAsignado
