@@ -293,16 +293,16 @@ var app = builder.Build();
 app.UseHangfireDashboard("/hangfire");
 
 // Configurar Job Recurrente: Procesar actividades congeladas cada 5 minutos
-Hangfire.RecurringJob.AddOrUpdate<BSI.Integra.Servicios.Jobs.ActividadesCongeladasJob>(
-    "procesar-actividades-congeladas",
-    job => job.ProcesarActividadesPendientesAsync(),
-    "*/5 * * * *");
+//Hangfire.RecurringJob.AddOrUpdate<BSI.Integra.Servicios.Jobs.ActividadesCongeladasJob>(
+//    "procesar-actividades-congeladas",
+//    job => job.ProcesarActividadesPendientesAsync(),
+//    "*/5 * * * *");
 
-// Clasificacion de respuestas docentes — cada 1 minuto
-Hangfire.RecurringJob.AddOrUpdate<BSI.Integra.Servicios.Jobs.ClasificacionRespuestaJob>(
-    "clasificacion-respuestas-docentes",
-    job => job.ProcesarClasificacionesAsync(),
-    "*/2 * * * *");
+//// Clasificacion de respuestas docentes — cada 1 minuto
+//Hangfire.RecurringJob.AddOrUpdate<BSI.Integra.Servicios.Jobs.ClasificacionRespuestaJob>(
+//    "clasificacion-respuestas-docentes",
+//    job => job.ProcesarClasificacionesAsync(),
+//    "*/2 * * * *");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
