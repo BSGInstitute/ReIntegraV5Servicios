@@ -18,6 +18,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int? IdPersonalAsignado { get; set; }
         public string PersonalAsignado { get; set; }
         public int IdGestionContacto { get; set; }
+        public int? IdClasificacionPersona { get; set; }
         public int IdFlujo { get; set; }
         public string NombreFlujo { get; set; }
         public int? IdCategoria { get; set; }

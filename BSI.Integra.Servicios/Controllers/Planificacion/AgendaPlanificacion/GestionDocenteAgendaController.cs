@@ -102,6 +102,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
             {
                 var actividades = _gestionDocenteAgendaService.ObtenerActividades(idAsesor, codigoAreaTrabajo);
                 return Ok(actividades);
+                
             }
             catch (Exception ex)
             {
@@ -177,6 +178,57 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
             {
                 var info = _gestionDocenteAgendaService.ObtenerInformacionFaltanteDocente(idProveedor, idPEspecifico);
                 return Ok(info);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 23/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el historial de WhatsApp del docente bajo demanda.
+        /// Separado de ObtenerInformacionFaltante para evitar N+1 queries en la carga inicial.
+        /// Se llama únicamente cuando el usuario abre el tab de WhatsApp en la ficha del docente.
+        /// </summary>
+        /// <param name="idProveedor">Identificador del docente.</param>
+        /// <returns>ActionResult con lista de WhatsAppHistorialDocenteDTO.</returns>
+        [HttpGet("ObtenerHistorialWhatsApp/{idProveedor}")]
+        public IActionResult ObtenerHistorialWhatsApp(int idProveedor)
+        {
+            try
+            {
+                var historial = _gestionDocenteAgendaService.ObtenerHistorialWhatsApp(idProveedor);
+                return Ok(historial);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 23/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el historial de correos del docente para un curso bajo demanda.
+        /// Separado de ObtenerInformacionFaltante para evitar N+1 queries en la carga inicial.
+        /// Se llama únicamente cuando el usuario abre el tab de correo en la ficha del docente.
+        /// </summary>
+        /// <param name="idProveedor">Identificador del docente.</param>
+        /// <param name="idPEspecifico">Identificador del curso.</param>
+        /// <returns>ActionResult con lista de CorreoResumenDocenteDTO.</returns>
+        [HttpGet("ObtenerHistorialCorreos/{idProveedor}/{idPEspecifico}")]
+        public IActionResult ObtenerHistorialCorreos(int idProveedor, int idPEspecifico)
+        {
+            try
+            {
+                var historial = _gestionDocenteAgendaService.ObtenerHistorialCorreos(idProveedor, idPEspecifico);
+                return Ok(historial);
             }
             catch (Exception ex)
             {

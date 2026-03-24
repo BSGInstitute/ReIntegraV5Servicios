@@ -288,10 +288,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
         /// Autor: Jose Vega
         /// Fecha: 03/03/2026
-        /// Versión: 1.0
+        /// Versión: 2.0
         /// <summary>
-        /// Obtiene información adicional del docente: email, historial completo de WhatsApp,
-        /// historial de correos, resumen de última comunicación, encuestas y alumnos únicos.
+        /// Obtiene información base del docente: email, encuestas, última comunicación y puntaje global.
+        /// El historial de WhatsApp y correos se obtienen por separado via ObtenerHistorialWhatsApp
+        /// y ObtenerHistorialCorreos para evitar N+1 queries en la carga inicial de la lista.
         /// </summary>
         public InformacionFaltanteDocenteDTO ObtenerInformacionFaltanteDocente(int idProveedor, int idPEspecifico)
         {
@@ -306,15 +307,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     info = JsonConvert.DeserializeObject<List<InformacionFaltanteDocenteDTO>>(resultadoBaseDB).FirstOrDefault();
                 }
 
-                // Historial WhatsApp (enviados y recibidos), ordenado en C#
-                var resultadoWhatsAppDB = _dapperRepository.QuerySPDapper("pla.SP_DocenteWhatsAppHistorialObtener", new { IdProveedor = idProveedor });
-                if (!string.IsNullOrEmpty(resultadoWhatsAppDB) && !resultadoWhatsAppDB.Contains("[]"))
-                {
-                    info.HistorialWhatsApp = JsonConvert.DeserializeObject<List<WhatsAppHistorialDocenteDTO>>(resultadoWhatsAppDB)
-                        .OrderByDescending(x => x.FechaCreacion)
-                        .ToList();
-                }
-
                 // Última comunicación (MAX por canal), selección del más reciente en C#
                 var resultadoUltimaComDB = _dapperRepository.QuerySPDapper("pla.SP_DocenteUltimaComunicacionObtener", new { IdProveedor = idProveedor });
                 if (!string.IsNullOrEmpty(resultadoUltimaComDB) && !resultadoUltimaComDB.Contains("[]"))
@@ -323,15 +315,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                         .Where(x => x.Fecha.HasValue)
                         .OrderByDescending(x => x.Fecha)
                         .FirstOrDefault();
-                }
-
-                // Historial de correos del docente, ordenado en C#
-                var resultadoCorreosDB = _dapperRepository.QuerySPDapper("pla.SP_DocenteCorreoHistorialObtener", new { IdProveedor = idProveedor, IdPEspecifico = idPEspecifico });
-                if (!string.IsNullOrEmpty(resultadoCorreosDB) && !resultadoCorreosDB.Contains("[]"))
-                {
-                    info.HistorialCorreos = JsonConvert.DeserializeObject<List<CorreoResumenDocenteDTO>>(resultadoCorreosDB)
-                        .OrderByDescending(x => x.FechaEnvio)
-                        .ToList();
                 }
 
                 // Puntaje global (promedio de encuestas de todos los cursos del docente)
@@ -346,6 +329,62 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 }
 
                 return info;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 23/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el historial completo de WhatsApp del docente (enviados y recibidos),
+        /// ordenado por fecha descendente. Separado de ObtenerInformacionFaltanteDocente
+        /// para carga bajo demanda al abrir el tab de WhatsApp.
+        /// </summary>
+        public List<WhatsAppHistorialDocenteDTO> ObtenerHistorialWhatsApp(int idProveedor)
+        {
+            try
+            {
+                var lista = new List<WhatsAppHistorialDocenteDTO>();
+                var resultadoDB = _dapperRepository.QuerySPDapper("pla.SP_DocenteWhatsAppHistorialObtener", new { IdProveedor = idProveedor });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    lista = JsonConvert.DeserializeObject<List<WhatsAppHistorialDocenteDTO>>(resultadoDB)
+                        .OrderByDescending(x => x.FechaCreacion)
+                        .ToList();
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 23/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el historial de correos enviados al docente para un curso específico,
+        /// ordenado por fecha de envío descendente. Separado de ObtenerInformacionFaltanteDocente
+        /// para carga bajo demanda al abrir el tab de correo.
+        /// </summary>
+        public List<CorreoResumenDocenteDTO> ObtenerHistorialCorreos(int idProveedor, int idPEspecifico)
+        {
+            try
+            {
+                var lista = new List<CorreoResumenDocenteDTO>();
+                var resultadoDB = _dapperRepository.QuerySPDapper("pla.SP_DocenteCorreoHistorialObtener", new { IdProveedor = idProveedor, IdPEspecifico = idPEspecifico });
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    lista = JsonConvert.DeserializeObject<List<CorreoResumenDocenteDTO>>(resultadoDB)
+                        .OrderByDescending(x => x.FechaEnvio)
+                        .ToList();
+                }
+                return lista;
             }
             catch (Exception ex)
             {

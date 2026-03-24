@@ -15,6 +15,14 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         List<ActividadAgendaPlanificacionDTO> ObtenerActividades(AgendaTabConfiguracionPlanificacionAlternoDTO tab, int idAsesor);
         List<DocenteConCursoDTO> ObtenerDocentesPorGestionContacto(int idGestionContacto);
         InformacionFaltanteDocenteDTO ObtenerInformacionFaltanteDocente(int idProveedor, int idPEspecifico);
+        /// <summary>
+        /// Obtiene el historial de WhatsApp del docente bajo demanda (SP_DocenteWhatsAppHistorialObtener).
+        /// </summary>
+        List<WhatsAppHistorialDocenteDTO> ObtenerHistorialWhatsApp(int idProveedor);
+        /// <summary>
+        /// Obtiene el historial de correos del docente bajo demanda (SP_DocenteCorreoHistorialObtener).
+        /// </summary>
+        List<CorreoResumenDocenteDTO> ObtenerHistorialCorreos(int idProveedor, int idPEspecifico);
         CorreoDetalleDocenteDTO ObtenerDetalleCorreo(int idCorreo);
         /// <summary>
         /// Obtiene el flujo asignado al docente a partir de su IdGestionContacto.

@@ -182,20 +182,54 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
-        /// Autor: Jose Vega
-        /// Fecha: 03/03/2026
-        /// Versión: 1.0
+        /// Autor: Jose Vega / Joseph Llanque
+        /// Fecha: 03/03/2026 — Versión: 2.0 (23/03/2026)
         /// <summary>
-        /// Obtiene información adicional del docente: email, últimas comunicaciones, encuestas y cantidad de estudiantes.
+        /// Obtiene información base del docente: email, encuestas, última comunicación y puntaje global.
+        /// El historial de WhatsApp y correos se carga bajo demanda via ObtenerHistorialWhatsApp
+        /// y ObtenerHistorialCorreos (reducido de 5 a 3 SPs).
         /// </summary>
-        /// <param name="idProveedor">Identificador del docente.</param>
-        /// <param name="idPEspecifico">Identificador del curso.</param>
-        /// <returns>InformacionFaltanteDocenteDTO.</returns>
         public InformacionFaltanteDocenteDTO ObtenerInformacionFaltanteDocente(int idProveedor, int idPEspecifico)
         {
             try
             {
                 return _unitOfWork.GestionDocenteAgendaRepository.ObtenerInformacionFaltanteDocente(idProveedor, idPEspecifico);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 23/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el historial de WhatsApp del docente bajo demanda.
+        /// </summary>
+        public List<WhatsAppHistorialDocenteDTO> ObtenerHistorialWhatsApp(int idProveedor)
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteAgendaRepository.ObtenerHistorialWhatsApp(idProveedor);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 23/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el historial de correos del docente bajo demanda.
+        /// </summary>
+        public List<CorreoResumenDocenteDTO> ObtenerHistorialCorreos(int idProveedor, int idPEspecifico)
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteAgendaRepository.ObtenerHistorialCorreos(idProveedor, idPEspecifico);
             }
             catch (Exception)
             {
@@ -264,6 +298,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                         Correo = primero.Correo,
                         IdGestionContacto = primero.IdGestionContacto,
                         IdPersonal_Asignado = primero.IdPersonal_Asignado,
+                        IdClasificacionPersona= primero.IdClasificacionPersona,
                         PersonalAsignado = primero.PersonalAsignado,
                         IdGestionDocenteFlujo = primero.IdGestionDocenteFlujo,
                         NombreFlujo = primero.NombreFlujo,

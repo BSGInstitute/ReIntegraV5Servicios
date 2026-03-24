@@ -730,11 +730,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
         /// Autor: Joseph Llanque
         /// Fecha: 28/02/2026
-        /// Version: 1.0
+        /// Version: 1.1
         /// <summary>
         /// Obtiene las actividades de un flujo congelado agrupadas jerarquicamente segun categoria.
         /// Categoria 1 (General): retorna Actividades con Detalles y Disparadores.
         /// Categoria 2 (Ejecucion Curso): retorna Sesiones con Actividades, Detalles y Disparadores.
+        /// Incluye ocurrencias congeladas asociadas a cada detalle (segundo result set del SP).
         /// </summary>
         public async Task<ActividadesFlujoPorCategoriaResponseDTO> ObtenerActividadesFlujoPorCategoriaAsync(int idGestionContactoDocenteFlujo)
         {
@@ -743,23 +744,21 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 var parameters = new DynamicParameters();
                 parameters.Add("@IdGestionContactoDocenteFlujo", idGestionContactoDocenteFlujo, DbType.Int32);
 
-                string resultado = await _dapperRepository.QuerySPDapperAsync(
-                    "pla.SP_GestionDocenteActividadesFlujoPorCategoria",
-                    parameters
-                );
+                List<ActividadFlujoRawDTO> registrosPlanos;
+                List<OcurrenciaCongeladaDTO> ocurrenciasPlanas;
 
-                if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
+                using (var conn = _connectionFactory.GetConnection)
                 {
-                    return new ActividadesFlujoPorCategoriaResponseDTO
+                    using (var multi = await conn.QueryMultipleAsync(
+                        "pla.SP_GestionDocenteActividadesFlujoPorCategoria",
+                        parameters,
+                        commandType: CommandType.StoredProcedure))
                     {
-                        IdCategoria = 0,
-                        NombreCategoria = "Sin categoria",
-                        Sesiones = new List<SesionConActividadesDTO>(),
-                        Actividades = new List<ActividadCabeceraDTO>()
-                    };
+                        registrosPlanos = (await multi.ReadAsync<ActividadFlujoRawDTO>()).ToList();
+                        ocurrenciasPlanas = (await multi.ReadAsync<OcurrenciaCongeladaDTO>()).ToList();
+                    }
                 }
 
-                var registrosPlanos = JsonConvert.DeserializeObject<List<ActividadFlujoRawDTO>>(resultado);
                 if (registrosPlanos == null || !registrosPlanos.Any())
                 {
                     return new ActividadesFlujoPorCategoriaResponseDTO
@@ -770,6 +769,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                         Actividades = new List<ActividadCabeceraDTO>()
                     };
                 }
+
+                var ocurrenciasPorDetalle = ocurrenciasPlanas
+                    .GroupBy(o => o.IdGestionDocenteActividadDetalleCongelada)
+                    .ToDictionary(g => g.Key, g => g.ToList() as IEnumerable<OcurrenciaCongeladaDTO>);
 
                 var primerRegistro = registrosPlanos.First();
                 bool esCategoria2 = primerRegistro.IdSesion.HasValue;
@@ -818,7 +821,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                             r.NombreDetalle,
                                             r.NombrePlantilla,
                                             r.MedioComunicacion,
-                                            r.EstadoEjecucionDetalle
+                                            r.EstadoEjecucionDetalle,
+                                            r.NombreOcurrenciaMarcada,
+                                            r.TipoOcurrenciaMarcada,
+                                            r.ComentarioOcurrenciaMarcada,
+                                            r.UsuarioEjecucion
                                         })
                                         .Select(detalleGroup => new ActividadDetalleDTO
                                         {
@@ -828,6 +835,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                             NombrePlantilla = detalleGroup.Key.NombrePlantilla,
                                             MedioComunicacion = detalleGroup.Key.MedioComunicacion,
                                             EstadoEjecucionDetalle = detalleGroup.Key.EstadoEjecucionDetalle,
+                                            NombreOcurrenciaMarcada = detalleGroup.Key.NombreOcurrenciaMarcada,
+                                            TipoOcurrenciaMarcada = detalleGroup.Key.TipoOcurrenciaMarcada,
+                                            ComentarioOcurrenciaMarcada = detalleGroup.Key.ComentarioOcurrenciaMarcada,
+                                            UsuarioEjecucion = detalleGroup.Key.UsuarioEjecucion,
                                             Disparadores = detalleGroup.Select(r => new DisparadorDTO
                                             {
                                                 IdDisparadorCongelado = r.IdDisparadorCongelado,
@@ -845,7 +856,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                                 TieneTiempoRelativo = r.TieneTiempoRelativo,
                                                 TieneEvento = r.TieneEvento,
                                                 TieneOcurrenciaPrevia = r.TieneOcurrenciaPrevia
-                                            }).ToList()
+                                            }).ToList(),
+                                            Ocurrencias = ocurrenciasPorDetalle.TryGetValue(detalleGroup.Key.IdGestionDocenteActividadDetalleCongelada, out var ocs) ? ocs : new List<OcurrenciaCongeladaDTO>()
                                         }).ToList()
                                 }).ToList()
                         }).ToList();
@@ -885,7 +897,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                     r.NombreDetalle,
                                     r.NombrePlantilla,
                                     r.MedioComunicacion,
-                                    r.EstadoEjecucionDetalle
+                                    r.EstadoEjecucionDetalle,
+                                    r.NombreOcurrenciaMarcada,
+                                    r.TipoOcurrenciaMarcada,
+                                    r.ComentarioOcurrenciaMarcada,
+                                    r.UsuarioEjecucion
                                 })
                                 .Select(detalleGroup => new ActividadDetalleDTO
                                 {
@@ -895,6 +911,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                     NombrePlantilla = detalleGroup.Key.NombrePlantilla,
                                     MedioComunicacion = detalleGroup.Key.MedioComunicacion,
                                     EstadoEjecucionDetalle = detalleGroup.Key.EstadoEjecucionDetalle,
+                                    NombreOcurrenciaMarcada = detalleGroup.Key.NombreOcurrenciaMarcada,
+                                    TipoOcurrenciaMarcada = detalleGroup.Key.TipoOcurrenciaMarcada,
+                                    ComentarioOcurrenciaMarcada = detalleGroup.Key.ComentarioOcurrenciaMarcada,
+                                    UsuarioEjecucion = detalleGroup.Key.UsuarioEjecucion,
                                     Disparadores = detalleGroup.Select(r => new DisparadorDTO
                                     {
                                         IdDisparadorCongelado = r.IdDisparadorCongelado,
@@ -912,7 +932,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                         TieneTiempoRelativo = r.TieneTiempoRelativo,
                                         TieneEvento = r.TieneEvento,
                                         TieneOcurrenciaPrevia = r.TieneOcurrenciaPrevia
-                                    }).ToList()
+                                    }).ToList(),
+                                    Ocurrencias = ocurrenciasPorDetalle.TryGetValue(detalleGroup.Key.IdGestionDocenteActividadDetalleCongelada, out var ocs) ? ocs : new List<OcurrenciaCongeladaDTO>()
                                 }).ToList()
                         }).ToList();
 

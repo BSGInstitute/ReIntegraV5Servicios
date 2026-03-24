@@ -510,7 +510,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// Obtiene las actividades de un flujo congelado organizadas jerarquicamente segun categoria.
         /// </summary>
         public async Task<ActividadesFlujoPorCategoriaResponseDTO> ObtenerActividadesFlujoPorCategoriaAsync(int idGestionContactoDocenteFlujo)
-        {
+        { 
             try
             {
                 return await _unitOfWork.GestionContactoRepository.ObtenerActividadesFlujoPorCategoriaAsync(idGestionContactoDocenteFlujo);

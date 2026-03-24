@@ -211,6 +211,25 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string MedioComunicacion { get; set; }
         public string EstadoEjecucionDetalle { get; set; }
         public IEnumerable<DisparadorDTO> Disparadores { get; set; }
+        public IEnumerable<OcurrenciaCongeladaDTO> Ocurrencias { get; set; } = new List<OcurrenciaCongeladaDTO>();
+        public string NombreOcurrenciaMarcada { get; set; }
+        public string TipoOcurrenciaMarcada { get; set; }
+        public string ComentarioOcurrenciaMarcada { get; set; }
+        public string UsuarioEjecucion { get; set; }
+    }
+
+    /// <summary>
+    /// DTO de ocurrencia congelada asociada a un detalle de actividad
+    /// </summary>
+    public class OcurrenciaCongeladaDTO
+    {
+        public int IdGestionDocenteOcurrenciaCongelada { get; set; }
+        public int IdGestionDocenteActividadDetalleCongelada { get; set; }
+        public string Nombre { get; set; }
+        public string TipoOcurrencia { get; set; }
+        public bool RequiereComentario { get; set; }
+        public bool RequiereFechaHora { get; set; }
+        public string ModoMarcado { get; set; }
     }
 
     public class DisparadorDTO
@@ -288,6 +307,10 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string NombrePEspecifico { get; set; }
         public int? IdProveedor { get; set; }
         public string RazonSocialDocente { get; set; }
+        public string NombreOcurrenciaMarcada { get; set; }
+        public string TipoOcurrenciaMarcada { get; set; }
+        public string ComentarioOcurrenciaMarcada { get; set; }
+        public string UsuarioEjecucion { get; set; }
     }
 
     /// <summary>
