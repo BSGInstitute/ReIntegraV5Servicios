@@ -35,6 +35,9 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
         public bool? RegularizacionWhatsAppWebinar { get; set; }
         public string UsuarioEnvioCorreoWebinar { get; set; }
         public string UsuarioEnvioWhatsAppWebinar { get; set; }
+        public int? IdPEspecificoSesionEstado { get; set; }
+        public int? IdPEspecificoSesionEstadoObservacionDetalle { get; set; }
+        public bool? Reprogramacion { get; set; }
         public DateTime? FechaRegularizacionCorreoWebinar { get; set; }
         public DateTime? FechaRegularizacionWhatsAppWebinar { get; set; }
     }

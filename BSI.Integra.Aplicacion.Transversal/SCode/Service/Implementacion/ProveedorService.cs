@@ -381,6 +381,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 objProveedor.Contacto2 = proveedor.Contacto2 ?? "";
                 objProveedor.IdPersonalAsignado = proveedor.IdPersonalAsignado;
                 objProveedor.Alias = proveedor.Alias;
+                objProveedor.EsDocente = proveedor.esDocente;
                 objProveedor.FechaModificacion = DateTime.Now;
                 objProveedor.UsuarioModificacion = proveedor.UsuarioModificacion;
 
@@ -487,6 +488,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 objProveedor.FechaModificacion = DateTime.Now;
                 objProveedor.UsuarioModificacion = proveedor.UsuarioModificacion;
                 objProveedor.Alias = proveedor.Alias;
+                objProveedor.EsDocente = proveedor.esDocente;
+
 
                 objProveedor = this.Update(objProveedor);
 
@@ -947,6 +950,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             {
                 throw ex;
             }
+        }
+
+
+        public IEnumerable<ProveedorDocenteDTO> ObtenerDocentesActivos()
+        {
+            var resultado = _unitOfWork.ProveedorRepository.ObtenerDocentesActivos().ToList();
+         
+            return resultado;
         }
     }
 }

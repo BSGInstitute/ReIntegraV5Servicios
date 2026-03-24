@@ -2019,7 +2019,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var query = @"SELECT DISTINCT 
                                 Id, FechaHoraInicio, Duracion, DuracionTotal, Curso, IdExpositor, IdProveedor, IdAmbiente, IdCiudad, PEspecificoHijoId, 
-                                Tipo, IdModalidadCurso, Comentario, EsSesionInicio, IdCentroCosto, Grupo, GrupoSesion, TieneFur, MostrarPortalWeb 
+                                Tipo, IdModalidadCurso, Comentario, EsSesionInicio, IdCentroCosto, Grupo, GrupoSesion, TieneFur, MostrarPortalWeb ,IdPEspecificoSesionEstadoObservacionDetalle,IdPEspecificoSesionEstado ,Reprogramacion
                               FROM 
                                 [pla].[V_ObtenerCronogramaGrupoDuplicadoSesionIndividual] 
                               WHERE 
@@ -2056,7 +2056,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     condicion = @" AND PEspecificoHijoId IN @listaPespecifico ";
                 }
                 string query = @$"
-                        SELECT DISTINCT Id, FechaHoraInicio, Duracion, DuracionTotal, Curso, IdExpositor, IdProveedor, IdAmbiente, IdCiudad, PEspecificoHijoId, Tipo, IdModalidadCurso, Comentario, EsSesionInicio, IdCentroCosto, Grupo, GrupoSesion, TieneFur, MostrarPortalWeb, IdCiclo, IdPeriodoLectivo
+                        SELECT DISTINCT Id, FechaHoraInicio, Duracion, DuracionTotal, Curso, IdExpositor, IdProveedor, IdAmbiente, IdCiudad, PEspecificoHijoId, Tipo, IdModalidadCurso, Comentario, EsSesionInicio, IdCentroCosto, Grupo, GrupoSesion, TieneFur, MostrarPortalWeb, IdCiclo, IdPeriodoLectivo,IdPEspecificoSesionEstado,IdPEspecificoSesionEstadoObservacionDetalle , Reprogramacion
                         FROM [pla].[V_ObtenerCronogramaGrupoDuplicado] 
                         WHERE Estado=1 AND PEspecificoPadreId=@idPEspecifico AND Grupo=@numeroGrupo {condicion}
                         ORDER BY FechaHoraInicio ASC, PEspecificoHijoId ASC;";
@@ -2828,5 +2828,30 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         }
 
         #endregion
+        /// Autor:Marco Jose Villanueva Torres
+        /// Fecha: 2026-03-19
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el catálogo completo de PEspecificos (Id, Nombre, Codigo) usando SP para carga masiva con filtrado en frontend
+        /// </summary>
+        /// <returns>Lista de PEspecificoCatalogoDTO</returns>
+        public IEnumerable<PEspecificoCatalogoDTO> ObtenerCatalogo()
+        {
+            try
+            {
+                List<PEspecificoCatalogoDTO> rpta = new();
+                string query = "pla.SP_PEspecificoListadoBase";
+                string resultado = _dapperRepository.QuerySPDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<PEspecificoCatalogoDTO>>(resultado)!;
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error en ObtenerCatalogo()", ex);
+            }
+        }
     }
 }

@@ -169,6 +169,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? IdAmbiente { get; set; }
         public bool? Predeterminado { get; set; }
         public int Grupo { get; set; }
+        public int? GrupoSesion { get; set; }
+        public int? IdPEspecificoSesionEstado { get; set; }
     }
     public class ConfirmacionWebinarDTO
     {
