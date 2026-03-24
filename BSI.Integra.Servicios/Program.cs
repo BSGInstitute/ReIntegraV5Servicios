@@ -11,6 +11,8 @@ using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.Fa
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.Messenger;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.Configuracion;
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.EsquemaRespuestas;
+using BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketing.EsquemaRespuestas;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.Messenger;
 using BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Sendingblue;
 using BSI.Integra.Aplicacion.Marketing.Service.Interface.Sendingblue;
@@ -38,6 +40,7 @@ using BSI.Integra.Repositorio.Repository.Implementation.Comercial;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.CampaniaMailingWhatsapp;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.Configuracion;
+using BSI.Integra.Repositorio.Repository.Implementation.Marketing.EsquemaRespuestas;
 using BSI.Integra.Repositorio.Repository.Implementation.Marketing.Messenger;
 using BSI.Integra.Repositorio.Repository.IntegraDBInteraccion.DapperRepository;
 using BSI.Integra.Repositorio.Repository.IntegraDBInteraccion.UnitOfWork;
@@ -45,6 +48,7 @@ using BSI.Integra.Repositorio.Repository.Interface;
 using BSI.Integra.Repositorio.Repository.Interface.Comercial;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.Configuracion;
+using BSI.Integra.Repositorio.Repository.Interface.Marketing.EsquemaRespuestas;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.FacebookLeadsRecuperacionDatos;
 using BSI.Integra.Repositorio.Repository.Interface.Marketing.Messenger;
@@ -179,17 +183,26 @@ builder.Services.AddScoped<ICampaniaRemarketingGeneralService, CampaniaRemarketi
 builder.Services.AddScoped<ICampaniaRemarketingGeneralRepository, CampaniaRemarketingGeneralRepository>();
 builder.Services.AddScoped<ICategoriaArgumentosService, CategoriaArgumentosService>();
 builder.Services.AddScoped<ICategoriaArgumentosRepository, CategoriaArgumentosRepository>();
+builder.Services.AddScoped<IEsquemaRespuestasService, EsquemaRespuestasService>();
+builder.Services.AddScoped<IEsquemaRespuestasRepository, EsquemaRespuestasRepository>();
+builder.Services.AddScoped<IConfiguracionExternaRepository, ConfiguracionExternaRepository>();
+builder.Services.AddScoped<IConfiguracionExternaService, ConfiguracionExternaService>();
+builder.Services.AddScoped<IChatbotActividadBotIARepository, ChatbotActividadBotIARepository>();
+builder.Services.AddScoped<IChatbotActividadBotIAService, ChatbotActividadBotIAService>();
 
 builder.Services.AddHttpContextAccessor();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.CustomSchemaIds(type => type.FullName?.Replace("+", "."));
+});
 
 builder.Services.AddHttpContextAccessor();
 
 
-builder.Services.AddHttpClient(); // Si no lo tienes ya
+builder.Services.AddHttpClient();
 builder.Services.AddScoped<IFacebookLeadsRecuperacionDatosService, FacebookLeadsRecuperacionDatosService>();
 
 // ============= INYECCIÓN DE DEPENDENCIAS - SISTEMA DE ESQUEMAS BOT IA WHATSAPP =============

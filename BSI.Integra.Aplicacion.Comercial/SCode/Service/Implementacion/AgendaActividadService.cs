@@ -2407,6 +2407,72 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         {
             try
             {
+                // V1: Validación de ID de Actividad
+                if (idActividad == 0)
+                {
+                    throw new BadRequestException("Id Actividad no valido");
+                }
+
+                // V2: Validación de ID de Centro de Costo
+                if (idCentroCosto == 0)
+                {
+                    throw new BadRequestException("Id Centro Costo no valido");
+                }
+
+                // Obtener la actividad detalle
+                var actividadDetalle = _unitOfWork.ActividadDetalleRepository.ObtenerPorId(idActividad);
+
+                if (actividadDetalle == null || !actividadDetalle.IdOportunidad.HasValue)
+                {
+                    throw new BadRequestException("Actividad no encontrada o sin oportunidad asociada");
+                }
+
+                // Obtener la oportunidad
+                var oportunidad = _unitOfWork.OportunidadRepository.ObtenerPorId(actividadDetalle.IdOportunidad.Value);
+
+                // V3: Validación de existencia de Oportunidad
+                if (oportunidad == null || oportunidad.Id == 0)
+                {
+                    throw new BadRequestException("Oportunidad no existente");
+                }
+
+                if (!oportunidad.IdCentroCosto.HasValue)
+                {
+                    throw new BadRequestException("La oportunidad no tiene centro de costo asignado");
+                }
+
+                // V4: Validación de duplicidad de Centro de Costo
+                if (oportunidad.IdCentroCosto.Value == idCentroCosto)
+                {
+                    throw new BadRequestException("La oportunidad ya cuenta con el centro de costo solicitado");
+                }
+
+                // V5: Validar que NO exista matrícula por PEspecifico
+                var pEspecificoActual = _unitOfWork.PEspecificoRepository.ObtenerPorIdCentroCosto(oportunidad.IdCentroCosto.Value);
+                var estadoMatricula = _unitOfWork.MatriculaCabeceraRepository.Exist(x => x.IdAlumno == oportunidad.IdAlumno && x.IdPespecifico == pEspecificoActual.Id);
+                if (estadoMatricula)
+                {
+                    throw new BadRequestException("El alumno ya tiene una Matricula Cabecera Registrada, si desea hacer el cambio de Centro de Costo comunicarse con Sistemas");
+                }
+
+                // V6: Validar que NO exista matrícula por Cronograma
+                var cronograma = _unitOfWork.MontoPagoCronogramaRepository.ObtenerPorIdOportunidad(oportunidad.Id);
+                if (cronograma != null && cronograma.Id != 0)
+                {
+                    var estadoMatricula2 = _unitOfWork.MatriculaCabeceraRepository.Exist(x => x.IdCronograma == cronograma.Id);
+                    if (estadoMatricula2)
+                    {
+                        throw new BadRequestException("El alumno ya tiene una Matricula Cabecera Registrada, si desea hacer el cambio de Centro de Costo comunicarse con Sistemas");
+                    }
+                }
+
+                // V7: Validar estado del PEspecifico destino
+                var pEspecificoCambio = _unitOfWork.PEspecificoRepository.ObtenerPorIdCentroCosto(idCentroCosto);
+                if (pEspecificoCambio.EstadoP != "Lanzamiento" && pEspecificoCambio.EstadoP != "Por Ejecucion")
+                {
+                    throw new BadRequestException("El centro de costo no se encuentra en estado de 'Lanzamiento' o 'Por Ejecucion'");
+                }
+
                 return _unitOfWork.OportunidadRepository.ActualizarCentroCosto(idCentroCosto, idActividad);
             }
             catch (Exception ex)

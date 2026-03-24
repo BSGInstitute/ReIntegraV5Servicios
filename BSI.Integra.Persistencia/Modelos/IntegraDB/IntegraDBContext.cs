@@ -25892,6 +25892,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.Id).HasComment("Identificador único del nivel de confianza");
 
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("('')")
+                    .HasComment("Descripcion del nivel de confianza con rango porcentual y comportamiento del sistema");
+
                 entity.Property(e => e.Estado).HasComment("Estado del registro (1=Activo, 0=Inactivo)");
 
                 entity.Property(e => e.FechaCreacion)
@@ -25906,11 +25912,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Nombre del nivel de confianza");
-
-                entity.Property(e => e.Descripcion)
-                    .HasMaxLength(200)
-                    .IsUnicode(false)
-                    .HasComment("Descripcion del nivel de confianza con rango porcentual y comportamiento del sistema");
 
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
@@ -43061,6 +43062,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasColumnType("datetime")
                     .HasComment("Fecha de modificacion del registro");
 
+                entity.Property(e => e.GruposAsignados).HasComment("Cantidad de grupos configurados por webinar por version de programa");
+
                 entity.Property(e => e.IdMigracion).HasComment("Id de la tabla Original al migrar");
 
                 entity.Property(e => e.IdPgeneral).HasComment("Clave Foranea de la tabla pla.T_Pgeneral");
@@ -59364,6 +59367,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.Id).HasComment("Es primary key");
 
+                entity.Property(e => e.Activo).HasComment("Indica si el registro se encuentra activo (1) o inactivo (0)");
+
+                entity.Property(e => e.AplicaProgramaCompleto).HasComment("Indica si el descuento aplica a programa completo (1) o a curso (0)");
+
                 entity.Property(e => e.Codigo)
                     .HasMaxLength(50)
                     .IsUnicode(false)
@@ -59404,8 +59411,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsRowVersion()
                     .IsConcurrencyToken()
                     .HasComment("Campo de sistema automatico que guarda la version del registro");
-
-                entity.Property(e => e.TipoPrograma).HasComment("Descripcion del tipo de descuento");
 
                 entity.Property(e => e.UsuarioCreacion)
                     .HasMaxLength(50)
