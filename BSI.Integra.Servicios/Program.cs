@@ -298,7 +298,7 @@ Hangfire.RecurringJob.AddOrUpdate<BSI.Integra.Servicios.Jobs.ActividadesCongelad
     job => job.ProcesarActividadesPendientesAsync(),
     "*/5 * * * *");
 
-// Clasificacion de respuestas docentes — cada 2 minutos
+// Clasificacion de respuestas docentes — cada 1 minuto
 Hangfire.RecurringJob.AddOrUpdate<BSI.Integra.Servicios.Jobs.ClasificacionRespuestaJob>(
     "clasificacion-respuestas-docentes",
     job => job.ProcesarClasificacionesAsync(),
