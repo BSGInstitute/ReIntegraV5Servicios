@@ -399,9 +399,28 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
     /// <summary>
     /// DTO para actualizar un detalle de actividad existente (elimina el anterior y crea uno nuevo).
     /// </summary>
-    public class ActualizarActividadDetalleRequestDTO
+        public class ActualizarActividadDetalleRequestDTO
+        {
+            public int IdDetalleAnterior { get; set; }
+            public InsertarActividadDetalleRequestDTO NuevoDetalle { get; set; }
+        }
+
+    /// Autor: Joseph Llanque
+    /// Fecha: 16/03/2026
+    /// Versión: 1.0
+    /// <summary>
+    /// DTO para actualizar una ocurrencia existente de actividad docente.
+    /// </summary>
+    public class ActualizarOcurrenciaRequestDTO
     {
-        public int IdDetalleAnterior { get; set; }
-        public InsertarActividadDetalleRequestDTO NuevoDetalle { get; set; }
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+        public int IdGestionDocenteOcurrenciaTipo { get; set; }
+        public int IdGestionDocenteModoMarcado { get; set; }
+        public bool RequiereComentario { get; set; }
+        public bool RequiereFechaHora { get; set; }
+        public string Usuario { get; set; }
+        public GestionDocenteOcurrenciaIaConfiguracionDTO? IaConfiguracion { get; set; }
     }
 }

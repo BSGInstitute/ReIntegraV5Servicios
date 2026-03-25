@@ -281,17 +281,33 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         {
             try
             {
-                var clasificacion = _unitOfWork.GestionContactoRepository.ObtenerClasificacionPorProveedor(dto.IdProveedor);
-                if (clasificacion == null)
-                    throw new Exception($"No se encontró clasificación de persona para el proveedor {dto.IdProveedor}.");
+                int idClasificacionPersona;
+
+                if (dto.IdClasificacionPersona.HasValue)
+                {
+                    // Flujo "General": el frontend envía cp.Id directamente desde el combo ObtenerDocentes.
+                    idClasificacionPersona = dto.IdClasificacionPersona.Value;
+                }
+                else if (dto.IdProveedor.HasValue)
+                {
+                    // Flujo "Asignado al Curso": el frontend envía IdProveedor desde la cascada PE → Proveedor.
+                    var clasificacion = _unitOfWork.GestionContactoRepository.ObtenerClasificacionPorProveedor(dto.IdProveedor.Value);
+                    if (clasificacion == null)
+                        throw new Exception($"No se encontró clasificación de persona para el proveedor {dto.IdProveedor.Value}.");
+                    idClasificacionPersona = clasificacion.IdClasificacionPersona;
+                }
+                else
+                {
+                    throw new Exception("Se debe enviar IdClasificacionPersona o IdProveedor.");
+                }
 
                 DateTime fechaActual = DateTime.Now;
 
                 var nuevaGestion = new GestionContacto
                 {
                     IdCentroCosto             = dto.IdCentroCosto,
-                    IdPersonalAsignado        = 6205,
-                    IdClasificacionPersona    = clasificacion.IdClasificacionPersona,
+                    IdPersonalAsignado        = dto.IdPersonalAsignado,
+                    IdClasificacionPersona    = idClasificacionPersona,
                     IdFaseGestionContacto     = 2,
                     IdOrigen                  = 1124,
                     IdEstadoGestionContacto   = 1,
@@ -308,6 +324,76 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 await _unitOfWork.CommitAsync();
 
                 return tGestionContacto.Id;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza de forma asíncrona la información de una oportunidad docente (Gestión de Contacto).
+        /// Realiza la validación de existencia, resuelve la clasificación de la persona 
+        /// y verifica si existen cambios antes de persistir en la base de datos.
+        /// </summary>
+        /// <param name="dto">Objeto con los datos necesarios para la actualización.</param>
+        /// <returns>El ID de la gestión de contacto actualizada o procesada.</returns>
+        public async Task<int> ActualizarOportunidadDocenteAsync(ActualizarOportunidadDocenteDTO dto)
+        {
+            try
+            {
+                var gestionExistenteDTO = await _unitOfWork.GestionContactoRepository.ObtenerPorIdAsync(dto.Id);
+                if (gestionExistenteDTO == null)
+                    throw new Exception("No se encontró la gestión de contacto a actualizar.");
+
+                int idClasificacionPersona;
+                if (dto.IdClasificacionPersona.HasValue)
+                {
+                    idClasificacionPersona = dto.IdClasificacionPersona.Value;
+                }
+                else if (dto.IdProveedor.HasValue)
+                {
+                    var clasificacion = _unitOfWork.GestionContactoRepository.ObtenerClasificacionPorProveedor(dto.IdProveedor.Value);
+                    if (clasificacion == null)
+                        throw new Exception($"No se encontró clasificación de persona para el proveedor {dto.IdProveedor.Value}.");
+                    idClasificacionPersona = clasificacion.IdClasificacionPersona;
+                }
+                else
+                {
+                    idClasificacionPersona = gestionExistenteDTO.IdClasificacionPersona ?? 0;
+                }
+
+                bool huboCambios = gestionExistenteDTO.IdCentroCosto != dto.IdCentroCosto ||
+                                  gestionExistenteDTO.IdPersonal_Asignado != dto.IdPersonalAsignado ||
+                                  gestionExistenteDTO.IdClasificacionPersona != idClasificacionPersona;
+
+                if (!huboCambios)
+                {
+                    return dto.Id;
+                }
+
+                var gestion = new GestionContacto
+                {
+                    Id = dto.Id,
+                    IdCentroCosto = dto.IdCentroCosto,
+                    IdPersonalAsignado = dto.IdPersonalAsignado,
+                    IdClasificacionPersona = idClasificacionPersona,
+                    IdFaseGestionContacto = gestionExistenteDTO.IdFaseGestionContacto ?? 2,
+                    IdOrigen = gestionExistenteDTO.IdOrigen ?? 1124,
+                    IdEstadoGestionContacto = gestionExistenteDTO.IdEstadoGestionContacto ?? 1,
+                    UltimoComentario = "Actualización de Oportunidad Docente",
+                    UsuarioModificacion = dto.UsuarioModificacion,
+                    FechaModificacion = DateTime.Now,
+                    Estado = true
+                };
+
+                _unitOfWork.GestionContactoRepository.Update(gestion);
+                await _unitOfWork.CommitAsync();
+
+                return gestion.Id;
             }
             catch (Exception)
             {
@@ -424,7 +510,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// Obtiene las actividades de un flujo congelado organizadas jerarquicamente segun categoria.
         /// </summary>
         public async Task<ActividadesFlujoPorCategoriaResponseDTO> ObtenerActividadesFlujoPorCategoriaAsync(int idGestionContactoDocenteFlujo)
-        {
+        { 
             try
             {
                 return await _unitOfWork.GestionContactoRepository.ObtenerActividadesFlujoPorCategoriaAsync(idGestionContactoDocenteFlujo);
@@ -474,14 +560,18 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// Autor: Lolo Zaa
         /// Fecha: 03/03/2026
         /// Version: 1.0
+        /// Autor: Lolo Zaa
+        /// Fecha: 19/03/2026
+        /// Version: 2.0
         /// <summary>
-        /// Marca una ocurrencia y activa disparadores dependientes.
+        /// Marca una ocurrencia y activa disparadores dependientes convirtiendolos a TIEMPO_FIJO.
+        /// Orquesta el flujo delegando toda la persistencia al repositorio.
         /// </summary>
         public async Task<ResultadoEjecucionDTO> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request)
         {
             try
             {
-                return await _unitOfWork.GestionContactoRepository.MarcarOcurrenciaAsync(request);
+                return await _unitOfWork.GestionContactoRepository.MarcarOcurrenciaConDisparadoresAsync(request);
             }
             catch (Exception)
             {

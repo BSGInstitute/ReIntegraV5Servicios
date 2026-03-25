@@ -252,8 +252,24 @@ builder.Services.AddScoped<BSI.Integra.Aplicacion.Transversal.Service.Interface.
 // WhatsApp Service
 builder.Services.AddScoped<BSI.Integra.Aplicacion.Transversal.Service.Interface.IWhatsAppMensajeEnviadoApiPlanificacionService, BSI.Integra.Aplicacion.Transversal.Service.Implementacion.WhatsAppMensajeEnviadoApiPlanificacionService>();
 
+// Servicio unificado de envio de actividades automaticas (Email + WhatsApp)
+builder.Services.AddScoped<BSI.Integra.Servicios.Services.IActividadEnvioService, BSI.Integra.Servicios.Services.ActividadEnvioService>();
+builder.Services.AddScoped<BSI.Integra.Aplicacion.Marketing.Service.Interface.IGmailCorreoService, BSI.Integra.Aplicacion.Marketing.Service.Implementacion.GmailCorreoService>();
+
+// Clasificacion de respuestas docentes via servicio externo Python
+builder.Services.AddScoped<BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface.IClasificacionRespuestaService, BSI.Integra.Servicios.Services.ClasificacionRespuestaService>();
+builder.Services.AddScoped<BSI.Integra.Servicios.Jobs.ClasificacionRespuestaJob>();
+builder.Services.AddHttpClient("PythonLlm", client =>
+{
+    client.BaseAddress = new Uri("http://ia-automatizacion-planificacion-api.bsginstitute.com");
+    client.Timeout     = TimeSpan.FromSeconds(30);
+});
+
+
+
 var connectionString = builder.Configuration.GetConnectionString("IntegraDB");
-//Registrar Hangfire
+
+// Registrar Hangfire
 builder.Services.AddHangfire(config =>
     config.UseSqlServerStorage(connectionString));
 builder.Services.AddHangfireServer();
@@ -268,12 +284,25 @@ builder.Services.AddSingleton<MongoDBContext>();
 // Registro del repositorio (Scoped para cada request)
 builder.Services.AddScoped<IMongoDocumentRepository, MongoDocumentRepository>();
 
+// Registrar el Job de Actividades Congeladas
+builder.Services.AddScoped<BSI.Integra.Servicios.Jobs.ActividadesCongeladasJob>();
 
 var app = builder.Build();
 
-// Dashboard opcional
+// Dashboard Hangfire
 app.UseHangfireDashboard("/hangfire");
- 
+
+// Configurar Job Recurrente: Procesar actividades congeladas cada 5 minutos
+//Hangfire.RecurringJob.AddOrUpdate<BSI.Integra.Servicios.Jobs.ActividadesCongeladasJob>(
+//    "procesar-actividades-congeladas",
+//    job => job.ProcesarActividadesPendientesAsync(),
+//    "*/5 * * * *");
+
+//// Clasificacion de respuestas docentes — cada 1 minuto
+//Hangfire.RecurringJob.AddOrUpdate<BSI.Integra.Servicios.Jobs.ClasificacionRespuestaJob>(
+//    "clasificacion-respuestas-docentes",
+//    job => job.ProcesarClasificacionesAsync(),
+//    "*/2 * * * *");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

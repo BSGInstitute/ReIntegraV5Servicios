@@ -94,12 +94,24 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     await ProcesarTipoDisparadorAsync(request, disparadorModel.Id, usuario, fechaActual);
 
                     // 3. Crear Detalle de Actividad
+                    // IdGestionDocenteActividadDetalleTipo = 2 → Manual (comunicación del asesor).
+                    // La columna IdPlantillaMedioComunicacion es NOT NULL en BD.
+                    // Las subactividades manuales usan la plantilla comodín Id=3 por convención.
+                    const int ID_PLANTILLA_MANUAL = 3;
+                    const int TIPO_DETALLE_MANUAL = 2;
                     var idPlantilla = request.Detalle.IdPlantillaMedioComunicacion;
+                    int idPlantillaFinal = (idPlantilla.HasValue && idPlantilla.Value > 0)
+                        ? idPlantilla.Value
+                        : request.Detalle.IdGestionDocenteActividadDetalleTipo == TIPO_DETALLE_MANUAL
+                            ? ID_PLANTILLA_MANUAL
+                            : throw new ArgumentException(
+                                "IdPlantillaMedioComunicacion es requerido para subactividades automáticas.");
+
                     var gestionDocenteActividadDetalle = new GestionDocenteActividadDetalle
                     {
                         IdGestionDocenteActividadCabecera = request.Detalle.IdGestionDocenteActividadCabecera,
                         IdGestionDocenteActividadDetalleTipo = request.Detalle.IdGestionDocenteActividadDetalleTipo,
-                        IdPlantillaMedioComunicacion = (idPlantilla.HasValue && idPlantilla.Value > 0) ? idPlantilla.Value : null,
+                        IdPlantillaMedioComunicacion = idPlantillaFinal,
                         IdGestionDocenteDisparadorDetalle = disparadorModel.Id,
                         Nombre = request.Detalle.Nombre,
                         Estado = true,
@@ -1520,6 +1532,182 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
 
                     scope.Complete();
                     return nuevoId;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 16/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza una ocurrencia de actividad existente.
+        /// Si el modo de marcado cambia a/desde Automático (2) o Warm (3), gestiona la configuración IA:
+        /// desactiva la configuración IA anterior si ya no aplica, o la crea si el nuevo modo la requiere.
+        /// Usa TransactionScope para garantizar atomicidad.
+        /// </summary>
+        /// <param name="request">DTO con el ID de la ocurrencia y los nuevos datos.</param>
+        public async Task<bool> ActualizarOcurrenciaAsync(ActualizarOcurrenciaRequestDTO request)
+        {
+            try
+            {
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    DateTime fechaActual = DateTime.Now;
+
+                    // 1. Obtener la ocurrencia existente
+                    var ocurrencia = _unitOfWork.GestionDocenteOcurrenciaRepository
+                        .GetAll()
+                        .FirstOrDefault(x => x.Id == request.Id && x.Estado == true);
+
+                    if (ocurrencia == null)
+                        throw new ArgumentException($"Ocurrencia con id {request.Id} no encontrada o ya fue eliminada");
+
+                    int modoMarcadoAnterior = ocurrencia.IdGestionDocenteModoMarcado;
+
+                    // 2. Actualizar los campos de la ocurrencia
+                    ocurrencia.Nombre = request.Nombre;
+                    ocurrencia.Descripcion = request.Descripcion;
+                    ocurrencia.IdGestionDocenteOcurrenciaTipo = request.IdGestionDocenteOcurrenciaTipo;
+                    ocurrencia.IdGestionDocenteModoMarcado = request.IdGestionDocenteModoMarcado;
+                    ocurrencia.RequiereComentario = request.RequiereComentario;
+                    ocurrencia.RequiereFechaHora = request.RequiereFechaHora;
+                    ocurrencia.UsuarioModificacion = request.Usuario;
+                    ocurrencia.FechaModificacion = fechaActual;
+
+                    _unitOfWork.GestionDocenteOcurrenciaRepository.Update(ocurrencia);
+                    await _unitOfWork.CommitAsync();
+
+                    bool modoAnteriorRequiereIa = modoMarcadoAnterior == 2 || modoMarcadoAnterior == 3;
+                    bool modoNuevoRequiereIa = request.IdGestionDocenteModoMarcado == 2 || request.IdGestionDocenteModoMarcado == 3;
+
+                    // 3. Si el nuevo modo ya no requiere IA, desactivar configuración existente
+                    if (modoAnteriorRequiereIa && !modoNuevoRequiereIa)
+                    {
+                        var iaConfigsExistentes = _unitOfWork.GestionDocenteOcurrenciaIaConfiguracionRepository
+                            .GetAll()
+                            .Where(x => x.IdGestionDocenteOcurrencia == request.Id && x.Estado == true)
+                            .ToList();
+
+                        foreach (var iaConfig in iaConfigsExistentes)
+                        {
+                            var ejemplos = _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository
+                                .GetAll()
+                                .Where(x => x.IdGestionDocenteOcurrenciaIaConfiguracion == iaConfig.Id && x.Estado == true)
+                                .ToList();
+
+                            foreach (var ejemplo in ejemplos)
+                            {
+                                _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository.Delete(ejemplo.Id, request.Usuario);
+                            }
+
+                            _unitOfWork.GestionDocenteOcurrenciaIaConfiguracionRepository.Delete(iaConfig.Id, request.Usuario);
+                        }
+
+                        await _unitOfWork.CommitAsync();
+                    }
+
+                    // 4. Si el nuevo modo requiere IA, actualizar o crear la configuración IA
+                    if (modoNuevoRequiereIa && request.IaConfiguracion != null)
+                    {
+                        var iaConfigExistente = _unitOfWork.GestionDocenteOcurrenciaIaConfiguracionRepository
+                            .GetAll()
+                            .FirstOrDefault(x => x.IdGestionDocenteOcurrencia == request.Id && x.Estado == true);
+
+                        if (iaConfigExistente != null)
+                        {
+                            // Actualizar configuración IA existente
+                            iaConfigExistente.Prompt = request.IaConfiguracion.Prompt;
+                            iaConfigExistente.IdGestionDocenteConfianzaUmbralNivel = request.IaConfiguracion.IdGestionDocenteConfianzaUmbralNivel;
+                            iaConfigExistente.UsuarioModificacion = request.Usuario;
+                            iaConfigExistente.FechaModificacion = fechaActual;
+
+                            _unitOfWork.GestionDocenteOcurrenciaIaConfiguracionRepository.Update(iaConfigExistente);
+                            await _unitOfWork.CommitAsync();
+                        }
+                        else
+                        {
+                            // Crear nueva configuración IA (cambio de modo Manual → Automático/Warm)
+                            var nuevaIaConfig = new GestionDocenteOcurrenciaIaConfiguracion
+                            {
+                                Prompt = request.IaConfiguracion.Prompt,
+                                IdGestionDocenteConfianzaUmbralNivel = request.IaConfiguracion.IdGestionDocenteConfianzaUmbralNivel,
+                                IdGestionDocenteOcurrencia = request.Id,
+                                Estado = true,
+                                UsuarioCreacion = request.Usuario,
+                                UsuarioModificacion = request.Usuario,
+                                FechaCreacion = fechaActual,
+                                FechaModificacion = fechaActual
+                            };
+
+                            _unitOfWork.GestionDocenteOcurrenciaIaConfiguracionRepository.Add(nuevaIaConfig);
+                            await _unitOfWork.CommitAsync();
+                        }
+                    }
+
+                    scope.Complete();
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 16/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Elimina lógicamente (soft-delete) una ocurrencia de actividad y su configuración IA asociada (si existe).
+        /// Usa TransactionScope para garantizar atomicidad.
+        /// </summary>
+        /// <param name="id">Identificador de la ocurrencia a eliminar.</param>
+        /// <param name="usuario">Usuario que realiza la operación.</param>
+        public async Task<bool> EliminarOcurrenciaAsync(int id, string usuario)
+        {
+            try
+            {
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    // 1. Verificar que la ocurrencia existe
+                    var ocurrencia = _unitOfWork.GestionDocenteOcurrenciaRepository
+                        .GetAll()
+                        .FirstOrDefault(x => x.Id == id && x.Estado == true);
+
+                    if (ocurrencia == null)
+                        throw new ArgumentException($"Ocurrencia con id {id} no encontrada o ya fue eliminada");
+
+                    // 2. Eliminar configuración IA y ejemplos de entrenamiento asociados
+                    var iaConfigs = _unitOfWork.GestionDocenteOcurrenciaIaConfiguracionRepository
+                        .GetAll()
+                        .Where(x => x.IdGestionDocenteOcurrencia == id && x.Estado == true)
+                        .ToList();
+
+                    foreach (var iaConfig in iaConfigs)
+                    {
+                        var ejemplos = _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository
+                            .GetAll()
+                            .Where(x => x.IdGestionDocenteOcurrenciaIaConfiguracion == iaConfig.Id && x.Estado == true)
+                            .ToList();
+
+                        foreach (var ejemplo in ejemplos)
+                        {
+                            _unitOfWork.GestionDocenteIaEntrenamientoEjemploRepository.Delete(ejemplo.Id, usuario);
+                        }
+
+                        _unitOfWork.GestionDocenteOcurrenciaIaConfiguracionRepository.Delete(iaConfig.Id, usuario);
+                    }
+
+                    // 3. Eliminar la ocurrencia
+                    _unitOfWork.GestionDocenteOcurrenciaRepository.Delete(id, usuario);
+
+                    await _unitOfWork.CommitAsync();
+                    scope.Complete();
+                    return true;
                 }
             }
             catch (Exception)

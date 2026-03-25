@@ -6,6 +6,8 @@ using BSI.Integra.Aplicacion.Servicios.Service.Implementacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
+using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
+using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using Microsoft.AspNetCore.Http;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -24,10 +26,12 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
     {
         private IUnitOfWork _unitOfWork;
         private Mapper _mapper;
+        private readonly IReemplazoEtiquetaPlantillaService _reemplazoEtiquetaService;
         public List<GmailCorreoArchivoAdjuntoDTO> ListaGmailCorreoArchivoAdjunto = new List<GmailCorreoArchivoAdjuntoDTO>();
         public GmailCorreoService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+            _reemplazoEtiquetaService = new ReemplazoEtiquetaPlantillaService(_unitOfWork);
 
             var config = new MapperConfiguration(cfg =>
             {
@@ -458,8 +462,26 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
 
                 var asesor = _unitOfWork.PersonalRepository.ObtenerNombreApellido(informacionCorreo.Remitente);
 
-                byte[] dataMensaje = Convert.FromBase64String(informacionCorreo.Mensaje);
-                var mensajeCorreo = Encoding.UTF8.GetString(dataMensaje);
+                string mensajeCorreo;
+                string asuntoCorreo;
+
+                if (informacionCorreo.IdPlantilla.HasValue && informacionCorreo.IdPlantilla.Value > 0)
+                {
+                    var plantillaCorreo = _unitOfWork.PlantillaRepository.ObtenerPlantillaCorreo(informacionCorreo.IdPlantilla.Value);
+                    if (plantillaCorreo == null)
+                        throw new BadRequestException("Plantilla no encontrada");
+                    mensajeCorreo = plantillaCorreo.Cuerpo;
+                    asuntoCorreo = plantillaCorreo.Asunto;
+                }
+                else
+                {
+                    byte[] dataMensaje = Convert.FromBase64String(informacionCorreo.Mensaje);
+                    mensajeCorreo = Encoding.UTF8.GetString(dataMensaje);
+                    asuntoCorreo = informacionCorreo.Asunto;
+                }
+
+                // Reemplazo de etiquetas de planificación
+                mensajeCorreo = _reemplazoEtiquetaService.ReemplazarEtiquetasPlanificacion(mensajeCorreo, informacionCorreo.IdCentroCosto ?? 0, informacionCorreo.IdClasificacionPersona ?? 0);
 
                 if (!mensajeCorreo.Contains("https://repositorioweb.blob.core.windows.net/firmas/"))
                 {
@@ -476,7 +498,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                 {
                     Sender = informacionCorreo.Remitente,
                     Recipient = informacionCorreo.Destinatario,
-                    Subject = informacionCorreo.Asunto,
+                    Subject = asuntoCorreo,
                     Message = mensajeCorreo,
                     Cc = informacionCorreo.DestinatarioCc ?? "",
                     Bcc = informacionCorreo.DestinatarioBcc ?? "",
@@ -510,7 +532,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                         EstadoEnvio = 1,
                         IdMandrilTipoEnvio = 2, //Manual = 2 PENDIENTE AJUSTE DTO
                         FechaEnvio = DateTime.Now,
-                        Asunto = informacionCorreo.Asunto,
+                        Asunto = asuntoCorreo,
                         FkMandril = mensaje.MensajeId,
                         Estado = true,
                         FechaCreacion = DateTime.Now,
@@ -528,7 +550,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                     GmailCorreo gmailCorreo = new GmailCorreo
                     {
                         IdEtiqueta = 1,//sent:1 , inbox:2
-                        Asunto = informacionCorreo.Asunto,
+                        Asunto = asuntoCorreo,
                         Fecha = DateTime.Now,
                         EmailBody = mensajeCorreo,
                         Seen = false,
@@ -732,6 +754,41 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
             try
             {
                 return _unitOfWork.GmailCorreoRepository.ObtenerCorreosAlumnosSoloVentas(emailAlumno);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 20/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Previsualiza un mensaje de planificación: carga la plantilla y reemplaza etiquetas
+        /// sin enviar el correo ni persistir nada.
+        /// </summary>
+        /// <param name="request">Datos de la plantilla y contexto de reemplazo</param>
+        /// <returns>PreviewMensajePlaResponseDTO con asunto y cuerpo HTML procesado</returns>
+        public PreviewMensajePlaResponseDTO PreviewMensajePla(PreviewMensajePlaRequestDTO request)
+        {
+            try
+            {
+                var plantillaCorreo = _unitOfWork.PlantillaRepository.ObtenerPlantillaCorreo(request.IdPlantilla);
+                if (plantillaCorreo == null)
+                    throw new BadRequestException("Plantilla no encontrada");
+
+                var asunto = plantillaCorreo.Asunto;
+                var cuerpo = plantillaCorreo.Cuerpo;
+
+                var cuerpoReemplazado = _reemplazoEtiquetaService
+                    .ReemplazarEtiquetasPlanificacion(cuerpo, request.IdCentroCosto, request.IdClasificacionPersona);
+
+                return new PreviewMensajePlaResponseDTO
+                {
+                    Asunto = asunto,
+                    CuerpoHtml = cuerpoReemplazado
+                };
             }
             catch (Exception ex)
             {

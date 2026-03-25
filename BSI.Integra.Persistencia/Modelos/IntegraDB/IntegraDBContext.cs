@@ -26541,6 +26541,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.HasOne(d => d.IdGestionDocenteDisparadorReglaTiempoFijoNavigation)
                     .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoFijoCongelados)
                     .HasForeignKey(d => d.IdGestionDocenteDisparadorReglaTiempoFijo)
+                    .IsRequired(false)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_T_GestionDocenteDisparadorReglaTiempoFijoCongelado_IdGestionDocenteDisparadorReglaTiempoFijo");
 

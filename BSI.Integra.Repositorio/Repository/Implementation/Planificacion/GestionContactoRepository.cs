@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -361,7 +362,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 string query = "EXEC fin.SP_ProveedorClasificacionPorId @IdProveedor";
                 string resultado = _dapperRepository.QueryDapper(query, new { IdProveedor = idProveedor });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                    return JsonConvert.DeserializeObject<IEnumerable<ProveedorClasificacionDTO>>(resultado).FirstOrDefault();
+                {
+                    var lista = JsonConvert.DeserializeObject<IEnumerable<ProveedorClasificacionDTO>>(resultado);
+                    // Prioridad: tipo 4 (Proveedor) primero; si no existe, cualquier clasificación disponible.
+                    return lista.FirstOrDefault(x => x.IdTipoPersona == 4) ?? lista.FirstOrDefault();
+                }
                 return null;
             }
             catch (Exception ex)
@@ -540,8 +545,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     FROM pla.T_GestionContacto gc WITH(NOLOCK)
                     LEFT JOIN conf.T_ClasificacionPersona cp WITH(NOLOCK)
                         ON cp.Id = gc.IdClasificacionPersona
+                    -- Tipo 4: Proveedor
                     LEFT JOIN fin.T_Proveedor p WITH(NOLOCK)
-                        ON p.Id = cp.IdTablaOriginal
+                        ON p.Id = cp.IdTablaOriginal AND cp.IdTipoPersona = 4
+                    -- Tipo 6: DocentePostulante
+                    LEFT JOIN pla.T_DocentePostulante dp WITH(NOLOCK)
+                        ON dp.Id = cp.IdTablaOriginal AND cp.IdTipoPersona = 6
                     LEFT JOIN pla.T_CentroCosto cc WITH(NOLOCK)
                         ON cc.Id = gc.IdCentroCosto
                     LEFT JOIN pla.T_GestionContactoDocenteFlujo gcdf WITH(NOLOCK)
@@ -550,33 +559,49 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                         ON gdf.Id = gcdf.IdGestionDocenteFlujo
                     WHERE gc.Estado = 1
                       AND (@Busqueda IS NULL OR @Busqueda = ''
-                           OR p.RazonSocial LIKE '%' + @Busqueda + '%'
-                           OR p.Nombre1    LIKE '%' + @Busqueda + '%'
-                           OR cc.Nombre    LIKE '%' + @Busqueda + '%'
-                           OR gdf.Nombre   LIKE '%' + @Busqueda + '%')";
+                           OR p.RazonSocial     LIKE '%' + @Busqueda + '%'
+                           OR p.Nombre1         LIKE '%' + @Busqueda + '%'
+                           OR dp.Nombre1        LIKE '%' + @Busqueda + '%'
+                           OR dp.ApellidoPaterno LIKE '%' + @Busqueda + '%'
+                           OR cc.Nombre         LIKE '%' + @Busqueda + '%'
+                           OR gdf.Nombre        LIKE '%' + @Busqueda + '%')";
 
                 string queryData = @"
                     SELECT
                         gc.Id,
                         gc.IdClasificacionPersona AS DocenteId,
                         COALESCE(LTRIM(RTRIM(
-                            CASE WHEN p.Nombre1 IS NOT NULL AND p.Nombre1 <> ''
-                                 THEN p.Nombre1 + ' ' + COALESCE(p.ApePaterno, '')
-                                 ELSE p.RazonSocial
+                            CASE
+                                WHEN cp.IdTipoPersona = 6
+                                    THEN dp.Nombre1 + ' ' +
+                                         COALESCE(dp.Nombre2 + ' ', '') +
+                                         COALESCE(dp.ApellidoPaterno, '') + ' ' +
+                                         COALESCE(dp.ApellidoMaterno, '')
+                                WHEN p.Nombre1 IS NOT NULL AND p.Nombre1 <> ''
+                                    THEN p.Nombre1 + ' ' + COALESCE(p.ApePaterno, '')
+                                ELSE p.RazonSocial
                             END
                         )), 'Sin nombre') AS DocenteNombre,
                         GDC.Id AS IdCategoria,
                         GDC.Nombre AS NombreCategoria,
-                        C.IdPais,
+                        gc.IdCentroCosto,
+	                    gc.IdPersonal_Asignado,
+                        COALESCE(C.IdPais, CDP.IdPais) AS IdPais,
                         COALESCE(cc.Nombre, '')  AS Curso,
                         COALESCE(gdf.Nombre, '') AS FlujoAsignado
                     FROM pla.T_GestionContacto gc WITH(NOLOCK)
                     LEFT JOIN conf.T_ClasificacionPersona cp WITH(NOLOCK)
                         ON cp.Id = gc.IdClasificacionPersona
+                    -- Tipo 4: Proveedor
                     LEFT JOIN fin.T_Proveedor p WITH(NOLOCK)
-                        ON p.Id = cp.IdTablaOriginal
-                    LEFT JOIN conf.T_Ciudad C
-                        ON p.IdCiudad=c.Id AND c.Estado=1
+                        ON p.Id = cp.IdTablaOriginal AND cp.IdTipoPersona = 4
+                    LEFT JOIN conf.T_Ciudad C WITH(NOLOCK)
+                        ON C.Id = p.IdCiudad AND C.Estado = 1
+                    -- Tipo 6: DocentePostulante
+                    LEFT JOIN pla.T_DocentePostulante dp WITH(NOLOCK)
+                        ON dp.Id = cp.IdTablaOriginal AND cp.IdTipoPersona = 6
+                    LEFT JOIN conf.T_Ciudad CDP WITH(NOLOCK)
+                        ON CDP.Id = dp.IdCiudad AND CDP.Estado = 1
                     LEFT JOIN pla.T_CentroCosto cc WITH(NOLOCK)
                         ON cc.Id = gc.IdCentroCosto
                     LEFT JOIN pla.T_GestionContactoDocenteFlujo gcdf WITH(NOLOCK)
@@ -587,10 +612,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                         ON GDC.Id = gdf.IdGestionDocenteCategoria
                     WHERE gc.Estado = 1
                       AND (@Busqueda IS NULL OR @Busqueda = ''
-                           OR p.RazonSocial LIKE '%' + @Busqueda + '%'
-                           OR p.Nombre1    LIKE '%' + @Busqueda + '%'
-                           OR cc.Nombre    LIKE '%' + @Busqueda + '%'
-                           OR gdf.Nombre   LIKE '%' + @Busqueda + '%')
+                           OR p.RazonSocial      LIKE '%' + @Busqueda + '%'
+                           OR p.Nombre1          LIKE '%' + @Busqueda + '%'
+                           OR dp.Nombre1         LIKE '%' + @Busqueda + '%'
+                           OR dp.ApellidoPaterno  LIKE '%' + @Busqueda + '%'
+                           OR cc.Nombre          LIKE '%' + @Busqueda + '%'
+                           OR gdf.Nombre         LIKE '%' + @Busqueda + '%')
                     ORDER BY gc.FechaCreacion DESC
                     OFFSET @Offset ROWS FETCH NEXT @PorPagina ROWS ONLY";
 
@@ -639,8 +666,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             try
             {
                 string query = @"
+                    -- Tipo 4: Proveedor (fin.T_Proveedor)
+                    -- Id = cp.Id (ClasificacionPersona) para evitar colisión con IDs de tipo 6
                     SELECT DISTINCT
-                        p.Id AS Id,
+                        cp.Id AS Id,
                         cp.IdTipoPersona,
                         tp.Nombre AS NombreTipoPersona,
                         COALESCE(LTRIM(RTRIM(
@@ -648,16 +677,43 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                  THEN p.Nombre1 + ' ' + COALESCE(p.ApePaterno, '')
                                  ELSE p.RazonSocial
                             END
-                        )), 'Sin nombre') AS Nombre
+                        )), 'Sin nombre') AS Nombre,
+                        p.Id AS IdTablaOriginal
                     FROM conf.T_ClasificacionPersona cp WITH(NOLOCK)
                     JOIN fin.T_Proveedor p WITH(NOLOCK)
                         ON p.Id = cp.IdTablaOriginal
                     LEFT JOIN conf.T_TipoPersona tp WITH(NOLOCK)
-                        ON tp.Id=cp.IdTipoPersona
+                        ON tp.Id = cp.IdTipoPersona
                     WHERE cp.Estado = 1
                       AND p.Estado = 1
-                      AND tp.Id IN (4,6)
-                      AND tp.Estado =1
+                      AND tp.Id = 4
+                      AND tp.Estado = 1
+
+                    UNION
+
+                    -- Tipo 6: DocentePostulante (pla.T_DocentePostulante)
+                    -- Id = cp.Id (ClasificacionPersona) para evitar colisión con IDs de tipo 4
+                    SELECT DISTINCT
+                        cp.Id AS Id,
+                        cp.IdTipoPersona,
+                        tp.Nombre AS NombreTipoPersona,
+                        COALESCE(LTRIM(RTRIM(
+                            dp.Nombre1 + ' ' +
+                            COALESCE(dp.Nombre2 + ' ', '') +
+                            COALESCE(dp.ApellidoPaterno, '') + ' ' +
+                            COALESCE(dp.ApellidoMaterno, '')
+                        )), 'Sin nombre') AS Nombre,
+                        dp.Id AS IdTablaOriginal
+                    FROM conf.T_ClasificacionPersona cp WITH(NOLOCK)
+                    JOIN pla.T_DocentePostulante dp WITH(NOLOCK)
+                        ON dp.Id = cp.IdTablaOriginal
+                    LEFT JOIN conf.T_TipoPersona tp WITH(NOLOCK)
+                        ON tp.Id = cp.IdTipoPersona
+                    WHERE cp.Estado = 1
+                      AND dp.Estado = 1
+                      AND tp.Id = 6
+                      AND tp.Estado = 1
+
                     ORDER BY Nombre";
 
                 string resultado = _dapperRepository.QueryDapper(query, null);
@@ -674,11 +730,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
         /// Autor: Joseph Llanque
         /// Fecha: 28/02/2026
-        /// Version: 1.0
+        /// Version: 1.1
         /// <summary>
         /// Obtiene las actividades de un flujo congelado agrupadas jerarquicamente segun categoria.
         /// Categoria 1 (General): retorna Actividades con Detalles y Disparadores.
         /// Categoria 2 (Ejecucion Curso): retorna Sesiones con Actividades, Detalles y Disparadores.
+        /// Incluye ocurrencias congeladas asociadas a cada detalle (segundo result set del SP).
         /// </summary>
         public async Task<ActividadesFlujoPorCategoriaResponseDTO> ObtenerActividadesFlujoPorCategoriaAsync(int idGestionContactoDocenteFlujo)
         {
@@ -687,23 +744,21 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 var parameters = new DynamicParameters();
                 parameters.Add("@IdGestionContactoDocenteFlujo", idGestionContactoDocenteFlujo, DbType.Int32);
 
-                string resultado = await _dapperRepository.QuerySPDapperAsync(
-                    "pla.SP_GestionDocenteActividadesFlujoPorCategoria",
-                    parameters
-                );
+                List<ActividadFlujoRawDTO> registrosPlanos;
+                List<OcurrenciaCongeladaDTO> ocurrenciasPlanas;
 
-                if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
+                using (var conn = _connectionFactory.GetConnection)
                 {
-                    return new ActividadesFlujoPorCategoriaResponseDTO
+                    using (var multi = await conn.QueryMultipleAsync(
+                        "pla.SP_GestionDocenteActividadesFlujoPorCategoria",
+                        parameters,
+                        commandType: CommandType.StoredProcedure))
                     {
-                        IdCategoria = 0,
-                        NombreCategoria = "Sin categoria",
-                        Sesiones = new List<SesionConActividadesDTO>(),
-                        Actividades = new List<ActividadCabeceraDTO>()
-                    };
+                        registrosPlanos = (await multi.ReadAsync<ActividadFlujoRawDTO>()).ToList();
+                        ocurrenciasPlanas = (await multi.ReadAsync<OcurrenciaCongeladaDTO>()).ToList();
+                    }
                 }
 
-                var registrosPlanos = JsonConvert.DeserializeObject<List<ActividadFlujoRawDTO>>(resultado);
                 if (registrosPlanos == null || !registrosPlanos.Any())
                 {
                     return new ActividadesFlujoPorCategoriaResponseDTO
@@ -714,6 +769,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                         Actividades = new List<ActividadCabeceraDTO>()
                     };
                 }
+
+                var ocurrenciasPorDetalle = ocurrenciasPlanas
+                    .GroupBy(o => o.IdGestionDocenteActividadDetalleCongelada)
+                    .ToDictionary(g => g.Key, g => g.ToList() as IEnumerable<OcurrenciaCongeladaDTO>);
 
                 var primerRegistro = registrosPlanos.First();
                 bool esCategoria2 = primerRegistro.IdSesion.HasValue;
@@ -762,7 +821,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                             r.NombreDetalle,
                                             r.NombrePlantilla,
                                             r.MedioComunicacion,
-                                            r.EstadoEjecucionDetalle
+                                            r.EstadoEjecucionDetalle,
+                                            r.NombreOcurrenciaMarcada,
+                                            r.TipoOcurrenciaMarcada,
+                                            r.ComentarioOcurrenciaMarcada,
+                                            r.UsuarioEjecucion
                                         })
                                         .Select(detalleGroup => new ActividadDetalleDTO
                                         {
@@ -772,6 +835,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                             NombrePlantilla = detalleGroup.Key.NombrePlantilla,
                                             MedioComunicacion = detalleGroup.Key.MedioComunicacion,
                                             EstadoEjecucionDetalle = detalleGroup.Key.EstadoEjecucionDetalle,
+                                            NombreOcurrenciaMarcada = detalleGroup.Key.NombreOcurrenciaMarcada,
+                                            TipoOcurrenciaMarcada = detalleGroup.Key.TipoOcurrenciaMarcada,
+                                            ComentarioOcurrenciaMarcada = detalleGroup.Key.ComentarioOcurrenciaMarcada,
+                                            UsuarioEjecucion = detalleGroup.Key.UsuarioEjecucion,
                                             Disparadores = detalleGroup.Select(r => new DisparadorDTO
                                             {
                                                 IdDisparadorCongelado = r.IdDisparadorCongelado,
@@ -789,13 +856,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                                 TieneTiempoRelativo = r.TieneTiempoRelativo,
                                                 TieneEvento = r.TieneEvento,
                                                 TieneOcurrenciaPrevia = r.TieneOcurrenciaPrevia
-                                            }).ToList()
+                                            }).ToList(),
+                                            Ocurrencias = ocurrenciasPorDetalle.TryGetValue(detalleGroup.Key.IdGestionDocenteActividadDetalleCongelada, out var ocs) ? ocs : new List<OcurrenciaCongeladaDTO>()
                                         }).ToList()
                                 }).ToList()
                         }).ToList();
 
                     return new ActividadesFlujoPorCategoriaResponseDTO
                     {
+                        IdGestionContactoFlujoCongelado = primerRegistro.IdGestionContactoFlujoCongelado,
                         IdCategoria = 2,
                         NombreCategoria = "Ejecucion Curso",
                         IdGestionDocenteActividadCabecera = registrosPlanos.First().IdGestionDocenteActividadCabecera,
@@ -828,7 +897,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                     r.NombreDetalle,
                                     r.NombrePlantilla,
                                     r.MedioComunicacion,
-                                    r.EstadoEjecucionDetalle
+                                    r.EstadoEjecucionDetalle,
+                                    r.NombreOcurrenciaMarcada,
+                                    r.TipoOcurrenciaMarcada,
+                                    r.ComentarioOcurrenciaMarcada,
+                                    r.UsuarioEjecucion
                                 })
                                 .Select(detalleGroup => new ActividadDetalleDTO
                                 {
@@ -838,6 +911,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                     NombrePlantilla = detalleGroup.Key.NombrePlantilla,
                                     MedioComunicacion = detalleGroup.Key.MedioComunicacion,
                                     EstadoEjecucionDetalle = detalleGroup.Key.EstadoEjecucionDetalle,
+                                    NombreOcurrenciaMarcada = detalleGroup.Key.NombreOcurrenciaMarcada,
+                                    TipoOcurrenciaMarcada = detalleGroup.Key.TipoOcurrenciaMarcada,
+                                    ComentarioOcurrenciaMarcada = detalleGroup.Key.ComentarioOcurrenciaMarcada,
+                                    UsuarioEjecucion = detalleGroup.Key.UsuarioEjecucion,
                                     Disparadores = detalleGroup.Select(r => new DisparadorDTO
                                     {
                                         IdDisparadorCongelado = r.IdDisparadorCongelado,
@@ -855,12 +932,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                         TieneTiempoRelativo = r.TieneTiempoRelativo,
                                         TieneEvento = r.TieneEvento,
                                         TieneOcurrenciaPrevia = r.TieneOcurrenciaPrevia
-                                    }).ToList()
+                                    }).ToList(),
+                                    Ocurrencias = ocurrenciasPorDetalle.TryGetValue(detalleGroup.Key.IdGestionDocenteActividadDetalleCongelada, out var ocs) ? ocs : new List<OcurrenciaCongeladaDTO>()
                                 }).ToList()
                         }).ToList();
 
                     return new ActividadesFlujoPorCategoriaResponseDTO
                     {
+                        IdGestionContactoFlujoCongelado = primerRegistro.IdGestionContactoFlujoCongelado,
                         IdCategoria = 1,
                         NombreCategoria = "General",
                         IdGestionDocenteActividadCabecera = registrosPlanos.First().IdGestionDocenteActividadCabecera,
@@ -956,91 +1035,217 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         }
 
         /// Autor: Lolo Zaa
-        /// Fecha: 03/03/2026
+        /// Fecha: 17/03/2026
         /// Version: 1.0
         /// <summary>
-        /// Marca una ocurrencia y activa disparadores dependientes.
+        /// Obtiene los disparadores ejecutados cuyos resultados (ocurrencias) estan
+        /// pendientes de clasificacion por el servicio externo de IA.
+        /// Llama a pla.SP_GestionDocenteDisparadorPendienteClasificacion.
         /// </summary>
-        public async Task<ResultadoEjecucionDTO> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request)
+        public async Task<List<DisparadorPendienteClasificacionDTO>> ObtenerDisparadoresPendientesClasificacionAsync()
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                string resultado = await _dapperRepository.QuerySPDapperAsync(
+                    "pla.SP_GestionDocenteDisparadorPendienteClasificacion",
+                    parameters
+                );
+
+                if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
+                    return new List<DisparadorPendienteClasificacionDTO>();
+
+                return JsonConvert.DeserializeObject<List<DisparadorPendienteClasificacionDTO>>(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 03/03/2026
+        /// Version: 2.0
+        /// <summary>
+        /// Llama al SP pla.SP_GestionDocenteOcurrenciaMarcar que inserta en
+        /// T_GestionDocenteOcurrenciaMarcada y retorna los disparadores dependientes.
+        /// La logica de conversion de disparadores vive en GestionContactoService.
+        /// </summary>
+        public async Task<List<DisparadorConversionDTO>> MarcarOcurrenciaAsync(MarcarOcurrenciaRequestDTO request)
         {
             try
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("@IdGestionDocenteOcurrenciaCongelada", request.IdGestionDocenteOcurrenciaCongelada, DbType.Int32);
-                parameters.Add("@IdGestionContacto", request.IdGestionContacto, DbType.Int32);
-                parameters.Add("@Comentario", request.Comentario, DbType.String);
-                parameters.Add("@FechaHoraOcurrencia", request.FechaHoraOcurrencia, DbType.DateTime);
-                parameters.Add("@UsuarioCreacion", request.UsuarioCreacion, DbType.String, size: 50);
+                parameters.Add("@IdGestionContacto",                   request.IdGestionContacto,                  DbType.Int32);
+                parameters.Add("@Comentario",                          request.Comentario,                         DbType.String);
+                parameters.Add("@FechaHoraOcurrencia",                 request.FechaHoraOcurrencia,                DbType.DateTime);
+                parameters.Add("@UsuarioCreacion",                     request.UsuarioCreacion,                    DbType.String, size: 50);
 
                 string resultado = await _dapperRepository.QuerySPDapperAsync(
                     "pla.SP_GestionDocenteOcurrenciaMarcar",
                     parameters
                 );
 
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                {
-                    var resultadoObj = JsonConvert.DeserializeObject<dynamic>(resultado);
-                    var primerElemento = ((Newtonsoft.Json.Linq.JArray)resultadoObj)[0];
+                if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
+                    return new List<DisparadorConversionDTO>();
 
+                return JsonConvert.DeserializeObject<List<DisparadorConversionDTO>>(resultado)
+                    ?? new List<DisparadorConversionDTO>();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Lolo Zaa
+        /// Fecha: 19/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Orquesta la persistencia completa del marcado de ocurrencia:
+        /// 1. Llama al SP (inserta ocurrencia marcada + retorna disparadores dependientes)
+        /// 2. Por cada disparador: crea regla fija congelada (solo tablas congeladas, sin tocar maestras)
+        /// 3. Actualiza estados y genera logs de auditoria.
+        /// Todo dentro de una transaccion.
+        /// </summary>
+        public async Task<ResultadoEjecucionDTO> MarcarOcurrenciaConDisparadoresAsync(MarcarOcurrenciaRequestDTO request)
+        {
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            try
+            {
+                // 1. Llamar al SP — inserta ocurrencia marcada y retorna disparadores dependientes
+                var disparadoresData = await MarcarOcurrenciaAsync(request);
+
+                DateTime fechaHoraMarcado = DateTime.Now;
+
+                // 1b. Actualizar T_GestionDocenteOcurrenciaCongelada a EJECUTADO (siempre, con o sin dependientes)
+                int idEstadoEjecutado = await _dbContext.TGestionDocenteEstadoEjecucions
+                    .Where(e => e.Codigo == "EJECUTADO")
+                    .Select(e => e.Id)
+                    .FirstAsync();
+
+                var ocurrenciaCongelada = await _dbContext.TGestionDocenteOcurrenciaCongelada
+                    .FindAsync(request.IdGestionDocenteOcurrenciaCongelada);
+
+                if (ocurrenciaCongelada != null)
+                {
+                    ocurrenciaCongelada.IdGestionDocenteEstadoEjecucion = idEstadoEjecutado;
+                    ocurrenciaCongelada.UsuarioModificacion             = request.UsuarioCreacion;
+                    ocurrenciaCongelada.FechaModificacion               = fechaHoraMarcado;
+                }
+
+                if (!disparadoresData.Any())
+                {
+                    await _dbContext.SaveChangesAsync();
+                    await transaction.CommitAsync();
                     return new ResultadoEjecucionDTO
                     {
-                        Exitoso = true,
-                        IdRegistro = (int)(primerElemento["IdOcurrenciaMarcada"] ?? 0),
-                        Mensaje = "Ocurrencia marcada correctamente"
+                        Exitoso    = true,
+                        IdRegistro = 0,
+                        Mensaje    = "Ocurrencia marcada correctamente. Sin disparadores dependientes."
                     };
                 }
 
+                int idOcurrenciaMarcada = disparadoresData.First().IdGestionDocenteOcurrenciaMarcada;
+
+                foreach (var disparador in disparadoresData)
+                {
+                    // 2a. Regla fija congelada — solo toca tablas congeladas.
+                    // IdGestionDocenteDisparadorReglaTiempo viene del SP (relativo congelado existente).
+                    // IdGestionDocenteDisparadorReglaTiempoFijo es null porque el disparador era RELATIVO
+                    // y no existe maestro FIJO previo para este detalle.
+                    if (disparador.IdGestionDocenteDisparadorReglaTiempo.HasValue)
+                    {
+                        var reglaFijaCongelada = new TGestionDocenteDisparadorReglaTiempoFijoCongelado
+                        {
+                            IdGestionDocenteDisparadorCongelado       = disparador.IdGestionDocenteDisparadorCongelado,
+                            IdGestionDocenteDisparadorReglaTiempoFijo = null,
+                            IdGestionDocenteDisparadorReglaTiempo     = disparador.IdGestionDocenteDisparadorReglaTiempo.Value,
+                            IdGestionDocenteDisparadorDetalle         = disparador.IdGestionDocenteDisparadorDetalle,
+                            Fecha                                     = disparador.FechaCalculada,
+                            IdGestionDocenteEstadoEjecucion           = disparador.IdGestionDocenteEstadoPorEjecutar,
+                            Estado              = true,
+                            UsuarioCreacion     = request.UsuarioCreacion,
+                            UsuarioModificacion = request.UsuarioCreacion,
+                            FechaCreacion       = fechaHoraMarcado,
+                            FechaModificacion   = fechaHoraMarcado
+                        };
+                        _dbContext.TGestionDocenteDisparadorReglaTiempoFijoCongelados.Add(reglaFijaCongelada);
+                    }
+
+                    // 2d. Actualizar disparador congelado
+                    var disparadorCongelado = await _dbContext.TGestionDocenteDisparadorCongelados
+                        .FindAsync(disparador.IdGestionDocenteDisparadorCongelado);
+
+                    if (disparadorCongelado != null)
+                    {
+                        var estadoAnterior = disparadorCongelado.IdGestionDocenteEstadoEjecucion;
+
+                        disparadorCongelado.IdGestionDocenteDisparadorFlujoTipo = 1;
+                        disparadorCongelado.IdGestionDocenteEstadoEjecucion     = disparador.IdGestionDocenteEstadoPorEjecutar;
+                        disparadorCongelado.UsuarioModificacion                 = request.UsuarioCreacion;
+                        disparadorCongelado.FechaModificacion                   = fechaHoraMarcado;
+
+                        _dbContext.TGestionDocenteDisparadorCongeladoLogs.Add(new TGestionDocenteDisparadorCongeladoLog
+                        {
+                            IdGestionDocenteDisparadorCongelado     = disparador.IdGestionDocenteDisparadorCongelado,
+                            IdGestionDocenteEstadoEjecucionAnterior = estadoAnterior,
+                            IdGestionDocenteEstadoEjecucionNuevo    = disparador.IdGestionDocenteEstadoPorEjecutar,
+                            Estado              = true,
+                            UsuarioCreacion     = request.UsuarioCreacion,
+                            UsuarioModificacion = request.UsuarioCreacion,
+                            FechaCreacion       = fechaHoraMarcado,
+                            FechaModificacion   = fechaHoraMarcado
+                        });
+                    }
+
+                    // 2e. Actualizar actividad detalle
+                    var actividadDetalle = await _dbContext.TGestionDocenteActividadDetalleCongelada
+                        .FindAsync(disparador.IdGestionDocenteActividadDetalleCongelada);
+
+                    if (actividadDetalle != null &&
+                        actividadDetalle.IdGestionDocenteEstadoEjecucion != disparador.IdGestionDocenteEstadoPorEjecutar)
+                    {
+                        var estadoAnteriorActividad = actividadDetalle.IdGestionDocenteEstadoEjecucion;
+
+                        actividadDetalle.IdGestionDocenteEstadoEjecucion = disparador.IdGestionDocenteEstadoPorEjecutar;
+                        actividadDetalle.UsuarioModificacion             = request.UsuarioCreacion;
+                        actividadDetalle.FechaModificacion               = fechaHoraMarcado;
+
+                        _dbContext.TGestionDocenteActividadDetalleCongeladaLogs.Add(new TGestionDocenteActividadDetalleCongeladaLog
+                        {
+                            IdGestionDocenteActividadDetalleCongelada  = disparador.IdGestionDocenteActividadDetalleCongelada,
+                            IdGestionDocenteEstadoEjecucionAnterior    = estadoAnteriorActividad,
+                            IdGestionDocenteEstadoEjecucionNuevo       = disparador.IdGestionDocenteEstadoPorEjecutar,
+                            Estado              = true,
+                            UsuarioCreacion     = request.UsuarioCreacion,
+                            UsuarioModificacion = request.UsuarioCreacion,
+                            FechaCreacion       = fechaHoraMarcado,
+                            FechaModificacion   = fechaHoraMarcado
+                        });
+                    }
+                }
+
+                await _dbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+
                 return new ResultadoEjecucionDTO
                 {
-                    Exitoso = true,
-                    IdRegistro = 0,
-                    Mensaje = "Ocurrencia marcada correctamente"
+                    Exitoso    = true,
+                    IdRegistro = idOcurrenciaMarcada,
+                    Mensaje    = $"Ocurrencia marcada correctamente. {disparadoresData.Count} disparador(es) convertido(s) a TIEMPO_FIJO"
                 };
             }
             catch (Exception ex)
             {
+                await transaction.RollbackAsync();
                 return new ResultadoEjecucionDTO
                 {
                     Exitoso = false,
-                    Error = $"Error al marcar ocurrencia: {ex.Message}"
+                    Error   = $"Error al marcar ocurrencia: {ex.Message}"
                 };
             }
-        }
-
-        // DTO interno para deserializar resultado plano del SP
-        private class ActividadFlujoRawDTO
-        {
-            public int IdGestionDocenteActividadCabecera { get; set; }
-            public int IdGestionDocenteActividadCabeceraCongelada { get; set; }
-            public string NombreCabecera { get; set; }
-            public string DescripcionCabecera { get; set; }
-            public int IdGestionDocenteActividadDetalleCongelada { get; set; }
-            public string NombreDetalle { get; set; }
-            public int IdDisparadorCongelado { get; set; }
-            public string TipoDisparador { get; set; }
-            public DateTime? FechaProgramada { get; set; }
-            public DateTime? FechaFija { get; set; }
-            public int? CantidadTiempoRelativo { get; set; }
-            public string UnidadTiempo { get; set; }
-            public string CodigoReferenciaTiempo { get; set; }
-            public string NombreReferenciaTiempo { get; set; }
-            public string NombreEvento { get; set; }
-            public string OcurrenciaPrevia { get; set; }
-            public string NombrePlantilla { get; set; }
-            public string MedioComunicacion { get; set; }
-            public string EstadoEjecucionDetalle { get; set; }
-            public string EstadoEjecucionDisparador { get; set; }
-            public bool TieneFechaFija { get; set; }
-            public bool TieneTiempoRelativo { get; set; }
-            public bool TieneEvento { get; set; }
-            public bool TieneOcurrenciaPrevia { get; set; }
-            public int? IdSesion { get; set; }
-            public int? NumeroSesion { get; set; }
-            public DateTime? FechaInicioSesion { get; set; }
-            public int? IdPEspecifico { get; set; }
-            public string NombrePEspecifico { get; set; }
-            public int? IdProveedor { get; set; }
-            public string RazonSocialDocente { get; set; }
         }
 
         /// Autor: Lolo Zaa

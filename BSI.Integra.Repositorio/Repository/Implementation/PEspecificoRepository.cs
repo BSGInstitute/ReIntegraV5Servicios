@@ -2019,7 +2019,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var query = @"SELECT DISTINCT 
                                 Id, FechaHoraInicio, Duracion, DuracionTotal, Curso, IdExpositor, IdProveedor, IdAmbiente, IdCiudad, PEspecificoHijoId, 
-                                Tipo, IdModalidadCurso, Comentario, EsSesionInicio, IdCentroCosto, Grupo, GrupoSesion, TieneFur, MostrarPortalWeb 
+                                Tipo, IdModalidadCurso, Comentario, EsSesionInicio, IdCentroCosto, Grupo, GrupoSesion, TieneFur, MostrarPortalWeb ,IdPEspecificoSesionEstadoObservacionDetalle,IdPEspecificoSesionEstado ,Reprogramacion
                               FROM 
                                 [pla].[V_ObtenerCronogramaGrupoDuplicadoSesionIndividual] 
                               WHERE 
@@ -2056,7 +2056,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     condicion = @" AND PEspecificoHijoId IN @listaPespecifico ";
                 }
                 string query = @$"
-                        SELECT DISTINCT Id, FechaHoraInicio, Duracion, DuracionTotal, Curso, IdExpositor, IdProveedor, IdAmbiente, IdCiudad, PEspecificoHijoId, Tipo, IdModalidadCurso, Comentario, EsSesionInicio, IdCentroCosto, Grupo, GrupoSesion, TieneFur, MostrarPortalWeb, IdCiclo, IdPeriodoLectivo
+                        SELECT DISTINCT Id, FechaHoraInicio, Duracion, DuracionTotal, Curso, IdExpositor, IdProveedor, IdAmbiente, IdCiudad, PEspecificoHijoId, Tipo, IdModalidadCurso, Comentario, EsSesionInicio, IdCentroCosto, Grupo, GrupoSesion, TieneFur, MostrarPortalWeb, IdCiclo, IdPeriodoLectivo,IdPEspecificoSesionEstado,IdPEspecificoSesionEstadoObservacionDetalle , Reprogramacion
                         FROM [pla].[V_ObtenerCronogramaGrupoDuplicado] 
                         WHERE Estado=1 AND PEspecificoPadreId=@idPEspecifico AND Grupo=@numeroGrupo {condicion}
                         ORDER BY FechaHoraInicio ASC, PEspecificoHijoId ASC;";
@@ -2588,6 +2588,269 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception ex)
             {
                 return false;
+            }
+        }
+
+        #region Etiquetas Planificación
+
+        public string ObtenerNombreDocentePlanificacion(int idClasificacionPersona)
+        {
+            try
+            {
+                string _query = @"
+                SELECT CASE
+                    WHEN cp.IdTipoPersona = 4 THEN CONCAT(p.Nombre1, ' ', p.ApePaterno, ' ', p.ApeMaterno)
+                    WHEN cp.IdTipoPersona = 6 THEN CONCAT(dp.Nombre1, ' ', dp.ApellidoPaterno, ' ', dp.ApellidoMaterno)
+                    ELSE ''
+                END AS Valor
+                FROM conf.T_ClasificacionPersona cp
+                LEFT JOIN fin.T_Proveedor p ON cp.IdTablaOriginal = p.Id AND cp.IdTipoPersona = 4
+                LEFT JOIN pla.T_DocentePostulante dp ON cp.IdTablaOriginal = dp.Id AND cp.IdTipoPersona = 6
+                WHERE cp.Id = @IdClasificacionPersona";
+                var _queryRespuesta = _dapperRepository.FirstOrDefault(_query, new { IdClasificacionPersona = idClasificacionPersona });
+                if (_queryRespuesta != "null")
+                    return JsonConvert.DeserializeObject<dynamic>(_queryRespuesta)?.Valor;
+                return null;
+            }
+            catch (Exception) { return null; }
+        }
+
+        public string ObtenerNombreCursoPorCentroCosto(int idCentroCosto)
+        {
+            try
+            {
+                string _query = @"
+                SELECT TOP 1 Nombre AS Valor
+                FROM pla.T_PEspecifico
+                WHERE IdCentroCosto = @IdCentroCosto AND Estado = 1";
+                var _queryRespuesta = _dapperRepository.FirstOrDefault(_query, new { IdCentroCosto = idCentroCosto });
+                if (_queryRespuesta != "null")
+                    return JsonConvert.DeserializeObject<dynamic>(_queryRespuesta)?.Valor;
+                return null;
+            }
+            catch (Exception) { return null; }
+        }
+
+        public string ObtenerNombrePaisDocentePlanificacion(int idClasificacionPersona)
+        {
+            try
+            {
+                string _query = @"
+                SELECT pais.NombrePais AS Valor
+                FROM conf.T_ClasificacionPersona cp
+                LEFT JOIN fin.T_Proveedor p ON cp.IdTablaOriginal = p.Id AND cp.IdTipoPersona = 4
+                LEFT JOIN pla.T_DocentePostulante dp ON cp.IdTablaOriginal = dp.Id AND cp.IdTipoPersona = 6
+                LEFT JOIN conf.T_Ciudad ciu ON COALESCE(p.IdCiudad, dp.IdCiudad) = ciu.Id
+                LEFT JOIN conf.T_Pais pais ON ciu.IdPais = pais.Id
+                WHERE cp.Id = @IdClasificacionPersona";
+                var _queryRespuesta = _dapperRepository.FirstOrDefault(_query, new { IdClasificacionPersona = idClasificacionPersona });
+                if (_queryRespuesta != "null")
+                    return JsonConvert.DeserializeObject<dynamic>(_queryRespuesta)?.Valor;
+                return null;
+            }
+            catch (Exception) { return null; }
+        }
+
+        public int ObtenerIncrementoZonaHorariaDocente(int idClasificacionPersona)
+        {
+            try
+            {
+                string _query = @"
+                SELECT CAST(
+                    ISNULL(pais.ZonaHoraria, -5) - (SELECT TOP 1 ISNULL(ZonaHoraria, -5) FROM conf.T_Pais WHERE CodigoPais = 51 AND Estado = 1)
+                AS INT) AS Valor
+                FROM conf.T_ClasificacionPersona cp
+                LEFT JOIN fin.T_Proveedor p ON cp.IdTablaOriginal = p.Id AND cp.IdTipoPersona = 4
+                LEFT JOIN pla.T_DocentePostulante dp ON cp.IdTablaOriginal = dp.Id AND cp.IdTipoPersona = 6
+                LEFT JOIN conf.T_Ciudad ciu ON COALESCE(p.IdCiudad, dp.IdCiudad) = ciu.Id
+                LEFT JOIN conf.T_Pais pais ON ciu.IdPais = pais.Id
+                WHERE cp.Id = @IdClasificacionPersona";
+                var _queryRespuesta = _dapperRepository.FirstOrDefault(_query, new { IdClasificacionPersona = idClasificacionPersona });
+                if (_queryRespuesta != "null")
+                {
+                    var resultado = JsonConvert.DeserializeObject<dynamic>(_queryRespuesta);
+                    return (int)(resultado?.Valor ?? 0);
+                }
+                return 0;
+            }
+            catch (Exception) { return 0; }
+        }
+
+        public string ObtenerPlazoOtorgadoPorCentroCosto(int idCentroCosto)
+        {
+            try
+            {
+                string _query = @"
+                SELECT TOP 1 CONVERT(VARCHAR(10), med.FechaEntrega, 103) AS Valor
+                FROM ope.T_MaterialPEspecificoDetalle med
+                INNER JOIN ope.T_MaterialPEspecifico mp ON med.IdMaterialPEspecifico = mp.Id
+                INNER JOIN pla.T_PEspecifico pe ON mp.IdPEspecifico = pe.Id
+                WHERE pe.IdCentroCosto = @IdCentroCosto AND pe.Estado = 1 AND med.Estado = 1 AND mp.Estado = 1";
+                var _queryRespuesta = _dapperRepository.FirstOrDefault(_query, new { IdCentroCosto = idCentroCosto });
+                if (_queryRespuesta != "null")
+                    return JsonConvert.DeserializeObject<dynamic>(_queryRespuesta)?.Valor;
+                return null;
+            }
+            catch (Exception) { return null; }
+        }
+
+        public string ObtenerTarifaDocentePorCentroCosto(int idCentroCosto)
+        {
+            try
+            {
+                string _query = @"
+                SELECT TOP 1 CAST(hpp.Precio AS VARCHAR) AS Valor
+                FROM fin.T_HistoricoProductoProveedor hpp
+                INNER JOIN pla.T_PEspecificoParticipacionExpositor ppe ON hpp.IdProveedor = ppe.IdProveedor_FurHonorario
+                INNER JOIN pla.T_PEspecifico pe ON ppe.IdPEspecifico = pe.Id
+                WHERE pe.IdCentroCosto = @IdCentroCosto AND pe.Estado = 1 AND ppe.Estado = 1 AND hpp.Estado = 1";
+                var _queryRespuesta = _dapperRepository.FirstOrDefault(_query, new { IdCentroCosto = idCentroCosto });
+                if (_queryRespuesta != "null")
+                    return JsonConvert.DeserializeObject<dynamic>(_queryRespuesta)?.Valor;
+                return null;
+            }
+            catch (Exception) { return null; }
+        }
+
+        public string ObtenerMonedaDocentePorCentroCosto(int idCentroCosto)
+        {
+            try
+            {
+                string _query = @"
+                SELECT TOP 1 m.Nombre AS Valor
+                FROM fin.T_Moneda m
+                INNER JOIN fin.T_HistoricoProductoProveedor hpp ON m.Id = hpp.IdMoneda
+                INNER JOIN pla.T_PEspecificoParticipacionExpositor ppe ON hpp.IdProveedor = ppe.IdProveedor_FurHonorario
+                INNER JOIN pla.T_PEspecifico pe ON ppe.IdPEspecifico = pe.Id
+                WHERE pe.IdCentroCosto = @IdCentroCosto AND pe.Estado = 1 AND ppe.Estado = 1 AND hpp.Estado = 1";
+                var _queryRespuesta = _dapperRepository.FirstOrDefault(_query, new { IdCentroCosto = idCentroCosto });
+                if (_queryRespuesta != "null")
+                    return JsonConvert.DeserializeObject<dynamic>(_queryRespuesta)?.Valor;
+                return null;
+            }
+            catch (Exception) { return null; }
+        }
+
+        public string ObtenerPlazoPagoDocentePorCentroCosto(int idCentroCosto)
+        {
+            try
+            {
+                string _query = @"
+                SELECT TOP 1 conp.Nombre AS Valor
+                FROM fin.T_CondicionPago conp
+                INNER JOIN fin.T_HistoricoProductoProveedor hpp ON conp.Id = hpp.IdCondicionPago
+                INNER JOIN pla.T_PEspecificoParticipacionExpositor ppe ON hpp.IdProveedor = ppe.IdProveedor_FurHonorario
+                INNER JOIN pla.T_PEspecifico pe ON ppe.IdPEspecifico = pe.Id
+                WHERE pe.IdCentroCosto = @IdCentroCosto AND pe.Estado = 1 AND ppe.Estado = 1 AND hpp.Estado = 1";
+                var _queryRespuesta = _dapperRepository.FirstOrDefault(_query, new { IdCentroCosto = idCentroCosto });
+                if (_queryRespuesta != "null")
+                    return JsonConvert.DeserializeObject<dynamic>(_queryRespuesta)?.Valor;
+                return null;
+            }
+            catch (Exception) { return null; }
+        }
+
+        public string ObtenerFechaPrimeraSesionPorCentroCosto(int idCentroCosto, int incrementoHoras = 0)
+        {
+            try
+            {
+                string _query = @"
+                SELECT CONVERT(VARCHAR(10), DATEADD(HOUR, @IncrementoHoras, MIN(ses.FechaHoraInicio)), 103) AS Valor
+                FROM pla.T_PEspecificoSesion ses
+                INNER JOIN pla.T_PEspecifico pe ON ses.IdPEspecifico = pe.Id
+                WHERE pe.IdCentroCosto = @IdCentroCosto AND pe.Estado = 1 AND ses.Estado = 1";
+                var _queryRespuesta = _dapperRepository.FirstOrDefault(_query, new { IdCentroCosto = idCentroCosto, IncrementoHoras = incrementoHoras });
+                if (_queryRespuesta != "null")
+                    return JsonConvert.DeserializeObject<dynamic>(_queryRespuesta)?.Valor;
+                return null;
+            }
+            catch (Exception) { return null; }
+        }
+
+        public List<SesionPlanificacionDTO> ObtenerSesionesPlanificacion(int idCentroCosto, int incrementoHoras = 0)
+        {
+            try
+            {
+                string _query = @"
+                SELECT
+                    DATEADD(HOUR, @IncrementoHoras, FechaHoraInicio) AS FechaSesion,
+                    CONVERT(VARCHAR(5), DATEADD(HOUR, @IncrementoHoras, FechaHoraInicio), 108) AS HoraInicio,
+                    CONVERT(VARCHAR(5), DATEADD(MINUTE, Duracion, DATEADD(HOUR, @IncrementoHoras, FechaHoraInicio)), 108) AS HoraFin,
+                    Grupo AS Tema
+                FROM
+                    pla.T_PEspecificoSesion
+                WHERE
+                    IdPEspecifico = (SELECT TOP 1 Id FROM pla.T_PEspecifico WHERE IdCentroCosto = @IdCentroCosto AND Estado = 1)
+                    AND Estado = 1
+                ORDER BY
+                    FechaHoraInicio ASC";
+                var _queryRespuesta = _dapperRepository.QueryDapper(_query, new { IdCentroCosto = idCentroCosto, IncrementoHoras = incrementoHoras });
+                if (_queryRespuesta != "null")
+                    return JsonConvert.DeserializeObject<List<SesionPlanificacionDTO>>(_queryRespuesta);
+                else
+                    return new List<SesionPlanificacionDTO>();
+            }
+            catch (Exception Ex)
+            {
+                throw new Exception(Ex.Message);
+            }
+        }
+
+        public List<CriterioEvaluacionPlanificacionDTO> ObtenerCriteriosEvaluacionPorCentroCosto(int idCentroCosto)
+        {
+            try
+            {
+                string _query = @"
+                SELECT
+                    ROW_NUMBER() OVER (ORDER BY eed.Id) AS NumeroCriterio,
+                    ce.Nombre AS NombreCriterio,
+                    eed.Ponderacion AS Porcentaje
+                FROM pla.T_EsquemaEvaluacionDetalle eed
+                INNER JOIN pla.T_CriterioEvaluacion ce ON eed.IdCriterioEvaluacion = ce.Id
+                INNER JOIN pla.T_PEspecificoEsquema pee ON eed.IdEsquemaEvaluacion = pee.IdEsquemaEvaluacion
+                INNER JOIN pla.T_PEspecifico pe ON pee.IdPEspecifico = pe.Id
+                WHERE pe.IdCentroCosto = @IdCentroCosto
+                    AND pe.Estado = 1
+                    AND pee.Estado = 1
+                    AND eed.Estado = 1
+                    AND ce.Estado = 1
+                ORDER BY eed.Id";
+                var _queryRespuesta = _dapperRepository.QueryDapper(_query, new { IdCentroCosto = idCentroCosto });
+                if (_queryRespuesta != "null")
+                    return JsonConvert.DeserializeObject<List<CriterioEvaluacionPlanificacionDTO>>(_queryRespuesta);
+                else
+                    return new List<CriterioEvaluacionPlanificacionDTO>();
+            }
+            catch (Exception Ex)
+            {
+                throw new Exception(Ex.Message);
+            }
+        }
+
+        #endregion
+        /// Autor:Marco Jose Villanueva Torres
+        /// Fecha: 2026-03-19
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el catálogo completo de PEspecificos (Id, Nombre, Codigo) usando SP para carga masiva con filtrado en frontend
+        /// </summary>
+        /// <returns>Lista de PEspecificoCatalogoDTO</returns>
+        public IEnumerable<PEspecificoCatalogoDTO> ObtenerCatalogo()
+        {
+            try
+            {
+                List<PEspecificoCatalogoDTO> rpta = new();
+                string query = "pla.SP_PEspecificoListadoBase";
+                string resultado = _dapperRepository.QuerySPDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<PEspecificoCatalogoDTO>>(resultado)!;
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error en ObtenerCatalogo()", ex);
             }
         }
     }

@@ -45,5 +45,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
 
         IEnumerable<ProveedorComboDTO> ObtenerProveedoresPaginasReclutadoras();
         ProveedorComboDTO ObtenerProveedoresPaginasReclutadorasPorId(int id);
+        IEnumerable<ProveedorDocenteDTO> ObtenerDocentesActivos();
     }
 }

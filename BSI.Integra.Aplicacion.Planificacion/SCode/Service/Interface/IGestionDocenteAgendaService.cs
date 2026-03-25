@@ -11,6 +11,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         CargarActividadPorTabResultadoDTO CargarActividadSeleccionadaPorFiltro(int idTab, string codigoAreaTrabajo, int idAsesor);
         List<DocenteConCursoDTO> ObtenerDocentesPorGestionContacto(int idGestionContacto);
         InformacionFaltanteDocenteDTO ObtenerInformacionFaltanteDocente(int idProveedor, int idPEspecifico);
+        List<WhatsAppHistorialDocenteDTO> ObtenerHistorialWhatsApp(int idProveedor);
+        List<CorreoResumenDocenteDTO> ObtenerHistorialCorreos(int idProveedor, int idPEspecifico);
         CorreoDetalleDocenteDTO ObtenerDetalleCorreo(int idCorreo);
+        ContadorAlertasDTO ObtenerContadorAlertas();
     }
 }

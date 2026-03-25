@@ -3398,6 +3398,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         pespecificoSesion.Duracion = estructuraSesiones[i].Duracion.Value;
                         pespecificoSesion.IdAmbiente = estructuraSesiones[i].Curso.IdAmbiente;
                         pespecificoSesion.IdModalidadCurso = estructuraSesiones[i].Curso.IdModalidadCurso;
+                        pespecificoSesion.IdPEspecificoSesionEstado = 5;
                         pespecificoSesion.SesionAutoGenerada = true;
 
                         if (listaCursos.Count() == 0)//si es curso individual se guarda el expositor del curso en la sesion
@@ -4075,6 +4076,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 dtoSesion.Estado = true;
                 dtoSesion.FechaCreacion = DateTime.Now;
                 dtoSesion.FechaModificacion = DateTime.Now;
+                dtoSesion.IdPEspecificoSesionEstado = 5;
                 dtoSesion.UsuarioCreacion = usuario;
                 dtoSesion.UsuarioModificacion = usuario;
 
@@ -4110,8 +4112,10 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     Comentario = dto.Comentario,
                     SesionAutoGenerada = dto.SesionAutoGenerada,
                     Grupo = (dto.Grupo != 0) ? dto.Grupo : 1,
+                    GrupoSesion = (dto.GrupoSesion != 0 || dto.GrupoSesion!=null) ? dto.Grupo : 0,
                     Version = 0,
                     IdModalidadCurso = pEspecifico.TipoId,
+                    IdPEspecificoSesionEstado = (dto.IdPEspecificoSesionEstado!=0 || dto.IdPEspecificoSesionEstado !=null) ? dto.IdPEspecificoSesionEstado: 5,
                     Estado = true,
                     FechaCreacion = DateTime.Now,
                     FechaModificacion = DateTime.Now,
@@ -4575,5 +4579,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 		{
 			return _unitOfWork.PEspecificoRepository.ObtenerPEspecificoByProgramaGeneral(idPGeneral);
 		}
+        public IEnumerable<PEspecificoCatalogoDTO> ObtenerCatalogoPEspecifico()
+        {
+            return _unitOfWork.PEspecificoRepository.ObtenerCatalogo();
+        }
 	}
 }

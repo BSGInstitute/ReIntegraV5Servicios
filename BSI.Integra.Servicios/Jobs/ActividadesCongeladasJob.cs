@@ -1,19 +1,12 @@
-using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
-using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
-using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
-using BSI.Integra.Aplicacion.Marketing.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
-using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
-using Microsoft.AspNetCore.Http;
+using BSI.Integra.Servicios.Services;
+using Hangfire;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using static BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion.WhatsAppMensajeEnviadoApiPlanificacionDTO;
 
 namespace BSI.Integra.Servicios.Jobs
 {
@@ -23,23 +16,17 @@ namespace BSI.Integra.Servicios.Jobs
     public class ActividadesCongeladasJob
     {
         private readonly IGestionContactoService _gestionContactoService;
-        private readonly IGestionDocenteActividadService _gestionDocenteActividadService;
-        private readonly IWhatsAppMensajeEnviadoApiPlanificacionService _whatsAppService;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IActividadEnvioService _actividadEnvioService;
         private readonly ILogger<ActividadesCongeladasJob> _logger;
         private const int ID_ASESOR_SISTEMA = 6205;
 
         public ActividadesCongeladasJob(
             IGestionContactoService gestionContactoService,
-            IGestionDocenteActividadService gestionDocenteActividadService,
-            IWhatsAppMensajeEnviadoApiPlanificacionService whatsAppService,
-            IUnitOfWork unitOfWork,
+            IActividadEnvioService actividadEnvioService,
             ILogger<ActividadesCongeladasJob> logger)
         {
             _gestionContactoService = gestionContactoService;
-            _gestionDocenteActividadService = gestionDocenteActividadService;
-            _whatsAppService = whatsAppService;
-            _unitOfWork = unitOfWork;
+            _actividadEnvioService = actividadEnvioService;
             _logger = logger;
         }
 
@@ -47,24 +34,28 @@ namespace BSI.Integra.Servicios.Jobs
         /// Procesa todas las actividades pendientes de ejecucion
         /// Este metodo es llamado por Hangfire cada 5 minutos
         /// </summary>
+        [DisableConcurrentExecution(timeoutInSeconds: 300)]
         public async Task ProcesarActividadesPendientesAsync()
         {
             try
             {
-                _logger.LogInformation("=== INICIO: Procesamiento de actividades pendientes ===");
+                Console.WriteLine("╔══════════════════════════════════════════════════════════╗");
+                Console.WriteLine($"║  HANGFIRE - ActividadesCongeladasJob                     ║");
+                Console.WriteLine($"║  INICIO: {DateTime.Now:yyyy-MM-dd HH:mm:ss}                         ║");
+                Console.WriteLine("╚══════════════════════════════════════════════════════════╝");
 
-                // 1. Obtener actividades pendientes
                 var actividades = await _gestionContactoService.ObtenerActividadesPendientesAsync();
 
                 if (actividades == null || !actividades.Any())
                 {
+                    Console.WriteLine("  ✓ Sin actividades pendientes");
                     _logger.LogInformation("No hay actividades pendientes para procesar");
                     return;
                 }
 
+                Console.WriteLine($"  → {actividades.Count} actividad(es) pendiente(s) encontrada(s)");
                 _logger.LogInformation($"Se encontraron {actividades.Count} actividades pendientes");
 
-                // 2. Procesar cada actividad
                 int exitosas = 0;
                 int fallidas = 0;
 
@@ -72,42 +63,63 @@ namespace BSI.Integra.Servicios.Jobs
                 {
                     try
                     {
+                        Console.WriteLine($"  ┌─ Actividad ID: {actividad.IdActividadDetalleCongelada}");
+                        Console.WriteLine($"  │  Nombre:       {actividad.NombreActividad}");
+                        Console.WriteLine($"  │  Tipo:         {(actividad.IdTipoActividad == 1 ? "AUTOMATICA" : "MANUAL")}");
+                        Console.WriteLine($"  │  Canal:        {(actividad.IdPlantillaBase == 2 ? "EMAIL" : actividad.IdPlantillaBase == 8 ? "WHATSAPP" : $"IdPlantillaBase={actividad.IdPlantillaBase}")}");
+                        Console.WriteLine($"  │  Disparador:   {actividad.IdDisparadorCongelado}");
+
                         _logger.LogInformation($"Procesando actividad {actividad.IdActividadDetalleCongelada} - {actividad.NombreActividad}");
+
+                        if (actividad.IdTipoActividad == 2)
+                        {
+                            Console.WriteLine($"  └─ ⏭ OMITIDA (manual) — pendiente del asesor");
+                            _logger.LogInformation("Actividad {Id} es Manual — omitida por Hangfire", actividad.IdActividadDetalleCongelada);
+                            continue;
+                        }
 
                         var resultado = await EjecutarActividadAsync(actividad);
 
                         if (resultado.Exitoso)
                         {
                             exitosas++;
+                            Console.WriteLine($"  └─ ✅ EJECUTADA: {resultado.Mensaje}");
                             _logger.LogInformation($"Actividad {actividad.IdActividadDetalleCongelada} ejecutada correctamente");
                         }
                         else
                         {
                             fallidas++;
+                            Console.WriteLine($"  └─ ❌ FALLO: {resultado.Error}");
                             _logger.LogWarning($"Actividad {actividad.IdActividadDetalleCongelada} fallo: {resultado.Error}");
                         }
                     }
                     catch (Exception ex)
                     {
                         fallidas++;
+                        Console.WriteLine($"  └─ 💥 EXCEPCION: {ex.Message}");
                         _logger.LogError(ex, $"Error procesando actividad {actividad.IdActividadDetalleCongelada}");
 
-                        // Registrar el error en la base de datos
                         await _gestionContactoService.ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
                         {
                             IdActividadDetalleCongelada = actividad.IdActividadDetalleCongelada,
-                            IdDisparadorCongelado = actividad.IdDisparadorCongelado,
-                            CodigoNuevoEstado = "NO_EJECUTADO",
-                            MensajeError = $"Excepcion no controlada: {ex.Message}",
-                            UsuarioModificacion = "HANGFIRE"
+                            IdDisparadorCongelado       = actividad.IdDisparadorCongelado,
+                            CodigoNuevoEstado           = "NO_EJECUTADO",
+                            MensajeError                = $"Excepcion no controlada: {ex.Message}",
+                            UsuarioModificacion         = "HANGFIRE"
                         });
                     }
                 }
+
+                Console.WriteLine("╔══════════════════════════════════════════════════════════╗");
+                Console.WriteLine($"║  FIN: {actividades.Count} procesada(s) | ✅ {exitosas} exitosa(s) | ❌ {fallidas} fallida(s)");
+                Console.WriteLine($"║  {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                Console.WriteLine("╚══════════════════════════════════════════════════════════╝");
 
                 _logger.LogInformation($"=== FIN: Procesadas {actividades.Count} actividades. Exitosas: {exitosas}, Fallidas: {fallidas} ===");
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"💥 ERROR CRITICO en ActividadesCongeladasJob: {ex.Message}");
                 _logger.LogError(ex, "Error critico en el job de actividades congeladas");
                 throw;
             }
@@ -153,16 +165,20 @@ namespace BSI.Integra.Servicios.Jobs
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"  └─ 💥 NO_EJECUTADO — Actividad {actividad.IdActividadDetalleCongelada}");
+                Console.WriteLine($"       Motivo: {ex.Message}");
+                if (ex.InnerException != null)
+                    Console.WriteLine($"       Inner:  {ex.InnerException.Message}");
+
                 _logger.LogError(ex, $"Error ejecutando actividad {actividad.IdActividadDetalleCongelada}");
 
-                // Actualizar estado a NO_EJECUTADO
                 var resultado = await _gestionContactoService.ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
                 {
                     IdActividadDetalleCongelada = actividad.IdActividadDetalleCongelada,
-                    IdDisparadorCongelado = actividad.IdDisparadorCongelado,
-                    CodigoNuevoEstado = "NO_EJECUTADO",
-                    MensajeError = ex.Message,
-                    UsuarioModificacion = "HANGFIRE"
+                    IdDisparadorCongelado       = actividad.IdDisparadorCongelado,
+                    CodigoNuevoEstado           = "NO_EJECUTADO",
+                    MensajeError                = ex.Message,
+                    UsuarioModificacion         = "HANGFIRE"
                 });
 
                 return resultado;
@@ -170,160 +186,26 @@ namespace BSI.Integra.Servicios.Jobs
         }
 
         /// <summary>
-        /// Ejecuta una actividad automatica (Email, WhatsApp, SMS)
+        /// Ejecuta una actividad automatica (Email o WhatsApp) delegando al ActividadEnvioService.
         /// </summary>
         private async Task<string> EjecutarActividadAutomaticaAsync(ActividadPendienteDTO actividad)
         {
-            try
-            {
-                _logger.LogInformation($"Iniciando ejecucion automatica - IdGestionContacto: {actividad.IdGestionContacto}, IdPlantilla: {actividad.IdPlantilla}, IdPlantillaBase: {actividad.IdPlantillaBase}");
-
-                // 1. Obtener datos de la gestion de contacto para obtener el docente
-                var gestionContacto = await _unitOfWork.GestionContactoRepository.ObtenerPorIdAsync(actividad.IdGestionContacto);
-                if (gestionContacto == null || gestionContacto.Id == 0)
-                {
-                    throw new Exception($"No se encontro la gestion de contacto con Id {actividad.IdGestionContacto}");
-                }
-
-                if (!gestionContacto.IdClasificacionPersona.HasValue)
-                {
-                    throw new Exception($"La gestion de contacto {actividad.IdGestionContacto} no tiene clasificacion de persona asociada");
-                }
-
-                // 2. Obtener datos del docente
-                var docente = _unitOfWork.DocentePostulanteRepository.ObtenerDocenteDTOPorIdClasificacionPersona(gestionContacto.IdClasificacionPersona.Value);
-                if (docente == null || string.IsNullOrWhiteSpace(docente.Correo))
-                {
-                    throw new Exception($"No se encontro el correo del docente para la clasificacion de persona {gestionContacto.IdClasificacionPersona.Value}");
-                }
-
-                // 3. Generar la plantilla con los datos reemplazados
-                _logger.LogInformation($"Generando plantilla {actividad.IdPlantilla} para gestion contacto {actividad.IdGestionContacto}");
-                var plantillaGenerada = _gestionDocenteActividadService.GenerarPlantillaDocente(new ReemplazoEtiquetaPlantillaDocenteDTO
-                {
-                    IdGestionContacto = actividad.IdGestionContacto,
-                    IdPlantilla = actividad.IdPlantilla
-                });
-
-                // 4. Verificar el tipo de plantilla y ejecutar segun corresponda
-                if (actividad.IdPlantillaBase == 2) // Email
-                {
-                    if (string.IsNullOrWhiteSpace(plantillaGenerada.EmailReemplazado.Asunto) ||
-                        string.IsNullOrWhiteSpace(plantillaGenerada.EmailReemplazado.CuerpoHTML))
-                    {
-                        throw new Exception("La plantilla de email generada esta vacia");
-                    }
-
-                    // 5. Obtener email del remitente (asesor sistema)
-                    var personalRepo = _unitOfWork.PersonalRepository;
-                    var asesorSistema = personalRepo.FirstById(ID_ASESOR_SISTEMA);
-                    if (asesorSistema == null)
-                    {
-                        throw new Exception($"No se encontro el asesor sistema con Id {ID_ASESOR_SISTEMA}");
-                    }
-
-                    // 6. Preparar parametros para EnviarMensajeCorreoPla
-                    var parametrosCorreo = new ParametrosEnviarMensajePlaDTO
-                    {
-                        Remitente = asesorSistema.Email,
-                        Destinatario = docente.Correo,
-                        Asunto = plantillaGenerada.EmailReemplazado.Asunto,
-                        Mensaje = Convert.ToBase64String(Encoding.UTF8.GetBytes(plantillaGenerada.EmailReemplazado.CuerpoHTML)),
-                        DestinatarioCc = "",
-                        DestinatarioBcc = "",
-                        IdGestionContacto = actividad.IdGestionContacto,
-                        IdClasificacionPersona = gestionContacto.IdClasificacionPersona,
-                        Files = null
-                    };
-
-                    // 7. Enviar correo usando el servicio directamente
-                    _logger.LogInformation($"Enviando correo a {docente.Correo} con asunto: {plantillaGenerada.EmailReemplazado.Asunto}");
-
-                    var gmailCorreoService = new GmailCorreoService(_unitOfWork);
-                    var enviado = await gmailCorreoService.EnviarMensajeCorreoPla(parametrosCorreo, new List<IFormFile>(), "HANGFIRE");
-
-                    if (!enviado)
-                    {
-                        throw new Exception("Error al enviar correo");
-                    }
-
-                    _logger.LogInformation($"Correo enviado exitosamente a {docente.Correo}");
-                    return $"Email enviado exitosamente a {docente.Correo} - Asunto: {plantillaGenerada.EmailReemplazado.Asunto}";
-                }
-                else if (actividad.IdPlantillaBase == 8) // WhatsApp
-                {
-                    if (string.IsNullOrWhiteSpace(plantillaGenerada.WhatsAppReemplazado.Plantilla))
-                    {
-                        throw new Exception("La plantilla de WhatsApp generada esta vacia");
-                    }
-
-                    if (string.IsNullOrWhiteSpace(docente.Celular))
-                    {
-                        throw new Exception($"El docente no tiene numero de celular registrado");
-                    }
-
-                    // Obtener IdProveedor desde ClasificacionPersona
-                    var clasificacionPersona = _unitOfWork.ClasificacionPersonaRepository.FirstById(gestionContacto.IdClasificacionPersona.Value);
-                    if (clasificacionPersona == null)
-                    {
-                        throw new Exception($"No se encontro la clasificacion de persona {gestionContacto.IdClasificacionPersona.Value}");
-                    }
-
-                    // Validar que sea tipo Proveedor (IdTipoPersona = 4)
-                    if (clasificacionPersona.IdTipoPersona != 4)
-                    {
-                        throw new Exception($"La clasificacion de persona debe ser de tipo Proveedor (IdTipoPersona = 4), pero es {clasificacionPersona.IdTipoPersona}");
-                    }
-
-                    // IdTablaOriginal contiene el IdProveedor
-                    int idProveedor = clasificacionPersona.IdTablaOriginal;
-
-                    // Preparar DTO para envio de WhatsApp
-                    var mensajeDto = new WhatsAppMensajeTextoPlaDTO
-                    {
-                        WaTo = docente.Celular,
-                        WaBody = plantillaGenerada.WhatsAppReemplazado.Plantilla,
-                        IdPais = 51, // Peru
-                        IdProveedor = idProveedor,
-                        IdPersonal = ID_ASESOR_SISTEMA
-                    };
-
-                    // Enviar WhatsApp usando el servicio
-                    _logger.LogInformation($"Enviando WhatsApp a {docente.Celular} (IdProveedor: {idProveedor})");
-
-                    bool enviado = _whatsAppService.EnvioMensajePorTexto(mensajeDto, "HANGFIRE", ID_ASESOR_SISTEMA);
-
-                    if (!enviado)
-                    {
-                        throw new Exception("Error al enviar WhatsApp");
-                    }
-
-                    _logger.LogInformation($"WhatsApp enviado exitosamente a {docente.Celular}");
-                    return $"WhatsApp enviado exitosamente a {docente.Celular}";
-                }
-                else
-                {
-                    throw new Exception($"Tipo de plantilla base no soportado: {actividad.IdPlantillaBase}");
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error ejecutando actividad automatica {actividad.IdActividadDetalleCongelada}");
-                throw new Exception($"Error en actividad automatica: {ex.Message}", ex);
-            }
+            return await _actividadEnvioService.EnviarActividadAutomaticaAsync(
+                actividad, ID_ASESOR_SISTEMA, "HANGFIRE");
         }
 
         /// <summary>
-        /// Ejecuta una actividad manual (Crear notificacion o tarea)
+        /// Las actividades manuales requieren accion del asesor — Hangfire no las ejecuta.
+        /// Solo registra que la actividad quedo pendiente de intervencion humana.
         /// </summary>
-        private async Task<string> EjecutarActividadManualAsync(ActividadPendienteDTO actividad)
+        private Task<string> EjecutarActividadManualAsync(ActividadPendienteDTO actividad)
         {
-            // TODO: Implementar creacion de notificaciones/tareas en siguiente paso
-            // Por ahora solo simulamos la ejecucion
+            _logger.LogInformation(
+                "Actividad {Id} es de tipo Manual — requiere accion del asesor, Hangfire no interviene",
+                actividad.IdActividadDetalleCongelada);
 
-            await Task.Delay(100); // Simular procesamiento
-
-            return $"[SIMULACION] Notificacion creada para contacto: {actividad.IdGestionContacto}";
+            return Task.FromResult(
+                $"Actividad manual pendiente de accion del asesor - IdGestionContacto: {actividad.IdGestionContacto}");
         }
     }
 }

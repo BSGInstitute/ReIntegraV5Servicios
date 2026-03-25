@@ -44,5 +44,8 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
         public int? IdPersonalAsignado { get; set; }
         [StringLength(100)]
         public string? Alias { get; set; }
+        public bool? EsDocente { get; set; }
+
+
     }
 }

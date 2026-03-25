@@ -2986,5 +2986,164 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw ex;
             }
         }
+        /// Autor: Jose Vega
+        /// Fecha: 19/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Reemplaza las etiquetas para el flujo de planificación
+        /// </summary>
+        /// <param name="contenido"></param>
+        /// <param name="idActividadDetalle"></param>
+        /// <param name="idCentroCosto"></param>
+        /// <returns></returns>
+        public string ReemplazarEtiquetasPlanificacion(string contenido, int idCentroCosto, int idClasificacionPersona)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(contenido)) return contenido;
+                if (idCentroCosto <= 0) return contenido;
+
+                if (contenido.Contains("{nombre_docente}") && idClasificacionPersona > 0)
+                {
+                    var valor = _unitOfWork.PEspecificoRepository.ObtenerNombreDocentePlanificacion(idClasificacionPersona);
+                    contenido = contenido.Replace("{nombre_docente}", valor ?? "");
+                }
+
+                if (contenido.Contains("{nombre_curso}"))
+                {
+                    var valor = _unitOfWork.PEspecificoRepository.ObtenerNombreCursoPorCentroCosto(idCentroCosto);
+                    contenido = contenido.Replace("{nombre_curso}", valor ?? "");
+                }
+
+                if (contenido.Contains("{nombre_curso_programa_hijo}"))
+                {
+                    var valor = _unitOfWork.PEspecificoRepository.ObtenerNombreCursoPorCentroCosto(idCentroCosto);
+                    contenido = contenido.Replace("{nombre_curso_programa_hijo}", valor ?? "");
+                }
+
+                if (contenido.Contains("{nombre_pais}") && idClasificacionPersona > 0)
+                {
+                    var valor = _unitOfWork.PEspecificoRepository.ObtenerNombrePaisDocentePlanificacion(idClasificacionPersona);
+                    contenido = contenido.Replace("{nombre_pais}", valor ?? "");
+                }
+
+                if (contenido.Contains("{plazo_otorgado}"))
+                {
+                    var valor = _unitOfWork.PEspecificoRepository.ObtenerPlazoOtorgadoPorCentroCosto(idCentroCosto);
+                    contenido = contenido.Replace("{plazo_otorgado}", valor ?? "");
+                }
+
+                if (contenido.Contains("{tarifa}"))
+                {
+                    var valor = _unitOfWork.PEspecificoRepository.ObtenerTarifaDocentePorCentroCosto(idCentroCosto);
+                    contenido = contenido.Replace("{tarifa}", valor ?? "");
+                }
+
+                if (contenido.Contains("{moneda}"))
+                {
+                    var valor = _unitOfWork.PEspecificoRepository.ObtenerMonedaDocentePorCentroCosto(idCentroCosto);
+                    contenido = contenido.Replace("{moneda}", valor ?? "");
+                }
+
+                if (contenido.Contains("{plazo_pago}"))
+                {
+                    var valor = _unitOfWork.PEspecificoRepository.ObtenerPlazoPagoDocentePorCentroCosto(idCentroCosto);
+                    contenido = contenido.Replace("{plazo_pago}", valor ?? "");
+                }
+
+                int incrementoHoras = 0;
+                if (idClasificacionPersona > 0 && (contenido.Contains("{fecha_primera_sesion}") || contenido.Contains("{tabla_sesiones}")))
+                {
+                    incrementoHoras = _unitOfWork.PEspecificoRepository.ObtenerIncrementoZonaHorariaDocente(idClasificacionPersona);
+                }
+
+                if (contenido.Contains("{fecha_primera_sesion}"))
+                {
+                    var valor = _unitOfWork.PEspecificoRepository.ObtenerFechaPrimeraSesionPorCentroCosto(idCentroCosto, incrementoHoras);
+                    contenido = contenido.Replace("{fecha_primera_sesion}", valor ?? "");
+                }
+
+                if (contenido.Contains("{tabla_sesiones}"))
+                {
+                    var sesiones = _unitOfWork.PEspecificoRepository.ObtenerSesionesPlanificacion(idCentroCosto, incrementoHoras);
+                    string htmlTabla = GenerarTablaSesionesHtml(sesiones);
+                    contenido = contenido.Replace("{tabla_sesiones}", htmlTabla);
+                }
+
+                if (contenido.Contains("{tabla_criterios}"))
+                {
+                    var criterios = _unitOfWork.PEspecificoRepository.ObtenerCriteriosEvaluacionPorCentroCosto(idCentroCosto);
+                    string htmlTabla = GenerarTablaCriteriosHtml(criterios);
+                    contenido = contenido.Replace("{tabla_criterios}", htmlTabla);
+                }
+
+                return contenido;
+            }
+            catch (Exception)
+            {
+                return contenido;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 19/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Genera una tabla HTML simple a partir de una lista de sesiones
+        /// </summary>
+        /// <param name="sesiones"></param>
+        /// <returns></returns>
+        private string GenerarTablaSesionesHtml(List<SesionPlanificacionDTO> sesiones)
+        {
+            if (sesiones == null || !sesiones.Any()) return "";
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; font-size: 12px;'>");
+            sb.Append("<thead style='background-color: #f2f2f2;'>");
+            sb.Append("<tr><th>Fecha</th><th>Hora Inicio</th><th>Hora Fin</th><th>Tema</th></tr>");
+            sb.Append("</thead>");
+            sb.Append("<tbody>");
+
+            foreach (var sesion in sesiones)
+            {
+                sb.Append("<tr>");
+                sb.Append($"<td>{(sesion.FechaSesion.HasValue ? sesion.FechaSesion.Value.ToString("dd/MM/yyyy") : "")}</td>");
+                sb.Append($"<td>{sesion.HoraInicio}</td>");
+                sb.Append($"<td>{sesion.HoraFin}</td>");
+                sb.Append($"<td>{sesion.Tema}</td>");
+                sb.Append("</tr>");
+            }
+
+            sb.Append("</tbody>");
+            sb.Append("</table>");
+
+            return sb.ToString();
+        }
+
+        private string GenerarTablaCriteriosHtml(List<CriterioEvaluacionPlanificacionDTO> criterios)
+        {
+            if (criterios == null || !criterios.Any()) return "";
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; font-size: 12px;'>");
+            sb.Append("<thead style='background-color: #f2f2f2;'>");
+            sb.Append("<tr><th>N°</th><th>Criterio</th><th>Porcentaje Asignado</th></tr>");
+            sb.Append("</thead>");
+            sb.Append("<tbody>");
+
+            foreach (var criterio in criterios)
+            {
+                sb.Append("<tr>");
+                sb.Append($"<td style='text-align: center;'>{criterio.NumeroCriterio}</td>");
+                sb.Append($"<td>{criterio.NombreCriterio}</td>");
+                sb.Append($"<td style='text-align: center;'>{criterio.Porcentaje}%</td>");
+                sb.Append("</tr>");
+            }
+
+            sb.Append("</tbody>");
+            sb.Append("</table>");
+
+            return sb.ToString();
+        }
     }
 }

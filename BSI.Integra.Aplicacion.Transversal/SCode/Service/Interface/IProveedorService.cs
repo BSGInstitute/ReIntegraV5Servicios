@@ -41,5 +41,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         List<RespuestaReporteRevisionDocenteDTO> GenerarReporte(ReporteRevisionDocenteDTO Filtro);
 
         IEnumerable<ProveedorComboDTO> ObtenerProveedoresPaginasReclutadoras();
+        IEnumerable<ProveedorDocenteDTO> ObtenerDocentesActivos();
     }
 }

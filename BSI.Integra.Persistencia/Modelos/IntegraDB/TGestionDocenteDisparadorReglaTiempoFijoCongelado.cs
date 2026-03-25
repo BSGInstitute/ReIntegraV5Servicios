@@ -18,8 +18,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public int IdGestionDocenteDisparadorCongelado { get; set; }
         /// <summary>
         /// Identificador de la regla de tiempo fijo original. Referencia para auditoría.
+        /// Nullable cuando el disparador se convierte de RELATIVO a FIJO por una ocurrencia (no existe maestro FIJO previo).
         /// </summary>
-        public int IdGestionDocenteDisparadorReglaTiempoFijo { get; set; }
+        public int? IdGestionDocenteDisparadorReglaTiempoFijo { get; set; }
         /// <summary>
         /// Identificador de la regla de tiempo genérica. Referencia la configuración base del disparador.
         /// </summary>

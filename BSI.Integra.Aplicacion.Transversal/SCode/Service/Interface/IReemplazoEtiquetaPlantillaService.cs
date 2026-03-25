@@ -16,5 +16,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         PlantillaWhatsAppCalculadoDTO ReemplazarValoresTilde(PlantillaWhatsAppCalculadoDTO body);
         PlantillaEmailMandrillDTO ReemplazarEtiquetasPostulanteCursoAsesorCapacitacion(int idPlantilla, int idPostulanteProcesoSeleccion);
         PlantillaEmailMandrillDTO ReemplazarEtiquetasAccesosTemporalesPostulante(int idPlantilla, InformacionAccesoPostulanteDTO informacionAccesoTemporal, int idPespecifico, DateTime fechaInicio, DateTime fechaFin, string personalEmail);
+        string ReemplazarEtiquetasPlanificacion(string contenido, int idCentroCosto, int idClasificacionPersona);
     }
 }

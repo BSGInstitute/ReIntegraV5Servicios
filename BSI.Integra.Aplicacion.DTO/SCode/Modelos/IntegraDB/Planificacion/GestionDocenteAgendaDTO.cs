@@ -18,6 +18,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int? IdPersonalAsignado { get; set; }
         public string PersonalAsignado { get; set; }
         public int IdGestionContacto { get; set; }
+        public int? IdClasificacionPersona { get; set; }
         public int IdFlujo { get; set; }
         public string NombreFlujo { get; set; }
         public int? IdCategoria { get; set; }
@@ -153,11 +154,12 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string Contacto2 { get; set; }
         public string Correo { get; set; }
         public int IdGestionContacto { get; set; }
+        public int? IdClasificacionPersona { get; set; }
         public int? IdPersonal_Asignado { get; set; }
         public string PersonalAsignado { get; set; }
         public int? IdGestionDocenteFlujo { get; set; }
         public string NombreFlujo { get; set; }
-        
+
         public int? IdCentroCosto { get; set; }
         public string NombreCentroCosto { get; set; }
         public string CodigoCentroCosto { get; set; }
@@ -223,6 +225,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string Contacto2 { get; set; }
         public string Correo { get; set; }
         public int IdGestionContacto { get; set; }
+        public int? IdClasificacionPersona { get; set; }
         public int? IdPersonal_Asignado { get; set; }
         public string PersonalAsignado { get; set; }
         public int? IdGestionDocenteFlujo { get; set; }
@@ -339,5 +342,14 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public Boolean? EstadoEnvio { get; set; }
         public string PersonalRemitente { get; set; }
         public string CorreoDestinatario { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para el contador de alertas del docente.
+    /// Retornado por pla.SP_GestionDocenteAlertasContador.
+    /// </summary>
+    public class ContadorAlertasDTO
+    {
+        public int TotalProveedorAlerta { get; set; }
     }
 }

@@ -202,7 +202,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    UsuarioEnvioCorreoWebinar,
 	                    UsuarioEnvioWhatsAppWebinar,
 	                    FechaRegularizacionCorreoWebinar,
-	                    FechaRegularizacionWhatsAppWebinar
+	                    FechaRegularizacionWhatsAppWebinar,
+                        IdPEspecificoSesionEstado ,
+                        IdPEspecificoSesionEstadoObservacionDetalle
                     FROM pla.T_PEspecificoSesion WHERE Estado=1 AND Id = @id";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { id });
 
