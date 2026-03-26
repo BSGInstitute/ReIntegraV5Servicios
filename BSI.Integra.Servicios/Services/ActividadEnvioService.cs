@@ -176,12 +176,19 @@ namespace BSI.Integra.Servicios.Services
             if (clasificacionPersona == null)
                 throw new Exception($"No se encontro la clasificacion de persona {gestionContacto.IdClasificacionPersona.Value}");
 
-            if (clasificacionPersona.IdTipoPersona != 4)
+            if (clasificacionPersona.IdTipoPersona != 4 && clasificacionPersona.IdTipoPersona != 6)
                 throw new Exception(
-                    $"La clasificacion de persona debe ser de tipo Proveedor (IdTipoPersona = 4), " +
+                    $"La clasificacion de persona debe ser de tipo Proveedor (IdTipoPersona = 4 o 6), " +
                     $"pero es {clasificacionPersona.IdTipoPersona}");
 
             int idProveedor = clasificacionPersona.IdTablaOriginal;
+
+            if (docente.IdCiudad == null)
+                throw new Exception("El docente no tiene ciudad registrada para resolver el país");
+
+            var ciudad = _unitOfWork.CiudadRepository.FirstById(docente.IdCiudad.Value);
+            if (ciudad == null)
+                throw new Exception($"No se encontró la ciudad con Id {docente.IdCiudad.Value}");
 
             _logger.LogInformation(
                 "Enviando WhatsApp a {Celular} (IdProveedor: {IdProveedor})", docente.Celular, idProveedor);
@@ -190,7 +197,7 @@ namespace BSI.Integra.Servicios.Services
             {
                 WaTo        = docente.Celular,
                 WaBody      = plantilla.WhatsAppReemplazado.Plantilla,
-                IdPais      = 51, // Peru
+                IdPais      = ciudad.IdPais,
                 IdProveedor = idProveedor,
                 IdPersonal  = idPersonal
             };
