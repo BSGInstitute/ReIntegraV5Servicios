@@ -1258,36 +1258,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         {
             try
             {
-                string query = @"
-                    SELECT
-                        adc.Id AS IdActividadDetalleCongelada,
-                        ad.Nombre AS NombreActividad,
-                        ad.IdGestionDocenteActividadDetalleTipo AS IdTipoActividad,
-                        ad.IdPlantillaMedioComunicacion,
-                        fdc.Id AS IdGestionContactoFlujoCongelado,
-                        fdc.IdGestionContactoDocenteFlujo AS IdGestionContactoDocenteFlujo,
-                        gc.Id AS IdGestionContacto,
-                        dc.Id AS IdDisparadorCongelado,
-                        dd.IdGestionDocenteDisparadorFlujoTipo AS TipoDisparador,
-                        ISNULL(rtfc.Fecha, GETDATE()) AS FechaEjecucion,
-                        NULL AS IdPEspecificoSesion,
-                        p.IdPlantillaBase,
-                        pmc.IdPlantilla
-                    FROM pla.T_GestionDocenteActividadDetalleCongelada adc
-                    INNER JOIN pla.T_GestionDocenteActividadDetalle ad ON adc.IdGestionDocenteActividadDetalle = ad.Id
-                    INNER JOIN mkt.T_PlantillaMedioComunicacion pmc ON ad.IdPlantillaMedioComunicacion = pmc.Id
-                    INNER JOIN mkt.T_Plantilla p ON pmc.IdPlantilla = p.Id
-                    INNER JOIN pla.T_GestionDocenteActividadCabeceraCongelada acc ON adc.IdGestionDocenteActividadCabeceraCongelada = acc.Id
-                    INNER JOIN pla.T_GestionContactoFlujoCongelado fdc ON acc.IdGestionContactoFlujoCongelado = fdc.Id
-                    INNER JOIN pla.T_GestionContactoDocenteFlujo gcdf ON fdc.IdGestionContactoDocenteFlujo = gcdf.Id
-                    INNER JOIN pla.T_GestionContacto gc ON gcdf.IdGestionContacto = gc.Id
-                    INNER JOIN pla.T_GestionDocenteDisparadorCongelado dc ON adc.Id = dc.IdGestionDocenteActividadDetalleCongelada
-                    INNER JOIN pla.T_GestionDocenteDisparadorDetalle dd ON dc.IdGestionDocenteDisparadorDetalle = dd.Id
-                    LEFT JOIN pla.T_GestionDocenteDisparadorReglaTiempoFijoCongelado rtfc ON dc.Id = rtfc.IdGestionDocenteDisparadorCongelado AND rtfc.Estado = 1
-                    WHERE adc.Id = @IdActividadDetalleCongelada
-                      AND dc.Id = @IdDisparadorCongelado
-                      AND adc.Estado = 1
-                      AND dc.Estado = 1";
+                string query = "EXEC [pla].[SP_GestionDocenteActividadDetalleCongelada_ObtenerParaEjecucion] @IdActividadDetalleCongelada, @IdDisparadorCongelado";
 
                 var result = await _dapperRepository.FirstOrDefaultAsync(query, new
                 {

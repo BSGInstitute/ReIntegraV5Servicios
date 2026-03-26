@@ -271,7 +271,9 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int? IdPEspecificoSesion { get; set; }
         public int IdPlantillaBase { get; set; }
         public int IdPlantilla { get; set; }
+        public int? IdPersonalAsignado { get; set; }
     }
+
     // DTO interno para deserializar resultado plano del SP
     public class ActividadFlujoRawDTO
     {
