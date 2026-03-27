@@ -66,6 +66,8 @@
         public string CentroCosto { get; set; }
         public DateTime FechaVencimiento { get; set; }
         public int? VersionPrograma { get; set; }
+        public string? NombrePersonal { get; set; }
+        public string? NombreVersionPrograma { get; set; }
     }
     public class MatriculaDTO
     {
