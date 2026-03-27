@@ -218,8 +218,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         /// <summary>
         /// Obtiene lista de proveedores para combo de programa especifico FUR
         /// </summary>
-        /// <returns> List<ProveedorProductoDTO> </returns>
-        public IEnumerable<ProveedorDTO> ObtenerTodoProveedorById(int? Id)
+        /// <returns> IEnumerable<ProveedorVistaDTO> </returns>
+        public IEnumerable<ProveedorVistaDTO> ObtenerTodoProveedorById(int? Id)
         {
             try
             {
@@ -716,9 +716,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         /// <summary>
         /// Obtiene datos apra el llenado de una grilla.
         /// </summary>
-        /// <returns> object </returns>
+        /// <returns> IEnumerable<ProveedorVistaDTO> </returns>
         /// <param name="IdProveedor">Identificador del proveedor</param>
-        public IEnumerable<ProveedorDTO> ObtenerProveedorGrilla(int? IdProveedor)
+        public IEnumerable<ProveedorVistaDTO> ObtenerProveedorGrilla(int? IdProveedor)
         {
             try
             {

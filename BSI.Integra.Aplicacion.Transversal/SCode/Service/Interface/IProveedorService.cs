@@ -20,7 +20,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         IEnumerable<ProveedorRucRazonSocialDTO> ObtenerProveedorPorRuc(string valor);
         string ObtenerNombreProveedorPorId(int Id);
         IEnumerable<FiltroRucProveedorDTO> ObtenerProveedorRucAutocomplete();
-        IEnumerable<ProveedorDTO> ObtenerTodoProveedorById(int? Id);
+        IEnumerable<ProveedorVistaDTO> ObtenerTodoProveedorById(int? Id);
         IEnumerable<ProveedorComboDTO> ObtenerProveedorCombo(string Texto);
         IEnumerable<ProveedorComboDTO> ObtenerProveedoresConEstadoCuentaPagadoPendiente();
         int? ObtenerProveedorEliminadoEmailRepetido(string email);
@@ -33,7 +33,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         bool EliminarProveedor(int Id, string Usuario);
         bool ValidarExistenciaProveedor(CadenaStringDTO DocidentidadEmail);
         object ObtenerImpuestosProveedor();
-        IEnumerable<ProveedorDTO> ObtenerProveedorGrilla(int? IdProveedor);
+        IEnumerable<ProveedorVistaDTO> ObtenerProveedorGrilla(int? IdProveedor);
         IEnumerable<DTO.ComboDTO> ObtenerTodoCoordinadoresDocentes();
         ProveedorDTO ObtenerProveedorPorId(int idProveedor);
         List<FiltroConvocatoriaPersonalDTO> ObtenerProveedoresConvocatoriaPersonal();

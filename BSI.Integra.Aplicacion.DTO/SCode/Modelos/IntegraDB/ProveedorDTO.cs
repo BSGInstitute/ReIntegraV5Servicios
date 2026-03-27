@@ -140,5 +140,6 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string? Alias { get; set; }
         public bool? EsDocente { get; set; }
     }
+   
 
 }
