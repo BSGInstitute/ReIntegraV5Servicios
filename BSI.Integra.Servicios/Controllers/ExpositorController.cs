@@ -163,5 +163,20 @@ namespace BSI.Integra.Servicios.Controllers
             var resultado = _expositorService.ObtenerCombo();
             return Ok(resultado);
         }
+
+        /// Tipo Función: POST
+        /// Autor: Marco Jose Villanueva Torres
+        /// Fecha: 2026-03-30
+        /// Version: 1.0
+        /// <summary>
+        /// Busca expositores por email, celular o nro de documento para vincular con proveedores docentes.
+        /// </summary>
+        [Route("[action]")]
+        [HttpPost]
+        public IActionResult BuscarPorContacto([FromBody] BuscarExpositorContactoDTO dto)
+        {
+            var resultado = _expositorService.BuscarPorContacto(dto.Email, dto.Celular, dto.NroDocumento);
+            return Ok(resultado);
+        }
     }
 }

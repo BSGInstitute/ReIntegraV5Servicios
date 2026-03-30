@@ -24,5 +24,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         int? ObtenerExpositorEliminadoEmailRepetido(string email);
         bool EliminarFisicaExpositor(string tablaV3, string tablaV4, int idV4, Guid? idv3, int? id_v3);
         IEnumerable<ExpositorDTO> Obtener();
+        IEnumerable<ExpositorDTO> BuscarPorContacto(string? email, string? celular, string? nroDocumento);
     }
 }
