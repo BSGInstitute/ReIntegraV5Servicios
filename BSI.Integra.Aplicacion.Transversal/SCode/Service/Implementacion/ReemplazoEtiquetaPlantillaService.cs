@@ -4,6 +4,7 @@ using BSI.Integra.Aplicacion.DTO.Modelos;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.GestionPersonas;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Transversal.Helper;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
@@ -11,7 +12,6 @@ using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Implementation;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Helpers;
-using DocumentFormat.OpenXml.Wordprocessing;
 using Mandrill.Models;
 using System.Globalization;
 using System.Text;
@@ -2988,100 +2988,312 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         }
         /// Autor: Jose Vega
         /// Fecha: 19/03/2026
-        /// Versión: 1.0
+        /// Versión: 2.0
         /// <summary>
-        /// Reemplaza las etiquetas para el flujo de planificación
+        /// Reemplaza TODAS las etiquetas del flujo de Planificación (docente, personal,
+        /// centro de costo, curso, sesiones, valores dinámicos) tanto para Email como WhatsApp.
+        /// Sigue el mismo patrón que ReemplazarEtiquetasComercial: carga datos, reemplaza en
+        /// un solo paso y empaqueta la salida según IdPlantillaBase.
         /// </summary>
-        /// <param name="contenido"></param>
-        /// <param name="idActividadDetalle"></param>
-        /// <param name="idCentroCosto"></param>
-        /// <returns></returns>
-        public string ReemplazarEtiquetasPlanificacion(string contenido, int idCentroCosto, int idClasificacionPersona)
+        public (PlantillaEmailMandrillDTO EmailReemplazado, PlantillaWhatsAppCalculadoDTO WhatsAppReemplazado) ReemplazarEtiquetasPlanificacion(ReemplazoEtiquetaPlantillaDocenteDTO request)
         {
+            PlantillaEmailMandrillDTO emailReemplazado = new();
+            PlantillaWhatsAppCalculadoDTO whatsAppReemplazado = new();
             try
             {
-                if (string.IsNullOrEmpty(contenido)) return contenido;
-                if (idCentroCosto <= 0) return contenido;
+                // ── 1. Resolver parámetros: desde GestionContacto o directos ──
+                int idCentroCosto = 0;
+                int idClasificacionPersona = 0;
+                int idPersonal = 0;
 
-                if (contenido.Contains("{nombre_docente}") && idClasificacionPersona > 0)
+                if (request.IdGestionContacto.HasValue && request.IdGestionContacto.Value > 0)
                 {
-                    var valor = _unitOfWork.PEspecificoRepository.ObtenerNombreDocentePlanificacion(idClasificacionPersona);
-                    contenido = contenido.Replace("{nombre_docente}", valor ?? "");
+                    var gestionContacto = _unitOfWork.GestionContactoRepository
+                        .ObtenerPorIdAsync(request.IdGestionContacto.Value).Result;
+                    if (gestionContacto == null || gestionContacto.Id == 0)
+                        throw new BadRequestException("Gestión de contacto no existente!");
+
+                    idCentroCosto = gestionContacto.IdCentroCosto ?? 0;
+                    idClasificacionPersona = gestionContacto.IdClasificacionPersona ?? 0;
+                    idPersonal = gestionContacto.IdPersonal_Asignado ?? 0;
+                }
+                else
+                {
+                    idCentroCosto = request.IdCentroCosto ?? 0;
+                    idClasificacionPersona = request.IdClasificacionPersona ?? 0;
+                    idPersonal = request.IdPersonal ?? 0;
                 }
 
-                if (contenido.Contains("{nombre_curso}"))
+                // ── 2. Obtener plantilla y preparar estructura ──
+                var plantilla = _unitOfWork.PlantillaRepository.ObtenerPorId(request.IdPlantilla);
+                if (plantilla == null || plantilla.Id == 0)
+                    throw new BadRequestException("Plantilla no válida!");
+
+                _plantillaCorreo = _unitOfWork.PlantillaRepository.ObtenerPlantillaCorreo(plantilla.Id);
+
+                var listaEtiqueta = _plantillaCorreo.Cuerpo
+                    .Split("{", StringSplitOptions.None)
+                    .Where(o => o.Contains("}"))
+                    .Select(o => o.Split("}", StringSplitOptions.None).First());
+
+                _listaObjetoWhatsApp = listaEtiqueta.Select(x => new DatoPlantillaWhatsAppDTO
                 {
-                    var valor = _unitOfWork.PEspecificoRepository.ObtenerNombreCursoPorCentroCosto(idCentroCosto);
-                    contenido = contenido.Replace("{nombre_curso}", valor ?? "");
+                    Codigo = string.Concat("{", x, "}"),
+                    Texto = ""
+                }).ToList();
+
+                _idPlantillaBase = plantilla.IdPlantillaBase;
+
+                // ── 3. Cargar entidades ──
+                DocentePostulanteDTO docente = null;
+                if (idClasificacionPersona > 0)
+                    docente = _unitOfWork.DocentePostulanteRepository.ObtenerDocenteDTOPorIdClasificacionPersona(idClasificacionPersona);
+
+                Personal personal = null;
+                if (idPersonal > 0)
+                    personal = _unitOfWork.PersonalRepository.ObtenerPorId(idPersonal);
+
+                CentroCosto centroCosto = null;
+                if (idCentroCosto > 0)
+                    centroCosto = _unitOfWork.CentroCostoRepository.ObtenerPorId(idCentroCosto);
+
+                // ── 4. Etiquetas del docente ({tDocente.*} y {nombre_docente}) ──
+                if (docente != null)
+                {
+                    if (_plantillaCorreo.Cuerpo.Contains("{tDocente.Nombre1}"))
+                        ReemplazarCuerpoCorreoWhatsApp("{tDocente.Nombre1}", docente.Nombre1);
+                    if (_plantillaCorreo.Asunto.Contains("{tDocente.Nombre1}"))
+                        ReemplazarAsuntoCorreo("{tDocente.Nombre1}", docente.Nombre1);
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{tDocente.Nombre2}"))
+                        ReemplazarCuerpoCorreoWhatsApp("{tDocente.Nombre2}", docente.Nombre2);
+                    if (_plantillaCorreo.Asunto.Contains("{tDocente.Nombre2}"))
+                        ReemplazarAsuntoCorreo("{tDocente.Nombre2}", docente.Nombre2);
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{tDocente.ApellidoPaterno}"))
+                        ReemplazarCuerpoCorreoWhatsApp("{tDocente.ApellidoPaterno}", docente.ApellidoPaterno);
+                    if (_plantillaCorreo.Asunto.Contains("{tDocente.ApellidoPaterno}"))
+                        ReemplazarAsuntoCorreo("{tDocente.ApellidoPaterno}", docente.ApellidoPaterno);
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{tDocente.ApellidoMaterno}"))
+                        ReemplazarCuerpoCorreoWhatsApp("{tDocente.ApellidoMaterno}", docente.ApellidoMaterno);
+                    if (_plantillaCorreo.Asunto.Contains("{tDocente.ApellidoMaterno}"))
+                        ReemplazarAsuntoCorreo("{tDocente.ApellidoMaterno}", docente.ApellidoMaterno);
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{tDocente.NombreCompleto}"))
+                        ReemplazarCuerpoCorreoWhatsApp("{tDocente.NombreCompleto}", docente.NombreCompleto);
+                    if (_plantillaCorreo.Asunto.Contains("{tDocente.NombreCompleto}"))
+                        ReemplazarAsuntoCorreo("{tDocente.NombreCompleto}", docente.NombreCompleto);
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{tDocente.Correo}"))
+                        ReemplazarCuerpoCorreoWhatsApp("{tDocente.Correo}", docente.Correo);
+                    if (_plantillaCorreo.Asunto.Contains("{tDocente.Correo}"))
+                        ReemplazarAsuntoCorreo("{tDocente.Correo}", docente.Correo);
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{tDocente.Celular}"))
+                        ReemplazarCuerpoCorreoWhatsApp("{tDocente.Celular}", docente.Celular);
+                    if (_plantillaCorreo.Asunto.Contains("{tDocente.Celular}"))
+                        ReemplazarAsuntoCorreo("{tDocente.Celular}", docente.Celular);
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{tDocente.Telefono}"))
+                        ReemplazarCuerpoCorreoWhatsApp("{tDocente.Telefono}", docente.Telefono);
+                    if (_plantillaCorreo.Asunto.Contains("{tDocente.Telefono}"))
+                        ReemplazarAsuntoCorreo("{tDocente.Telefono}", docente.Telefono);
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{tDocente.NumeroDocumento}"))
+                        ReemplazarCuerpoCorreoWhatsApp("{tDocente.NumeroDocumento}", docente.NumeroDocumento);
+                    if (_plantillaCorreo.Asunto.Contains("{tDocente.NumeroDocumento}"))
+                        ReemplazarAsuntoCorreo("{tDocente.NumeroDocumento}", docente.NumeroDocumento);
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{tDocente.Ciudad}"))
+                        ReemplazarCuerpoCorreoWhatsApp("{tDocente.Ciudad}", docente.NombreCiudad);
+                    if (_plantillaCorreo.Asunto.Contains("{tDocente.Ciudad}"))
+                        ReemplazarAsuntoCorreo("{tDocente.Ciudad}", docente.NombreCiudad);
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{nombre_docente}"))
+                        ReemplazarCuerpoCorreoWhatsApp("{nombre_docente}", docente.NombreCompleto);
+                    if (_plantillaCorreo.Asunto.Contains("{nombre_docente}"))
+                        ReemplazarAsuntoCorreo("{nombre_docente}", docente.NombreCompleto);
                 }
 
-                if (contenido.Contains("{nombre_curso_programa_hijo}"))
+                // ── 5. Etiquetas del personal/coordinador ({tPersonal.*}) ──
+                if (personal != null)
                 {
-                    var valor = _unitOfWork.PEspecificoRepository.ObtenerNombreCursoPorCentroCosto(idCentroCosto);
-                    contenido = contenido.Replace("{nombre_curso_programa_hijo}", valor ?? "");
+                    if (_plantillaCorreo.Cuerpo.Contains("{tPersonal.Nombre1}"))
+                        ReemplazarCuerpoCorreoWhatsApp("{tPersonal.Nombre1}", personal.Nombre1);
+                    if (_plantillaCorreo.Asunto.Contains("{tPersonal.Nombre1}"))
+                        ReemplazarAsuntoCorreo("{tPersonal.Nombre1}", personal.Nombre1);
+
+                    string nombreCompletoPersonal = $"{personal.Nombres} {personal.Apellidos}".Trim();
+                    if (_plantillaCorreo.Cuerpo.Contains("{tPersonal.NombreCompleto}"))
+                        ReemplazarCuerpoCorreoWhatsApp("{tPersonal.NombreCompleto}", nombreCompletoPersonal);
+                    if (_plantillaCorreo.Asunto.Contains("{tPersonal.NombreCompleto}"))
+                        ReemplazarAsuntoCorreo("{tPersonal.NombreCompleto}", nombreCompletoPersonal);
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{tPersonal.email}"))
+                        ReemplazarCuerpoCorreoWhatsApp("{tPersonal.email}", personal.Email);
+                    if (_plantillaCorreo.Asunto.Contains("{tPersonal.email}"))
+                        ReemplazarAsuntoCorreo("{tPersonal.email}", personal.Email);
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{tPersonal.Anexo}"))
+                        ReemplazarCuerpoCorreoWhatsApp("{tPersonal.Anexo}", personal.Anexo);
+                    if (_plantillaCorreo.Asunto.Contains("{tPersonal.Anexo}"))
+                        ReemplazarAsuntoCorreo("{tPersonal.Anexo}", personal.Anexo);
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{tPersonal.Telefono}"))
+                        ReemplazarCuerpoCorreoWhatsApp("{tPersonal.Telefono}", personal.Central);
+                    if (_plantillaCorreo.Asunto.Contains("{tPersonal.Telefono}"))
+                        ReemplazarAsuntoCorreo("{tPersonal.Telefono}", personal.Central);
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{tPersonal.UrlFirmaCorreos}"))
+                        ReemplazarCuerpoCorreoWhatsApp("{tPersonal.UrlFirmaCorreos}", personal.UrlFirmaCorreos);
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{T_Personal.FirmaCorreo}"))
+                        ReemplazarCuerpoCorreoWhatsApp("{T_Personal.FirmaCorreo}", personal.FirmaHtml);
                 }
 
-                if (contenido.Contains("{nombre_pais}") && idClasificacionPersona > 0)
+                // ── 6. Etiquetas del centro de costo ({tCentroCosto.*}) ──
+                if (centroCosto != null)
+                {
+                    if (_plantillaCorreo.Cuerpo.Contains("{tCentroCosto.Nombre}"))
+                        ReemplazarCuerpoCorreoWhatsApp("{tCentroCosto.Nombre}", centroCosto.Nombre);
+                    if (_plantillaCorreo.Asunto.Contains("{tCentroCosto.Nombre}"))
+                        ReemplazarAsuntoCorreo("{tCentroCosto.Nombre}", centroCosto.Nombre);
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{tCentroCosto.Codigo}"))
+                        ReemplazarCuerpoCorreoWhatsApp("{tCentroCosto.Codigo}", centroCosto.Codigo);
+                    if (_plantillaCorreo.Asunto.Contains("{tCentroCosto.Codigo}"))
+                        ReemplazarAsuntoCorreo("{tCentroCosto.Codigo}", centroCosto.Codigo);
+                }
+
+                // ── 7. Etiquetas de planificación (cursos, tarifas, sesiones) ──
+                if (idCentroCosto > 0)
+                {
+                    if (_plantillaCorreo.Cuerpo.Contains("{nombre_curso}"))
+                    {
+                        var valor = _unitOfWork.PEspecificoRepository.ObtenerNombreCursoPorCentroCosto(idCentroCosto);
+                        ReemplazarCuerpoCorreoWhatsApp("{nombre_curso}", valor);
+                        ReemplazarAsuntoCorreo("{nombre_curso}", valor);
+                    }
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{nombre_curso_programa_hijo}"))
+                    {
+                        var valor = _unitOfWork.PEspecificoRepository.ObtenerNombreCursoPorCentroCosto(idCentroCosto);
+                        ReemplazarCuerpoCorreoWhatsApp("{nombre_curso_programa_hijo}", valor);
+                        ReemplazarAsuntoCorreo("{nombre_curso_programa_hijo}", valor);
+                    }
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{plazo_otorgado}"))
+                    {
+                        var valor = _unitOfWork.PEspecificoRepository.ObtenerPlazoOtorgadoPorCentroCosto(idCentroCosto);
+                        ReemplazarCuerpoCorreoWhatsApp("{plazo_otorgado}", valor);
+                    }
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{tarifa}"))
+                    {
+                        var valor = _unitOfWork.PEspecificoRepository.ObtenerTarifaDocentePorCentroCosto(idCentroCosto);
+                        ReemplazarCuerpoCorreoWhatsApp("{tarifa}", valor);
+                    }
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{moneda}"))
+                    {
+                        var valor = _unitOfWork.PEspecificoRepository.ObtenerMonedaDocentePorCentroCosto(idCentroCosto);
+                        ReemplazarCuerpoCorreoWhatsApp("{moneda}", valor);
+                    }
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{plazo_pago}"))
+                    {
+                        var valor = _unitOfWork.PEspecificoRepository.ObtenerPlazoPagoDocentePorCentroCosto(idCentroCosto);
+                        ReemplazarCuerpoCorreoWhatsApp("{plazo_pago}", valor);
+                    }
+
+                    // Etiquetas que dependen de zona horaria del docente
+                    int incrementoHoras = 0;
+                    bool necesitaZonaHoraria = _plantillaCorreo.Cuerpo.Contains("{fecha_primera_sesion}")
+                        || _plantillaCorreo.Cuerpo.Contains("{tabla_sesiones}")
+                        || _plantillaCorreo.Cuerpo.Contains("{fecha_webinar}");
+
+                    if (necesitaZonaHoraria && idClasificacionPersona > 0)
+                        incrementoHoras = _unitOfWork.PEspecificoRepository.ObtenerIncrementoZonaHorariaDocente(idClasificacionPersona);
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{fecha_primera_sesion}"))
+                    {
+                        var valor = _unitOfWork.PEspecificoRepository.ObtenerFechaPrimeraSesionPorCentroCosto(idCentroCosto, incrementoHoras);
+                        ReemplazarCuerpoCorreoWhatsApp("{fecha_primera_sesion}", valor);
+                    }
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{fecha_webinar}"))
+                    {
+                        var valor = _unitOfWork.PEspecificoRepository.ObtenerFechaHoraWebinarPorCentroCosto(idCentroCosto, incrementoHoras);
+                        ReemplazarCuerpoCorreoWhatsApp("{fecha_webinar}", valor);
+                    }
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{tabla_sesiones}"))
+                    {
+                        var sesiones = _unitOfWork.PEspecificoRepository.ObtenerSesionesPlanificacion(idCentroCosto, incrementoHoras);
+                        string htmlTabla = GenerarTablaSesionesHtml(sesiones);
+                        ReemplazarCuerpoCorreoWhatsApp("{tabla_sesiones}", htmlTabla);
+                    }
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{tabla_criterios}"))
+                    {
+                        var criterios = _unitOfWork.PEspecificoRepository.ObtenerCriteriosEvaluacionPorCentroCosto(idCentroCosto);
+                        string htmlTabla = GenerarTablaCriteriosHtml(criterios);
+                        ReemplazarCuerpoCorreoWhatsApp("{tabla_criterios}", htmlTabla);
+                    }
+                }
+
+                // ── 8. Etiqueta {nombre_pais} (requiere idClasificacionPersona) ──
+                if (idClasificacionPersona > 0 && _plantillaCorreo.Cuerpo.Contains("{nombre_pais}"))
                 {
                     var valor = _unitOfWork.PEspecificoRepository.ObtenerNombrePaisDocentePlanificacion(idClasificacionPersona);
-                    contenido = contenido.Replace("{nombre_pais}", valor ?? "");
+                    ReemplazarCuerpoCorreoWhatsApp("{nombre_pais}", valor);
                 }
 
-                if (contenido.Contains("{plazo_otorgado}"))
+                // ── 9. Valores dinámicos de fecha actual ──
+                DateTime fechaActual = DateTime.Now;
+
+                if (_plantillaCorreo.Cuerpo.Contains("{ValorDinamico.DiaFechaActual}"))
                 {
-                    var valor = _unitOfWork.PEspecificoRepository.ObtenerPlazoOtorgadoPorCentroCosto(idCentroCosto);
-                    contenido = contenido.Replace("{plazo_otorgado}", valor ?? "");
+                    ReemplazarCuerpoCorreoWhatsApp("{ValorDinamico.DiaFechaActual}", fechaActual.Day.ToString());
+                    ReemplazarAsuntoCorreo("{ValorDinamico.DiaFechaActual}", fechaActual.Day.ToString());
                 }
 
-                if (contenido.Contains("{tarifa}"))
+                if (_plantillaCorreo.Cuerpo.Contains("{ValorDinamico.NombreMesFechaActual}"))
                 {
-                    var valor = _unitOfWork.PEspecificoRepository.ObtenerTarifaDocentePorCentroCosto(idCentroCosto);
-                    contenido = contenido.Replace("{tarifa}", valor ?? "");
+                    string nombreMes = fechaActual.ToString("MMMM", new CultureInfo("es-ES"));
+                    ReemplazarCuerpoCorreoWhatsApp("{ValorDinamico.NombreMesFechaActual}", nombreMes);
+                    ReemplazarAsuntoCorreo("{ValorDinamico.NombreMesFechaActual}", nombreMes);
                 }
 
-                if (contenido.Contains("{moneda}"))
+                if (_plantillaCorreo.Cuerpo.Contains("{ValorDinamico.AnioFechaActual}"))
                 {
-                    var valor = _unitOfWork.PEspecificoRepository.ObtenerMonedaDocentePorCentroCosto(idCentroCosto);
-                    contenido = contenido.Replace("{moneda}", valor ?? "");
+                    ReemplazarCuerpoCorreoWhatsApp("{ValorDinamico.AnioFechaActual}", fechaActual.Year.ToString());
+                    ReemplazarAsuntoCorreo("{ValorDinamico.AnioFechaActual}", fechaActual.Year.ToString());
                 }
 
-                if (contenido.Contains("{plazo_pago}"))
+                // ── 10. Empaquetar resultado según tipo de plantilla ──
+                if (plantilla.IdPlantillaBase == PlantillaBase.Email)
                 {
-                    var valor = _unitOfWork.PEspecificoRepository.ObtenerPlazoPagoDocentePorCentroCosto(idCentroCosto);
-                    contenido = contenido.Replace("{plazo_pago}", valor ?? "");
+                    emailReemplazado.Asunto = _plantillaCorreo.Asunto;
+                    emailReemplazado.CuerpoHTML = _plantillaCorreo.Cuerpo;
                 }
-
-                int incrementoHoras = 0;
-                if (idClasificacionPersona > 0 && (contenido.Contains("{fecha_primera_sesion}") || contenido.Contains("{tabla_sesiones}")))
+                else if (plantilla.IdPlantillaBase == PlantillaBase.WhatsappFacebook)
                 {
-                    incrementoHoras = _unitOfWork.PEspecificoRepository.ObtenerIncrementoZonaHorariaDocente(idClasificacionPersona);
+                    whatsAppReemplazado.Plantilla = _plantillaCorreo.Cuerpo;
+                    whatsAppReemplazado.ListaEtiquetas = _listaObjetoWhatsApp;
+
+                    foreach (var item in whatsAppReemplazado.ListaEtiquetas)
+                    {
+                        whatsAppReemplazado.Plantilla = whatsAppReemplazado.Plantilla.Replace(item.Codigo, item.Texto);
+                    }
                 }
 
-                if (contenido.Contains("{fecha_primera_sesion}"))
-                {
-                    var valor = _unitOfWork.PEspecificoRepository.ObtenerFechaPrimeraSesionPorCentroCosto(idCentroCosto, incrementoHoras);
-                    contenido = contenido.Replace("{fecha_primera_sesion}", valor ?? "");
-                }
-
-                if (contenido.Contains("{tabla_sesiones}"))
-                {
-                    var sesiones = _unitOfWork.PEspecificoRepository.ObtenerSesionesPlanificacion(idCentroCosto, incrementoHoras);
-                    string htmlTabla = GenerarTablaSesionesHtml(sesiones);
-                    contenido = contenido.Replace("{tabla_sesiones}", htmlTabla);
-                }
-
-                if (contenido.Contains("{tabla_criterios}"))
-                {
-                    var criterios = _unitOfWork.PEspecificoRepository.ObtenerCriteriosEvaluacionPorCentroCosto(idCentroCosto);
-                    string htmlTabla = GenerarTablaCriteriosHtml(criterios);
-                    contenido = contenido.Replace("{tabla_criterios}", htmlTabla);
-                }
-
-                return contenido;
+                return (emailReemplazado, whatsAppReemplazado);
             }
             catch (Exception)
             {
-                return contenido;
+                throw;
             }
         }
 

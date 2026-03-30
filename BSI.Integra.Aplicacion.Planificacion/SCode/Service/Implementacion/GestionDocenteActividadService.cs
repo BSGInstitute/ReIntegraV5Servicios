@@ -1,6 +1,7 @@
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
+using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -1145,200 +1146,15 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
 
         /// Autor: Jose Vega
         /// Fecha: 19/02/2026
-        /// Versión: 1.0
+        /// Versión: 2.0
         /// <summary>
-        /// Genera una plantilla de email o WhatsApp para docentes, reemplazando las etiquetas con datos reales
-        /// del docente, coordinador y curso asociado a la gestión de contacto.
+        /// Genera una plantilla de email o WhatsApp para docentes, delegando todo el
+        /// reemplazo de etiquetas al método unificado ReemplazarEtiquetasPlanificacion.
         /// </summary>
-        /// <param name="request">DTO con IdGestionContacto e IdPlantilla.</param>
-        /// <returns>Tupla con PlantillaEmailMandrillDTO y PlantillaWhatsAppCalculadoDTO.</returns>
         public (PlantillaEmailMandrillDTO EmailReemplazado, PlantillaWhatsAppCalculadoDTO WhatsAppReemplazado) GenerarPlantillaDocente(ReemplazoEtiquetaPlantillaDocenteDTO request)
         {
-            PlantillaAsuntoCuerpoDTO plantillaCorreo = new();
-            List<DatoPlantillaWhatsAppDTO> listaObjetoWhatsApp = new();
-            int idPlantillaBase = 0;
-
-            PlantillaEmailMandrillDTO emailReemplazado = new();
-            PlantillaWhatsAppCalculadoDTO whatsAppReemplazado = new();
-
-                // 1. Obtener GestionContacto
-                var gestionContacto = _unitOfWork.GestionContactoRepository.ObtenerPorIdAsync(request.IdGestionContacto).Result;
-                if (gestionContacto == null || gestionContacto.Id == 0)
-                    throw new Exception("Gestión de contacto no existente!");
-
-                // 2. Obtener datos del docente resolviendo a través de ClasificacionPersona
-                // (soporta Proveedor tipo 4 y DocentePostulante tipo 6)
-                DocentePostulanteDTO docente = null;
-                if (gestionContacto.IdClasificacionPersona.HasValue)
-                {
-                    docente = _unitOfWork.DocentePostulanteRepository.ObtenerDocenteDTOPorIdClasificacionPersona(gestionContacto.IdClasificacionPersona.Value);
-                }
-                if (docente == null)
-                    throw new Exception("Docente no encontrado para la clasificación de persona indicada!");
-
-                // 3. Obtener Personal (coordinador/asesor)
-                Personal personal = null;
-                if (gestionContacto.IdPersonal_Asignado.HasValue)
-                {
-                    personal = _unitOfWork.PersonalRepository.ObtenerPorId(gestionContacto.IdPersonal_Asignado.Value);
-                }
-
-                // 4. Obtener CentroCosto (curso)
-                CentroCosto centroCosto = null;
-                if (gestionContacto.IdCentroCosto.HasValue)
-                {
-                    centroCosto = _unitOfWork.CentroCostoRepository.ObtenerPorId(gestionContacto.IdCentroCosto.Value);
-                }
-
-                // 5. Obtener Plantilla
-                var plantilla = _unitOfWork.PlantillaRepository.ObtenerPorId(request.IdPlantilla);
-                if (plantilla == null || plantilla.Id == 0)
-                    throw new Exception("Plantilla no válida!");
-
-                // 6. Obtener Asunto y Cuerpo
-                plantillaCorreo = _unitOfWork.PlantillaRepository.ObtenerPlantillaCorreo(plantilla.Id);
-
-                // 7. Extraer etiquetas del cuerpo
-                var listaEtiqueta = plantillaCorreo.Cuerpo
-                    .Split("{", StringSplitOptions.None)
-                    .Where(o => o.Contains("}"))
-                    .Select(o => o.Split("}", StringSplitOptions.None).First());
-
-                listaObjetoWhatsApp = listaEtiqueta.Select(x => new DatoPlantillaWhatsAppDTO
-                {
-                    Codigo = string.Concat("{", x, "}"),
-                    Texto = ""
-                }).ToList();
-
-                idPlantillaBase = plantilla.IdPlantillaBase;
-
-                // 8. Reemplazar etiquetas del docente
-                ReemplazarCuerpoCorreoWhatsAppDocente("{tDocente.Nombre1}", docente.Nombre1, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                ReemplazarAsuntoCorreoDocente("{tDocente.Nombre1}", docente.Nombre1, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-
-                ReemplazarCuerpoCorreoWhatsAppDocente("{tDocente.Nombre2}", docente.Nombre2, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                ReemplazarAsuntoCorreoDocente("{tDocente.Nombre2}", docente.Nombre2, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-
-                ReemplazarCuerpoCorreoWhatsAppDocente("{tDocente.ApellidoPaterno}", docente.ApellidoPaterno, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                ReemplazarAsuntoCorreoDocente("{tDocente.ApellidoPaterno}", docente.ApellidoPaterno, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-
-                ReemplazarCuerpoCorreoWhatsAppDocente("{tDocente.ApellidoMaterno}", docente.ApellidoMaterno, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                ReemplazarAsuntoCorreoDocente("{tDocente.ApellidoMaterno}", docente.ApellidoMaterno, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-
-                ReemplazarCuerpoCorreoWhatsAppDocente("{tDocente.NombreCompleto}", docente.NombreCompleto, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                ReemplazarAsuntoCorreoDocente("{tDocente.NombreCompleto}", docente.NombreCompleto, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-
-                ReemplazarCuerpoCorreoWhatsAppDocente("{tDocente.Correo}", docente.Correo, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                ReemplazarAsuntoCorreoDocente("{tDocente.Correo}", docente.Correo, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-
-                ReemplazarCuerpoCorreoWhatsAppDocente("{tDocente.Celular}", docente.Celular, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                ReemplazarAsuntoCorreoDocente("{tDocente.Celular}", docente.Celular, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-
-                ReemplazarCuerpoCorreoWhatsAppDocente("{tDocente.Telefono}", docente.Telefono, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                ReemplazarAsuntoCorreoDocente("{tDocente.Telefono}", docente.Telefono, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-
-                ReemplazarCuerpoCorreoWhatsAppDocente("{tDocente.NumeroDocumento}", docente.NumeroDocumento, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                ReemplazarAsuntoCorreoDocente("{tDocente.NumeroDocumento}", docente.NumeroDocumento, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-
-                ReemplazarCuerpoCorreoWhatsAppDocente("{tDocente.Ciudad}", docente.NombreCiudad, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                ReemplazarAsuntoCorreoDocente("{tDocente.Ciudad}", docente.NombreCiudad, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-
-                // 9. Reemplazar etiquetas del personal (coordinador/asesor)
-                if (personal != null)
-                {
-                    ReemplazarCuerpoCorreoWhatsAppDocente("{tPersonal.Nombre1}", personal.Nombre1, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                    ReemplazarAsuntoCorreoDocente("{tPersonal.Nombre1}", personal.Nombre1, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-
-                    string nombreCompletoPersonal = $"{personal.Nombres} {personal.Apellidos}".Trim();
-                    ReemplazarCuerpoCorreoWhatsAppDocente("{tPersonal.NombreCompleto}", nombreCompletoPersonal, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                    ReemplazarAsuntoCorreoDocente("{tPersonal.NombreCompleto}", nombreCompletoPersonal, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-
-                    ReemplazarCuerpoCorreoWhatsAppDocente("{tPersonal.email}", personal.Email, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                    ReemplazarAsuntoCorreoDocente("{tPersonal.email}", personal.Email, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-
-                    ReemplazarCuerpoCorreoWhatsAppDocente("{tPersonal.Anexo}", personal.Anexo, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                    ReemplazarAsuntoCorreoDocente("{tPersonal.Anexo}", personal.Anexo, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-
-                    ReemplazarCuerpoCorreoWhatsAppDocente("{tPersonal.Telefono}", personal.Central, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                    ReemplazarAsuntoCorreoDocente("{tPersonal.Telefono}", personal.Central, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-
-                    ReemplazarCuerpoCorreoWhatsAppDocente("{tPersonal.UrlFirmaCorreos}", personal.UrlFirmaCorreos, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                    ReemplazarAsuntoCorreoDocente("{tPersonal.UrlFirmaCorreos}", personal.UrlFirmaCorreos, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                }
-
-                // 10. Reemplazar etiquetas del centro de costo (curso)
-                if (centroCosto != null)
-                {
-                    ReemplazarCuerpoCorreoWhatsAppDocente("{tCentroCosto.Nombre}", centroCosto.Nombre, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                    ReemplazarAsuntoCorreoDocente("{tCentroCosto.Nombre}", centroCosto.Nombre, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-
-                    ReemplazarCuerpoCorreoWhatsAppDocente("{tCentroCosto.Codigo}", centroCosto.Codigo, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                    ReemplazarAsuntoCorreoDocente("{tCentroCosto.Codigo}", centroCosto.Codigo, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                }
-
-                // 11. Reemplazar valores dinámicos
-                DateTime fechaActual = DateTime.Now;
-                ReemplazarCuerpoCorreoWhatsAppDocente("{ValorDinamico.AnioFechaActual}", fechaActual.Year.ToString(), idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                ReemplazarAsuntoCorreoDocente("{ValorDinamico.AnioFechaActual}", fechaActual.Year.ToString(), idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-
-                ReemplazarCuerpoCorreoWhatsAppDocente("{ValorDinamico.DiaFechaActual}", fechaActual.Day.ToString(), idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                ReemplazarAsuntoCorreoDocente("{ValorDinamico.DiaFechaActual}", fechaActual.Day.ToString(), idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-
-                string nombreMes = fechaActual.ToString("MMMM", new CultureInfo("es-ES"));
-                ReemplazarCuerpoCorreoWhatsAppDocente("{ValorDinamico.NombreMesFechaActual}", nombreMes, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-                ReemplazarAsuntoCorreoDocente("{ValorDinamico.NombreMesFechaActual}", nombreMes, idPlantillaBase, plantillaCorreo, listaObjetoWhatsApp);
-
-                // 12. Construir resultado según tipo de plantilla
-                if (plantilla.IdPlantillaBase == PlantillaBase.Email)
-                {
-                    emailReemplazado.Asunto = plantillaCorreo.Asunto;
-                    emailReemplazado.CuerpoHTML = plantillaCorreo.Cuerpo;
-                }
-                else if (plantilla.IdPlantillaBase == PlantillaBase.WhatsappFacebook)
-                {
-                    whatsAppReemplazado.Plantilla = plantillaCorreo.Cuerpo;
-                    whatsAppReemplazado.ListaEtiquetas = listaObjetoWhatsApp;
-
-                    foreach (var item in whatsAppReemplazado.ListaEtiquetas)
-                    {
-                        whatsAppReemplazado.Plantilla = whatsAppReemplazado.Plantilla.Replace(item.Codigo, item.Texto);
-                    }
-                }
-
-                return (emailReemplazado, whatsAppReemplazado);
-        }
-
-        /// Autor: Jose Vega
-        /// Fecha: 19/02/2026
-        /// Versión: 1.0
-        /// <summary>
-        /// Reemplaza una etiqueta en el cuerpo de la plantilla para Email o en la lista de etiquetas para WhatsApp.
-        /// </summary>
-        /// <param name="etiqueta">Nombre de la etiqueta a reemplazar.</param>
-        /// <param name="valor">Valor con el que se reemplaza la etiqueta.</param>
-        private void ReemplazarCuerpoCorreoWhatsAppDocente(string etiqueta, string? valor, int idPlantillaBase, PlantillaAsuntoCuerpoDTO plantillaCorreo, List<DatoPlantillaWhatsAppDTO> listaObjetoWhatsApp)
-        {
-            if (idPlantillaBase == PlantillaBase.Email)
-                plantillaCorreo.Cuerpo = plantillaCorreo.Cuerpo.Replace(etiqueta, valor ?? "");
-            else if (idPlantillaBase == PlantillaBase.WhatsappFacebook)
-            {
-                var item = listaObjetoWhatsApp.FirstOrDefault(x => x.Codigo.Equals(etiqueta));
-                if (item != null) item.Texto = valor ?? "";
-            }
-        }
-
-        /// Autor: Jose Vega
-        /// Fecha: 19/02/2026
-        /// Versión: 1.0
-        /// <summary>
-        /// Reemplaza una etiqueta en el asunto de la plantilla para Email.
-        /// </summary>
-        /// <param name="etiqueta">Nombre de la etiqueta a reemplazar.</param>
-        /// <param name="valor">Valor con el que se reemplaza la etiqueta.</param>
-        private void ReemplazarAsuntoCorreoDocente(string etiqueta, string? valor, int idPlantillaBase, PlantillaAsuntoCuerpoDTO plantillaCorreo, List<DatoPlantillaWhatsAppDTO> listaObjetoWhatsApp)
-        {
-            if (idPlantillaBase == PlantillaBase.Email)
-                plantillaCorreo.Asunto = plantillaCorreo.Asunto.Replace(etiqueta, valor ?? "");
+            var reemplazoService = new ReemplazoEtiquetaPlantillaService(_unitOfWork);
+            return reemplazoService.ReemplazarEtiquetasPlanificacion(request);
         }
 
         /// Autor: Joseph Llanque

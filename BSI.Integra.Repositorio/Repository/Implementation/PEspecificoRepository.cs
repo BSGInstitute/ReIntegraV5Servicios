@@ -2767,6 +2767,39 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception) { return null; }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 26/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la fecha y hora del webinar (próxima sesión) formateado como "dd de MMMM de yyyy, HH:mm hrs"
+        /// </summary>
+        /// <param name="idCentroCosto">Id del centro de costo</param>
+        /// <param name="incrementoHoras">Horas de incremento por zona horaria</param>
+        /// <returns>Fecha y hora del webinar en formato legible</returns>
+        public string ObtenerFechaHoraWebinarPorCentroCosto(int idCentroCosto, int incrementoHoras = 0)
+        {
+            try
+            {
+                string _query = @"
+                SELECT TOP 1
+                    FORMAT(DATEADD(HOUR, @IncrementoHoras, ses.FechaHoraInicio), 'dd \de MMMM \de yyyy, HH:mm \h\r\s', 'es-PE') AS Valor
+                FROM pla.T_PEspecificoSesion ses
+                INNER JOIN pla.T_PEspecifico pe ON ses.IdPEspecifico = pe.Id
+                WHERE pe.IdCentroCosto = @IdCentroCosto 
+                    AND pe.Estado = 1 
+                    AND ses.Estado = 1
+                    AND ses.FechaHoraInicio >= GETDATE()
+                ORDER BY ses.FechaHoraInicio ASC";
+                var _queryRespuesta = _dapperRepository.FirstOrDefault(_query, new { IdCentroCosto = idCentroCosto, IncrementoHoras = incrementoHoras });
+                if (_queryRespuesta != "null" && !string.IsNullOrEmpty(_queryRespuesta))
+                {
+                    return JsonConvert.DeserializeObject<dynamic>(_queryRespuesta)?.Valor;
+                }
+                return null;
+            }
+            catch (Exception) { return null; }
+        }
+
         public List<SesionPlanificacionDTO> ObtenerSesionesPlanificacion(int idCentroCosto, int incrementoHoras = 0)
         {
             try
