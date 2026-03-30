@@ -129,7 +129,7 @@ namespace BSI.Integra.Servicios.Controllers
         /// <returns> objetoDTO: CorreoBodyDTO </returns>
         [Route("[action]")]
         [HttpGet]
-        public ActionResult MarcarComoLeidoGmail(int IdCorreo, int IdAsesor, string Folder)
+        public async Task<ActionResult> MarcarComoNoLeidoGmail(int IdCorreo, int IdAsesor, string Folder)
         {
             if (!ModelState.IsValid)
             {
@@ -142,14 +142,14 @@ namespace BSI.Integra.Servicios.Controllers
             try
             {
                 var servicioGmailCliente = new GmailClienteService(unitOfWork);
-                var resultado = servicioGmailCliente.MarcarComoLeidoGmail(IdAsesor, IdCorreo, Folder);
+                var resultado = await servicioGmailCliente.MarcarComoNoLeidoGmail(IdAsesor, IdCorreo, Folder);
                 if (resultado)
                 {
                     return Ok(resultado);
                 }
                 else
                 {
-                    return BadRequest("No puedo marcar como no leido(s)");
+                    return BadRequest("No se pudo marcar como no leido");
                 }
             }
             catch (Exception Ex)

@@ -150,24 +150,25 @@ namespace BSI.Integra.Aplicacion.Servicios.Service.Implementacion
         /// <param name="pass">Contraseña del correo electronico</param>
         /// <param name="folder">nombre del folder del correo</param>
         /// <returns>MailMessage</returns>
-        public bool MarcarComoLeidoGmail(int id, string correo, string pass, string folder)
+        public async Task<bool> MarcarComoNoLeidoGmail(int id, string correo, string pass, string folder)
         {
             try
             {
                 folder = NormalizarCarpetaGmail(folder);
-                MailMessage mensaje = Imap.QuickDownloadMessage("imap.gmail.com", correo, pass, folder, id);
-                if (mensaje != null)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+
+                _imap.SslMode = MailBee.Security.SslStartupMode.OnConnect;
+                await _imap.ConnectAsync("imap.gmail.com", 993);
+                await _imap.LoginAsync(correo, pass);
+                await _imap.SelectFolderAsync(folder);
+
+                await _imap.SetMessageFlagsAsync(id.ToString(), true, @"\Seen", MessageFlagAction.Remove, true);
+
+                await _imap.DisconnectAsync();
+                return true;
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                return false;
             }
         }
         /// Autor: Jashin Salazar Taco.

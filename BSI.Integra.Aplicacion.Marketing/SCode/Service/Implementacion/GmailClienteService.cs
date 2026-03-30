@@ -211,15 +211,15 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
         /// Marcar como no leido
         /// </summary>
         /// <returns> List<CorreoBodyDTO> </returns>
-        public bool MarcarComoLeidoGmail(int IdAsesor, int IdCorreo, string Folder)
+        public async Task<bool> MarcarComoNoLeidoGmail(int IdAsesor, int IdCorreo, string Folder)
         {
             var _gmailClienteServicio = new GmailClienteService(_unitOfWork);
-            _gmailClienteServicio.ObtenerClienteCredencial(IdAsesor);
+            var credencial = _gmailClienteServicio.ObtenerClienteCredencial(IdAsesor);
 
             var _imapService = new TMK_ImapService();
 
-            var mensaje =  _imapService.MarcarComoLeidoGmail(IdCorreo, _gmailClienteServicio.ObtenerClienteCredencial(IdAsesor).EmailAsesor, _gmailClienteServicio.ObtenerClienteCredencial(IdAsesor).PasswordCorreo, Folder);
-            return true;
+            var resultado = await _imapService.MarcarComoNoLeidoGmail(IdCorreo, credencial.EmailAsesor, credencial.PasswordCorreo, Folder);
+            return resultado;
         }
 
         /// Autor: Carlos Crispin.
