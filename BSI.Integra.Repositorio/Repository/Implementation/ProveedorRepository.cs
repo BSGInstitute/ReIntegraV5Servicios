@@ -936,49 +936,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 List<ProveedorDocenteDTO> rpta = new List<ProveedorDocenteDTO>();
                 var query = @"
                     SELECT
-    Id,
-    CASE
-        WHEN NULLIF(
-                REPLACE(
-                    REPLACE(
-                        REPLACE(
-                            LTRIM(RTRIM(CONCAT(
-                                ISNULL(ApePaterno,''),
-                                ' ',
-                                ISNULL(ApeMaterno,''),
-                                ', ',
-                                ISNULL(Nombre1,''),
-                                ' ',
-                                ISNULL(Nombre2,'')
-                            ))),
-                            ' ', ''
-                        ),
-                        ',', ''
-                    ),
-                    '.', ''
-                ),
-                ''
-             ) IS NULL
-        THEN RazonSocial
-        ELSE LTRIM(RTRIM(CONCAT(
-                ISNULL(ApePaterno,''),
-                ' ',
-                ISNULL(ApeMaterno,''),
-                ', ',
-                ISNULL(Nombre1,''),
-                ' ',
-                ISNULL(Nombre2,'')
-             )))
-    END AS Nombre,
-    IdCiudad,
-    Telefono,
-    Email,
-    Celular1,
-    Contacto1,
-    EsPersonaValida,
-    Alias,
-    EsDocente
-FROM fin.T_Proveedor where EsDocente = 1";
+	                    Id, CONCAT(ApePaterno,' ',ApeMaterno,', ',Nombre1,' ',Nombre2) AS Nombre ,IdCiudad,
+                                       Telefono,Email,Celular1,Contacto1,EsPersonaValida,Alias, EsDocente, NroDocIdentidad
+	                           FROM fin.T_Proveedor
+                    WHERE Estado = 1 and EsDocente=1 ORDER BY Id DESC";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
