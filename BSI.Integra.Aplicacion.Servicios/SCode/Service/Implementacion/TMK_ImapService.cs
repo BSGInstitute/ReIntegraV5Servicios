@@ -171,6 +171,38 @@ namespace BSI.Integra.Aplicacion.Servicios.Service.Implementacion
                 return false;
             }
         }
+        /// Autor: Carlos Crispin.
+        /// Fecha: 30/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Marca un correo electronico como leido
+        /// </summary>
+        /// <param name="id">Id del correo electronico (UID)</param>
+        /// <param name="correo">Cuenta del usuario</param>
+        /// <param name="pass">Contraseña del correo electronico</param>
+        /// <param name="folder">Nombre del folder del correo</param>
+        /// <returns>True si se marco como leido correctamente</returns>
+        public async Task<bool> MarcarComoLeidoGmail(int id, string correo, string pass, string folder)
+        {
+            try
+            {
+                folder = NormalizarCarpetaGmail(folder);
+
+                _imap.SslMode = MailBee.Security.SslStartupMode.OnConnect;
+                await _imap.ConnectAsync("imap.gmail.com", 993);
+                await _imap.LoginAsync(correo, pass);
+                await _imap.SelectFolderAsync(folder);
+
+                await _imap.SetMessageFlagsAsync(id.ToString(), true, @"\Seen", MessageFlagAction.Add, true);
+
+                await _imap.DisconnectAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
         /// Autor: Jashin Salazar Taco.
         /// Fecha: 19/08/2022
         /// Version: 1.0
