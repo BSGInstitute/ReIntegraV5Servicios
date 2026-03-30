@@ -382,8 +382,15 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
     public class ReemplazoEtiquetaPlantillaDocenteDTO
     {
-        public int IdGestionContacto { get; set; }
         public int IdPlantilla { get; set; }
+
+        /// Si se proporciona, se resuelven IdCentroCosto, IdClasificacionPersona e IdPersonal internamente
+        public int? IdGestionContacto { get; set; }
+
+        /// Parámetros directos 
+        public int? IdCentroCosto { get; set; }
+        public int? IdClasificacionPersona { get; set; }
+        public int? IdPersonal { get; set; }
     }
 
     public class PlantillaDisponiblePlanificacionDTO

@@ -89,8 +89,10 @@ namespace BSI.Integra.Servicios.Services
             var plantillaGenerada = _gestionDocenteActividadService.GenerarPlantillaDocente(
                 new ReemplazoEtiquetaPlantillaDocenteDTO
                 {
-                    IdGestionContacto = actividad.IdGestionContacto,
-                    IdPlantilla = actividad.IdPlantilla
+                    IdPlantilla = actividad.IdPlantilla,
+                    IdCentroCosto = gestionContacto.IdCentroCosto,
+                    IdClasificacionPersona = gestionContacto.IdClasificacionPersona,
+                    IdPersonal = idPersonal
                 });
 
             // 4. Enviar por canal segun IdPlantillaBase
