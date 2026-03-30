@@ -1,4 +1,5 @@
-﻿using BSI.Integra.Aplicacion.Servicios.Service.Interface;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.Servicios.Service.Interface;
 using MailBee.ImapMail;
 using MailBee.Mime;
 
@@ -135,6 +136,34 @@ namespace BSI.Integra.Aplicacion.Servicios.Service.Implementacion
             catch (Exception e)
             {
                 throw new Exception(e.Message);
+            }
+        }
+        /// Autor: Carlos Crispin.
+        /// Fecha: 27/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obitene el cuerpo de un correo electronico
+        /// </summary>
+        /// <param name="Listid">Id del correo electronico</param>
+        /// <param name="correo">Cuenta del usuario</param>
+        /// <param name="pass">Contraseña del correo electronico</param>
+        /// <param name="folder">nombre del folder del correo</param>
+        /// <returns>MailMessage</returns>
+        public async Task<bool> MarcarComoNoLeidoGmail(int id, string correo, string pass, string folder)
+        {
+            try
+            {
+                folder = NormalizarCarpetaGmail(folder);
+
+                //foreach (var idunico in id)
+                //{
+                    await _imap.SetMessageFlagsAsync(id.ToString(), true, @"\Seen", MessageFlagAction.Remove, true);
+                //}
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
             }
         }
         /// Autor: Jashin Salazar Taco.

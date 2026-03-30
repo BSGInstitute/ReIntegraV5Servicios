@@ -120,6 +120,44 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
         /// TipoFuncion: GET
+        /// Autor: Carlos Crispin.
+        /// Fecha: 27/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Marcar como no leido.
+        /// </summary>
+        /// <returns> objetoDTO: CorreoBodyDTO </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public ActionResult MarcarComoNoLeidoGmail(int IdCorreo, int IdAsesor, string Folder)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (IdAsesor <= 0)
+            {
+                return BadRequest("El Id Asesor no es valido");
+            }
+            try
+            {
+                var servicioGmailCliente = new GmailClienteService(unitOfWork);
+                var resultado = servicioGmailCliente.MarcarComoNoLeidoGmail(IdAsesor, IdCorreo, Folder);
+                if (resultado)
+                {
+                    return Ok(resultado);
+                }
+                else
+                {
+                    return BadRequest("No puedo marcar como no leido(s)");
+                }
+            }
+            catch (Exception Ex)
+            {
+                return BadRequest(Ex.Message);
+            }
+        }
+        /// TipoFuncion: GET
         /// Autor: Gilmer Quispe.
         /// Fecha: 24/08/2022
         /// Versión: 1.0

@@ -204,6 +204,23 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
             }
             return (correoBodyDTO);
         }
+        /// Autor: Carlos Crispin.
+        /// Fecha: 27/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Marcar como no leido
+        /// </summary>
+        /// <returns> List<CorreoBodyDTO> </returns>
+        public bool MarcarComoNoLeidoGmail(int IdAsesor, int IdCorreo, string Folder)
+        {
+            var _gmailClienteServicio = new GmailClienteService(_unitOfWork);
+            _gmailClienteServicio.ObtenerClienteCredencial(IdAsesor);
+
+            var _imapService = new TMK_ImapService();
+
+            var mensaje =  _imapService.MarcarComoNoLeidoGmail(IdCorreo, _gmailClienteServicio.ObtenerClienteCredencial(IdAsesor).EmailAsesor, _gmailClienteServicio.ObtenerClienteCredencial(IdAsesor).PasswordCorreo, Folder);
+            return true;
+        }
 
     }
 }
