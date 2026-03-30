@@ -445,6 +445,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         /// <param name="fechaInicioFlujoCongelado">Fecha de inicio opcional (solo aplica para flujos categoría General)</param>
         public async Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo, DateTime? fechaInicioFlujoCongelado = null)
         {
+
+
             try
             {
                 var parameters = new DynamicParameters();
@@ -825,7 +827,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                             r.NombreOcurrenciaMarcada,
                                             r.TipoOcurrenciaMarcada,
                                             r.ComentarioOcurrenciaMarcada,
-                                            r.UsuarioEjecucion
+                                            r.UsuarioEjecucion,
+                                            r.ClasificacionComentarioIA
                                         })
                                         .Select(detalleGroup => new ActividadDetalleDTO
                                         {
@@ -839,6 +842,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                             TipoOcurrenciaMarcada = detalleGroup.Key.TipoOcurrenciaMarcada,
                                             ComentarioOcurrenciaMarcada = detalleGroup.Key.ComentarioOcurrenciaMarcada,
                                             UsuarioEjecucion = detalleGroup.Key.UsuarioEjecucion,
+                                            ClasificacionComentarioIA = detalleGroup.Key.ClasificacionComentarioIA,
                                             Disparadores = detalleGroup.Select(r => new DisparadorDTO
                                             {
                                                 IdDisparadorCongelado = r.IdDisparadorCongelado,
@@ -901,7 +905,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                     r.NombreOcurrenciaMarcada,
                                     r.TipoOcurrenciaMarcada,
                                     r.ComentarioOcurrenciaMarcada,
-                                    r.UsuarioEjecucion
+                                    r.UsuarioEjecucion,
+                                    r.ClasificacionComentarioIA
                                 })
                                 .Select(detalleGroup => new ActividadDetalleDTO
                                 {
@@ -915,6 +920,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                     TipoOcurrenciaMarcada = detalleGroup.Key.TipoOcurrenciaMarcada,
                                     ComentarioOcurrenciaMarcada = detalleGroup.Key.ComentarioOcurrenciaMarcada,
                                     UsuarioEjecucion = detalleGroup.Key.UsuarioEjecucion,
+                                    ClasificacionComentarioIA = detalleGroup.Key.ClasificacionComentarioIA,
                                     Disparadores = detalleGroup.Select(r => new DisparadorDTO
                                     {
                                         IdDisparadorCongelado = r.IdDisparadorCongelado,
