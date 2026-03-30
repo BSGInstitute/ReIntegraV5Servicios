@@ -156,6 +156,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     {
                         var objHeader = new CorreoDTO();
                         objHeader.Id = msg.MessageNumber;
+                        objHeader.Uid = msg.Uid;
                         objHeader.Remitente = msg.From;
                         objHeader.From = argumentos.Email;
                         objHeader.Destinatarios = msg.To;
