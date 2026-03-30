@@ -935,11 +935,18 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 List<ProveedorDocenteDTO> rpta = new List<ProveedorDocenteDTO>();
                 var query = @"
-                    SELECT
-	                    Id, CONCAT(ApePaterno,' ',ApeMaterno,', ',Nombre1,' ',Nombre2) AS Nombre ,IdCiudad,
-                                       Telefono,Email,Celular1,Contacto1,EsPersonaValida,Alias, EsDocente, NroDocIdentidad
-	                           FROM fin.T_Proveedor
-                    WHERE Estado = 1 and EsDocente=1 ORDER BY Id DESC";
+                   SELECT Id,
+                       Nombre,
+                       IdCiudad,
+                       Telefono,
+                       Email,
+                       Celular1,
+                       Contacto1,
+                       EsPersonaValida,
+                       Alias,
+                       EsDocente,
+                       NroDocIdentidad FROM  pla.V_ProveedorDocenteObtener
+                ORDER BY Id DESC;";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {

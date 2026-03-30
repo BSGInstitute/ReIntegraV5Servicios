@@ -229,7 +229,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        /// Autor: Claude Code
+        /// Autor: Marco Jose Villanueva Torres
         /// Fecha: 2026-03-30
         /// Version: 1.0
         /// <summary>
@@ -239,35 +239,21 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                var query = @"
-                    SELECT
-                        Id, IdTipoDocumento, NroDocumento, PrimerNombre, SegundoNombre,
-                        ApellidoPaterno, ApellidoMaterno, FechaNacimiento,
-                        IdPais_Procedencia AS IdPaisProcedencia,
-                        IdCiudad_Procedencia AS IdCiudadProcedencia,
-                        IdReferidoPor, TelfCelular1, TelfCelular2, TelfCelular3,
-                        Email1, Email2, Email3, Domicilio,
-                        IdPais_Domicilio AS IdPaisDomicilio,
-                        IdCiudad_Domicilio AS IdCiudadDomicilio,
-                        LugarTrabajo,
-                        IdPais_LugarTrabajo AS IdPaisLugarTrabajo,
-                        IdCiudad_LugarTrabajo AS IdCiudadLugarTrabajo,
-                        AsistenteNombre, AsistenteTelefono, AsistenteCelular,
-                        HojaVidaResumidaPerfil, HojaVidaResumidaSpeech,
-                        FormacionAcademica, ExperienciaProfesional, Publicaciones,
-                        PremiosDistinciones, OtraInformacion, EsPersonaValida,
-                        IdPersonal_Asignado AS IdPersonalAsignado,
-                        FotoDocente, UrlFotoDocente, DocenteInstituto
-                    FROM pla.T_Expositor
-                    WHERE Estado = 1
-                      AND (
-                            (@Email IS NOT NULL AND (@Email = Email1 OR @Email = Email2 OR @Email = Email3))
-                         OR (@Celular IS NOT NULL AND (@Celular = TelfCelular1 OR @Celular = TelfCelular2 OR @Celular = TelfCelular3))
-                         OR (@NroDocumento IS NOT NULL AND @NroDocumento = NroDocumento)
-                      )";
-                var resultado = _dapperRepository.QueryDapper(query, new { Email = email, Celular = celular, NroDocumento = nroDocumento });
+                var parametros = new
+                {
+                    Email = string.IsNullOrWhiteSpace(email) ? null : email.Trim(),
+                    Celular = string.IsNullOrWhiteSpace(celular) ? null : celular.Trim(),
+                    NroDocumento = string.IsNullOrWhiteSpace(nroDocumento) ? null : nroDocumento.Trim()
+                };
+
+                var resultado = _dapperRepository.QuerySPDapper(
+                    "pla.SP_ExpositorBuscarPorContacto",
+                    parametros
+                );
+
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                     return JsonConvert.DeserializeObject<IEnumerable<ExpositorDTO>>(resultado)!;
+
                 return new List<ExpositorDTO>();
             }
             catch (Exception ex)

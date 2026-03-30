@@ -165,7 +165,7 @@ namespace BSI.Integra.Servicios.Controllers
         }
 
         /// Tipo Función: POST
-        /// Autor: Claude Code
+        /// Autor: Marco Jose Villanueva Torres
         /// Fecha: 2026-03-30
         /// Version: 1.0
         /// <summary>
