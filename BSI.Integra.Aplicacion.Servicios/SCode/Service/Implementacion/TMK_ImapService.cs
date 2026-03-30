@@ -2,6 +2,7 @@
 using BSI.Integra.Aplicacion.Servicios.Service.Interface;
 using MailBee.ImapMail;
 using MailBee.Mime;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BSI.Integra.Aplicacion.Servicios.Service.Implementacion
 {
@@ -149,21 +150,24 @@ namespace BSI.Integra.Aplicacion.Servicios.Service.Implementacion
         /// <param name="pass">Contraseña del correo electronico</param>
         /// <param name="folder">nombre del folder del correo</param>
         /// <returns>MailMessage</returns>
-        public async Task<bool> MarcarComoNoLeidoGmail(int id, string correo, string pass, string folder)
+        public bool MarcarComoLeidoGmail(int id, string correo, string pass, string folder)
         {
             try
             {
                 folder = NormalizarCarpetaGmail(folder);
-
-                //foreach (var idunico in id)
-                //{
-                    await _imap.SetMessageFlagsAsync(id.ToString(), true, @"\Seen", MessageFlagAction.Remove, true);
-                //}
-                return true;
+                MailMessage mensaje = Imap.QuickDownloadMessage("imap.gmail.com", correo, pass, folder, id);
+                if (mensaje != null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             catch (Exception e)
             {
-                return false;
+                throw new Exception(e.Message);
             }
         }
         /// Autor: Jashin Salazar Taco.

@@ -129,7 +129,7 @@ namespace BSI.Integra.Servicios.Controllers
         /// <returns> objetoDTO: CorreoBodyDTO </returns>
         [Route("[action]")]
         [HttpGet]
-        public ActionResult MarcarComoNoLeidoGmail(int IdCorreo, int IdAsesor, string Folder)
+        public ActionResult MarcarComoLeidoGmail(int IdCorreo, int IdAsesor, string Folder)
         {
             if (!ModelState.IsValid)
             {
@@ -142,7 +142,7 @@ namespace BSI.Integra.Servicios.Controllers
             try
             {
                 var servicioGmailCliente = new GmailClienteService(unitOfWork);
-                var resultado = servicioGmailCliente.MarcarComoNoLeidoGmail(IdAsesor, IdCorreo, Folder);
+                var resultado = servicioGmailCliente.MarcarComoLeidoGmail(IdAsesor, IdCorreo, Folder);
                 if (resultado)
                 {
                     return Ok(resultado);
