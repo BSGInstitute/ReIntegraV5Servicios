@@ -467,6 +467,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                 _repProveedorTipoServicio.EliminacionLogicoPorPlantilla(proveedor.Id, proveedor.UsuarioModificacion, proveedor.ListaProveedorTipoServicio.Select(x => x.IdTipoServicio).ToList());
 
+                objProveedor.IdTipoContribuyente = proveedor.IdTipoContribuyente;
+                objProveedor.IdDocumentoIdentidad = proveedor.IdDocumentoIdentidad;
+                objProveedor.NroDocIdentidad = proveedor.NroDocumento;
                 objProveedor.RazonSocial = proveedor.RazonSocial;
                 objProveedor.Nombre1 = proveedor.Nombre1;
                 objProveedor.Nombre2 = proveedor.Nombre2;

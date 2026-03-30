@@ -978,7 +978,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
     EsPersonaValida,
     Alias,
     EsDocente
-FROM fin.T_Proveedor;";
+FROM fin.T_Proveedor where EsDocente = 1";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {

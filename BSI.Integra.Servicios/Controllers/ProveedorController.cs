@@ -426,7 +426,9 @@ namespace BSI.Integra.Servicios.Controllers
             }
             try
             {
+                
                 var servicio = new ProveedorService(unitOfWork);
+               
                 return Ok(servicio.ActualizarProveedorCuentaBanco(proveedorCuenta.proveedor, proveedorCuenta.listaCuentaBanco));
             }
             catch (Exception ex)
