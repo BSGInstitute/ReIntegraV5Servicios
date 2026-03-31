@@ -97,6 +97,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Indica si es Docente Valido o No
         /// </summary>
         public bool? EsDocente { get; set; }
+        /// <summary>
+        /// Plazo de pago del proveedor
+        /// </summary>
+        public int? PlazoPago { get; set; }
 
         public virtual ICollection<TCabeceraGestionContacto> TCabeceraGestionContactos { get; set; }
         public virtual ICollection<TConvocatoriaPersonal> TConvocatoriaPersonals { get; set; }

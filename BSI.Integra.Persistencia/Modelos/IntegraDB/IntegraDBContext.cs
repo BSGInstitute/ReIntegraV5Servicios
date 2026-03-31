@@ -50201,6 +50201,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(20)
                     .IsUnicode(false);
 
+                entity.Property(e => e.PlazoPago).HasComment("Plazo de pago del proveedor");
+
                 entity.Property(e => e.RazonSocial)
                     .HasMaxLength(1000)
                     .IsUnicode(false);
