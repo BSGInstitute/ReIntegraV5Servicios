@@ -110,6 +110,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? IdPersonalAsignado { get; set; }
         public int? idPrestacionRegistro { get; set; }
         public bool? esDocente { get; set; }
+        public int? PlazoPago { get; set; }
         public List<ProveedorTipoServicioDTO> ListaProveedorTipoServicio { get; set; }
         public ProveedorWEnvioDTO()
         {

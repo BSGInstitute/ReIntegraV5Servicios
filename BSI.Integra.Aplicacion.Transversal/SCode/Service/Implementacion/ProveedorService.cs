@@ -492,6 +492,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 objProveedor.UsuarioModificacion = proveedor.UsuarioModificacion;
                 objProveedor.Alias = proveedor.Alias;
                 objProveedor.EsDocente = proveedor.esDocente;
+                objProveedor.PlazoPago = proveedor.PlazoPago;
 
 
                 objProveedor = this.Update(objProveedor);

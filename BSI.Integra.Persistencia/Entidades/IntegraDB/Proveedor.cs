@@ -45,6 +45,7 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
         [StringLength(100)]
         public string? Alias { get; set; }
         public bool? EsDocente { get; set; }
+        public int? PlazoPago { get; set; }
 
 
     }

@@ -61,6 +61,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         [StringLength(100)]
         public string? Alias { get; set; }
         public bool? EsDocente { get; set; }
+        public int? PlazoPago { get; set; }
         public List<ProveedorTipoServicioDTO> ListaProveedorTipoServicio { get; set; }
 
         public ProveedorVistaDTO()
