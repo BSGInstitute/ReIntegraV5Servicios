@@ -402,5 +402,10 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         {
             return _unitOfWork.ExpositorRepository.ObtenerCombo();
         }
+
+        public IEnumerable<ExpositorDTO> BuscarPorContacto(string? email, string? celular, string? nroDocumento)
+        {
+            return _unitOfWork.ExpositorRepository.BuscarPorContacto(email, celular, nroDocumento);
+        }
     }
 }

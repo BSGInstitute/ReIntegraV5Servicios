@@ -204,6 +204,58 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
             }
             return (correoBodyDTO);
         }
+        /// Autor: Carlos Crispin.
+        /// Fecha: 27/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Marcar como no leido
+        /// </summary>
+        /// <returns> List<CorreoBodyDTO> </returns>
+        public async Task<bool> MarcarComoNoLeidoGmail(int IdAsesor, int IdCorreo, string Folder)
+        {
+            var _gmailClienteServicio = new GmailClienteService(_unitOfWork);
+            var credencial = _gmailClienteServicio.ObtenerClienteCredencial(IdAsesor);
 
+            var _imapService = new TMK_ImapService();
+
+            var resultado = await _imapService.MarcarComoNoLeidoGmail(IdCorreo, credencial.EmailAsesor, credencial.PasswordCorreo, Folder);
+            return resultado;
+        }
+
+        /// Autor: Carlos Crispin.
+        /// Fecha: 30/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Marcar correo como leido
+        /// </summary>
+        /// <returns>bool</returns>
+        public async Task<bool> MarcarComoLeidoGmail(int IdAsesor, int IdCorreo, string Folder)
+        {
+            var _gmailClienteServicio = new GmailClienteService(_unitOfWork);
+            var credencial = _gmailClienteServicio.ObtenerClienteCredencial(IdAsesor);
+
+            var _imapService = new TMK_ImapService();
+
+            var resultado = await _imapService.MarcarComoLeidoGmail(IdCorreo, credencial.EmailAsesor, credencial.PasswordCorreo, Folder);
+            return resultado;
+        }
+
+        /// Autor: Carlos Crispin.
+        /// Fecha: 30/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Eliminar correo de la bandeja o folder indicado
+        /// </summary>
+        /// <returns>bool</returns>
+        public async Task<bool> EliminarCorreoGmail(int IdAsesor, int IdCorreo, string Folder)
+        {
+            var _gmailClienteServicio = new GmailClienteService(_unitOfWork);
+            var credencial = _gmailClienteServicio.ObtenerClienteCredencial(IdAsesor);
+
+            var _imapService = new TMK_ImapService();
+
+            var resultado = await _imapService.EliminarCorreoGmail(IdCorreo, credencial.EmailAsesor, credencial.PasswordCorreo, Folder);
+            return resultado;
+        }
     }
 }

@@ -115,5 +115,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         string ObtenerFechaHoraWebinarPorCentroCosto(int idCentroCosto, int incrementoHoras = 0);
         List<SesionPlanificacionDTO> ObtenerSesionesPlanificacion(int idCentroCosto, int incrementoHoras = 0);
         List<CriterioEvaluacionPlanificacionDTO> ObtenerCriteriosEvaluacionPorCentroCosto(int idCentroCosto);
+        IEnumerable<PEspecificoCatalogoDTO> ObtenerCatalogo();
     }
 }

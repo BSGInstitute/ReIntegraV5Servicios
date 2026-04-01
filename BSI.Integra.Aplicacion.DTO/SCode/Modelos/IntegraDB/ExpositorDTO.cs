@@ -75,6 +75,13 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public IEnumerable<CiudadAlternoDTO> Ciudades { get; set; }
         public IEnumerable<ComboDTO> Expositores { get; set; }
     }
+    public class BuscarExpositorContactoDTO
+    {
+        public string? Email { get; set; }
+        public string? Celular { get; set; }
+        public string? NroDocumento { get; set; }
+    }
+
     //https://integrav4-servicios.bsginstitute.com/api/AsociarProgramaTag/ObtenerTodoArea
     //https://integrav4-servicios.bsginstitute.com/api/AsociarProgramaTag/ObtenerTodoSubArea
     //https://integrav4-servicios.bsginstitute.com/api/AsociarProgramaTag/ObtenerTodoCategoriaPrograma

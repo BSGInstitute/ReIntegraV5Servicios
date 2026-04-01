@@ -23,7 +23,7 @@
         public string NroCuenta { get; set; }
         public string CuentaInterbancaria { get; set; }
         public int IdMoneda { get; set; }
-        public string UsuarioModificacion { get; set; }
+        public string? UsuarioModificacion { get; set; }
     }
 
 }
