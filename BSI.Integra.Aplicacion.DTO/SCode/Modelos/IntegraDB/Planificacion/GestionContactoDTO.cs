@@ -216,6 +216,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string TipoOcurrenciaMarcada { get; set; }
         public string ComentarioOcurrenciaMarcada { get; set; }
         public string UsuarioEjecucion { get; set; }
+        public string ClasificacionComentarioIA { get; set; }
     }
 
     /// <summary>
@@ -313,6 +314,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string TipoOcurrenciaMarcada { get; set; }
         public string ComentarioOcurrenciaMarcada { get; set; }
         public string UsuarioEjecucion { get; set; }
+        public string ClasificacionComentarioIA { get; set; }
     }
 
     /// <summary>

@@ -8,8 +8,11 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
     public interface IGestionDocenteAgendaRepository : IGenericRepository<TProveedor>
     {
         DocenteAgendaCabeceraDTO ObtenerCabeceraDocente(int idProveedor);
-        List<DocenteAgendaCronogramaDTO> ObtenerCronogramasDocente(int idProveedor, int idPEspecificoPrioridad);
-        List<DocenteAgendaSesionDTO> ObtenerSesionesPorCursoYDocente(int idProveedor, int idPEspecifico);
+        /// <summary>
+        /// Obtiene cronogramas con sesiones en una sola query flat (fix N+1).
+        /// Usa pla.SP_GestionDocenteCronogramaSesionesObtener.
+        /// </summary>
+        List<CronogramaSesionFlatDTO> ObtenerCronogramaSesionesFlat(int idProveedor, int idPEspecificoPrioridad);
         List<AgendaTabConfiguracionPlanificacionAlternoDTO> ObtenerTabsConfigurados(string codigoAreaTrabajo);
         List<AgendaTabConfiguracionPlanificacionAlternoDTO> ObtenerTabsConfiguradosPorIdTab(string codigoAreaTrabajo, int idTab);
         List<ActividadAgendaPlanificacionDTO> ObtenerActividades(AgendaTabConfiguracionPlanificacionAlternoDTO tab, int idAsesor);

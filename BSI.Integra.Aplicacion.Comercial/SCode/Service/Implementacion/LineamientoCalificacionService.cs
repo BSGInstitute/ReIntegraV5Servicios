@@ -2515,8 +2515,6 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     try
                     {
 
-
-
                         // Determinar el tipo de validación según IdOcurrenciaAlterno
                         bool esConvenioVoz = item.IdOcurrenciaAlterno == ID_OCURRENCIA_CONVENIO_VOZ;
                         string tipoValidacion = esConvenioVoz ? "Convenio de Voz" : "Proceso de Venta";
