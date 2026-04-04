@@ -67,8 +67,37 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Implementacion
         {
             try
             {
-                _unitOfWork.GestionPagoRepository.Delete(id, usuario);
-                _unitOfWork.Commit();
+                using (TransactionScope scope = new TransactionScope())
+                {
+                    // Soft-delete archivos asociados
+                    var archivos = _unitOfWork.GestionPagoArchivoRepository
+                        .GetBy(w => w.IdGestionPago == id && w.Estado == true)
+                        .Select(a => a.Id)
+                        .ToList();
+
+                    if (archivos.Any())
+                    {
+                        _unitOfWork.GestionPagoArchivoRepository.Delete(archivos, usuario);
+                    }
+
+                    // Soft-delete cronograma asociado
+                    var cronogramas = _unitOfWork.GestionPagoCronogramaRepository
+                        .GetBy(w => w.IdGestionPago == id && w.Estado == true)
+                        .Select(c => c.Id)
+                        .ToList();
+
+                    if (cronogramas.Any())
+                    {
+                        _unitOfWork.GestionPagoCronogramaRepository.Delete(cronogramas, usuario);
+                    }
+
+                    // Soft-delete cabecera
+                    _unitOfWork.GestionPagoRepository.Delete(id, usuario);
+
+                    _unitOfWork.Commit();
+                    scope.Complete();
+                }
+
                 return true;
             }
             catch (Exception ex)
