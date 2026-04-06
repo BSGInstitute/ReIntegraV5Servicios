@@ -321,6 +321,11 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IComprobantePagoPorFurRepository ComprobantePagoPorFurRepository { get; }
         IFurPagoRepository FurPagoRepository { get; }
         IComprobantePagoRepository ComprobantePagoRepository { get; }
+        IGestionPagoRepository GestionPagoRepository { get; }
+        IGestionPagoCronogramaRepository GestionPagoCronogramaRepository { get; }
+        IGestionPagoArchivoRepository GestionPagoArchivoRepository { get; }
+        IModalidadPagoRepository ModalidadPagoRepository { get; }
+        IPagoEstadoRepository PagoEstadoRepository { get; }
         IModoFurRepository ModoFurRepository { get; }
         IModoPersonalFurRepository ModoPersonalFurRepository { get; }
         IFurFaseAprobacionRepository FurFaseAprobacionRepository { get; }
@@ -1010,5 +1015,10 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         ICriterioTareaRepository CriterioTareaRepository { get; }
         ISubCriterioTareaRepository SubCriterioTareaRepository { get; }
         IProyectoAplicacionRepository ProyectoAplicacionRepository { get; }
+        IPEspecificoSesionEstadoRepository PEspecificoSesionEstadoRepository { get; }
+
+        IPEspecificoSesionEstadoObservacionRepository PEspecificoSesionEstadoObservacionRepository { get; }
+        IPEspecificoSesionEstadoObservacionDetalleRepository PEspecificoSesionEstadoObservacionDetalleRepository { get; }
+        IProveedorPEspecificoRepository ProveedorPEspecificoRepository { get; }
     }
 }

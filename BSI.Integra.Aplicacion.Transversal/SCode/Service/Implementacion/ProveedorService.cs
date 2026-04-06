@@ -218,8 +218,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         /// <summary>
         /// Obtiene lista de proveedores para combo de programa especifico FUR
         /// </summary>
-        /// <returns> List<ProveedorProductoDTO> </returns>
-        public IEnumerable<ProveedorDTO> ObtenerTodoProveedorById(int? Id)
+        /// <returns> IEnumerable<ProveedorVistaDTO> </returns>
+        public IEnumerable<ProveedorVistaDTO> ObtenerTodoProveedorById(int? Id)
         {
             try
             {
@@ -381,6 +381,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 objProveedor.Contacto2 = proveedor.Contacto2 ?? "";
                 objProveedor.IdPersonalAsignado = proveedor.IdPersonalAsignado;
                 objProveedor.Alias = proveedor.Alias;
+                objProveedor.EsDocente = proveedor.esDocente;
                 objProveedor.FechaModificacion = DateTime.Now;
                 objProveedor.UsuarioModificacion = proveedor.UsuarioModificacion;
 
@@ -466,6 +467,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                 _repProveedorTipoServicio.EliminacionLogicoPorPlantilla(proveedor.Id, proveedor.UsuarioModificacion, proveedor.ListaProveedorTipoServicio.Select(x => x.IdTipoServicio).ToList());
 
+                objProveedor.IdTipoContribuyente = proveedor.IdTipoContribuyente;
+                objProveedor.IdDocumentoIdentidad = proveedor.IdDocumentoIdentidad;
+                objProveedor.NroDocIdentidad = proveedor.NroDocumento;
                 objProveedor.RazonSocial = proveedor.RazonSocial;
                 objProveedor.Nombre1 = proveedor.Nombre1;
                 objProveedor.Nombre2 = proveedor.Nombre2;
@@ -487,6 +491,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 objProveedor.FechaModificacion = DateTime.Now;
                 objProveedor.UsuarioModificacion = proveedor.UsuarioModificacion;
                 objProveedor.Alias = proveedor.Alias;
+                objProveedor.EsDocente = proveedor.esDocente;
+                objProveedor.PlazoPago = proveedor.PlazoPago;
+
 
                 objProveedor = this.Update(objProveedor);
 
@@ -713,9 +720,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         /// <summary>
         /// Obtiene datos apra el llenado de una grilla.
         /// </summary>
-        /// <returns> object </returns>
+        /// <returns> IEnumerable<ProveedorVistaDTO> </returns>
         /// <param name="IdProveedor">Identificador del proveedor</param>
-        public IEnumerable<ProveedorDTO> ObtenerProveedorGrilla(int? IdProveedor)
+        public IEnumerable<ProveedorVistaDTO> ObtenerProveedorGrilla(int? IdProveedor)
         {
             try
             {
@@ -947,6 +954,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             {
                 throw ex;
             }
+        }
+
+
+        public IEnumerable<ProveedorDocenteDTO> ObtenerDocentesActivos()
+        {
+            var resultado = _unitOfWork.ProveedorRepository.ObtenerDocentesActivos().ToList();
+         
+            return resultado;
         }
     }
 }

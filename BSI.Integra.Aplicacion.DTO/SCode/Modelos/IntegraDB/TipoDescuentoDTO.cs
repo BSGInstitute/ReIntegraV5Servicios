@@ -57,7 +57,7 @@
         public int? IdTipoDescuentoNivelAprobacion { get; set; }
         public bool? AplicaProgramaCompleto { get; set; }
         public bool Activo { get; set; }
-        public List<string> TipoDescuentoAsesorCoordinadorPw { get; set; }
+        public List<string>? TipoDescuentoAsesorCoordinadorPw { get; set; }
 
     }
     public class TipoDescuentoProgramaDTO

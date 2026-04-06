@@ -23,7 +23,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<ProveedorRucRazonSocialDTO> ObtenerProveedorPorRuc(string valor);
         string ObtenerNombreProveedorPorId(int Id);
         IEnumerable<FiltroRucProveedorDTO> ObtenerProveedorRucAutocomplete();
-        IEnumerable<ProveedorDTO> ObtenerTodoProveedorById(int? Id);
+        IEnumerable<ProveedorVistaDTO> ObtenerTodoProveedorById(int? Id);
         IEnumerable<ProveedorComboDTO> ObtenerProveedorCombo(string Texto);
         IEnumerable<ProveedorComboDTO> ObtenerProveedoresConEstadoCuentaPagadoPendiente();
         int? ObtenerProveedorEliminadoEmailRepetido(string email);
@@ -45,5 +45,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
 
         IEnumerable<ProveedorComboDTO> ObtenerProveedoresPaginasReclutadoras();
         ProveedorComboDTO ObtenerProveedoresPaginasReclutadorasPorId(int id);
+        IEnumerable<ProveedorDocenteDTO> ObtenerDocentesActivos();
     }
 }

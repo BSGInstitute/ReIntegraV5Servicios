@@ -2450,6 +2450,51 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private IGestionPagoRepository gestionPagoRepository;
+        IGestionPagoRepository IUnitOfWork.GestionPagoRepository
+        {
+            get
+            {
+                return gestionPagoRepository ?? new GestionPagoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGestionPagoCronogramaRepository gestionPagoCronogramaRepository;
+        IGestionPagoCronogramaRepository IUnitOfWork.GestionPagoCronogramaRepository
+        {
+            get
+            {
+                return gestionPagoCronogramaRepository ?? new GestionPagoCronogramaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGestionPagoArchivoRepository gestionPagoArchivoRepository;
+        IGestionPagoArchivoRepository IUnitOfWork.GestionPagoArchivoRepository
+        {
+            get
+            {
+                return gestionPagoArchivoRepository ?? new GestionPagoArchivoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IModalidadPagoRepository modalidadPagoRepository;
+        IModalidadPagoRepository IUnitOfWork.ModalidadPagoRepository
+        {
+            get
+            {
+                return modalidadPagoRepository ?? new ModalidadPagoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IPagoEstadoRepository pagoEstadoRepository;
+        IPagoEstadoRepository IUnitOfWork.PagoEstadoRepository
+        {
+            get
+            {
+                return pagoEstadoRepository ?? new PagoEstadoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
 
         private IOrigenDatoCalidadDetalleRepository _origenDatoCalidadDetalleRepository;
 
@@ -8441,5 +8486,40 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _proyectoAplicacionRepository ?? new ProyectoAplicacionRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+
+        private IPEspecificoSesionEstadoRepository _pEspecificoSesionEstadoRepository;
+        IPEspecificoSesionEstadoRepository IUnitOfWork.PEspecificoSesionEstadoRepository
+        {
+            get
+            {
+                return _pEspecificoSesionEstadoRepository ?? new PEspecificoSesionEstadoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IPEspecificoSesionEstadoObservacionRepository _pEspecificoSesionEstadoObservacionRepository;
+        IPEspecificoSesionEstadoObservacionRepository IUnitOfWork.PEspecificoSesionEstadoObservacionRepository
+        {
+            get
+            {
+                return _pEspecificoSesionEstadoObservacionRepository ?? new PEspecificoSesionEstadoObservacionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IPEspecificoSesionEstadoObservacionDetalleRepository _pEspecificoSesionEstadoObservacionDetalleRepository;
+        IPEspecificoSesionEstadoObservacionDetalleRepository IUnitOfWork.PEspecificoSesionEstadoObservacionDetalleRepository
+        {
+            get
+            {
+                return _pEspecificoSesionEstadoObservacionDetalleRepository ?? new PEspecificoSesionEstadoObservacionDetalleRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IProveedorPEspecificoRepository _proveedorPEspecificoRepository;
+        IProveedorPEspecificoRepository IUnitOfWork.ProveedorPEspecificoRepository
+        {
+            get
+            {
+                return _proveedorPEspecificoRepository ?? new ProveedorPEspecificoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
     }
 }
