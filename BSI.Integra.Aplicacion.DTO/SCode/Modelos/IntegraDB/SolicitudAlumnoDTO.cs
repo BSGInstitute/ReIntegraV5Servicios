@@ -121,6 +121,9 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdEstadoSolicitud { get; set; }
         public string NombreEstadoSolicitud { get; set; }
         public int? IdControlSolicitudOrigen { get; set; }
+
+        public bool ReprogramacionManual { get; set; }
+        public bool ReprogramacionAutomatica { get; set; }
         // Nuevos campos SP
         public int? IdActividadDetalle_Ultima { get; set; }
         public string EstadoHoja { get; set; }
