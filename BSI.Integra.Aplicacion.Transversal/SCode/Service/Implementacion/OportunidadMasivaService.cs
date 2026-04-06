@@ -383,16 +383,11 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                         //Fases cerradas: NI,BIC,BIC1,BIC2,RN1,RN4,RN5,BRM1,NS,E,RN
                         int[] idsFasesCerradas = { 1, 3, 4, 7, 9, 11, 14, 26, 27, 29, 36 };
-                        //Fases respuesta negativa temporal: RN2-A, RN2-B, RN2-C
-                        int[] idsFasesRespuestaNegativaTemporal = { 10, 41, 42 };
-                        //Fases en curso o muy recientes: BNC, IT, IP, PF, IC, IS, M, RN3
-                        int[] idsFasesEnCurso = { 2, 5, 6, 8, 12, 13, 22, 23 };
 
-                        //Cambiar asesor automatico a su asesor anterior si corresponde
-                        if (idsFasesRespuestaNegativaTemporal.Contains(datosUltimaOportunidad.IdFaseOportunidad))
-                        {
-                            dtoOportunidad.IdPersonal_Asignado = datosUltimaOportunidad.IdPersonal_Asignado;
-                        }
+                        //Fases en curso o muy recientes: BNC, IT, IP, PF, IC, IS, M, RN3
+                        //Fix: se añaden fases respuesta negativa temporal: RN2-A, RN2-B, RN2-C
+                        int[] idsFasesEnCurso = { 2, 5, 6, 8, 12, 13, 22, 23, 10, 41, 42 };
+
                         //Setear la creacion de oportunidades como OD
                         if (idsFasesEnCurso.Contains(datosUltimaOportunidad.IdFaseOportunidad))
                         {
