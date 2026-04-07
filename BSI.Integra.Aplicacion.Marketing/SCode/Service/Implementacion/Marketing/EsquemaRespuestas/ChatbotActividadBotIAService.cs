@@ -36,7 +36,7 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketin
             foreach (var actividad in actividades)
             {
                 actividad.Numeros = numeros
-                    .Where(n => n.IdChatbotActividadBotIA == actividad.IdChatbotActividadBotIA)
+                    .Where(n => n.IdChatbotActividad == actividad.IdChatbotActividad)
                     .Select(n => n.NumeroWhatsApp)
                     .ToList();
             }
@@ -48,7 +48,7 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketin
         {
             var idChatbotActividadBotIA = _chatbotActividadBotIARepository.InsertarChatbotActividadBotIA(request, usuario);
 
-            if (request.Modulo == "Whatsapp" && request.Numeros?.Count > 0)
+            if (request.IdMedioComunicacion == 1 && request.Numeros?.Count > 0)
                 _VincularNumerosAActividad(idChatbotActividadBotIA, request.Numeros, request.Estado, usuario);
         }
 
@@ -61,7 +61,7 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketin
 
             _chatbotActividadBotIARepository.EliminarChatbotActividadBotIANumeros(request.Id, usuario);
 
-            if (request.Modulo == "Whatsapp" && request.Numeros?.Count > 0)
+            if (request.IdMedioComunicacion == 1 && request.Numeros?.Count > 0)
                 _VincularNumerosAActividad(request.Id, request.Numeros, request.Estado, usuario);
         }
 
@@ -70,6 +70,11 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketin
             _chatbotActividadBotIARepository.DesactivarNumerosWhatsAppDeActividad(request.Id, usuario);
             _chatbotActividadBotIARepository.EliminarChatbotActividadBotIANumeros(request.Id, usuario);
             _chatbotActividadBotIARepository.EliminarChatbotActividadBotIA(request.Id, usuario);
+        }
+
+        public List<MedioComunicacionDTO> ObtenerListadoMedioComunicacion()
+        {
+            return _chatbotActividadBotIARepository.ObtenerListadoMedioComunicacion();
         }
 
         /// <summary>
@@ -92,6 +97,7 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketin
                 _chatbotActividadBotIARepository.InsertarChatbotActividadBotIANumero(
                     idChatbotActividadBotIA,
                     idAsignacion,
+                    estado,
                     usuario
                 );
             }
