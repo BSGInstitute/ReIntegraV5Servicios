@@ -351,7 +351,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.EsquemaRes
         {
             try
             {
-                var SP = "[mkt].[SP_TChatbotEsquema_Eliminar]";
+                var SP = "[mkt].[SP_ChatbotEsquema_Eliminar]";
                 _dapperRepository.QuerySPDapper(SP, new { IdChatbotEsquema = id, UsuarioModificacion = usuario });
                 return id;
             }
