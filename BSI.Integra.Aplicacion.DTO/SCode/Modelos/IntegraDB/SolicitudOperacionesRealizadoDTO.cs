@@ -143,4 +143,17 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 
     }
 
+
+
+    public class EstadoCursoDTO
+    {
+
+        public int Id { get; set; }
+        public int? IdPEspecificoSesionEstado { get; set; }
+    }
+    public class EstadoCursoObservacionDTO
+    {
+        public int Id { get; set; }
+        public int? IdPEspecificoSesionEstadoObservacionDetalle { get; set; }
+    }
 }

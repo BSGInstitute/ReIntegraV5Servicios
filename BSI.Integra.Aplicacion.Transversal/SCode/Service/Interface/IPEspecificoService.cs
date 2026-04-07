@@ -46,6 +46,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         bool EliminarCronogramaDuplicado(int PEspecificoId, int NumeroGrupo, string Usuario);
         bool InsertarEventoEspecial(FiltroSesionEspecialDTO dto, string usuario);
         RptaActualizarDuracionInsertarSesionDTO ActualizarDuracionInsertarSesion(InformacionPespecificoSesionDTO dto, string usuario);
+        RptaActualizarDuracionInsertarSesionDTO InsertarSesionReprogramada(ReprogramarSesionDTO dto, string usuario);
         (bool EstadoCruce, List<CruceSesionPEspecificoDTO>? Cruces) ActualizarDocenteAmbienteProgramaEspecifico(DocenteAmbientePEspecificoDTO dto, string usuario);
         string GenerarPDFCronogramaModulo(FiltroObtenerPDFDTO dto, string usuario);
         string GenerarPDFCronogramaSemanal(FiltroObtenerPDFDTO dto, string usuario);
@@ -55,5 +56,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         IEnumerable<ComboDTO> ObtenerProgramasEspecificosAdicional();
         IEnumerable<PEspecificoDetalleFechaByPGeneral> ObtenerFiltroV2PorIdPGeneral(int idPGeneral);
 		IEnumerable<PEspecificoByPGeneral> ObtenerPEspecificoByPGeneral(int idPGeneral);
+        IEnumerable<PEspecificoCatalogoDTO> ObtenerCatalogoPEspecifico();
 	}
 }

@@ -120,6 +120,120 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
         /// TipoFuncion: GET
+        /// Autor: Carlos Crispin.
+        /// Fecha: 27/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Marcar como no leido.
+        /// </summary>
+        /// <returns> objetoDTO: CorreoBodyDTO </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<ActionResult> MarcarComoNoLeidoGmail(int IdCorreo, int IdAsesor, string Folder)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (IdAsesor <= 0)
+            {
+                return BadRequest("El Id Asesor no es valido");
+            }
+            try
+            {
+                var servicioGmailCliente = new GmailClienteService(unitOfWork);
+                var resultado = await servicioGmailCliente.MarcarComoNoLeidoGmail(IdAsesor, IdCorreo, Folder);
+                if (resultado)
+                {
+                    return Ok(resultado);
+                }
+                else
+                {
+                    return BadRequest("No se pudo marcar como no leido");
+                }
+            }
+            catch (Exception Ex)
+            {
+                return BadRequest(Ex.Message);
+            }
+        }
+        /// TipoFuncion: GET
+        /// Autor: Carlos Crispin.
+        /// Fecha: 30/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Marcar correo como leido
+        /// </summary>
+        /// <returns> bool </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<ActionResult> MarcarComoLeidoGmail(int IdCorreo, int IdAsesor, string Folder)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (IdAsesor <= 0)
+            {
+                return BadRequest("El Id Asesor no es valido");
+            }
+            try
+            {
+                var servicioGmailCliente = new GmailClienteService(unitOfWork);
+                var resultado = await servicioGmailCliente.MarcarComoLeidoGmail(IdAsesor, IdCorreo, Folder);
+                if (resultado)
+                {
+                    return Ok(resultado);
+                }
+                else
+                {
+                    return BadRequest("No se pudo marcar como leido");
+                }
+            }
+            catch (Exception Ex)
+            {
+                return BadRequest(Ex.Message);
+            }
+        }
+        /// TipoFuncion: GET
+        /// Autor: Carlos Crispin.
+        /// Fecha: 30/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Eliminar correo de la bandeja o folder indicado
+        /// </summary>
+        /// <returns> bool </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<ActionResult> EliminarCorreoGmail(int IdCorreo, int IdAsesor, string Folder)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (IdAsesor <= 0)
+            {
+                return BadRequest("El Id Asesor no es valido");
+            }
+            try
+            {
+                var servicioGmailCliente = new GmailClienteService(unitOfWork);
+                var resultado = await servicioGmailCliente.EliminarCorreoGmail(IdAsesor, IdCorreo, Folder);
+                if (resultado)
+                {
+                    return Ok(resultado);
+                }
+                else
+                {
+                    return BadRequest("No se pudo eliminar el correo");
+                }
+            }
+            catch (Exception Ex)
+            {
+                return BadRequest(Ex.Message);
+            }
+        }
+        /// TipoFuncion: GET
         /// Autor: Gilmer Quispe.
         /// Fecha: 24/08/2022
         /// Versión: 1.0
@@ -221,6 +335,45 @@ namespace BSI.Integra.Servicios.Controllers
             else
             {
                 throw new UnauthorizedAccessException("No tiene acceso al Envio de Correos");
+            }
+        }
+
+        /// TipoFuncion: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 20/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Previsualiza un mensaje de planificación: carga la plantilla y reemplaza etiquetas
+        /// sin enviar el correo.
+        /// </summary>
+        /// <param name="request">Datos de la plantilla y contexto de reemplazo</param>
+        /// <returns>PreviewMensajePlaResponseDTO con asunto y cuerpo HTML procesado</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult PreviewMensajePla([FromBody] PreviewMensajePlaRequestDTO request)
+        {
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+            var registroToken = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+            if (registroToken.TokenValida)
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                try
+                {
+                    IGmailCorreoService gmailCorreoService = new GmailCorreoService(unitOfWork);
+                    var resultado = gmailCorreoService.PreviewMensajePla(request);
+                    return Ok(resultado);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("No tiene acceso a la previsualización de Correos");
             }
         }
 

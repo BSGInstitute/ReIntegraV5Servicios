@@ -658,6 +658,26 @@ namespace BSI.Integra.Servicios.Controllers
         }
         [Route("[Action]")]
         [Authorize]
+        [HttpPost]
+        public ActionResult InsertarSesionReprogramada([FromBody] ReprogramarSesionDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
+            var resultado = _pEspecificoService.InsertarSesionReprogramada(dto, registroClaimToken.UserName);
+            if (resultado.IdTipoPrograma == 3) { // tipo 3 son programas webinar
+                var nuevaFecha = resultado.FechaSesion.Date.AddMinutes(1);
+                var jobId = BackgroundJob.Schedule(
+                    () => _asistenciaWebinarService.ConfirmacionWebinarAutomatica(resultado.IdPEspecificoSesion),
+                    nuevaFecha
+                );
+            }
+            return Ok(true);
+        }
+        [Route("[Action]")]
+        [Authorize]
         [HttpPut]
         public ActionResult ActualizarDocenteAmbienteProgramaEspecifico([FromBody] DocenteAmbientePEspecificoDTO dto)
         {
@@ -803,5 +823,25 @@ namespace BSI.Integra.Servicios.Controllers
 				throw;
 			}
 		}
+        /// Tipo Función: GET
+        /// Autor: Generado automáticamente
+        /// Fecha: 2026-03-19
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el catálogo completo de PEspecificos para carga masiva con filtrado local en frontend
+        /// </summary>
+        /// <returns>Lista de PEspecificoCatalogoDTO (Id, Nombre, Codigo)</returns>
+        [HttpGet("[action]")]
+        public IActionResult ObtenerCatalogo()
+        {
+            try
+            {
+                return Ok(_pEspecificoService.ObtenerCatalogoPEspecifico());
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 	}
 }

@@ -24,17 +24,14 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         }
 
 
-        /// Autor: Jose Vega
-        /// Fecha: 19/02/2026
-        /// Versión: 1.0
+        /// Autor: Joseph Llanque
+        /// Fecha: 27/03/2026
+        /// Versión: 2.0
         /// <summary>
-        /// Obtiene el detalle completo de un docente: cabecera con datos personales, flujo asignado
-        /// y todos sus cronogramas con sesiones, priorizando el curso indicado.
+        /// Obtiene el detalle completo de un docente: cabecera, flujo y cronogramas con sesiones.
+        /// v2.0: Usa SPs en vez de queries inline. Fix N+1: cronogramas + sesiones en 1 sola query flat,
+        /// agrupados por IdPEspecifico en C#.
         /// </summary>
-        /// <param name="idProveedor">Identificador del docente/proveedor.</param>
-        /// <param name="idPEspecifico">Identificador del curso a priorizar en la lista.</param>
-        /// <param name="idGestionContacto">Identificador opcional del GestionContacto para obtener el flujo.</param>
-        /// <returns>DocenteAgendaDetalleDTO con toda la información.</returns>
         public DocenteAgendaDetalleDTO ObtenerDetalleDocente(int idProveedor, int idPEspecifico, int? idGestionContacto)
         {
             try
@@ -48,12 +45,40 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                     flujo = _unitOfWork.GestionDocenteAgendaRepository.ObtenerFlujoDocente(idGestionContacto.Value);
                 }
 
-                var cronogramas = _unitOfWork.GestionDocenteAgendaRepository.ObtenerCronogramasDocente(idProveedor, idPEspecifico);
+                // Fix N+1: Una sola query trae cronogramas + sesiones flat
+                var flat = _unitOfWork.GestionDocenteAgendaRepository.ObtenerCronogramaSesionesFlat(idProveedor, idPEspecifico);
 
-                foreach (var cronograma in cronogramas)
-                {
-                    cronograma.Sesiones = _unitOfWork.GestionDocenteAgendaRepository.ObtenerSesionesPorCursoYDocente(idProveedor, cronograma.IdPEspecifico);
-                }
+                // Agrupar por curso
+                var cronogramas = flat
+                    .GroupBy(f => f.IdPEspecifico)
+                    .Select(g =>
+                    {
+                        var primero = g.First();
+                        return new DocenteAgendaCronogramaDTO
+                        {
+                            IdPEspecifico = primero.IdPEspecifico,
+                            NombreCurso = primero.NombreCurso,
+                            CodigoCurso = primero.CodigoCurso,
+                            EstadoCurso = primero.EstadoCurso,
+                            TipoCurso = primero.TipoCurso,
+                            CategoriaCurso = primero.CategoriaCurso,
+                            CiudadCurso = primero.CiudadCurso,
+                            FechaInicio = primero.FechaInicio,
+                            FechaTermino = primero.FechaTermino,
+                            EsPriorizado = primero.EsPriorizado == 1,
+                            Sesiones = g.Select(s => new DocenteAgendaSesionDTO
+                            {
+                                IdSesion = s.IdSesion,
+                                FechaHoraInicio = s.SesionFechaHoraInicio ?? DateTime.MinValue,
+                                Duracion = s.SesionDuracion ?? 0,
+                                Grupo = s.SesionGrupo ?? 0,
+                                Comentario = s.SesionComentario
+                            }).ToList()
+                        };
+                    })
+                    .OrderByDescending(c => c.EsPriorizado)
+                    .ThenByDescending(c => c.FechaInicio)
+                    .ToList();
 
                 return new DocenteAgendaDetalleDTO
                 {
@@ -182,20 +207,54 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             }
         }
 
-        /// Autor: Jose Vega
-        /// Fecha: 03/03/2026
-        /// Versión: 1.0
+        /// Autor: Jose Vega / Joseph Llanque
+        /// Fecha: 03/03/2026 — Versión: 2.0 (23/03/2026)
         /// <summary>
-        /// Obtiene información adicional del docente: email, últimas comunicaciones, encuestas y cantidad de estudiantes.
+        /// Obtiene información base del docente: email, encuestas, última comunicación y puntaje global.
+        /// El historial de WhatsApp y correos se carga bajo demanda via ObtenerHistorialWhatsApp
+        /// y ObtenerHistorialCorreos (reducido de 5 a 3 SPs).
         /// </summary>
-        /// <param name="idProveedor">Identificador del docente.</param>
-        /// <param name="idPEspecifico">Identificador del curso.</param>
-        /// <returns>InformacionFaltanteDocenteDTO.</returns>
         public InformacionFaltanteDocenteDTO ObtenerInformacionFaltanteDocente(int idProveedor, int idPEspecifico)
         {
             try
             {
                 return _unitOfWork.GestionDocenteAgendaRepository.ObtenerInformacionFaltanteDocente(idProveedor, idPEspecifico);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 23/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el historial de WhatsApp del docente bajo demanda.
+        /// </summary>
+        public List<WhatsAppHistorialDocenteDTO> ObtenerHistorialWhatsApp(int idProveedor)
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteAgendaRepository.ObtenerHistorialWhatsApp(idProveedor);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 23/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el historial de correos del docente bajo demanda.
+        /// </summary>
+        public List<CorreoResumenDocenteDTO> ObtenerHistorialCorreos(int idProveedor, int idPEspecifico)
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteAgendaRepository.ObtenerHistorialCorreos(idProveedor, idPEspecifico);
             }
             catch (Exception)
             {
@@ -214,6 +273,24 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
             try
             {
                 return _unitOfWork.GestionDocenteAgendaRepository.ObtenerDetalleCorreo(idCorreo);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 19/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el contador de alertas del docente.
+        /// </summary>
+        public ContadorAlertasDTO ObtenerContadorAlertas()
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteAgendaRepository.ObtenerContadorAlertas();
             }
             catch (Exception)
             {
@@ -246,6 +323,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                         Correo = primero.Correo,
                         IdGestionContacto = primero.IdGestionContacto,
                         IdPersonal_Asignado = primero.IdPersonal_Asignado,
+                        IdClasificacionPersona= primero.IdClasificacionPersona,
                         PersonalAsignado = primero.PersonalAsignado,
                         IdGestionDocenteFlujo = primero.IdGestionDocenteFlujo,
                         NombreFlujo = primero.NombreFlujo,
@@ -275,6 +353,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                         UsuarioWeb = primero.UsuarioWeb,
                         ContraseniaWeb = primero.ContraseniaWeb,
                         FechaInscritoWeb = primero.FechaInscritoWeb,
+                        CantidadAlumnosMatriculados = primero.CantidadAlumnosMatriculados,
                         Actividades = g
                             .Where(a => a.IdActividadCabecera.HasValue)
                             .GroupBy(a => new { a.IdActividadCabecera, a.NombreActividadCabecera })

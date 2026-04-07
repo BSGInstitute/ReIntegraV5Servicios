@@ -3,17 +3,14 @@ using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
-using BSI.Integra.Aplicacion.Marketing.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface;
-using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
-using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Helpers;
+using BSI.Integra.Servicios.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -29,18 +26,18 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         private readonly IGestionContactoService _gestionContactoService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IGestionDocenteActividadService _gestionDocenteActividadService;
-        private readonly IWhatsAppMensajeEnviadoApiPlanificacionService _whatsAppService;
+        private readonly IActividadEnvioService _actividadEnvioService;
 
         public GestionContactoController(
             IGestionContactoService gestionContactoService,
             IUnitOfWork unitOfWork,
             IGestionDocenteActividadService gestionDocenteActividadService,
-            IWhatsAppMensajeEnviadoApiPlanificacionService whatsAppService)
+            IActividadEnvioService actividadEnvioService)
         {
             _gestionContactoService = gestionContactoService;
             _unitOfWork = unitOfWork;
             _gestionDocenteActividadService = gestionDocenteActividadService;
-            _whatsAppService = whatsAppService;
+            _actividadEnvioService = actividadEnvioService;
         }
 
         /// Autor: Jose Vega
@@ -227,6 +224,36 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 23/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza una Gestión de Contacto como oportunidad docente.
+        /// Valida si existen cambios reales antes de proceder con la actualización en base de datos.
+        /// </summary>
+        [HttpPost("[action]")]
+        public async Task<IActionResult> ActualizarOportunidadDocente([FromBody] ActualizarOportunidadDocenteDTO dto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(new { Exito = false, Mensaje = "Modelo inválido", Errores = ModelState });
+
+                var idActualizado = await _gestionContactoService.ActualizarOportunidadDocenteAsync(dto);
+
+                return Ok(new { Exito = true, Mensaje = "Oportunidad docente procesada correctamente", Id = idActualizado });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Exito = false,
+                    Mensaje = ex.Message,
+                    Detalle = ex.InnerException?.Message
+                });
+            }
+        }
+
         /// Autor: Lolo Zaa
         /// Fecha: 21/02/2026
         /// Version: 2.1
@@ -237,18 +264,18 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// Para flujos de categoría General, se puede especificar la fecha de inicio del flujo.
         /// </summary>
         /// <param name="idGestionContactoDocenteFlujo">ID del vínculo entre gestión contacto y flujo docente a congelar</param>
-        /// <param name="fechaInicioFlujoCongelado">Fecha de inicio opcional (formato ISO 8601, ejemplo: 2026-03-01T00:00:00). Solo aplica para flujos categoría General</param>
+        /// <param name="body">Body con la fecha de inicio opcional (formato ISO 8601, ejemplo: 2026-03-01T00:00:00). Solo aplica para flujos categoría General</param>
         /// <returns>ID del flujo congelado creado</returns>
         [HttpPost("[action]/{idGestionContactoDocenteFlujo}")]
         public async Task<IActionResult> CongelarFlujoDocente(
             int idGestionContactoDocenteFlujo,
-            [FromQuery] DateTime? fechaInicioFlujoCongelado = null)
+            [FromBody] CongelarFlujoDocenteBodyDTO body)
         {
             try
             {
                 var idFlujoCongelado = await _gestionContactoService.CongelarFlujoDocenteAsync(
                     idGestionContactoDocenteFlujo,
-                    fechaInicioFlujoCongelado);     
+                    body?.FechaInicioFlujo);
 
                 return Ok(new
                 {
@@ -594,76 +621,51 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 int idPersonalLogueado = registroClaimToken.IdPersonal;
 
                 var resultado = await _gestionContactoService.EjecutarActividadManualmenteAsync(request);
-
+                
                 if (resultado.Exitoso && resultado.DatosActividad != null)
                 {
-                    // Si la actividad es automatica (IdTipoActividad == 1), enviar segun medio de comunicacion
-                    string mensajeEnvio = null;
-                    if (resultado.DatosActividad != null &&
-                        resultado.DatosActividad.IdTipoActividad == 1)
-                    {
-                        try
-                        {
-                            if (resultado.DatosActividad.IdPlantillaBase == 2)
-                            {
-                                // Email
-                                mensajeEnvio = await EnviarCorreoActividadAsync(resultado.DatosActividad, idPersonalLogueado);
-                            }
-                            else if (resultado.DatosActividad.IdPlantillaBase == 8)
-                            {
-                                // WhatsApp
-                                mensajeEnvio = await EnviarWhatsAppActividadAsync(resultado.DatosActividad, idPersonalLogueado);
-                            }
+                    var usuario = request.UsuarioEjecucion ?? "MANUAL";
+                    string mensajeEnvio;
 
-                            // Actualizar estado a EJECUTADO tras envio exitoso
-                            await _gestionContactoService.ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
-                            {
-                                IdActividadDetalleCongelada = resultado.DatosActividad.IdActividadDetalleCongelada,
-                                IdDisparadorCongelado = resultado.DatosActividad.IdDisparadorCongelado,
-                                CodigoNuevoEstado = "EJECUTADO",
-                                MensajeResultado = mensajeEnvio,
-                                UsuarioModificacion = request.UsuarioEjecucion ?? "MANUAL"
-                            });
-                        }
-                        catch (Exception ex)
-                        {
-                            // Actualizar estado a NO_EJECUTADO si fallo el envio
-                            await _gestionContactoService.ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
-                            {
-                                IdActividadDetalleCongelada = resultado.DatosActividad.IdActividadDetalleCongelada,
-                                IdDisparadorCongelado = resultado.DatosActividad.IdDisparadorCongelado,
-                                CodigoNuevoEstado = "NO_EJECUTADO",
-                                MensajeError = ex.Message,
-                                UsuarioModificacion = request.UsuarioEjecucion ?? "MANUAL"
-                            });
-
-                            return BadRequest(new
-                            {
-                                Exito = false,
-                                Mensaje = "Actividad ejecutada pero error al enviar mensaje",
-                                Error = ex.Message
-                            });
-                        }
-                    }
-                    else
+                    try
                     {
-                        // Actividad manual (IdTipoActividad == 2): marcar como ejecutada directamente
+                        mensajeEnvio = await _actividadEnvioService.EnviarActividadAutomaticaAsync(
+                            resultado.DatosActividad, idPersonalLogueado, usuario);
+
                         await _gestionContactoService.ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
                         {
                             IdActividadDetalleCongelada = resultado.DatosActividad.IdActividadDetalleCongelada,
-                            IdDisparadorCongelado = resultado.DatosActividad.IdDisparadorCongelado,
-                            CodigoNuevoEstado = "EJECUTADO",
-                            MensajeResultado = "Ejecutado manualmente por asesor",
-                            UsuarioModificacion = request.UsuarioEjecucion ?? "MANUAL"
+                            IdDisparadorCongelado       = resultado.DatosActividad.IdDisparadorCongelado,
+                            CodigoNuevoEstado           = "EJECUTADO",
+                            MensajeResultado            = mensajeEnvio,
+                            UsuarioModificacion         = usuario
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        await _gestionContactoService.ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
+                        {
+                            IdActividadDetalleCongelada = resultado.DatosActividad.IdActividadDetalleCongelada,
+                            IdDisparadorCongelado       = resultado.DatosActividad.IdDisparadorCongelado,
+                            CodigoNuevoEstado           = "NO_EJECUTADO",
+                            MensajeError                = ex.Message,
+                            UsuarioModificacion         = usuario
+                        });
+
+                        return BadRequest(new
+                        {
+                            Exito   = false,
+                            Mensaje = "Error al enviar el mensaje de la actividad",
+                            Error   = ex.Message
                         });
                     }
 
                     return Ok(new
                     {
-                        Exito = true,
-                        Mensaje = "Actividad ejecutada correctamente",
-                        IdEjecucion = resultado.IdRegistro,
-                        MensajeResultado = mensajeEnvio ?? resultado.Mensaje
+                        Exito            = true,
+                        Mensaje          = "Actividad ejecutada correctamente",
+                        IdEjecucion      = resultado.IdRegistro,
+                        MensajeResultado = mensajeEnvio
                     });
                 }
                 else
@@ -687,175 +689,94 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             }
         }
 
+        /// Autor: Lolo Zaa
+        /// Fecha: 26/03/2026
+        /// Version: 1.0
         /// <summary>
-        /// Metodo privado para enviar correo de actividad automatica.
-        /// Usa servicios directamente sin depender de CorreoController ni HttpContext.
+        /// Ejecuta una actividad para ser consumida por un job de Python externo sin usuario logueado.
+        /// Resuelve el IdPersonal desde TGestionContacto.IdPersonalAsignado; si es null, usa ID_ASESOR_SISTEMA.
+        /// No requiere claim "Expira" en el JWT.
         /// </summary>
-        private async Task<string> EnviarCorreoActividadAsync(ActividadPendienteDTO actividad, int idPersonal)
+        /// <param name="request">Identificador del disparador congelado a ejecutar</param>
+        /// <returns>Resultado de la ejecucion</returns>
+        [HttpPost("[action]")]
+        public async Task<IActionResult> EjecutarActividadSistema([FromBody] EjecutarActividadManualDTO request)
         {
-            // 1. Obtener gestion de contacto y docente
-            var gestionContacto = await _unitOfWork.GestionContactoRepository.ObtenerPorIdAsync(actividad.IdGestionContacto);
-            if (gestionContacto == null || !gestionContacto.IdClasificacionPersona.HasValue)
+            const int ID_ASESOR_SISTEMA = 6205;
+
+            try
             {
-                throw new Exception("No se encontro la gestion de contacto o no tiene clasificacion de persona");
+                if (!ModelState.IsValid)
+                    return BadRequest(new { Exito = false, Mensaje = "Modelo invalido", Errores = ModelState });
+
+                var resultado = await _gestionContactoService.EjecutarActividadManualmenteAsync(request);
+
+                if (resultado.Exitoso && resultado.DatosActividad != null)
+                {
+                    // Resolver IdPersonal: desde la gestion de contacto o fallback al asesor de sistema
+                    int idPersonal = resultado.DatosActividad.IdPersonalAsignado ?? ID_ASESOR_SISTEMA;
+                    string mensajeEnvio;
+
+                    try
+                    {
+                        mensajeEnvio = await _actividadEnvioService.EnviarActividadAutomaticaAsync(
+                            resultado.DatosActividad, idPersonal, "SISTEMA");
+
+                        await _gestionContactoService.ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
+                        {
+                            IdActividadDetalleCongelada = resultado.DatosActividad.IdActividadDetalleCongelada,
+                            IdDisparadorCongelado       = resultado.DatosActividad.IdDisparadorCongelado,
+                            CodigoNuevoEstado           = "EJECUTADO",
+                            MensajeResultado            = mensajeEnvio,
+                            UsuarioModificacion         = "SISTEMA"
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        await _gestionContactoService.ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
+                        {
+                            IdActividadDetalleCongelada = resultado.DatosActividad.IdActividadDetalleCongelada,
+                            IdDisparadorCongelado       = resultado.DatosActividad.IdDisparadorCongelado,
+                            CodigoNuevoEstado           = "NO_EJECUTADO",
+                            MensajeError                = ex.Message,
+                            UsuarioModificacion         = "SISTEMA"
+                        });
+
+                        return BadRequest(new
+                        {
+                            Exito   = false,
+                            Mensaje = "Error al enviar el mensaje de la actividad",
+                            Error   = ex.Message
+                        });
+                    }
+
+                    return Ok(new
+                    {
+                        Exito            = true,
+                        Mensaje          = "Actividad ejecutada correctamente",
+                        IdEjecucion      = resultado.IdRegistro,
+                        MensajeResultado = mensajeEnvio
+                    });
+                }
+                else
+                {
+                    return BadRequest(new
+                    {
+                        Exito   = false,
+                        Mensaje = "Error al ejecutar actividad",
+                        Error   = resultado.Error
+                    });
+                }
             }
-
-            var docente = _unitOfWork.DocentePostulanteRepository.ObtenerDocenteDTOPorIdClasificacionPersona(gestionContacto.IdClasificacionPersona.Value);
-            if (docente == null || string.IsNullOrWhiteSpace(docente.Correo))
+            catch (Exception ex)
             {
-                throw new Exception("No se encontro el correo del docente");
+                return BadRequest(new
+                {
+                    Exito   = false,
+                    Mensaje = ex.Message,
+                    Detalle = ex.InnerException?.Message
+                });
             }
-
-            // 2. Generar plantilla con etiquetas reemplazadas
-            var plantillaGenerada = _gestionDocenteActividadService.GenerarPlantillaDocente(new ReemplazoEtiquetaPlantillaDocenteDTO
-            {
-                IdGestionContacto = actividad.IdGestionContacto,
-                IdPlantilla = actividad.IdPlantilla
-            });
-
-            if (string.IsNullOrWhiteSpace(plantillaGenerada.EmailReemplazado.Asunto) ||
-                string.IsNullOrWhiteSpace(plantillaGenerada.EmailReemplazado.CuerpoHTML))
-            {
-                throw new Exception("La plantilla de email generada esta vacia");
-            }
-
-            // 3. Obtener datos del asesor remitente (usuario logueado)
-            var personalService = new PersonalService(_unitOfWork);
-            var asesor = _unitOfWork.PersonalRepository.FirstById(idPersonal);
-            if (asesor == null)
-            {
-                throw new Exception($"No se encontro el personal con Id {idPersonal}");
-            }
-
-            // 4. Obtener credenciales SMTP del asesor logueado
-            var gmailClienteService = new GmailClienteService(_unitOfWork);
-            var credenciales = gmailClienteService.ObtenerClienteCredencial(idPersonal);
-            if (credenciales == null)
-            {
-                throw new Exception($"No se encontraron credenciales de correo para el personal con Id {idPersonal}");
-            }
-
-            // 5. Preparar datos del correo
-            var mailData = new TMKMailDataDTO
-            {
-                Sender = credenciales.EmailAsesor,
-                Recipient = docente.Correo,
-                Subject = plantillaGenerada.EmailReemplazado.Asunto,
-                Message = plantillaGenerada.EmailReemplazado.CuerpoHTML,
-                Cc = "",
-                Bcc = "",
-                AttachedFiles = null,
-                RemitenteC = string.Concat(asesor.Nombres, " ", asesor.Apellidos)
-            };
-
-            // 6. Enviar via SMTP sin archivos adjuntos
-            var filtroBandejaCorreo = new FiltroBandejaCorreoService(_unitOfWork);
-            IList<Microsoft.AspNetCore.Http.IFormFile> sinArchivos = new List<Microsoft.AspNetCore.Http.IFormFile>();
-            var rptEnvio = filtroBandejaCorreo.envioEmailAdjuntoOperaciones(
-                credenciales.EmailAsesor,
-                credenciales.PasswordCorreo,
-                mailData,
-                sinArchivos
-            );
-
-            if (rptEnvio.codigo != "200")
-            {
-                throw new Exception($"Error SMTP al enviar correo: {rptEnvio.respuesta}");
-            }
-
-            // 7. Registrar correo enviado en GmailCorreo
-            var gmailCorreoService = new GmailCorreoService(_unitOfWork);
-            var gmailCorreo = new GmailCorreo
-            {
-                IdEtiqueta = 1,
-                Asunto = plantillaGenerada.EmailReemplazado.Asunto,
-                Fecha = DateTime.Now,
-                EmailBody = plantillaGenerada.EmailReemplazado.CuerpoHTML,
-                Seen = false,
-                Remitente = credenciales.EmailAsesor,
-                Cc = "",
-                Bcc = "",
-                Destinatarios = docente.Correo,
-                IdPersonal = asesor.Id,
-                IdClasificacionPersona = gestionContacto.IdClasificacionPersona,
-                Estado = true,
-                FechaCreacion = DateTime.Now,
-                FechaModificacion = DateTime.Now,
-                UsuarioCreacion = "EJECUCION_MANUAL",
-                UsuarioModificacion = "EJECUCION_MANUAL"
-            };
-            gmailCorreoService.Add(gmailCorreo);
-
-            return $"Email enviado exitosamente a {docente.Correo} - Asunto: {plantillaGenerada.EmailReemplazado.Asunto}";
-        }
-
-        
-
-        /// <summary>
-        /// Metodo privado para enviar WhatsApp usando WhatsAppMensajeEnviadoApiPlanificacionService
-        /// </summary>
-        private async Task<string> EnviarWhatsAppActividadAsync(ActividadPendienteDTO actividad, int idPersonal)
-        {
-            // 1. Obtener gestion de contacto y docente
-            var gestionContacto = await _unitOfWork.GestionContactoRepository.ObtenerPorIdAsync(actividad.IdGestionContacto);
-            if (gestionContacto == null || !gestionContacto.IdClasificacionPersona.HasValue)
-            {
-                throw new Exception("No se encontro la gestion de contacto o no tiene clasificacion de persona");
-            }
-
-            var docente = _unitOfWork.DocentePostulanteRepository.ObtenerDocenteDTOPorIdClasificacionPersona(gestionContacto.IdClasificacionPersona.Value);
-            if (docente == null || string.IsNullOrWhiteSpace(docente.Celular))
-            {
-                throw new Exception("No se encontro el celular del docente");
-            }
-
-            // 2. Generar plantilla
-            var plantillaGenerada = _gestionDocenteActividadService.GenerarPlantillaDocente(new ReemplazoEtiquetaPlantillaDocenteDTO
-            {
-                IdGestionContacto = actividad.IdGestionContacto,
-                IdPlantilla = actividad.IdPlantilla
-            });
-
-            if (string.IsNullOrWhiteSpace(plantillaGenerada.WhatsAppReemplazado.Plantilla))
-            {
-                throw new Exception("La plantilla de WhatsApp generada esta vacia");
-            }
-
-            // 3. Obtener IdProveedor desde ClasificacionPersona
-            var clasificacionPersona = _unitOfWork.ClasificacionPersonaRepository.FirstById(gestionContacto.IdClasificacionPersona.Value);
-            if (clasificacionPersona == null)
-            {
-                throw new Exception($"No se encontro la clasificacion de persona {gestionContacto.IdClasificacionPersona.Value}");
-            }
-
-            // Validar que sea tipo Proveedor (IdTipoPersona = 4)
-            if (clasificacionPersona.IdTipoPersona != 4)
-            {
-                throw new Exception($"La clasificacion de persona debe ser de tipo Proveedor (IdTipoPersona = 4), pero es {clasificacionPersona.IdTipoPersona}");
-            }
-
-            // IdTablaOriginal contiene el IdProveedor
-            int idProveedor = clasificacionPersona.IdTablaOriginal;
-
-            // 4. Preparar DTO para envio de WhatsApp
-            var mensajeDto = new WhatsAppMensajeTextoPlaDTO
-            {
-                WaTo = docente.Celular,
-                WaBody = plantillaGenerada.WhatsAppReemplazado.Plantilla,
-                IdPais = 51, // Peru
-                IdProveedor = idProveedor,
-                IdPersonal = idPersonal
-            };
-
-            // 5. Enviar WhatsApp usando el servicio
-            bool enviado = _whatsAppService.EnvioMensajePorTexto(mensajeDto, "AUTOMATICO-M", idPersonal);
-
-            if (!enviado)
-            {
-                throw new Exception("Error al enviar WhatsApp");
-            }
-
-            return $"WhatsApp enviado exitosamente a {docente.Celular}";
         }
 
         /// Autor: Lolo Zaa

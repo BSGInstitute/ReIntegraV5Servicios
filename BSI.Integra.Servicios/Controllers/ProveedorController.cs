@@ -426,7 +426,9 @@ namespace BSI.Integra.Servicios.Controllers
             }
             try
             {
+                
                 var servicio = new ProveedorService(unitOfWork);
+               
                 return Ok(servicio.ActualizarProveedorCuentaBanco(proveedorCuenta.proveedor, proveedorCuenta.listaCuentaBanco));
             }
             catch (Exception ex)
@@ -662,5 +664,112 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+
+        [HttpGet("[action]")]
+        public IActionResult ObtenerDocentesActivos()
+        {
+            IProveedorService reporteEncuestaInicialService = new ProveedorService(unitOfWork);
+            var resultado = reporteEncuestaInicialService.ObtenerDocentesActivos();
+            return Ok(resultado);
+        }
+
+        /// Tipo Función: GET
+        /// Fecha: 2026-03-19
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la lista de proveedores (docentes) que tienen PEspecificos activos asignados,
+        /// con nombre completo (Nombre1+Nombre2+ApePaterno+ApeMaterno) y la última fecha de asignación.
+        /// </summary>
+        [HttpGet("[action]")]
+        public IActionResult ObtenerActivoPEspecifico()
+        {
+            try
+            {
+                return Ok(unitOfWork.ProveedorPEspecificoRepository.ObtenerActivoPEspecifico());
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Fecha: 2026-03-19
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los cursos asignados a un proveedor específico (Estado=1).
+        /// </summary>
+        [HttpGet("[action]/{idProveedor}")]
+        public IActionResult ObtenerProveedorPEspecificoPorIdProveedor(int idProveedor)
+        {
+            try
+            {
+                return Ok(unitOfWork.ProveedorPEspecificoRepository.ObtenerPorIdProveedor(idProveedor));
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Fecha: 2026-03-19
+        /// Versión: 1.0
+        /// <summary>
+        /// Inserta una asignación de PEspecifico a un Proveedor.
+        /// </summary>
+        [HttpPost("[action]")]
+        public IActionResult InsertarProveedorPEspecifico([FromBody] ProveedorPEspecificoDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            try
+            {
+                // Verificar que no exista ya activa
+                if (unitOfWork.ProveedorPEspecificoRepository.ExistePorProveedorYPespecifico(dto.IdProveedor, dto.IdPespecifico))
+                    return BadRequest("El curso ya está asignado a este docente.");
+
+                var entidad = new ProveedorPespecifico
+                {
+                    IdProveedor = dto.IdProveedor,
+                    IdPespecifico = dto.IdPespecifico,
+                    Estado = true,
+                    UsuarioCreacion = "SYSTEM",
+                    UsuarioModificacion = "SYSTEM",
+                    FechaCreacion = DateTime.Now,
+                    FechaModificacion = DateTime.Now
+                };
+                unitOfWork.ProveedorPEspecificoRepository.Add(entidad);
+                unitOfWork.Commit();
+                return Ok(new { mensaje = "Asignación guardada correctamente." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Tipo Función: DELETE
+        /// Fecha: 2026-03-19
+        /// Versión: 1.0
+        /// <summary>
+        /// Elimina lógicamente (Estado=0) una asignación de PEspecifico a un Proveedor.
+        /// </summary>
+        [HttpDelete("[action]/{id}")]
+        public IActionResult EliminarProveedorPEspecifico(int id)
+        {
+            try
+            {
+                unitOfWork.ProveedorPEspecificoRepository.Delete(id, "SYSTEM");
+                unitOfWork.Commit();
+                return Ok(new { mensaje = "Asignación eliminada correctamente." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }

@@ -182,7 +182,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    CuotasAdicionales,
 	                    IdTipoDescuentoNivelAprobacion,
 	                    AplicaProgramaCompleto,
-	                    Activo
+	                    ISNULL(Activo, 0) AS Activo
                     FROM pla.T_TipoDescuento
                     WHERE Estado = 1 ORDER BY id DESC";
                 var resultado = _dapperRepository.QueryDapper(query, null);
@@ -222,7 +222,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    CuotasAdicionales,
 	                    IdTipoDescuentoNivelAprobacion,
 	                    AplicaProgramaCompleto,
-	                    Activo,
+	                    ISNULL(Activo, 0) AS Activo,
 	                    Estado,
 	                    FechaCreacion,
 	                    FechaModificacion,
@@ -269,7 +269,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    CuotasAdicionales,
 	                    IdTipoDescuentoNivelAprobacion,
 	                    AplicaProgramaCompleto,
-	                    Activo,
+	                    ISNULL(Activo, 0) AS Activo,
 	                    Estado,
 	                    FechaCreacion,
 	                    FechaModificacion,
@@ -317,7 +317,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    CuotasAdicionales,
 	                    IdTipoDescuentoNivelAprobacion,
 	                    AplicaProgramaCompleto,
-	                    Activo,
+	                    ISNULL(Activo, 0) AS Activo,
 	                    Estado,
 	                    FechaCreacion,
 	                    FechaModificacion,
@@ -472,11 +472,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         td.IdTipoDescuentoNivelAprobacion,
                         na.Nombre AS NombreNivelAprobacion,
                         td.AplicaProgramaCompleto,
-                        td.Activo
+                        ISNULL(td.Activo, 0) AS Activo
                     FROM pla.T_TipoDescuento td
                     LEFT JOIN pla.T_FormulaTipoDescuento ftd ON ftd.Id = td.Formula
                     LEFT JOIN pla.T_TipoDescuentoNivelAprobacion na ON na.Id = td.IdTipoDescuentoNivelAprobacion
-                    WHERE td.Estado = 1
+                    WHERE td.Estado = 1 
+                    AND CAST(td.FechaCreacion AS DATE) >= '2026-03-24' --FILTRO TEMPORAL
                     ORDER BY td.Id DESC";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))

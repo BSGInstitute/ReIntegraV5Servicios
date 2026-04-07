@@ -382,8 +382,15 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
     public class ReemplazoEtiquetaPlantillaDocenteDTO
     {
-        public int IdGestionContacto { get; set; }
         public int IdPlantilla { get; set; }
+
+        /// Si se proporciona, se resuelven IdCentroCosto, IdClasificacionPersona e IdPersonal internamente
+        public int? IdGestionContacto { get; set; }
+
+        /// Parámetros directos 
+        public int? IdCentroCosto { get; set; }
+        public int? IdClasificacionPersona { get; set; }
+        public int? IdPersonal { get; set; }
     }
 
     public class PlantillaDisponiblePlanificacionDTO
@@ -391,6 +398,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int IdPlantilla { get; set; }
         public string NombrePlantilla { get; set; }
         public bool EstadoPlantilla { get; set; }
+        public string Descripcion { get; set; }
+
     }
 
     /// Autor: Joseph Llanque
@@ -400,8 +409,27 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
     /// DTO para actualizar un detalle de actividad existente (elimina el anterior y crea uno nuevo).
     /// </summary>
     public class ActualizarActividadDetalleRequestDTO
+        {
+            public int IdDetalleAnterior { get; set; }
+            public InsertarActividadDetalleRequestDTO NuevoDetalle { get; set; }
+        }
+
+    /// Autor: Joseph Llanque
+    /// Fecha: 16/03/2026
+    /// Versión: 1.0
+    /// <summary>
+    /// DTO para actualizar una ocurrencia existente de actividad docente.
+    /// </summary>
+    public class ActualizarOcurrenciaRequestDTO
     {
-        public int IdDetalleAnterior { get; set; }
-        public InsertarActividadDetalleRequestDTO NuevoDetalle { get; set; }
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+        public int IdGestionDocenteOcurrenciaTipo { get; set; }
+        public int IdGestionDocenteModoMarcado { get; set; }
+        public bool RequiereComentario { get; set; }
+        public bool RequiereFechaHora { get; set; }
+        public string Usuario { get; set; }
+        public GestionDocenteOcurrenciaIaConfiguracionDTO? IaConfiguracion { get; set; }
     }
 }

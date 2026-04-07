@@ -2480,13 +2480,13 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
 
             using var httpClient = new HttpClient
             {
-                //    BaseAddress = new Uri(
-                //        "http://ia-analisis-llamadas-comercial-api.bsginstitute.com/"
-                //    ),
-                //    //URL PRUEBA LOCAL IA
                 BaseAddress = new Uri(
-                "http://127.0.0.1:8000/"
-            ),
+                        "http://ia-analisis-llamadas-comercial-api.bsginstitute.com/"
+                    ),
+                //    //URL PRUEBA LOCAL IA
+                //    BaseAddress = new Uri(
+                //    "http://127.0.0.1:8000/"
+                //),
 
             };
             ////
@@ -2514,8 +2514,6 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
                     await semaphore.WaitAsync();
                     try
                     {
-
-
 
                         // Determinar el tipo de validación según IdOcurrenciaAlterno
                         bool esConvenioVoz = item.IdOcurrenciaAlterno == ID_OCURRENCIA_CONVENIO_VOZ;

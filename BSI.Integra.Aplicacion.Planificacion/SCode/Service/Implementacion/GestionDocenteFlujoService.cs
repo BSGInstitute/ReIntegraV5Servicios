@@ -128,9 +128,23 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 _unitOfWork.GestionDocenteFlujoRepository.Update(entidad);
                 await _unitOfWork.CommitAsync();
 
-                // Asociar actividades al flujo si se proporcionan
-                if (dto.ActividadesIds != null && dto.ActividadesIds.Count > 0)
+                // Sincronizar asociaciones actividad→flujo: desactivar las existentes y agregar las nuevas
+                if (dto.ActividadesIds != null)
                 {
+                    // 1. Soft-delete de todas las asociaciones activas del flujo
+                    var asociacionesExistentes = _unitOfWork.GestionDocenteActividadCabeceraFlujoRepository
+                        .GetAll()
+                        .Where(x => x.IdGestionDocenteFlujo == dto.Id && x.Estado == true)
+                        .ToList();
+
+                    foreach (var asociacionExistente in asociacionesExistentes)
+                    {
+                        _unitOfWork.GestionDocenteActividadCabeceraFlujoRepository.Delete(asociacionExistente.Id, dto.Usuario);
+                    }
+
+                    await _unitOfWork.CommitAsync();
+
+                    // 2. Insertar las nuevas asociaciones seleccionadas
                     foreach (var actividadId in dto.ActividadesIds)
                     {
                         var asociacion = new GestionDocenteActividadCabeceraFlujo
@@ -145,6 +159,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                         };
                         _unitOfWork.GestionDocenteActividadCabeceraFlujoRepository.Add(asociacion);
                     }
+
                     await _unitOfWork.CommitAsync();
                 }
 

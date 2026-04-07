@@ -73,7 +73,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("CorsVista",
         builder =>
         {
-            builder.WithOrigins("http://localhost:4200", "http://localhost:51260", "https://localhost:7288", "https://integrav5.bsginstitute.com", "http://integrav5.bsginstitute.com", "https://integrav5-servicios.bsginstitute.com", "https://integrav5p.bsginstitute.com", "https://integrav4.bsginstitute.com", "https://integrav4-prepublicacion-interfaz.bsginstitute.com", "https://integrav5mejora.bsginstitute.com", "https://integrav5-mejora-servicios.bsginstitute.com", "https://integrav5prepublicacion.bsginstitute.com", "https://integrav5-prepublicacion-servicios.bsginstitute.com", "https://integrav5publicacion.bsginstitute.com", "https://integrav5-publicacion-servicios.bsginstitute.com", "https://integrav5pruebainterfaz.bsginstitute.com", "https://integrav5-3cx.bsginstitute.com", "https://webhook-facebook.bsginstitute.com", "http://ia-proceso-resumen-sesiones-api.bsginstitute.com", "https://integrav5-prepublicacion-eariasf.bsginstitute.com", "https://hook-whatsapp.bsginstitute.com", "https://nuevointegrav5.bsginstitute.com", "https://beta8.moontechnolabs.com", "https://prototipo.bsginstitute.com", "https://bsginstitute.com", "https://integrav5prepublicacionmarcador.bsginstitute.com", "https://integrav5-nuevaagenda.bsginstitute.com", "https://integrav5-nuevaagendaatc.bsginstitute.com", "https://integrav5-nuevaagendaia.bsginstitute.com")
+            builder.WithOrigins("http://localhost:4200", "http://localhost:51260", "https://localhost:7288", "https://integrav5.bsginstitute.com", "http://integrav5.bsginstitute.com", "https://integrav5-servicios.bsginstitute.com", "https://integrav5p.bsginstitute.com", "https://integrav4.bsginstitute.com", "https://integrav4-prepublicacion-interfaz.bsginstitute.com", "https://integrav5mejora.bsginstitute.com", "https://integrav5-mejora-servicios.bsginstitute.com", "https://integrav5prepublicacion.bsginstitute.com", "https://integrav5-prepublicacion-servicios.bsginstitute.com", "https://integrav5publicacion.bsginstitute.com", "https://integrav5-publicacion-servicios.bsginstitute.com", "https://integrav5pruebainterfaz.bsginstitute.com", "https://integrav5-3cx.bsginstitute.com", "https://webhook-facebook.bsginstitute.com", "http://ia-proceso-resumen-sesiones-api.bsginstitute.com", "https://integrav5-prepublicacion-eariasf.bsginstitute.com", "https://hook-whatsapp.bsginstitute.com", "https://nuevointegrav5.bsginstitute.com", "https://beta8.moontechnolabs.com", "https://prototipo.bsginstitute.com", "https://bsginstitute.com", "https://integrav5prepublicacionmarcador.bsginstitute.com", "https://integrav5-nuevaagenda.bsginstitute.com", "https://integrav5-nuevaagendaatc.bsginstitute.com", "https://integrav5-nuevaagendaia.bsginstitute.com", "http://ia-automatizacion-planificacion-api.bsginstitute.com")
                 .AllowAnyHeader().AllowAnyMethod();
         });
 });
@@ -252,8 +252,24 @@ builder.Services.AddScoped<BSI.Integra.Aplicacion.Transversal.Service.Interface.
 // WhatsApp Service
 builder.Services.AddScoped<BSI.Integra.Aplicacion.Transversal.Service.Interface.IWhatsAppMensajeEnviadoApiPlanificacionService, BSI.Integra.Aplicacion.Transversal.Service.Implementacion.WhatsAppMensajeEnviadoApiPlanificacionService>();
 
+// Servicio unificado de envio de actividades automaticas (Email + WhatsApp)
+builder.Services.AddScoped<BSI.Integra.Servicios.Services.IActividadEnvioService, BSI.Integra.Servicios.Services.ActividadEnvioService>();
+builder.Services.AddScoped<BSI.Integra.Aplicacion.Marketing.Service.Interface.IGmailCorreoService, BSI.Integra.Aplicacion.Marketing.Service.Implementacion.GmailCorreoService>();
+
+// Clasificacion de respuestas docentes via servicio externo Python
+builder.Services.AddScoped<BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface.IClasificacionRespuestaService, BSI.Integra.Servicios.Services.ClasificacionRespuestaService>();
+builder.Services.AddScoped<BSI.Integra.Servicios.Jobs.ClasificacionRespuestaJob>();
+builder.Services.AddHttpClient("PythonLlm", client =>
+{
+    client.BaseAddress = new Uri("http://ia-automatizacion-planificacion-api.bsginstitute.com");
+    client.Timeout     = TimeSpan.FromSeconds(30);
+});
+
+
+
 var connectionString = builder.Configuration.GetConnectionString("IntegraDB");
-//Registrar Hangfire
+
+// Registrar Hangfire
 builder.Services.AddHangfire(config =>
     config.UseSqlServerStorage(connectionString));
 builder.Services.AddHangfireServer();
@@ -268,12 +284,25 @@ builder.Services.AddSingleton<MongoDBContext>();
 // Registro del repositorio (Scoped para cada request)
 builder.Services.AddScoped<IMongoDocumentRepository, MongoDocumentRepository>();
 
+// Registrar el Job de Actividades Congeladas
+builder.Services.AddScoped<BSI.Integra.Servicios.Jobs.ActividadesCongeladasJob>();
 
 var app = builder.Build();
 
-// Dashboard opcional
+// Dashboard Hangfire
 app.UseHangfireDashboard("/hangfire");
- 
+
+// Configurar Job Recurrente: Procesar actividades congeladas cada 5 minutos
+//Hangfire.RecurringJob.AddOrUpdate<BSI.Integra.Servicios.Jobs.ActividadesCongeladasJob>(
+//    "procesar-actividades-congeladas",
+//    job => job.ProcesarActividadesPendientesAsync(),
+//    "*/5 * * * *");
+
+//// Clasificacion de respuestas docentes — cada 1 minuto
+//Hangfire.RecurringJob.AddOrUpdate<BSI.Integra.Servicios.Jobs.ClasificacionRespuestaJob>(
+//    "clasificacion-respuestas-docentes",
+//    job => job.ProcesarClasificacionesAsync(),
+//    "*/2 * * * *");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

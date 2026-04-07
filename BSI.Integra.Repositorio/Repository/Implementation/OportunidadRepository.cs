@@ -3986,6 +3986,32 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+
+        /// Autor: Carlos Crispin
+        /// Fecha: 01/04/2026
+        /// Version: 1.0<
+        /// <summary>
+        /// Limpieza com.T_ContadorReprogramacionManual
+        /// </summary>
+        /// <returns></returns>
+        public ResultadoDTO LimpiarProgramacionManualConsecutivos()
+        {
+            try
+            {
+                ResultadoDTO resultado = new ResultadoDTO();
+                var query = _dapperRepository.QuerySPFirstOrDefault("com.SP_LimpiezaContadorReprogramacionManual", null);
+                if (!string.IsNullOrEmpty(query) && query != "null")
+                {
+                    resultado = JsonConvert.DeserializeObject<ResultadoDTO>(query)!;
+                }
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ResignacionOportunidades: {ex.Message}", ex);
+            }
+        }
+
         /// <summary>
         /// Obtiene las oportunidades que se han reprogramado manualmente la ultima reprogramacion
         /// </summary>

@@ -456,6 +456,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TGestionDocenteReferenciaTiempo> TGestionDocenteReferenciaTiempos { get; set; } = null!;
         public virtual DbSet<TGestionDocenteSesion> TGestionDocenteSesions { get; set; } = null!;
         public virtual DbSet<TGestionDocenteUnidadTiempo> TGestionDocenteUnidadTiempos { get; set; } = null!;
+        public virtual DbSet<TGestionPago> TGestionPagos { get; set; } = null!;
+        public virtual DbSet<TGestionPagoArchivo> TGestionPagoArchivos { get; set; } = null!;
+        public virtual DbSet<TGestionPagoCronograma> TGestionPagoCronogramas { get; set; } = null!;
         public virtual DbSet<TGmailCliente> TGmailClientes { get; set; } = null!;
         public virtual DbSet<TGmailCorreo> TGmailCorreos { get; set; } = null!;
         public virtual DbSet<TGmailCorreoArchivoAdjunto> TGmailCorreoArchivoAdjuntos { get; set; } = null!;
@@ -541,6 +544,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TMessengerChat> TMessengerChats { get; set; } = null!;
         public virtual DbSet<TMessengerEnvioMasivo> TMessengerEnvioMasivos { get; set; } = null!;
         public virtual DbSet<TModalidadCurso> TModalidadCursos { get; set; } = null!;
+        public virtual DbSet<TModalidadPago> TModalidadPagos { get; set; } = null!;
         public virtual DbSet<TModalidadTrabajo> TModalidadTrabajos { get; set; } = null!;
         public virtual DbSet<TModeloDataMining> TModeloDataMinings { get; set; } = null!;
         public virtual DbSet<TModeloGeneral> TModeloGenerals { get; set; } = null!;
@@ -615,6 +619,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TOtroMovimientoCaja> TOtroMovimientoCajas { get; set; } = null!;
         public virtual DbSet<TPaginaWebPw> TPaginaWebPws { get; set; } = null!;
         public virtual DbSet<TPago> TPagos { get; set; } = null!;
+        public virtual DbSet<TPagoEstado> TPagoEstados { get; set; } = null!;
         public virtual DbSet<TPagoFinal> TPagoFinals { get; set; } = null!;
         public virtual DbSet<TPai> TPais { get; set; } = null!;
         public virtual DbSet<TPaisAsignacionRegular> TPaisAsignacionRegulars { get; set; } = null!;
@@ -26541,6 +26546,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.HasOne(d => d.IdGestionDocenteDisparadorReglaTiempoFijoNavigation)
                     .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoFijoCongelados)
                     .HasForeignKey(d => d.IdGestionDocenteDisparadorReglaTiempoFijo)
+                    .IsRequired(false)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_T_GestionDocenteDisparadorReglaTiempoFijoCongelado_IdGestionDocenteDisparadorReglaTiempoFijo");
 
@@ -27692,6 +27698,203 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario que modificó el registro");
+            });
+
+            modelBuilder.Entity<TGestionPago>(entity =>
+            {
+                entity.ToTable("T_GestionPago", "fin");
+
+                entity.HasComment("Registra el flujo documental y financiero del pago de un comprobante completo. Relacion 1:1 con T_ComprobantePago");
+
+                entity.HasIndex(e => e.IdComprobantePago, "UQ_T_GestionPago_IdComprobantePago")
+                    .IsUnique();
+
+                entity.Property(e => e.Id).HasComment("Llave primaria de la tabla");
+
+                entity.Property(e => e.ConformidadFinanzas).HasComment("Check de conformidad otorgada por Finanzas (FN)");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1: activo, 0: eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha modificacion");
+
+                entity.Property(e => e.FechaSolicitud)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha en que Operaciones registra la solicitud de pago");
+
+                entity.Property(e => e.IdComprobantePago).HasComment("Llave foranea de la tabla T_ComprobantePago. Relacion 1:1 con UNIQUE");
+
+                entity.Property(e => e.IdModalidadPago).HasComment("Llave foranea de la tabla T_ModalidadPago (Total, Parcial)");
+
+                entity.Property(e => e.IdPagoEstado).HasComment("Llave foranea de la tabla T_PagoEstado (Solicitado, Observado, Pendiente, Pagado)");
+
+                entity.Property(e => e.LevantamientoObservacion)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasComment("Respuesta al levantamiento de observaciones");
+
+                entity.Property(e => e.ObservacionDocumentacion)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasComment("Observaciones a la documentacion registradas durante la revision");
+
+                entity.Property(e => e.ObservacionProgramacionPago)
+                    .HasMaxLength(1000)
+                    .IsUnicode(false)
+                    .HasComment("Observaciones a la programacion de pago registradas por Finanzas");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("RowVersion");
+
+                entity.Property(e => e.ServicioValidado).HasComment("Indica si el servicio fue validado por Operaciones (PO)");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario modificacion");
+
+                entity.HasOne(d => d.IdComprobantePagoNavigation)
+                    .WithOne(p => p.TGestionPago)
+                    .HasForeignKey<TGestionPago>(d => d.IdComprobantePago)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdModalidadPagoNavigation)
+                    .WithMany(p => p.TGestionPagos)
+                    .HasForeignKey(d => d.IdModalidadPago)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdPagoEstadoNavigation)
+                    .WithMany(p => p.TGestionPagos)
+                    .HasForeignKey(d => d.IdPagoEstado)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGestionPagoArchivo>(entity =>
+            {
+                entity.ToTable("T_GestionPagoArchivo", "fin");
+
+                entity.HasComment("Almacena los archivos adjuntos de la gestion de pago. NULL en IdGestionPagoCronograma indica archivo de cabecera, con valor indica voucher de cuota");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria de la tabla");
+
+                entity.Property(e => e.ContentTypeArchivo)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Tipo MIME del archivo (application/pdf, image/jpeg, etc.)");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1: activo, 0: eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha modificacion");
+
+                entity.Property(e => e.IdGestionPago).HasComment("Llave foranea de la tabla T_GestionPago");
+
+                entity.Property(e => e.IdGestionPagoCronograma).HasComment("Llave foranea de la tabla T_GestionPagoCronograma. NULL si es archivo de cabecera, con valor si es voucher de cuota");
+
+                entity.Property(e => e.NombreArchivo)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasComment("Nombre fisico del archivo almacenado en blob storage");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("RowVersion");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario modificacion");
+
+                entity.HasOne(d => d.IdGestionPagoNavigation)
+                    .WithMany(p => p.TGestionPagoArchivos)
+                    .HasForeignKey(d => d.IdGestionPago)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdGestionPagoCronogramaNavigation)
+                    .WithMany(p => p.TGestionPagoArchivos)
+                    .HasForeignKey(d => d.IdGestionPagoCronograma);
+            });
+
+            modelBuilder.Entity<TGestionPagoCronograma>(entity =>
+            {
+                entity.ToTable("T_GestionPagoCronograma", "fin");
+
+                entity.HasComment("Almacena las cuotas de pago asociadas a una gestion de pago. Depende de T_GestionPago");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria de la tabla");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1: activo, 0: eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha modificacion");
+
+                entity.Property(e => e.FechaProbablePago)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha probable de pago estimada por Finanzas");
+
+                entity.Property(e => e.FechaRealPago)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha en que se realizo el pago efectivo");
+
+                entity.Property(e => e.FechaVencimiento)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de vencimiento de la cuota");
+
+                entity.Property(e => e.IdGestionPago).HasComment("Llave foranea de la tabla T_GestionPago");
+
+                entity.Property(e => e.MontoCuota)
+                    .HasColumnType("decimal(18, 2)")
+                    .HasComment("Monto de la cuota");
+
+                entity.Property(e => e.NumeroCuota).HasComment("Numero secuencial de la cuota");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("RowVersion");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario modificacion");
+
+                entity.HasOne(d => d.IdGestionPagoNavigation)
+                    .WithMany(p => p.TGestionPagoCronogramas)
+                    .HasForeignKey(d => d.IdGestionPago)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
             modelBuilder.Entity<TGmailCliente>(entity =>
@@ -33075,6 +33278,45 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Usuario de modificacion del registro");
             });
 
+            modelBuilder.Entity<TModalidadPago>(entity =>
+            {
+                entity.ToTable("T_ModalidadPago", "fin");
+
+                entity.HasComment("Almacena las modalidades de pago disponibles (Total, Parcial)");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria de la tabla");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1: activo, 0: eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha modificacion");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre de la modalidad de pago");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("RowVersion");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario modificacion");
+            });
+
             modelBuilder.Entity<TModalidadTrabajo>(entity =>
             {
                 entity.ToTable("T_ModalidadTrabajo", "gp");
@@ -37592,6 +37834,45 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TPagoEstado>(entity =>
+            {
+                entity.ToTable("T_PagoEstado", "fin");
+
+                entity.HasComment("Almacena los estados del ciclo de pago (Solicitado PO, Observado FINA, Pendiente, Pagado FINANZ)");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria de la tabla");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (1: activo, 0: eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha modificacion");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del estado de pago");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("RowVersion");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario modificacion");
             });
 
             modelBuilder.Entity<TPagoFinal>(entity =>
@@ -50199,6 +50480,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.Property(e => e.NroDocIdentidad)
                     .HasMaxLength(20)
                     .IsUnicode(false);
+
+                entity.Property(e => e.PlazoPago).HasComment("Plazo de pago del proveedor");
 
                 entity.Property(e => e.RazonSocial)
                     .HasMaxLength(1000)

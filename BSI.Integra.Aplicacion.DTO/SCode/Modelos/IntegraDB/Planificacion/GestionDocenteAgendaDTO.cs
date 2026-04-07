@@ -18,6 +18,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int? IdPersonalAsignado { get; set; }
         public string PersonalAsignado { get; set; }
         public int IdGestionContacto { get; set; }
+        public int? IdClasificacionPersona { get; set; }
         public int IdFlujo { get; set; }
         public string NombreFlujo { get; set; }
         public int? IdCategoria { get; set; }
@@ -115,6 +116,35 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
     }
 
     /// Autor: Joseph Llanque
+    /// Fecha: 27/03/2026
+    /// Versión: 1.0
+    /// <summary>
+    /// DTO flat que combina datos de cronograma (curso) y sesión en una sola fila.
+    /// Retornado por pla.SP_GestionDocenteCronogramaSesionesObtener.
+    /// Se agrupa por IdPEspecifico en el service para armar DocenteAgendaCronogramaDTO con sesiones.
+    /// </summary>
+    public class CronogramaSesionFlatDTO
+    {
+        // Datos del cronograma/curso
+        public int IdPEspecifico { get; set; }
+        public string NombreCurso { get; set; }
+        public string CodigoCurso { get; set; }
+        public string EstadoCurso { get; set; }
+        public string TipoCurso { get; set; }
+        public string CategoriaCurso { get; set; }
+        public string CiudadCurso { get; set; }
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaTermino { get; set; }
+        public int EsPriorizado { get; set; }
+        // Datos de la sesión
+        public int IdSesion { get; set; }
+        public DateTime? SesionFechaHoraInicio { get; set; }
+        public decimal? SesionDuracion { get; set; }
+        public int? SesionGrupo { get; set; }
+        public string SesionComentario { get; set; }
+    }
+
+    /// Autor: Joseph Llanque
     /// Fecha: 24/02/2026
     /// Versión: 1.0
     /// <summary>
@@ -153,11 +183,12 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string Contacto2 { get; set; }
         public string Correo { get; set; }
         public int IdGestionContacto { get; set; }
+        public int? IdClasificacionPersona { get; set; }
         public int? IdPersonal_Asignado { get; set; }
         public string PersonalAsignado { get; set; }
         public int? IdGestionDocenteFlujo { get; set; }
         public string NombreFlujo { get; set; }
-        
+
         public int? IdCentroCosto { get; set; }
         public string NombreCentroCosto { get; set; }
         public string CodigoCentroCosto { get; set; }
@@ -192,6 +223,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string UsuarioWeb { get; set; }
         public string ContraseniaWeb { get; set; }
         public DateTime? FechaInscritoWeb { get; set; }
+        public int CantidadAlumnosMatriculados { get; set; }
     }
 
     /// Autor: Joseph Llanque
@@ -223,6 +255,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string Contacto2 { get; set; }
         public string Correo { get; set; }
         public int IdGestionContacto { get; set; }
+        public int? IdClasificacionPersona { get; set; }
         public int? IdPersonal_Asignado { get; set; }
         public string PersonalAsignado { get; set; }
         public int? IdGestionDocenteFlujo { get; set; }
@@ -257,6 +290,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string UsuarioWeb { get; set; }
         public string ContraseniaWeb { get; set; }
         public DateTime? FechaInscritoWeb { get; set; }
+        public int CantidadAlumnosMatriculados { get; set; }
 
         public List<ActividadCabeceraItemDTO> Actividades { get; set; }
     }
@@ -339,5 +373,14 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public Boolean? EstadoEnvio { get; set; }
         public string PersonalRemitente { get; set; }
         public string CorreoDestinatario { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para el contador de alertas del docente.
+    /// Retornado por pla.SP_GestionDocenteAlertasContador.
+    /// </summary>
+    public class ContadorAlertasDTO
+    {
+        public int TotalProveedorAlerta { get; set; }
     }
 }

@@ -19,6 +19,7 @@ namespace BSI.Integra.Aplicacion.Operaciones.Service.Interface
         IEnumerable<MaterialVersionDTO> Obtener();
         IEnumerable<GrabacionCelularCorporativoDTO> ObtenerGrabacionesCelularCorporativo();
         bool InsertarGrabacionesCelularCorporativo(GrabacionCelularCorporativoDTO item,string usuario);
+        bool GenerarNuevaLlamadaActividad(GrabacionCelularLlamadasPorDiaDTO obj, string usuario);
         IEnumerable<ComboDTO> ObtenerCombo();
     }
 }

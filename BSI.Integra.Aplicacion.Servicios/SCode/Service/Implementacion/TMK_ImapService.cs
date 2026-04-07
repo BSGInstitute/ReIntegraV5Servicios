@@ -1,6 +1,8 @@
-﻿using BSI.Integra.Aplicacion.Servicios.Service.Interface;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.Servicios.Service.Interface;
 using MailBee.ImapMail;
 using MailBee.Mime;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BSI.Integra.Aplicacion.Servicios.Service.Implementacion
 {
@@ -135,6 +137,70 @@ namespace BSI.Integra.Aplicacion.Servicios.Service.Implementacion
             catch (Exception e)
             {
                 throw new Exception(e.Message);
+            }
+        }
+        /// Autor: Carlos Crispin.
+        /// Fecha: 27/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obitene el cuerpo de un correo electronico
+        /// </summary>
+        /// <param name="Listid">Id del correo electronico</param>
+        /// <param name="correo">Cuenta del usuario</param>
+        /// <param name="pass">Contraseña del correo electronico</param>
+        /// <param name="folder">nombre del folder del correo</param>
+        /// <returns>MailMessage</returns>
+        public async Task<bool> MarcarComoNoLeidoGmail(int id, string correo, string pass, string folder)
+        {
+            try
+            {
+                folder = NormalizarCarpetaGmail(folder);
+
+                _imap.SslMode = MailBee.Security.SslStartupMode.OnConnect;
+                await _imap.ConnectAsync("imap.gmail.com", 993);
+                await _imap.LoginAsync(correo, pass);
+                await _imap.SelectFolderAsync(folder);
+
+                await _imap.SetMessageFlagsAsync(id.ToString(), true, @"\Seen", MessageFlagAction.Remove, true);
+
+                await _imap.DisconnectAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+        /// Autor: Carlos Crispin.
+        /// Fecha: 30/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Marca un correo electronico como leido
+        /// </summary>
+        /// <param name="id">Id del correo electronico (UID)</param>
+        /// <param name="correo">Cuenta del usuario</param>
+        /// <param name="pass">Contraseña del correo electronico</param>
+        /// <param name="folder">Nombre del folder del correo</param>
+        /// <returns>True si se marco como leido correctamente</returns>
+        public async Task<bool> MarcarComoLeidoGmail(int id, string correo, string pass, string folder)
+        {
+            try
+            {
+                folder = NormalizarCarpetaGmail(folder);
+
+                _imap.SslMode = MailBee.Security.SslStartupMode.OnConnect;
+                await _imap.ConnectAsync("imap.gmail.com", 993);
+                await _imap.LoginAsync(correo, pass);
+                await _imap.SelectFolderAsync(folder);
+
+                await _imap.SetMessageFlagsAsync(id.ToString(), true, @"\Seen", MessageFlagAction.Add, true);
+
+                await _imap.DisconnectAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
             }
         }
         /// Autor: Jashin Salazar Taco.
@@ -343,6 +409,51 @@ namespace BSI.Integra.Aplicacion.Servicios.Service.Implementacion
                 throw new Exception(e.Message);
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 12/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene correos nuevos basados en el último UID procesado.
+        /// </summary>
+        /// <param name="lastUid">Último UID guardado en BD. Si es 0, sincroniza los últimos 30 días.</param>
+        /// <returns>Colección de sobres (Envelopes)</returns>
+        public EnvelopeCollection ObtenerCorreosNuevosDesdeUid(long lastUid)
+        {
+            UidCollection nuevosUids;
+            if (lastUid == 0)
+            {
+                DateTime sinceDate = DateTime.Now.AddDays(-30);
+                nuevosUids = (UidCollection)_imap.Search(true, "SINCE \"" + ImapUtils.GetImapDateString(sinceDate) + "\"", null);
+            }
+            else
+            {
+                nuevosUids = (UidCollection)_imap.Search(true, $"UID {lastUid + 1}:*", null);
+
+                // IMAP puede devolver el último UID existente si lastUid+1 no existe.
+                // Filtramos UIDs que ya fueron procesados.
+                if (nuevosUids != null && nuevosUids.Count > 0)
+                {
+                    var filtrados = new UidCollection();
+                    foreach (long uid in nuevosUids)
+                    {
+                        if (uid > lastUid)
+                        {
+                            filtrados.Add(uid);
+                        }
+                    }
+                    nuevosUids = filtrados;
+                }
+            }
+
+            if (nuevosUids != null && nuevosUids.Count > 0)
+            {
+                return _imap.DownloadEnvelopes(nuevosUids.ToString(), true, EnvelopeParts.All, 0);
+            }
+
+            return new EnvelopeCollection();
+        }
+
         /// Autor: Jashin Salazar Taco.
         /// Fecha: 19/08/2022
         /// Version: 1.0
@@ -378,6 +489,88 @@ namespace BSI.Integra.Aplicacion.Servicios.Service.Implementacion
             {
 
                 throw new Exception(e.Message);
+            }
+        }
+
+        /// Autor: Carlos Crispin.
+        /// Fecha: 30/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Elimina un correo electronico de la bandeja o folder indicado
+        /// </summary>
+        /// <param name="id">Id del correo electronico (UID)</param>
+        /// <param name="correo">Cuenta del usuario</param>
+        /// <param name="pass">Contraseña del correo electronico</param>
+        /// <param name="folder">Nombre del folder del correo</param>
+        /// <returns>True si se elimino correctamente</returns>
+        public async Task<bool> EliminarCorreoGmail(int id, string correo, string pass, string folder)
+        {
+            try
+            {
+                folder = NormalizarCarpetaGmail(folder);
+
+                _imap.SslMode = MailBee.Security.SslStartupMode.OnConnect;
+                await _imap.ConnectAsync("imap.gmail.com", 993);
+                await _imap.LoginAsync(correo, pass);
+                await _imap.SelectFolderAsync(folder);
+
+                await _imap.SetMessageFlagsAsync(id.ToString(), true, @"\Deleted", MessageFlagAction.Add, true);
+                await _imap.ExpungeAsync();
+
+                await _imap.DisconnectAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
+        /// Autor: Carlos Crispin.
+        /// Fecha: 30/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el ultimo correo recibido del folder indicado y lo elimina
+        /// </summary>
+        /// <param name="correo">Cuenta del usuario</param>
+        /// <param name="pass">Contraseña del correo electronico</param>
+        /// <param name="folder">Nombre del folder del correo</param>
+        /// <returns>Objeto con el UID del correo eliminado y el asunto para validacion</returns>
+        public async Task<(bool Eliminado, long Uid, string Asunto)> EliminarUltimoCorreoGmail(string correo, string pass, string folder)
+        {
+            try
+            {
+                folder = NormalizarCarpetaGmail(folder);
+
+                _imap.SslMode = MailBee.Security.SslStartupMode.OnConnect;
+                await _imap.ConnectAsync("imap.gmail.com", 993);
+                await _imap.LoginAsync(correo, pass);
+                await _imap.SelectFolderAsync(folder);
+
+                // Obtener el UID del ultimo correo
+                UidCollection uids = (UidCollection)_imap.Search(true, "ALL", null);
+                if (uids == null || uids.Count == 0)
+                {
+                    await _imap.DisconnectAsync();
+                    return (false, 0, "No hay correos en el folder");
+                }
+
+                long ultimoUid = (long)uids[uids.Count - 1];
+
+                // Descargar el envelope para obtener el asunto
+                EnvelopeCollection envelopes = _imap.DownloadEnvelopes(ultimoUid.ToString(), true, EnvelopeParts.All, 0);
+                string asunto = envelopes.Count > 0 ? envelopes[0].Subject : "Sin asunto";
+
+                // Eliminar el correo
+                await _imap.SetMessageFlagsAsync(ultimoUid.ToString(), true, @"\Deleted", MessageFlagAction.Add, true);
+                await _imap.ExpungeAsync();
+
+                await _imap.DisconnectAsync();
+                return (true, ultimoUid, asunto);
+            }
+            catch (Exception e)
+            {
+                return (false, 0, e.Message);
             }
         }
 

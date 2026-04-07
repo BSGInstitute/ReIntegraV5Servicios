@@ -1131,11 +1131,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                var validacion = new AlumnoEmailDTO();
                 string queryAlumno = @"
                     SELECT Id, Email
-                    FROM [mkt].[V_TProveedor_ValidarEmail]
-                    WHERE Email = @email";
+                    FROM fin.T_Proveedor
+                    WHERE Email  = @email
+                      AND Estado = 1";
                 var resultado = _dapperRepository.FirstOrDefault(queryAlumno, new { email });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
