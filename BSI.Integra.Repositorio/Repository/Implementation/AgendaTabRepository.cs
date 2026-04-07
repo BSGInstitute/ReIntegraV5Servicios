@@ -809,7 +809,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             return new ActividadAgendaDTO
             {
                 // Campos base existentes
-                Id = solicitud.IdSolicitudAlumno,
+                Id = solicitud.IdActividadDetalle_Ultima ?? 0,
                 IdMatriculaCabecera = solicitud.IdMatriculaCabecera,
                 CodigoMatricula = solicitud.CodigoMatricula,
                 IdEstadoMatricula = solicitud.IdEstadoMatricula,
@@ -817,10 +817,20 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 SubEstadoMatricula = solicitud.SubEstadoMatricula,
                 Contacto = solicitud.NombreAlumno,
                 IdAlumno = solicitud.IdAlumno ?? 0,
+                CodigoFase = solicitud.CodigoFase,
+                Email1 = solicitud.EmailAlumno,
+                Celular = solicitud.CelularAlumno,
+                IdCodigoPais = solicitud.IdCodigoPais,
+                DNI = solicitud.DNI,
+                Modalidad = solicitud.Modalidad,
+                FechaPrimeraSesion = !string.IsNullOrEmpty(solicitud.FechaPrimeraSesion)
+                    ? DateTime.Parse(solicitud.FechaPrimeraSesion)
+                    : (DateTime?)null,
+                ValidoAccesoTemporal = solicitud.ValidoAccesoTemporal,
                 IdClasificacionPersona = solicitud.IdClasificacionPersona ?? 0,
                 IdOportunidad = solicitud.IdOportunidad ?? 0,
                 IdFaseOportunidad = solicitud.IdFaseOportunidad,
-                IdPadre = solicitud.IdOportunidadPadre,
+                IdPadre = solicitud.IdOportunidad_Padre,
                 IdActividadCabecera = solicitud.IdActividadCabecera ?? 0,
                 UltimaFechaProgramada = !string.IsNullOrEmpty(solicitud.FechaCreacion)
                     ? DateTime.Parse(solicitud.FechaCreacion)
@@ -828,23 +838,25 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 PEspecifico = solicitud.NombrePEspecifico,
                 IdCentroCosto = solicitud.IdCentroCosto,
                 CentroCosto = solicitud.NombreCentroCosto,
-                UltimoComentario = solicitud.DetalleSolicitud,
+                UltimoComentario = solicitud.UltimoComentario,
                 TipoSolicitudOperaciones = tipoSolicitud,
-                Asesor = solicitud.NombrePersonal_Revision,
+                Asesor = solicitud.NombrePersonal_Solicitante,
                 IdPersonal_Asignado = solicitud.IdPersonal_Revision,
-                EstadoHoja = solicitud.NombreEstadoSolicitud,
+                EstadoHoja = solicitud.EstadoHoja,
                 CategoriaNombre = solicitud.NombreSolicitudCategoria,
                 CategoriaDescripcion = solicitud.NombreSubCategoria,
                 FechaSolicitud = !string.IsNullOrEmpty(solicitud.FechaRegistro)
                     ? DateTime.Parse(solicitud.FechaRegistro)
                     : (DateTime?)null,
-
+                ReprogramacionAutomatica = solicitud.ReprogramacionAutomatica,
+                ReprogramacionManual = solicitud.ReprogramacionManual,
                 // Campos de Programa
                 IdPEspecifico = solicitud.IdPEspecifico,
                 IdPGeneral = solicitud.IdPGeneral,
                 PGeneral = solicitud.NombrePGeneral,
 
                 // Campos de Solicitud
+                IdSolicitud = solicitud.IdSolicitudAlumno,
                 Prioridad = solicitud.Prioridad,
                 NombreSolicitud = solicitud.NombreSolicitud,
                 IdTipoReporte = solicitud.IdSolicitudTipoReporte,
@@ -852,6 +864,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 IdSolicitudCategoria = solicitud.IdSolicitudCategoria,
                 IdSubCategoria = solicitud.IdSolicitudProblema,
                 IdEstadoSolicitud = solicitud.IdEstadoSolicitud,
+                DetalleSolucion = solicitud.DetalleSolicitud,
 
                 // Campos de Solicitante
                 IdSolicitante = solicitud.IdPersonal_Solicitante,

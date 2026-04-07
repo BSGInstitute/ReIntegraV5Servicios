@@ -30,5 +30,9 @@
         public bool? MostrarPortalWeb { get; set; }
         public int? IdCiclo { get; set; }
         public int? IdPeriodoLectivo { get; set; }
+        public int? IdPEspecificoSesionEstado { get; set; }
+        public bool? Reprogramacion { get; set; }
+
+        public int? IdPEspecificoSesionEstadoObservacionDetalle { get; set; }
     }
 }

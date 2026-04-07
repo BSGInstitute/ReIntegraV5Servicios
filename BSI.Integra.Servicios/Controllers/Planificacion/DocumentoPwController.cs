@@ -1,10 +1,12 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
+using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Helpers;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace BSI.Integra.Servicios.Controllers.Planificacion
 {
@@ -59,15 +61,33 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <returns></returns>
         [Route("[Action]")]
         [HttpPost]
-        public IActionResult InsertarDocumento([FromBody] CompuestoDocumentoDTO dto)
+        public async Task<IActionResult> InsertarDocumento(
+            [FromForm] string dto,
+            IFormFile? urlArchivoInstruccionTarea,
+            IFormFile? urlArchivoCalificacionExcelente)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            if (string.IsNullOrEmpty(dto))
+                return BadRequest("El parámetro dto es requerido.");
+
+            CompuestoDocumentoDTO compuestoDto;
             try
             {
-                return Ok(_documentoPwService.InsertarDocumento(dto, _tokenManager.UserName));
+                compuestoDto = JsonConvert.DeserializeObject<CompuestoDocumentoDTO>(dto)!;
+            }
+            catch
+            {
+                return BadRequest("El parámetro dto no tiene un formato JSON válido.");
+            }
+
+            try
+            {
+                var documento = await _documentoPwService.InsertarDocumento(
+                    compuestoDto,
+                    urlArchivoInstruccionTarea,
+                    urlArchivoCalificacionExcelente,
+                    _tokenManager.UserName);
+
+                return Ok(documento);
             }
             catch
             {
@@ -85,15 +105,33 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <returns></returns>
         [Route("[Action]")]
         [HttpPut]
-        public IActionResult ActualizarDocumento([FromBody] CompuestoDocumentoPwDTO dto)
+        public async Task<IActionResult> ActualizarDocumento(
+            [FromForm] string dto,
+            IFormFile? urlArchivoInstruccionTarea,
+            IFormFile? urlArchivoCalificacionExcelente)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            if (string.IsNullOrEmpty(dto))
+                return BadRequest("El parámetro dto es requerido.");
+
+            CompuestoDocumentoPwDTO compuestoDto;
             try
             {
-                return Ok(_documentoPwService.ActualizarDocumento(dto, _tokenManager.UserName));
+                compuestoDto = JsonConvert.DeserializeObject<CompuestoDocumentoPwDTO>(dto)!;
+            }
+            catch
+            {
+                return BadRequest("El parámetro dto no tiene un formato JSON válido.");
+            }
+
+            try
+            {
+                var documento = await _documentoPwService.ActualizarDocumento(
+                    compuestoDto,
+                    urlArchivoInstruccionTarea,
+                    urlArchivoCalificacionExcelente,
+                    _tokenManager.UserName);
+
+                return Ok(documento);
             }
             catch
             {
@@ -178,6 +216,34 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         {
             var resultado = _documentoPwService.ObtenerDocumentoPWNotas(idDocumentoPW);
             return Ok(resultado);
+        }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> SubirArchivoDocumentoPw(
+            [FromForm] int id,
+            IFormFile? urlArchivoInstruccionTarea,
+            IFormFile? urlArchivoCalificacionExcelente)
+        {
+            if (urlArchivoInstruccionTarea == null && urlArchivoCalificacionExcelente == null)
+                return BadRequest("Debe enviar al menos un archivo.");
+
+            try
+            {
+                string urlInstruccion = string.Empty;
+                string urlCalificacion = string.Empty;
+
+                if (urlArchivoInstruccionTarea != null && urlArchivoInstruccionTarea.Length > 0)
+                    urlInstruccion = await _documentoPwService.SubirArchivoDocumentoPw(id, urlArchivoInstruccionTarea, nameof(urlArchivoInstruccionTarea), _tokenManager.UserName);
+
+                if (urlArchivoCalificacionExcelente != null && urlArchivoCalificacionExcelente.Length > 0)
+                    urlCalificacion = await _documentoPwService.SubirArchivoDocumentoPw(id, urlArchivoCalificacionExcelente, nameof(urlArchivoCalificacionExcelente), _tokenManager.UserName);
+
+                return Ok(new { urlArchivoInstruccionTarea = urlInstruccion, urlArchivoCalificacionExcelente = urlCalificacion });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

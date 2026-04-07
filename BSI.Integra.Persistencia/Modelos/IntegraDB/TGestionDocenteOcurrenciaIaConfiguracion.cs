@@ -11,6 +11,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public TGestionDocenteOcurrenciaIaConfiguracion()
         {
             TGestionDocenteIaEntrenamientoEjemplos = new HashSet<TGestionDocenteIaEntrenamientoEjemplo>();
+            TGestionDocenteOcurrenciaCongeladaIaConfiguracions = new HashSet<TGestionDocenteOcurrenciaCongeladaIaConfiguracion>();
+            TGestionDocenteOcurrenciaIaEjemploCongelada = new HashSet<TGestionDocenteOcurrenciaIaEjemploCongeladum>();
         }
 
         /// <summary>
@@ -57,5 +59,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual TGestionDocenteConfianzaUmbralNivel IdGestionDocenteConfianzaUmbralNivelNavigation { get; set; } = null!;
         public virtual TGestionDocenteOcurrencium IdGestionDocenteOcurrenciaNavigation { get; set; } = null!;
         public virtual ICollection<TGestionDocenteIaEntrenamientoEjemplo> TGestionDocenteIaEntrenamientoEjemplos { get; set; }
+        public virtual ICollection<TGestionDocenteOcurrenciaCongeladaIaConfiguracion> TGestionDocenteOcurrenciaCongeladaIaConfiguracions { get; set; }
+        public virtual ICollection<TGestionDocenteOcurrenciaIaEjemploCongeladum> TGestionDocenteOcurrenciaIaEjemploCongelada { get; set; }
     }
 }

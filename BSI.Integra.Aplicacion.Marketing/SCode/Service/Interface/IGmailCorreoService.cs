@@ -24,5 +24,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Interface
         CorreoBodyDTO ObtenerCorreoEnviadoPorId(int idGmailCorreo, string Usuario);
         GmailCorreo ObtenerCorreoPorId(int idCorreo);
         List<CorreoAlumnoVentasDTO> ObtenerCorreosAlumnosSoloVentas(string emailAlumno);
+        Task<bool> EnviarMensajeCorreoPla(ParametrosEnviarMensajePlaDTO informacionCorreo, IList<IFormFile> Files, string usuario);
+        PreviewMensajePlaResponseDTO PreviewMensajePla(PreviewMensajePlaRequestDTO request);
     }
 }

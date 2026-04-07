@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.32014.148
+# Visual Studio Version 18
+VisualStudioVersion = 18.5.11605.296 insiders
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BSI.Integra.Servicios", "BSI.Integra.Servicios\BSI.Integra.Servicios.csproj", "{E05D004E-63AB-48D7-BC3A-3024B0897DC6}"
 EndProject

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Linkedin;
@@ -387,7 +388,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    IdPadre,
 	                    IdAnuncioFacebook,
 	                    ValidacionCorrecta
-                    FROM com.T_Oportunidad
+                    FROM com.V_TOportunidad_Obtener
                     WHERE Estado = 1";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
@@ -418,11 +419,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    OPO.Id,
 	                    CONCAT(AL.ApellidoPaterno,' ',AL.ApellidoMaterno,', ',AL.Nombre1,' ',AL.Nombre1) AS Alumno,
 	                    CC.Nombre AS CentroCosto
-                    FROM com.T_Oportunidad AS OPO WITH (NOLOCK)
+                    FROM com.V_TOportunidad_Obtener AS OPO WITH (NOLOCK)
                     INNER JOIN pla.T_CentroCosto AS CC
 	                    ON OPO.IdCentroCosto = CC.id
 	                    AND CC.Estado = 1
-                    INNER JOIN mkt.T_Alumno AS AL WITH (NOLOCK)
+                    INNER JOIN mkt.V_TAlumno_Obtener AS AL WITH (NOLOCK)
 	                    ON OPO.IdAlumno = AL.Id
 	                    AND AL.Estado = 1
                     WHERE OPO.Estado = 1";
@@ -700,7 +701,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                            EnLlamada,
 	                            NumeroIntentoLlamada,
 	                            FechaReprogramacionIntento
-                            FROM com.T_Oportunidad
+                            FROM com.V_TOportunidad_Obtener
                             WHERE Estado = 1 AND Id = @idOportunidad";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { idOportunidad });
 
@@ -789,7 +790,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                            NumeroIntentoLlamada,
 	                            FechaReprogramacionIntento,
                                 IdPersonal_CoordinadorSeguimiento
-                            FROM com.T_Oportunidad
+                            FROM com.V_TOportunidad_Obtener
                             WHERE Estado = 1 AND Id = @idOportunidad";
                 var resultado = await _dapperRepository.FirstOrDefaultAsync(query, new { idOportunidad });
 
@@ -816,7 +817,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                var query = "SELECT IdCentroCosto AS Valor FROM com.T_Oportunidad WHERE Estado = 1 AND Id = @idOportunidad";
+                var query = "SELECT IdCentroCosto AS Valor FROM com.V_TOportunidad_Obtener WHERE Estado = 1 AND Id = @idOportunidad";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { idOportunidad });
 
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
@@ -2743,19 +2744,19 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 }
                 if (obj.contacto != string.Empty && obj.email == string.Empty)
                 {
-                    queryCondicion += "AND IdAlumno IN (SELECT Id FROM (SELECT ALU.Id, CONCAT(ALU.Nombre1, ' ', ALU.Nombre2, ' ', ALU.ApellidoPaterno, ' ', ALU.ApellidoMaterno) AS Contacto FROM mkt.T_Alumno AS ALU WITH (NOLOCK) WHERE ALU.Estado = 1) AS T0 WHERE T0.Contacto LIKE CONCAT('%',@Contacto,'%')) ";
+                    queryCondicion += "AND IdAlumno IN (SELECT Id FROM (SELECT ALU.Id, CONCAT(ALU.Nombre1, ' ', ALU.Nombre2, ' ', ALU.ApellidoPaterno, ' ', ALU.ApellidoMaterno) AS Contacto FROM mkt.V_TAlumno_Obtener AS ALU WITH (NOLOCK) WHERE ALU.Estado = 1) AS T0 WHERE T0.Contacto LIKE CONCAT('%',@Contacto,'%')) ";
                     contacto = Regex.Replace(obj.contacto.Trim(), @"\s+|\s", "%");
                 }
 
                 if (obj.email != string.Empty && obj.contacto == string.Empty)
                 {
-                    queryCondicion += "AND IdAlumno IN (SELECT Id FROM (SELECT ALU.Id, ALU.Email1 FROM mkt.T_Alumno AS ALU WITH (NOLOCK) WHERE ALU.Estado = 1) AS T0 WHERE T0.Email1 LIKE CONCAT('%',@Email1,'%')) ";
+                    queryCondicion += "AND IdAlumno IN (SELECT Id FROM (SELECT ALU.Id, ALU.Email1 FROM mkt.V_TAlumno_Obtener AS ALU WITH (NOLOCK) WHERE ALU.Estado = 1) AS T0 WHERE T0.Email1 LIKE CONCAT('%',@Email1,'%')) ";
                     email1 = Regex.Replace(obj.email.Trim(), @"\s+|\s", "%");
                 }
 
                 if (obj.contacto != string.Empty && obj.email != string.Empty)
                 {
-                    queryCondicion += "AND IdAlumno IN (SELECT Id FROM (SELECT ALU.Id, CONCAT(ALU.Nombre1, ' ', ALU.Nombre2, ' ', ALU.ApellidoPaterno, ' ', ALU.ApellidoMaterno) AS Contacto, ALU.Email1 FROM mkt.T_Alumno AS ALU WITH (NOLOCK) WHERE ALU.Estado = 1) AS T0 WHERE T0.Contacto LIKE CONCAT('%',@Contacto,'%') AND T0.Email1 LIKE CONCAT('%',@Email1,'%')) ";
+                    queryCondicion += "AND IdAlumno IN (SELECT Id FROM (SELECT ALU.Id, CONCAT(ALU.Nombre1, ' ', ALU.Nombre2, ' ', ALU.ApellidoPaterno, ' ', ALU.ApellidoMaterno) AS Contacto, ALU.Email1 FROM mkt.V_TAlumno_Obtener AS ALU WITH (NOLOCK) WHERE ALU.Estado = 1) AS T0 WHERE T0.Contacto LIKE CONCAT('%',@Contacto,'%') AND T0.Email1 LIKE CONCAT('%',@Email1,'%')) ";
                     contacto = Regex.Replace(obj.contacto.Trim(), @"\s+|\s", "%");
                     email1 = Regex.Replace(obj.email.Trim(), @"\s+|\s", "%");
                 }
@@ -3147,11 +3148,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 List<IdDTO> listaId = new List<IdDTO>();
                 string _query = $@"
                             SELECT Personal.Id AS Id
-                            FROM fin.T_MatriculaCabecera AS MatriculaCabecera
-                                 INNER JOIN com.T_MontoPagoCronograma AS MontoPagoCronograma ON MatriculaCabecera.IdCronograma = MontoPagoCronograma.Id
-                                 INNER JOIN com.T_Oportunidad AS Oportunidad ON MontoPagoCronograma.IdOportunidad = Oportunidad.Id
-                                 INNER JOIN conf.T_Integra_AspNetUsers AS AspNetUsers ON AspNetUsers.UserName = MatriculaCabecera.UsuarioCoordinadorAcademico
-                                 INNER JOIN gp.T_Personal AS Personal ON Personal.Id = AspNetUsers.PerId
+                            FROM fin.T_MatriculaCabecera AS MatriculaCabecera WITH (NOLOCK) 
+                                 INNER JOIN com.T_MontoPagoCronograma AS MontoPagoCronograma WITH (NOLOCK)  ON MatriculaCabecera.IdCronograma = MontoPagoCronograma.Id
+                                 INNER JOIN com.V_TOportunidad_Obtener AS Oportunidad ON MontoPagoCronograma.IdOportunidad = Oportunidad.Id
+                                 INNER JOIN conf.T_Integra_AspNetUsers AS AspNetUsers WITH (NOLOCK)  ON AspNetUsers.UserName = MatriculaCabecera.UsuarioCoordinadorAcademico
+                                 INNER JOIN gp.T_Personal AS Personal WITH (NOLOCK)  ON Personal.Id = AspNetUsers.PerId
                             WHERE MatriculaCabecera.Estado = 1
                                   AND MontoPagoCronograma.Estado = 1
                                   AND Oportunidad.Estado = 1
@@ -3223,11 +3224,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 List<IdDTO> listaId = new List<IdDTO>();
                 string _query = $@"
                             SELECT Personal.Id AS Id
-                            FROM fin.T_MatriculaCabecera AS MatriculaCabecera
-                                 INNER JOIN com.T_MontoPagoCronograma AS MontoPagoCronograma ON MatriculaCabecera.IdCronograma = MontoPagoCronograma.Id
-                                 INNER JOIN com.T_Oportunidad AS Oportunidad ON MontoPagoCronograma.IdOportunidad = Oportunidad.Id
-                                 INNER JOIN conf.T_Integra_AspNetUsers AS AspNetUsers ON AspNetUsers.UserName = MatriculaCabecera.UsuarioCoordinadorAcademico
-                                 INNER JOIN gp.T_Personal AS Personal ON Personal.Id = AspNetUsers.PerId
+                            FROM fin.T_MatriculaCabecera AS MatriculaCabecera  WITH (NOLOCK) 
+                                 INNER JOIN com.T_MontoPagoCronograma AS MontoPagoCronograma  WITH (NOLOCK) ON MatriculaCabecera.IdCronograma = MontoPagoCronograma.Id
+                                 INNER JOIN com.V_TOportunidad_Obtener AS Oportunidad  WITH (NOLOCK) ON MontoPagoCronograma.IdOportunidad = Oportunidad.Id
+                                 INNER JOIN conf.T_Integra_AspNetUsers AS AspNetUsers  WITH (NOLOCK) ON AspNetUsers.UserName = MatriculaCabecera.UsuarioCoordinadorAcademico
+                                 INNER JOIN gp.T_Personal AS Personal  WITH (NOLOCK) ON Personal.Id = AspNetUsers.PerId
                             WHERE MatriculaCabecera.Estado = 1
                                   AND MontoPagoCronograma.Estado = 1
                                   AND Oportunidad.Estado = 1
@@ -3461,7 +3462,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var complementosDTO = new ReporteSeguimientoOportunidadComplementosDTO();
                 var _query = @"SELECT ProbabilidadActual, CodigoFase, CategoriaOrigen, CentroCosto,EstadoMatricula,SubEstadoMatricula,IdCentroCosto,IdPersonalAsignado, alu.Celular
-                                FROM com.V_ObtenerComplementosReporteSeguimientoOportundidad AS vista LEFT JOIN mkt.T_Alumno AS alu WITH (NOLOCK) ON vista.IdAlumno=alu.Id WHERE IdOportunidad = @idOportunidad";
+                                FROM com.V_ObtenerComplementosReporteSeguimientoOportundidad AS vista LEFT JOIN mkt.V_TAlumno_Obtener AS alu WITH (NOLOCK) ON vista.IdAlumno=alu.Id WHERE IdOportunidad = @idOportunidad";
                 var queryRespuesta = _dapperRepository.FirstOrDefault(_query, new { idOportunidad });
                 if (!string.IsNullOrEmpty(queryRespuesta) && queryRespuesta != "null")
                 {
@@ -3770,7 +3771,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    Id,
 	                    IdTiempoCapacitacion,
 	                    IdTiempoCapacitacion_Validacion AS IdTiempoCapacitacionValidacion
-                    FROM com.T_Oportunidad
+                    FROM com.V_TOportunidad_Obtener
                     WHERE Estado = 1 AND Id = @idOportunidad";
                 var resultadoQuery = _dapperRepository.FirstOrDefault(query, new { idOportunidad });
                 if (!string.IsNullOrEmpty(resultadoQuery) && !resultadoQuery.Contains("[]"))
@@ -3802,7 +3803,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    Id,
 	                    IdTiempoCapacitacion,
 	                    IdTiempoCapacitacion_Validacion AS IdTiempoCapacitacionValidacion
-                    FROM com.T_Oportunidad
+                    FROM com.V_TOportunidad_Obtener
                     WHERE Estado = 1 AND Id = @idOportunidad";
                 var resultadoQuery = await _dapperRepository.FirstOrDefaultAsync(query, new { idOportunidad });
                 if (!string.IsNullOrEmpty(resultadoQuery) && resultadoQuery != "null")
@@ -3815,6 +3816,35 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 throw;
             }
+        }
+
+        /// Autor: Carlos Crispin R.
+        /// Fecha: 04/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las recomendaciones de la transcripcion de la llamada
+        /// </summary>
+        /// <param name="idActividadDetalle">Id de la Oportunidad</param>
+        /// <returns> List<OportunidadTiempoCapacitacionDTO> </returns>
+        public List<RecomendacionDTO> ObtenerRecomendacionesPorIdActividadDetalle(int idActividadDetalle)
+        {
+            try
+            {
+                var resultado = new List<RecomendacionDTO>();
+                var query = _dapperRepository.QuerySPDapper("com.SP_ObtenerRecomendacionesActividad", new { idActividadDetalle });
+                if (!string.IsNullOrEmpty(query) && query != "null")
+                {
+                    resultado = JsonConvert.DeserializeObject<List<RecomendacionDTO>>(query)!;
+                }
+                return resultado;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+
+           
+
         }
         /// Autor: Jonathan Caipo
         /// Fecha: 20/03/2023
@@ -3889,7 +3919,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                            EnLlamada,
 	                            NumeroIntentoLlamada,
 	                            FechaReprogramacionIntento
-                            FROM com.T_Oportunidad
+                            FROM com.V_TOportunidad_Obtener
                             WHERE Estado = 1 AND IdAlumno = @IdAlumno";
                 var resultado = _dapperRepository.QueryDapper(query, new { IdAlumno = idAlumno });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
@@ -3956,6 +3986,32 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+
+        /// Autor: Carlos Crispin
+        /// Fecha: 01/04/2026
+        /// Version: 1.0<
+        /// <summary>
+        /// Limpieza com.T_ContadorReprogramacionManual
+        /// </summary>
+        /// <returns></returns>
+        public ResultadoDTO LimpiarProgramacionManualConsecutivos()
+        {
+            try
+            {
+                ResultadoDTO resultado = new ResultadoDTO();
+                var query = _dapperRepository.QuerySPFirstOrDefault("com.SP_LimpiezaContadorReprogramacionManual", null);
+                if (!string.IsNullOrEmpty(query) && query != "null")
+                {
+                    resultado = JsonConvert.DeserializeObject<ResultadoDTO>(query)!;
+                }
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ResignacionOportunidades: {ex.Message}", ex);
+            }
+        }
+
         /// <summary>
         /// Obtiene las oportunidades que se han reprogramado manualmente la ultima reprogramacion
         /// </summary>
@@ -4006,8 +4062,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                var query = @"SELECT TOP 1 OPO.id  as Valor FROM com.T_Oportunidad AS OPO
-								INNER JOIN com.T_ActividadDetalle AS AD ON AD.IdOportunidad = OPO.Id AND AD.Estado =1
+                var query = @"SELECT TOP 1 OPO.id  as Valor FROM com.V_TOportunidad_Obtener AS OPO
+								INNER JOIN com.T_ActividadDetalle AS AD  WITH (NOLOCK) ON AD.IdOportunidad = OPO.Id AND AD.Estado =1
 								WHERE OPO.FechaModificacion <=@FechaCreacion AND OPO.IdAlumno =@idAlumno AND  OPO.Estado=1 AND OPO.IdFaseOportunidad=9 AND OPO.Id !=@IdOportunidad ORDER BY OPO.FechaModificacion DESC";
                 var respuestaQuery = _dapperRepository.FirstOrDefault(query, new { FechaCreacion = oportunidad.FechaCreacion, idAlumno = oportunidad.IdAlumno, IdOportunidad = oportunidad.IdOportunidad });
                 if (!string.IsNullOrEmpty(respuestaQuery) && respuestaQuery != "null")
@@ -4046,7 +4102,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var query = @"SELECT V1.* FROM com.V_DatosFichaAlumno AS V1
-                            INNER JOIN com.T_Oportunidad AS opo ON opo.id = v1.IdOportunidad
+                            INNER JOIN com.V_TOportunidad_Obtener AS opo ON opo.id = v1.IdOportunidad
                             WHERE V1.IdAlumno=@idAlumno AND opo.UltimoComentario LIKE '%predictivo%'";
                 var respuestaQuery = _dapperRepository.FirstOrDefault(query, new { idAlumno });
                 if (!string.IsNullOrEmpty(respuestaQuery) && respuestaQuery != "null")
@@ -4073,10 +4129,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var query = @"
-                        SELECT idProgramaGeneral AS Id, pg.Nombre FROM com.T_Oportunidad AS opo
-                        INNER JOIN pla.T_PEspecifico AS pe ON pe.IdCentroCosto = opo.IdCentroCosto
+                        SELECT idProgramaGeneral AS Id, pg.Nombre FROM com.V_TOportunidad_Obtener AS opo
+                        INNER JOIN pla.T_PEspecifico AS pe  WITH (NOLOCK) ON pe.IdCentroCosto = opo.IdCentroCosto
 	                        AND pe.Estado = 1
-                        INNER JOIN pla.T_PGeneral AS pg ON pg.Id = pe.IdProgramaGeneral AND pg.Estado = 1
+                        INNER JOIN pla.T_PGeneral AS pg  WITH (NOLOCK) ON pg.Id = pe.IdProgramaGeneral AND pg.Estado = 1
                         WHERE opo.Id=@idOportunidadRN2 AND opo.Estado=1
                         ";
                 //var query = @"
@@ -4133,11 +4189,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                             AL.Nombre1 AS AlumnoNombre1, 
                             CONCAT(Per.Nombre1,' ',PER.Nombre2,' ',PER.ApellidoPaterno,' ',PER.ApellidoMaterno) AS PersonalNombreCompleto,
                             PG.Nombre AS PgeneralNombre
-                        FROM com.T_Oportunidad AS OPO WITH (NOLOCK)
-                        INNER JOIN pla.T_PEspecifico AS PE ON PE.IdCentroCosto = OPO.IdCentroCosto
-                        INNER JOIN pla.T_PGeneral AS PG ON PG.Id = PE.IdProgramaGeneral
-                        INNER JOIN gp.T_Personal AS Per ON Per.Id = OPO.IdPersonal_Asignado
-                        INNER JOIN mkt.T_Alumno AS AL WITH (NOLOCK) ON AL.Id = OPO.IdAlumno
+                        FROM com.V_TOportunidad_Obtener AS OPO WITH (NOLOCK)
+                        INNER JOIN pla.T_PEspecifico AS PE  WITH (NOLOCK) ON PE.IdCentroCosto = OPO.IdCentroCosto
+                        INNER JOIN pla.T_PGeneral AS PG  WITH (NOLOCK) ON PG.Id = PE.IdProgramaGeneral
+                        INNER JOIN gp.T_Personal AS Per  WITH (NOLOCK) ON Per.Id = OPO.IdPersonal_Asignado
+                        INNER JOIN mkt.V_TAlumno_Obtener AS AL WITH (NOLOCK) ON AL.Id = OPO.IdAlumno
                         WHERE OPO.Id = @idOportunidad";
                 var query = _dapperRepository.FirstOrDefault(queryPrograma, new { idOportunidad });
                 if (!string.IsNullOrEmpty(query) && query != "null")
@@ -4324,6 +4380,222 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception ex)
             {
                 throw new Exception($"#HA-OMCD-001@Error en ObtenerMetricasComparativasDiarias: {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Junior Llerena
+        /// Fecha: 25/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las métricas comparativas de actividades ATC entre el día actual y el día anterior
+        /// </summary>
+        /// <param name="idPersonal">ID del personal a consultar</param>
+        /// <param name="fecha">Fecha opcional a consultar (por defecto hoy)</param>
+        /// <returns>DTO con métricas comparativas de actividades ATC</returns>
+        public MetricasActividadesATCDTO ObtenerMetricasActividadesATC(int idPersonal, DateTime? fecha = null)
+        {
+            try
+            {
+                var fechaActual = (fecha ?? DateTime.Today).Date;
+                var fechaAnterior = fechaActual.AddDays(-1);
+
+                // Evitar comparar con domingo
+                if (fechaAnterior.DayOfWeek == System.DayOfWeek.Sunday)
+                {
+                    fechaAnterior = fechaAnterior.AddDays(-1);
+                }
+
+                var esHoy = fechaActual == DateTime.Today;
+
+                // Función local: Obtener datos del día actual desde SP ope.SP_ReporteControlActividadesAgendaATC
+                (int llamadasTotales, int llamadasEfectivas, int compromisosPago, decimal montoRecaudado) ObtenerDatosActuales()
+                {
+                    var fechaInicio = new DateTime(fechaActual.Year, fechaActual.Month, fechaActual.Day, 0, 0, 0);
+                    var fechaFin = new DateTime(fechaActual.Year, fechaActual.Month, fechaActual.Day, 23, 59, 59);
+
+                    var resultado = _dapperRepository.QuerySPDapper("ope.SP_ReporteControlActividadesAgendaATC", new
+                    {
+                        IdPersonal = idPersonal,
+                        FechaInicio = fechaInicio,
+                        FechaFin = fechaFin
+                    });
+
+                    int llamadasTot = 0, llamadasEfec = 0, compromisosP = 0;
+                    decimal montoRec = 0;
+
+                    if (!string.IsNullOrEmpty(resultado) && resultado != "null" && !resultado.Contains("[]"))
+                    {
+                        var listaResultados = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(resultado);
+
+                        if (listaResultados != null && listaResultados.Any())
+                        {
+                            foreach (var item in listaResultados)
+                            {
+                                if (item.ContainsKey("Estado") && item.ContainsKey("Total"))
+                                {
+                                    var estado = item["Estado"]?.ToString() ?? "";
+                                    var total = item["Total"];
+
+                                    switch (estado)
+                                    {
+                                        case "Llamadas Totales":
+                                            llamadasTot = Convert.ToInt32(total);
+                                            break;
+                                        case "Llamadas Efectivas":
+                                            llamadasEfec = Convert.ToInt32(total);
+                                            break;
+                                        case "Compromisos de Pago":
+                                            compromisosP = Convert.ToInt32(total);
+                                            break;
+                                        case "Monto Recaudado":
+                                            montoRec = Convert.ToDecimal(total);
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    return (llamadasTot, llamadasEfec, compromisosP, montoRec);
+                }
+
+                // Función local: Obtener datos históricos desde SP tra.SP_ActividadControlCongeladoMetrica
+                (int llamadasTotales, int llamadasEfectivas, int compromisosPago, decimal montoRecaudado, int minutosTotales) ObtenerDatosHistoricos(DateTime fechaConsulta)
+                {
+                    var resultado = _dapperRepository.QuerySPDapper("tra.SP_ActividadControlCongeladoMetrica", new
+                    {
+                        IdPersonal = idPersonal,
+                        FechaActividad = fechaConsulta.ToString("yyyy-MM-dd")
+                    });
+
+                    int llamadasTot = 0, llamadasEfec = 0, compromisosP = 0, minutosTot = 0;
+                    decimal montoRec = 0;
+
+                    if (!string.IsNullOrEmpty(resultado) && resultado != "null" && !resultado.Contains("[]"))
+                    {
+                        var listaResultados = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(resultado);
+
+                        if (listaResultados != null && listaResultados.Any())
+                        {
+                            foreach (var item in listaResultados)
+                            {
+                                if (item.ContainsKey("NombreActividadPersonalTipo") && item.ContainsKey("ValorControlCongelado"))
+                                {
+                                    var nombre = item["NombreActividadPersonalTipo"]?.ToString() ?? "";
+                                    var valor = item["ValorControlCongelado"];
+
+                                    switch (nombre)
+                                    {
+                                        case "Llamadas Totales":
+                                            llamadasTot = Convert.ToInt32(valor);
+                                            break;
+                                        case "Llamadas Efectivas":
+                                            llamadasEfec = Convert.ToInt32(valor);
+                                            break;
+                                        case "Compromisos de Pago":
+                                            compromisosP = Convert.ToInt32(valor);
+                                            break;
+                                        case "Monto Recaudado":
+                                            montoRec = Convert.ToDecimal(valor);
+                                            break;
+                                        case "Minutos Totales Telefono Corporativo":
+                                            minutosTot = Convert.ToInt32(valor);
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    return (llamadasTot, llamadasEfec, compromisosP, montoRec, minutosTot);
+                }
+
+                // Función local: Calcular métrica comparativa
+                MetricaComparativaATCDTO CalcularMetrica(int hoy, int ayer)
+                {
+                    int porcentaje = ayer > 0 ? (int)Math.Round(((double)(hoy - ayer) / ayer) * 100) : 0;
+                    string estado = porcentaje >= 0 ? "Positivo" : "Negativo";
+
+                    return new MetricaComparativaATCDTO
+                    {
+                        Hoy = hoy,
+                        Ayer = ayer,
+                        Porcentaje = porcentaje,
+                        Estado = estado
+                    };
+                }
+
+                // Función local: Calcular métrica comparativa con decimales (para Monto Recaudado)
+                MetricaComparativaATCDTO CalcularMetricaDecimal(decimal hoy, decimal ayer)
+                {
+                    int porcentaje = ayer > 0 ? (int)Math.Round(((double)(hoy - ayer) / (double)ayer) * 100) : 0;
+                    string estado = porcentaje >= 0 ? "Positivo" : "Negativo";
+
+                    return new MetricaComparativaATCDTO
+                    {
+                        Hoy = (int)hoy,
+                        Ayer = (int)ayer,
+                        Porcentaje = porcentaje,
+                        Estado = estado
+                    };
+                }
+
+                // Función local: Calcular métrica solo con histórico (para Minutos Totales)
+                MetricaComparativaATCDTO CalcularMetricaSoloHistorico(int ayer)
+                {
+                    return new MetricaComparativaATCDTO
+                    {
+                        Hoy = 0,
+                        Ayer = ayer,
+                        Porcentaje = 0,
+                        Estado = "Neutral"
+                    };
+                }
+
+                // Obtener datos del día actual (o histórico si la fecha no es hoy)
+                int llamadasTotalesHoy, llamadasEfectivasHoy, compromisosPagoHoy;
+                decimal montoRecaudadoHoy;
+
+                if (esHoy)
+                {
+                    var datosHoy = ObtenerDatosActuales();
+                    llamadasTotalesHoy = datosHoy.llamadasTotales;
+                    llamadasEfectivasHoy = datosHoy.llamadasEfectivas;
+                    compromisosPagoHoy = datosHoy.compromisosPago;
+                    montoRecaudadoHoy = datosHoy.montoRecaudado;
+                }
+                else
+                {
+                    var datosHoy = ObtenerDatosHistoricos(fechaActual);
+                    llamadasTotalesHoy = datosHoy.llamadasTotales;
+                    llamadasEfectivasHoy = datosHoy.llamadasEfectivas;
+                    compromisosPagoHoy = datosHoy.compromisosPago;
+                    montoRecaudadoHoy = datosHoy.montoRecaudado;
+                }
+
+                // Obtener datos del día anterior
+                var datosAyer = ObtenerDatosHistoricos(fechaAnterior);
+
+                // Construir respuesta
+                return new MetricasActividadesATCDTO
+                {
+                    Success = true,
+                    Fecha = fechaActual.ToString("yyyy-MM-dd"),
+                    FechaComparacion = fechaAnterior.ToString("yyyy-MM-dd"),
+                    IdPersonal = idPersonal,
+                    Metricas = new MetricasATCDTO
+                    {
+                        LlamadasTotales = CalcularMetrica(llamadasTotalesHoy, datosAyer.llamadasTotales),
+                        LlamadasEfectivas = CalcularMetrica(llamadasEfectivasHoy, datosAyer.llamadasEfectivas),
+                        CompromisosPago = CalcularMetrica(compromisosPagoHoy, datosAyer.compromisosPago),
+                        MontoRecaudado = CalcularMetricaDecimal(montoRecaudadoHoy, datosAyer.montoRecaudado),
+                        MinutosTotalesTelefono = CalcularMetricaSoloHistorico(datosAyer.minutosTotales)
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#OR-OMAATC-001@Error en ObtenerMetricasActividadesATC: {ex.Message}", ex);
             }
         }
 
@@ -4617,11 +4889,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                         OLH.IdFaseOportunidad AS IdFaseOportunidadActual
                             FROM
                                 mkt.V_ModeloPredictivoProbabilidadIdProbabilidadRegistro MPPPR
-                                INNER JOIN com.T_Oportunidad AS O ON O.id=MPPPR.IdOportunidad AND O.Estado=1
-                                INNER JOIN pla.T_PEspecifico AS PE ON PE.IdCentroCosto=O.IdCentroCosto
-                                INNER JOIN pla.T_PGeneral AS PG ON PG.Id=PE.IdProgramaGeneral
-                                INNER JOIN pla.T_AreaCapacitacion AS AC ON AC.Id=PG.IdArea
-                                LEFT JOIN mkt.T_ProbabilidadRegistro_PW PRpw ON PRpw.Id = MPPPR.IdProbabilidadRegistroPW 
+                                INNER JOIN com.V_TOportunidad_Obtener AS O ON O.id=MPPPR.IdOportunidad AND O.Estado=1
+                                INNER JOIN pla.T_PEspecifico AS PE  WITH (NOLOCK) ON PE.IdCentroCosto=O.IdCentroCosto
+                                INNER JOIN pla.T_PGeneral AS PG  WITH (NOLOCK) ON PG.Id=PE.IdProgramaGeneral
+                                INNER JOIN pla.T_AreaCapacitacion AS AC WITH (NOLOCK)  ON AC.Id=PG.IdArea
+                                LEFT JOIN mkt.T_ProbabilidadRegistro_PW PRpw WITH (NOLOCK)  ON PRpw.Id = MPPPR.IdProbabilidadRegistroPW 
                                 OUTER APPLY (
                                     SELECT TOP 1 
                                         IdOportunidad,
@@ -4745,7 +5017,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 OportunidadFaseDTO result = new OportunidadFaseDTO();
 
-                var query = @"SELECT IdFaseOportunidad, IdPersonal_Asignado, FechaCreacion FROM com.T_Oportunidad 
+                var query = @"SELECT IdFaseOportunidad, IdPersonal_Asignado, FechaCreacion FROM com.V_TOportunidad_Obtener 
                                     WHERE IdAlumno = @idAlumno AND Estado = 1";
 
                 var jsonResult = _dapperRepository.QueryDapper(query, new { idAlumno });
@@ -4769,6 +5041,115 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+        }
+
+        public ValidacionRn2SpResultDTO? ObtenerIdAlumnoPorValidacionRN2(int idOportunidad)
+        {
+            try
+            {
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(
+                    "mkt.SP_ValidacionBloqueoAutomaticoRN2",
+                    new { IdOportunidad = idOportunidad }
+                );
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<ValidacionRn2SpResultDTO>(resultado);
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public int ContarOportunidadesPorIdAlumno(int idAlumno, int idPersonalAsignado)
+        {
+            try
+            {
+                var resultado = _dapperRepository.QuerySPDapper(
+                    "mkt.SP_OportunidadesPorIdAlumno",
+                    new { IdAlumno = idAlumno, IdPersonal_Asignado = idPersonalAsignado }
+                );
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    var lista = JsonConvert.DeserializeObject<List<object>>(resultado);
+                    return lista?.Count ?? 0;
+                }
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<AlumnoSimilarRn2DTO> BuscarAlumnosSimilaresPorCelularOCorreo(string? telefono, string? correo)
+        {
+            try
+            {
+                var resultado = _dapperRepository.QuerySPDapper(
+                    "mkt.SP_BuscarAlumnosSimilaresPorCelularOCorreo",
+                    new { Telefono = telefono, Correo = correo }
+                );
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                    return JsonConvert.DeserializeObject<List<AlumnoSimilarRn2DTO>>(resultado) ?? new List<AlumnoSimilarRn2DTO>();
+
+                return new List<AlumnoSimilarRn2DTO>();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public bool ExistenOportunidadesParaAlumnos(List<int> idAlumnos, int idPersonalAsignado)
+        {
+            try
+            {
+                if (idAlumnos == null || !idAlumnos.Any())
+                    return false;
+
+                var idsStr = string.Join(",", idAlumnos);
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(
+                    "mkt.SP_ExistenOportunidadesPorIdAlumnos",
+                    new { IdAlumno_Lista = idsStr, IdPersonal_Asignado = idPersonalAsignado }
+                );
+                return !string.IsNullOrEmpty(resultado) && resultado != "null";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// TipoFuncion: REPOSITORY
+        /// Autor: Junior Llerena
+        /// Fecha: 23/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene información de empresa paga por código de matrícula ejecutando el SP fin.sp_ObtenerEmpresaPagaPorCodigoMatricula
+        /// </summary>
+        /// <param name="codigoMatricula">Código de matrícula</param>
+        /// <returns>OportunidadEmpresaPagaDTO con CodigoMatricula y EmpresaPaga</returns>
+        public OportunidadEmpresaPagaDTO ObtenerEmpresaPagaPorCodigoMatricula(string codigoMatricula)
+        {
+            try
+            {
+                OportunidadEmpresaPagaDTO resultado = new OportunidadEmpresaPagaDTO();
+                var resultadoSP = _dapperRepository.QuerySPFirstOrDefault("ope.SP_MatriculaEmpresaPaga", new { CodigoMatricula = codigoMatricula });
+
+                if (!string.IsNullOrEmpty(resultadoSP) && !resultadoSP.Contains("[]"))
+                {
+                    resultado = JsonConvert.DeserializeObject<OportunidadEmpresaPagaDTO>(resultadoSP);
+                }
+
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
     }

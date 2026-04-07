@@ -12,6 +12,8 @@
         public int? PorcentajeCuotas { get; set; }
         public int? CuotasAdicionales { get; set; }
         public int? IdTipoDescuentoNivelAprobacion { get; set; }
+        public bool? AplicaProgramaCompleto { get; set; }
+        public bool Activo { get; set; }
     }
     public class TipoDescuentoComboDTO
     {
@@ -38,6 +40,7 @@
         public IEnumerable<FormulaTipoDescuentoDTO> FormulaTipoDescuentos { get; set; }
         public IEnumerable<AgendaTipoUsuarioDTO> TiposUsuario { get; set; }
         public IEnumerable<ComboDTO> ProgramasGeneral { get; set; }
+        public IEnumerable<ComboDTO> AplicaA { get; set; }
     }
 
     public class CompuestoTipoDescuentoDTO
@@ -52,7 +55,9 @@
         public int? PorcentajeCuotas { get; set; }
         public int? CuotasAdicionales { get; set; }
         public int? IdTipoDescuentoNivelAprobacion { get; set; }
-        public List<string> TipoDescuentoAsesorCoordinadorPw { get; set; }
+        public bool? AplicaProgramaCompleto { get; set; }
+        public bool Activo { get; set; }
+        public List<string>? TipoDescuentoAsesorCoordinadorPw { get; set; }
 
     }
     public class TipoDescuentoProgramaDTO
@@ -67,12 +72,16 @@
         public string Codigo { get; set; } = null!;
         public string Descripcion { get; set; } = null!;
         public int Formula { get; set; }
+        public string? NombreFormula { get; set; }
         public int? PorcentajeGeneral { get; set; }
         public int? PorcentajeMatricula { get; set; }
         public int? FraccionesMatricula { get; set; }
         public int? PorcentajeCuotas { get; set; }
         public int? CuotasAdicionales { get; set; }
         public int? IdTipoDescuentoNivelAprobacion { get; set; }
+        public string? NombreNivelAprobacion { get; set; }
+        public bool? AplicaProgramaCompleto { get; set; }
+        public bool Activo { get; set; }
     }
 
     public class TipoDescuentoNivelAprobacionDTO

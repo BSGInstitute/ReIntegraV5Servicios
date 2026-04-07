@@ -18,6 +18,7 @@ namespace BSI.Integra.Aplicacion.Servicios.Service.Interface
         public MessageNumberCollection CantidadCorreosConFiltroAsuntoRemitente(string valorAsunto, string valorRemitente);
         public EnvelopeCollection ObtenerCorreos(string indices);
         public EnvelopeCollection ObtenerCorreos_ByUid(string indices);
+        public EnvelopeCollection ObtenerCorreosNuevosDesdeUid(long lastUid);
         public void Desconectar();
         public void Folders();
 

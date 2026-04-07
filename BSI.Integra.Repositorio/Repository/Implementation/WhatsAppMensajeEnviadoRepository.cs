@@ -339,9 +339,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         numeroMexicoOut = numero.StartsWith("521") ? "52" + numero.Substring(3) : numero;
                         numeroCanadaIn = numero.StartsWith("1") ? "11" + numero.Substring(1) : numero;
 
-                        query = @$"SELECT DISTINCT Numero, Tipo, SubTipo, Mensaje, IdPersonal, IdAlumno, IdPais, Registro, FechaCreacion,NombrePersonal, MAX(EstadoMensaje) AS EstadoMensaje, MAX(final.FechaEstado) AS FechaEstado
+                        query = @$"SELECT DISTINCT Numero,NumeroRespuesta, Tipo, SubTipo, Mensaje, IdPersonal, IdAlumno, IdPais, Registro, FechaCreacion,NombrePersonal, MAX(EstadoMensaje) AS EstadoMensaje, MAX(final.FechaEstado) AS FechaEstado
                                 FROM (
-                                    SELECT resultado.WaId, Numero, Tipo, SubTipo, Mensaje, IdPersonal, ISNULL(IdAlumno, 0) IdAlumno, resultado.IdPais, Registro, resultado.FechaCreacion, NombrePersonal, AreaAbrev, estado.WaStatus,
+                                    SELECT resultado.WaId, resultado.Numero, Tipo, SubTipo, Mensaje, IdPersonal, wapi.Numero NumeroRespuesta, ISNULL(IdAlumno, 0) IdAlumno, resultado.IdPais, Registro, resultado.FechaCreacion, NombrePersonal, AreaAbrev, estado.WaStatus,
                                            CASE
                                                WHEN estado.WaStatus = 'sent' THEN 1
                                                WHEN estado.WaStatus = 'delivered' THEN 2
@@ -350,9 +350,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                            estado.FechaCreacion AS FechaEstado
                                     FROM [com].[V_HistorialChatWhatsAppCom] AS resultado
                                     LEFT JOIN com.T_WhatsAppEstadoMensajeEnviadoCom AS estado ON estado.WaId = resultado.WaId
-                                    WHERE MensajeOfensivo = 0 AND (Numero ='{numeroMexicoIn}' OR Numero = '{numeroMexicoOut}' OR Numero = '{numeroCanadaIn}' OR Numero=@numero)
+                                    LEFT JOIN conf.T_WhatsAppConfiguracionApi AS wapi ON resultado.PhoneNumberId=wapi.NumeroIndentificador
+                                    WHERE MensajeOfensivo = 0 AND (resultado.Numero ='{numeroMexicoIn}' OR resultado.Numero = '{numeroMexicoOut}' OR resultado.Numero = '{numeroCanadaIn}' OR resultado.Numero=@numero)
                                 ) AS final
-                                GROUP BY Numero, Tipo, SubTipo, Mensaje, IdPersonal, IdAlumno, IdPais, Registro, FechaCreacion, NombrePersonal
+                                GROUP BY Numero, NumeroRespuesta, Tipo, SubTipo, Mensaje, IdPersonal, IdAlumno, IdPais, Registro, FechaCreacion, NombrePersonal
                                 ORDER BY FechaCreacion ASC;";
                     }
                     else if (area == "OP")
@@ -1216,7 +1217,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <returns> Bool </returns>
         public bool ValidarPlantillasEnviadasApiComercial(string plantilla, string numero)
         {
-            string _query = "SELECT TOP 1 Id FROM com.T_WhatsAppMensajeEnviadoCom WHERE WaType='hsm' AND WaBody=@Plantilla AND WaTo=@Numero";
+            string _query = "SELECT TOP 1 Id FROM com.V_TWhatsAppMensajeEnviadoCom_Obtener WHERE WaType='hsm' AND WaBody=@Plantilla AND WaTo=@Numero";
             var queryAsesor = _dapperRepository.FirstOrDefault(_query, new { plantilla, numero });
             return (queryAsesor == "null" || queryAsesor == "") ? false : true; //false->envia , true->no envia 
         }
@@ -1231,7 +1232,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <returns> Bool </returns>
         public bool ValidarPlantillasEnviadasApiComercialPersonal(string plantilla, string numero, int idPersonal)
         {
-            string _query = "SELECT TOP 1 Id FROM com.T_WhatsAppMensajeEnviadoCom WHERE WaType='hsm' AND WaBody=@Plantilla AND WaTo=@Numero AND IdPersonal=@IdPersonal";
+            string _query = "SELECT TOP 1 Id FROM com.V_TWhatsAppMensajeEnviadoCom_Obtener WHERE WaType='hsm' AND WaBody=@Plantilla AND WaTo=@Numero AND IdPersonal=@IdPersonal";
             var queryAsesor = _dapperRepository.FirstOrDefault(_query, new { plantilla, numero, idPersonal });
             return (queryAsesor == "null" || queryAsesor == "") ? false : true; //false->envia , true->no envia 
         }
@@ -1245,12 +1246,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <returns> Bool </returns>
         public bool ValidarPlantillasEnviadasApiComercial(string plantilla, string numero, DateTime fechaUltimoMensajeRecibido)
         {
-            string _query = "SELECT TOP 1 Id FROM com.T_WhatsAppMensajeEnviadoCom WHERE WaType='hsm' AND WaBody=@Plantilla AND WaTo=@Numero AND FechaCreacion > @FechaUltimoMensajeRecibido";
+            string _query = "SELECT TOP 1 Id FROM com.V_TWhatsAppMensajeEnviadoCom_Obtener WHERE WaType='hsm' AND WaBody=@Plantilla AND WaTo=@Numero AND FechaCreacion > @FechaUltimoMensajeRecibido";
 
             var queryAsesor = _dapperRepository.FirstOrDefault(_query, new { plantilla, numero, fechaUltimoMensajeRecibido });
             if (queryAsesor == "null" || queryAsesor == "")
             {
-                string _query2 = "SELECT TOP 1 Id FROM com.T_WhatsAppMensajeEnviadoCom WHERE WaType='hsm' AND WaBody=@Plantilla AND WaTo=@Numero AND FechaCreacion > GETDATE()-1";
+                string _query2 = "SELECT TOP 1 Id FROM com.V_TWhatsAppMensajeEnviadoCom_Obtener WHERE WaType='hsm' AND WaBody=@Plantilla AND WaTo=@Numero AND FechaCreacion > GETDATE()-1";
                 var queryAsesor2 = _dapperRepository.FirstOrDefault(_query2, new { plantilla, numero });
                 return (queryAsesor2 == "null" || queryAsesor2 == "") ? false : true; //false->envia , true->no envia 
 
@@ -1273,7 +1274,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <returns> Bool </returns>
         public bool ValidarMesajeRecibidosApiComercial(string numero)
         {
-            string _query = "SELECT TOP 1 Id FROM com.T_WhatsAppMensajeRecibidoCom WHERE WaFrom=@numero AND FechaCreacion > GETDATE()-1";
+            string _query = "SELECT TOP 1 Id FROM com.V_TWhatsAppMensajeRecibidoCom_Obtener WHERE WaFrom=@numero AND FechaCreacion > GETDATE()-1";
             var queryAsesor = _dapperRepository.FirstOrDefault(_query, new { numero });
             return (queryAsesor == "null" || queryAsesor == "") ? false : true;
         }
@@ -1323,7 +1324,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             PersonalNumeroMinimoChatDTO Conversacion = new PersonalNumeroMinimoChatDTO();
             string _query = @"SELECT TOP 1 WAMRC.id
-                            FROM com.T_WhatsAppMensajeRecibidoCom WAMRC
+                            FROM com.V_TWhatsAppMensajeRecibidoCom_Obtener WAMRC
 		                            WHERE WAMRC.WaFrom=@numero AND WAMRC.FechaCreacion > GETDATE()-1 AND  WAMRC.PhoneNumberId = @cuentaIdentificadorWA";
             var queryAsesor = _dapperRepository.FirstOrDefault(_query, new { numero = Numero, cuentaIdentificadorWA = CuentaIdentificadorWA });
             return (queryAsesor == "null" || queryAsesor == "") ? true : false;
@@ -1332,7 +1333,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             MensajeChatDTO Mensaje = new MensajeChatDTO();
             string _query = @"SELECT TOP 1 WAMRC.id,WAMRC.FechaCreacion FechaMensaje
-                            FROM com.T_WhatsAppMensajeRecibidoCom WAMRC
+                            FROM com.V_TWhatsAppMensajeRecibidoCom_Obtener WAMRC
 		                            WHERE WAMRC.WaFrom=@numero AND  WAMRC.PhoneNumberId = @cuentaIdentificadorWA order by fechacreacion desc";
             var queryAsesor = _dapperRepository.FirstOrDefault(_query, new { numero = Numero, cuentaIdentificadorWA = CuentaIdentificadorWA });
 
@@ -1479,6 +1480,47 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception e)
             {
 
+                throw new Exception(e.Message);
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 11/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene mensaje multimedia de WhatsApp (Planificación)
+        /// </summary>
+        /// <param name="waId"> Id de chat WhatsApp </param>
+        /// <returns> String </returns>
+        public string ObtenerMensajeMultimediaPla(string waId)
+        {
+            try
+            {
+                // Se consulta en ambas tablas de planificación (Enviado y Recibido)
+                var query = @"
+                    SELECT WaBody FROM (
+                        SELECT WaBody FROM pla.T_WhatsAppMensajeEnviadoPla WHERE WaId = @WaId AND Estado = 1
+                        UNION ALL
+                        SELECT WaBody FROM pla.T_WhatsAppMensajeRecibidoPla WHERE WaId = @WaId AND Estado = 1
+                    ) AS Resultado";
+
+                var resultado = _dapperRepository.FirstOrDefault(query, new { WaId = waId });
+
+                if (string.IsNullOrEmpty(resultado) || resultado == "null") return null;
+
+                // Intentar deserializar por si el WaBody contiene el JSON del mensaje
+                try
+                {
+                    var dto = JsonConvert.DeserializeObject<WhatsAppHistorialMensajesDTO>(resultado);
+                    return dto.Mensaje;
+                }
+                catch
+                {
+                    return resultado;
+                }
+            }
+            catch (Exception e)
+            {
                 throw new Exception(e.Message);
             }
         }

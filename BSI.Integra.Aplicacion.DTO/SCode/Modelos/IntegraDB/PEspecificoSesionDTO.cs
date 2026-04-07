@@ -169,6 +169,9 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? IdAmbiente { get; set; }
         public bool? Predeterminado { get; set; }
         public int Grupo { get; set; }
+        public int? GrupoSesion { get; set; }
+        public int? IdPEspecificoSesionEstado { get; set; }
+        public bool? Reprogramacion { get; set; }
     }
     public class ConfirmacionWebinarDTO
     {
@@ -183,6 +186,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdPEspecifico { get; set; }
         public int IdSesion { get; set; }
         public int IdCoordinadoraAcademica { get; set; }
+        public string EmailCoordinadoraAcademica { get; set; }
         public string NombreCoordinadoraAcademica { get; set; }
         public int IdMatriculaCabecera { get; set; }
         public string CodigoMatricula { get; set; }
@@ -195,6 +199,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string ZonaHoraria { get; set; }
         public string EnvioCorreo { get; set; }
         public string EnvioWhatsApp { get; set; }
+        public string CelularWhatsApp { get; set; }
+        public int IdPais { get; set; }
     }
     public class SesionFiltroDTO
     {
@@ -227,5 +233,17 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdPEspecificoSesion { get; set; }
         public int IdTipoPrograma { get; set; }
         public DateTime FechaSesion { get; set; }
+    }
+    public class ReprogramarSesionDTO
+    {
+        public int IdPespecifico { get; set; }
+        public DateTime FechaHoraInicio { get; set; }
+        public decimal Duracion { get; set; }
+        public int? IdExpositor { get; set; }
+        public int? IdAmbiente { get; set; }
+        public string Comentario { get; set; }
+        public int Grupo { get; set; }
+        public int GrupoSesion { get; set; }
+        public int? IdModalidadCurso { get; set; }
     }
 }

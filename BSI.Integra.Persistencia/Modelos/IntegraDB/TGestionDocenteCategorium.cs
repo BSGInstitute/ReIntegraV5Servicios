@@ -10,6 +10,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TGestionDocenteCategorium()
         {
+            TGestionContactoFlujoCongelados = new HashSet<TGestionContactoFlujoCongelado>();
+            TGestionDocenteActividadCabeceraCongelada = new HashSet<TGestionDocenteActividadCabeceraCongeladum>();
             TGestionDocenteActividadCabeceras = new HashSet<TGestionDocenteActividadCabecera>();
             TGestionDocenteCategoriaGeneralTiempos = new HashSet<TGestionDocenteCategoriaGeneralTiempo>();
             TGestionDocenteFlujos = new HashSet<TGestionDocenteFlujo>();
@@ -52,6 +54,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
 
+        public virtual ICollection<TGestionContactoFlujoCongelado> TGestionContactoFlujoCongelados { get; set; }
+        public virtual ICollection<TGestionDocenteActividadCabeceraCongeladum> TGestionDocenteActividadCabeceraCongelada { get; set; }
         public virtual ICollection<TGestionDocenteActividadCabecera> TGestionDocenteActividadCabeceras { get; set; }
         public virtual ICollection<TGestionDocenteCategoriaGeneralTiempo> TGestionDocenteCategoriaGeneralTiempos { get; set; }
         public virtual ICollection<TGestionDocenteFlujo> TGestionDocenteFlujos { get; set; }

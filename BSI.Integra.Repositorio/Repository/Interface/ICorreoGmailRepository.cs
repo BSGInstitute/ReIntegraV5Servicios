@@ -6,6 +6,11 @@ namespace BSI.Integra.Repositorio.Repository.Interface
 {
     public interface ICorreoGmailRepository : IGenericRepository<TCorreoGmail>
     {
+        #region Metodos Base
+        TCorreoGmail Add(CorreoGmail entidad);
+        bool Update(CorreoGmail entidad);
+        bool Delete(int id, string usuario);
+        #endregion
         List<CorreoDTO> FiltroCorreosPorPersona(int idFolder, string queryFiltro);
         List<CorreoDTO> FiltroCorreosPorPersonaGmailCorreo(string queryFiltro);
         int ContadorCorreosPorPersona(int idPersonal, int idFolder);
@@ -16,5 +21,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         Plantilla obtenerPlantilla();
         Plantilla obtenerPlantillaAccesoMoodleAlumnoWhatsApp();
         Plantilla obtenerPlantillaAccesoMoodleAlumno();
+        long ObtenerUltimoUidPorPersonal(int idPersonal);
     }
 }

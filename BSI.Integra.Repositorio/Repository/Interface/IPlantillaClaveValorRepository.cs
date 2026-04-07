@@ -1,4 +1,5 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 
@@ -34,6 +35,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         List<PlantillaWhatsAppDTO> ObtenterPlantillaWhatsAppOperaciones();
         List<FiltroDTO> ObtenerPlantillaGenerarMensajeOperaciones();
         List<FiltroDTO> ObtenerPlantillasModuloAgenda();
+        List<PlantillaDisponiblePlanificacionDTO> ObtenerPlantillasModuloAgendaPlanificacion(int idModuloSistemaV5, int idPlantillaBase, int idPersonalAreaTrabajo);
         IEnumerable<PlantillaClaveValor> ObtenerPorIdPlantillaTodos(int idPlantilla);
         void EliminacionLogicoPorPlantilla(int idPlantilla, string usuario, List<PlantillaClavesValoresDTO> nuevos);
         PlantillaClaveValor ObtenerPorClaveYPorIdPlantilla(string clave, int idPlantilla);

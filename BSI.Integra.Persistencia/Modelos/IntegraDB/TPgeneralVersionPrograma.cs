@@ -61,6 +61,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Cantidad de meses adicionales a los webinar por version de programa
         /// </summary>
         public int? CantidadMesAccesoAdicionalWebinar { get; set; }
+        /// <summary>
+        /// Cantidad de grupos configurados por webinar por version de programa
+        /// </summary>
+        public int? GruposAsignados { get; set; }
 
         public virtual TPgeneral IdPgeneralNavigation { get; set; } = null!;
     }

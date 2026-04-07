@@ -44,4 +44,20 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public DateTime FechaCreacion { get; set; }
         public DateTime FechaModificacion { get; set; }
     }
+
+    public class AlumnoCorreoCoordinadoraDTO
+    {
+        public string EmailCoordinadora { get; set; } = "";
+        public string EmailAlumno { get; set; } = "";
+    }
+
+    public class AlumnoWhatsAppCancelacionDTO
+    {
+        public string CelularWhatsApp { get; set; } = "";
+        public int IdAlumno { get; set; }
+        public int IdPais { get; set; }
+        public string NombreAlumno { get; set; } = "";
+        public int IdPersonal_Asignado { get; set; }
+    }
+
 }

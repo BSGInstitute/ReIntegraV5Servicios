@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.Base.Exceptions;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Marketing.Service.Interface;
 using BSI.Integra.Aplicacion.Servicios.Service.Implementacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
+using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
+using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using Microsoft.AspNetCore.Http;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -24,10 +27,12 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
     {
         private IUnitOfWork _unitOfWork;
         private Mapper _mapper;
+        private readonly IReemplazoEtiquetaPlantillaService _reemplazoEtiquetaService;
         public List<GmailCorreoArchivoAdjuntoDTO> ListaGmailCorreoArchivoAdjunto = new List<GmailCorreoArchivoAdjuntoDTO>();
         public GmailCorreoService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
+            _reemplazoEtiquetaService = new ReemplazoEtiquetaPlantillaService(_unitOfWork);
 
             var config = new MapperConfiguration(cfg =>
             {
@@ -437,6 +442,190 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                 throw ex;
             }
         }
+        /// Autor: Jose Vega
+        /// Fecha: 25/08/2022
+        /// Version: 1.0
+        /// <summary>
+        /// Envia mensaje
+        /// </summary>
+        /// <param name="DatosOportunidad"></param>
+        /// <param name="MensajeCabecera"></param>
+        /// <param name="Files"></param>
+        /// <returns></returns>
+        public async Task<bool> EnviarMensajeCorreoPla(ParametrosEnviarMensajePlaDTO informacionCorreo, IList<IFormFile> Files, string usuario)
+        {
+            try
+            {
+                if (informacionCorreo.Remitente == null || informacionCorreo.Remitente.Trim() == "")
+                    throw new BadRequestException("Remitente Vacio");
+                if (informacionCorreo.Destinatario == null || informacionCorreo.Destinatario == "")
+                    throw new BadRequestException("No tiene destinatarios");
+
+                var asesor = _unitOfWork.PersonalRepository.ObtenerNombreApellido(informacionCorreo.Remitente);
+
+                string mensajeCorreo;
+                string asuntoCorreo;
+
+                if (informacionCorreo.IdPlantilla.HasValue && informacionCorreo.IdPlantilla.Value > 0)
+                {
+                    var resultado = _reemplazoEtiquetaService.ReemplazarEtiquetasPlanificacion(
+                        new ReemplazoEtiquetaPlantillaDocenteDTO
+                        {
+                            IdPlantilla = informacionCorreo.IdPlantilla.Value,
+                            IdGestionContacto = informacionCorreo.IdGestionContacto > 0 ? informacionCorreo.IdGestionContacto : null,
+                            IdCentroCosto = informacionCorreo.IdCentroCosto,
+                            IdClasificacionPersona = informacionCorreo.IdClasificacionPersona
+                        });
+                    mensajeCorreo = resultado.EmailReemplazado.CuerpoHTML ?? "";
+                    asuntoCorreo = resultado.EmailReemplazado.Asunto ?? "";
+                }
+                else
+                {
+                    byte[] dataMensaje = Convert.FromBase64String(informacionCorreo.Mensaje);
+                    mensajeCorreo = Encoding.UTF8.GetString(dataMensaje);
+                    asuntoCorreo = informacionCorreo.Asunto;
+                }
+
+                if (!mensajeCorreo.Contains("https://repositorioweb.blob.core.windows.net/firmas/"))
+                {
+                    string firma = string.Empty;
+                    string[] separacionEmail = asesor.Email.Split('@');
+                    firma = "<img src='https://repositorioweb.blob.core.windows.net/firmas/" + separacionEmail[0] + ".png' />";
+                    mensajeCorreo += "<br/>--<br/>" + firma;
+                }
+
+
+                informacionCorreo.Destinatario = informacionCorreo.Destinatario.Replace("<", "").Replace(">", "");
+
+                var mailData = new TMKMailDataDTO
+                {
+                    Sender = informacionCorreo.Remitente,
+                    Recipient = informacionCorreo.Destinatario,
+                    Subject = asuntoCorreo,
+                    Message = mensajeCorreo,
+                    Cc = informacionCorreo.DestinatarioCc ?? "",
+                    Bcc = informacionCorreo.DestinatarioBcc ?? "",
+                    AttachedFiles = null,
+                    RemitenteC = string.Concat(asesor.Nombres, ' ', asesor.Apellidos)
+                };
+
+                TMK_MailService serviceMail = new TMK_MailService();
+                serviceMail.SetData(mailData);
+                if (Files != null && Files.Count() > 0)
+                {
+                    foreach (var file in Files)
+                    {
+                        serviceMail.SetFiles(file);
+                    }
+                }
+                var listaMandrilEnvioCorreo = new List<MandrilEnvioCorreo>();
+                List<TMKMensajeIdDTO> MensajeIdDTO = serviceMail.SendMessageTask();
+
+                foreach (var mensaje in MensajeIdDTO)
+                {
+                    var validarEmail = _unitOfWork.AlumnoRepository.ValidarEmailProveedor(mensaje.Email);
+                    int idClasificacionPersona = validarEmail == null ? 0 : validarEmail.Id;
+                    var mandrilEnvioCorreoEntidad = new MandrilEnvioCorreo
+                    {
+                        //IdGestionContacto = informacionCorreo.IdGestionContacto, PENDIENTE AJUSTE DTO
+                        IdPersonal = asesor.Id,
+                        //IdClasificacionPersona = idClasificacionPersona,
+                        IdCentroCosto = informacionCorreo.IdCentroCosto,
+                        //IdMandrilTipoAsignacion = informacionCorreo.IdOportunidad == 0 ? 4 : 0, PENDIENTE AJUSTE DTO
+                        EstadoEnvio = 1,
+                        IdMandrilTipoEnvio = 2, //Manual = 2 PENDIENTE AJUSTE DTO
+                        FechaEnvio = DateTime.Now,
+                        Asunto = asuntoCorreo,
+                        FkMandril = mensaje.MensajeId,
+                        Estado = true,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now,
+                        UsuarioCreacion = usuario,
+                        UsuarioModificacion = usuario,
+                        EsEnvioMasivo = false
+                    };
+                    listaMandrilEnvioCorreo.Add(mandrilEnvioCorreoEntidad);
+                }
+
+                using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    //Logica Guardar Correo
+                    GmailCorreo gmailCorreo = new GmailCorreo
+                    {
+                        IdEtiqueta = 1,//sent:1 , inbox:2
+                        Asunto = asuntoCorreo,
+                        Fecha = DateTime.Now,
+                        EmailBody = mensajeCorreo,
+                        Seen = false,
+                        Remitente = informacionCorreo.Remitente,
+                        Cc = informacionCorreo.DestinatarioCc,
+                        Bcc = informacionCorreo.DestinatarioBcc,
+                        Destinatarios = informacionCorreo.Destinatario,
+                        IdPersonal = asesor.Id,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now,
+                        UsuarioCreacion = usuario,
+                        UsuarioModificacion = usuario,
+                        IdClasificacionPersona = informacionCorreo.IdClasificacionPersona,
+                        Estado = true
+                    };
+
+                    gmailCorreo.GmailCorreoArchivoAdjuntos = new List<GmailCorreoArchivoAdjunto>();
+                    string urlArchivo = "";
+                    if (Files != null && Files.Count() > 0)
+                    {
+                        Task<string>[] tasks = new Task<string>[Files.Count()];
+                        for (int i = 0; i < Files.Count(); i++)
+                        {
+                            var nombreArchivo = string.Concat(gmailCorreo.Id, '-', DateTime.Now.ToString("yyyyMMddHHmmss"), '-', Files[i].FileName);
+                            tasks[i] = _unitOfWork.GmailCorreoRepository.SubirArchivoAsync(serviceMail.ConvertToByte(Files[i]), Files[i].ContentType, nombreArchivo);
+                        }
+
+                        for (int i = 0; i < Files.Count(); i++)
+                        {
+                            urlArchivo = await tasks[i];
+                            var gmailCorreoArchivoAdjunto = new GmailCorreoArchivoAdjunto
+                            {
+                                Nombre = Files[i].FileName,
+                                UrlArchivoRepositorio = urlArchivo,
+                                Estado = true,
+                                UsuarioCreacion = usuario,
+                                UsuarioModificacion = usuario,
+                                FechaCreacion = DateTime.Now,
+                                FechaModificacion = DateTime.Now
+                            };
+                            gmailCorreo.GmailCorreoArchivoAdjuntos.Add(gmailCorreoArchivoAdjunto);
+                        }
+                    }
+                    _unitOfWork.GmailCorreoRepository.Add(gmailCorreo);
+
+                    if (informacionCorreo.IdActividadDetalle != null && informacionCorreo.IdActividadDetalle != 0)
+                    {
+                        Interaccion interacionEntidad = new Interaccion()
+                        {
+                            IdActividadDetalle = informacionCorreo.IdActividadDetalle,
+                            IdTipoInteraccionGeneral = 1,
+                            Fecha = DateTime.Now,
+                            Estado = true,
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now,
+                            UsuarioCreacion = usuario,
+                            UsuarioModificacion = usuario,
+                        };
+                        _unitOfWork.InteraccionRepository.Add(interacionEntidad);
+                    }
+
+                    _unitOfWork.MandrilEnvioCorreoRepository.Add(listaMandrilEnvioCorreo);
+                    _unitOfWork.Commit();
+                    scope.Complete();
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         /// Autor: Flavio Rodrigo
         /// Fecha: 02/02/2022
         /// Version: 1.0
@@ -568,6 +757,41 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
             try
             {
                 return _unitOfWork.GmailCorreoRepository.ObtenerCorreosAlumnosSoloVentas(emailAlumno);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 20/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Previsualiza un mensaje de planificación: carga la plantilla y reemplaza etiquetas
+        /// sin enviar el correo ni persistir nada.
+        /// </summary>
+        /// <param name="request">Datos de la plantilla y contexto de reemplazo</param>
+        /// <returns>PreviewMensajePlaResponseDTO con asunto y cuerpo HTML procesado</returns>
+        public PreviewMensajePlaResponseDTO PreviewMensajePla(PreviewMensajePlaRequestDTO request)
+        {
+            try
+            {
+                var resultado = _reemplazoEtiquetaService.ReemplazarEtiquetasPlanificacion(
+                    new ReemplazoEtiquetaPlantillaDocenteDTO
+                    {
+                        IdPlantilla = request.IdPlantilla,
+                        IdCentroCosto = request.IdCentroCosto,
+                        IdClasificacionPersona = request.IdClasificacionPersona
+                    });
+
+                return new PreviewMensajePlaResponseDTO
+                {
+                    Asunto = resultado.EmailReemplazado.Asunto ?? "",
+                    CuerpoHtml = resultado.EmailReemplazado.CuerpoHTML
+                        ?? resultado.WhatsAppReemplazado?.Plantilla
+                        ?? ""
+                };
             }
             catch (Exception ex)
             {

@@ -321,6 +321,11 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IComprobantePagoPorFurRepository ComprobantePagoPorFurRepository { get; }
         IFurPagoRepository FurPagoRepository { get; }
         IComprobantePagoRepository ComprobantePagoRepository { get; }
+        IGestionPagoRepository GestionPagoRepository { get; }
+        IGestionPagoCronogramaRepository GestionPagoCronogramaRepository { get; }
+        IGestionPagoArchivoRepository GestionPagoArchivoRepository { get; }
+        IModalidadPagoRepository ModalidadPagoRepository { get; }
+        IPagoEstadoRepository PagoEstadoRepository { get; }
         IModoFurRepository ModoFurRepository { get; }
         IModoPersonalFurRepository ModoPersonalFurRepository { get; }
         IFurFaseAprobacionRepository FurFaseAprobacionRepository { get; }
@@ -680,6 +685,8 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         ISeccionPwRepository SeccionPwRepository { get; }
         ICourierRepository CourierRepository { get; }
         ICourierDetalleRepository CourierDetalleRepository { get; }
+        IDocentePostulanteRepository DocentePostulanteRepository { get; }
+        IFaseGestionContactoRepository FaseGestionContactoRepository { get; }
         IPlantillaPaisRepository PlantillaPaisRepository { get; }
         ISeccionTipoDetallePwRepository SeccionTipoDetallePwRepository { get; }
         IMaterialPespecificoRepository MaterialPespecificoRepository { get; }
@@ -986,5 +993,32 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IRemarketingEmbudoEsquemaRepository RemarketingEmbudoEsquemaRepository { get; }
         IRemarketingEmbudoNivelRepository RemarketingEmbudoNivelRepository { get; }
         IRemarketingEmbudoHistoricoRepository RemarketingEmbudoHistoricoRepository { get; }
+
+        IGestionContactoRepository GestionContactoRepository { get; }
+        IGestionContactoLogRepository GestionContactoLogRepository { get; }
+        IActividadDetalleGestionContactoRepository ActividadDetalleGestionContactoRepository { get; }
+
+        IGestionDocenteFlujoRepository GestionDocenteFlujoRepository { get; }
+        IGestionDocenteActividadCabeceraRepository GestionDocenteActividadCabeceraRepository { get; }
+        IGestionDocenteActividadCabeceraFlujoRepository GestionDocenteActividadCabeceraFlujoRepository { get; }
+        IGestionDocenteActividadDetalleRepository GestionDocenteActividadDetalleRepository { get; }
+        IGestionDocenteOcurrenciaRepository GestionDocenteOcurrenciaRepository { get; }
+        IGestionDocenteDisparadorDetalleRepository GestionDocenteDisparadorDetalleRepository { get; }
+        IGestionDocenteDisparadorOcurrenciaDetalleRepository GestionDocenteDisparadorOcurrenciaDetalleRepository { get; }
+        IGestionDocenteDisparadorReglaTiempoFijoRepository GestionDocenteDisparadorReglaTiempoFijoRepository { get; }
+        IGestionDocenteDisparadorReglaTiempoRelativoRepository GestionDocenteDisparadorReglaTiempoRelativoRepository { get; }
+        IGestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository GestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository { get; }
+        IGestionDocenteOcurrenciaIaConfiguracionRepository GestionDocenteOcurrenciaIaConfiguracionRepository { get; }
+        IGestionDocenteIaEntrenamientoEjemploRepository GestionDocenteIaEntrenamientoEjemploRepository { get; }
+        IGestionContactoActividadDetalleSesionRepository GestionContactoActividadDetalleSesionRepository { get; }
+        IGestionDocenteAgendaRepository GestionDocenteAgendaRepository { get; }
+        ICriterioTareaRepository CriterioTareaRepository { get; }
+        ISubCriterioTareaRepository SubCriterioTareaRepository { get; }
+        IProyectoAplicacionRepository ProyectoAplicacionRepository { get; }
+        IPEspecificoSesionEstadoRepository PEspecificoSesionEstadoRepository { get; }
+
+        IPEspecificoSesionEstadoObservacionRepository PEspecificoSesionEstadoObservacionRepository { get; }
+        IPEspecificoSesionEstadoObservacionDetalleRepository PEspecificoSesionEstadoObservacionDetalleRepository { get; }
+        IProveedorPEspecificoRepository ProveedorPEspecificoRepository { get; }
     }
 }

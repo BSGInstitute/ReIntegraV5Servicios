@@ -180,9 +180,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    FraccionesMatricula,
 	                    PorcentajeCuotas,
 	                    CuotasAdicionales,
-	                    IdTipoDescuentoNivelAprobacion
+	                    IdTipoDescuentoNivelAprobacion,
+	                    AplicaProgramaCompleto,
+	                    ISNULL(Activo, 0) AS Activo
                     FROM pla.T_TipoDescuento
-                    WHERE Estado = 1 ORDER BY id DESC ";
+                    WHERE Estado = 1 ORDER BY id DESC";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
@@ -219,6 +221,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    PorcentajeCuotas,
 	                    CuotasAdicionales,
 	                    IdTipoDescuentoNivelAprobacion,
+	                    AplicaProgramaCompleto,
+	                    ISNULL(Activo, 0) AS Activo,
 	                    Estado,
 	                    FechaCreacion,
 	                    FechaModificacion,
@@ -264,6 +268,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    PorcentajeCuotas,
 	                    CuotasAdicionales,
 	                    IdTipoDescuentoNivelAprobacion,
+	                    AplicaProgramaCompleto,
+	                    ISNULL(Activo, 0) AS Activo,
 	                    Estado,
 	                    FechaCreacion,
 	                    FechaModificacion,
@@ -310,6 +316,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    PorcentajeCuotas,
 	                    CuotasAdicionales,
 	                    IdTipoDescuentoNivelAprobacion,
+	                    AplicaProgramaCompleto,
+	                    ISNULL(Activo, 0) AS Activo,
 	                    Estado,
 	                    FechaCreacion,
 	                    FechaModificacion,
@@ -451,19 +459,26 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 IEnumerable<TipoDescuentoConNivelAprobacionDTO> rpta = new List<TipoDescuentoConNivelAprobacionDTO>();
                 var query = @"
                     SELECT
-                        Id,
-                        Codigo,
-                        Descripcion,
-                        Formula,
-                        PorcentajeGeneral,
-                        PorcentajeMatricula,
-                        FraccionesMatricula,
-                        PorcentajeCuotas,
-                        CuotasAdicionales,
-                        IdTipoDescuentoNivelAprobacion
-                    FROM pla.T_TipoDescuento
-                    WHERE Estado = 1
-                    ORDER BY Id DESC";
+                        td.Id,
+                        td.Codigo,
+                        td.Descripcion,
+                        td.Formula,
+                        ftd.Nombre AS NombreFormula,
+                        td.PorcentajeGeneral,
+                        td.PorcentajeMatricula,
+                        td.FraccionesMatricula,
+                        td.PorcentajeCuotas,
+                        td.CuotasAdicionales,
+                        td.IdTipoDescuentoNivelAprobacion,
+                        na.Nombre AS NombreNivelAprobacion,
+                        td.AplicaProgramaCompleto,
+                        ISNULL(td.Activo, 0) AS Activo
+                    FROM pla.T_TipoDescuento td
+                    LEFT JOIN pla.T_FormulaTipoDescuento ftd ON ftd.Id = td.Formula
+                    LEFT JOIN pla.T_TipoDescuentoNivelAprobacion na ON na.Id = td.IdTipoDescuentoNivelAprobacion
+                    WHERE td.Estado = 1 
+                    AND CAST(td.FechaCreacion AS DATE) >= '2026-03-24' --FILTRO TEMPORAL
+                    ORDER BY td.Id DESC";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {

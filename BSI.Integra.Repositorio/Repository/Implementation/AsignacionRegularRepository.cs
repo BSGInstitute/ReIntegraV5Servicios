@@ -6,6 +6,7 @@ using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
 using Newtonsoft.Json;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation
 {
@@ -276,16 +277,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
+                int? IdAsignacionRegular = null;
                 List<ObtenerListaAsesorDTO> ConfiguracionPais = new List<ObtenerListaAsesorDTO>();
-                var resultado = _dapperRepository.QueryDapper("SELECT Id, Coordinador, Asesor, Prioridad, EstadoAsesor, OportunidadesAbiertas, TopeOportunidad, OportunidadesAbiertasHoy, TopeAsignacionDiaria, ActivarAsignacionAutomatica FROM mkt.V_ObtenerListaAsesor ORDER BY Coordinador DESC", new { });
+                var resultado = _dapperRepository.QuerySPDapper("mkt.SP_AsignacionRegularAsesor", new { IdAsignacionRegular = IdAsignacionRegular } );
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
-
-
-
                 {
                     ConfiguracionPais = JsonConvert.DeserializeObject<List<ObtenerListaAsesorDTO>>(resultado);
                 }
-                return ConfiguracionPais;
+                return ConfiguracionPais.OrderByDescending(x => x.Coordinador).ToList();
             }
             catch (Exception ex)
             {
@@ -304,7 +303,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 ObtenerListaAsesorDTO ConfiguracionPais = new ObtenerListaAsesorDTO();
-                var resultado = _dapperRepository.FirstOrDefault("SELECT Id,Coordinador,Asesor,EstadoAsesor,OportunidadesAbiertas,TopeOportunidad,ActivarAsignacionAutomatica FROM mkt.V_ObtenerListaAsesor WHERE id = @id ORDER BY Coordinador DESC", new { id });
+                var resultado = _dapperRepository.QuerySPFirstOrDefault("mkt.SP_AsignacionRegularAsesor", new { IdAsignacionRegular = id });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
                     ConfiguracionPais = JsonConvert.DeserializeObject<ObtenerListaAsesorDTO>(resultado);
@@ -1888,7 +1887,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 EstadoDTO estado = new EstadoDTO();
-                var resultado = _dapperRepository.FirstOrDefault("SELECT TOP 1 Estado FROM com.T_WhatsAppMensajeEnviadoCom WHERE WaTo LIKE '%' + @celular + '%' AND FechaCreacion >= DATEADD(DAY, -1, GETDATE()) ORDER BY FechaCreacion DESC", new { celular });
+                var resultado = _dapperRepository.FirstOrDefault("SELECT TOP 1 Estado FROM com.V_TWhatsAppMensajeEnviadoCom_Obtener WHERE WaTo LIKE '%' + @celular + '%' AND FechaCreacion >= DATEADD(DAY, -1, GETDATE()) ORDER BY FechaCreacion DESC", new { celular });
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {

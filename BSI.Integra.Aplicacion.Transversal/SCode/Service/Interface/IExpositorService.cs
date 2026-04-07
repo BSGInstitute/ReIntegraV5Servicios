@@ -13,5 +13,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         Task<ComboModuloExpositorDTO> ObtenerCombosModulo();
         IEnumerable<ExpositorDTO> Obtener();
         IEnumerable<ComboDTO> ObtenerCombo();
+        IEnumerable<ExpositorDTO> BuscarPorContacto(string? email, string? celular, string? nroDocumento);
     }
 }

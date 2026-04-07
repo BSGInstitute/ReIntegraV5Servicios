@@ -72,6 +72,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     public class SolicitudAlumnoFiltradaAgendaDTO
     {
         public int IdSolicitudAlumno { get; set; }
+        public string CodigoFase { get; set; }
         public int IdMatriculaCabecera { get; set; }
         public string CodigoMatricula { get; set; }
         public int? IdEstadoMatricula { get; set; }
@@ -82,7 +83,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? IdClasificacionPersona { get; set; }
         public int? IdOportunidad { get; set; }
         public int? IdFaseOportunidad { get; set; }
-        public int? IdOportunidadPadre { get; set; }
+        public int? IdOportunidad_Padre { get; set; }
         public int? IdActividadCabecera { get; set; }
         public string FechaCreacion { get; set; }
         public int IdPEspecifico { get; set; }
@@ -120,6 +121,20 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdEstadoSolicitud { get; set; }
         public string NombreEstadoSolicitud { get; set; }
         public int? IdControlSolicitudOrigen { get; set; }
+
+        public bool ReprogramacionManual { get; set; }
+        public bool ReprogramacionAutomatica { get; set; }
+        // Nuevos campos SP
+        public int? IdActividadDetalle_Ultima { get; set; }
+        public string EstadoHoja { get; set; }
+        public string EmailAlumno { get; set; }
+        public string CelularAlumno { get; set; }
+        public int? IdCodigoPais { get; set; }
+        public string DNI { get; set; }
+        public string Modalidad { get; set; }
+        public string FechaPrimeraSesion { get; set; }
+        public int? ValidoAccesoTemporal { get; set; }
+        public string UltimoComentario { get; set; }
     }
 
     //reporte
@@ -169,6 +184,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string Email { get; set; }
         public int? IdControlSolicitudOrigen { get; set; }
         public string? ControlSolicitudOrigen { get; set; }
+        public string? TituloSubCategoria { get; set; }
     }
 
     public class FiltroSolicitudAlumnoDTO

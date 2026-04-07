@@ -873,7 +873,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 parametros.Add("@JsonAsesores", jsonAsesores, DbType.String);
                 parametros.Add("@TipoProcesoProgramado", 4, DbType.Int32);
 
-                _dapperRepository.QuerySPDapper("[com].[SP_GuardarConfiguracionTranscripcion]", parametros);
+                _dapperRepository.QuerySPDapper("[com].[SP_GuardarConfiguracionTranscripciones]", parametros);
 
                 return true;
             }
@@ -907,7 +907,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 parametros.Add("@TipoProcesoProgramado", 2, DbType.Int32); //variable segun configuracion 
 
 
-                _dapperRepository.QuerySPDapper("[com].[SP_GuardarConfiguracionTranscripcion]", parametros);
+                _dapperRepository.QuerySPDapper("[com].[SP_GuardarConfiguracionTranscripciones]", parametros);
 
                 return true;
             }
@@ -1985,8 +1985,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 throw ex;
             }
         }
-
-
 
 
 
