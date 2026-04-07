@@ -5500,6 +5500,16 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             var _repOportunidad = _unitOfWork.OportunidadRepository;
             var _repOportunidadLog = _unitOfWork.OportunidadLogRepository;
 
+            //limpio la tabla antes de insertar
+
+            try
+            {
+                var limpiezaexitosa = _repOportunidad.LimpiarProgramacionManualConsecutivos();
+            }
+            catch (Exception e)
+            { }
+
+
             var oportunidadProgramadasManual = _repOportunidad.ObtenerProgramacionManualConsecutivos();
 
             foreach (var oportunidad in oportunidadProgramadasManual)
