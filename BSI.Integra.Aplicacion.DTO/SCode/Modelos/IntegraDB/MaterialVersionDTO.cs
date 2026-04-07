@@ -33,4 +33,20 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 
     }
 
+    public class GrabacionCelularLlamadasPorDiaDTO
+    {
+
+        //insert
+        public int IdLlamada { get; set; }
+        public IFormFile? File { get; set; }
+        public Nullable<int> IdOportunidad { get; set; }
+        public Nullable<int> IdActividadDetalle { get; set; }
+        public string? NombreArchivo { get; set; }
+        public Nullable<int> DuracionContesto { get; set; }
+        public Nullable<int> NroBytes { get; set; }
+        public bool? GrabacionContrato { get; set; }
+
+
+    }
+
 }

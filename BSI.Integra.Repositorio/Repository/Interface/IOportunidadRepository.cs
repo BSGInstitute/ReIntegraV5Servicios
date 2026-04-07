@@ -109,6 +109,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         FlagActualizarCorreoDTO VerificacionOportunidades(int idAlumnoPrincipal, int idAlumnoSecundario);
         FlagReasignacionDTO ResignacionOportunidades(int idAlumnoPrincipal, int idAlumnoSecundario);
         List<OportunidadProgramadaManualDTO> ObtenerProgramacionManualConsecutivos();
+        ResultadoDTO LimpiarProgramacionManualConsecutivos();
         public OportunidadAnteriorAlternoDTO? ValidarOportundadVentaCruzada(int idOportunidad);
         int? ObtnerUltimoRN1(OportunidadAnteriorAlternoDTO oportunidad);
         void ActualizarSeguimientoWhatsAppOportunidad(int idOportunidad, int idActividad, bool estado);

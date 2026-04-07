@@ -840,7 +840,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 CentroCosto = solicitud.NombreCentroCosto,
                 UltimoComentario = solicitud.UltimoComentario,
                 TipoSolicitudOperaciones = tipoSolicitud,
-                Asesor = solicitud.NombrePersonal_Revision,
+                Asesor = solicitud.NombrePersonal_Solicitante,
                 IdPersonal_Asignado = solicitud.IdPersonal_Revision,
                 EstadoHoja = solicitud.EstadoHoja,
                 CategoriaNombre = solicitud.NombreSolicitudCategoria,
@@ -848,7 +848,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 FechaSolicitud = !string.IsNullOrEmpty(solicitud.FechaRegistro)
                     ? DateTime.Parse(solicitud.FechaRegistro)
                     : (DateTime?)null,
-
+                ReprogramacionAutomatica = solicitud.ReprogramacionAutomatica,
+                ReprogramacionManual = solicitud.ReprogramacionManual,
                 // Campos de Programa
                 IdPEspecifico = solicitud.IdPEspecifico,
                 IdPGeneral = solicitud.IdPGeneral,
