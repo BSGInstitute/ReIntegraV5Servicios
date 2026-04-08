@@ -43,6 +43,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.GestionPersonas
         public List<string>? IdsExamenAsignado { get; set; }
         public string? Usuario { get; set; }
         public int? IdPersonal { get; set; }
+        public List<int>? IdsProcesoSeleccionEtapa { get; set; }
     }
 
     public class ComparacionProcesosSeleccionDTO
