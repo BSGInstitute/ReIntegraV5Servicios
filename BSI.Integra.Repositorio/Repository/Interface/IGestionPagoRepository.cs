@@ -9,7 +9,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         #region Metodos Base
         TGestionPago Add(GestionPago entidad);
         TGestionPago Update(GestionPago entidad);
-        bool Delete(int id, string usuario);
+        bool Delete(int idGestionPago, string usuario);
 
         IEnumerable<TGestionPago> Add(IEnumerable<GestionPago> listadoEntidad);
         IEnumerable<TGestionPago> Update(IEnumerable<GestionPago> listadoEntidad);
@@ -17,7 +17,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         #endregion
 
         IEnumerable<GestionPagoDTO> ObtenerGestionesPago(FiltroGestionPagoDTO filtro);
-        GestionPagoDTO? ObtenerGestionPagoPorId(int id);
+        GestionPagoDTO? ObtenerGestionPagoPorId(int idGestionPago);
         GestionPagoDTO? ObtenerGestionPagoPorComprobante(int idComprobantePago);
     }
 }

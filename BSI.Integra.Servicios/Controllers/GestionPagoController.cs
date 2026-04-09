@@ -72,8 +72,8 @@ namespace BSI.Integra.Servicios.Controllers
         /// <summary>
         /// Obtiene una gestion de pago por su Id
         /// </summary>
-        [HttpGet("ObtenerPorId/{id}")]
-        public IActionResult ObtenerPorId(int id)
+        [HttpGet("ObtenerPorId/{idGestionPago}")]
+        public IActionResult ObtenerPorId(int idGestionPago)
         {
             var claimsIdentity = User.Identity as ClaimsIdentity;
             var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
@@ -83,7 +83,7 @@ namespace BSI.Integra.Servicios.Controllers
                 try
                 {
                     var servicio = new GestionPagoService(unitOfWork);
-                    return Ok(servicio.ObtenerGestionPagoPorId(id));
+                    return Ok(servicio.ObtenerGestionPagoPorId(idGestionPago));
                 }
                 catch (Exception ex)
                 {
@@ -547,8 +547,8 @@ namespace BSI.Integra.Servicios.Controllers
         /// <summary>
         /// Elimina logicamente una gestion de pago
         /// </summary>
-        [HttpDelete("Eliminar/{id}")]
-        public IActionResult Eliminar(int id)
+        [HttpDelete("Eliminar/{idGestionPago}")]
+        public IActionResult Eliminar(int idGestionPago)
         {
             var claimsIdentity = User.Identity as ClaimsIdentity;
             var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
@@ -559,7 +559,7 @@ namespace BSI.Integra.Servicios.Controllers
                 {
                     var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
                     var servicio = new GestionPagoService(unitOfWork);
-                    return Ok(servicio.Delete(id, usuario));
+                    return Ok(servicio.Delete(idGestionPago, usuario));
                 }
                 catch (Exception ex)
                 {

@@ -34,7 +34,7 @@
     /// </summary>
     public class GestionPagoCronogramaPagoDTO
     {
-        public int Id { get; set; }
+        public int IdGestionPagoCronograma { get; set; }
         public DateTime FechaRealPago { get; set; }
         public string? Usuario { get; set; }
     }

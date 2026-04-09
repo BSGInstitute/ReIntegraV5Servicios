@@ -63,7 +63,7 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Implementacion
             }
         }
 
-        public bool Delete(int id, string usuario)
+        public bool Delete(int idGestionPago, string usuario)
         {
             try
             {
@@ -71,7 +71,7 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Implementacion
                 {
                     // Soft-delete archivos asociados
                     var archivos = _unitOfWork.GestionPagoArchivoRepository
-                        .GetBy(w => w.IdGestionPago == id && w.Estado == true)
+                        .GetBy(w => w.IdGestionPago == idGestionPago && w.Estado == true)
                         .Select(a => a.Id)
                         .ToList();
 
@@ -82,7 +82,7 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Implementacion
 
                     // Soft-delete cronograma asociado
                     var cronogramas = _unitOfWork.GestionPagoCronogramaRepository
-                        .GetBy(w => w.IdGestionPago == id && w.Estado == true)
+                        .GetBy(w => w.IdGestionPago == idGestionPago && w.Estado == true)
                         .Select(c => c.Id)
                         .ToList();
 
@@ -92,7 +92,7 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Implementacion
                     }
 
                     // Soft-delete cabecera
-                    _unitOfWork.GestionPagoRepository.Delete(id, usuario);
+                    _unitOfWork.GestionPagoRepository.Delete(idGestionPago, usuario);
 
                     _unitOfWork.Commit();
                     scope.Complete();
@@ -566,7 +566,7 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Implementacion
             {
                 var usuario = dto.Usuario;
 
-                _unitOfWork.GestionPagoCronogramaRepository.ActualizarFechaPago(dto.Id, dto.FechaRealPago, usuario);
+                _unitOfWork.GestionPagoCronogramaRepository.ActualizarFechaPago(dto.IdGestionPagoCronograma, dto.FechaRealPago, usuario);
                 _unitOfWork.Commit();
                 return true;
             }

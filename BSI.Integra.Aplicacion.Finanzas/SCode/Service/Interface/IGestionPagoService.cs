@@ -8,7 +8,7 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Interface
         #region Metodos Base
         GestionPago Add(GestionPago entidad);
         GestionPago Update(GestionPago entidad);
-        bool Delete(int id, string usuario);
+        bool Delete(int idGestionPago, string usuario);
 
         List<GestionPago> Add(List<GestionPago> listadoEntidad);
         List<GestionPago> Update(List<GestionPago> listadoEntidad);
@@ -17,7 +17,7 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Interface
 
         // Consultas
         IEnumerable<GestionPagoDTO> ObtenerGestionesPago(FiltroGestionPagoDTO filtro);
-        GestionPagoDTO? ObtenerGestionPagoPorId(int id);
+        GestionPagoDTO? ObtenerGestionPagoPorId(int idGestionPago);
         GestionPagoDTO? ObtenerGestionPagoPorComprobante(int idComprobantePago);
 
         // Cronograma

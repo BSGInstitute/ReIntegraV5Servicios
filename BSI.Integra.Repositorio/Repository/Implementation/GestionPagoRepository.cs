@@ -102,11 +102,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public bool Delete(int id, string usuario)
+        public bool Delete(int idGestionPago, string usuario)
         {
             try
             {
-                base.Delete(id, ObtenerUsuarioAuditoria(usuario));
+                base.Delete(idGestionPago, ObtenerUsuarioAuditoria(usuario));
                 return true;
             }
             catch (Exception ex)
@@ -185,47 +185,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 List<GestionPagoDTO> listaGestiones = new List<GestionPagoDTO>();
 
-                var _query = @"
-                    SELECT 
-                        gp.Id AS IdGestionPago,
-                        gp.IdComprobantePago,
-                        gp.ServicioValidado,
-                        gp.FechaSolicitud,
-                        gp.ObservacionDocumentacion,
-                        gp.LevantamientoObservacion,
-                        gp.ConformidadFinanzas,
-                        gp.ObservacionProgramacionPago,
-                        gp.IdModalidadPago,
-                        tmp.Nombre AS NombreModalidadPago,
-                        gp.IdPagoEstado,
-                        ep.Nombre AS NombrePagoEstado,
-                        cp.SerieComprobante,
-                        cp.NumeroComprobante,
-                        cp.FechaEmision,
-                        cp.MontoBruto,
-                        cp.MontoNeto,
-                        cp.IdProveedor,
-                        prov.RazonSocial AS NombreProveedor,
-                        cp.IdMoneda,
-                        mon.Nombre AS NombreMoneda,
-                        cp.IdEmpresa,
-                        emp.Nombre AS NombreEmpresa
-                    FROM fin.T_GestionPago AS gp
-                    INNER JOIN fin.T_ComprobantePago AS cp ON gp.IdComprobantePago = cp.Id
-                    LEFT JOIN fin.T_ModalidadPago AS tmp ON gp.IdModalidadPago = tmp.Id
-                    LEFT JOIN fin.T_PagoEstado AS ep ON gp.IdPagoEstado = ep.Id
-                    LEFT JOIN fin.T_Proveedor AS prov ON cp.IdProveedor = prov.Id
-                    LEFT JOIN pla.T_Moneda AS mon ON cp.IdMoneda = mon.Id
-                    LEFT JOIN pla.T_Empresa AS emp ON cp.IdEmpresa = emp.Id
-                    WHERE gp.Estado = 1";
+                var _query = @"SELECT * FROM fin.V_GestionPagoCabecera WHERE 1 = 1";
 
-                if (filtro.IdComprobantePago.HasValue) _query += " AND gp.IdComprobantePago = @IdComprobantePago";
-                if (filtro.IdProveedor.HasValue) _query += " AND cp.IdProveedor = @IdProveedor";
-                if (filtro.IdPagoEstado.HasValue) _query += " AND gp.IdPagoEstado = @IdPagoEstado";
-                if (filtro.IdModalidadPago.HasValue) _query += " AND gp.IdModalidadPago = @IdModalidadPago";
-                if (filtro.IdEmpresa.HasValue) _query += " AND cp.IdEmpresa = @IdEmpresa";
-                if (filtro.FechaDesde.HasValue) _query += " AND gp.FechaSolicitud >= @FechaDesde";
-                if (filtro.FechaHasta.HasValue) _query += " AND gp.FechaSolicitud <= @FechaHasta";
+                if (filtro.IdComprobantePago.HasValue) _query += " AND IdComprobantePago = @IdComprobantePago";
+                if (filtro.IdProveedor.HasValue) _query += " AND IdProveedor = @IdProveedor";
+                if (filtro.IdPagoEstado.HasValue) _query += " AND IdPagoEstado = @IdPagoEstado";
+                if (filtro.IdModalidadPago.HasValue) _query += " AND IdModalidadPago = @IdModalidadPago";
+                if (filtro.IdEmpresa.HasValue) _query += " AND IdEmpresa = @IdEmpresa";
+                if (filtro.FechaDesde.HasValue) _query += " AND FechaSolicitud >= @FechaDesde";
+                if (filtro.FechaHasta.HasValue) _query += " AND FechaSolicitud <= @FechaHasta";
 
                 var queryResultado = _dapperRepository.QueryDapper(_query, new
                 {
@@ -250,49 +218,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public GestionPagoDTO? ObtenerGestionPagoPorId(int id)
+        public GestionPagoDTO? ObtenerGestionPagoPorId(int idGestionPago)
         {
             try
             {
                 GestionPagoDTO? gestionPago = null;
 
-                var _query = @"
-                    SELECT 
-                        gp.Id AS IdGestionPago,
-                        gp.IdComprobantePago,
-                        gp.ServicioValidado,
-                        gp.FechaSolicitud,
-                        gp.ObservacionDocumentacion,
-                        gp.LevantamientoObservacion,
-                        gp.ConformidadFinanzas,
-                        gp.ObservacionProgramacionPago,
-                        gp.IdModalidadPago,
-                        tmp.Nombre AS NombreModalidadPago,
-                        gp.IdPagoEstado,
-                        ep.Nombre AS NombrePagoEstado,
-                        cp.SerieComprobante,
-                        cp.NumeroComprobante,
-                        cp.FechaEmision,
-                        cp.MontoBruto,
-                        cp.MontoNeto,
-                        cp.IdProveedor,
-                        prov.RazonSocial AS NombreProveedor,
-                        cp.IdMoneda,
-                        mon.Nombre AS NombreMoneda,
-                        cp.IdEmpresa,
-                        emp.Nombre AS NombreEmpresa
-                    FROM fin.T_GestionPago AS gp
-                    INNER JOIN fin.T_ComprobantePago AS cp ON gp.IdComprobantePago = cp.Id
-                    LEFT JOIN fin.T_ModalidadPago AS tmp ON gp.IdModalidadPago = tmp.Id
-                    LEFT JOIN fin.T_PagoEstado AS ep ON gp.IdPagoEstado = ep.Id
-                    LEFT JOIN fin.T_Proveedor AS prov ON cp.IdProveedor = prov.Id
-                    LEFT JOIN pla.T_Moneda AS mon ON cp.IdMoneda = mon.Id
-                    LEFT JOIN pla.T_Empresa AS emp ON cp.IdEmpresa = emp.Id
-                    WHERE gp.Id = @Id AND gp.Estado = 1";
+                var queryResultado = _dapperRepository.QuerySPFirstOrDefault(
+                    "fin.SP_GestionPagoComprobanteDetalle",
+                    new { IdGestionPago = idGestionPago });
 
-                var queryResultado = _dapperRepository.FirstOrDefault(_query, new { Id = id });
-
-                if (!string.IsNullOrEmpty(queryResultado) && !queryResultado.Contains("[]"))
+                if (!string.IsNullOrEmpty(queryResultado) && queryResultado != "null")
                 {
                     gestionPago = JsonConvert.DeserializeObject<GestionPagoDTO>(queryResultado);
                 }
@@ -310,43 +246,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 GestionPagoDTO? gestionPago = null;
 
-                var _query = @"
-                    SELECT 
-                        gp.Id AS IdGestionPago,
-                        gp.IdComprobantePago,
-                        gp.ServicioValidado,
-                        gp.FechaSolicitud,
-                        gp.ObservacionDocumentacion,
-                        gp.LevantamientoObservacion,
-                        gp.ConformidadFinanzas,
-                        gp.ObservacionProgramacionPago,
-                        gp.IdModalidadPago,
-                        tmp.Nombre AS NombreModalidadPago,
-                        gp.IdPagoEstado,
-                        ep.Nombre AS NombrePagoEstado,
-                        cp.SerieComprobante,
-                        cp.NumeroComprobante,
-                        cp.FechaEmision,
-                        cp.MontoBruto,
-                        cp.MontoNeto,
-                        cp.IdProveedor,
-                        prov.RazonSocial AS NombreProveedor,
-                        cp.IdMoneda,
-                        mon.Nombre AS NombreMoneda,
-                        cp.IdEmpresa,
-                        emp.Nombre AS NombreEmpresa
-                    FROM fin.T_GestionPago AS gp
-                    INNER JOIN fin.T_ComprobantePago AS cp ON gp.IdComprobantePago = cp.Id
-                    LEFT JOIN fin.T_ModalidadPago AS tmp ON gp.IdModalidadPago = tmp.Id
-                    LEFT JOIN fin.T_PagoEstado AS ep ON gp.IdPagoEstado = ep.Id
-                    LEFT JOIN fin.T_Proveedor AS prov ON cp.IdProveedor = prov.Id
-                    LEFT JOIN pla.T_Moneda AS mon ON cp.IdMoneda = mon.Id
-                    LEFT JOIN pla.T_Empresa AS emp ON cp.IdEmpresa = emp.Id
-                    WHERE gp.IdComprobantePago = @IdComprobantePago AND gp.Estado = 1";
+                var queryResultado = _dapperRepository.QuerySPFirstOrDefault(
+                    "fin.SP_GestionPagoComprobanteDetalle",
+                    new { IdComprobantePago = idComprobantePago });
 
-                var queryResultado = _dapperRepository.FirstOrDefault(_query, new { IdComprobantePago = idComprobantePago });
-
-                if (!string.IsNullOrEmpty(queryResultado) && !queryResultado.Contains("[]"))
+                if (!string.IsNullOrEmpty(queryResultado) && queryResultado != "null")
                 {
                     gestionPago = JsonConvert.DeserializeObject<GestionPagoDTO>(queryResultado);
                 }

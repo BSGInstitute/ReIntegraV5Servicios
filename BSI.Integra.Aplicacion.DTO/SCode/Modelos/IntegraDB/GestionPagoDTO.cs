@@ -1,4 +1,6 @@
-﻿namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
+﻿using System.Text.Json.Serialization;
+
+namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 {
     /// <summary>
     /// DTO para lectura de gestión de pago con datos relacionados
@@ -24,7 +26,8 @@
         public decimal? MontoBruto { get; set; }
         public decimal? MontoNeto { get; set; }
         public int? IdProveedor { get; set; }
-        public string? NombreProveedor { get; set; }
+        [JsonPropertyName("NombreProveedor")]
+        public string? RazonSocial { get; set; }
         public int? IdMoneda { get; set; }
         public string? NombreMoneda { get; set; }
         public int? IdEmpresa { get; set; }
