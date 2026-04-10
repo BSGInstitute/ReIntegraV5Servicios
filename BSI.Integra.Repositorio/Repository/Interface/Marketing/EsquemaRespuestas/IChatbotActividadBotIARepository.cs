@@ -12,6 +12,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Marketing.EsquemaRespuest
         void InsertarChatbotActividadBotIANumero(int idChatbotActividadBotIA, int idAsistenteMarketingWhatsAppAsignacion, bool estado, string usuario);
         void EliminarChatbotActividadBotIANumeros(int idChatbotActividadBotIA, string usuario);
         void DesactivarNumerosWhatsAppDeActividad(int idChatbotActividadBotIA, string usuario);
+        void ReactivarNumerosWhatsAppDeActividad(int idChatbotActividadBotIA, string usuario);
         void ActualizarChatbotActividadBotIA(ActualizarChatbotActividadBotIADTO request, string usuario);
         void EliminarChatbotActividadBotIA(int idChatbotActividadBotIA, string usuario);
     }

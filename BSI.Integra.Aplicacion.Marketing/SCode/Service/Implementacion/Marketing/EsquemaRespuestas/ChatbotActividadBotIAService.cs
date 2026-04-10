@@ -49,20 +49,28 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketin
             var idChatbotActividadBotIA = _chatbotActividadBotIARepository.InsertarChatbotActividadBotIA(request, usuario);
 
             if (request.IdMedioComunicacion == 1 && request.Numeros?.Count > 0)
-                _VincularNumerosAActividad(idChatbotActividadBotIA, request.Numeros, request.Estado, usuario);
+                _VincularNumerosAActividad(idChatbotActividadBotIA, request.Numeros, request.Estado, request.IdChatbotEsquema, usuario);
         }
 
         public void ActualizarChatbotActividadBotIA(ActualizarChatbotActividadBotIADTO request, string usuario)
         {
+            // 1. Actualizar la actividad (nombre, esquema, medio, estado)
             _chatbotActividadBotIARepository.ActualizarChatbotActividadBotIA(request, usuario);
 
+            // 2. Gestionar estado de los números en T_AsistenteMarketingWhatsAppAsignacion
             if (!request.Estado)
                 _chatbotActividadBotIARepository.DesactivarNumerosWhatsAppDeActividad(request.Id, usuario);
+            else
+                _chatbotActividadBotIARepository.ReactivarNumerosWhatsAppDeActividad(request.Id, usuario);
 
-            _chatbotActividadBotIARepository.EliminarChatbotActividadBotIANumeros(request.Id, usuario);
+            // 3. Solo actualizar T_ChatbotActividadAsignacion si el usuario modificó la lista de números
+            if (request.IdMedioComunicacion == 1 && request.Numeros != null)
+            {
+                _chatbotActividadBotIARepository.EliminarChatbotActividadBotIANumeros(request.Id, usuario);
 
-            if (request.IdMedioComunicacion == 1 && request.Numeros?.Count > 0)
-                _VincularNumerosAActividad(request.Id, request.Numeros, request.Estado, usuario);
+                if (request.Numeros.Count > 0)
+                    _VincularNumerosAActividad(request.Id, request.Numeros, request.Estado, request.IdChatbotEsquema, usuario);
+            }
         }
 
         public void EliminarChatbotActividadBotIA(EliminarChatbotActividadBotIADTO request, string usuario)
@@ -80,7 +88,7 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketin
         /// <summary>
         /// Upsert de cada numero en el catalogo WhatsApp y vinculacion a la actividad.
         /// </summary>
-        private void _VincularNumerosAActividad(int idChatbotActividadBotIA, List<string> numeros, bool estado, string usuario)
+        private void _VincularNumerosAActividad(int idChatbotActividadBotIA, List<string> numeros, bool estado, int idChatbotEsquema, string usuario)
         {
             foreach (var numero in numeros)
             {
@@ -88,7 +96,7 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketin
                     new UpsertAsistenteWhatsAppAsignacionDTO
                     {
                         NumeroWhatsApp   = numero,
-                        EsquemaRespuesta = 1,
+                        EsquemaRespuesta = idChatbotEsquema,
                         Estado           = estado
                     },
                     usuario

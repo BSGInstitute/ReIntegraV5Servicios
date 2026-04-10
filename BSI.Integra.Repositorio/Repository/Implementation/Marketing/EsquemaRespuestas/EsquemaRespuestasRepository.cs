@@ -395,7 +395,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.EsquemaRes
         {
             try
             {
-                var SP = "[mkt].[SP_TChatbotEsquemaAsignacionNumero_Obtener]";
+                var SP = "[mkt].[SP_TAsistenteMarketingWhatsAppAsignacion_Obtener]";
                 var jsonResult = _dapperRepository.QuerySPDapper(SP, null);
 
                 if (string.IsNullOrEmpty(jsonResult) || jsonResult == "null")
