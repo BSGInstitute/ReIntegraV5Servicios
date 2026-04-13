@@ -258,7 +258,7 @@
         public int IdHiloChat { get; set; }
         public string Mensaje { get; set; }
         public string Usuario { get; set; }
-        public string NombreTipoDato { get; set; }
+        public DateTime FechaMensaje { get; set; }
         public DateTime FechaChat { get; set; }
 
     }
