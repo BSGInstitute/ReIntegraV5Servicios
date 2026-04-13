@@ -297,5 +297,32 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        /// Autor: Marco Jose Villanueva Torres
+        /// Fecha: 2026-04-09
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la fecha de la ultima sesion asignada a PEspecifico Padre
+        /// </summary>
+        /// <param name="idPEspecifico">Id del programa especifico</param>
+        /// <returns> PEspecificoUltimaSesionDTO </returns>
+        public PEspecificoUltimaSesionDTO ObtenerUltimaSesionPorIdPEspecifico(int idPEspecifico)
+        {
+            try
+            {
+                PEspecificoUltimaSesionDTO resultado = null;
+                var query = _dapperRepository.QuerySPFirstOrDefault("[pla].[SP_PEspecificoUltimaSesionPorIdPEspecifico]", new { PEspecifico = idPEspecifico });
+
+                if (!string.IsNullOrEmpty(query) && query != "null")
+                {
+                    resultado = JsonConvert.DeserializeObject<PEspecificoUltimaSesionDTO>(query);
+                }
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
     }
 }
