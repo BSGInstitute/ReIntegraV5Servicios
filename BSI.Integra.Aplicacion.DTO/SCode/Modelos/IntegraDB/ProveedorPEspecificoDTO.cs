@@ -26,4 +26,12 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string Nombre { get; set; } = null!;
         public DateTime FechaAsignacion { get; set; }
     }
+
+    /// DTO para combo de proveedores por PEspecifico (cronograma)
+    public class ProveedorPorPEspecificoComboDTO
+    {
+        public string Nombre { get; set; } = null!;
+        public int IdProveedor { get; set; }
+        public int IdPEspecifico { get; set; }
+    }
 }

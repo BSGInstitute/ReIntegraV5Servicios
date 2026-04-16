@@ -771,5 +771,28 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
+        /// Tipo Función: GET
+        /// Fecha: 2026-04-15
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los proveedores asociados a un PEspecifico para el combo del cronograma.
+        /// Si se proporciona filtroNombre, busca proveedores adicionales que coincidan.
+        /// </summary>
+        /// <param name="idPEspecifico">Id del programa específico</param>
+        /// <param name="filtroNombre">Filtro opcional por nombre del proveedor</param>
+        /// <returns>Lista de proveedores para combo</returns>
+        [HttpGet("[action]/{idPEspecifico}")]
+        public IActionResult ObtenerProveedoresPorPEspecifico(int idPEspecifico, [FromQuery] string? filtroNombre = null)
+        {
+            try
+            {
+                return Ok(unitOfWork.ProveedorPEspecificoRepository.ObtenerProveedoresPorPEspecifico(idPEspecifico, filtroNombre));
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }
