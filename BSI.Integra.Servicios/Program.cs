@@ -251,6 +251,7 @@ builder.Services.AddScoped<BSI.Integra.Aplicacion.Transversal.Service.Interface.
 
 // WhatsApp Service
 builder.Services.AddScoped<BSI.Integra.Aplicacion.Transversal.Service.Interface.IWhatsAppMensajeEnviadoApiPlanificacionService, BSI.Integra.Aplicacion.Transversal.Service.Implementacion.WhatsAppMensajeEnviadoApiPlanificacionService>();
+builder.Services.AddScoped<BSI.Integra.Aplicacion.Transversal.Service.Interface.IWhatsAppMensajeEnviadoApiAtcService, BSI.Integra.Aplicacion.Transversal.Service.Implementacion.WhatsAppMensajeEnviadoApiAtcService>();
 
 // Servicio unificado de envio de actividades automaticas (Email + WhatsApp)
 builder.Services.AddScoped<BSI.Integra.Servicios.Services.IActividadEnvioService, BSI.Integra.Servicios.Services.ActividadEnvioService>();

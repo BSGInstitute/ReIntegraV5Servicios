@@ -8521,5 +8521,14 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private IWhatsAppMensajeEnviadoApiAtcRepository _whatsAppMensajeEnviadoApiAtcRepository;
+        IWhatsAppMensajeEnviadoApiAtcRepository IUnitOfWork.WhatsAppMensajeEnviadoApiAtcRepository
+        {
+            get
+            {
+                return _whatsAppMensajeEnviadoApiAtcRepository ?? new WhatsAppMensajeEnviadoApiAtcRepository(_connectionFactory, _dapperRepository);
+            }
+        }
+
     }
 }
