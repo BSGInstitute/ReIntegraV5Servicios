@@ -157,5 +157,45 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception("Error en ExistePorProveedorYPespecifico()", ex);
             }
         }
+
+        /// <summary>
+        /// Obtiene los proveedores asociados a un PEspecifico para el combo del cronograma.
+        /// Si se proporciona un filtro de nombre, busca proveedores adicionales que coincidan.
+        /// </summary>
+        /// <param name="idPEspecifico">Id del programa específico</param>
+        /// <param name="filtroNombre">Filtro opcional por nombre del proveedor</param>
+        /// <returns>Lista de proveedores para combo</returns>
+        public IEnumerable<ProveedorPorPEspecificoComboDTO> ObtenerProveedoresPorPEspecifico(int idPEspecifico, string? filtroNombre = null)
+        {
+            try
+            {
+                List<ProveedorPorPEspecificoComboDTO> rpta = new();
+
+                string sp;
+                object parametros;
+
+                if (string.IsNullOrWhiteSpace(filtroNombre))
+                {
+                    sp = "pla.SP_ProveedorPEspecifico_ObtenerPorIdPEspecifico";
+                    parametros = new { IdPEspecifico = idPEspecifico };
+                }
+                else
+                {
+                    sp = "pla.SP_ProveedorPEspecifico_BuscarPorNombre";
+                    parametros = new { FiltroNombre = filtroNombre };
+                }
+
+                var resultado = _dapperRepository.QuerySPDapper(sp, parametros);
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                    rpta = JsonConvert.DeserializeObject<List<ProveedorPorPEspecificoComboDTO>>(resultado)!;
+
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerProveedoresPorPEspecifico(): {ex.Message}", ex);
+            }
+        }
     }
 }
