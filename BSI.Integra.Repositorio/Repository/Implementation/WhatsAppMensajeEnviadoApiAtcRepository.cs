@@ -43,7 +43,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 parametros.Add("@IdPersonal", idPersonal, DbType.Int32);
 
                 var id = await conn.QueryFirstOrDefaultAsync<int?>(
-                    "ia.SP_ChatbotAtcWhatsApp_TieneBotAsignado",
+                    //"ia.SP_ChatbotAtcWhatsApp_TieneBotAsignado",
+                    "ia.SP_ChatbotAtcWhatsAppAsignacion_ObtenerPorIdPersonal",
                     parametros,
                     commandType: CommandType.StoredProcedure);
 
@@ -68,7 +69,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 parametros.Add("@IdAlumno", idAlumno, DbType.Int32);
 
                 return await conn.QueryFirstOrDefaultAsync<HiloChatAtcDTO>(
-                    "ia.SP_ChatbotWhatsAppAtcHiloChat_ObtenerHiloAbierto",
+                    // "ia.SP_ChatbotWhatsAppAtcHiloChat_ObtenerHiloAbierto",
+                    "ia.SP_ChatbotWhatsAppAtcHiloChat_ObtenerConversacionEstadoAbiertoPorIdAlumno", 
                     parametros,
                     commandType: CommandType.StoredProcedure);
             }
@@ -119,7 +121,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 parametros.Add("@Usuario", usuario, DbType.String);
 
                 await conn.QueryFirstOrDefaultAsync<int>(
-                    "ia.SP_ChatbotWhatsAppAtcHiloChat_ActualizarEstadoAsesor",
+                    //"ia.SP_ChatbotWhatsAppAtcHiloChat_ActualizarEstadoAsesor",
+                    "ia.SP_TChatbotWhatsAppAtcHiloChat_ActualizarAsesor", 
                     parametros,
                     commandType: CommandType.StoredProcedure);
             }
@@ -174,7 +177,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 parametros.Add("@Usuario",  usuario,  DbType.String);
 
                 var filasAfectadas = await conn.QueryFirstOrDefaultAsync<int>(
-                    "ia.SP_ChatbotWhatsAppAtcHiloChat_FinalizarConversacionPorIdAlumno",
+                    // "ia.SP_ChatbotWhatsAppAtcHiloChat_FinalizarConversacionPorIdAlumno",
+                    "ia.SP_TChatbotWhatsAppAtcHiloChat_ActualizarEstado",
                     parametros,
                     commandType: CommandType.StoredProcedure);
 
