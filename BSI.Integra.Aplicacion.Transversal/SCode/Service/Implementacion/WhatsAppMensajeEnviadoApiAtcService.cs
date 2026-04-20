@@ -26,8 +26,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        //private const string WebhookUrl = "https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphAtc";
-        private const string WebhookUrl = "https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphAtc";
+        private const string WebhookUrl = "https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphAtc";
+        //private const string WebhookUrl = "https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphAtc";
 
         private const int EstadoBot = 1; // ia.T_ChatbotConversacionEstado
 
