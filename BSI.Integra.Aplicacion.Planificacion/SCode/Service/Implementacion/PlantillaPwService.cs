@@ -1707,13 +1707,19 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 var nuevohtmlDuracion = "<p><b>" + first1.Titulo + "</b></p>";
                 nuevohtmlDuracion += "<p>" + first1.Introduccion + "</p>";
 
+                var iconoCalendario = "<span style='font-size:16px;margin-right:8px;'>&#128197;</span>";
+                var iconoLibro = "<span style='font-size:16px;margin-right:8px;'>&#128214;</span>";
+
                 nuevohtmlDuracion += "<div style='background:#faf5ff;border-radius:12px;padding:20px 24px;'>";
-                nuevohtmlDuracion += "<ul>";
+                nuevohtmlDuracion += "<ul style='list-style:none;padding-left:0;margin:0;'>";
                 foreach (var item in objetoDuracion)
                 {
-                    nuevohtmlDuracion += "Version: " + item.IdVersionPrograma == null ? "" : CalcularVersionPorId(item.IdVersionPrograma.Value);
-                    nuevohtmlDuracion += "<li> " + item.DetalleMes + "</li>";
-                    nuevohtmlDuracion += "<li> " + item.DetalleHora + "</li>";
+                    if (item.IdVersionPrograma != null)
+                    {
+                        nuevohtmlDuracion += "<li style='padding:6px 0;font-weight:bold;'>" + CalcularVersionPorId(item.IdVersionPrograma.Value) + "</li>";
+                    }
+                    nuevohtmlDuracion += "<li style='padding:6px 0;'>" + iconoCalendario + item.DetalleMes + "</li>";
+                    nuevohtmlDuracion += "<li style='padding:6px 0;'>" + iconoLibro + item.DetalleHora + "</li>";
                 }
                 nuevohtmlDuracion += "</ul>";
                 nuevohtmlDuracion += "</div>";
@@ -1778,16 +1784,18 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 //nuevohtmlModalidad += "<ul>";
                 foreach (var item in response.Modalidades)
                 {
-                    nuevohtmlModalidad += "<p><b>Modalidad: " + item.IdModalidad == null ? "</b></p>" : CalcularModalidadPorId(item.IdModalidad.Value)+ "</b></p>";
+                    nuevohtmlModalidad += "<p style='color:#1e40af'><b>" + (item.IdModalidad == null ? "</b></p>" : CalcularModalidadPorId(item.IdModalidad.Value)+ "</b></p>");
                     nuevohtmlModalidad += "<p><small>" + item.SubTitulo + "</small></p>";
                     nuevohtmlModalidad += "<p> " + item.Descripcion + "</p>";
 
 
-                    nuevohtmlModalidad += "<ul>";
+                    var iconoCheck = "<span style='color:#16a34a;font-weight:bold;margin-right:8px;'>&#10004;</span>";
+
+                    nuevohtmlModalidad += "<ul style='list-style:none;padding-left:0;margin:0;'>";
                     //detalles
                     foreach (var hijo in item.Detalles)
                     {
-                        nuevohtmlModalidad += "<li><span style='background:#16a34a;width:10px;height:10px;border-radius:50%;margin-top:6px;'> </span> " + hijo.Beneficio + "</li>";
+                        nuevohtmlModalidad += "<li style='padding:6px 0;'>" + iconoCheck + hijo.Beneficio + "</li>";
                     }
                     nuevohtmlModalidad += "</ul>";
 
@@ -1865,13 +1873,13 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             switch (version)
             {
                 case 1:
-                    resultado = "Basica";
+                    resultado = "Version Basica";
                     break;
                 case 2:
-                    resultado = "Profesional";
+                    resultado = "Version Profesional";
                     break;
                 case 3:
-                    resultado = "Gerencial";
+                    resultado = "Version Gerencial";
                     break;
                 case 4: // por defecto Sin Version
                     break;
