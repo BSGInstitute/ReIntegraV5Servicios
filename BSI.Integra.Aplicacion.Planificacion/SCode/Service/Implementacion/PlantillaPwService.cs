@@ -14,6 +14,7 @@ using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Implementation;
 using BSI.Integra.Repositorio.Repository.Implementation.Planificacion;
 using BSI.Integra.Repositorio.UnitOfWork;
+using DocumentFormat.OpenXml.Bibliography;
 using Newtonsoft.Json;
 using System.Globalization;
 using System.Net;
@@ -1693,6 +1694,117 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             var listaetiquetasV2 = await task1;
             var listaSecciones = await task2;
             var listaSeccionesDocumentoV2 = await task3;
+
+            //llamo y cargo la nueva informacion de duracion y modalidad
+
+            var objetoDuracion = (_unitOfWork.DocumentoPwRepository.ObtenerDocumentoPWDuracionRows(listaSeccionesDocumentoV2.FirstOrDefault().IdDocumentoPW == null ? 0 : listaSeccionesDocumentoV2.FirstOrDefault().IdDocumentoPW.Value) ?? Enumerable.Empty<DocumentoPWDuracionRowVM>()).ToList();
+            if (objetoDuracion.Any())
+            {
+                var first1 = objetoDuracion.First();// de aqui saco titulo , introduccion , pie
+
+                //genero el html
+
+                var nuevohtmlDuracion = "<p><b>" + first1.Titulo + "</b></p>";
+                nuevohtmlDuracion += "<p>" + first1.Introduccion + "</p>";
+
+                nuevohtmlDuracion += "<div style='background:#faf5ff;border-radius:12px;padding:20px 24px;'>";
+                nuevohtmlDuracion += "<ul>";
+                foreach (var item in objetoDuracion)
+                {
+                    nuevohtmlDuracion += "Version: " + item.IdVersionPrograma == null ? "" : CalcularVersionPorId(item.IdVersionPrograma.Value);
+                    nuevohtmlDuracion += "<li> " + item.DetalleMes + "</li>";
+                    nuevohtmlDuracion += "<li> " + item.DetalleHora + "</li>";
+                }
+                nuevohtmlDuracion += "</ul>";
+                nuevohtmlDuracion += "</div>";
+
+                nuevohtmlDuracion += "<p><small>" + first1.PieDePagina + "</small></p>";
+                listaSeccionesDocumentoV2.Where(w => w.Titulo == "Duración y Horarios").FirstOrDefault().Contenido = nuevohtmlDuracion;
+
+            }
+
+
+
+
+
+
+
+            var objetoModalidad = (_unitOfWork.DocumentoPwRepository.ObtenerDocumentoPWModalidadRows(listaSeccionesDocumentoV2.FirstOrDefault().IdDocumentoPW == null ? 0 : listaSeccionesDocumentoV2.FirstOrDefault().IdDocumentoPW.Value) ?? Enumerable.Empty<DocumentoPWModalidadRowVM>()).ToList();
+            if (objetoModalidad.Any())
+            {
+                var first2 = objetoModalidad.First();
+
+                var response = new SeccionModalidadHorarioResponseDTO
+                {
+                    IdDocumentoPw = first2.IdDocumento_PW,
+                    Introduccion = first2.Introduccion,
+                    Modalidades = objetoModalidad
+                        .GroupBy(x => new
+                        {
+                            x.IdDocumentoPWModalidad,
+                            x.IdModalidadPortal,
+                            x.SubTitulo,
+                            x.Descripcion
+                        })
+                        .Select(g => new ModalidadHorarioResponseDTO
+                        {
+                            Id = g.Key.IdDocumentoPWModalidad,
+                            IdModalidad = g.Key.IdModalidadPortal,
+                            SubTitulo = g.Key.SubTitulo,
+                            Descripcion = g.Key.Descripcion,
+                            Detalles = g
+                                .Where(x => (x.IdDocumentoPWModalidadDetalle ?? 0) > 0)
+                                .Select(x => new ModalidadHorarioDetalleResponseDTO
+                                {
+                                    Id = x.IdDocumentoPWModalidadDetalle ?? 0,
+                                    Orden = x.Orden ?? 0,
+                                    Tipo = x.Tipo,
+                                    IdPais = x.IdPais,
+                                    Beneficio = x.Beneficio,
+                                    Horario = x.Horario
+                                })
+                                .OrderBy(x => x.Orden)
+                                .ToList()
+                        })
+                        .ToList()
+                };
+
+                //genero el html
+
+                var nuevohtmlModalidad = "<br><p><b>Modalidad</b></p>";
+                nuevohtmlModalidad += "<p>" + response.Introduccion + "</p><br>";
+
+
+                //nuevohtmlModalidad += "<ul>";
+                foreach (var item in response.Modalidades)
+                {
+                    nuevohtmlModalidad += "<p><b>Modalidad: " + item.IdModalidad == null ? "</b></p>" : CalcularModalidadPorId(item.IdModalidad.Value)+ "</b></p>";
+                    nuevohtmlModalidad += "<p><small>" + item.SubTitulo + "</small></p>";
+                    nuevohtmlModalidad += "<p> " + item.Descripcion + "</p>";
+
+
+                    nuevohtmlModalidad += "<ul>";
+                    //detalles
+                    foreach (var hijo in item.Detalles)
+                    {
+                        nuevohtmlModalidad += "<li><span style='background:#16a34a;width:10px;height:10px;border-radius:50%;margin-top:6px;'> </span> " + hijo.Beneficio + "</li>";
+                    }
+                    nuevohtmlModalidad += "</ul>";
+
+                }
+                //nuevohtmlModalidad += "</ul>";
+
+                listaSeccionesDocumentoV2.Where(w => w.Titulo == "Duración y Horarios").FirstOrDefault().Contenido += nuevohtmlModalidad;
+            }
+
+            
+
+
+
+            //fin llamo y cargo la nueva informacion de duracion y modalidad
+
+
+
             foreach (var item in listaetiquetasV2)
             {
                 valor = string.Empty;
@@ -1745,6 +1857,44 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 });
             }
             return listaResultado;
+        }
+
+        public string CalcularVersionPorId(int version)
+        {
+            var resultado = "";
+            switch (version)
+            {
+                case 1:
+                    resultado = "Basica";
+                    break;
+                case 2:
+                    resultado = "Profesional";
+                    break;
+                case 3:
+                    resultado = "Gerencial";
+                    break;
+                case 4: // por defecto Sin Version
+                    break;
+                default: // Optional catch-all if no match is found
+                    break;
+            }
+            return resultado;
+        }
+        public string CalcularModalidadPorId(int version)
+        {
+            var resultado = "";
+            switch (version)
+            {
+                case 1:
+                    resultado = "Online en Vivo";
+                    break;
+                case 2:
+                    resultado = "Online a tu ritmo";
+                    break;
+                default: // Optional catch-all if no match is found
+                    break;
+            }
+            return resultado;
         }
         public void ObtenerDatosProgramaGeneral(int idProgramaGeneral)
         {
