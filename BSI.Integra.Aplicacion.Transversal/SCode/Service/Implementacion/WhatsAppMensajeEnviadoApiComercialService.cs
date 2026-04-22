@@ -187,8 +187,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 objetoWhatsAppHook.usuario = usuario;
                 objetoWhatsAppHook.DatosPlantillaWhatsApp = null;
                 var serializedResult = Serializer.Serialize(objetoWhatsAppHook);
-                //string url = $"https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphComercial";
-                string url = $"https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphComercial";
+                string url = $"https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphComercial";
+                //string url = $"https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphComercial";
                 try
                 {
                     //datoRespuesta = UrlPost(url, serializedResult);
