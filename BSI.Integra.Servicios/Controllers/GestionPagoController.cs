@@ -1,10 +1,11 @@
-using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.Finanzas.Service.Implementacion;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
 namespace BSI.Integra.Servicios.Controllers
@@ -54,6 +55,41 @@ namespace BSI.Integra.Servicios.Controllers
                 {
                     var servicio = new GestionPagoService(unitOfWork);
                     return Ok(servicio.ObtenerGestionesPago(filtro));
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+            else
+            {
+                return Unauthorized();
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 30/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene comprobantes combinados con gestiones de pago (si existen)
+        /// </summary>
+        [HttpPost("ObtenerReporteComprobantesYPagos")]
+        public IActionResult ObtenerReporteComprobantesYPagos([FromBody] FiltroGestionPagoDTO filtro)
+        {
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+            var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+
+            if (_respuestaCorrecta.TokenValida)
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                try
+                {
+                    var servicio = new GestionPagoService(unitOfWork);
+                    return Ok(servicio.ObtenerReporteComprobantesYPagos(filtro));
                 }
                 catch (Exception ex)
                 {
@@ -198,6 +234,109 @@ namespace BSI.Integra.Servicios.Controllers
 
         #endregion
 
+        /// Autor: Jose Vega
+        /// Fecha: 30/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Inserta una cuota individual al cronograma
+        /// </summary>
+        [HttpPost("InsertarCuota")]
+        public IActionResult InsertarCuota([FromBody] CronogramaInsertarDTO dto)
+        {
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+            var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+
+            if (_respuestaCorrecta.TokenValida)
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                try
+                {
+                    dto.Usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
+                    var servicio = new GestionPagoService(unitOfWork);
+                    return Ok(servicio.InsertarCuota(dto));
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+            else
+            {
+                return Unauthorized();
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 30/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza una cuota individual del cronograma
+        /// </summary>
+        [HttpPut("ActualizarCuota")]
+        public IActionResult ActualizarCuota([FromBody] CronogramaActualizarDTO dto)
+        {
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+            var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+
+            if (_respuestaCorrecta.TokenValida)
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                try
+                {
+                    dto.Usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
+                    var servicio = new GestionPagoService(unitOfWork);
+                    return Ok(servicio.ActualizarCuota(dto));
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+            else
+            {
+                return Unauthorized();
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 30/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Elimina (soft-delete) una cuota individual del cronograma
+        /// </summary>
+        [HttpDelete("EliminarCuota/{id}")]
+        public IActionResult EliminarCuota(int id)
+        {
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+            var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+
+            if (_respuestaCorrecta.TokenValida)
+            {
+                try
+                {
+                    var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
+                    var servicio = new GestionPagoService(unitOfWork);
+                    return Ok(servicio.EliminarCuota(id, usuario));
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+            else
+            {
+                return Unauthorized();
+            }
+        }
+
         #region Archivos
 
         /// Autor: Jose Vega
@@ -267,7 +406,11 @@ namespace BSI.Integra.Servicios.Controllers
         /// Agrega un archivo adjunto a una gestion de pago
         /// </summary>
         [HttpPost("InsertarArchivo/{idGestionPago}")]
-        public IActionResult InsertarArchivo(int idGestionPago, [FromBody] GestionPagoArchivoInsertarDTO dto)
+        [Consumes("multipart/form-data")]
+        [RequestSizeLimit(50 * 1024 * 1024)]
+        public async Task<IActionResult> InsertarArchivo(
+            int idGestionPago,
+            [FromForm] GestionPagoArchivoInsertarDTO dto)
         {
             var claimsIdentity = User.Identity as ClaimsIdentity;
             var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
@@ -281,9 +424,44 @@ namespace BSI.Integra.Servicios.Controllers
 
                 try
                 {
+                    if (dto.Archivo == null || dto.Archivo.Length == 0)
+                        return BadRequest("Archivo requerido");
+
                     dto.Usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
                     var servicio = new GestionPagoService(unitOfWork);
-                    return Ok(servicio.InsertarArchivo(idGestionPago, dto));
+                    var ok = await servicio.InsertarArchivoAsync(idGestionPago, dto);
+                    return Ok(ok);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+            else
+            {
+                return Unauthorized();
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 30/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Descarga un archivo adjunto de una gestion de pago.
+        /// </summary>
+        [HttpGet("DescargarArchivo/{idArchivo}")]
+        public async Task<IActionResult> DescargarArchivo(int idArchivo)
+        {
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+            var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+
+            if (_respuestaCorrecta.TokenValida)
+            {
+                try
+                {
+                    var servicio = new GestionPagoService(unitOfWork);
+                    var (stream, contentType, nombreArchivo) = await servicio.DescargarArchivoAsync(idArchivo);
+                    return File(stream, contentType, nombreArchivo);
                 }
                 catch (Exception ex)
                 {

@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using BSI.Integra.Aplicacion.Base.Exceptions;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.Finanzas.Service.Interface;
@@ -162,6 +162,24 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 30/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el reporte de comprobantes con su gestión de pago aplicando filtros.
+        /// </summary>
+        public IEnumerable<ReporteComprobanteGestionPagoDTO> ObtenerReporteComprobantesYPagos(FiltroGestionPagoDTO filtro)
+        {
+            try
+            {
+                return _unitOfWork.GestionPagoRepository.ObtenerReporteComprobantesYPagos(filtro);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public GestionPagoDTO? ObtenerGestionPagoPorId(int id)
         {
             try
@@ -281,10 +299,13 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Implementacion
                         LevantamientoObservacion = dto.LevantamientoObservacion,
                         ConformidadFinanzas = dto.ConformidadFinanzas,
                         ObservacionProgramacionPago = dto.ObservacionProgramacionPago,
-                        IdModalidadPago = dto.IdModalidadPago,
-                        IdPagoEstado = dto.IdPagoEstado,
+                        IdModalidadPago = dto.IdModalidadPago ?? 1,
+                        IdPagoEstado = dto.IdPagoEstado ?? 1,
                         UsuarioCreacion = usuario,
-                        UsuarioModificacion = usuario
+                        UsuarioModificacion = usuario,
+                        Estado = true,
+                        FechaCreacion = DateTime.Now,
+                        FechaModificacion = DateTime.Now
                     };
 
                     var modeloCabecera = _unitOfWork.GestionPagoRepository.Add(gestionPago);
@@ -304,7 +325,10 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Implementacion
                             FechaProbablePago = c.FechaProbablePago,
                             FechaRealPago = c.FechaRealPago,
                             UsuarioCreacion = usuario,
-                            UsuarioModificacion = usuario
+                            UsuarioModificacion = usuario,
+                            Estado = true,
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now
                         }).ToList();
 
                         _unitOfWork.GestionPagoCronogramaRepository.Add(cronogramas);
@@ -320,7 +344,10 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Implementacion
                             NombreArchivo = a.NombreArchivo,
                             ContentTypeArchivo = a.ContentTypeArchivo,
                             UsuarioCreacion = usuario,
-                            UsuarioModificacion = usuario
+                            UsuarioModificacion = usuario,
+                            Estado = true,
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now
                         }).ToList();
 
                         _unitOfWork.GestionPagoArchivoRepository.Add(archivos);
@@ -356,15 +383,15 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Implementacion
                 using (TransactionScope scope = new TransactionScope())
                 {
                     var gestionPago = _mapper.Map<GestionPago>(modeloExistente);
-                    gestionPago.IdComprobantePago = dto.IdComprobantePago;
-                    gestionPago.ServicioValidado = dto.ServicioValidado;
-                    gestionPago.FechaSolicitud = dto.FechaSolicitud;
-                    gestionPago.ObservacionDocumentacion = dto.ObservacionDocumentacion;
-                    gestionPago.LevantamientoObservacion = dto.LevantamientoObservacion;
-                    gestionPago.ConformidadFinanzas = dto.ConformidadFinanzas;
-                    gestionPago.ObservacionProgramacionPago = dto.ObservacionProgramacionPago;
-                    gestionPago.IdModalidadPago = dto.IdModalidadPago;
-                    gestionPago.IdPagoEstado = dto.IdPagoEstado;
+                    gestionPago.IdComprobantePago = dto.IdComprobantePago != 0 ? dto.IdComprobantePago : gestionPago.IdComprobantePago;
+                    gestionPago.ServicioValidado = dto.ServicioValidado ?? gestionPago.ServicioValidado;
+                    gestionPago.FechaSolicitud = dto.FechaSolicitud ?? gestionPago.FechaSolicitud;
+                    gestionPago.ObservacionDocumentacion = dto.ObservacionDocumentacion ?? gestionPago.ObservacionDocumentacion;
+                    gestionPago.LevantamientoObservacion = dto.LevantamientoObservacion ?? gestionPago.LevantamientoObservacion;
+                    gestionPago.ConformidadFinanzas = dto.ConformidadFinanzas ?? gestionPago.ConformidadFinanzas;
+                    gestionPago.ObservacionProgramacionPago = dto.ObservacionProgramacionPago ?? gestionPago.ObservacionProgramacionPago;
+                    gestionPago.IdModalidadPago = dto.IdModalidadPago ?? gestionPago.IdModalidadPago;
+                    gestionPago.IdPagoEstado = dto.IdPagoEstado ?? gestionPago.IdPagoEstado;
                     gestionPago.UsuarioModificacion = usuario;
 
                     _unitOfWork.GestionPagoRepository.Update(gestionPago);
@@ -582,25 +609,83 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Implementacion
         /// <summary>
         /// Agrega un archivo adjunto a una gestión de pago
         /// </summary>
-        public bool InsertarArchivo(int idGestionPago, GestionPagoArchivoInsertarDTO dto)
+        public async Task<bool> InsertarArchivoAsync(int idGestionPago, GestionPagoArchivoInsertarDTO dto)
         {
             try
             {
+                if (dto.Archivo == null) return false;
+
                 var usuario = dto.Usuario;
+                var nombreArchivoOriginal = dto.Archivo.FileName;
+                var nombreArchivoBlob = $"{Guid.NewGuid()}-{nombreArchivoOriginal}";
+                var contentType = dto.Archivo.ContentType;
+
+                string azureStorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=repositorioweb;AccountKey=JurvlnvFAqg4dcGqcDHEj9bkBLoLV3Z/EIxA+8QkdTcuCWTm1iZfgqUOfUOwmDMfnrmrie7Nkkho5mPyVTvIpA==;EndpointSuffix=core.windows.net";
+                string direccionBlob = @"repositorioweb/finanzas/gestionpago/";
+
+                Microsoft.WindowsAzure.Storage.CloudStorageAccount storageAccount = Microsoft.WindowsAzure.Storage.CloudStorageAccount.Parse(azureStorageConnectionString);
+                Microsoft.WindowsAzure.Storage.Blob.CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+                Microsoft.WindowsAzure.Storage.Blob.CloudBlobContainer container = blobClient.GetContainerReference(direccionBlob);
+
+                Microsoft.WindowsAzure.Storage.Blob.CloudBlockBlob blockBlob = container.GetBlockBlobReference(nombreArchivoBlob);
+                blockBlob.Properties.ContentType = contentType;
+
+                using (var stream = dto.Archivo.OpenReadStream())
+                {
+                    await blockBlob.UploadFromStreamAsync(stream);
+                }
+
+                string rutaBlob = $"https://repositorioweb.blob.core.windows.net/{direccionBlob}{nombreArchivoBlob}";
+
                 var archivo = new GestionPagoArchivo
                 {
                     IdGestionPago = idGestionPago,
                     IdGestionPagoCronograma = dto.IdGestionPagoCronograma,
-                    NombreArchivo = dto.NombreArchivo,
-                    ContentTypeArchivo = dto.ContentTypeArchivo,
+                    NombreArchivo = nombreArchivoBlob, // Guardamos el nombre en el blob storage
+                    ContentTypeArchivo = contentType,
                     UsuarioCreacion = usuario,
-                    UsuarioModificacion = usuario
+                    UsuarioModificacion = usuario,
+                    // RutaArchivo = rutaBlob Si tuviéramos RutaArchivo, pero guardamos metadatos disponibles.
                 };
 
                 _unitOfWork.GestionPagoArchivoRepository.Add(archivo);
                 _unitOfWork.Commit();
 
                 return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 30/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Descarga un archivo adjunto desde Azure Blob Storage.
+        /// </summary>
+        public async Task<(Stream stream, string contentType, string nombreArchivo)> DescargarArchivoAsync(int idArchivo)
+        {
+            try
+            {
+                var archivo = _unitOfWork.GestionPagoArchivoRepository.FirstById(idArchivo);
+                if (archivo == null) throw new Exception("Archivo no encontrado");
+
+                string azureStorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=repositorioweb;AccountKey=JurvlnvFAqg4dcGqcDHEj9bkBLoLV3Z/EIxA+8QkdTcuCWTm1iZfgqUOfUOwmDMfnrmrie7Nkkho5mPyVTvIpA==;EndpointSuffix=core.windows.net";
+                string direccionBlob = @"repositorioweb/finanzas/gestionpago/";
+
+                Microsoft.WindowsAzure.Storage.CloudStorageAccount storageAccount = Microsoft.WindowsAzure.Storage.CloudStorageAccount.Parse(azureStorageConnectionString);
+                Microsoft.WindowsAzure.Storage.Blob.CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+                Microsoft.WindowsAzure.Storage.Blob.CloudBlobContainer container = blobClient.GetContainerReference(direccionBlob);
+
+                Microsoft.WindowsAzure.Storage.Blob.CloudBlockBlob blockBlob = container.GetBlockBlobReference(archivo.NombreArchivo);
+
+                var stream = new MemoryStream();
+                await blockBlob.DownloadToStreamAsync(stream);
+                stream.Position = 0;
+
+                return (stream, archivo.ContentTypeArchivo, archivo.NombreArchivo);
             }
             catch (Exception ex)
             {
@@ -620,6 +705,111 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Implementacion
             {
                 _unitOfWork.GestionPagoArchivoRepository.Delete(idArchivo, usuario);
                 _unitOfWork.Commit();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region Operaciones Cuota Individual
+
+        /// Autor: Jose Vega
+        /// Fecha: 30/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Inserta una nueva cuota dentro del cronograma de una gestión de pago.
+        /// </summary>
+        public int InsertarCuota(CronogramaInsertarDTO dto)
+        {
+            try
+            {
+                var cuota = new GestionPagoCronograma
+                {
+                    IdGestionPago = dto.IdGestionPago,
+                    NumeroCuota = dto.NumeroCuota,
+                    MontoCuota = dto.MontoCuota,
+                    FechaVencimiento = dto.FechaVencimiento,
+                    FechaProbablePago = dto.FechaProbablePago,
+                    UsuarioCreacion = dto.Usuario,
+                    UsuarioModificacion = dto.Usuario,
+                    FechaCreacion = DateTime.Now,
+                    FechaModificacion = DateTime.Now,
+                    Estado = true
+                };
+
+                _unitOfWork.GestionPagoCronogramaRepository.Add(cuota);
+                _unitOfWork.Commit();
+
+                return cuota.Id;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 30/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza los datos de una cuota existente del cronograma.
+        /// </summary>
+        public bool ActualizarCuota(CronogramaActualizarDTO dto)
+        {
+            try
+            {
+                var cuota = _unitOfWork.GestionPagoCronogramaRepository.FirstById(dto.Id);
+                if (cuota == null) throw new Exception("La cuota no existe.");
+
+                cuota.MontoCuota = dto.MontoCuota;
+                cuota.FechaVencimiento = dto.FechaVencimiento;
+                cuota.FechaProbablePago = dto.FechaProbablePago;
+                // Asignar SIEMPRE FechaRealPago (permitiendo null explícito para borrar el pago).
+                cuota.FechaRealPago = dto.FechaRealPago;
+
+                cuota.UsuarioModificacion = dto.Usuario;
+                cuota.FechaModificacion = DateTime.Now;
+
+                _unitOfWork.GestionPagoCronogramaRepository.Update(cuota);
+                _unitOfWork.Commit();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 30/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Elimina lógicamente una cuota y sus archivos asociados.
+        /// </summary>
+        public bool EliminarCuota(int idCuota, string usuario)
+        {
+            try
+            {
+                // Soft-delete de la cuota
+                _unitOfWork.GestionPagoCronogramaRepository.Delete(idCuota, usuario);
+                
+                // Archivos asociados
+                var archivos = _unitOfWork.GestionPagoArchivoRepository
+                    .GetBy(x => x.IdGestionPagoCronograma == idCuota && x.Estado == true)
+                    .Select(x => x.Id)
+                    .ToList();
+                
+                if (archivos.Any())
+                {
+                    _unitOfWork.GestionPagoArchivoRepository.Delete(archivos, usuario);
+                }
+
+                _unitOfWork.Commit();
+
                 return true;
             }
             catch (Exception ex)

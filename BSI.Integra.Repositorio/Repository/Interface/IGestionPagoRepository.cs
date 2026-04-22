@@ -17,6 +17,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         #endregion
 
         IEnumerable<GestionPagoDTO> ObtenerGestionesPago(FiltroGestionPagoDTO filtro);
+        IEnumerable<ReporteComprobanteGestionPagoDTO> ObtenerReporteComprobantesYPagos(FiltroGestionPagoDTO filtro);
         GestionPagoDTO? ObtenerGestionPagoPorId(int idGestionPago);
         GestionPagoDTO? ObtenerGestionPagoPorComprobante(int idComprobantePago);
     }
