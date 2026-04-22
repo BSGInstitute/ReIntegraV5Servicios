@@ -1795,7 +1795,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     //detalles
                     foreach (var hijo in item.Detalles)
                     {
-                        nuevohtmlModalidad += "<li style='padding:6px 0;'>" + iconoCheck + hijo.Beneficio + "</li>";
+                        nuevohtmlModalidad += "<li style='padding:6px 0;'>" + iconoCheck + (hijo.Beneficio == null ? hijo.Horario : hijo.Beneficio) + "</li>";
                     }
                     nuevohtmlModalidad += "</ul>";
 
