@@ -2416,6 +2416,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 pEspecifico.ActualizacionAutomatica = dto.ActualizacionAutomatica;
                 pEspecifico.IdCursoMoodle = dto.IdCursoMoodle;
                 pEspecifico.IdCursoMoodlePrueba = dto.IdCursoMoodlePrueba;
+                pEspecifico.IdEstadoCupos = dto.IdEstadoCupos;
                 pEspecifico.CursoIndividual = dto.CursoIndividual;
                 pEspecifico.UrlDocumentoCronograma = dto.UrlDocumentoCronograma;
                 pEspecifico.UrlDocumentoCronogramaGrupos = dto.UrlDocumentoCronogramaGrupos;
@@ -4285,6 +4286,10 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     if (dto.IdCursoMoodlePrueba != null)
                     {
                         pEspecifico.IdCursoMoodlePrueba = dto.IdCursoMoodlePrueba == 0 ? null : dto.IdCursoMoodlePrueba;
+                    }
+                    if (dto.IdEstadoCupos != null)
+                    {
+                        pEspecifico.IdEstadoCupos = dto.IdEstadoCupos;
                     }
 
                     pEspecifico.UsuarioModificacion = usuario;
