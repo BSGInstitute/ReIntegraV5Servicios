@@ -396,5 +396,234 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception($"Error en ObtenerSesionesCalendarioAsync: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Obtiene resumen de sesiones agrupadas por estado de sesion
+        /// </summary>
+        public async Task<List<ReporteDashboardEstadoSesionDTO>> ObtenerResumenPorEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null)
+        {
+            try
+            {
+                var resultado = await _dapperRepository.QuerySPDapperAsync(
+                    "pla.SP_ReporteDashboard_ObtenerResumenPorEstadoSesion",
+                    new
+                    {
+                        Anio = anio,
+                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
+                        CentroCostoPadre = centroCostoPadre
+                    }
+                );
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<List<ReporteDashboardEstadoSesionDTO>>(resultado) ?? new List<ReporteDashboardEstadoSesionDTO>();
+                }
+                return new List<ReporteDashboardEstadoSesionDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerResumenPorEstadoSesionAsync: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Obtiene detalle de sesiones filtradas por estado
+        /// </summary>
+        public async Task<List<ReporteDashboardSesionDetalleDTO>> ObtenerSesionesPorEstadoAsync(int? anio, int? idEstadoSesion = null, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null)
+        {
+            try
+            {
+                var resultado = await _dapperRepository.QuerySPDapperAsync(
+                    "pla.SP_ReporteDashboard_ObtenerSesionesPorEstado",
+                    new
+                    {
+                        Anio = anio,
+                        IdEstadoSesion = idEstadoSesion,
+                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
+                        CentroCostoPadre = centroCostoPadre
+                    }
+                );
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<List<ReporteDashboardSesionDetalleDTO>>(resultado) ?? new List<ReporteDashboardSesionDetalleDTO>();
+                }
+                return new List<ReporteDashboardSesionDetalleDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerSesionesPorEstadoAsync: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Obtiene evolucion mensual de estados de sesion
+        /// </summary>
+        public async Task<List<ReporteDashboardEvolucionEstadoSesionDTO>> ObtenerEvolucionEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null)
+        {
+            try
+            {
+                var resultado = await _dapperRepository.QuerySPDapperAsync(
+                    "pla.SP_ReporteDashboard_ObtenerEvolucionEstadoSesion",
+                    new
+                    {
+                        Anio = anio,
+                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
+                        CentroCostoPadre = centroCostoPadre
+                    }
+                );
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<List<ReporteDashboardEvolucionEstadoSesionDTO>>(resultado) ?? new List<ReporteDashboardEvolucionEstadoSesionDTO>();
+                }
+                return new List<ReporteDashboardEvolucionEstadoSesionDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerEvolucionEstadoSesionAsync: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Obtiene KPIs de estados de sesion
+        /// </summary>
+        public async Task<ReporteDashboardKPIsEstadoSesionDTO> ObtenerKPIsEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null)
+        {
+            try
+            {
+                var resultado = await _dapperRepository.QuerySPFirstOrDefaultAsync(
+                    "pla.SP_ReporteDashboard_ObtenerKPIsEstadoSesion",
+                    new
+                    {
+                        Anio = anio,
+                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
+                        CentroCostoPadre = centroCostoPadre
+                    }
+                );
+
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<ReporteDashboardKPIsEstadoSesionDTO>(resultado) ?? new ReporteDashboardKPIsEstadoSesionDTO();
+                }
+                return new ReporteDashboardKPIsEstadoSesionDTO();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerKPIsEstadoSesionAsync: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Obtiene cambios de estado de programas basado en log
+        /// </summary>
+        public async Task<List<ReporteDashboardCambioEstadoDTO>> ObtenerCambiosEstadoAsync(int? ultimasSemanas = null)
+        {
+            try
+            {
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardCambioEstadoDTO>(
+                    "pla.SP_ReporteDashboard_ObtenerCambiosEstado",
+                    new { UltimasSemanas = ultimasSemanas ?? 8 },
+                    commandType: CommandType.StoredProcedure
+                );
+                return resultado.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerCambiosEstadoAsync: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Obtiene estados de programas hijo agrupados por dia o semana
+        /// </summary>
+        public async Task<List<ReporteDashboardEstadoPorDiaDTO>> ObtenerEstadosPorDiaAsync(string? idsPEspecificoHijo, string? estados, string? agrupacion, DateTime? fechaInicio, DateTime? fechaFin, int? ultimasSemanas = null)
+        {
+            try
+            {
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardEstadoPorDiaDTO>(
+                    "pla.SP_ReporteDashboard_ObtenerEstadosPorDia",
+                    new
+                    {
+                        IdsPEspecificoHijo = idsPEspecificoHijo,
+                        Estados = estados,
+                        Agrupacion = agrupacion ?? "DIA",
+                        FechaInicio = fechaInicio,
+                        FechaFin = fechaFin,
+                        UltimasSemanas = ultimasSemanas
+                    },
+                    commandType: CommandType.StoredProcedure
+                );
+                return resultado.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerEstadosPorDiaAsync: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Obtiene detalle de cursos V3 con modalidad clasificada
+        /// El SP devuelve filas normales (sin FOR JSON PATH) para evitar nulls con window functions
+        /// </summary>
+        public async Task<List<ReporteDashboardCursoV3DTO>> ObtenerDetalleCursosV3Async(DateTime? fecha, DateTime? fechaInicio, DateTime? fechaFin, int? idProgramaPadre, int? anio, string? centroCostoPadre, string? modalidadClasificada, int? semanaInicio, int? semanaFin)
+        {
+            try
+            {
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardCursoV3DTO>(
+                    "pla.SP_ReporteDashboard_ObtenerDetalleCursos_V3",
+                    new
+                    {
+                        Fecha = fecha,
+                        FechaInicio = fechaInicio,
+                        FechaFin = fechaFin,
+                        IdProgramaPadre = idProgramaPadre,
+                        Anio = anio,
+                        CentroCostoPadre = centroCostoPadre,
+                        ModalidadClasificada = modalidadClasificada,
+                        SemanaInicio = semanaInicio,
+                        SemanaFin = semanaFin
+                    },
+                    commandType: CommandType.StoredProcedure
+                );
+                return resultado.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerDetalleCursosV3Async: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Obtiene seguimiento de clases por dia de semana
+        /// </summary>
+        public async Task<List<ReporteDashboardSeguimientoClaseDTO>> ObtenerSeguimientoClasesAsync(ReporteDashboardSeguimientoFiltroRequestDTO filtro)
+        {
+            try
+            {
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardSeguimientoClaseDTO>(
+                    "pla.SP_ReporteDashboard_ObtenerSeguimientoClases",
+                    new
+                    {
+                        FechaInicio = filtro.FechaInicio,
+                        FechaFin = filtro.FechaFin,
+                        EstadoCurso = filtro.EstadoCurso,
+                        Anio = filtro.Anio,
+                        SemanaInicio = filtro.SemanaInicio,
+                        SemanaFin = filtro.SemanaFin
+                    },
+                    commandType: CommandType.StoredProcedure
+                );
+                return resultado.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerSeguimientoClasesAsync: {ex.Message}");
+            }
+        }
     }
 }

@@ -182,5 +182,89 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw;
             }
         }
+
+        /// <summary>
+        /// Obtiene resumen de sesiones agrupadas por estado de sesion
+        /// </summary>
+        public async Task<List<ReporteDashboardEstadoSesionDTO>> ObtenerResumenPorEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null)
+        {
+            try
+            {
+                return await _unitOfWork.ReporteDashboardRepository.ObtenerResumenPorEstadoSesionAsync(anio, idProgramaEspecificoPadre, centroCostoPadre);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene detalle de sesiones filtradas por estado
+        /// </summary>
+        public async Task<List<ReporteDashboardSesionDetalleDTO>> ObtenerSesionesPorEstadoAsync(int? anio, int? idEstadoSesion = null, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null)
+        {
+            try
+            {
+                return await _unitOfWork.ReporteDashboardRepository.ObtenerSesionesPorEstadoAsync(anio, idEstadoSesion, idProgramaEspecificoPadre, centroCostoPadre);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene evolucion mensual de estados de sesion
+        /// </summary>
+        public async Task<List<ReporteDashboardEvolucionEstadoSesionDTO>> ObtenerEvolucionEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null)
+        {
+            try
+            {
+                return await _unitOfWork.ReporteDashboardRepository.ObtenerEvolucionEstadoSesionAsync(anio, idProgramaEspecificoPadre, centroCostoPadre);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene KPIs de estados de sesion
+        /// </summary>
+        public async Task<ReporteDashboardKPIsEstadoSesionDTO> ObtenerKPIsEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null)
+        {
+            try
+            {
+                return await _unitOfWork.ReporteDashboardRepository.ObtenerKPIsEstadoSesionAsync(anio, idProgramaEspecificoPadre, centroCostoPadre);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<List<ReporteDashboardCambioEstadoDTO>> ObtenerCambiosEstadoAsync(int? ultimasSemanas = null)
+        {
+            try { return await _unitOfWork.ReporteDashboardRepository.ObtenerCambiosEstadoAsync(ultimasSemanas); }
+            catch (Exception) { throw; }
+        }
+
+        public async Task<List<ReporteDashboardEstadoPorDiaDTO>> ObtenerEstadosPorDiaAsync(string? idsPEspecificoHijo, string? estados, string? agrupacion, DateTime? fechaInicio, DateTime? fechaFin, int? ultimasSemanas = null)
+        {
+            try { return await _unitOfWork.ReporteDashboardRepository.ObtenerEstadosPorDiaAsync(idsPEspecificoHijo, estados, agrupacion, fechaInicio, fechaFin, ultimasSemanas); }
+            catch (Exception) { throw; }
+        }
+
+        public async Task<List<ReporteDashboardCursoV3DTO>> ObtenerDetalleCursosV3Async(DateTime? fecha, DateTime? fechaInicio, DateTime? fechaFin, int? idProgramaPadre, int? anio, string? centroCostoPadre, string? modalidadClasificada, int? semanaInicio, int? semanaFin)
+        {
+            try { return await _unitOfWork.ReporteDashboardRepository.ObtenerDetalleCursosV3Async(fecha, fechaInicio, fechaFin, idProgramaPadre, anio, centroCostoPadre, modalidadClasificada, semanaInicio, semanaFin); }
+            catch (Exception) { throw; }
+        }
+
+        public async Task<List<ReporteDashboardSeguimientoClaseDTO>> ObtenerSeguimientoClasesAsync(ReporteDashboardSeguimientoFiltroRequestDTO filtro)
+        {
+            try { return await _unitOfWork.ReporteDashboardRepository.ObtenerSeguimientoClasesAsync(filtro); }
+            catch (Exception) { throw; }
+        }
     }
 }

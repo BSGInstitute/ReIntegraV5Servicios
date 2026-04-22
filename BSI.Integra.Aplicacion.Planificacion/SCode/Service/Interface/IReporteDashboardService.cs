@@ -64,5 +64,45 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         /// Obtiene datos de sesiones para vista de calendario
         /// </summary>
         Task<List<ReporteDashboardCalendarioDTO>> ObtenerSesionesCalendarioAsync(int? anio, int? semanaInicio, int? semanaFin, int? mes);
+
+        /// <summary>
+        /// Obtiene resumen de sesiones agrupadas por estado de sesion
+        /// </summary>
+        Task<List<ReporteDashboardEstadoSesionDTO>> ObtenerResumenPorEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null);
+
+        /// <summary>
+        /// Obtiene detalle de sesiones filtradas por estado
+        /// </summary>
+        Task<List<ReporteDashboardSesionDetalleDTO>> ObtenerSesionesPorEstadoAsync(int? anio, int? idEstadoSesion = null, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null);
+
+        /// <summary>
+        /// Obtiene evolucion mensual de estados de sesion
+        /// </summary>
+        Task<List<ReporteDashboardEvolucionEstadoSesionDTO>> ObtenerEvolucionEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null);
+
+        /// <summary>
+        /// Obtiene KPIs de estados de sesion
+        /// </summary>
+        Task<ReporteDashboardKPIsEstadoSesionDTO> ObtenerKPIsEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null);
+
+        /// <summary>
+        /// Obtiene cambios de estado de programas basados en log
+        /// </summary>
+        Task<List<ReporteDashboardCambioEstadoDTO>> ObtenerCambiosEstadoAsync(int? ultimasSemanas = null);
+
+        /// <summary>
+        /// Obtiene estados de programas hijo agrupados por dia o semana
+        /// </summary>
+        Task<List<ReporteDashboardEstadoPorDiaDTO>> ObtenerEstadosPorDiaAsync(string? idsPEspecificoHijo, string? estados, string? agrupacion, DateTime? fechaInicio, DateTime? fechaFin, int? ultimasSemanas = null);
+
+        /// <summary>
+        /// Obtiene detalle de cursos V3 con modalidad clasificada (Inhouse/Presencial/Online)
+        /// </summary>
+        Task<List<ReporteDashboardCursoV3DTO>> ObtenerDetalleCursosV3Async(DateTime? fecha, DateTime? fechaInicio, DateTime? fechaFin, int? idProgramaPadre, int? anio, string? centroCostoPadre, string? modalidadClasificada, int? semanaInicio, int? semanaFin);
+
+        /// <summary>
+        /// Obtiene seguimiento de clases por dia de semana con filtro propio
+        /// </summary>
+        Task<List<ReporteDashboardSeguimientoClaseDTO>> ObtenerSeguimientoClasesAsync(ReporteDashboardSeguimientoFiltroRequestDTO filtro);
     }
 }

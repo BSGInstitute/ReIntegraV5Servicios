@@ -289,5 +289,196 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 throw;
             }
         }
+
+        /// <summary>
+        /// Obtiene resumen de sesiones agrupadas por estado de sesion
+        /// Estados: Ejecutada, Cancelada, Por-Reprogramar, Adicional, Por Ejecutar, No Aplica, Recuperada
+        /// </summary>
+        /// <param name="anio">Anio para filtrar (opcional)</param>
+        /// <param name="idProgramaEspecificoPadre">Id del programa especifico padre (opcional)</param>
+        /// <param name="centroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <returns>Lista de ReporteDashboardEstadoSesionDTO</returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerResumenPorEstadoSesion(int? anio, int? idProgramaEspecificoPadre, string? centroCostoPadre)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerResumenPorEstadoSesionAsync(anio, idProgramaEspecificoPadre, centroCostoPadre);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene detalle de sesiones filtradas por estado
+        /// </summary>
+        /// <param name="anio">Anio para filtrar (opcional)</param>
+        /// <param name="idEstadoSesion">Id del estado de sesion (opcional)</param>
+        /// <param name="idProgramaEspecificoPadre">Id del programa especifico padre (opcional)</param>
+        /// <param name="centroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <returns>Lista de ReporteDashboardSesionDetalleDTO</returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerSesionesPorEstado(int? anio, int? idEstadoSesion, int? idProgramaEspecificoPadre, string? centroCostoPadre)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerSesionesPorEstadoAsync(anio, idEstadoSesion, idProgramaEspecificoPadre, centroCostoPadre);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene evolucion mensual de estados de sesion
+        /// </summary>
+        /// <param name="anio">Anio para filtrar (opcional)</param>
+        /// <param name="idProgramaEspecificoPadre">Id del programa especifico padre (opcional)</param>
+        /// <param name="centroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <returns>Lista de ReporteDashboardEvolucionEstadoSesionDTO</returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerEvolucionEstadoSesion(int? anio, int? idProgramaEspecificoPadre, string? centroCostoPadre)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerEvolucionEstadoSesionAsync(anio, idProgramaEspecificoPadre, centroCostoPadre);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene KPIs de estados de sesion
+        /// </summary>
+        /// <param name="anio">Anio para filtrar (opcional)</param>
+        /// <param name="idProgramaEspecificoPadre">Id del programa especifico padre (opcional)</param>
+        /// <param name="centroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <returns>ReporteDashboardKPIsEstadoSesionDTO</returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerKPIsEstadoSesion(int? anio, int? idProgramaEspecificoPadre, string? centroCostoPadre)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerKPIsEstadoSesionAsync(anio, idProgramaEspecificoPadre, centroCostoPadre);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene cambios de estado de programas basados en log
+        /// Transiciones: Lanzamiento->Ejecucion, Ejecucion->Concluido, *->Cancelado, agrupados por semana
+        /// </summary>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerCambiosEstado(int? ultimasSemanas)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerCambiosEstadoAsync(ultimasSemanas);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene estados de programas hijo agrupados por dia o semana
+        /// </summary>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerEstadosPorDia(
+            string? idsPEspecificoHijo,
+            string? estados,
+            string? agrupacion,
+            DateTime? fechaInicio,
+            DateTime? fechaFin,
+            int? ultimasSemanas)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerEstadosPorDiaAsync(idsPEspecificoHijo, estados, agrupacion, fechaInicio, fechaFin, ultimasSemanas);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene detalle de cursos V3 con modalidad clasificada (Inhouse/Presencial/Online)
+        /// y filtro por semana
+        /// </summary>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerDetalleCursosV3(
+            DateTime? fecha,
+            DateTime? fechaInicio,
+            DateTime? fechaFin,
+            int? idProgramaPadre,
+            int? anio,
+            string? centroCostoPadre,
+            string? modalidadClasificada,
+            int? semanaInicio,
+            int? semanaFin)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerDetalleCursosV3Async(fecha, fechaInicio, fechaFin, idProgramaPadre, anio, centroCostoPadre, modalidadClasificada, semanaInicio, semanaFin);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene seguimiento de clases por dia de semana (Lunes-Sabado)
+        /// con filtro propio: estado de programa y rango de fechas/semanas
+        /// </summary>
+        [Route("[action]")]
+        [HttpPost]
+        public async Task<IActionResult> ObtenerSeguimientoClases([FromBody] ReporteDashboardSeguimientoFiltroRequestDTO filtro)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerSeguimientoClasesAsync(filtro);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }
