@@ -625,5 +625,90 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception($"Error en ObtenerSeguimientoClasesAsync: {ex.Message}");
             }
         }
+
+        // ── Dashboard 2: Seguimiento por Docente ─────────────────────────────
+
+        public async Task<List<ReporteDashboardDocenteFiltroDTO>> ObtenerDocentesFiltroAsync(string? busqueda)
+        {
+            try
+            {
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardDocenteFiltroDTO>(
+                    "pla.SP_ReporteDashboard_ObtenerDocentesFiltro",
+                    new { Busqueda = busqueda },
+                    commandType: CommandType.StoredProcedure
+                );
+                return resultado.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerDocentesFiltroAsync: {ex.Message}");
+            }
+        }
+
+        public async Task<List<ReporteDashboardPEspecificoFiltroDTO>> ObtenerPEspecificoFiltroAsync(string? busqueda)
+        {
+            try
+            {
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardPEspecificoFiltroDTO>(
+                    "pla.SP_ReporteDashboard_ObtenerPEspecificoFiltro",
+                    new { Busqueda = busqueda },
+                    commandType: CommandType.StoredProcedure
+                );
+                return resultado.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerPEspecificoFiltroAsync: {ex.Message}");
+            }
+        }
+
+        public async Task<ReporteDashboardSeguimientoDocenteDTO> ObtenerSeguimientoDocenteAsync(int? idDocente, int? idPEspecifico, int? anio, DateTime? fechaInicio, DateTime? fechaFin)
+        {
+            try
+            {
+                using var conn = _connectionFactory.GetConnection;
+                using var multi = await conn.QueryMultipleAsync(
+                    "pla.SP_ReporteDashboard_ObtenerSeguimientoDocente",
+                    new { IdDocente = idDocente, IdPEspecifico = idPEspecifico, Anio = anio, FechaInicio = fechaInicio, FechaFin = fechaFin },
+                    commandType: CommandType.StoredProcedure
+                );
+
+                var resultado = new ReporteDashboardSeguimientoDocenteDTO
+                {
+                    KPIs = (await multi.ReadFirstOrDefaultAsync<ReporteDashboardSeguimientoDocenteKPIsDTO>()) ?? new ReporteDashboardSeguimientoDocenteKPIsDTO(),
+                    Programas = (await multi.ReadAsync<ReporteDashboardSeguimientoDocenteProgramaDTO>()).ToList(),
+                    Sesiones = (await multi.ReadAsync<ReporteDashboardSeguimientoDocenteSesionDTO>()).ToList()
+                };
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerSeguimientoDocenteAsync: {ex.Message}");
+            }
+        }
+
+        public async Task<ReporteDashboardNotasAlumnosDTO> ObtenerNotasAlumnosPorProgramaAsync(int? idPEspecifico)
+        {
+            try
+            {
+                using var conn = _connectionFactory.GetConnection;
+                using var multi = await conn.QueryMultipleAsync(
+                    "pla.SP_ReporteDashboard_ObtenerNotasAlumnosPorPrograma",
+                    new { IdPEspecifico = idPEspecifico },
+                    commandType: CommandType.StoredProcedure
+                );
+                return new ReporteDashboardNotasAlumnosDTO
+                {
+                    Resumen = (await multi.ReadAsync<ReporteDashboardNotaCriterioResumenDTO>()).ToList(),
+                    Detalle = (await multi.ReadAsync<ReporteDashboardNotaAlumnoDetalleDTO>()).ToList()
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerNotasAlumnosPorProgramaAsync: {ex.Message}");
+            }
+        }
     }
 }

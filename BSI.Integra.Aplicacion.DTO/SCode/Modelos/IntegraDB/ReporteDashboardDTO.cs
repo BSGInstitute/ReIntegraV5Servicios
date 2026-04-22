@@ -345,4 +345,132 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? SemanaInicio { get; set; }
         public int? SemanaFin { get; set; }
     }
+
+    // ── Dashboard 2: Seguimiento por Docente ─────────────────────────────────
+
+    /// <summary>
+    /// DTO para item de docente en el filtro desplegable (Dashboard 2)
+    /// </summary>
+    public class ReporteDashboardDocenteFiltroDTO
+    {
+        public int Id { get; set; }
+        public string? Nombre { get; set; }
+        public string? RazonSocial { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para item de PEspecifico en el filtro de busqueda (Dashboard 2)
+    /// </summary>
+    public class ReporteDashboardPEspecificoFiltroDTO
+    {
+        public int Id { get; set; }
+        public string? Nombre { get; set; }
+        public string? Estado { get; set; }
+        public string? Tipo { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para KPIs generales del seguimiento de docente (RS1 del SP22)
+    /// </summary>
+    public class ReporteDashboardSeguimientoDocenteKPIsDTO
+    {
+        public int? IdDocente { get; set; }
+        public string? Docente { get; set; }
+        public int TotalProgramas { get; set; }
+        public int TotalSesiones { get; set; }
+        public int SesionesEjecutadas { get; set; }
+        public int SesionesCanceladas { get; set; }
+        public int SesionesReprogramadas { get; set; }
+        public int SesionesProgramadas { get; set; }
+        public decimal PorcentajeEjecutadas { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para resumen por programa del seguimiento de docente (RS2 del SP22)
+    /// </summary>
+    public class ReporteDashboardSeguimientoDocenteProgramaDTO
+    {
+        public int IdPEspecifico { get; set; }
+        public string? ProgramaGeneral { get; set; }
+        public string? Programa { get; set; }
+        public string? CentroCosto { get; set; }
+        public string? EstadoPrograma { get; set; }
+        public int TotalSesiones { get; set; }
+        public int SesionesEjecutadas { get; set; }
+        public int SesionesCanceladas { get; set; }
+        public int SesionesReprogramadas { get; set; }
+        public int SesionesProgramadas { get; set; }
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaFin { get; set; }
+        public decimal PorcentajeEjecutadas { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para detalle de sesiones del seguimiento de docente (RS3 del SP22)
+    /// </summary>
+    public class ReporteDashboardSeguimientoDocenteSesionDTO
+    {
+        public int IdSesion { get; set; }
+        public int IdPEspecifico { get; set; }
+        public string? ProgramaGeneral { get; set; }
+        public string? Programa { get; set; }
+        public string? CentroCosto { get; set; }
+        public string? EstadoPrograma { get; set; }
+        public DateTime? Fecha { get; set; }
+        public string? DiaSemana { get; set; }
+        public TimeSpan? HoraInicio { get; set; }
+        public TimeSpan? HoraFin { get; set; }
+        public string? EstadoSesion { get; set; }
+        public int IdPEspecificoSesionEstado { get; set; }
+        public int NroSesion { get; set; }
+        public string? Docente { get; set; }
+        public string? Sede { get; set; }
+        public string? Aula { get; set; }
+    }
+
+    /// <summary>
+    /// DTO compuesto para retornar los 3 result sets del seguimiento de docente
+    /// </summary>
+    public class ReporteDashboardSeguimientoDocenteDTO
+    {
+        public ReporteDashboardSeguimientoDocenteKPIsDTO KPIs { get; set; } = new();
+        public List<ReporteDashboardSeguimientoDocenteProgramaDTO> Programas { get; set; } = new();
+        public List<ReporteDashboardSeguimientoDocenteSesionDTO> Sesiones { get; set; } = new();
+    }
+
+    // ── Dashboard 2: Notas de alumnos por programa ──────────────────────────
+
+    /// <summary>
+    /// Resumen de notas por criterio de evaluacion (RS1 del SP23)
+    /// </summary>
+    public class ReporteDashboardNotaCriterioResumenDTO
+    {
+        public int IdCriterioEvaluacion { get; set; }
+        public string? CriterioEvaluacion { get; set; }
+        public int ConNota { get; set; }
+        public int SinNota { get; set; }
+        public int Total { get; set; }
+    }
+
+    /// <summary>
+    /// Detalle de nota de un alumno por criterio (RS2 del SP23)
+    /// </summary>
+    public class ReporteDashboardNotaAlumnoDetalleDTO
+    {
+        public int IdMatriculaCabecera { get; set; }
+        public string? NombreAlumno { get; set; }
+        public int IdCriterioEvaluacion { get; set; }
+        public string? CriterioEvaluacion { get; set; }
+        public string? Nota { get; set; }
+        public string? ProgramaEspecifico { get; set; }
+    }
+
+    /// <summary>
+    /// Contenedor con los 2 result sets de notas por programa
+    /// </summary>
+    public class ReporteDashboardNotasAlumnosDTO
+    {
+        public List<ReporteDashboardNotaCriterioResumenDTO> Resumen { get; set; } = new();
+        public List<ReporteDashboardNotaAlumnoDetalleDTO> Detalle { get; set; } = new();
+    }
 }

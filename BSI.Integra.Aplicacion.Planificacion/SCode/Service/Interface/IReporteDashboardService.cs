@@ -104,5 +104,23 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         /// Obtiene seguimiento de clases por dia de semana con filtro propio
         /// </summary>
         Task<List<ReporteDashboardSeguimientoClaseDTO>> ObtenerSeguimientoClasesAsync(ReporteDashboardSeguimientoFiltroRequestDTO filtro);
+
+        // ── Dashboard 2: Seguimiento por Docente ─────────────────────────────
+
+        /// <summary>
+        /// Obtiene lista de docentes para filtro con busqueda
+        /// </summary>
+        Task<List<ReporteDashboardDocenteFiltroDTO>> ObtenerDocentesFiltroAsync(string? busqueda = null);
+
+        /// <summary>
+        /// Obtiene lista de programas especificos para filtro con busqueda
+        /// </summary>
+        Task<List<ReporteDashboardPEspecificoFiltroDTO>> ObtenerPEspecificoFiltroAsync(string? busqueda = null);
+
+        /// <summary>
+        /// Obtiene el seguimiento completo de sesiones de un docente (KPIs + por programa + detalle)
+        /// </summary>
+        Task<ReporteDashboardSeguimientoDocenteDTO> ObtenerSeguimientoDocenteAsync(int? idDocente, int? idPEspecifico, int? anio, DateTime? fechaInicio, DateTime? fechaFin);
+        Task<ReporteDashboardNotasAlumnosDTO> ObtenerNotasAlumnosPorProgramaAsync(int? idPEspecifico);
     }
 }

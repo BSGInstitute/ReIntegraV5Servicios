@@ -266,5 +266,31 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             try { return await _unitOfWork.ReporteDashboardRepository.ObtenerSeguimientoClasesAsync(filtro); }
             catch (Exception) { throw; }
         }
+
+        // ── Dashboard 2: Seguimiento por Docente ─────────────────────────────
+
+        public async Task<List<ReporteDashboardDocenteFiltroDTO>> ObtenerDocentesFiltroAsync(string? busqueda = null)
+        {
+            try { return await _unitOfWork.ReporteDashboardRepository.ObtenerDocentesFiltroAsync(busqueda); }
+            catch (Exception) { throw; }
+        }
+
+        public async Task<List<ReporteDashboardPEspecificoFiltroDTO>> ObtenerPEspecificoFiltroAsync(string? busqueda = null)
+        {
+            try { return await _unitOfWork.ReporteDashboardRepository.ObtenerPEspecificoFiltroAsync(busqueda); }
+            catch (Exception) { throw; }
+        }
+
+        public async Task<ReporteDashboardSeguimientoDocenteDTO> ObtenerSeguimientoDocenteAsync(int? idDocente, int? idPEspecifico, int? anio, DateTime? fechaInicio, DateTime? fechaFin)
+        {
+            try { return await _unitOfWork.ReporteDashboardRepository.ObtenerSeguimientoDocenteAsync(idDocente, idPEspecifico, anio, fechaInicio, fechaFin); }
+            catch (Exception) { throw; }
+        }
+
+        public async Task<ReporteDashboardNotasAlumnosDTO> ObtenerNotasAlumnosPorProgramaAsync(int? idPEspecifico)
+        {
+            try { return await _unitOfWork.ReporteDashboardRepository.ObtenerNotasAlumnosPorProgramaAsync(idPEspecifico); }
+            catch (Exception) { throw; }
+        }
     }
 }

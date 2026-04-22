@@ -104,5 +104,11 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         /// Obtiene seguimiento de clases por dia de semana (Lunes-Sabado) con filtro propio
         /// </summary>
         Task<List<ReporteDashboardSeguimientoClaseDTO>> ObtenerSeguimientoClasesAsync(ReporteDashboardSeguimientoFiltroRequestDTO filtro);
+
+        // ── Dashboard 2: Seguimiento por Docente ─────────────────────────────
+        Task<List<ReporteDashboardDocenteFiltroDTO>> ObtenerDocentesFiltroAsync(string? busqueda);
+        Task<List<ReporteDashboardPEspecificoFiltroDTO>> ObtenerPEspecificoFiltroAsync(string? busqueda);
+        Task<ReporteDashboardSeguimientoDocenteDTO> ObtenerSeguimientoDocenteAsync(int? idDocente, int? idPEspecifico, int? anio, DateTime? fechaInicio, DateTime? fechaFin);
+        Task<ReporteDashboardNotasAlumnosDTO> ObtenerNotasAlumnosPorProgramaAsync(int? idPEspecifico);
     }
 }

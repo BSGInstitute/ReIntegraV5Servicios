@@ -480,5 +480,83 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 throw;
             }
         }
+
+        // ── Dashboard 2: Seguimiento por Docente ─────────────────────────────
+
+        /// <summary>
+        /// Retorna lista de docentes (fin.T_Proveedor EsDocente=1) para filtro con busqueda
+        /// </summary>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerDocentesFiltro(string? busqueda)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerDocentesFiltroAsync(busqueda);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Retorna lista de programas especificos (padre e hijo) para filtro con busqueda
+        /// </summary>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerPEspecificoFiltro(string? busqueda)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerPEspecificoFiltroAsync(busqueda);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Retorna seguimiento de sesiones de un docente (KPIs + resumen por programa + detalle sesiones)
+        /// </summary>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerSeguimientoDocente(int? idDocente, int? idPEspecifico, int? anio, DateTime? fechaInicio, DateTime? fechaFin)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerSeguimientoDocenteAsync(idDocente, idPEspecifico, anio, fechaInicio, fechaFin);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Retorna notas de alumnos por programa: RS1 resumen por criterio (para grafico), RS2 detalle alumno x criterio
+        /// </summary>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerNotasAlumnosPorPrograma(int? idPEspecifico)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerNotasAlumnosPorProgramaAsync(idPEspecifico);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }
