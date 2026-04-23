@@ -1022,5 +1022,6 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IProveedorPEspecificoRepository ProveedorPEspecificoRepository { get; }
         IReporteDashboardRepository ReporteDashboardRepository { get; }
         IWhatsAppMensajeEnviadoApiAtcRepository WhatsAppMensajeEnviadoApiAtcRepository { get; }
+        IModeloPredictivoProbabilidadEscalonadoRepository ModeloPredictivoProbabilidadEscalonadoRepository { get; }
     }
 }

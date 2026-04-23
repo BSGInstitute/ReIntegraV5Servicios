@@ -3,6 +3,7 @@ using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using Google.Api.Ads.AdWords.v201809;
@@ -150,5 +151,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         // RN2: verifica si alguno de los alumnos similares tiene oportunidades activas en fases RN2
         bool ExistenOportunidadesParaAlumnos(List<int> idAlumnos, int idPersonalAsignado);
         OportunidadEmpresaPagaDTO ObtenerEmpresaPagaPorCodigoMatricula(string codigoMatricula);
+
+        IEnumerable<HistorialOportunidadPlanoDTO> ObtenerHistorialOportunidadesAlumno(int idAlumno);
     }
 }
