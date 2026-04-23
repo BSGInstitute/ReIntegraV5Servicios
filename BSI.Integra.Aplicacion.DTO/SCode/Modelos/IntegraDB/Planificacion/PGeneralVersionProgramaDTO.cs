@@ -24,6 +24,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public int? CreditoDisponibleTutorVirtual { get; set; }
         public int? CantidadWebinarAsignado { get; set; }
         public int? CantidadMesAccesoAdicionalWebinar { get; set; }
+        public int? GruposAsignados { get; set; }
     }
     public class UpdateOnlyVersionProgramaDTO
     {
