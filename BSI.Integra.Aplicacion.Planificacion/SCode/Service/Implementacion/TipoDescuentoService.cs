@@ -354,5 +354,25 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw ex;
             }
         }
+
+        /// Autor: jllanque
+        /// Fecha: 16/04/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene información del tipo de programa (Programa/Curso) a partir de un IdCentroCosto
+        /// </summary>
+        /// <param name="idCentroCosto">Id del Centro de Costo</param>
+        /// <returns> InfoProgramaCentroCostoDTO </returns>
+        public InfoProgramaCentroCostoDTO ObtenerInfoProgramaPorCentroCosto(int idCentroCosto)
+        {
+            try
+            {
+                return _unitOfWork.TipoDescuentoRepository.ObtenerInfoProgramaPorCentroCosto(idCentroCosto);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

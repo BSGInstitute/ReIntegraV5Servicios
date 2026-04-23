@@ -181,5 +181,21 @@ namespace BSI.Integra.Servicios.Controllers
         {
             return Ok(_tipoDescuentoService.ObtenerTiposPorIdTipoDescuento(idDescuentoAsesor));
         }
+
+        /// Tipo Función: GET
+        /// Autor: jllanque
+        /// Fecha: 16/04/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene información del tipo de programa (Programa/Curso) a partir de un IdCentroCosto.
+        /// Cadena: CentroCosto → PEspecifico → PGeneral → TipoPrograma
+        /// </summary>
+        /// <param name="idCentroCosto">Id del Centro de Costo</param>
+        /// <returns>Retorna 200 y objeto InfoProgramaCentroCostoDTO o 400 y mensaje de error</returns>
+        [HttpGet("[action]/{idCentroCosto}")]
+        public IActionResult ObtenerInfoProgramaPorCentroCosto(int idCentroCosto)
+        {
+            return Ok(_tipoDescuentoService.ObtenerInfoProgramaPorCentroCosto(idCentroCosto));
+        }
     }
 }

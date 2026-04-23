@@ -30,6 +30,7 @@
         public int? FraccionesMatricula { get; set; }
         public int? PorcentajeCuotas { get; set; }
         public int? CuotasAdicionales { get; set; }
+        public bool? AplicaPrograma { get; set; }
         public string Tipo { get; set; } = null!;
     }
 
@@ -73,6 +74,8 @@
         public int? PorcentajeCuotas { get; set; }
         public int? CuotasAdicionales { get; set; }
         public int? IdTipoDescuentoNivelAprobacion { get; set; }
+        public bool? AplicaPrograma { get; set; }
+
     }
 
     public class TipoDescuentoNivelAprobacionDTO
@@ -89,5 +92,16 @@
         public int? IdTipoDescuentoNivelAprobacion { get; set; }
     }
 
+    public class InfoProgramaCentroCostoDTO
+    {
+        public int IdCentroCosto { get; set; }
+        public string NombreCentroCosto { get; set; } = null!;
+        public int? IdPEspecifico { get; set; }
+        public string? NombrePEspecifico { get; set; }
+        public int? IdPGeneral { get; set; }
+        public string? NombrePGeneral { get; set; }
+        public int? IdTipoPrograma { get; set; }
+        public string? NombreTipoPrograma { get; set; }
+    }
 
 }
