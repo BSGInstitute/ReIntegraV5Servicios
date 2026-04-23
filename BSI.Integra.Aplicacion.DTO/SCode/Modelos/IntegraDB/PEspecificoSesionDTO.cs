@@ -171,6 +171,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int Grupo { get; set; }
         public int? GrupoSesion { get; set; }
         public int? IdPEspecificoSesionEstado { get; set; }
+        public bool? Reprogramacion { get; set; }
     }
     public class ConfirmacionWebinarDTO
     {
@@ -232,5 +233,17 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdPEspecificoSesion { get; set; }
         public int IdTipoPrograma { get; set; }
         public DateTime FechaSesion { get; set; }
+    }
+    public class ReprogramarSesionDTO
+    {
+        public int IdPespecifico { get; set; }
+        public DateTime FechaHoraInicio { get; set; }
+        public decimal Duracion { get; set; }
+        public int? IdExpositor { get; set; }
+        public int? IdAmbiente { get; set; }
+        public string Comentario { get; set; }
+        public int Grupo { get; set; }
+        public int GrupoSesion { get; set; }
+        public int? IdModalidadCurso { get; set; }
     }
 }

@@ -2450,6 +2450,51 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private IGestionPagoRepository gestionPagoRepository;
+        IGestionPagoRepository IUnitOfWork.GestionPagoRepository
+        {
+            get
+            {
+                return gestionPagoRepository ?? new GestionPagoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGestionPagoCronogramaRepository gestionPagoCronogramaRepository;
+        IGestionPagoCronogramaRepository IUnitOfWork.GestionPagoCronogramaRepository
+        {
+            get
+            {
+                return gestionPagoCronogramaRepository ?? new GestionPagoCronogramaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGestionPagoArchivoRepository gestionPagoArchivoRepository;
+        IGestionPagoArchivoRepository IUnitOfWork.GestionPagoArchivoRepository
+        {
+            get
+            {
+                return gestionPagoArchivoRepository ?? new GestionPagoArchivoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IModalidadPagoRepository modalidadPagoRepository;
+        IModalidadPagoRepository IUnitOfWork.ModalidadPagoRepository
+        {
+            get
+            {
+                return modalidadPagoRepository ?? new ModalidadPagoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IPagoEstadoRepository pagoEstadoRepository;
+        IPagoEstadoRepository IUnitOfWork.PagoEstadoRepository
+        {
+            get
+            {
+                return pagoEstadoRepository ?? new PagoEstadoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
 
         private IOrigenDatoCalidadDetalleRepository _origenDatoCalidadDetalleRepository;
 
@@ -8473,6 +8518,24 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             get
             {
                 return _proveedorPEspecificoRepository ?? new ProveedorPEspecificoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IReporteDashboardRepository _reporteDashboardRepository;
+        IReporteDashboardRepository IUnitOfWork.ReporteDashboardRepository
+        {
+            get
+            {
+                return _reporteDashboardRepository ?? new ReporteDashboardRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IWhatsAppMensajeEnviadoApiAtcRepository _whatsAppMensajeEnviadoApiAtcRepository;
+        IWhatsAppMensajeEnviadoApiAtcRepository IUnitOfWork.WhatsAppMensajeEnviadoApiAtcRepository
+        {
+            get
+            {
+                return _whatsAppMensajeEnviadoApiAtcRepository ?? new WhatsAppMensajeEnviadoApiAtcRepository(_connectionFactory, _dapperRepository);
             }
         }
 

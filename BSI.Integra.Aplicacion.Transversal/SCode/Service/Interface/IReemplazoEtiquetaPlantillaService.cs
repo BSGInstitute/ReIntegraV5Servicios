@@ -1,6 +1,7 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.GestionPersonas;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 
 namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
 {
@@ -16,6 +17,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         PlantillaWhatsAppCalculadoDTO ReemplazarValoresTilde(PlantillaWhatsAppCalculadoDTO body);
         PlantillaEmailMandrillDTO ReemplazarEtiquetasPostulanteCursoAsesorCapacitacion(int idPlantilla, int idPostulanteProcesoSeleccion);
         PlantillaEmailMandrillDTO ReemplazarEtiquetasAccesosTemporalesPostulante(int idPlantilla, InformacionAccesoPostulanteDTO informacionAccesoTemporal, int idPespecifico, DateTime fechaInicio, DateTime fechaFin, string personalEmail);
-        string ReemplazarEtiquetasPlanificacion(string contenido, int idCentroCosto, int idClasificacionPersona);
+        (PlantillaEmailMandrillDTO EmailReemplazado, PlantillaWhatsAppCalculadoDTO WhatsAppReemplazado) ReemplazarEtiquetasPlanificacion(ReemplazoEtiquetaPlantillaDocenteDTO request);
     }
 }

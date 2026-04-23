@@ -426,7 +426,9 @@ namespace BSI.Integra.Servicios.Controllers
             }
             try
             {
+                
                 var servicio = new ProveedorService(unitOfWork);
+               
                 return Ok(servicio.ActualizarProveedorCuentaBanco(proveedorCuenta.proveedor, proveedorCuenta.listaCuentaBanco));
             }
             catch (Exception ex)
@@ -762,6 +764,29 @@ namespace BSI.Integra.Servicios.Controllers
                 unitOfWork.ProveedorPEspecificoRepository.Delete(id, "SYSTEM");
                 unitOfWork.Commit();
                 return Ok(new { mensaje = "Asignación eliminada correctamente." });
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Fecha: 2026-04-15
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los proveedores asociados a un PEspecifico para el combo del cronograma.
+        /// Si se proporciona filtroNombre, busca proveedores adicionales que coincidan.
+        /// </summary>
+        /// <param name="idPEspecifico">Id del programa específico</param>
+        /// <param name="filtroNombre">Filtro opcional por nombre del proveedor</param>
+        /// <returns>Lista de proveedores para combo</returns>
+        [HttpGet("[action]/{idPEspecifico}")]
+        public IActionResult ObtenerProveedoresPorPEspecifico(int idPEspecifico, [FromQuery] string? filtroNombre = null)
+        {
+            try
+            {
+                return Ok(unitOfWork.ProveedorPEspecificoRepository.ObtenerProveedoresPorPEspecifico(idPEspecifico, filtroNombre));
             }
             catch (Exception)
             {

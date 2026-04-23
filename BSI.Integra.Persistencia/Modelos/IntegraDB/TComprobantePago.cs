@@ -125,5 +125,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Identificador de Ciudad
         /// </summary>
         public int? IdCiudad { get; set; }
+
+        public virtual TGestionPago TGestionPago { get; set; } = null!;
     }
 }

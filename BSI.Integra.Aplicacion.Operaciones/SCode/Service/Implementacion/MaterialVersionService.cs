@@ -6,13 +6,17 @@ using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.Operaciones.Service.Interface;
+using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
+using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.AspNetCore.Http;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using System;
 using System.Text.RegularExpressions;
+using System.Transactions;
 
 namespace BSI.Integra.Aplicacion.Operaciones.Service.Implementacion
 {
@@ -301,6 +305,81 @@ namespace BSI.Integra.Aplicacion.Operaciones.Service.Implementacion
                 throw ex;
             }
         }
+        /// Autor: Carlos Crispin Riquelme.
+        /// Fecha: 06/04/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Generar una llamada en la actividad trabajada
+        /// </summary>
+        /// <returns> bool </returns>
+        public bool GenerarNuevaLlamadaActividad(GrabacionCelularLlamadasPorDiaDTO obj, string usuario)
+        {
+            try
+            {
+
+                NuevaLlamadaActividadDTO nuevoObjeto = new NuevaLlamadaActividadDTO();
+                nuevoObjeto.IdActividadDetalle = obj.IdActividadDetalle.Value;
+                nuevoObjeto.DuracionContesto = obj.DuracionContesto.Value;
+                nuevoObjeto.NombreArchivo = obj.NombreArchivo;
+                nuevoObjeto.NroBytes = obj.NroBytes.Value;
+                nuevoObjeto.File = obj.File;
+                nuevoObjeto.GrabacionContrato = obj.GrabacionContrato.Value;
+                nuevoObjeto.IdLlamada=obj.IdLlamada;
+
+                //aqui obtengo el idpersonal y el anexo por el idoportunidad
+
+
+                var oportunidadService = new OportunidadService(_unitOfWork);
+                var personalService = new PersonalService(_unitOfWork);
+                var alumnoService = new AlumnoService(_unitOfWork);
+                var actividadDetalleService = new ActividadDetalleService(_unitOfWork);
+
+
+
+                var oportunidadSeleccionada = oportunidadService.ObtenerPorId(obj.IdOportunidad.Value);
+                var personalSeleccionado = personalService.ObtenerPorId(oportunidadSeleccionada.IdPersonalAsignado.Value);
+                var alumnoSeleccionado = alumnoService.ObtenerPorId(oportunidadSeleccionada.IdAlumno.Value);
+                var actividadDetalleSeleccionada = actividadDetalleService.ObtenerPorId(obj.IdActividadDetalle.Value);
+
+                nuevoObjeto.IdPersonalAsignado = personalSeleccionado.Id;
+                nuevoObjeto.Anexo3CX = personalSeleccionado.Anexo3Cx;
+                nuevoObjeto.TelefonoDestino = LimpiarCelular(alumnoSeleccionado.Celular, alumnoSeleccionado.IdCodigoPais.Value);
+                nuevoObjeto.FechaInicio = actividadDetalleSeleccionada.FechaReal.Value;
+
+
+                IGestionArchivoLlamadaService gestionArchivoBo = new GestionArchivoLlamadaService(_unitOfWork);
+                string url = string.Empty;
+                const string rutaBlob = "asterisk/2023/Regularizacion/";
+                const string rutaCompleta = $"https://repositorioaudiollamada.blob.core.windows.net/{rutaBlob}";
+
+                url = gestionArchivoBo.SubirArchivoAudioLlamada(nuevoObjeto.File.ConvertToByte(), nuevoObjeto.File.ContentType, nuevoObjeto.NombreArchivo, rutaCompleta, rutaBlob);
+
+                using (TransactionScope scope = new TransactionScope())
+                {
+                    try
+                    {
+                        ILlamadaWebphoneAsteriskService llamadaWebphoneAsteriskService = new LlamadaWebphoneAsteriskService(_unitOfWork);
+                        ILlamadaWebphoneCruceCentralService llamadaWebphoneCruceCentralService = new LlamadaWebphoneCruceCentralService(_unitOfWork);
+                        LlamadaWebphoneAsterisk nuevaLlamadaWebphoneAsterisk = llamadaWebphoneAsteriskService.Insertar(nuevoObjeto, url, usuario);
+                        LlamadaWebphoneCruceCentral nuevaLlamadaWebphoneCruceCentral = llamadaWebphoneCruceCentralService.Insertar(nuevoObjeto, nuevaLlamadaWebphoneAsterisk, usuario);
+
+                        scope.Complete();
+                        return true;
+                    }
+                    catch (Exception)
+                    {
+                        scope.Dispose();
+                        throw;
+                    }
+                }
+
+            }
+            catch(Exception) {
+                return false;
+            }
+            
+        }
+
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 14/07/2022
         /// Version: 1.0
@@ -429,6 +508,111 @@ namespace BSI.Integra.Aplicacion.Operaciones.Service.Implementacion
             input = replace_N_Mayuscula.Replace(input, "N");
 
             return input;
+        }
+        public string LimpiarCelular(string numeroCelular, int IdCodigoPais)
+        {
+
+            switch (IdCodigoPais)
+            {
+                case 57:
+                    if (
+                    !numeroCelular.StartsWith("0057") &&
+                    !numeroCelular.StartsWith("57") &&
+                    !numeroCelular.StartsWith("+57") &&
+                    !numeroCelular.StartsWith("057") &&
+                    !numeroCelular.StartsWith("+057") &&
+                    !numeroCelular.StartsWith("+0057") &&
+                    numeroCelular != ""
+                    )
+                    {
+                        numeroCelular = "0057" + numeroCelular;
+                    }
+                    break;
+                case 591:
+                    if (
+                     !numeroCelular.StartsWith("00591") &&
+                     !numeroCelular.StartsWith("591") &&
+                     !numeroCelular.StartsWith("+591") &&
+                     !numeroCelular.StartsWith("0591") &&
+                     !numeroCelular.StartsWith("+0591") &&
+                     !numeroCelular.StartsWith("+00591") &&
+                     numeroCelular != ""
+                   )
+                    {
+                        numeroCelular = "00591" + numeroCelular;
+                    }
+                    break;
+                case 52: // Multiple cases sharing logic
+                    if (
+                      !numeroCelular.StartsWith("0052") &&
+                      !numeroCelular.StartsWith("52") &&
+                      !numeroCelular.StartsWith("+52") &&
+                      !numeroCelular.StartsWith("052") &&
+                      !numeroCelular.StartsWith("+052") &&
+                      !numeroCelular.StartsWith("+0052") &&
+                      numeroCelular != ""
+                    )
+                    {
+                        numeroCelular = "0052" + numeroCelular;
+                    }
+                    break;
+                case 51: // Multiple cases sharing logic
+                    if (numeroCelular.StartsWith("0051"))
+                    {
+                        numeroCelular = numeroCelular.Substring(4);
+                    }
+                    if (numeroCelular.StartsWith("51"))
+                    {
+                        numeroCelular = numeroCelular.Substring(2);
+                    }
+                    if (numeroCelular.StartsWith("+51"))
+                    {
+                        numeroCelular = numeroCelular.Substring(3);
+                    }
+                    if (numeroCelular.StartsWith("051"))
+                    {
+                        numeroCelular = numeroCelular.Substring(3);
+                    }
+                    if (numeroCelular.StartsWith("+051"))
+                    {
+                        numeroCelular = numeroCelular.Substring(4);
+                    }
+                    if (numeroCelular.StartsWith("+0051"))
+                    {
+                        numeroCelular = numeroCelular.Substring(5);
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            if (IdCodigoPais == 591 || IdCodigoPais == 57 || IdCodigoPais == 52)
+            {
+                numeroCelular = numeroCelular
+                  .Replace("+", "")
+                  .Replace("-", "")
+                  .Replace("_", "")
+                  .Replace(" ", "")
+                  .Replace("/", "");
+
+                if (numeroCelular.Substring(0, 1) == "0")
+                {
+                    for (int i = 0; i < numeroCelular.Length; i++)
+                    {
+                        string caracter = numeroCelular.Substring(0, 1);
+                        if (caracter == "0")
+                        {
+                            numeroCelular = numeroCelular.Substring(1);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            return numeroCelular.Trim();
+
         }
     }
 }

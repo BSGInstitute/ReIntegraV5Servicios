@@ -228,6 +228,40 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception($"Error en Obtener(): {ex.Message}", ex);
             }
         }
+
+        /// Autor: Marco Jose Villanueva Torres
+        /// Fecha: 2026-03-30
+        /// Version: 1.0
+        /// <summary>
+        /// Busca expositores por email, celular o nro de documento para vincular con proveedores.
+        /// </summary>
+        public IEnumerable<ExpositorDTO> BuscarPorContacto(string? email, string? celular, string? nroDocumento)
+        {
+            try
+            {
+                var parametros = new
+                {
+                    Email = string.IsNullOrWhiteSpace(email) ? null : email.Trim(),
+                    Celular = string.IsNullOrWhiteSpace(celular) ? null : celular.Trim(),
+                    NroDocumento = string.IsNullOrWhiteSpace(nroDocumento) ? null : nroDocumento.Trim()
+                };
+
+                var resultado = _dapperRepository.QuerySPDapper(
+                    "pla.SP_ExpositorBuscarPorContacto",
+                    parametros
+                );
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                    return JsonConvert.DeserializeObject<IEnumerable<ExpositorDTO>>(resultado)!;
+
+                return new List<ExpositorDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en BuscarPorContacto(): {ex.Message}", ex);
+            }
+        }
+
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 19/05/2022
         /// Version: 1.0

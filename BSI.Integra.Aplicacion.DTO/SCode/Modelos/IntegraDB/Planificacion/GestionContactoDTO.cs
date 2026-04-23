@@ -216,6 +216,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string TipoOcurrenciaMarcada { get; set; }
         public string ComentarioOcurrenciaMarcada { get; set; }
         public string UsuarioEjecucion { get; set; }
+        public string ClasificacionComentarioIA { get; set; }
     }
 
     /// <summary>
@@ -271,7 +272,9 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int? IdPEspecificoSesion { get; set; }
         public int IdPlantillaBase { get; set; }
         public int IdPlantilla { get; set; }
+        public int? IdPersonalAsignado { get; set; }
     }
+
     // DTO interno para deserializar resultado plano del SP
     public class ActividadFlujoRawDTO
     {
@@ -311,6 +314,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string TipoOcurrenciaMarcada { get; set; }
         public string ComentarioOcurrenciaMarcada { get; set; }
         public string UsuarioEjecucion { get; set; }
+        public string ClasificacionComentarioIA { get; set; }
     }
 
     /// <summary>

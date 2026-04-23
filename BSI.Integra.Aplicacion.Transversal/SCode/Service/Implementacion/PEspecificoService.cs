@@ -4117,15 +4117,16 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     IdPespecifico = dto.IdPespecifico,
                     FechaHoraInicio = dto.FechaHoraInicio,
                     Duracion = dto.Duracion,
-                    IdExpositor = dto.IdPespecifico,
+                    IdExpositor = dto.IdExpositor,
                     IdAmbiente = dto.IdAmbiente,
                     Comentario = dto.Comentario,
                     SesionAutoGenerada = dto.SesionAutoGenerada,
                     Grupo = (dto.Grupo != 0) ? dto.Grupo : 1,
-                    GrupoSesion = (dto.GrupoSesion != 0 || dto.GrupoSesion!=null) ? dto.Grupo : 0,
+                    GrupoSesion = dto.GrupoSesion,
                     Version = 0,
                     IdModalidadCurso = pEspecifico.TipoId,
-                    IdPEspecificoSesionEstado = (dto.IdPEspecificoSesionEstado!=0 || dto.IdPEspecificoSesionEstado !=null) ? dto.IdPEspecificoSesionEstado: 5,
+                    IdPEspecificoSesionEstado = dto.IdPEspecificoSesionEstado ?? 5,
+                    Reprogramacion = dto.Reprogramacion,
                     Estado = true,
                     FechaCreacion = DateTime.Now,
                     FechaModificacion = DateTime.Now,
@@ -4152,6 +4153,74 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     IdTipoPrograma = idTipoPrograma,
                     IdPEspecificoSesion = pesesion.Id,
                     FechaSesion = pesesion.FechaHoraInicio
+                };
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        /// <summary>
+        /// Inserta una sesión reprogramada con todos los datos específicos
+        /// </summary>
+        /// <param name="dto">Datos de la sesión reprogramada</param>
+        /// <param name="usuario">Usuario que realiza la acción</param>
+        /// <returns>Respuesta con información de la sesión creada</returns>
+        public RptaActualizarDuracionInsertarSesionDTO InsertarSesionReprogramada(ReprogramarSesionDTO dto, string usuario)
+        {
+            try
+            {
+                PEspecifico? pEspecifico = _unitOfWork.PEspecificoRepository.ObtenerPorId(dto.IdPespecifico);
+                if (pEspecifico == null || pEspecifico.Id == 0)
+                {
+                    throw new BadRequestException("Pespecifico no existente");
+                }
+
+                // Actualizar duración total del programa
+                pEspecifico.Duracion = (Convert.ToDecimal(pEspecifico.Duracion) + dto.Duracion).ToString();
+                pEspecifico.FechaModificacion = DateTime.Now;
+                pEspecifico.UsuarioModificacion = usuario;
+
+                // Crear nueva sesión reprogramada
+                PEspecificoSesion sesionReprogramada = new PEspecificoSesion()
+                {
+                    IdPespecifico = dto.IdPespecifico,
+                    FechaHoraInicio = dto.FechaHoraInicio,
+                    Duracion = dto.Duracion,
+                    IdProveedor = dto.IdExpositor,
+                    IdAmbiente = dto.IdAmbiente,
+                    Comentario = dto.Comentario ?? string.Empty,
+                    SesionAutoGenerada = false,
+                    Grupo = dto.Grupo,
+                    GrupoSesion = dto.GrupoSesion,
+                    Version = 0,
+                    IdModalidadCurso = dto.IdModalidadCurso ?? pEspecifico.TipoId,
+                    IdPEspecificoSesionEstado = 7, // Estado "Por-Reprogramar"
+                    Reprogramacion = false,
+                    Estado = true,
+                    FechaCreacion = DateTime.Now,
+                    FechaModificacion = DateTime.Now,
+                    UsuarioCreacion = usuario,
+                    UsuarioModificacion = usuario,
+                };
+
+                _unitOfWork.PEspecificoRepository.Update(pEspecifico);
+                var sesionCreada = _unitOfWork.PEspecificoSesionRepository.Add(sesionReprogramada);
+                _unitOfWork.Commit();
+
+                int idTipoPrograma = 0;
+                if (pEspecifico.IdProgramaGeneral > 0)
+                {
+                    var pGeneral = _unitOfWork.PGeneralRepository
+                        .ObtenerPGeneralPorId(pEspecifico.IdProgramaGeneral.Value);
+                    idTipoPrograma = pGeneral?.IdTipoPrograma ?? 0;
+                }
+
+                return new RptaActualizarDuracionInsertarSesionDTO()
+                {
+                    IdTipoPrograma = idTipoPrograma,
+                    IdPEspecificoSesion = sesionCreada.Id,
+                    FechaSesion = sesionCreada.FechaHoraInicio
                 };
             }
             catch (Exception ex)

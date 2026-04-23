@@ -31,5 +31,16 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             var resultado = _reporteActividadesRealizadasTresCxService.ReporteActividadesRealizadas(filtro);
             return Ok(resultado);
         }
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult GenerarReporteChatAsistenteVirtual([FromBody] ReporteChatAsistenteVirtualFiltrosDTO filtro)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var resultado = _reporteActividadesRealizadasTresCxService.ReporteChatAsistenteVirtual(filtro);
+            return Ok(resultado);
+        }
     }
 }

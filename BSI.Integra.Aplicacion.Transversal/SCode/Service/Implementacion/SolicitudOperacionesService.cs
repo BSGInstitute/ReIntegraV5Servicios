@@ -311,7 +311,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         //}
 
                         var resultadoEliminacion = matriculaCabeceraService.EliminarBeneficiosMatriculaCabeceraIdMatricula(IdMatriculaCabecera);
-                        var listaNuevosBeneficios = matriculaCabeceraService.InsertarBeneficiosMatriculaCabeceraIdMatricula(IdMatriculaCabecera, valorNuevo, (int)matriculacabecera.IdCronograma);
+                        var listaNuevosBeneficios = matriculaCabeceraService.InsertarBeneficiosMatriculaCabeceraIdMatricula(IdMatriculaCabecera, valorNuevo, (int)(matriculacabecera.IdCronograma?? 0));
                         matriculaCabeceraService.Update(matriculacabecera);
 
                     }

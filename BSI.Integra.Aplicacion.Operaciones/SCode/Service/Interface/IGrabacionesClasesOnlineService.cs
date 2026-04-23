@@ -17,6 +17,7 @@ namespace BSI.Integra.Aplicacion.Operaciones.SCode.Service.Interface
         bool ActualizarSesiones(SesionesClasesOnlineModificarFiltroDTO filtro);
         bool ModificarDisponibilidadProgramaDefecto(DataDisponibilidadProgramaDefectoDTO filtro);
         List<DataDisponibilidadProgramaDefectoDTO> ObtenerDisponibilidadPrograma();
+        PEspecificoUltimaSesionDTO ObtenerUltimaSesionPorIdPEspecifico(int idPEspecifico);
     }
- 
+
 }

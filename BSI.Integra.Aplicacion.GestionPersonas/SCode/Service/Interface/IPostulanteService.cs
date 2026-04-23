@@ -50,6 +50,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         Object ActualizarProcesoPostulanteSinNota(PostulanteProcesoNuevoDTO Informacion);
         List<ComparacionProcesosSeleccionDTO> CompararProcesosSeleccion(int IdPostulante, int ProcesoOrigen, int ProcesoDestino);
         Object ActualizarProcesoPostulante(PostulanteProcesoNuevoDTO Informacion);
+        Object CambiarProcesoSeleccionPostulanteAlterno(PostulanteProcesoNuevoDTO Informacion);
         Object EnviarMensajeWhatsAppPostulante(EnvioPlantillaPostulanteDTO Postulantes);
         string GenerarClave(int longitud);
         ImportacionPostulanteResultadoDTO ImportarExcel(IFormFile files);

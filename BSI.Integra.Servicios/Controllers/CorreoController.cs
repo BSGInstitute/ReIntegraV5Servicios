@@ -129,7 +129,7 @@ namespace BSI.Integra.Servicios.Controllers
         /// <returns> objetoDTO: CorreoBodyDTO </returns>
         [Route("[action]")]
         [HttpGet]
-        public ActionResult MarcarComoNoLeidoGmail(int IdCorreo, int IdAsesor, string Folder)
+        public async Task<ActionResult> MarcarComoNoLeidoGmail(int IdCorreo, int IdAsesor, string Folder)
         {
             if (!ModelState.IsValid)
             {
@@ -142,14 +142,90 @@ namespace BSI.Integra.Servicios.Controllers
             try
             {
                 var servicioGmailCliente = new GmailClienteService(unitOfWork);
-                var resultado = servicioGmailCliente.MarcarComoNoLeidoGmail(IdAsesor, IdCorreo, Folder);
+                var resultado = await servicioGmailCliente.MarcarComoNoLeidoGmail(IdAsesor, IdCorreo, Folder);
                 if (resultado)
                 {
                     return Ok(resultado);
                 }
                 else
                 {
-                    return BadRequest("No puedo marcar como no leido(s)");
+                    return BadRequest("No se pudo marcar como no leido");
+                }
+            }
+            catch (Exception Ex)
+            {
+                return BadRequest(Ex.Message);
+            }
+        }
+        /// TipoFuncion: GET
+        /// Autor: Carlos Crispin.
+        /// Fecha: 30/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Marcar correo como leido
+        /// </summary>
+        /// <returns> bool </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<ActionResult> MarcarComoLeidoGmail(int IdCorreo, int IdAsesor, string Folder)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (IdAsesor <= 0)
+            {
+                return BadRequest("El Id Asesor no es valido");
+            }
+            try
+            {
+                var servicioGmailCliente = new GmailClienteService(unitOfWork);
+                var resultado = await servicioGmailCliente.MarcarComoLeidoGmail(IdAsesor, IdCorreo, Folder);
+                if (resultado)
+                {
+                    return Ok(resultado);
+                }
+                else
+                {
+                    return BadRequest("No se pudo marcar como leido");
+                }
+            }
+            catch (Exception Ex)
+            {
+                return BadRequest(Ex.Message);
+            }
+        }
+        /// TipoFuncion: GET
+        /// Autor: Carlos Crispin.
+        /// Fecha: 30/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Eliminar correo de la bandeja o folder indicado
+        /// </summary>
+        /// <returns> bool </returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<ActionResult> EliminarCorreoGmail(int IdCorreo, int IdAsesor, string Folder)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (IdAsesor <= 0)
+            {
+                return BadRequest("El Id Asesor no es valido");
+            }
+            try
+            {
+                var servicioGmailCliente = new GmailClienteService(unitOfWork);
+                var resultado = await servicioGmailCliente.EliminarCorreoGmail(IdAsesor, IdCorreo, Folder);
+                if (resultado)
+                {
+                    return Ok(resultado);
+                }
+                else
+                {
+                    return BadRequest("No se pudo eliminar el correo");
                 }
             }
             catch (Exception Ex)

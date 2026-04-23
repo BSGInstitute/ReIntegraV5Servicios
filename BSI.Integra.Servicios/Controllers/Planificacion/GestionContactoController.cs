@@ -690,6 +690,96 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         }
 
         /// Autor: Lolo Zaa
+        /// Fecha: 26/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Ejecuta una actividad para ser consumida por un job de Python externo sin usuario logueado.
+        /// Resuelve el IdPersonal desde TGestionContacto.IdPersonalAsignado; si es null, usa ID_ASESOR_SISTEMA.
+        /// No requiere claim "Expira" en el JWT.
+        /// </summary>
+        /// <param name="request">Identificador del disparador congelado a ejecutar</param>
+        /// <returns>Resultado de la ejecucion</returns>
+        [HttpPost("[action]")]
+        public async Task<IActionResult> EjecutarActividadSistema([FromBody] EjecutarActividadManualDTO request)
+        {
+            const int ID_ASESOR_SISTEMA = 6205;
+
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(new { Exito = false, Mensaje = "Modelo invalido", Errores = ModelState });
+
+                var resultado = await _gestionContactoService.EjecutarActividadManualmenteAsync(request);
+
+                if (resultado.Exitoso && resultado.DatosActividad != null)
+                {
+                    // Resolver IdPersonal: desde la gestion de contacto o fallback al asesor de sistema
+                    int idPersonal = resultado.DatosActividad.IdPersonalAsignado ?? ID_ASESOR_SISTEMA;
+                    string mensajeEnvio;
+
+                    try
+                    {
+                        mensajeEnvio = await _actividadEnvioService.EnviarActividadAutomaticaAsync(
+                            resultado.DatosActividad, idPersonal, "SISTEMA");
+
+                        await _gestionContactoService.ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
+                        {
+                            IdActividadDetalleCongelada = resultado.DatosActividad.IdActividadDetalleCongelada,
+                            IdDisparadorCongelado       = resultado.DatosActividad.IdDisparadorCongelado,
+                            CodigoNuevoEstado           = "EJECUTADO",
+                            MensajeResultado            = mensajeEnvio,
+                            UsuarioModificacion         = "SISTEMA"
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        await _gestionContactoService.ActualizarEstadoActividadAsync(new ActualizarEstadoRequestDTO
+                        {
+                            IdActividadDetalleCongelada = resultado.DatosActividad.IdActividadDetalleCongelada,
+                            IdDisparadorCongelado       = resultado.DatosActividad.IdDisparadorCongelado,
+                            CodigoNuevoEstado           = "NO_EJECUTADO",
+                            MensajeError                = ex.Message,
+                            UsuarioModificacion         = "SISTEMA"
+                        });
+
+                        return BadRequest(new
+                        {
+                            Exito   = false,
+                            Mensaje = "Error al enviar el mensaje de la actividad",
+                            Error   = ex.Message
+                        });
+                    }
+
+                    return Ok(new
+                    {
+                        Exito            = true,
+                        Mensaje          = "Actividad ejecutada correctamente",
+                        IdEjecucion      = resultado.IdRegistro,
+                        MensajeResultado = mensajeEnvio
+                    });
+                }
+                else
+                {
+                    return BadRequest(new
+                    {
+                        Exito   = false,
+                        Mensaje = "Error al ejecutar actividad",
+                        Error   = resultado.Error
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Exito   = false,
+                    Mensaje = ex.Message,
+                    Detalle = ex.InnerException?.Message
+                });
+            }
+        }
+
+        /// Autor: Lolo Zaa
         /// Fecha: 05/03/2026
         /// Version: 1.0
         /// <summary>
