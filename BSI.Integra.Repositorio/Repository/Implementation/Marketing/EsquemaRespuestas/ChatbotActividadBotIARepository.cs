@@ -155,6 +155,35 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.EsquemaRes
             }
         }
 
+        public void ReactivarNumerosWhatsAppDeActividad(int idChatbotActividadBotIA, string usuario)
+        {
+            try
+            {
+                var query =
+                    @"UPDATE [ia].[T_AsistenteMarketingWhatsAppAsignacion]
+                      SET
+                          Estado              = 1,
+                          UsuarioModificacion = @UsuarioModificacion,
+                          FechaModificacion   = GETDATE()
+                      WHERE Id IN (
+                          SELECT IdAsistenteMarketingWhatsAppAsignacion
+                          FROM   [ia].[T_ChatbotActividadAsignacion]
+                          WHERE  IdChatbotActividad = @IdChatbotActividad
+                            AND  Estado = 1
+                      )";
+
+                _dapperRepository.QueryDapper(query, new
+                {
+                    IdChatbotActividad  = idChatbotActividadBotIA,
+                    UsuarioModificacion = usuario
+                });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public void ActualizarChatbotActividadBotIA(ActualizarChatbotActividadBotIADTO request, string usuario)
         {
             try
@@ -197,7 +226,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.EsquemaRes
         {
             try
             {
-                var sp         = "[ia].[SP_MedioComunicacionObtenerListado]";
+                var sp         = "[ia].[SP_TMedioComunicacion_Obtener]";
                 var jsonResult = _dapperRepository.QuerySPDapper(sp, null);
 
                 if (string.IsNullOrEmpty(jsonResult) || jsonResult == "null")

@@ -1879,7 +1879,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    Codigo,
 	                    IdArea,
 	                    IdSubArea,
-	                    IdCategoria
+	                    IdCategoria,
+                        IdTipoPrograma
                     FROM pla.V_TPGeneral_ObtenerDatosParaPespecifico
                     WHERE
 	                    Estado = 1

@@ -2325,7 +2325,13 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 var listaCentroCosto = _unitOfWork.CentroCostoRepository.ObtenerCentroCostoParaPEspecifico(pGeneral.Codigo, condicion, dto.Anio.ToString(), nombreCiudad);
                 var filtradoPorCodigo = listaCentroCosto.Where(s => s.IdPgeneral.Equals(pGeneral.Codigo));
 
-                string roman = ToRoman(filtradoPorCodigo.Count() + 1);
+                int gruposCreados = filtradoPorCodigo.Count();
+                var versionPrograma = _unitOfWork.PGeneralVersionProgramaRepository.ObtenerPGeneralVersionProgramaDetallePorIdPGeneral(dto.IdProgramaGeneral).FirstOrDefault();
+                int? gruposAsignados = versionPrograma?.GruposAsignados > 0 ? versionPrograma.GruposAsignados : null;
+                bool haAlcanzadoLimite = gruposAsignados.HasValue && gruposCreados >= gruposAsignados.Value;
+
+                int numero = gruposCreados + 1;
+                string roman = ToRoman(numero);
                 modalidad = string.IsNullOrEmpty(modalidad) ? string.Empty : $"{modalidad} ";
 
                 nombrePEspecificoNuevo = $"{pGeneral.Nombre} {modalidad}{dto.Anio} {roman} {nombreCiudad}";
@@ -2339,8 +2345,12 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 nuevoCentroCosto.Codigo = codigoCentroCosto;
                 nuevoCentroCosto.CentroCosto.IdAreaCc = "9-3";
                 nuevoCentroCosto.NombreProgramaEspecifico = nombrePEspecificoNuevo;
+                nuevoCentroCosto.NombreProgramaEspecificoNumerico = $"{nombrePEspecificoNuevo} Grupo {numero}";
                 nuevoCentroCosto.CodigoBanco = "A" + (_unitOfWork.CentroCostoRepository.ObtenerUltimoIdCentroCosto() + 1);
                 nuevoCentroCosto.NombreProgramaGeneral = pGeneral.Nombre;
+                nuevoCentroCosto.GruposAsignados = gruposAsignados;
+                nuevoCentroCosto.GruposCreados = gruposCreados;
+                nuevoCentroCosto.HaAlcanzadoLimiteGrupos = haAlcanzadoLimite;
 
                 return nuevoCentroCosto;
             }

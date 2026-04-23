@@ -8521,6 +8521,24 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private IReporteDashboardRepository _reporteDashboardRepository;
+        IReporteDashboardRepository IUnitOfWork.ReporteDashboardRepository
+        {
+            get
+            {
+                return _reporteDashboardRepository ?? new ReporteDashboardRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IWhatsAppMensajeEnviadoApiAtcRepository _whatsAppMensajeEnviadoApiAtcRepository;
+        IWhatsAppMensajeEnviadoApiAtcRepository IUnitOfWork.WhatsAppMensajeEnviadoApiAtcRepository
+        {
+            get
+            {
+                return _whatsAppMensajeEnviadoApiAtcRepository ?? new WhatsAppMensajeEnviadoApiAtcRepository(_connectionFactory, _dapperRepository);
+            }
+        }
+
 
         private IFacebookResenaRepository _resenaFacebookRepository;
         IFacebookResenaRepository IUnitOfWork.FacebookResenaRepository

@@ -5616,6 +5616,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     if (existente != null)
                     {
                         existente.CantidadMesAccesoAdicionalWebinar = itemVersion.CantidadMesAccesoAdicionalWebinar;
+                        existente.GruposAsignados = itemVersion.GruposAsignados;
                         existente.CantidadWebinarAsignado = itemVersion.CantidadWebinarAsignado;
                         existente.CreditoDisponibleTutorVirtual = itemVersion.CreditoDisponibleTutorVirtual;
                         existente.Duracion = itemVersion.Duracion;
@@ -5632,6 +5633,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             CantidadWebinarAsignado = itemVersion.CantidadWebinarAsignado,
                             CreditoDisponibleTutorVirtual = itemVersion.CreditoDisponibleTutorVirtual,
                             Duracion = itemVersion.Duracion,
+                            GruposAsignados = itemVersion.GruposAsignados,
                             IdVersionPrograma = itemVersion.IdVersionPrograma,
                             IdPgeneral = data.IdPgeneral,
                             UsuarioCreacion = usuario,

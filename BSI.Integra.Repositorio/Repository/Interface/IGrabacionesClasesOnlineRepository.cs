@@ -18,5 +18,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         List<DataDisponibilidadProgramaDefectoDTO> ObtenerDisponibilidadPrograma();
         bool ActualizarSesiones(SesionesClasesOnlineModificarFiltroDTO filtro);
         bool ModificarDisponibilidadProgramaDefecto(DataDisponibilidadProgramaDefectoDTO filtro);
+        PEspecificoUltimaSesionDTO ObtenerUltimaSesionPorIdPEspecifico(int idPEspecifico);
     }
 }

@@ -15,5 +15,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<ProveedorActivoPEspecificoDTO> ObtenerActivoPEspecifico();
         IEnumerable<ProveedorPEspecificoGridDTO> ObtenerPorIdProveedor(int idProveedor);
         bool ExistePorProveedorYPespecifico(int idProveedor, int idPespecifico);
+        IEnumerable<ProveedorPorPEspecificoComboDTO> ObtenerProveedoresPorPEspecifico(int idPEspecifico, string? filtroNombre = null);
     }
 }

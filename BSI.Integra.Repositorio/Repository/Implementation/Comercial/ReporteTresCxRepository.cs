@@ -117,5 +117,34 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Comercial
                 throw new Exception(Ex.Message);
             }
         }
+        ///Autor: Carlos H. Crispin
+        ///Fecha: 13/04/2026
+        /// <summary>
+        /// Obtiene las actividades realizadas por un asesor en un determinado dia
+        /// </summary>
+        /// <param name="filtro"> Filtros de búsqueda por Id</param>
+        /// <param name="fechaInicio"> Filtro de Fecha de Inicio</param>
+        /// <param name="fechaFin"> Filtro de Fecha de Fin </param>
+        /// <returns> Lista de ProcesadoDataChatAsistenteVirtualDTO</returns>
+        public List<ProcesadoDataChatAsistenteVirtualDTO> ReporteChatAsistenteVirtual(ReporteChatAsistenteVirtualFiltroOrdenadoDTO filtro)
+        {
+            try
+            {
+                var items = new List<ProcesadoDataChatAsistenteVirtualDTO>();
+
+                var query = _dapperRepository.QuerySPDapper("[com].[SP_ReporteChatAsistenteComercial]", new
+                {
+                    asesores = filtro.Asesores,
+                    fechaInicio = filtro.FechaInicio,
+                    fechaFin = filtro.FechaFin,
+                });
+                items = JsonConvert.DeserializeObject<List<ProcesadoDataChatAsistenteVirtualDTO>>(query);
+                return items;
+            }
+            catch (Exception Ex)
+            {
+                throw new Exception(Ex.Message);
+            }
+        }
     }
 }

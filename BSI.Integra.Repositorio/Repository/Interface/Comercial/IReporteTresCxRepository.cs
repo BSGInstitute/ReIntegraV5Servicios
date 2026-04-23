@@ -6,5 +6,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
     {
         List<ReporteRealizadaDataTresCxAlternoDTO> ObtenerReporteActividadesRealizadasTresCx(ReporteActividadesRealizadasFiltrosDTO filtro, DateTime fechaInicio, DateTime fechaFin, bool esActual);
         List<ReporteActividadRealizadaDTO> ObtenerReporteActividadesRealizadas(ReporteActividadesRealizadasFiltrosDTO filtro, DateTime fechaInicio, DateTime fechaFin, bool esActual);
+        List<ProcesadoDataChatAsistenteVirtualDTO> ReporteChatAsistenteVirtual(ReporteChatAsistenteVirtualFiltroOrdenadoDTO filtro);
+
+
     }
 }

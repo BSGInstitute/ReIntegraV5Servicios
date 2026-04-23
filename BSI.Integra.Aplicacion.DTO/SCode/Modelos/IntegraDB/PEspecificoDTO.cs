@@ -257,6 +257,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? IdProgramaGeneral { get; set; }
         public string Ciudad { get; set; }
         public int? EstadoPId { get; set; }
+        public int IdEstadoCupos { get; set; }
         public int? TipoId { get; set; }
         public short? OrigenPrograma { get; set; }
         public int? IdCiudad { get; set; }
@@ -376,6 +377,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdArea { get; set; }
         public int IdSubArea { get; set; }
         public int IdCategoria { get; set; }
+        public int IdTipoPrograma { get; set; }
     }
     public class CategoriaCiudadDTO
     {

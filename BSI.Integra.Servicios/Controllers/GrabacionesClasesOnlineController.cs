@@ -173,5 +173,30 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
+        /// Tipo Función: POST
+        /// Autor: Marco Jose Villanueva Torres
+        /// Fecha: 2026-04-09
+        /// Versión: 1.0
+        /// <summary>
+        /// Calcula la fecha final de sesión basándose en la última sesión del PEspecifico
+        /// </summary>
+        /// <param name="filtro"> SesionesFiltroDTO </param>
+        /// <returns> PEspecificoUltimaSesionDTO </returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult CalcularFechaFinalSesion([FromBody] SesionesFiltroDTO filtro)
+        {
+            try
+            {
+                var grabacionesClasesOnline = new GrabacionesClasesOnlineService(unitOfWork);
+                var resultado = grabacionesClasesOnline.ObtenerUltimaSesionPorIdPEspecifico(filtro.IdPEspecifico.Value);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

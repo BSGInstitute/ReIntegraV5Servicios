@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -53,7 +54,10 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing.EsquemaRe
     /// <summary>DTO para el catalogo de medios de comunicacion disponibles.</summary>
     public class MedioComunicacionDTO
     {
+        [JsonProperty("Id")]
         public int    IdMedioComunicacion     { get; set; }
+
+        [JsonProperty("Nombre")]
         public string NombreMedioComunicacion { get; set; }
     }
 }
