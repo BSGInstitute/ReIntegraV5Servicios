@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
@@ -4407,6 +4407,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
                 var esHoy = fechaActual == DateTime.Today;
 
+                // Función local: Convierte un valor object a int de forma segura (soporta string, double, float, decimal, long)
+                static int ToSafeInt(object valor)
+                {
+                    if (valor == null) return 0;
+                    return (int)Math.Round(Convert.ToDecimal(valor), MidpointRounding.AwayFromZero);
+                }
+
                 // Función local: Obtener datos del día actual desde SP ope.SP_ReporteControlActividadesAgendaATC
                 (int llamadasTotales, int llamadasEfectivas, int compromisosPago, decimal montoRecaudado) ObtenerDatosActuales()
                 {
@@ -4439,13 +4446,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                     switch (estado)
                                     {
                                         case "Llamadas Totales":
-                                            llamadasTot = Convert.ToInt32(total);
+                                            llamadasTot = ToSafeInt(total);
                                             break;
                                         case "Llamadas Efectivas":
-                                            llamadasEfec = Convert.ToInt32(total);
+                                            llamadasEfec = ToSafeInt(total);
                                             break;
                                         case "Compromisos de Pago":
-                                            compromisosP = Convert.ToInt32(total);
+                                            compromisosP = ToSafeInt(total);
                                             break;
                                         case "Monto Recaudado":
                                             montoRec = Convert.ToDecimal(total);
@@ -4487,19 +4494,19 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                     switch (nombre)
                                     {
                                         case "Llamadas Totales":
-                                            llamadasTot = Convert.ToInt32(valor);
+                                            llamadasTot = ToSafeInt(valor);
                                             break;
                                         case "Llamadas Efectivas":
-                                            llamadasEfec = Convert.ToInt32(valor);
+                                            llamadasEfec = ToSafeInt(valor);
                                             break;
                                         case "Compromisos de Pago":
-                                            compromisosP = Convert.ToInt32(valor);
+                                            compromisosP = ToSafeInt(valor);
                                             break;
                                         case "Monto Recaudado":
                                             montoRec = Convert.ToDecimal(valor);
                                             break;
                                         case "Minutos Totales Telefono Corporativo":
-                                            minutosTot = Convert.ToInt32(valor);
+                                            minutosTot = ToSafeInt(valor);
                                             break;
                                     }
                                 }
