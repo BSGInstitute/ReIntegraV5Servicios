@@ -15,7 +15,6 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int ProgramasFinalizados { get; set; }
         public int TotalDocentes { get; set; }
         public int DocentesActivos { get; set; }
-        public int TotalCoordinadores { get; set; }
         public int TotalSesiones { get; set; }
     }
 
@@ -113,13 +112,22 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public List<string> Areas { get; set; } = new List<string>();
         public List<string> Ciudades { get; set; } = new List<string>();
         public List<ReporteDashboardProgramaEspecificoItemDTO> ProgramasEspecificos { get; set; } = new List<ReporteDashboardProgramaEspecificoItemDTO>();
-        public List<string> CentrosCosto { get; set; } = new List<string>();
+        public List<ReporteDashboardCentroCostoItemDTO> CentrosCosto { get; set; } = new List<ReporteDashboardCentroCostoItemDTO>();
     }
 
     /// <summary>
     /// DTO para item de combo de programas especificos
     /// </summary>
     public class ReporteDashboardProgramaEspecificoItemDTO
+    {
+        public int? Id { get; set; }
+        public string? Nombre { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para item de combo de centros de costo
+    /// </summary>
+    public class ReporteDashboardCentroCostoItemDTO
     {
         public int Id { get; set; }
         public string? Nombre { get; set; }
@@ -184,9 +192,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public DateTime? FechaFin { get; set; }
         public string? Area { get; set; }
         public string? Ciudad { get; set; }
-        public string? ProgramaPadre { get; set; }
         public int? IdProgramaEspecificoPadre { get; set; }
-        public string? CentroCostoPadre { get; set; }
+        public int? IdCentroCostoPadre { get; set; }
     }
 
     /// <summary>
@@ -222,7 +229,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string? ProgramaEspecifico { get; set; }
         public string? EstadoPrograma { get; set; }
         public string? CentroCosto { get; set; }
-        public int IdSesion { get; set; }
+        public int IdPEspecificoSesion { get; set; }
         public DateTime? Fecha { get; set; }
         public string? DiaSemana { get; set; }
         public string? Horario { get; set; }
@@ -410,7 +417,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     /// </summary>
     public class ReporteDashboardSeguimientoDocenteSesionDTO
     {
-        public int IdSesion { get; set; }
+        public int IdPEspecificoSesion { get; set; }
         public int IdPEspecifico { get; set; }
         public string? ProgramaGeneral { get; set; }
         public string? Programa { get; set; }
@@ -438,39 +445,4 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public List<ReporteDashboardSeguimientoDocenteSesionDTO> Sesiones { get; set; } = new();
     }
 
-    // ── Dashboard 2: Notas de alumnos por programa ──────────────────────────
-
-    /// <summary>
-    /// Resumen de notas por criterio de evaluacion (RS1 del SP23)
-    /// </summary>
-    public class ReporteDashboardNotaCriterioResumenDTO
-    {
-        public int IdCriterioEvaluacion { get; set; }
-        public string? CriterioEvaluacion { get; set; }
-        public int ConNota { get; set; }
-        public int SinNota { get; set; }
-        public int Total { get; set; }
-    }
-
-    /// <summary>
-    /// Detalle de nota de un alumno por criterio (RS2 del SP23)
-    /// </summary>
-    public class ReporteDashboardNotaAlumnoDetalleDTO
-    {
-        public int IdMatriculaCabecera { get; set; }
-        public string? NombreAlumno { get; set; }
-        public int IdCriterioEvaluacion { get; set; }
-        public string? CriterioEvaluacion { get; set; }
-        public string? Nota { get; set; }
-        public string? ProgramaEspecifico { get; set; }
-    }
-
-    /// <summary>
-    /// Contenedor con los 2 result sets de notas por programa
-    /// </summary>
-    public class ReporteDashboardNotasAlumnosDTO
-    {
-        public List<ReporteDashboardNotaCriterioResumenDTO> Resumen { get; set; } = new();
-        public List<ReporteDashboardNotaAlumnoDetalleDTO> Detalle { get; set; } = new();
-    }
 }

@@ -1,4 +1,4 @@
-using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
@@ -24,24 +24,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene el resumen de KPIs principales del dashboard
         /// </summary>
-        public async Task<ReporteDashboardResumenDTO> ObtenerResumenAsync(int? anio, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null)
+        public async Task<ReporteDashboardResumenDTO> ObtenerResumenAsync(int? anio, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
-                var resultado = await _dapperRepository.QuerySPFirstOrDefaultAsync(
-                    "pla.SP_ReporteDashboard_ObtenerResumen_V2",
-                    new {
-                        Anio = anio,
-                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
-                        CentroCostoPadre = centroCostoPadre
-                    }
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryFirstOrDefaultAsync<ReporteDashboardResumenDTO>(
+                    "pla.SP_ReporteDashboard_ObtenerResumen",
+                    new { Anio = anio, IdProgramaEspecificoPadre = idProgramaEspecificoPadre, IdCentroCostoPadre = idCentroCostoPadre },
+                    commandType: CommandType.StoredProcedure
                 );
-
-                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
-                {
-                    return JsonConvert.DeserializeObject<ReporteDashboardResumenDTO>(resultado) ?? new ReporteDashboardResumenDTO();
-                }
-                return new ReporteDashboardResumenDTO();
+                return resultado ?? new ReporteDashboardResumenDTO();
             }
             catch (Exception ex)
             {
@@ -52,24 +45,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene la distribucion de programas por estado
         /// </summary>
-        public async Task<List<ReporteDashboardEstadoDTO>> ObtenerResumenPorEstadoAsync(int? anio, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null)
+        public async Task<List<ReporteDashboardEstadoDTO>> ObtenerResumenPorEstadoAsync(int? anio, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
-                var resultado = await _dapperRepository.QuerySPDapperAsync(
-                    "pla.SP_ReporteDashboard_ObtenerResumenPorEstado_V2",
-                    new {
-                        Anio = anio,
-                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
-                        CentroCostoPadre = centroCostoPadre
-                    }
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardEstadoDTO>(
+                    "pla.SP_ReporteDashboard_ObtenerResumenPorEstado",
+                    new { Anio = anio, IdProgramaEspecificoPadre = idProgramaEspecificoPadre, IdCentroCostoPadre = idCentroCostoPadre },
+                    commandType: CommandType.StoredProcedure
                 );
-
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                {
-                    return JsonConvert.DeserializeObject<List<ReporteDashboardEstadoDTO>>(resultado) ?? new List<ReporteDashboardEstadoDTO>();
-                }
-                return new List<ReporteDashboardEstadoDTO>();
+                return resultado.ToList();
             }
             catch (Exception ex)
             {
@@ -80,25 +66,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene la distribucion de programas por modalidad
         /// </summary>
-        public async Task<List<ReporteDashboardModalidadDTO>> ObtenerResumenPorModalidadAsync(int? anio, string? estado, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null)
+        public async Task<List<ReporteDashboardModalidadDTO>> ObtenerResumenPorModalidadAsync(int? anio, string? estado, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
-                var resultado = await _dapperRepository.QuerySPDapperAsync(
-                    "pla.SP_ReporteDashboard_ObtenerGraficoModalidades_V2",
-                    new {
-                        Anio = anio,
-                        Estado = estado,
-                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
-                        CentroCostoPadre = centroCostoPadre
-                    }
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardModalidadDTO>(
+                    "pla.SP_ReporteDashboard_ObtenerResumenPorModalidad",
+                    new { Anio = anio, Estado = estado, IdProgramaEspecificoPadre = idProgramaEspecificoPadre, IdCentroCostoPadre = idCentroCostoPadre },
+                    commandType: CommandType.StoredProcedure
                 );
-
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                {
-                    return JsonConvert.DeserializeObject<List<ReporteDashboardModalidadDTO>>(resultado) ?? new List<ReporteDashboardModalidadDTO>();
-                }
-                return new List<ReporteDashboardModalidadDTO>();
+                return resultado.ToList();
             }
             catch (Exception ex)
             {
@@ -109,29 +87,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene listado de programas filtrado por estado
         /// </summary>
-        public async Task<List<ReporteDashboardProgramaDTO>> ObtenerProgramasPorEstadoAsync(string? estado, int? anio, DateTime? fechaInicio, DateTime? fechaFin, string? modalidad, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null)
+        public async Task<List<ReporteDashboardProgramaDTO>> ObtenerProgramasPorEstadoAsync(string? estado, int? anio, DateTime? fechaInicio, DateTime? fechaFin, string? modalidad, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
-                var resultado = await _dapperRepository.QuerySPDapperAsync(
-                    "pla.SP_ReporteDashboard_ObtenerProgramasPorEstado_V2",
-                    new
-                    {
-                        Estado = estado,
-                        Anio = anio,
-                        FechaInicio = fechaInicio,
-                        FechaFin = fechaFin,
-                        Modalidad = modalidad,
-                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
-                        CentroCostoPadre = centroCostoPadre
-                    }
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardProgramaDTO>(
+                    "pla.SP_ReporteDashboard_ObtenerProgramasPorEstado",
+                    new { Estado = estado, Anio = anio, FechaInicio = fechaInicio, FechaFin = fechaFin, Modalidad = modalidad, IdProgramaEspecificoPadre = idProgramaEspecificoPadre, IdCentroCostoPadre = idCentroCostoPadre },
+                    commandType: CommandType.StoredProcedure
                 );
-
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                {
-                    return JsonConvert.DeserializeObject<List<ReporteDashboardProgramaDTO>>(resultado) ?? new List<ReporteDashboardProgramaDTO>();
-                }
-                return new List<ReporteDashboardProgramaDTO>();
+                return resultado.ToList();
             }
             catch (Exception ex)
             {
@@ -142,28 +108,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene detalle de cursos/sesiones
         /// </summary>
-        public async Task<List<ReporteDashboardCursoDTO>> ObtenerDetalleCursosAsync(DateTime? fecha, DateTime? fechaInicio, DateTime? fechaFin, int? idProgramaPadre, int? anio, string? centroCostoPadre = null)
+        public async Task<List<ReporteDashboardCursoDTO>> ObtenerDetalleCursosAsync(DateTime? fecha, DateTime? fechaInicio, DateTime? fechaFin, int? idProgramaPadre, int? anio, int? idCentroCostoPadre = null)
         {
             try
             {
-                var resultado = await _dapperRepository.QuerySPDapperAsync(
-                    "pla.SP_ReporteDashboard_ObtenerDetalleCursos_V2",
-                    new
-                    {
-                        Fecha = fecha,
-                        FechaInicio = fechaInicio,
-                        FechaFin = fechaFin,
-                        IdProgramaPadre = idProgramaPadre,
-                        Anio = anio,
-                        CentroCostoPadre = centroCostoPadre
-                    }
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardCursoDTO>(
+                    "pla.SP_ReporteDashboard_ObtenerDetalleCursos",
+                    new { Fecha = fecha, FechaInicio = fechaInicio, FechaFin = fechaFin, IdProgramaPadre = idProgramaPadre, Anio = anio, IdCentroCostoPadre = idCentroCostoPadre },
+                    commandType: CommandType.StoredProcedure
                 );
-
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                {
-                    return JsonConvert.DeserializeObject<List<ReporteDashboardCursoDTO>>(resultado) ?? new List<ReporteDashboardCursoDTO>();
-                }
-                return new List<ReporteDashboardCursoDTO>();
+                return resultado.ToList();
             }
             catch (Exception ex)
             {
@@ -174,28 +129,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene listado de docentes con sus asignaciones
         /// </summary>
-        public async Task<List<ReporteDashboardDocenteDTO>> ObtenerDocentesAsignadosAsync(int? anio, int? idDocente, string? estado, bool soloActivos = false, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null)
+        public async Task<List<ReporteDashboardDocenteDTO>> ObtenerDocentesAsignadosAsync(int? anio, int? idDocente, string? estado, bool soloActivos = false, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
-                var resultado = await _dapperRepository.QuerySPDapperAsync(
-                    "pla.SP_ReporteDashboard_ObtenerDocentesAsignados_V2",
-                    new
-                    {
-                        Anio = anio,
-                        IdDocente = idDocente,
-                        Estado = estado,
-                        SoloActivos = soloActivos,
-                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
-                        CentroCostoPadre = centroCostoPadre
-                    }
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardDocenteDTO>(
+                    "pla.SP_ReporteDashboard_ObtenerDocentesAsignados",
+                    new { Anio = anio, IdDocente = idDocente, Estado = estado, SoloActivos = soloActivos, IdProgramaEspecificoPadre = idProgramaEspecificoPadre, IdCentroCostoPadre = idCentroCostoPadre },
+                    commandType: CommandType.StoredProcedure
                 );
-
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                {
-                    return JsonConvert.DeserializeObject<List<ReporteDashboardDocenteDTO>>(resultado) ?? new List<ReporteDashboardDocenteDTO>();
-                }
-                return new List<ReporteDashboardDocenteDTO>();
+                return resultado.ToList();
             }
             catch (Exception ex)
             {
@@ -206,24 +150,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene datos para grafico de programas por mes
         /// </summary>
-        public async Task<List<ReporteDashboardGraficoPorMesDTO>> ObtenerGraficoPorMesAsync(int? anio, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null)
+        public async Task<List<ReporteDashboardGraficoPorMesDTO>> ObtenerGraficoPorMesAsync(int? anio, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
-                var resultado = await _dapperRepository.QuerySPDapperAsync(
-                    "pla.SP_ReporteDashboard_ObtenerGraficoProgramasPorMes_V2",
-                    new {
-                        Anio = anio,
-                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
-                        CentroCostoPadre = centroCostoPadre
-                    }
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardGraficoPorMesDTO>(
+                    "pla.SP_ReporteDashboard_ObtenerGraficoPorMes",
+                    new { Anio = anio, IdProgramaEspecificoPadre = idProgramaEspecificoPadre, IdCentroCostoPadre = idCentroCostoPadre },
+                    commandType: CommandType.StoredProcedure
                 );
-
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                {
-                    return JsonConvert.DeserializeObject<List<ReporteDashboardGraficoPorMesDTO>>(resultado) ?? new List<ReporteDashboardGraficoPorMesDTO>();
-                }
-                return new List<ReporteDashboardGraficoPorMesDTO>();
+                return resultado.ToList();
             }
             catch (Exception ex)
             {
@@ -232,63 +169,41 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         }
 
         /// <summary>
-        /// Obtiene los valores disponibles para los filtros del dashboard
-        /// Usa QueryMultipleAsync para procesar multiples result sets de forma eficiente
+        /// Obtiene los valores disponibles para los filtros del dashboard.
+        /// Llama 5 SPs individuales con filas planas (sin FOR JSON PATH).
         /// </summary>
         public async Task<ReporteDashboardFiltrosDTO> ObtenerFiltrosAsync()
         {
             try
             {
+                using var conn = _connectionFactory.GetConnection;
                 var filtros = new ReporteDashboardFiltrosDTO();
 
-                using (var conn = _connectionFactory.GetConnection)
-                {
-                    using (var multi = await conn.QueryMultipleAsync(
-                        "pla.SP_ReporteDashboard_ObtenerFiltros_V3",
-                        commandType: CommandType.StoredProcedure))
-                    {
-                        // Result Set 1: Anios
-                        var aniosResult = await multi.ReadAsync<dynamic>();
-                        filtros.Anios = aniosResult
-                            .Select(x => (int)x.Anio)
-                            .Where(x => x > 0)
-                            .ToList();
+                var anios = await conn.QueryAsync<int>(
+                    "pla.SP_ReporteDashboard_ObtenerFiltroAnios",
+                    commandType: CommandType.StoredProcedure);
+                filtros.Anios = anios.Where(x => x > 0).ToList();
 
-                        // Result Set 2: Estados
-                        var estadosResult = await multi.ReadAsync<dynamic>();
-                        filtros.Estados = estadosResult
-                            .Select(x => (string)x.Estado)
-                            .Where(x => !string.IsNullOrEmpty(x))
-                            .ToList();
+                var estados = await conn.QueryAsync<string>(
+                    "pla.SP_ReporteDashboard_ObtenerFiltroEstados",
+                    commandType: CommandType.StoredProcedure);
+                filtros.Estados = estados.Where(x => !string.IsNullOrEmpty(x)).ToList();
 
-                        // Result Set 3: Modalidades
-                        var modalidadesResult = await multi.ReadAsync<dynamic>();
-                        filtros.Modalidades = modalidadesResult
-                            .Select(x => (string)x.Modalidad)
-                            .Where(x => !string.IsNullOrEmpty(x))
-                            .ToList();
+                var modalidades = await conn.QueryAsync<string>(
+                    "pla.SP_ReporteDashboard_ObtenerFiltroModalidades",
+                    commandType: CommandType.StoredProcedure);
+                filtros.Modalidades = modalidades.Where(x => !string.IsNullOrEmpty(x)).ToList();
 
-                        // Result Set 4: Programas Especificos
-                        var programasResult = await multi.ReadAsync<dynamic>();
-                        filtros.ProgramasEspecificos = programasResult
-                            .Select(x => new ReporteDashboardProgramaEspecificoItemDTO
-                            {
-                                Id = (int)x.Id,
-                                Nombre = (string)x.Nombre
-                            })
-                            .Where(x => x.Id > 0)
-                            .ToList();
+                var programas = await conn.QueryAsync<ReporteDashboardProgramaEspecificoItemDTO>(
+                    "pla.SP_ReporteDashboard_ObtenerFiltroProgramasPadre",
+                    commandType: CommandType.StoredProcedure);
+                filtros.ProgramasEspecificos = programas.Where(x => x.Id.HasValue && x.Id > 0).ToList();
 
-                        // Result Set 5: Centros de Costo
-                        var centrosCostoResult = await multi.ReadAsync<dynamic>();
-                        filtros.CentrosCosto = centrosCostoResult
-                            .Select(x => (string)x.CentroCostoPadre)
-                            .Where(x => !string.IsNullOrEmpty(x))
-                            .ToList();
-                    }
-                }
+                var centros = await conn.QueryAsync<ReporteDashboardCentroCostoItemDTO>(
+                    "pla.SP_ReporteDashboard_ObtenerFiltroCentrosCosto",
+                    commandType: CommandType.StoredProcedure);
+                filtros.CentrosCosto = centros.Where(x => !string.IsNullOrEmpty(x.Nombre)).ToList();
 
-                // Inicializar listas vacias si es necesario
                 filtros.Areas ??= new List<string>();
                 filtros.Ciudades ??= new List<string>();
 
@@ -307,28 +222,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                var resultado = await _dapperRepository.QuerySPDapperAsync(
-                    "pla.SP_ReporteDashboard_ObtenerDatosCompletos_V2",
-                    new
-                    {
-                        Anio = filtro.Anio,
-                        Estado = filtro.Estado,
-                        Modalidad = filtro.Modalidad,
-                        FechaInicio = filtro.FechaInicio,
-                        FechaFin = filtro.FechaFin,
-                        Area = filtro.Area,
-                        Ciudad = filtro.Ciudad,
-                        ProgramaPadre = filtro.ProgramaPadre,
-                        IdProgramaEspecificoPadre = filtro.IdProgramaEspecificoPadre,
-                        CentroCostoPadre = filtro.CentroCostoPadre
-                    }
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardCompletoDTO>(
+                    "pla.SP_ReporteDashboard_ObtenerDatosCompletos",
+                    new { Anio = filtro.Anio, Estado = filtro.Estado, Modalidad = filtro.Modalidad, FechaInicio = filtro.FechaInicio, FechaFin = filtro.FechaFin, Area = filtro.Area, Ciudad = filtro.Ciudad, IdProgramaEspecificoPadre = filtro.IdProgramaEspecificoPadre, IdCentroCostoPadre = filtro.IdCentroCostoPadre },
+                    commandType: CommandType.StoredProcedure
                 );
-
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                {
-                    return JsonConvert.DeserializeObject<List<ReporteDashboardCompletoDTO>>(resultado) ?? new List<ReporteDashboardCompletoDTO>();
-                }
-                return new List<ReporteDashboardCompletoDTO>();
+                return resultado.ToList();
             }
             catch (Exception ex)
             {
@@ -339,27 +239,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene resumen semanal de sesiones
         /// </summary>
-        public async Task<List<ReporteDashboardSemanalDTO>> ObtenerResumenSemanalAsync(int? anio, int? mesInicio, int? mesFin, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null)
+        public async Task<List<ReporteDashboardSemanalDTO>> ObtenerResumenSemanalAsync(int? anio, int? mesInicio, int? mesFin, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
-                var resultado = await _dapperRepository.QuerySPDapperAsync(
-                    "pla.SP_ReporteDashboard_ObtenerResumenSemanal_V2",
-                    new
-                    {
-                        Anio = anio,
-                        MesInicio = mesInicio,
-                        MesFin = mesFin,
-                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
-                        CentroCostoPadre = centroCostoPadre
-                    }
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardSemanalDTO>(
+                    "pla.SP_ReporteDashboard_ObtenerResumenSemanal",
+                    new { Anio = anio, MesInicio = mesInicio, MesFin = mesFin, IdProgramaEspecificoPadre = idProgramaEspecificoPadre, IdCentroCostoPadre = idCentroCostoPadre },
+                    commandType: CommandType.StoredProcedure
                 );
-
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                {
-                    return JsonConvert.DeserializeObject<List<ReporteDashboardSemanalDTO>>(resultado) ?? new List<ReporteDashboardSemanalDTO>();
-                }
-                return new List<ReporteDashboardSemanalDTO>();
+                return resultado.ToList();
             }
             catch (Exception ex)
             {
@@ -374,22 +264,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             try
             {
-                var resultado = await _dapperRepository.QuerySPDapperAsync(
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardCalendarioDTO>(
                     "pla.SP_ReporteDashboard_ObtenerSesionesCalendario",
-                    new
-                    {
-                        Anio = anio,
-                        SemanaInicio = semanaInicio,
-                        SemanaFin = semanaFin,
-                        Mes = mes
-                    }
+                    new { Anio = anio, SemanaInicio = semanaInicio, SemanaFin = semanaFin, Mes = mes },
+                    commandType: CommandType.StoredProcedure
                 );
-
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                {
-                    return JsonConvert.DeserializeObject<List<ReporteDashboardCalendarioDTO>>(resultado) ?? new List<ReporteDashboardCalendarioDTO>();
-                }
-                return new List<ReporteDashboardCalendarioDTO>();
+                return resultado.ToList();
             }
             catch (Exception ex)
             {
@@ -400,25 +281,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene resumen de sesiones agrupadas por estado de sesion
         /// </summary>
-        public async Task<List<ReporteDashboardEstadoSesionDTO>> ObtenerResumenPorEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null)
+        public async Task<List<ReporteDashboardEstadoSesionDTO>> ObtenerResumenPorEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
-                var resultado = await _dapperRepository.QuerySPDapperAsync(
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardEstadoSesionDTO>(
                     "pla.SP_ReporteDashboard_ObtenerResumenPorEstadoSesion",
-                    new
-                    {
-                        Anio = anio,
-                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
-                        CentroCostoPadre = centroCostoPadre
-                    }
+                    new { Anio = anio, IdProgramaEspecificoPadre = idProgramaEspecificoPadre, IdCentroCostoPadre = idCentroCostoPadre },
+                    commandType: CommandType.StoredProcedure
                 );
-
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                {
-                    return JsonConvert.DeserializeObject<List<ReporteDashboardEstadoSesionDTO>>(resultado) ?? new List<ReporteDashboardEstadoSesionDTO>();
-                }
-                return new List<ReporteDashboardEstadoSesionDTO>();
+                return resultado.ToList();
             }
             catch (Exception ex)
             {
@@ -429,26 +302,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene detalle de sesiones filtradas por estado
         /// </summary>
-        public async Task<List<ReporteDashboardSesionDetalleDTO>> ObtenerSesionesPorEstadoAsync(int? anio, int? idEstadoSesion = null, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null)
+        public async Task<List<ReporteDashboardSesionDetalleDTO>> ObtenerSesionesPorEstadoAsync(int? anio, int? idEstadoSesion = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
-                var resultado = await _dapperRepository.QuerySPDapperAsync(
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardSesionDetalleDTO>(
                     "pla.SP_ReporteDashboard_ObtenerSesionesPorEstado",
-                    new
-                    {
-                        Anio = anio,
-                        IdEstadoSesion = idEstadoSesion,
-                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
-                        CentroCostoPadre = centroCostoPadre
-                    }
+                    new { Anio = anio, IdEstadoSesion = idEstadoSesion, IdProgramaEspecificoPadre = idProgramaEspecificoPadre, IdCentroCostoPadre = idCentroCostoPadre },
+                    commandType: CommandType.StoredProcedure
                 );
-
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                {
-                    return JsonConvert.DeserializeObject<List<ReporteDashboardSesionDetalleDTO>>(resultado) ?? new List<ReporteDashboardSesionDetalleDTO>();
-                }
-                return new List<ReporteDashboardSesionDetalleDTO>();
+                return resultado.ToList();
             }
             catch (Exception ex)
             {
@@ -459,25 +323,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene evolucion mensual de estados de sesion
         /// </summary>
-        public async Task<List<ReporteDashboardEvolucionEstadoSesionDTO>> ObtenerEvolucionEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null)
+        public async Task<List<ReporteDashboardEvolucionEstadoSesionDTO>> ObtenerEvolucionEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
-                var resultado = await _dapperRepository.QuerySPDapperAsync(
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardEvolucionEstadoSesionDTO>(
                     "pla.SP_ReporteDashboard_ObtenerEvolucionEstadoSesion",
-                    new
-                    {
-                        Anio = anio,
-                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
-                        CentroCostoPadre = centroCostoPadre
-                    }
+                    new { Anio = anio, IdProgramaEspecificoPadre = idProgramaEspecificoPadre, IdCentroCostoPadre = idCentroCostoPadre },
+                    commandType: CommandType.StoredProcedure
                 );
-
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
-                {
-                    return JsonConvert.DeserializeObject<List<ReporteDashboardEvolucionEstadoSesionDTO>>(resultado) ?? new List<ReporteDashboardEvolucionEstadoSesionDTO>();
-                }
-                return new List<ReporteDashboardEvolucionEstadoSesionDTO>();
+                return resultado.ToList();
             }
             catch (Exception ex)
             {
@@ -488,25 +344,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene KPIs de estados de sesion
         /// </summary>
-        public async Task<ReporteDashboardKPIsEstadoSesionDTO> ObtenerKPIsEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null)
+        public async Task<ReporteDashboardKPIsEstadoSesionDTO> ObtenerKPIsEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
-                var resultado = await _dapperRepository.QuerySPFirstOrDefaultAsync(
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryFirstOrDefaultAsync<ReporteDashboardKPIsEstadoSesionDTO>(
                     "pla.SP_ReporteDashboard_ObtenerKPIsEstadoSesion",
-                    new
-                    {
-                        Anio = anio,
-                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
-                        CentroCostoPadre = centroCostoPadre
-                    }
+                    new { Anio = anio, IdProgramaEspecificoPadre = idProgramaEspecificoPadre, IdCentroCostoPadre = idCentroCostoPadre },
+                    commandType: CommandType.StoredProcedure
                 );
-
-                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
-                {
-                    return JsonConvert.DeserializeObject<ReporteDashboardKPIsEstadoSesionDTO>(resultado) ?? new ReporteDashboardKPIsEstadoSesionDTO();
-                }
-                return new ReporteDashboardKPIsEstadoSesionDTO();
+                return resultado ?? new ReporteDashboardKPIsEstadoSesionDTO();
             }
             catch (Exception ex)
             {
@@ -568,13 +416,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// Obtiene detalle de cursos V3 con modalidad clasificada
         /// El SP devuelve filas normales (sin FOR JSON PATH) para evitar nulls con window functions
         /// </summary>
-        public async Task<List<ReporteDashboardCursoV3DTO>> ObtenerDetalleCursosV3Async(DateTime? fecha, DateTime? fechaInicio, DateTime? fechaFin, int? idProgramaPadre, int? anio, string? centroCostoPadre, string? modalidadClasificada, int? semanaInicio, int? semanaFin)
+        public async Task<List<ReporteDashboardCursoV3DTO>> ObtenerDetalleCursosV3Async(DateTime? fecha, DateTime? fechaInicio, DateTime? fechaFin, int? idProgramaPadre, int? anio, int? idCentroCostoPadre, string? modalidadClasificada, int? semanaInicio, int? semanaFin)
         {
             try
             {
                 using var conn = _connectionFactory.GetConnection;
                 var resultado = await conn.QueryAsync<ReporteDashboardCursoV3DTO>(
-                    "pla.SP_ReporteDashboard_ObtenerDetalleCursos_V3",
+                    "pla.SP_ReporteDashboard_ObtenerDetalleCursosClasificado",
                     new
                     {
                         Fecha = fecha,
@@ -582,7 +430,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         FechaFin = fechaFin,
                         IdProgramaPadre = idProgramaPadre,
                         Anio = anio,
-                        CentroCostoPadre = centroCostoPadre,
+                        IdCentroCostoPadre = idCentroCostoPadre,
                         ModalidadClasificada = modalidadClasificada,
                         SemanaInicio = semanaInicio,
                         SemanaFin = semanaFin
@@ -689,26 +537,5 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public async Task<ReporteDashboardNotasAlumnosDTO> ObtenerNotasAlumnosPorProgramaAsync(int? idPEspecifico)
-        {
-            try
-            {
-                using var conn = _connectionFactory.GetConnection;
-                using var multi = await conn.QueryMultipleAsync(
-                    "pla.SP_ReporteDashboard_ObtenerNotasAlumnosPorPrograma",
-                    new { IdPEspecifico = idPEspecifico },
-                    commandType: CommandType.StoredProcedure
-                );
-                return new ReporteDashboardNotasAlumnosDTO
-                {
-                    Resumen = (await multi.ReadAsync<ReporteDashboardNotaCriterioResumenDTO>()).ToList(),
-                    Detalle = (await multi.ReadAsync<ReporteDashboardNotaAlumnoDetalleDTO>()).ToList()
-                };
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error en ObtenerNotasAlumnosPorProgramaAsync: {ex.Message}");
-            }
-        }
     }
 }
