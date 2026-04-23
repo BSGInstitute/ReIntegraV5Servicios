@@ -167,7 +167,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
         {
             try
             {
-                var pagina = _integraContext.TFacebookConfiguracion
+                var pagina = _integraContext.TFacebookConfiguracions
                     .Where(p => p.Estado == true && p.IdentificadorPagina == identificadorPagina)
                     .Select(p => new FacebookConfiguracionPaginaDTO
                     {
@@ -347,7 +347,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
         {
             try
             {
-                return _integraContext.TFacebookConfiguracion
+                return _integraContext.TFacebookConfiguracions
                     .Where(p => p.Estado == true)
                     .OrderBy(p => p.Nombre)
                     .Select(p => new FacebookResenaCuentaComboDTO

@@ -189,7 +189,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
                     new
                     {
                         filtro.EsVisible,
-                        IdsPais = idsPaisStr,
+                        IdPais_Lista = idsPaisStr,
                         FechaResena_Inicio = filtro.FechaInicio,
                         FechaResena_Fin = filtro.FechaFin,
                         NumeroPagina = numeroPagina,

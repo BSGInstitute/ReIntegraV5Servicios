@@ -250,9 +250,9 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
             // Intentar OAuth2 para obtener TODAS las reseñas via Business Profile API
             string accessToken = null;
             Dictionary<string, string> locationNamesPorPlaceId = null;
-            bool usarBusinessProfileApi = !string.IsNullOrEmpty(credencial.OAuth2ClientId)
-                                       && !string.IsNullOrEmpty(credencial.OAuth2ClientSecret)
-                                       && !string.IsNullOrEmpty(credencial.OAuth2RefreshToken);
+            bool usarBusinessProfileApi = !string.IsNullOrEmpty(credencial.Oauth2ClientId)
+                                       && !string.IsNullOrEmpty(credencial.Oauth2ClientSecret)
+                                       && !string.IsNullOrEmpty(credencial.Oauth2RefreshToken);
 
             var diagnostico = new List<string>();
 
@@ -261,7 +261,7 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion
                 try
                 {
                     accessToken = await ObtenerAccessTokenAsync(clienteHttp,
-                        credencial.OAuth2ClientId, credencial.OAuth2ClientSecret, credencial.OAuth2RefreshToken);
+                        credencial.Oauth2ClientId, credencial.Oauth2ClientSecret, credencial.Oauth2RefreshToken);
                     diagnostico.Add("OAuth2: Access Token obtenido OK");
 
                     locationNamesPorPlaceId = await DescubrirLocationsPorPlaceIdAsync(clienteHttp, accessToken);

@@ -14,7 +14,6 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string TipoEmpleado { get; set; }
         public string Ventaja { get; set; }
         public string Desventaja { get; set; }
-        public int? IdPais { get; set; }
         public int? IdCiudad { get; set; }
         public DateTime? FechaResena { get; set; }
         public bool Mostrar { get; set; }

@@ -229,7 +229,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
                         Modo = MODO_GRILLA,
                         IdGooglePlacesConfiguracion_Lista = idsSedeCsv,
                         filtro.EsVisible,
-                        Rating = filtro.Valoracion,
+                        Valoracion = filtro.Valoracion,
                         FechaResena_Inicio = filtro.FechaInicio,
                         FechaResena_Fin = filtro.FechaFin,
                         NumeroPagina = numeroPagina,
@@ -311,7 +311,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing
         {
             try
             {
-                return _integraContext.TGooglePlacesConfiguracion
+                return _integraContext.TGooglePlacesConfiguracions
                     .Where(c => c.Estado == true)
                     .OrderBy(c => c.NombreSede)
                     .Select(c => new GoogleResenaSedeComboDTO
