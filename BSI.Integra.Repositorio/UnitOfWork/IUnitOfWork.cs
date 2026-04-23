@@ -1021,5 +1021,6 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IPEspecificoSesionEstadoObservacionDetalleRepository PEspecificoSesionEstadoObservacionDetalleRepository { get; }
         IProveedorPEspecificoRepository ProveedorPEspecificoRepository { get; }
         IReporteDashboardRepository ReporteDashboardRepository { get; }
+        IWhatsAppMensajeEnviadoApiAtcRepository WhatsAppMensajeEnviadoApiAtcRepository { get; }
     }
 }

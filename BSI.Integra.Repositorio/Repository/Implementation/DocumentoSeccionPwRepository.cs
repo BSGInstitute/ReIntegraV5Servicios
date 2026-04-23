@@ -601,7 +601,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 List<RegistroListaSeccionesDocumentoDTO> lista = new List<RegistroListaSeccionesDocumentoDTO>();
-                var query = "SELECT Titulo, Contenido, IdSeccionTipoDetalle_PW, NumeroFila, Cabecera, PiePagina, OrdenWeb FROM pla.V_ListaSeccionesPorIdPrograma_Documento WHERE Titulo != 'Estructura Curricular' AND Titulo != 'Beneficios' AND  Titulo != 'Certificacion' AND Titulo != 'Prerrequisitos' AND  IdPGeneral = @IdPGeneral";
+                var query = "SELECT Titulo, Contenido, IdSeccionTipoDetalle_PW, NumeroFila, Cabecera, PiePagina, OrdenWeb, IdDocumentoPW FROM pla.V_ListaSeccionesPorIdPrograma_Documento WHERE Titulo != 'Estructura Curricular' AND Titulo != 'Beneficios' AND  Titulo != 'Certificacion' AND Titulo != 'Prerrequisitos' AND  IdPGeneral = @IdPGeneral";
                 var res = await _dapperRepository.QueryDapperAsync(query, new { IdPGeneral = idPGeneral });
                 if (!string.IsNullOrEmpty(res) && !res.Contains("[]"))
                 {
