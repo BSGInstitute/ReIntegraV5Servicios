@@ -316,6 +316,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TEstadoCertificadoFisico> TEstadoCertificadoFisicos { get; set; } = null!;
         public virtual DbSet<TEstadoCivil> TEstadoCivils { get; set; } = null!;
         public virtual DbSet<TEstadoConvocatorium> TEstadoConvocatoria { get; set; } = null!;
+        public virtual DbSet<TEstadoCupo> TEstadoCupos { get; set; } = null!;
         public virtual DbSet<TEstadoEtapaProcesoSeleccion> TEstadoEtapaProcesoSeleccions { get; set; } = null!;
         public virtual DbSet<TEstadoGestionContacto> TEstadoGestionContactos { get; set; } = null!;
         public virtual DbSet<TEstadoMatricula> TEstadoMatriculas { get; set; } = null!;
@@ -564,9 +565,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TModeloPredictivoCargo> TModeloPredictivoCargos { get; set; } = null!;
         public virtual DbSet<TModeloPredictivoCategoriaDato> TModeloPredictivoCategoriaDatos { get; set; } = null!;
         public virtual DbSet<TModeloPredictivoEscalaProbabilidad> TModeloPredictivoEscalaProbabilidads { get; set; } = null!;
+        public virtual DbSet<TModeloPredictivoEscalonado> TModeloPredictivoEscalonados { get; set; } = null!;
+        public virtual DbSet<TModeloPredictivoEscalonadoClasificacion> TModeloPredictivoEscalonadoClasificacions { get; set; } = null!;
         public virtual DbSet<TModeloPredictivoFormacion> TModeloPredictivoFormacions { get; set; } = null!;
         public virtual DbSet<TModeloPredictivoIndustrium> TModeloPredictivoIndustria { get; set; } = null!;
         public virtual DbSet<TModeloPredictivoProbabilidad> TModeloPredictivoProbabilidads { get; set; } = null!;
+        public virtual DbSet<TModeloPredictivoProbabilidadEscalonado> TModeloPredictivoProbabilidadEscalonados { get; set; } = null!;
         public virtual DbSet<TModeloPredictivoTipo> TModeloPredictivoTipos { get; set; } = null!;
         public virtual DbSet<TModeloPredictivoTipoDato> TModeloPredictivoTipoDatos { get; set; } = null!;
         public virtual DbSet<TModeloPredictivoTrabajo> TModeloPredictivoTrabajos { get; set; } = null!;
@@ -19105,6 +19109,29 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Sistema Automatico Usuario de modificacion");
             });
 
+            modelBuilder.Entity<TEstadoCupo>(entity =>
+            {
+                entity.ToTable("T_EstadoCupos", "pla");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
+
+                entity.Property(e => e.Nombre).HasMaxLength(300);
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken();
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+            });
+
             modelBuilder.Entity<TEstadoEtapaProcesoSeleccion>(entity =>
             {
                 entity.ToTable("T_EstadoEtapaProcesoSeleccion", "gp");
@@ -34505,6 +34532,99 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasConstraintName("FK_T_ModeloPredictivoEscalaProbabilidad_T_PGeneral");
             });
 
+            modelBuilder.Entity<TModeloPredictivoEscalonado>(entity =>
+            {
+                entity.ToTable("T_ModeloPredictivoEscalonado", "mkt");
+
+                entity.HasComment("Esta tabla almacena los modelos entrenados del modelo predictivo escalonado");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Descripcion del modelo");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de modificacion");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del area a la que pertenece el modelo");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TModeloPredictivoEscalonadoClasificacion>(entity =>
+            {
+                entity.ToTable("T_ModeloPredictivoEscalonadoClasificacion", "mkt");
+
+                entity.HasComment("Esta tabla almacena detalles de resultados de probabilidad del modelo predictivo escalonado");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de modificacion");
+
+                entity.Property(e => e.IdAreaCapacitacion).HasComment("Llave foranea con la tabla T_AreaCapacitacion");
+
+                entity.Property(e => e.IdModeloPredictivoEscalonado).HasComment("Nombre del area a la que pertenece el modelo");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de modificacion");
+
+                entity.HasOne(d => d.IdAreaCapacitacionNavigation)
+                    .WithMany(p => p.TModeloPredictivoEscalonadoClasificacions)
+                    .HasForeignKey(d => d.IdAreaCapacitacion)
+                    .HasConstraintName("FK_T_ModeloPredictivoEscalonadoClasificacion_T_AreaCapacitacion");
+
+                entity.HasOne(d => d.IdModeloPredictivoEscalonadoNavigation)
+                    .WithMany(p => p.TModeloPredictivoEscalonadoClasificacions)
+                    .HasForeignKey(d => d.IdModeloPredictivoEscalonado)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_ModeloPredictivoEscalonadoClasificacion_T_ModeloPredictivoEscalonado");
+            });
+
             modelBuilder.Entity<TModeloPredictivoFormacion>(entity =>
             {
                 entity.ToTable("T_ModeloPredictivoFormacion", "mkt");
@@ -34662,6 +34782,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
 
+                entity.Property(e => e.Version).HasComment("Indica la version de la configuracion punto corte que le corresponde");
+
                 entity.HasOne(d => d.IdModeloPredictivoTipoNavigation)
                     .WithMany(p => p.TModeloPredictivoProbabilidads)
                     .HasForeignKey(d => d.IdModeloPredictivoTipo)
@@ -34671,6 +34793,67 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .WithMany(p => p.TModeloPredictivoProbabilidads)
                     .HasForeignKey(d => d.IdOportunidad)
                     .HasConstraintName("FK_T_ModeloPredictivoProbabilidad_T_Oportunidad");
+            });
+
+            modelBuilder.Entity<TModeloPredictivoProbabilidadEscalonado>(entity =>
+            {
+                entity.ToTable("T_ModeloPredictivoProbabilidadEscalonado", "mkt");
+
+                entity.HasComment("Esta tabla almacena detalles de resultados de probabilidad del modelo predictivo escalonado");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de modificacion");
+
+                entity.Property(e => e.IdModeloPredictivoEscalonadoClasificacion).HasComment("FK con la tabla T_ModeloPredictivoEscalonadoClasificacion");
+
+                entity.Property(e => e.IdModeloPredictivoProbabilidad).HasComment("Llave foranea con la tabla T_ModeloPredictivoTipo");
+
+                entity.Property(e => e.ProbabilidadPerfil)
+                    .HasColumnType("decimal(6, 5)")
+                    .HasComment("Probabilidad calculada basado unicamente el perfil del lead (Area formacion, trabajo, cargo e industria)");
+
+                entity.Property(e => e.ProbabilidadPerfilTasaConversion)
+                    .HasColumnType("decimal(6, 5)")
+                    .HasComment("Probabilidad calculada basado en el perfil del lead + variables de tasa conversion");
+
+                entity.Property(e => e.ProbabilidadPerfilTasaConversionInteraccion)
+                    .HasColumnType("decimal(6, 5)")
+                    .HasComment("Probabilidad calculada basado en el perfil del lead + variables de tasa conversion + variables de interaccion");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de modificacion");
+
+                entity.HasOne(d => d.IdModeloPredictivoEscalonadoClasificacionNavigation)
+                    .WithMany(p => p.TModeloPredictivoProbabilidadEscalonados)
+                    .HasForeignKey(d => d.IdModeloPredictivoEscalonadoClasificacion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_ModeloPredictivoProbabilidadEscalonado_T_ModeloPredictivoEscalonadoClasificacion");
+
+                entity.HasOne(d => d.IdModeloPredictivoProbabilidadNavigation)
+                    .WithMany(p => p.TModeloPredictivoProbabilidadEscalonados)
+                    .HasForeignKey(d => d.IdModeloPredictivoProbabilidad)
+                    .HasConstraintName("FK_T_ModeloPredictivoProbabilidadEscalonado_T_ModeloPredictivoProbabilidad");
             });
 
             modelBuilder.Entity<TModeloPredictivoTipo>(entity =>

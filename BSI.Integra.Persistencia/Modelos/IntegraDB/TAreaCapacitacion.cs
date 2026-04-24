@@ -10,6 +10,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
             TAreaCampaniaMailingDetalles = new HashSet<TAreaCampaniaMailingDetalle>();
             TAreaParametroSeoPws = new HashSet<TAreaParametroSeoPw>();
             TCampaniaGeneralDetalleAreas = new HashSet<TCampaniaGeneralDetalleArea>();
+            TModeloPredictivoEscalonadoClasificacions = new HashSet<TModeloPredictivoEscalonadoClasificacion>();
         }
 
         /// <summary>
@@ -97,5 +98,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual ICollection<TAreaCampaniaMailingDetalle> TAreaCampaniaMailingDetalles { get; set; }
         public virtual ICollection<TAreaParametroSeoPw> TAreaParametroSeoPws { get; set; }
         public virtual ICollection<TCampaniaGeneralDetalleArea> TCampaniaGeneralDetalleAreas { get; set; }
+        public virtual ICollection<TModeloPredictivoEscalonadoClasificacion> TModeloPredictivoEscalonadoClasificacions { get; set; }
     }
 }
