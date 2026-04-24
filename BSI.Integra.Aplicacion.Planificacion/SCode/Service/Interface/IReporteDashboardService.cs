@@ -131,5 +131,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         /// Obtiene notas de alumnos calculadas por PEspecifico
         /// </summary>
         Task<ReporteDashboardNotasPorPEspecificoDTO> ObtenerNotasPorPEspecificoAsync(int idPEspecifico, int grupo);
+
+        // ── Dashboard 3: Furs ─────────────────────────────────────────────────
+        /// <summary>
+        /// Obtiene FURs del area 19, tipo PO, estados 3 y 5 para Dashboard 3
+        /// </summary>
+        Task<List<FurDTO>> ObtenerFursDashboard3Async();
     }
 }

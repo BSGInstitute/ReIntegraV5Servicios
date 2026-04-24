@@ -299,5 +299,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             catch (Exception) { throw; }
         }
 
+        public async Task<List<FurDTO>> ObtenerFursDashboard3Async()
+        {
+            try { return await _unitOfWork.ReporteDashboardRepository.ObtenerFursDashboard3Async(); }
+            catch (Exception) { throw; }
+        }
+
     }
 }

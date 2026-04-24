@@ -578,5 +578,24 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             }
         }
 
+        /// <summary>
+        /// Obtiene FURs del area 19, tipo PO, estados 3 y 5 para Dashboard 3
+        /// </summary>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerFursDashboard3()
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerFursDashboard3Async();
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }

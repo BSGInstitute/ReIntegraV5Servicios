@@ -792,5 +792,33 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        // ── Dashboard 3: Furs ─────────────────────────────────────────────────
+
+        public async Task<List<FurDTO>> ObtenerFursDashboard3Async()
+        {
+            try
+            {
+                using var conn = _connectionFactory.GetConnection;
+                var sql = @"
+                    SELECT Id, Codigo, IdCentroCosto, CentroCosto, Programa, IdCiudad, IdFurTipoPedido, NumeroSemana,
+                           IdProveedor, RazonSocial, IdProducto, Producto, IdProductoPresentacion, ProductoPresentacion,
+                           IdMoneda_Proveedor, FechaLimite, Descripcion, NumeroCuenta, Cuenta, Cantidad,
+                           IdFaseAprobacion1, FaseAprobacion1, PrecioUnitarioMonedaOrigen, PrecioUnitarioDolares,
+                           PrecioTotalMonedaOrigen, PrecioTotalDolares, UsuarioCreacion, UsuarioModificacion,
+                           FechaModificacion, FechaCreacion, Observaciones, IdMonedaPagoReal,
+                           IdPersonalAreaTrabajo, IdCondicionTipoPago, MonedaPagoReal, IdEmpresa
+                    FROM FIN.V_ObtenerFurFinanzas
+                    WHERE IdPersonalAreaTrabajo = 19
+                      AND IdFaseAprobacion1 IN (3, 5)
+                      AND Antiguo = 0
+                    ORDER BY Id DESC";
+                return (await conn.QueryAsync<FurDTO>(sql)).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerFursDashboard3Async: {ex.Message}");
+            }
+        }
+
     }
 }
