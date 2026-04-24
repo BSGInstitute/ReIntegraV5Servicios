@@ -281,9 +281,21 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             catch (Exception) { throw; }
         }
 
+        public async Task<List<ReporteDashboardPEspecificoPorDocenteDTO>> ObtenerPEspecificoPorDocenteAsync(int idProveedor)
+        {
+            try { return await _unitOfWork.ReporteDashboardRepository.ObtenerPEspecificoPorDocenteAsync(idProveedor); }
+            catch (Exception) { throw; }
+        }
+
         public async Task<ReporteDashboardSeguimientoDocenteDTO> ObtenerSeguimientoDocenteAsync(int? idDocente, int? idPEspecifico, int? anio, DateTime? fechaInicio, DateTime? fechaFin)
         {
             try { return await _unitOfWork.ReporteDashboardRepository.ObtenerSeguimientoDocenteAsync(idDocente, idPEspecifico, anio, fechaInicio, fechaFin); }
+            catch (Exception) { throw; }
+        }
+
+        public async Task<ReporteDashboardNotasPorPEspecificoDTO> ObtenerNotasPorPEspecificoAsync(int idPEspecifico, int grupo)
+        {
+            try { return await _unitOfWork.ReporteDashboardRepository.ObtenerNotasPorPEspecificoAsync(idPEspecifico, grupo); }
             catch (Exception) { throw; }
         }
 

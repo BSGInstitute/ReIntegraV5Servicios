@@ -522,6 +522,25 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         }
 
         /// <summary>
+        /// Retorna programas especificos donde el docente (idProveedor) tiene sesiones asignadas
+        /// </summary>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerPEspecificoPorDocente(int idProveedor)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerPEspecificoPorDocenteAsync(idProveedor);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Retorna seguimiento de sesiones de un docente (KPIs + resumen por programa + detalle sesiones)
         /// </summary>
         [Route("[action]")]
@@ -532,6 +551,25 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
                 var resultado = await service.ObtenerSeguimientoDocenteAsync(idDocente, idPEspecifico, anio, fechaInicio, fechaFin);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Retorna notas de alumnos calculadas (Tareas/Asistencia/PromedioFinal) por PEspecifico
+        /// </summary>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerNotasPorPEspecifico(int idPEspecifico, int grupo = 1)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerNotasPorPEspecificoAsync(idPEspecifico, grupo);
                 return Ok(resultado);
             }
             catch (Exception)

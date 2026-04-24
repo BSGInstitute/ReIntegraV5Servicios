@@ -445,4 +445,106 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public List<ReporteDashboardSeguimientoDocenteSesionDTO> Sesiones { get; set; } = new();
     }
 
+    // ── PEspecifico filtrado por Docente (IdProveedor) ───────────────────────
+
+    /// <summary>
+    /// DTO para programas específicos filtrados por docente (idProveedor)
+    /// </summary>
+    public class ReporteDashboardPEspecificoPorDocenteDTO
+    {
+        public int Id { get; set; }
+        public string? Nombre { get; set; }
+    }
+
+    // ── Notas por PEspecifico (SP_PW_ListadoNotaProcesarOnline) ─────────────
+
+    /// <summary>Raw row from SP RS1: evaluaciones/criterios</summary>
+    public class ReporteDashboardNotaEvaluacionRawDTO
+    {
+        public int Id { get; set; }
+        public string? Nombre { get; set; }
+        public decimal Porcentaje { get; set; }
+    }
+
+    /// <summary>Raw row from SP RS2: notas agregadas por alumno y criterio</summary>
+    public class ReporteDashboardNotaRawDTO
+    {
+        public int IdMatriculaCabecera { get; set; }
+        public int IdCriterioEvaluacion { get; set; }
+        public decimal Nota { get; set; }
+    }
+
+    /// <summary>Raw row from SP RS3: detalle de notas (por entregable)</summary>
+    public class ReporteDashboardNotaDetalleRawDTO
+    {
+        public int IdMatriculaCabecera { get; set; }
+        public int IdCriterioEvaluacion { get; set; }
+        public decimal Nota { get; set; }
+    }
+
+    /// <summary>Raw row from SP RS4: matriculas</summary>
+    public class ReporteDashboardMatriculaRawDTO
+    {
+        public int IdMatriculaCabecera { get; set; }
+        public string? CodigoMatricula { get; set; }
+        public string? Alumno { get; set; }
+        public int GrupoCurso { get; set; }
+    }
+
+    /// <summary>Raw row from SP RS5: sesiones presenciales</summary>
+    public class ReporteDashboardSesionRawDTO
+    {
+        public int IdPEspecificoSesion { get; set; }
+    }
+
+    /// <summary>Raw row from SP RS6: asistencias</summary>
+    public class ReporteDashboardAsistenciaRawDTO
+    {
+        public int IdMatriculaCabecera { get; set; }
+        public int IdPEspecificoSesion { get; set; }
+        public bool Asistio { get; set; }
+    }
+
+    /// <summary>Raw row from SP RS7: escala de calificacion</summary>
+    public class ReporteDashboardEscalaRawDTO
+    {
+        public decimal EscalaCalificacion { get; set; }
+        public bool EsOnline { get; set; }
+    }
+
+    /// <summary>Criterio de evaluacion con su nota calculada (columna dinamica)</summary>
+    public class ReporteDashboardNotaCriterioDTO
+    {
+        public int IdEvaluacion { get; set; }
+        public string? NombreCriterio { get; set; }
+        public decimal Porcentaje { get; set; }
+        public decimal Nota { get; set; }
+    }
+
+    /// <summary>Fila de alumno con sus notas por criterio y promedio final</summary>
+    public class ReporteDashboardNotaAlumnoDTO
+    {
+        public int IdMatriculaCabecera { get; set; }
+        public string? CodigoMatricula { get; set; }
+        public string? Alumno { get; set; }
+        public List<ReporteDashboardNotaCriterioDTO> Notas { get; set; } = new();
+        public decimal PromedioFinal { get; set; }
+    }
+
+    /// <summary>Criterio de evaluacion para encabezado de columna</summary>
+    public class ReporteDashboardNotaEvaluacionDTO
+    {
+        public int Id { get; set; }
+        public string? Nombre { get; set; }
+        public decimal Porcentaje { get; set; }
+    }
+
+    /// <summary>Respuesta completa de notas por PEspecifico</summary>
+    public class ReporteDashboardNotasPorPEspecificoDTO
+    {
+        public List<ReporteDashboardNotaEvaluacionDTO> Evaluaciones { get; set; } = new();
+        public List<ReporteDashboardNotaAlumnoDTO> Alumnos { get; set; } = new();
+        public bool EsOnline { get; set; }
+    }
+
 }

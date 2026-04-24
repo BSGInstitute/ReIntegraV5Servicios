@@ -537,5 +537,260 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        public async Task<List<ReporteDashboardPEspecificoPorDocenteDTO>> ObtenerPEspecificoPorDocenteAsync(int idProveedor)
+        {
+            try
+            {
+                using var conn = _connectionFactory.GetConnection;
+                const string sql = @"
+                    SELECT PE.Id, PE.Nombre
+                    FROM pla.T_PEspecifico AS PE
+                    INNER JOIN (
+                        SELECT DISTINCT IdPEspecifico
+                        FROM pla.T_PEspecificoSesion
+                        WHERE IdProveedor = @IdProveedor
+                    ) AS PES ON PES.IdPEspecifico = PE.Id
+                    WHERE PE.Estado = 1
+                    ORDER BY PE.Nombre";
+
+                var resultado = await conn.QueryAsync<ReporteDashboardPEspecificoPorDocenteDTO>(
+                    sql, new { IdProveedor = idProveedor });
+                return resultado.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerPEspecificoPorDocenteAsync: {ex.Message}");
+            }
+        }
+
+        public async Task<ReporteDashboardNotasPorPEspecificoDTO> ObtenerNotasPorPEspecificoAsync(int idPEspecifico, int grupo)
+        {
+            try
+            {
+                using var conn = _connectionFactory.GetConnection;
+
+                // ── 1. Determinar modo: presencial si existe T_Evaluacion aprobada ──
+                var evaluacionesPresencial = (await conn.QueryAsync<ReporteDashboardNotaEvaluacionRawDTO>(
+                    @"SELECT Id, Nombre, Porcentaje
+                      FROM   ope.T_Evaluacion
+                      WHERE  IdPespecifico = @Id AND Grupo = @Grupo AND Aprobado = 1 AND Estado = 1",
+                    new { Id = idPEspecifico, Grupo = grupo }
+                )).ToList();
+
+                bool esOnline = !evaluacionesPresencial.Any();
+
+                // ── 2. Criterios/evaluaciones ──
+                List<ReporteDashboardNotaEvaluacionRawDTO> evaluaciones;
+                if (!esOnline)
+                {
+                    evaluaciones = evaluacionesPresencial;
+                }
+                else
+                {
+                    evaluaciones = (await conn.QueryAsync<ReporteDashboardNotaEvaluacionRawDTO>(
+                        @"SELECT Id, Nombre, Ponderacion AS Porcentaje
+                          FROM   pw.V_PW_ObtenerCriteriosPorProgramaEspecifico
+                          WHERE  IdPespecifico = @Id",
+                        new { Id = idPEspecifico }
+                    )).ToList();
+                }
+
+                // ── 3. Notas y detalle ──
+                List<ReporteDashboardNotaRawDTO>       notas;
+                List<ReporteDashboardNotaDetalleRawDTO> notasDetalle;
+
+                if (!esOnline)
+                {
+                    var ids = evaluaciones.Select(e => e.Id).ToList();
+                    notas = ids.Any()
+                        ? (await conn.QueryAsync<ReporteDashboardNotaRawDTO>(
+                            @"SELECT IdMatriculaCabecera, IdEvaluacion AS IdCriterioEvaluacion, Nota
+                              FROM   ope.T_Nota
+                              WHERE  IdEvaluacion IN @Ids AND Estado = 1",
+                            new { Ids = ids }
+                          )).ToList()
+                        : new List<ReporteDashboardNotaRawDTO>();
+
+                    notasDetalle = new List<ReporteDashboardNotaDetalleRawDTO>();
+                }
+                else
+                {
+                    // Mismos SPs que usa el portal internamente
+                    notas = (await conn.QueryAsync<ReporteDashboardNotaRawDTO>(
+                        "pw.SP_PW_ObtenerNotaOnlinePorProgramaEspecificoV2",
+                        new { IdPEspecifico = idPEspecifico },
+                        commandType: CommandType.StoredProcedure
+                    )).ToList();
+
+                    notasDetalle = (await conn.QueryAsync<ReporteDashboardNotaDetalleRawDTO>(
+                        "pw.SP_PW_ObtenerDetalleNotaOnlinePorProgramaEspecificov2",
+                        new { IdPEspecifico = idPEspecifico },
+                        commandType: CommandType.StoredProcedure
+                    )).ToList();
+                }
+
+                // ── 4. Matriculas ──
+                var matriculas = (await conn.QueryAsync<ReporteDashboardMatriculaRawDTO>(
+                    @"SELECT MIN(IdMatriculaIntegra) AS IdMatriculaIntegra,
+                             IdMatriculaCabecera, IdPEspecifico, CodigoMatricula, GrupoCurso, Alumno
+                      FROM   pw.V_PW_MatriculasActivas_PorPEspecificoV2
+                      WHERE  IdPespecifico = @Id AND GrupoCurso = @Grupo AND SoloSeguimientoAtc = 0
+                      GROUP  BY IdMatriculaCabecera, IdPEspecifico, CodigoMatricula, GrupoCurso, Alumno
+                      ORDER  BY Alumno",
+                    new { Id = idPEspecifico, Grupo = grupo }
+                )).ToList();
+
+                // ── 5. Sesiones ──
+                var sesiones = (await conn.QueryAsync<ReporteDashboardSesionRawDTO>(
+                    @"SELECT Id AS IdPEspecificoSesion
+                      FROM   pla.T_PEspecificoSesion
+                      WHERE  IdPespecifico = @Id AND Grupo = @Grupo AND Estado = 1",
+                    new { Id = idPEspecifico, Grupo = grupo }
+                )).ToList();
+
+                // ── 6. Asistencias ──
+                List<ReporteDashboardAsistenciaRawDTO> asistencias;
+                var sesionIds = sesiones.Select(s => s.IdPEspecificoSesion).ToList();
+                if (sesionIds.Any())
+                {
+                    asistencias = (await conn.QueryAsync<ReporteDashboardAsistenciaRawDTO>(
+                        @"SELECT IdPEspecificoSesion, IdMatriculaCabecera, Asistio
+                          FROM   ope.T_Asistencia
+                          WHERE  IdPEspecificoSesion IN @Ids AND Estado = 1",
+                        new { Ids = sesionIds }
+                    )).ToList();
+                }
+                else
+                {
+                    asistencias = new List<ReporteDashboardAsistenciaRawDTO>();
+                }
+
+                // ── 7. Escala de calificacion ──
+                // Online: siempre 100 (igual que el portal).
+                // Presencial: busca el codigo de ciudad en el nombre del centro de costo.
+                decimal escalaGlobal = 100;
+                if (!esOnline)
+                {
+                    var cc = await conn.QueryFirstOrDefaultAsync<dynamic>(
+                        @"SELECT TOP 1 CentroCosto
+                          FROM   pla.V_DatosCentroCostoPorIdPEspecifico
+                          WHERE  IdPEspecifico = @Id",
+                        new { Id = idPEspecifico }
+                    );
+                    if (cc != null)
+                    {
+                        var escalas = (await conn.QueryAsync<dynamic>(
+                            @"SELECT CodigoCiudad, EscalaCalificacion
+                              FROM   ope.T_EvaluacionEscalaCalificacion
+                              WHERE  IdModalidadCurso = 0 AND Estado = 1
+                              ORDER  BY Id"
+                        )).ToList();
+
+                        string centroCosto = (string)(cc.CentroCosto ?? "");
+                        foreach (var escala in escalas)
+                        {
+                            string codigo = (string)(escala.CodigoCiudad ?? "");
+                            if (!string.IsNullOrEmpty(codigo) && centroCosto.Contains(codigo))
+                                escalaGlobal = (decimal)escala.EscalaCalificacion;
+                        }
+                    }
+                    if (escalaGlobal <= 0) escalaGlobal = 100;
+                }
+
+                int totalSesiones = sesiones.Count;
+
+                // Encabezados de columnas (sin prefijo "Portal-")
+                var encabezados = evaluaciones.Select(e => new ReporteDashboardNotaEvaluacionDTO
+                {
+                    Id = e.Id,
+                    Nombre = (e.Nombre ?? "").Replace("Portal-", "").Replace("Portal -", ""),
+                    Porcentaje = e.Porcentaje
+                }).ToList();
+
+                // Calcular nota por alumno
+                var alumnos = new List<ReporteDashboardNotaAlumnoDTO>();
+                foreach (var m in matriculas)
+                {
+                    var notasCriterio = new List<ReporteDashboardNotaCriterioDTO>();
+                    decimal promedioFinal = 0;
+
+                    foreach (var evl in evaluaciones)
+                    {
+                        decimal nota = 0;
+                        string nombreSinPortal = (evl.Nombre ?? "").Replace("Portal-", "").Replace("Portal -", "");
+                        bool esAsistencia = nombreSinPortal.Equals("ASISTENCIA", StringComparison.OrdinalIgnoreCase)
+                                         || nombreSinPortal.IndexOf("ASISTENCIA", StringComparison.OrdinalIgnoreCase) >= 0;
+
+                        if (esAsistencia)
+                        {
+                            // Asistencia: (sesiones asistidas / total sesiones) * 100
+                            int asistidas = asistencias.Count(a =>
+                                a.IdMatriculaCabecera == m.IdMatriculaCabecera && a.Asistio);
+                            nota = totalSesiones > 0
+                                ? Math.Round((decimal)asistidas / totalSesiones * 100, 2)
+                                : 0;
+                        }
+                        else
+                        {
+                            // Primero: promedio de detalles individuales por entregable (RS3)
+                            var detalles = notasDetalle
+                                .Where(d => d.IdMatriculaCabecera == m.IdMatriculaCabecera
+                                         && d.IdCriterioEvaluacion == evl.Id)
+                                .ToList();
+
+                            if (detalles.Any())
+                            {
+                                nota = Math.Round(detalles.Sum(d => d.Nota) / detalles.Count, 2);
+                            }
+                            else
+                            {
+                                // Fallback RS2: sumar todas las filas por (matricula, criterio)
+                                // RS2 puede tener multiples filas por FechaCreacion; su suma da el promedio correcto
+                                var notasRows = notas
+                                    .Where(n => n.IdMatriculaCabecera == m.IdMatriculaCabecera
+                                             && n.IdCriterioEvaluacion == evl.Id)
+                                    .ToList();
+                                nota = notasRows.Any() ? notasRows.Sum(n => n.Nota) : 0;
+                            }
+
+                            // Normalizar a escala 100 (presencial puede tener escala != 100)
+                            if (escalaGlobal != 100)
+                                nota = Math.Round(nota * 100 / escalaGlobal, 2);
+                        }
+
+                        notasCriterio.Add(new ReporteDashboardNotaCriterioDTO
+                        {
+                            IdEvaluacion = evl.Id,
+                            NombreCriterio = nombreSinPortal,
+                            Porcentaje = evl.Porcentaje,
+                            Nota = nota
+                        });
+
+                        promedioFinal += nota * evl.Porcentaje / 100;
+                    }
+
+                    alumnos.Add(new ReporteDashboardNotaAlumnoDTO
+                    {
+                        IdMatriculaCabecera = m.IdMatriculaCabecera,
+                        CodigoMatricula = m.CodigoMatricula,
+                        Alumno = m.Alumno,
+                        Notas = notasCriterio,
+                        PromedioFinal = Math.Round(promedioFinal, 0, MidpointRounding.AwayFromZero)
+                    });
+                }
+
+                return new ReporteDashboardNotasPorPEspecificoDTO
+                {
+                    Evaluaciones = encabezados,
+                    Alumnos = alumnos,
+                    EsOnline = esOnline
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerNotasPorPEspecificoAsync: {ex.Message}");
+            }
+        }
+
     }
 }

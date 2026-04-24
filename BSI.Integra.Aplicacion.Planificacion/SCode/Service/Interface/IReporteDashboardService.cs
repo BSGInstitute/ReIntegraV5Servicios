@@ -113,6 +113,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         Task<List<ReporteDashboardDocenteFiltroDTO>> ObtenerDocentesFiltroAsync(string? busqueda = null);
 
         /// <summary>
+        /// Obtiene programas especificos donde el docente tiene sesiones asignadas
+        /// </summary>
+        Task<List<ReporteDashboardPEspecificoPorDocenteDTO>> ObtenerPEspecificoPorDocenteAsync(int idProveedor);
+
+        /// <summary>
         /// Obtiene lista de programas especificos para filtro con busqueda
         /// </summary>
         Task<List<ReporteDashboardPEspecificoFiltroDTO>> ObtenerPEspecificoFiltroAsync(string? busqueda = null);
@@ -121,5 +126,10 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         /// Obtiene el seguimiento completo de sesiones de un docente (KPIs + por programa + detalle)
         /// </summary>
         Task<ReporteDashboardSeguimientoDocenteDTO> ObtenerSeguimientoDocenteAsync(int? idDocente, int? idPEspecifico, int? anio, DateTime? fechaInicio, DateTime? fechaFin);
+
+        /// <summary>
+        /// Obtiene notas de alumnos calculadas por PEspecifico
+        /// </summary>
+        Task<ReporteDashboardNotasPorPEspecificoDTO> ObtenerNotasPorPEspecificoAsync(int idPEspecifico, int grupo);
     }
 }

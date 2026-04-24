@@ -107,7 +107,17 @@ namespace BSI.Integra.Repositorio.Repository.Interface
 
         // ── Dashboard 2: Seguimiento por Docente ─────────────────────────────
         Task<List<ReporteDashboardDocenteFiltroDTO>> ObtenerDocentesFiltroAsync(string? busqueda);
+
+        /// <summary>
+        /// Obtiene programas especificos donde un docente (IdProveedor) tiene sesiones asignadas
+        /// </summary>
+        Task<List<ReporteDashboardPEspecificoPorDocenteDTO>> ObtenerPEspecificoPorDocenteAsync(int idProveedor);
         Task<List<ReporteDashboardPEspecificoFiltroDTO>> ObtenerPEspecificoFiltroAsync(string? busqueda);
         Task<ReporteDashboardSeguimientoDocenteDTO> ObtenerSeguimientoDocenteAsync(int? idDocente, int? idPEspecifico, int? anio, DateTime? fechaInicio, DateTime? fechaFin);
+
+        /// <summary>
+        /// Obtiene notas de alumnos por PEspecifico usando SP_PW_ListadoNotaProcesarOnline
+        /// </summary>
+        Task<ReporteDashboardNotasPorPEspecificoDTO> ObtenerNotasPorPEspecificoAsync(int idPEspecifico, int grupo);
     }
 }
