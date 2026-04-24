@@ -104,6 +104,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// <summary>
         /// DESCRIPCION
         /// </summary>
+        public int? IdEstadoCupos { get; set; }
+        /// <summary>
+        /// DESCRIPCION
+        /// </summary>
         public int? TipoId { get; set; }
         /// <summary>
         /// Es foreing key tCategoriaP
