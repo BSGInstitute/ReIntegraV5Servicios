@@ -1032,7 +1032,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                            INNER JOIN pla.T_CentroCosto AS CC ON CC.ID = PE.IdCentroCosto
 		                            AND CC.Estado = 1
 	                            WHERE PE.Estado = 1 AND EstadoPId IN (3, 5)
-		                            AND ISNULL(PE.EsEspecial, 0) <> 1 AND  PE.IdProgramaGeneral <> 7671"; //7671:Curso Oficial de Preparación para el Examen Project Management Professional (PMP)®
+		                            AND ISNULL(PE.EsEspecial, 0) <> 1 AND  PE.IdProgramaGeneral <> 7671 AND PE.IdEstadoCupos=1"; //7671:Curso Oficial de Preparación para el Examen Project Management Professional (PMP)®
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && resultado != "[]")
                 {
