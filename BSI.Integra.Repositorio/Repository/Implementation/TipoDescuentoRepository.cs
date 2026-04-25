@@ -401,9 +401,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 List<TipoDescuentoOportunidadDTO> tiposDescuento = new List<TipoDescuentoOportunidadDTO>();
                 var query = @"
-                    SELECT Id,Codigo,Descripcion,Formula,PorcentajeGeneral,PorcentajeMatricula,FraccionesMatricula,PorcentajeCuotas,CuotasAdicionales,Tipo, AplicaPrograma
-                    FROM mkt.V_TiposDescuentos
-                    WHERE IdOportunidad = @idOportunidad AND Tipo = @tipoPersonal and Id>226
+                    SELECT IdTipoDescuento AS Id,Codigo,Descripcion,Formula,PorcentajeGeneral,PorcentajeMatricula,FraccionesMatricula,PorcentajeCuotas,CuotasAdicionales,Tipo,AplicaProgramaCompleto AS AplicaPrograma
+                    FROM [mkt].[V_TipoDescuentoSolicitud]
+                    WHERE  IdTipoDescuento>226
                     UNION
                     SELECT IdTipoDescuento AS Id,Codigo,Descripcion,Formula,PorcentajeGeneral,PorcentajeMatricula,FraccionesMatricula,PorcentajeCuotas,CuotasAdicionales,Tipo, AplicaPrograma
                     FROM pla.V_TiposDescuentosSolicitudOportunidad
@@ -484,7 +484,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     LEFT JOIN pla.T_FormulaTipoDescuento ftd ON ftd.Id = td.Formula
                     LEFT JOIN pla.T_TipoDescuentoNivelAprobacion na ON na.Id = td.IdTipoDescuentoNivelAprobacion
                     WHERE td.Estado = 1 
-                    AND CAST(td.FechaCreacion AS DATE) >= '2026-03-24' --FILTRO TEMPORAL
                     ORDER BY td.Id DESC";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
