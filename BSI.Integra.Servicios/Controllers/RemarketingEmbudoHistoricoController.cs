@@ -162,7 +162,7 @@ namespace BSI.Integra.Servicios.Controllers
         /// <returns>Response 200 con el bool, caso contrario response 400 con el mensaje de error</returns>
         [Route("[action]")]
         [HttpPost]
-        public async Task<ActionResult<bool>> EvaluarEmbudoRemarketing(DateTime? FechaCorte)
+        public async Task<ActionResult<bool>> EvaluarEmbudoRemarketing()
         {
             if (!ModelState.IsValid)
             {
@@ -171,7 +171,7 @@ namespace BSI.Integra.Servicios.Controllers
             try
             {
                 var servicio = new RemarketingEmbudoHistoricoService(unitOfWork);
-                var resultado = await servicio.EvaluarEmbudoRemarketing(FechaCorte);
+                var resultado = await servicio.EvaluarEmbudoRemarketing();
                 return Ok(resultado);
             }
             catch (Exception ex)
@@ -200,6 +200,36 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 var servicio = new RemarketingEmbudoHistoricoService(unitOfWork);
                 var resultado = servicio.ObtenerNivelEsquemaEmbudoRemarketing();
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: POST
+        /// Autor: Max Mantilla Rodriguez.
+        /// Fecha: 04/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Procesa y clasifica en el embudo de remarketing a un alumno específico.
+        /// Si ya existe un registro para el alumno, lo actualiza; caso contrario, inserta uno nuevo.
+        /// </summary>
+        /// <param name="IdAlumno">Identificador único del alumno a evaluar.</param>
+        /// <returns>Response 200 con el bool, caso contrario response 400 con el mensaje de error.</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult<bool> EvaluarEmbudoRemarketingAlumno(int IdAlumno)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                string Usuario = "Evaluacion Manual";
+                var servicio = new RemarketingEmbudoHistoricoService(unitOfWork);
+                var resultado = servicio.EvaluarEmbudoRemarketingAlumno(IdAlumno,Usuario);
                 return Ok(resultado);
             }
             catch (Exception ex)

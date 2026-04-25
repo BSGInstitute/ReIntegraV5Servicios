@@ -5,6 +5,7 @@ using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
+using Google.Api.Ads.AdWords.v201809;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -166,20 +167,21 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
         #endregion
 
-        public async Task<List<OportunidadRemarketingEmbudoDTO>> ObtenerInformacionOportunidadRemarketing(DateTime? FechaCorte = null)
+        public List<OportunidadRemarketingEmbudoDTO> ObtenerInformacionOportunidadRemarketing(int Pagina, int RegistrosPorPagina, DateTime? FechaCorte = null)
         {
             try
             {
                 List<OportunidadRemarketingEmbudoDTO> informacionOportunidad = new List<OportunidadRemarketingEmbudoDTO>();
-                string _query = "ia.SP_RemarketingEmbudoInformacionOportunidad";
-                var parametros = new { FechaCorte };
 
-                // NO usar .Result - usar await directamente
-                var resultado = await _dapperRepository.QuerySPDapperAsync(
-                    _query,
-                    parametros,
-                    timeoutMinutos: 5  // 5 minutos
-                );
+                var query = "ia.SP_RemarketingEmbudoInformacionOportunidad";  // Cambié el nombre para consistencia
+                var parametros = new
+                {
+                    FechaCorte,
+                    Pagina,
+                    RegistrosPorPagina
+                };
+
+                var resultado = _dapperRepository.QuerySPDapper(query, parametros);
 
                 if (!string.IsNullOrEmpty(resultado) && resultado != "[]" && resultado != "null")
                 {
@@ -189,10 +191,33 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
                 return new List<OportunidadRemarketingEmbudoDTO>();
             }
+            catch (Exception ex)
+            {
+                throw new Exception($"#OR-OCPPIO@Error en ObtenerInformacionOportunidadRemarketing: {ex.Message}", ex);
+            }
+        }
+        public long ObtenerInformacionOportunidadRemarketingTotal(DateTime? FechaCorte = null)
+        {
+            try
+            {
+                LongTotalDTO valores = new LongTotalDTO();
+                var query = @"ia.SP_RemarketingEmbudoInformacionOportunidadTotal";
+
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(query, new
+                {
+                    FechaCorte
+                });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]") && resultado != "null")
+                {
+                    valores = JsonConvert.DeserializeObject<LongTotalDTO>(resultado);
+                    return valores.Total;
+                }
+                return 0;
+            }
             catch (Exception e)
             {
                 // No solo relanzar, agregar contexto
-                throw new Exception($"Error obteniendo información de remarketing: {e.Message}", e);
+                return 0;
             }
         }
         public List<RemarketingEmbudoNivelDescripcionDTO> ObtenerInformacionRemarketingEmbudoNivel()
@@ -203,7 +228,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var query = @"SELECT Id,Codigo,Nombre FROM ia.T_RemarketingEmbudoNivel";
 
                 var resultado = _dapperRepository.QueryDapper(query, null);
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]") && resultado != "null")
                 {
                     informacionRemarketingEmbudoNivel = JsonConvert.DeserializeObject<List<RemarketingEmbudoNivelDescripcionDTO>>(resultado);
                     return informacionRemarketingEmbudoNivel;
@@ -215,7 +240,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 return null;
             }
         }
-        public void RegistrarEmbudoRemarketing(int IdRemarketingEmbudoNivel, int IdAlumno, DateTime FechaClasificacion)
+        public void RegistrarEmbudoRemarketing(int IdRemarketingEmbudoNivel, int IdAlumno, DateTime FechaClasificacion, string Usuario)
         {
             try
             {
@@ -226,7 +251,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     IdRemarketingEmbudoNivel = IdRemarketingEmbudoNivel,
                     IdAlumno = IdAlumno,
                     FechaClasificacion = FechaClasificacion,
-                    Usuario = "EmbudoRemarketing"
+                    Usuario = Usuario
                 };
                 _dapperRepository.QuerySPDapper(query, parametros);
             }
@@ -241,7 +266,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var query = "ia.SP_RemarketingEmbudoObtenerLlamadasEfectivas";
                 var resultado = _dapperRepository.QuerySPDapper(query, null);
-                if (!string.IsNullOrEmpty(resultado) && resultado != "[]")
+                if (!string.IsNullOrEmpty(resultado) && resultado != "[]" && resultado != "null")
                 {
                     return JsonConvert.DeserializeObject<List<RemarketingEmbudoNivelLlamadaEfectivaDTO>>(resultado)!;
                 }
@@ -263,7 +288,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                             WHERE REN.Estado=1";
 
                 var resultado = _dapperRepository.QueryDapper(query, null);
-                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]") && resultado != "null")
                 {
                     informacionRemarketingEmbudoNivel = JsonConvert.DeserializeObject<List<RemarketingEmbudoEsquemaNivelDTO>>(resultado);
                     return informacionRemarketingEmbudoNivel;
@@ -283,7 +308,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                             FROM [192.168.2.5].integraDB_PortalWeb.mkt.T_ProgressiveProfilingCodigoDescuentoCorreo
                             WHERE Estado=1";
                 var resultado = _dapperRepository.QueryDapper(query, null);
-                if (!string.IsNullOrEmpty(resultado) && resultado != "[]")
+                if (!string.IsNullOrEmpty(resultado) && resultado != "[]" && resultado != "null")
                 {
                     return JsonConvert.DeserializeObject<List<RemarketingEmbudoNivelInteraccionProgresivoDTO>>(resultado)!;
                 }
@@ -300,9 +325,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var todosLosScores = new List<OportunidadScoreDTO>();
                 var totalRegistros = 0;
-                var queryCount = "SELECT COUNT(*) AS Valor FROM ia.T_RemarketingIAScoreContacto WHERE estado = 1";
+                var queryCount = "SELECT COUNT(*) AS Valor FROM ia.T_RemarketingScoreContacto WHERE estado = 1";
                 var resultadoCount = _dapperRepository.FirstOrDefault(queryCount, null);
-                if (!string.IsNullOrEmpty(resultadoCount) && resultadoCount != "[]")
+                if (!string.IsNullOrEmpty(resultadoCount) && resultadoCount != "[]" && resultadoCount != "null")
                 {
                     var total = JsonConvert.DeserializeObject<ValorIntDTO>(resultadoCount);
                     totalRegistros = total.Valor.Value;
@@ -319,9 +344,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         RegistrosPagina = registrosPorPagina
                     };
 
-                    var query = "ia.SP_RemarketingIAObtenerScoresEnBloque";
+                    var query = "ia.SP_RemarketingObtenerScoresEnBloque";
                     var resultado = _dapperRepository.QuerySPDapper(query, parametros);
-                    if (!string.IsNullOrEmpty(resultado) && resultado != "[]")
+                    if (!string.IsNullOrEmpty(resultado) && resultado != "[]" && resultado != "null")
                     {
                         var scoresPagina = JsonConvert.DeserializeObject<List<OportunidadScoreDTO>>(resultado);
 
@@ -336,6 +361,281 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception ex)
             {
                 throw new Exception($"#OR-OCPPIO@Error en ObtenerTodosScoresOportunidadAlumno: {ex.Message}", ex);
+            }
+        }
+        public List<OportunidadScoreDTO> ObtenerScoreOportunidadAlumnoIndividual(int IdOportunidad)
+        {
+            try
+            {
+                var scoreAlumno = new List<OportunidadScoreDTO>();
+                var query = "ia.SP_RemarketingObtenerScoreOportunidad";
+                var resultado = _dapperRepository.QuerySPDapper(query, new { IdOportunidad });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "[]" && resultado != "null")
+                {
+                    scoreAlumno = JsonConvert.DeserializeObject<List<OportunidadScoreDTO>>(resultado);
+                    return scoreAlumno;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#OR-OCPPIO@Error en ObtenerTodosScoresOportunidadAlumno: {ex.Message}", ex);
+            }
+        }
+        /// Autor: Max Mantilla
+        /// Fecha: 04/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la última interacción en el portal para todos los alumnos.
+        /// </summary>
+        /// <returns>List&lt;InteracccionPortalUltimaInteraccionDTO&gt;</returns>
+        public List<InteracccionPortalUltimaInteraccionDTO> ObtenerInteraccionPortalUltimaInteraccion()
+        {
+            try
+            {
+                var query = "mkt.SP_InteraccionPortalUltimaInteraccion";
+                var resultado = _dapperRepository.QuerySPDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && resultado != "[]" && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<List<InteracccionPortalUltimaInteraccionDTO>>(resultado)!;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"ObtenerInteraccionPortalUltimaInteraccion: {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Max Mantilla
+        /// Fecha: 04/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la última interacción en el portal para un alumno específico.
+        /// </summary>
+        /// <param name="IdAlumno">Identificador único del alumno.</param>
+        /// <returns>InteracccionPortalUltimaInteraccionDTO</returns>
+        public InteracccionPortalUltimaInteraccionDTO ObtenerInteraccionPortalUltimaInteraccionAlumno(int IdAlumno)
+        {
+            try
+            {
+                var query = "mkt.SP_InteraccionPortalUltimaInteraccion";
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(query, new { IdAlumno });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "[]" && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<InteracccionPortalUltimaInteraccionDTO>(resultado)!;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"ObtenerInteraccionPortalUltimaInteraccionAlumno: {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Max Mantilla
+        /// Fecha: 04/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el reporte de ocurrencias ejecutadas para todos los alumnos.
+        /// </summary>
+        /// <returns>List&lt;ActividadEjecutadaReporteDTO&gt;</returns>
+        public List<ActividadEjecutadaReporteDTO> ObtenerOcurrenciaEjecutada()
+        {
+            try
+            {
+                var query = "mkt.SP_OportunidadUltimaActividadEjecutadaConteo";
+                var resultado = _dapperRepository.QuerySPDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && resultado != "[]" && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<List<ActividadEjecutadaReporteDTO>>(resultado)!;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"ObtenerOcurrenciaEjecutada: {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Max Mantilla
+        /// Fecha: 04/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el reporte de ocurrencias ejecutadas para un alumno específico.
+        /// </summary>
+        /// <param name="IdAlumno">Identificador único del alumno.</param>
+        /// <returns>ActividadEjecutadaReporteDTO</returns>
+        public ActividadEjecutadaReporteDTO ObtenerOcurrenciaEjecutadaAlumno(int IdAlumno)
+        {
+            try
+            {
+                var query = "mkt.SP_OportunidadUltimaActividadEjecutadaConteo";
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(query, new { IdAlumno });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "[]" && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<ActividadEjecutadaReporteDTO>(resultado)!;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"ObtenerOcurrenciaEjecutadaAlumno: {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Max Mantilla
+        /// Fecha: 04/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el registro de centro de costo por oportunidad para todos los alumnos.
+        /// </summary>
+        /// <returns>List&lt;AlumnoCentroCostoRegistroDTO&gt;</returns>
+        public List<AlumnoCentroCostoRegistroDTO> ObtenerCentroCostoRegistro()
+        {
+            try
+            {
+                var query = "mkt.SP_OportunidadRegistroPortalConteo";
+                var resultado = _dapperRepository.QuerySPDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && resultado != "[]" && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<List<AlumnoCentroCostoRegistroDTO>>(resultado)!;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"ObtenerCentroCostoRegistro: {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Max Mantilla
+        /// Fecha: 04/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el registro de centro de costo por oportunidad para un alumno específico.
+        /// </summary>
+        /// <param name="IdAlumno">Identificador único del alumno.</param>
+        /// <returns>AlumnoCentroCostoRegistroDTO</returns>
+        public AlumnoCentroCostoRegistroDTO ObtenerCentroCostoRegistroAlumno(int IdAlumno)
+        {
+            try
+            {
+                var query = "mkt.SP_OportunidadRegistroPortalConteo";
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(query, new { IdAlumno });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "[]" && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<AlumnoCentroCostoRegistroDTO>(resultado)!;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"ObtenerCentroCostoRegistroAlumno: {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Max Mantilla
+        /// Fecha: 04/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el último mensaje de WhatsApp enviado para todos los alumnos.
+        /// </summary>
+        /// <returns>List&lt;WhatsappUltimoMensajeEnviadoDTO&gt;</returns>
+        public List<WhatsappUltimoMensajeEnviadoDTO> ObtenerWhatsAppMensajeUltimo()
+        {
+            try
+            {
+                var query = "mkt.SP_AlumnoMensajeWhatsappUltimoEnvio";
+                var resultado = _dapperRepository.QuerySPDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && resultado != "[]" && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<List<WhatsappUltimoMensajeEnviadoDTO>>(resultado)!;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"ObtenerWhatsAppMensajeUltimo: {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Max Mantilla
+        /// Fecha: 04/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el último mensaje de WhatsApp enviado para un alumno específico.
+        /// </summary>
+        /// <param name="IdAlumno">Identificador único del alumno.</param>
+        /// <returns>WhatsappUltimoMensajeEnviadoDTO</returns>
+        public WhatsappUltimoMensajeEnviadoDTO ObtenerWhatsAppMensajeUltimoAlumno(int IdAlumno)
+        {
+            try
+            {
+                var query = "mkt.SP_AlumnoMensajeWhatsappUltimoEnvio";
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(query, new { IdAlumno });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "[]" && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<WhatsappUltimoMensajeEnviadoDTO>(resultado)!;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"ObtenerWhatsAppMensajeUltimoAlumno: {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Max Mantilla
+        /// Fecha: 04/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la información de la última oportunidad con su último cambio de fase para todos los alumnos,
+        /// utilizada como base para la evaluación del embudo de remarketing.
+        /// </summary>
+        /// <returns>List&lt;OportunidadUltimoCambioDTO&gt;</returns>
+        public List<OportunidadUltimoCambioDTO> ObtenerRemarketingEmbudoInformacionOportunidadUltimoCambio()
+        {
+            try
+            {
+                var query = "mkt.SP_RemarketingEmbudoInformacionOportunidadUltimoCambio";
+                var resultado = _dapperRepository.QuerySPDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && resultado != "[]" && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<List<OportunidadUltimoCambioDTO>>(resultado)!;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"ObtenerRemarketingEmbudoInformacionOportunidadUltimoCambio: {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Max Mantilla
+        /// Fecha: 04/03/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la información de la última oportunidad con su último cambio de fase para un alumno específico,
+        /// utilizada como base para la evaluación individual del embudo de remarketing.
+        /// </summary>
+        /// <param name="IdAlumno">Identificador único del alumno.</param>
+        /// <returns>OportunidadUltimoCambioDTO</returns>
+        public OportunidadUltimoCambioDTO ObtenerRemarketingEmbudoInformacionOportunidadUltimoCambioAlumno(int IdAlumno)
+        {
+            try
+            {
+                var query = "mkt.SP_RemarketingEmbudoInformacionOportunidadUltimoCambio";
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(query, new { IdAlumno });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "[]" && resultado != "null")
+                {
+                    return JsonConvert.DeserializeObject<OportunidadUltimoCambioDTO>(resultado)!;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"ObtenerRemarketingEmbudoInformacionOportunidadUltimoCambioAlumno: {ex.Message}", ex);
             }
         }
     }

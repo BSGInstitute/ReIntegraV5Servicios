@@ -290,6 +290,52 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex);
             }
         }
+        /// Tipo Función: GET
+        /// Autor: Gilmer Quispe.
+        /// Fecha: 01/10/2022
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene un listado de ChatDetalleIntegra filtrado por idInteraccion
+        /// </summary>
+        /// <param name="idInteraccion">Id del Personal</param>
+        /// <returns> Lista de Entidad List<ChatDetalleIntegra> </returns>
+        [Route("[action]/{idOportunidad}")]
+        [HttpGet]
+        public ActionResult ObtenerCursoOportunidad (int idOportunidad)
+        {
+            try
+            {
+                var servicioChatDetalleIntegra = new ChatDetalleIntegraService(unitOfWork);
+                return Ok(servicioChatDetalleIntegra.ObtenerCursoOportunidad(idOportunidad));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+        /// Tipo Función: GET
+        /// Autor: Gilmer Quispe.
+        /// Fecha: 01/10/2022
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene un listado de ChatDetalleIntegra filtrado por idInteraccion
+        /// </summary>
+        /// <param name="idInteraccion">Id del Personal</param>
+        /// <returns> Lista de Entidad List<ChatDetalleIntegra> </returns>
+        [Route("[action]/{idAlumno}/{idPGeneral}")]
+        [HttpGet]
+        public ActionResult ObtenerDetalleChatPorIdAlumno(int idAlumno,int idPGeneral)
+        {
+            try
+            {
+                var servicioChatDetalleIntegra = new ChatDetalleIntegraService(unitOfWork);
+                return Ok(servicioChatDetalleIntegra.DetalleChatPorIdAlumno(idAlumno , idPGeneral));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
         /// TipoFuncion: GET
         /// Autor: Jonathan Caipo
         /// Fecha: 17/10/2022
@@ -776,6 +822,137 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        /// Tipo Función: POST
+        /// Autor: Max Mantilla
+        /// Fecha: 2024-12-10
+        /// Versión: 1.0
+        /// <returns>Historial de Chats Academicos Online para persistencia </returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerChatsAcademicosHabilitadosCoordinadora([FromBody] HistorialChatEntradaDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerChatsAcademicosHabilitadosCoordinadora(dto.valor,dto.esOnline);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
+        /// Tipo Funcion: POST
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene actividades AONLINE/ONLINE para un alumno y programa
+        /// </summary>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerActividadesAtc([FromBody] ObtenerActividadesAtcRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerActividadesAtc(dto.IdPEspecifico, dto.IdAlumno);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Funcion: POST
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Amplia la fecha de entrega de un cuestionario o tarea
+        /// </summary>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult AmpliarFechaEntregaAtc([FromBody] AmpliarFechaEntregaRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.AmpliarFechaEntrega(dto.IdPEspecifico, dto.IdAlumno, dto.IdActividad, dto.Fecha, dto.TipoActividad);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Funcion: POST
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene sesiones con estado de asistencia
+        /// </summary>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerAsistenciaAtc([FromBody] ObtenerAsistenciaAtcRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerAsistenciaAtc(dto.IdPEspecifico, dto.IdAlumno);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Funcion: POST
+        /// Autor: Jose Vega
+        /// Fecha: 23/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Registra justificacion de inasistencia para una sesion
+        /// </summary>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult RegistrarAsistenciaAtc([FromBody] RegistrarAsistenciaAtcRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.RegistrarAsistenciaAtc(dto.SesionId, dto.IdAlumno);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

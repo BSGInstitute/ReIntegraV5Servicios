@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.Base.Exceptions;
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
+using BSI.Integra.Aplicacion.Comercial.SCode.Service.Interface;
+using BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
@@ -172,8 +174,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 throw ex;
             }
         }
-
-        public IEnumerable<CentroCostoVentaCruzadaDTO> ObtenerCentroCostoVentaCruzada (int idPGeneral)
+        public IEnumerable<CentroCostoVentaCruzadaDTO> ObtenerCentroCostoVentaCruzada(int idPGeneral)
         {
             try
             {
@@ -182,6 +183,115 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
             catch (Exception ex) { throw ex; }
         }
+        /// Autor: Jonathan Caipo
+        /// Fecha: 30/11/2022
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la informacion relacionada a Oportunidades basado en IdClasificacionPersona y IdAlumno* (No usado por el momento)
+        /// </summary>
+        /// <param name="idClasificacionPersona">Id de Clasificacion Persona</param>
+        /// <param name="idAlumno">Id del Alumno</param>
+        /// <returns> List<OportunidadInformacionDTO> </returns>
+        public OportunidadInformacionDTO ObtenerOportunidadInformacionPersonalizado(int idAlumno, int idClasificacionPersona)
+        {
+            try
+            {
+                var oportunidadInformacion = new OportunidadInformacionDTO();
+                IOportunidadService oportunidadService = new OportunidadService(_unitOfWork);
+
+                oportunidadInformacion.ListaVentaCruzada = oportunidadService.ObtenerVentaCruzadaParaAgendaPorIdClasificacionPersona(idClasificacionPersona).ToList();
+                oportunidadInformacion.ListaHistorial = oportunidadService.ObtenerHistorialOportunidadesParaAgendaPorIdClasificacionPersona(idClasificacionPersona).ToList();
+
+                return oportunidadInformacion;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 14/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Cargar información de competidores
+        /// </summary>
+        /// <param name="idOportunidad">Id de Oportunidad</param>
+        /// <returns>CargarInformacionCompetidoresRespuestaDTO</returns> 
+        public async Task<CargarInformacionCompetidoresRespuestaDTO> CargarInformacionCompetidoresAsync(int idOportunidad)
+        {
+            try
+            {
+                if (idOportunidad == 0)
+                    return new CargarInformacionCompetidoresRespuestaDTO { Error = "IdOportunidad no válido" };
+
+                var tareaCompetidores = _unitOfWork.CompetidorRepository.ObtenerCompetidoresPorIdOportunidadAsync(idOportunidad);
+
+                var competidoresRaw = await tareaCompetidores;
+
+                var competidores = new List<Competidorv2DTO>();
+
+                if (competidoresRaw?.Any() == true)
+                {
+                    var groupedByCompetidor = competidoresRaw.GroupBy(c => c.Id);
+
+                    foreach (var group in groupedByCompetidor)
+                    {
+                        var firstItem = group.First();
+
+                        var contenidoCompetidorProcesado = new List<string>();
+
+                        foreach (var item in group)
+                        {
+                            if (!string.IsNullOrEmpty(item.ContenidoCompetidorVentajaDesventaja))
+                            {
+                                var texto = System.Net.WebUtility.HtmlDecode(item.ContenidoCompetidorVentajaDesventaja);
+                                texto = System.Text.RegularExpressions.Regex.Replace(texto, @"<[^>]+>", "");
+                                texto = System.Text.RegularExpressions.Regex.Replace(texto, @"\s+", " ");
+                                var contenidoProcesado = texto.Trim();
+
+                                if (!string.IsNullOrEmpty(contenidoProcesado))
+                                {
+                                    contenidoCompetidorProcesado.Add(contenidoProcesado);
+                                }
+                            }
+                        }
+
+                        competidores.Add(new Competidorv2DTO
+                        {
+                            Id = firstItem.Id,
+                            IdOportunidad = firstItem.IdOportunidad,
+                            Nombre = firstItem.Nombre,
+                            DuracionCronologica = firstItem.DuracionCronologica,
+                            CostoNeto = firstItem.CostoNeto,
+                            Precio = firstItem.Precio,
+                            Categoria = firstItem.Categoria,
+                            Empresa = firstItem.Empresa,
+                            RegionCiudad = firstItem.RegionCiudad,
+                            Moneda = firstItem.Moneda,
+                            ContenidosCompetidor = contenidoCompetidorProcesado
+                        });
+                    }
+                }
+
+                return new CargarInformacionCompetidoresRespuestaDTO
+                {
+                    IdOportunidad = idOportunidad,
+                    Competidores = competidores,
+                    Error = null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new CargarInformacionCompetidoresRespuestaDTO
+                {
+                    IdOportunidad = idOportunidad,
+                    Competidores = new List<Competidorv2DTO>(),
+                    Error = $"Error al cargar competidores: {ex.Message}"
+                };
+            }
+        }
+
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 25/07/2022
         /// Version: 1.0
@@ -474,6 +584,119 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 throw ex;
             }
         }
+
+        /// Autor: Carlos Crispin Riquelme
+        /// Fecha: 04/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene  las recomendaciones obtenidas segun la transcripcion de la llamada
+        /// </summary>
+        /// <param name="idActividadDetalle">Id de la Oportunidad</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        public List<RecomendacionDTO?> ObtenerRecomendacionesPorIdActividadDetalle(int idActividadDetalle)
+        {
+            try
+            {
+                IOportunidadLogService oportunidadLogService = new OportunidadLogService(_unitOfWork);
+                var recomendacionesDTOs = new List<RecomendacionDTO>();
+                recomendacionesDTOs = _unitOfWork.OportunidadRepository.ObtenerRecomendacionesPorIdActividadDetalle(idActividadDetalle);
+                return (recomendacionesDTOs);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 10/11/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el Historial de Interacciones de la Oportunidad por su Id
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        public async Task<HistorialInteraccionesResponseDTO> ObtenerHistorialInteraccionesPorIdOportunidadMensajePersonalizado(int idOportunidad)
+        {
+            try
+            {
+                IOportunidadLogService oportunidadLogService = new OportunidadLogService(_unitOfWork);
+                ITranscriptionService transcriptionService = new TranscriptionService(_unitOfWork);
+                var ventaCruzada = _unitOfWork.OportunidadRepository.ValidarOportundadVentaCruzada(idOportunidad);
+                var reporte = oportunidadLogService.ObtenerReporteSeguimientoActividadesPorIdOportunidad(idOportunidad);
+                var reporteSeguimientoNWActividadDTOs = new List<ReporteSeguimientoNWActividadAlternoDTO?>
+                    {
+                        reporte.FirstOrDefault(x => x.Estado == "NO EJECUTADO")
+                    };
+                reporteSeguimientoNWActividadDTOs.AddRange(reporte.Where(x => x.Estado != "NO EJECUTADO").OrderByDescending(x => x.FechaModificacion).ToList());
+                if (ventaCruzada != null)
+                {
+                    var RN1 = _unitOfWork.OportunidadRepository.ObtnerUltimoRN1(ventaCruzada);
+                    if (RN1 != null && RN1 != 0)
+                    {
+                        var reporteRN1 = oportunidadLogService.ObtenerReporteSeguimientoActividadesPorIdOportunidad(RN1.Value);
+                        var reporteSeguimientoNWActividadDTOsRN1 = new List<ReporteSeguimientoNWActividadAlternoDTO?>();
+                        reporteSeguimientoNWActividadDTOsRN1.AddRange(reporteRN1.Where(x => x.Estado != "NO EJECUTADO").OrderByDescending(x => x.FechaModificacion).ToList());
+                        reporteSeguimientoNWActividadDTOs.AddRange(reporteSeguimientoNWActividadDTOsRN1);
+                    }
+                }
+
+                var response = new HistorialInteraccionesResponseDTO();
+
+                // Procesar los registros: los primeros 4 van a PrimerasInteracciones, el resto a InteraccionesAnteriores
+                for (int i = 0; i < reporteSeguimientoNWActividadDTOs.Count; i++)
+                {
+                    var actividad = reporteSeguimientoNWActividadDTOs[i];
+
+                    if (i < 4)
+                    {
+                        // Para los primeros 4, obtener toda la información incluyendo transcripciones
+                        if (actividad != null && actividad.LlamadasIntegra3cx != null)
+                        {
+                            foreach (var llamada in actividad.LlamadasIntegra3cx)
+                            {
+                                if (llamada.Id.HasValue)
+                                {
+                                    try
+                                    {
+                                        var transcripcion = await transcriptionService.ObtenerTranscripcion(llamada.Id.Value);
+                                        llamada.Transcripcion = transcripcion;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        llamada.Transcripcion = null;
+                                    }
+                                }
+                            }
+                        }
+                        response.PrimerasInteracciones.Add(actividad);
+                    }
+                    else
+                    {
+                        // Para los registros después del 4to, crear un objeto resumido
+                        if (actividad != null)
+                        {
+                            var interaccionResumida = new InteraccionAnteriorResumidaDTO
+                            {
+                                FechaModificacion = actividad.FechaModificacion,
+                                FechaSiguienteLlamada = actividad.FechaSiguienteLlamada,
+                                FaseInicio = actividad.FaseInicio,
+                                FaseDestino = actividad.FaseDestino,
+                                FechaInicioLlamada = actividad.LlamadasIntegra3cx?.FirstOrDefault()?.FechaInicioLlamada
+                            };
+                            response.InteraccionesAnteriores.Add(interaccionResumida);
+                        }
+                    }
+                }
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 01/08/2022
         /// Versión: 1.0
@@ -753,6 +976,29 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                     Valor = 0
                 };
             return (alumnoInformacionDTO, sueldoPromedioDTO, resultadoVisualizarOportunidadDTO);
+        }
+        /// Autor: Erick Marcelo Quispe.
+        /// Fecha: 05/08/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los Datos del Alumno
+        /// </summary>
+        /// <param name="idClasificacionPersona">Id de Clasificacion Persona</param>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <param name="idPersonal">Id del Personal</param>
+        /// <returns> Retorna 200 y lista de objetos para combo o 400 y mensaje de error </returns>
+        public AlumnoInformacionDTO ObtenerDatosAlumnoPersonalizado(int idClasificacionPersona, int idOportunidad)
+        {
+            IAlumnoService alumnoService = new AlumnoService(_unitOfWork);
+            IEmpresaService empresaService = new EmpresaService(_unitOfWork);
+            ISentinelService sentinelService = new SentinelService(_unitOfWork);
+            IOportunidadService oportunidadService = new OportunidadService(_unitOfWork);
+
+            var alumnoInformacionDTO = alumnoService.ObtenerInformacionAlumnoPorIdClasificacionPersona(idClasificacionPersona);
+
+            var idTamanioEmpresa = alumnoInformacionDTO.IdEmpresa != null ? empresaService.ObtenerIdTamanioEmpresaPorIdEmpresa(alumnoInformacionDTO.IdEmpresa!.Value) : null;
+   
+            return (alumnoInformacionDTO);
         }
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 08/08/2022
@@ -1446,6 +1692,57 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 throw e;
             }
         }
+
+        /// Autor: Sistema
+        /// Fecha: 02/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la plantilla de Speech Bienvenida para Convenio de Voz
+        /// basándose en la información de la fase de oportunidad y actividad detalle
+        /// </summary>
+        /// <param name="idFaseOportunidad">Id de la Fase Oportunidad</param>
+        /// <param name="idActividadDetalle">Id de la Actividad Detalle</param>
+        /// <returns>ConvenioDeVozPlantillaDTO con la plantilla de Speech Bienvenida</returns>
+        public ConvenioDeVozPlantillaDTO ObtenerPlantillaConvenioDeVoz(int idFaseOportunidad, int idActividadDetalle)
+        {
+            try
+            {
+                // Paso 1: Obtener el ID de la plantilla de bienvenida
+                IPlantillaBaseService plantillaBaseService = new PlantillaBaseService(_unitOfWork);
+                var idSpeechBienvenida = plantillaBaseService.ObtenerIdPorNombre("speech");
+                var speechBienvenidaDespedida = plantillaBaseService.ObtenerIdPlantillaSpeechBienvenida(idActividadDetalle, idSpeechBienvenida.Id);
+
+                // Paso 2: Obtener todas las plantillas de la fase de oportunidad
+                var plantillas = _unitOfWork.PlantillaClaveValorRepository.ObtenerPlantillasPorIdFaseOportunidad(idFaseOportunidad);
+
+                // Paso 3: Buscar la plantilla que coincide con el ID de bienvenida
+                var plantillaBienvenida = plantillas.FirstOrDefault(p => p.IdPlantilla == speechBienvenidaDespedida.IdPlantillaBienvenida);
+
+                if (plantillaBienvenida == null)
+                {
+                    throw new BadRequestException($"No se encontró plantilla de bienvenida con ID {speechBienvenidaDespedida.IdPlantillaBienvenida} para la fase {idFaseOportunidad}");
+                }
+
+                // Paso 4: Construir el DTO de respuesta
+                var resultado = new ConvenioDeVozPlantillaDTO
+                {
+                    IdPlantilla = plantillaBienvenida.IdPlantilla,
+                    IdPlantillaClaveValor = plantillaBienvenida.IdPlantillaClaveValor,
+                    Clave = plantillaBienvenida.Clave,
+                    Valor = plantillaBienvenida.Valor,
+                    IdAreaEtiqueta = plantillaBienvenida.IdAreaEtiqueta,
+                    IdFaseOportunidad = idFaseOportunidad,
+                    IdActividadDetalle = idActividadDetalle
+                };
+
+                return resultado;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         /// Autor: Gilmer Quispe
         /// Fecha: 14/09/2022
         /// Versión: 1.0
@@ -1882,6 +2179,27 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
         }
 
+        /// Autor: Junior Llerena
+        /// Fecha: 25/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las métricas comparativas de actividades ATC del personal
+        /// </summary>
+        /// <param name="idPersonal">ID del personal a consultar</param>
+        /// <param name="fecha">Fecha opcional a consultar</param>
+        /// <returns>DTO con métricas comparativas de actividades ATC</returns>
+        public MetricasActividadesATCDTO ObtenerMetricasActividadesATC(int idPersonal, DateTime? fecha = null)
+        {
+            try
+            {
+                return _unitOfWork.OportunidadRepository.ObtenerMetricasActividadesATC(idPersonal, fecha);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#HAS-OMAATC-001@Error en ObtenerMetricasActividadesATC: {ex.Message}", ex);
+            }
+        }
+
 
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 12/03/2024
@@ -2089,11 +2407,105 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         {
             try
             {
+                // V1: Validación de ID de Actividad
+                if (idActividad == 0)
+                {
+                    throw new BadRequestException("Id Actividad no valido");
+                }
+
+                // V2: Validación de ID de Centro de Costo
+                if (idCentroCosto == 0)
+                {
+                    throw new BadRequestException("Id Centro Costo no valido");
+                }
+
+                // Obtener la actividad detalle
+                var actividadDetalle = _unitOfWork.ActividadDetalleRepository.ObtenerPorId(idActividad);
+
+                if (actividadDetalle == null || !actividadDetalle.IdOportunidad.HasValue)
+                {
+                    throw new BadRequestException("Actividad no encontrada o sin oportunidad asociada");
+                }
+
+                // Obtener la oportunidad
+                var oportunidad = _unitOfWork.OportunidadRepository.ObtenerPorId(actividadDetalle.IdOportunidad.Value);
+
+                // V3: Validación de existencia de Oportunidad
+                if (oportunidad == null || oportunidad.Id == 0)
+                {
+                    throw new BadRequestException("Oportunidad no existente");
+                }
+
+                if (!oportunidad.IdCentroCosto.HasValue)
+                {
+                    throw new BadRequestException("La oportunidad no tiene centro de costo asignado");
+                }
+
+                // V4: Validación de duplicidad de Centro de Costo
+                if (oportunidad.IdCentroCosto.Value == idCentroCosto)
+                {
+                    throw new BadRequestException("La oportunidad ya cuenta con el centro de costo solicitado");
+                }
+
+                // V5: Validar que NO exista matrícula por PEspecifico
+                var pEspecificoActual = _unitOfWork.PEspecificoRepository.ObtenerPorIdCentroCosto(oportunidad.IdCentroCosto.Value);
+                var estadoMatricula = _unitOfWork.MatriculaCabeceraRepository.Exist(x => x.IdAlumno == oportunidad.IdAlumno && x.IdPespecifico == pEspecificoActual.Id);
+                if (estadoMatricula)
+                {
+                    throw new BadRequestException("El alumno ya tiene una Matricula Cabecera Registrada, si desea hacer el cambio de Centro de Costo comunicarse con Sistemas");
+                }
+
+                // V6: Validar que NO exista matrícula por Cronograma
+                var cronograma = _unitOfWork.MontoPagoCronogramaRepository.ObtenerPorIdOportunidad(oportunidad.Id);
+                if (cronograma != null && cronograma.Id != 0)
+                {
+                    var estadoMatricula2 = _unitOfWork.MatriculaCabeceraRepository.Exist(x => x.IdCronograma == cronograma.Id);
+                    if (estadoMatricula2)
+                    {
+                        throw new BadRequestException("El alumno ya tiene una Matricula Cabecera Registrada, si desea hacer el cambio de Centro de Costo comunicarse con Sistemas");
+                    }
+                }
+
+                // V7: Validar estado del PEspecifico destino
+                var pEspecificoCambio = _unitOfWork.PEspecificoRepository.ObtenerPorIdCentroCosto(idCentroCosto);
+                if (pEspecificoCambio.EstadoP != "Lanzamiento" && pEspecificoCambio.EstadoP != "Por Ejecucion")
+                {
+                    throw new BadRequestException("El centro de costo no se encuentra en estado de 'Lanzamiento' o 'Por Ejecucion'");
+                }
+
                 return _unitOfWork.OportunidadRepository.ActualizarCentroCosto(idCentroCosto, idActividad);
             }
             catch (Exception ex)
             {
                 throw new Exception($"#AAS-ACC-001@Error en ActualizarCentroCosto: {ex.Message}", ex);
+            }
+        }
+
+        /// TipoFuncion: SERVICE
+        /// Autor: Junior Llerena
+        /// Fecha: 23/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Valida si una oportunidad corresponde a una empresa basándose en el código de matrícula
+        /// </summary>
+        /// <param name="codigoMatricula">Código de matrícula de la oportunidad</param>
+        /// <returns>true si EmpresaPaga es "Si", false en caso contrario</returns>
+        public bool ValidarEsOportunidadEmpresa(string codigoMatricula)
+        {
+            try
+            {
+                var resultado = _unitOfWork.OportunidadRepository.ObtenerEmpresaPagaPorCodigoMatricula(codigoMatricula);
+
+                if (resultado != null && !string.IsNullOrEmpty(resultado.EmpresaPaga))
+                {
+                    return resultado.EmpresaPaga.Trim().Equals("Si", StringComparison.OrdinalIgnoreCase);
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 

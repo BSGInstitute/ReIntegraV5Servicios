@@ -414,6 +414,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Helper
         public static int IdPaisChile { get; private set; }
         ///<value>3</value>
         public static int IdPersonalAreaTrabajoOperaciones { get; private set; }
+        ///<value>7</value>
+        public static int IdPersonalAreaTrabajoPlanificacion { get; private set; }
         ///<value>8</value>
         public static int IdPersonalAreaTrabajoVentas { get; private set; }
         ///<value>3695</value>

@@ -44,7 +44,7 @@ namespace BSI.Integra.Aplicacion.Operaciones.SCode.Service.Implementacion
             var config = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<TPreguntaEncuestum, Preguntum>(MemberList.None).ReverseMap();
-                cfg.CreateMap<TPreguntum, Preguntum>();
+            cfg.CreateMap<TPreguntum, Preguntum>();
             });
             _mapper = new Mapper(config);
         }

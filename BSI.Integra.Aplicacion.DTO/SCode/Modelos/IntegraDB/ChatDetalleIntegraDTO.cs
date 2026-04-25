@@ -1,5 +1,6 @@
 ﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.GestionPersonas;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 {
@@ -291,5 +292,160 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public DateTime FechaCreacion { get; set; }
     }
 
+    // === DTOs Chatbot ATC - Obtener Actividades ===
 
+    public class ObtenerActividadesAtcRequestDTO
+    {
+        public int IdPEspecifico { get; set; }
+        public int IdAlumno { get; set; }
+    }
+
+    public class AmpliarFechaEntregaRequestDTO
+    {
+        public int IdPEspecifico { get; set; }
+        public int IdAlumno { get; set; }
+        public int IdActividad { get; set; }
+        public string Fecha { get; set; }
+        public string TipoActividad { get; set; }
+    }
+
+    public class ObtenerAsistenciaAtcRequestDTO
+    {
+        public int IdPEspecifico { get; set; }
+        public int IdAlumno { get; set; }
+    }
+
+    public class RegistrarAsistenciaAtcRequestDTO
+    {
+        public int SesionId { get; set; }
+        public int IdAlumno { get; set; }
+    }
+
+
+    public class VideoAulaVirtualDTO
+    {
+        public int IdMatriculaCabecera { get; set; }
+        public int IdAlumno { get; set; }
+        public int? IdPGeneralPadre { get; set; }
+        public int? IdPGeneralHijo { get; set; }
+        public int? OrdenSeccion { get; set; }
+        public int? IdPEspecificoHijo { get; set; }
+        public int? VideosTerminados { get; set; }
+        public int? VideosTotal { get; set; }
+    }
+
+    public class EncuestaRealizadaDTO
+    {
+        public int IdMatriculaCabecera { get; set; }
+        public int? IdPEspecifico { get; set; }
+        public int IdAlumno { get; set; }
+        public int? IdPGeneralPadre { get; set; }
+        public int? IdPGeneralHijo { get; set; }
+        public int? IdPEspecificoHijo { get; set; }
+        public int? ExamenProgramados { get; set; }
+        public int? ExamenRealizado { get; set; }
+        public bool? Completado { get; set; }
+    }
+
+    public class TareaRealizadaDTO
+    {
+        public int IdMatriculaCabecera { get; set; }
+        public int? IdPEspecifico { get; set; }
+        public int IdAlumno { get; set; }
+        public int? IdPGeneralPadre { get; set; }
+        public int? IdPGeneralHijo { get; set; }
+        public int? IdPEspecificoHijo { get; set; }
+        public int? TareasProgramadas { get; set; }
+        public int? TareasRealizadas { get; set; }
+        public bool? Completado { get; set; }
+    }
+
+    public class ActividadRecursoSesionDocenteDTO
+    {
+        public int? Id { get; set; }
+        public string Titulo { get; set; }
+        public string Tipo { get; set; }
+        public bool? Publicado { get; set; }
+        public int? AsignadoPara { get; set; }
+        public DateTime? FechaEntrega { get; set; }
+        public DateTime? FechaEntregaSecundaria { get; set; }
+    }
+
+
+    public class DatoPerfilProyectoDTO
+    {
+        public string ProyectoAplicacion { get; set; }
+        public int? IdProyecto { get; set; }
+    }
+
+    public class ConfigurarEvaluacionTrabajoV2DTO
+    {
+        public int Id { get; set; }
+        public int IdTipoEvaluacionTrabajo { get; set; }
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+        public int? IdDocumentoPw { get; set; }
+        public int? IdPGeneral { get; set; }
+    }
+
+    public class InstruccionDocumentoSeccionDTO
+    {
+        public int Id { get; set; }
+        public string Titulo { get; set; }
+        public string Contenido { get; set; }
+        public int? OrdenWeb { get; set; }
+        public string ZonaWeb { get; set; }
+    }
+
+
+    public class SesionAsistenciaDTO
+    {
+        [JsonPropertyName("sesionId")]
+        public int IdPEspecificoSesion { get; set; }
+        [JsonPropertyName("sesionNombre")]
+        public int NombreSesion { get; set; }
+        [JsonPropertyName("sesionFecha")]
+        public DateTime? FechaHoraInicio { get; set; }
+        [JsonPropertyName("sesionAsistencia")]
+        public bool? Asistio { get; set; }
+    }
+
+
+    public class ActividadAtcDTO
+    {
+        public int ActividadId { get; set; }
+        public string ActividadNombre { get; set; }
+        public DateTime? ActividadFechaEntrega { get; set; }
+        public DateTime? ActividadFechaEntregaSecundaria { get; set; }
+        public string ActividadEstado { get; set; }
+        public string TipoActividad { get; set; }
+    }
+
+    public class ObtenerActividadesAtcResponseDTO
+    {
+        public List<VideoAulaVirtualDTO> Videos { get; set; } = new List<VideoAulaVirtualDTO>();
+        public List<EncuestaRealizadaDTO> Encuestas { get; set; } = new List<EncuestaRealizadaDTO>();
+        public List<TareaRealizadaDTO> Tareas { get; set; } = new List<TareaRealizadaDTO>();
+        public List<ActividadRecursoSesionDocenteDTO> ActividadesOnline { get; set; } = new List<ActividadRecursoSesionDocenteDTO>();
+        public DatoPerfilProyectoDTO Proyecto { get; set; }
+        public ConfigurarEvaluacionTrabajoV2DTO ProyectoConfiguracion { get; set; }
+        public List<InstruccionDocumentoSeccionDTO> ProyectoInstrucciones { get; set; } = new List<InstruccionDocumentoSeccionDTO>();
+    }
+
+    public class AmpliarFechaEntregaResponseDTO
+    {
+        public string Mensaje { get; set; }
+        public Dictionary<string, string> Error { get; set; }
+    }
+
+    public class ObtenerAsistenciaAtcResponseDTO
+    {
+        public List<SesionAsistenciaDTO> Sesiones { get; set; } = new List<SesionAsistenciaDTO>();
+    }
+
+    public class RegistrarAsistenciaAtcResponseDTO
+    {
+        public string Mensaje { get; set; }
+        public Dictionary<string, string> Error { get; set; }
+    }
 }

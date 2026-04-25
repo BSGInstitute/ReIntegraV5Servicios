@@ -39,6 +39,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         bool InsertaSMSOportunidadUsuario(string celular, int idPersonal, int idAlumno, string mensaje, int parteMensaje, int idPais, string usuario);
         ValorIntDTO InsertaSMSOportunidad(int idOportunidad, DateTime fechaEnvio);
         AlumnoEmailDTO? ValidarEmail1Alumno(string email);
+        AlumnoEmailDTO? ValidarEmailProveedor(string email);
         AlumnoEmailDTO ValidarEmail2Alumno(string email);
         AlumnoCuponDTO ObtenerCuponPorIdAlumno(int idAlumno);
         ValorIntDTO InsertarSolicitudVisualizarDatosOportunidad(int idOportunidad, int idPersonal);
@@ -87,7 +88,10 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         AlumnoAccesosDTO ObtenerAccesosAlumno(int idAlumno);
         DatosCorbranzaAlumnoDTO obtenerDatosCobranzaAlumno(int idMatriculaCabecera);
         AvanceAonlineAlumnoDTO obtenerDatosAvanceAonline(int idMatriculaCabecera);
+        AvanceAonlineAlumnoATCDTO obtenerDatosAvanceAonlineATC(int idMatriculaCabecera);
         AvanceOnlineAlumnoDTO obtenerDatosAvanceOnline(int idMatriculaCabecera);
+
+        AvanceAonlineAlumnoEnHorasDTO ObtenerAvanceAonlineHoras(int idMatriculaCabecera);
 
         List<AlumnoReferidosDTO> ObtenerReferidos(int idReferido);
         List<AlumnoFiltroAutocompleteDTO> ObtenerTodoFiltrosAutoComplete(string valor);

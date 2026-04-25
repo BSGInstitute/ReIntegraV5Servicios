@@ -13,11 +13,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BSI.Integra.Aplicacion.Comercial\BSI.Integra.Aplicacion.Comercial.csproj" />
     <ProjectReference Include="..\BSI.Integra.Aplicacion.DTO\BSI.Integra.Aplicacion.DTO.csproj" />
     <ProjectReference Include="..\BSI.Integra.Aplicacion.Planificacion\BSI.Integra.Aplicacion.Planificacion.csproj" />
 	<ProjectReference Include="..\BSI.Integra.Aplicacion.Transversal\BSI.Integra.Aplicacion.Transversal.csproj" />
     <ProjectReference Include="..\BSI.Integra.Persistencia\BSI.Integra.Persistencia.csproj" />
     <ProjectReference Include="..\BSI.Integra.Repositorio\BSI.Integra.Repositorio.csproj" />
+    <ProjectReference Include="..\BSI.Integra.Servicios\BSI.Integra.Servicios.csproj" />
   </ItemGroup>
 
 </Project>

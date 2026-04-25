@@ -301,7 +301,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// </summary>
         /// <param name="valor">Nombre Parcial de Centro de Costo</param>
         /// <returns> Lista de Combos de centro costo </returns>
-        public IEnumerable<ComboDTO> ObtenerFiltroAutocomplete(string valor)
+        public IEnumerable<ComboDTO>  ObtenerFiltroAutocomplete(string valor)
         {
             try
             {
@@ -340,6 +340,36 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 else
                 {
                     query = @"SELECT Id, Nombre FROM [pla].[V_TCentroCosto_ParaFiltroV2] 
+                                        WHERE Estado = 1 
+                                            AND Nombre LIKE @Valor
+                                            AND IdTipoProgramaCarrera = @TipoProgramaCarrera
+                                    ORDER BY Nombre ASC";
+                }
+                string resultado = _dapperRepository.QueryDapper(query, new { Valor = $"%{valor}%", TipoProgramaCarrera = tipoProgramaCarrera });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                    return JsonConvert.DeserializeObject<IEnumerable<ComboDTO>>(resultado)!;
+                return new List<ComboDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#CCR-OFAv2@Error en ObtenerFiltroAutocompleteV2(): {ex.Message}", ex);
+            }
+        }
+        public IEnumerable<ComboDTO> ObtenerAutocompletePorTipoProgramaCarreraV3(string valor, int? tipoProgramaCarrera)
+        {
+            try
+            {
+                string query;
+                if (tipoProgramaCarrera == null)
+                {
+                    query = @"SELECT Id, Nombre FROM [pla].[V_TCentroCosto_ParaFiltroV3] 
+                                        WHERE Estado = 1 
+                                            AND Nombre LIKE @Valor
+                                    ORDER BY Nombre ASC";
+                }
+                else
+                {
+                    query = @"SELECT Id, Nombre FROM [pla].[V_TCentroCosto_ParaFiltroV3] 
                                         WHERE Estado = 1 
                                             AND Nombre LIKE @Valor
                                             AND IdTipoProgramaCarrera = @TipoProgramaCarrera
@@ -1032,7 +1062,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                            INNER JOIN pla.T_CentroCosto AS CC ON CC.ID = PE.IdCentroCosto
 		                            AND CC.Estado = 1
 	                            WHERE PE.Estado = 1 AND EstadoPId IN (3, 5)
-		                            AND ISNULL(PE.EsEspecial, 0) <> 1";
+		                            AND ISNULL(PE.EsEspecial, 0) <> 1 AND  PE.IdProgramaGeneral <> 7671 AND PE.IdEstadoCupos=1"; //7671:Curso Oficial de Preparación para el Examen Project Management Professional (PMP)®
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && resultado != "[]")
                 {

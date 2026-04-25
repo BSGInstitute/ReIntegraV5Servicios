@@ -2450,6 +2450,51 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private IGestionPagoRepository gestionPagoRepository;
+        IGestionPagoRepository IUnitOfWork.GestionPagoRepository
+        {
+            get
+            {
+                return gestionPagoRepository ?? new GestionPagoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGestionPagoCronogramaRepository gestionPagoCronogramaRepository;
+        IGestionPagoCronogramaRepository IUnitOfWork.GestionPagoCronogramaRepository
+        {
+            get
+            {
+                return gestionPagoCronogramaRepository ?? new GestionPagoCronogramaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGestionPagoArchivoRepository gestionPagoArchivoRepository;
+        IGestionPagoArchivoRepository IUnitOfWork.GestionPagoArchivoRepository
+        {
+            get
+            {
+                return gestionPagoArchivoRepository ?? new GestionPagoArchivoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IModalidadPagoRepository modalidadPagoRepository;
+        IModalidadPagoRepository IUnitOfWork.ModalidadPagoRepository
+        {
+            get
+            {
+                return modalidadPagoRepository ?? new ModalidadPagoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IPagoEstadoRepository pagoEstadoRepository;
+        IPagoEstadoRepository IUnitOfWork.PagoEstadoRepository
+        {
+            get
+            {
+                return pagoEstadoRepository ?? new PagoEstadoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
 
         private IOrigenDatoCalidadDetalleRepository _origenDatoCalidadDetalleRepository;
 
@@ -5681,6 +5726,22 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _courierDetalleRepository ?? new CourierDetalleRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+        private IDocentePostulanteRepository _docentePostulanteRepository;
+        IDocentePostulanteRepository IUnitOfWork.DocentePostulanteRepository
+        {
+            get
+            {
+                return _docentePostulanteRepository ?? new DocentePostulanteRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IFaseGestionContactoRepository _faseGestionContactoRepository;
+        IFaseGestionContactoRepository IUnitOfWork.FaseGestionContactoRepository
+        {
+            get
+            {
+                return _faseGestionContactoRepository ?? new FaseGestionContactoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
         private IPlantillaPaisRepository _plantillaPaisRepository;
         IPlantillaPaisRepository IUnitOfWork.PlantillaPaisRepository
         {
@@ -7296,6 +7357,10 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         }
 
 
+
+
+
+
         private IProgramaGeneralPresentacionArgumentoRepository _programaGeneralPresentacionArgumentoRepository;
         IProgramaGeneralPresentacionArgumentoRepository IUnitOfWork.ProgramaGeneralPresentacionArgumentoRepository
         {
@@ -7863,6 +7928,51 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private IFaseCalificacionRepository _faseCalificacionRepository;
+        IFaseCalificacionRepository IUnitOfWork.FaseCalificacionRepository
+        {
+            get
+            {
+                return _faseCalificacionRepository ?? new FaseCalificacionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private ICriterioCalificacionLlamadaRepository _criterioCalificacionLlamadaRepository;
+        ICriterioCalificacionLlamadaRepository IUnitOfWork.CriterioCalificacionLlamadaRepository
+        {
+            get
+            {
+                return _criterioCalificacionLlamadaRepository ?? new CriterioCalificacionLlamadaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private ILineamientoCalificacionRepository _linemaientoCalificacionRepository;
+        ILineamientoCalificacionRepository IUnitOfWork.LineamientoCalificacionRepository
+        {
+            get
+            {
+                return _linemaientoCalificacionRepository ?? new LineamientoCalificacionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IPuntosGeneralesRepository _puntosGeneralesRepository;
+        IPuntosGeneralesRepository IUnitOfWork.PuntosGeneralesRepository
+        {
+            get
+            {
+                return _puntosGeneralesRepository ?? new PuntosGeneralesRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private ICriticidadCalificacionRepository _criticidadCalificacionRepository;
+        ICriticidadCalificacionRepository IUnitOfWork.CriticidadCalificacionRepository
+        {
+            get
+            {
+                return _criticidadCalificacionRepository ?? new CriticidadCalificacionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+
         private IPEspecificoCodigoPartnerRepository _pEspecificoCodigoPartnerRepository;
         IPEspecificoCodigoPartnerRepository IUnitOfWork.PEspecificoCodigoPartnerRepository
         {
@@ -7880,6 +7990,46 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private ITranscripcionLlamadaRepository _transcripcionLlamadaRepository;
+        ITranscripcionLlamadaRepository IUnitOfWork.TranscripcionLlamadaRepository
+        {
+            get
+            {
+                return _transcripcionLlamadaRepository ?? new TranscripcionLlamadaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IFraseCombinadaRepository _fraseCombinadaRepository;
+        IFraseCombinadaRepository IUnitOfWork.FraseCombinadaRepository
+        {
+            get
+            {
+                return _fraseCombinadaRepository ?? new FraseCombinadaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IFraseReconocidaRepository _fraseReconocidaRepository;
+        IFraseReconocidaRepository IUnitOfWork.FraseReconocidaRepository
+        {
+            get
+            {
+                return _fraseReconocidaRepository ?? new FraseReconocidaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IDetalleFraseReconocidaRepository _detalleFraseReconocidaRepository;
+        IDetalleFraseReconocidaRepository IUnitOfWork.DetalleFraseReconocidaRepository
+        {
+            get
+            {
+                return _detalleFraseReconocidaRepository ?? new DetalleFraseReconocidaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IRecomendacionRepository _recomendacionRepository;
+        IRecomendacionRepository IUnitOfWork.RecomendacionRepository
+        {
+            get
+            {
+                return _recomendacionRepository ?? new RecomendacionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
         private IProcesoSeleccionPuntajeCalificacionRepository _procesoSeleccionPuntajeCalificacionRepository;
         IProcesoSeleccionPuntajeCalificacionRepository IUnitOfWork.ProcesoSeleccionPuntajeCalificacionRepository
         {
@@ -8087,6 +8237,42 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _preferenciaComunicacionAcademicaHorarioRepository ?? new PreferenciaComunicacionAcademicaHorarioRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+        //TransicionFase
+        private ICriterioCalificacionFaseRepository _criterioCalificacionFaseRepository;
+        ICriterioCalificacionFaseRepository IUnitOfWork.CriterioCalificacionFaseRepository
+        {
+            get
+            {
+                return _criterioCalificacionFaseRepository ?? new CriterioCalificacionFaseRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private ILineamientoCalificacionFaseRepository _lineamientoCalificacionFaseRepository;
+        ILineamientoCalificacionFaseRepository IUnitOfWork.LineamientoCalificacionFaseRepository
+        {
+            get
+            {
+                return _lineamientoCalificacionFaseRepository ?? new LineamientoCalificacionFaseRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private ITransicionFaseCriterioOportunidadRepository _transicionFaseCriterioOportunidadRepository;
+        ITransicionFaseCriterioOportunidadRepository IUnitOfWork.TransicionFaseCriterioOportunidadRepository
+        {
+            get
+            {
+                return _transicionFaseCriterioOportunidadRepository ?? new TransicionFaseCriterioOportunidadRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private ITransicionFaseOportunidadRepository _transicionFaseOportunidadRepository;
+        ITransicionFaseOportunidadRepository IUnitOfWork.TransicionFaseOportunidadRepository
+        {
+            get
+            {
+                return _transicionFaseOportunidadRepository ?? new TransicionFaseOportunidadRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
 
         private IConfirmacionWebinarRepository _confirmacionWebinarRepository;
         IConfirmacionWebinarRepository IUnitOfWork.ConfirmacionWebinarRepository
@@ -8121,5 +8307,337 @@ namespace BSI.Integra.Repositorio.UnitOfWork
                 return _remarketingEmbudoHistoricoRepository ?? new RemarketingEmbudoHistoricoRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
+
+        private IGestionContactoRepository _gestionContactoRepository;
+        IGestionContactoRepository IUnitOfWork.GestionContactoRepository
+        {
+            get
+            {
+                return _gestionContactoRepository ?? new GestionContactoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGestionContactoLogRepository _gestionContactoLogRepository;
+        IGestionContactoLogRepository IUnitOfWork.GestionContactoLogRepository
+        {
+            get
+            {
+                return _gestionContactoLogRepository ?? new GestionContactoLogRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IActividadDetalleGestionContactoRepository _actividadDetalleGestionContactoRepository;
+        IActividadDetalleGestionContactoRepository IUnitOfWork.ActividadDetalleGestionContactoRepository
+        {
+            get
+            {
+                return _actividadDetalleGestionContactoRepository ?? new ActividadDetalleGestionContactoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGestionDocenteDisparadorReglaTiempoFijoRepository _gestionDocenteDisparadorReglaTiempoFijoRepository;
+        public IGestionDocenteDisparadorReglaTiempoFijoRepository GestionDocenteDisparadorReglaTiempoFijoRepository
+        {
+            get
+            {
+                return _gestionDocenteDisparadorReglaTiempoFijoRepository ?? new GestionDocenteDisparadorReglaTiempoFijoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IGestionDocenteDisparadorReglaTiempoRelativoRepository _gestionDocenteDisparadorReglaTiempoRelativoRepository;
+        public IGestionDocenteDisparadorReglaTiempoRelativoRepository GestionDocenteDisparadorReglaTiempoRelativoRepository
+        {
+            get
+            {
+                return _gestionDocenteDisparadorReglaTiempoRelativoRepository ?? new GestionDocenteDisparadorReglaTiempoRelativoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository _gestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository;
+
+        public IGestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository GestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository
+        {
+            get
+            {
+                return _gestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository ?? new GestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGestionDocenteFlujoRepository _gestionDocenteFlujoRepository;
+        IGestionDocenteFlujoRepository IUnitOfWork.GestionDocenteFlujoRepository
+        {
+            get
+            {
+                return _gestionDocenteFlujoRepository ?? new GestionDocenteFlujoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGestionDocenteActividadCabeceraRepository _gestionDocenteActividadCabeceraRepository;
+        IGestionDocenteActividadCabeceraRepository IUnitOfWork.GestionDocenteActividadCabeceraRepository
+        {
+            get
+            {
+                return _gestionDocenteActividadCabeceraRepository ?? new GestionDocenteActividadCabeceraRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGestionDocenteActividadCabeceraFlujoRepository _gestionDocenteActividadCabeceraFlujoRepository;
+        IGestionDocenteActividadCabeceraFlujoRepository IUnitOfWork.GestionDocenteActividadCabeceraFlujoRepository
+        {
+            get
+            {
+                return _gestionDocenteActividadCabeceraFlujoRepository ?? new GestionDocenteActividadCabeceraFlujoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGestionDocenteActividadDetalleRepository _gestionDocenteActividadDetalleRepository;
+        IGestionDocenteActividadDetalleRepository IUnitOfWork.GestionDocenteActividadDetalleRepository
+        {
+            get
+            {
+                return _gestionDocenteActividadDetalleRepository ?? new GestionDocenteActividadDetalleRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGestionDocenteOcurrenciaRepository _gestionDocenteOcurrenciaRepository;
+        IGestionDocenteOcurrenciaRepository IUnitOfWork.GestionDocenteOcurrenciaRepository
+        {
+            get
+            {
+                return _gestionDocenteOcurrenciaRepository ?? new GestionDocenteOcurrenciaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGestionDocenteDisparadorDetalleRepository _gestionDocenteDisparadorDetalleRepository;
+        IGestionDocenteDisparadorDetalleRepository IUnitOfWork.GestionDocenteDisparadorDetalleRepository
+        {
+            get
+            {
+                return _gestionDocenteDisparadorDetalleRepository ?? new GestionDocenteDisparadorDetalleRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGestionDocenteDisparadorOcurrenciaDetalleRepository _gestionDocenteDisparadorOcurrenciaDetalleRepository;
+        IGestionDocenteDisparadorOcurrenciaDetalleRepository IUnitOfWork.GestionDocenteDisparadorOcurrenciaDetalleRepository
+        {
+            get
+            {
+                return _gestionDocenteDisparadorOcurrenciaDetalleRepository ?? new GestionDocenteDisparadorOcurrenciaDetalleRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGestionDocenteOcurrenciaIaConfiguracionRepository _gestionDocenteOcurrenciaIaConfiguracionRepository;
+        IGestionDocenteOcurrenciaIaConfiguracionRepository IUnitOfWork.GestionDocenteOcurrenciaIaConfiguracionRepository
+        {
+            get
+            {
+                return _gestionDocenteOcurrenciaIaConfiguracionRepository ?? new GestionDocenteOcurrenciaIaConfiguracionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGestionDocenteIaEntrenamientoEjemploRepository _gestionDocenteIaEntrenamientoEjemploRepository;
+        IGestionDocenteIaEntrenamientoEjemploRepository IUnitOfWork.GestionDocenteIaEntrenamientoEjemploRepository
+        {
+            get
+            {
+                return _gestionDocenteIaEntrenamientoEjemploRepository ?? new GestionDocenteIaEntrenamientoEjemploRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGestionContactoActividadDetalleSesionRepository _gestionContactoActividadDetalleSesionRepository;
+        IGestionContactoActividadDetalleSesionRepository IUnitOfWork.GestionContactoActividadDetalleSesionRepository
+        {
+            get
+            {
+                return _gestionContactoActividadDetalleSesionRepository ?? new GestionContactoActividadDetalleSesionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGestionDocenteAgendaRepository _gestionDocenteAgendaRepository;
+        IGestionDocenteAgendaRepository IUnitOfWork.GestionDocenteAgendaRepository
+        {
+            get
+            {
+                return _gestionDocenteAgendaRepository ?? new GestionDocenteAgendaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private CriterioTareaRepository _criterioTareaRepository;
+        ICriterioTareaRepository IUnitOfWork.CriterioTareaRepository
+        {
+            get
+            {
+                return _criterioTareaRepository ?? new CriterioTareaRepository(_dapperRepository);
+            }
+        }
+
+        private SubCriterioTareaRepository _subCriterioTareaRepository;
+        ISubCriterioTareaRepository IUnitOfWork.SubCriterioTareaRepository
+        {
+            get
+            {
+                return _subCriterioTareaRepository ?? new SubCriterioTareaRepository(_dapperRepository);
+            }
+        }
+        private IProyectoAplicacionRepository _proyectoAplicacionRepository;
+        IProyectoAplicacionRepository IUnitOfWork.ProyectoAplicacionRepository
+        {
+            get
+            {
+                return _proyectoAplicacionRepository ?? new ProyectoAplicacionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IPEspecificoSesionEstadoRepository _pEspecificoSesionEstadoRepository;
+        IPEspecificoSesionEstadoRepository IUnitOfWork.PEspecificoSesionEstadoRepository
+        {
+            get
+            {
+                return _pEspecificoSesionEstadoRepository ?? new PEspecificoSesionEstadoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IPEspecificoSesionEstadoObservacionRepository _pEspecificoSesionEstadoObservacionRepository;
+        IPEspecificoSesionEstadoObservacionRepository IUnitOfWork.PEspecificoSesionEstadoObservacionRepository
+        {
+            get
+            {
+                return _pEspecificoSesionEstadoObservacionRepository ?? new PEspecificoSesionEstadoObservacionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+        private IPEspecificoSesionEstadoObservacionDetalleRepository _pEspecificoSesionEstadoObservacionDetalleRepository;
+        IPEspecificoSesionEstadoObservacionDetalleRepository IUnitOfWork.PEspecificoSesionEstadoObservacionDetalleRepository
+        {
+            get
+            {
+                return _pEspecificoSesionEstadoObservacionDetalleRepository ?? new PEspecificoSesionEstadoObservacionDetalleRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IProveedorPEspecificoRepository _proveedorPEspecificoRepository;
+        IProveedorPEspecificoRepository IUnitOfWork.ProveedorPEspecificoRepository
+        {
+            get
+            {
+                return _proveedorPEspecificoRepository ?? new ProveedorPEspecificoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IReporteDashboardRepository _reporteDashboardRepository;
+        IReporteDashboardRepository IUnitOfWork.ReporteDashboardRepository
+        {
+            get
+            {
+                return _reporteDashboardRepository ?? new ReporteDashboardRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IWhatsAppMensajeEnviadoApiAtcRepository _whatsAppMensajeEnviadoApiAtcRepository;
+        IWhatsAppMensajeEnviadoApiAtcRepository IUnitOfWork.WhatsAppMensajeEnviadoApiAtcRepository
+        {
+            get
+            {
+                return _whatsAppMensajeEnviadoApiAtcRepository ?? new WhatsAppMensajeEnviadoApiAtcRepository(_connectionFactory, _dapperRepository);
+            }
+        }
+
+
+        private IFacebookResenaRepository _resenaFacebookRepository;
+        IFacebookResenaRepository IUnitOfWork.FacebookResenaRepository
+        {
+            get
+            {
+                return _resenaFacebookRepository ?? new FacebookResenaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGoogleResenaRepository _resenaGoogleRepository;
+        IGoogleResenaRepository IUnitOfWork.GoogleResenaRepository
+        {
+            get
+            {
+                return _resenaGoogleRepository ?? new GoogleResenaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGooglePlacesConfiguracionRepository _googlePlacesConfiguracionRepository;
+        IGooglePlacesConfiguracionRepository IUnitOfWork.GooglePlacesConfiguracionRepository
+        {
+            get
+            {
+                return _googlePlacesConfiguracionRepository ?? new GooglePlacesConfiguracionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGooglePlacesCredencialApiRepository _googlePlacesCredencialApiRepository;
+        IGooglePlacesCredencialApiRepository IUnitOfWork.GooglePlacesCredencialApiRepository
+        {
+            get
+            {
+                return _googlePlacesCredencialApiRepository ?? new GooglePlacesCredencialApiRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private ILinkedinResenaRepository _resenaLinkedinRepository;
+        ILinkedinResenaRepository IUnitOfWork.LinkedinResenaRepository
+        {
+            get
+            {
+                return _resenaLinkedinRepository ?? new LinkedinResenaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IComputrabajoConfiguracionRepository _computrabajoConfiguracionRepository;
+        IComputrabajoConfiguracionRepository IUnitOfWork.ComputrabajoConfiguracionRepository
+        {
+            get
+            {
+                return _computrabajoConfiguracionRepository ?? new ComputrabajoConfiguracionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IComputrabajoResenaRepository _resenaComputrabajoRepository;
+        IComputrabajoResenaRepository IUnitOfWork.ComputrabajoResenaRepository
+        {
+            get
+            {
+                return _resenaComputrabajoRepository ?? new ComputrabajoResenaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGlassdoorConfiguracionRepository _glassdoorConfiguracionRepository;
+        IGlassdoorConfiguracionRepository IUnitOfWork.GlassdoorConfiguracionRepository
+        {
+            get
+            {
+                return _glassdoorConfiguracionRepository ?? new GlassdoorConfiguracionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGlassdoorResenaRepository _resenaGlassdoorRepository;
+        IGlassdoorResenaRepository IUnitOfWork.GlassdoorResenaRepository
+        {
+            get
+            {
+                return _resenaGlassdoorRepository ?? new GlassdoorResenaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IFacebookConfiguracionRepository _facebookConfiguracionRepository;
+        IFacebookConfiguracionRepository IUnitOfWork.FacebookConfiguracionRepository
+        {
+            get
+            {
+                return _facebookConfiguracionRepository ?? new FacebookConfiguracionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private ILinkedinConfiguracionRepository _linkedinConfiguracionRepository;
+        ILinkedinConfiguracionRepository IUnitOfWork.LinkedinConfiguracionRepository
+        {
+            get
+            {
+                return _linkedinConfiguracionRepository ?? new LinkedinConfiguracionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
     }
 }

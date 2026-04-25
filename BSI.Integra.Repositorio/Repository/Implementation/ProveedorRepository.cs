@@ -460,12 +460,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// </summary>
         /// <returns> List<ProveedorDTO> </returns>
         /// <paramref name="Id"/>Identificador del Proveedor.
-        public IEnumerable<ProveedorDTO> ObtenerTodoProveedorById(int? Id)
+        public IEnumerable<ProveedorVistaDTO> ObtenerTodoProveedorById(int? Id)
         {
             try
             {
-                var camposTabla = "SELECT Id,IdTipoContribuyente,TipoContribuyente,IdDocumentoIdentidad,DocumentoIdentidad,NroDocumento,Proveedor,RazonSocial,ApePaterno,ApeMaterno,Nombre1,Nombre2,Descripcion,Direccion,IdPais,Pais,IdCiudad,Ciudad,Telefono,Email,Celular1,Celular2,Contacto1,Contacto2,IdPrestacionRegistro,Criterio1,Criterio2,Criterio3,Criterio4,Criterio5,FechaModificacion,UsuarioModificacion, IdImpuesto,IdRetencion,IdDetraccion,IdPersonalAsignado,Alias ";
-                List<ProveedorDTO> Proveedor = new List<ProveedorDTO>();
+                var camposTabla = "SELECT Id,IdTipoContribuyente,TipoContribuyente,IdDocumentoIdentidad,DocumentoIdentidad,NroDocumento,Proveedor,RazonSocial,ApePaterno,ApeMaterno,Nombre1,Nombre2,Descripcion,Direccion,IdPais,Pais,IdCiudad,Ciudad,Telefono,Email,Celular1,Celular2,Contacto1,Contacto2,IdPrestacionRegistro,Criterio1,Criterio2,Criterio3,Criterio4,Criterio5,FechaModificacion,UsuarioModificacion, IdImpuesto,IdRetencion,IdDetraccion,IdPersonalAsignado,Alias,EsDocente,PlazoPago ";
+                List<ProveedorVistaDTO> Proveedor = new List<ProveedorVistaDTO>();
                 var _query = camposTabla + "FROM  [fin].[V_ObtenerDatosProveedor] where Estado=1 order by Id desc";
                 if (Id != null && Id != 0)
                 {
@@ -474,7 +474,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var ProveedorDB = _dapperRepository.QueryDapper(_query, null);
                 if (!ProveedorDB.Contains("[]") && !string.IsNullOrEmpty(ProveedorDB))
                 {
-                    Proveedor = JsonConvert.DeserializeObject<List<ProveedorDTO>>(ProveedorDB);
+                    Proveedor = JsonConvert.DeserializeObject<List<ProveedorVistaDTO>>(ProveedorDB);
                 }
                 return Proveedor;
             }
@@ -761,7 +761,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                        Nombre1,Nombre2,ApePaterno,ApeMaterno,Direccion,Descripcion,IdCiudad,
                                        Telefono,Email,Celular1,Celular2,Contacto1,Contacto2,IdPrestacionRegistro,
                                        EsPersonaValida,IdTipoImpuesto_Preferido IdTipoImpuestoPreferido,IdRetencion_Preferido IdRetencionPreferido,
-	                                   IdDetraccion_Preferido IdDetraccionPreferido,IdPersonal_Asignado IdPersonalAsignado,Alias 
+	                                   IdDetraccion_Preferido IdDetraccionPreferido,IdPersonal_Asignado IdPersonalAsignado,Alias, EsDocente
 	                           FROM fin.T_Proveedor 
 	                           WHERE Estado = 1 AND Id=@idProveedor";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { idProveedor });
@@ -929,7 +929,37 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
         }
-
+        public IEnumerable<ProveedorDocenteDTO> ObtenerDocentesActivos()
+        {
+            try
+            {
+                List<ProveedorDocenteDTO> rpta = new List<ProveedorDocenteDTO>();
+                var query = @"
+                   SELECT Id,
+                       Nombre,
+                       IdCiudad,
+                       Telefono,
+                       Email,
+                       Celular1,
+                       Contacto1,
+                       EsPersonaValida,
+                       Alias,
+                       EsDocente,
+                       NroDocIdentidad FROM  pla.V_ProveedorDocenteObtener
+                ORDER BY Id DESC;";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ProveedorDocenteDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        /// Autor: Erick Marcelo Quis
 
     }
 }

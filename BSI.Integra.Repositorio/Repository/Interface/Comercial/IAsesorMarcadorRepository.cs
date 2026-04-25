@@ -21,6 +21,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Comercial
         bool Delete(IEnumerable<int> listadoIds, string usuario);
         #endregion
         IEnumerable<AsesorMarcadorDTO> Obtener();
+        AsesorMarcadorDTO? ObtenerPorIdPersonal(int idPersonal);
         AsesorMarcador? ObtenerPorId(int id);
         List<ReporteAsesorMarcadorDTO> ObtenerReporteMarcador(FiltroReporteAsesorMarcadorDTO filtro);
         List<ReporteFinalPromedioDTO> ObtenerReporteMarcadorTiemposPromedio(FiltroReporteAsesorMarcadorDTO filtro);

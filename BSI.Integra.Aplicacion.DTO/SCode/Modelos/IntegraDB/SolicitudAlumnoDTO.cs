@@ -68,6 +68,77 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 
     }
 
+    //alexis
+    public class SolicitudAlumnoFiltradaAgendaDTO
+    {
+        public int IdSolicitudAlumno { get; set; }
+        public string CodigoFase { get; set; }
+        public int IdMatriculaCabecera { get; set; }
+        public string CodigoMatricula { get; set; }
+        public int? IdEstadoMatricula { get; set; }
+        public string EstadoMatricula { get; set; }
+        public string SubEstadoMatricula { get; set; }
+        public string NombreAlumno { get; set; }
+        public int? IdAlumno { get; set; }
+        public int? IdClasificacionPersona { get; set; }
+        public int? IdOportunidad { get; set; }
+        public int? IdFaseOportunidad { get; set; }
+        public int? IdOportunidad_Padre { get; set; }
+        public int? IdActividadCabecera { get; set; }
+        public string FechaCreacion { get; set; }
+        public int IdPEspecifico { get; set; }
+        public string NombrePEspecifico { get; set; }
+        public int IdCentroCosto { get; set; }
+        public string NombreCentroCosto { get; set; }
+        public int IdPGeneral { get; set; }
+        public string NombrePGeneral { get; set; }
+        public string DetalleSolicitud { get; set; }
+        public string Prioridad { get; set; }
+        public string NombreSolicitud { get; set; }
+        public int? IdSolicitudTipoReporte { get; set; }
+        public string NombreTipoReporte { get; set; }
+        public int IdSolicitudCategoria { get; set; }
+        public string NombreSolicitudCategoria { get; set; }
+        public int IdSolicitudProblema { get; set; }
+        public string NombreSubCategoria { get; set; }
+        public int IdPersonal_Solicitante { get; set; }
+        public string NombrePersonal_Solicitante { get; set; }
+        public int IdPersonalAreaTrabajo_Solicitante { get; set; }
+        public string CodigoAreaTrabajo_Solicitante { get; set; }
+        public int IdPersonalAreaTrabajo_Revision { get; set; }
+        public string NombreAreaTrabajo_Revision { get; set; }
+        public string NombreArchivoSolicitante { get; set; }
+        public int IdPersonal_Revision { get; set; }
+        public string NombrePersonal_Revision { get; set; }
+        public int IdPersonalAreaTrabajo_Solucion { get; set; }
+        public string NombreAreaTrabajo_Solucion { get; set; }
+        public int IdPersonal_Solucion { get; set; }
+        public string NombrePersonal_Solucion { get; set; }
+        public string FechaRegistro { get; set; }
+        public string FechaModificacion { get; set; }
+        public string ComentarioSolucion { get; set; }
+        public string NombreArchivoSolucion { get; set; }
+        public int IdEstadoSolicitud { get; set; }
+        public string NombreEstadoSolicitud { get; set; }
+        public int? IdControlSolicitudOrigen { get; set; }
+
+        public bool ReprogramacionManual { get; set; }
+        public bool ReprogramacionAutomatica { get; set; }
+        // Nuevos campos SP
+        public int? IdActividadDetalle_Ultima { get; set; }
+        public string EstadoHoja { get; set; }
+        public string EmailAlumno { get; set; }
+        public string CelularAlumno { get; set; }
+        public int? IdCodigoPais { get; set; }
+        public string DNI { get; set; }
+        public string Modalidad { get; set; }
+        public string FechaPrimeraSesion { get; set; }
+        public int? ValidoAccesoTemporal { get; set; }
+        public string UltimoComentario { get; set; }
+    }
+
+    //reporte
+
     public class SolicitudAlumnoFiltradaDTO
     {
         public int id { get; set; }
@@ -113,7 +184,9 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string Email { get; set; }
         public int? IdControlSolicitudOrigen { get; set; }
         public string? ControlSolicitudOrigen { get; set; }
+        public string? TituloSubCategoria { get; set; }
     }
+
     public class FiltroSolicitudAlumnoDTO
     {
         public int? IdMatriculaCabecera { get; set; }
@@ -352,5 +425,46 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public ErrorDetalleDTO Error { get; set; }
     }
 
+    /// <summary>
+    /// DTO para filtrar solicitudes por asesor/revisor asignado
+    /// </summary>
+    public class FiltroSolicitudAlumnoPorAsesorDTO
+    {
+        public int? IdPersonalRevision { get; set; }
+        public List<int> IdEstadoSolicitud { get; set; }
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaFin { get; set; }
+    }
+
+    public class FiltroSolicitudAlumnoPorAsesorReporteDTO
+    {
+        public int? IdPersonalRevision { get; set; }
+        public string IdEstadoSolicitud { get; set; }
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaFin { get; set; }
+    }
+
+    /// <summary>
+    /// DTO de respuesta con solicitudes agrupadas por estado y área
+    /// </summary>
+    public class RespuestaSolicitudesAlumnoDTO
+    {
+        /// <summary>
+        /// Solicitudes NO resueltas del área Atención al Cliente (IdAreaSolucion = 3)
+        /// </summary>
+        public List<SolicitudAlumnoFiltradaAgendaDTO> SolicitudesDerivadas { get; set; }
+        /// <summary>
+        /// Solicitudes RESUELTAS (IdEstadoSolicitud = 7 u 8) de áreas distintas a Atención al Cliente
+        /// </summary>
+        public List<SolicitudAlumnoFiltradaAgendaDTO> SolicitudesResueltas { get; set; }
+    }
+
+    /// <summary>
+    /// DTO request para actualizar estado de solicitud
+    /// </summary>
+    public class ActualizarEstadoSolicitudRequest
+    {
+        public int IdSolicitud { get; set; }
+    }
 
 }

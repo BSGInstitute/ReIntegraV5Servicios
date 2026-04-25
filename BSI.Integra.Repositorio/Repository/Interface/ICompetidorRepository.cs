@@ -18,5 +18,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<CompetidorDTO> ObtenerCompetidor();
         IEnumerable<CompetidorComboDTO> ObtenerCombo();
         IEnumerable<CompetidorOportunidadAgendaDTO> ObtenerCompetidorParaAgendaPorIdOportunidad(int idOportunidad);
+        Task<List<CompetidorRawDTO>> ObtenerCompetidoresPorIdOportunidadAsync(int idOportunidad);
     }
 }

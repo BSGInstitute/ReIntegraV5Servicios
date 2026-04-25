@@ -441,7 +441,439 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
         }
 
+        public async Task EjecutarCampaniaGeneralEnvioWhatsAppAuto()
+        {
 
+            try
+            {
+                var ListaDePrioridades = _unitOfWork.CampaniaGeneralRepository.ObtenerPrioridadesEnvioWhatsApp();
+                if (ListaDePrioridades.Count > 1)
+                {
+
+                    try
+                    {
+                        string Subject = "Inicio de Envio masivo " + ListaDePrioridades[0].NombreCampania + " Hora Inicio: " + ListaDePrioridades[0].HoraEnvio;
+                        StringBuilder messageBuilder = new StringBuilder();
+
+                        foreach (var Prioridad in ListaDePrioridades)
+                        {
+                            messageBuilder.Append("Campania-Prioridad: " + Prioridad.Nombre + " <br/>");
+                            messageBuilder.Append("Hora Inicio : " + "Prioridad: " + Prioridad.Prioridad + " <br/>");
+                            messageBuilder.Append("Asesor: " + Prioridad.Personal);
+
+                            messageBuilder.Append("<br/><br/>");
+                        }
+
+                        string Message = messageBuilder.ToString();
+
+                        EnvioCorreoMasivosMarketing(Subject, Message);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"Error al enviar correo de inicio de campaña: {ex.Message}");
+                    }
+
+                    /* Fase 1: Pre-procesamiento - Recopilar datos de todas las prioridades */
+                    var prioridadesInfo = new List<ObtenerPrioridadesEnvioWhatsAppDTO>();
+                    var prioridadesPreRespuesta = new List<List<PreCampaniaGeneralDetalleResponsableAlumnoWhatsAppDTO>>();
+                    var prioridadesConfig = new List<DetalleCampaniaDTO>();
+                    var prioridadesHoraInicio = new List<DateTime>();
+
+                    foreach (var PrioridadItem in ListaDePrioridades)
+                    {
+                        int RespuestaInsertarLog = 0;
+
+                        try
+                        {
+                            try
+                            {
+                                List<CampaniaGeneralDetalleResponsableAlumnoLogWhatsAppDTO> IdLogActivoParaDeleteLogico = _unitOfWork.WhatsAppConfiguracionLogEjecucionRepository.ObtenerLogActivoCampaniaGeneralDetalleResponsableWhatsApp(PrioridadItem.IdCampaniaGeneralDetalleResponsableWhatsApp);
+                                if (IdLogActivoParaDeleteLogico.Count() > 0)
+                                {
+                                    foreach (var Log in IdLogActivoParaDeleteLogico)
+                                    {
+                                        var RespuestaEliminarLog = _unitOfWork.WhatsAppConfiguracionLogEjecucionRepository.EliminarLog(Log.Id, "EliminarLogDuplicadoWhatsApp");
+                                    }
+                                }
+                                RespuestaInsertarLog = _unitOfWork.WhatsAppConfiguracionLogEjecucionRepository.InsertarLogWhatsApp(PrioridadItem.IdCampaniaGeneralDetalleResponsableWhatsApp, PrioridadItem.HoraEnvio, PrioridadItem.FechaInicioEnvioWhatsapp, "InsertarLogWhatsApp");
+                                if (RespuestaInsertarLog == 0)
+                                {
+                                    continue;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.Error.WriteLine($"Error al gestionar logs para la prioridad : {ex.Message}");
+                                continue;
+                            }
+                            var Hora_Inicio = DateTime.Now;
+
+                            List<PreCampaniaGeneralDetalleResponsableAlumnoWhatsAppDTO> PreRespuesta = new List<PreCampaniaGeneralDetalleResponsableAlumnoWhatsAppDTO>();
+                            PreRespuesta = _unitOfWork.WhatsAppConfiguracionPreEnvioRepository.PreListaWhatsAppEnvioMasivo(PrioridadItem.IdCampaniaGeneralDetalleResponsableWhatsApp);
+                            DetalleCampaniaDTO ConfiguracionPre = new DetalleCampaniaDTO();
+                            ConfiguracionPre = _unitOfWork.WhatsAppConfiguracionPreEnvioRepository.ObtenerDetalleDeCampaniaWhatsApp(PrioridadItem.IdCampaniaGeneralDetalleResponsableWhatsApp);
+
+                            if (PreRespuesta.Any())
+                            {
+                                prioridadesInfo.Add(PrioridadItem);
+                                prioridadesPreRespuesta.Add(PreRespuesta);
+                                prioridadesConfig.Add(ConfiguracionPre);
+                                prioridadesHoraInicio.Add(Hora_Inicio);
+                            }
+                        }
+                        catch { }
+                    }
+
+                    /* Fase 2: Envio secuencial por prioridad con Round-Robin entre asesores */
+                    if (prioridadesInfo.Count > 0)
+                    {
+                        int totalEntradas = prioridadesInfo.Count;
+                        int[] indices = new int[totalEntradas];
+                        int[] cantidadEnviadosPorPrioridad = new int[totalEntradas];
+                        bool[] entradaActiva = new bool[totalEntradas];
+                        for (int i = 0; i < totalEntradas; i++) entradaActiva[i] = true;
+
+                        // Obtener niveles de prioridad distintos en orden ascendente
+                        var nivelesDistintos = prioridadesInfo.Select(x => x.Prioridad).Distinct().OrderBy(x => x).ToList();
+                        int nivelIdx = 0;
+
+                        bool hayPendientes = true;
+                        while (hayPendientes)
+                        {
+                            int nivelActual = nivelesDistintos[nivelIdx];
+                            for (int p = 0; p < totalEntradas; p++)
+                            {
+                                // Solo procesar entradas del nivel de prioridad actual
+                                if (prioridadesInfo[p].Prioridad != nivelActual) continue;
+                                if (!entradaActiva[p] || indices[p] >= prioridadesPreRespuesta[p].Count)
+                                    continue;
+
+                                var Prioridad = prioridadesInfo[p];
+                                var item = prioridadesPreRespuesta[p][indices[p]];
+                                indices[p]++;
+                                int CantidadEnviados = cantidadEnviadosPorPrioridad[p];
+
+                                var logsActivos = _unitOfWork.WhatsAppConfiguracionPreEnvioRepository.logsActivos(Prioridad.IdCampaniaGeneralDetalleResponsableWhatsApp);
+
+                                if (logsActivos.Count() == 1)
+                                {
+                                    if (_unitOfWork.WhatsAppConfiguracionPreEnvioRepository.ValidarEnvioDuplicado(item.CelularWhatsApp, item.Dias) == false)
+
+                                    {
+                                        //if (_unitOfWork.WhatsAppConfiguracionPreEnvioRepository.ValidarDesuscritos(item.CelularWhatsApp) == false)
+                                        var detalle = _unitOfWork.WhatsAppConfiguracionPreEnvioRepository.ObtenerDetallePlantillaWhatsApp(item.IdPlantilla);
+                                        var respuesta = new List<BotonDTO>();
+
+                                        //validacion
+                                        if (detalle.Count != 0 && !string.IsNullOrEmpty(detalle[0].Imagen))
+                                        {
+
+                                            foreach (var value in detalle)
+                                            {
+                                                respuesta.Add(new BotonDTO { Nombre = value.Boton.Replace(" ", "") });
+                                            }
+                                            var Serializer = new JavaScriptSerializer();
+                                            RespuestaMensajeHookDTO datoRespuesta = new RespuestaMensajeHookDTO();
+                                            MktWhatsAppEnviarMensajeDTO objetoWhatsAppHook = new MktWhatsAppEnviarMensajeDTO();
+
+                                            if (!string.IsNullOrWhiteSpace(item.ObjetoPlantilla))
+                                            {
+                                                item.ObjetoPlantilla = item.ObjetoPlantilla.Replace("\t", "");
+                                            }
+
+                                            List<DatosPlantillaWhatsAppDTO> objeto = new List<DatosPlantillaWhatsAppDTO>();
+
+                                            objeto = JsonConvert.DeserializeObject<List<DatosPlantillaWhatsAppDTO>>(item.ObjetoPlantilla);
+
+                                            foreach (var obj in objeto)
+                                            {
+                                                //Elimina los caracteres con tilde
+                                                obj.texto = obj.texto.Replace("á", "a");
+                                                obj.texto = obj.texto.Replace("é", "e");
+                                                obj.texto = obj.texto.Replace("í", "i");
+                                                obj.texto = obj.texto.Replace("ó", "o");
+                                                obj.texto = obj.texto.Replace("ú", "u");
+
+                                                obj.texto = obj.texto.Replace("Á", "A");
+                                                obj.texto = obj.texto.Replace("É", "E");
+                                                obj.texto = obj.texto.Replace("Í", "I");
+                                                obj.texto = obj.texto.Replace("Ó", "O");
+                                                obj.texto = obj.texto.Replace("Ú", "U");
+
+                                                //Elimina las Ñ
+                                                obj.texto = obj.texto.Replace("ñ", "n");
+                                                obj.texto = obj.texto.Replace("Ñ", "N");
+
+
+                                                //Elimina los caracteres con tilde
+                                                obj.texto = obj.texto.Replace("á", "a");
+                                                obj.texto = obj.texto.Replace("é", "e");
+                                                obj.texto = obj.texto.Replace("í", "i");
+                                                obj.texto = obj.texto.Replace("ó", "o");
+                                                obj.texto = obj.texto.Replace("ú", "u");
+
+                                                obj.texto = obj.texto.Replace("Á", "A");
+                                                obj.texto = obj.texto.Replace("É", "E");
+                                                obj.texto = obj.texto.Replace("Í", "I");
+                                                obj.texto = obj.texto.Replace("Ó", "O");
+                                                obj.texto = obj.texto.Replace("Ú", "U");
+
+                                            }
+
+                                            objetoWhatsAppHook.Id = 0;
+                                            objetoWhatsAppHook.WaTo = item.CelularWhatsApp;
+                                            objetoWhatsAppHook.WaId = "";
+                                            objetoWhatsAppHook.WaType = "template";
+                                            objetoWhatsAppHook.WaTypeMensaje = 8;
+                                            objetoWhatsAppHook.WaRecipientType = "individual";
+                                            objetoWhatsAppHook.WaBody = item.Descripcion;
+                                            objetoWhatsAppHook.WaFile = "";
+                                            objetoWhatsAppHook.WaFileName = "";
+                                            objetoWhatsAppHook.WaMimeType = "";
+                                            objetoWhatsAppHook.WaSha256 = "";
+                                            objetoWhatsAppHook.WaLink = "";
+                                            objetoWhatsAppHook.WaCaption = item.MensajePlantillaHtml;
+                                            objetoWhatsAppHook.IdPais = item.WhatsAppEmpresaIdPais;
+                                            objetoWhatsAppHook.EsMigracion = true;
+                                            objetoWhatsAppHook.IdMigracion = 0;
+                                            objetoWhatsAppHook.IdPersonal = item.IdPersonal;
+                                            objetoWhatsAppHook.IdAlumno = item.IdAlumno;
+                                            objetoWhatsAppHook.usuario = "WhatsAppMasivoPlantilla";
+                                            objetoWhatsAppHook.imagen = detalle[0].Imagen;
+                                            objetoWhatsAppHook.DatosPlantillaWhatsApp = objeto;
+                                            objetoWhatsAppHook.botones = respuesta;
+                                            var serializedResult = Serializer.Serialize(objetoWhatsAppHook);
+                                            //string url = $"https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphMarketingMasivos";
+                                            string url = $"https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphMarketingMasivos";
+
+                                            try
+                                            {
+                                                datoRespuesta = UrlPost(url, serializedResult);
+
+                                                if (datoRespuesta.EstadoMensaje == true && datoRespuesta.WaId != null)
+                                                {
+                                                    PreCampaniaGeneralDetalleResponsableAlumnoWhatsAppDTO Json = new PreCampaniaGeneralDetalleResponsableAlumnoWhatsAppDTO();
+                                                    //Json.CelularWhatsApp = objetoWhatsAppHook.WaTo;
+                                                    //Json.IdAlumno = objetoWhatsAppHook.IdAlumno;
+                                                    //Json.WhatsAppEmpresaIdPais = objetoWhatsAppHook.IdPais;
+                                                    //Json.MensajePlantillaHtml = objetoWhatsAppHook.WaCaption;
+                                                    //Json.ObjetoPlantilla = item.ObjetoPlantilla;
+                                                    item.WaId = datoRespuesta.WaId;
+                                                    //Json.IdPersonal = objetoWhatsAppHook.IdPersonal;
+                                                    var serializedResultInsertEnviado = Serializer.Serialize(item);
+                                                    bool ResultadoInserccion = _unitOfWork.WhatsAppConfiguracionPreEnvioRepository.InsertarCampaniaGeneralDetalleResponsableAlumnoEnviadoWhatsApp(serializedResultInsertEnviado, item.WaId, Prioridad.IdCampaniaGeneralDetalleResponsableWhatsApp);
+                                                    CantidadEnviados = CantidadEnviados + 1;
+                                                }
+                                                else
+                                                {
+
+                                                    MensajeEnviadoErroneoWhatsappLogDTO DatosErroneos = new MensajeEnviadoErroneoWhatsappLogDTO();
+                                                    DatosErroneos.CelularWhatsapp = item.CelularWhatsApp;
+                                                    DatosErroneos.IdAlumno = item.IdAlumno;
+                                                    DatosErroneos.IdCampaniaGeneralDetalleResponsableWhatsapp = item.IdCampaniaGeneralDetalleResponsableWhatsApp;
+                                                    DatosErroneos.IdPlantilla = item.IdPlantilla;
+                                                    DatosErroneos.MensajePlantillaHtml = item.MensajePlantillaHtml;
+                                                    DatosErroneos.ObjetoPlantilla = item.ObjetoPlantilla;
+                                                    DatosErroneos.IdPais = item.WhatsAppEmpresaIdPais;
+                                                    DatosErroneos.MensajeErroneo = datoRespuesta.Mensaje != null ? datoRespuesta.Mensaje : "";
+                                                    DatosErroneos.NumeroEnviado = datoRespuesta.NumeroEnvio != null ? datoRespuesta.NumeroEnvio : "";
+                                                    DatosErroneos.WaId = item.WaId != null ? item.WaId : "";
+                                                    DatosErroneos.Estado = true;
+                                                    DatosErroneos.FechaCreacion = DateTime.Now;
+                                                    DatosErroneos.FechaModificacion = DateTime.Now;
+                                                    DatosErroneos.UsuarioCreacion = "whatsapp";
+                                                    DatosErroneos.UsuarioModificacion = "whatsapp";
+
+                                                    bool ResultadoErroneo = _unitOfWork.WhatsAppConfiguracionPreEnvioRepository.InsertarMensajeEnviadoErroneoWhatsappLog(DatosErroneos);
+
+                                                    //aca has el guardado de la tabla de errores de envios ;)
+                                                    var Resul = datoRespuesta.EstadoMensaje;
+                                                }
+
+                                            }
+                                            catch { continue; }
+                                        }
+
+                                        else
+                                        {
+                                            var Serializer = new JavaScriptSerializer();
+                                            RespuestaMensajeHookDTO datoRespuesta = new RespuestaMensajeHookDTO();
+                                            MktWhatsAppEnviarMensajeDTO objetoWhatsAppHook = new MktWhatsAppEnviarMensajeDTO();
+
+                                            if (!string.IsNullOrWhiteSpace(item.ObjetoPlantilla))
+                                            {
+                                                item.ObjetoPlantilla = item.ObjetoPlantilla.Replace("\t", "");
+                                            }
+
+                                            List<DatosPlantillaWhatsAppDTO> objeto = new List<DatosPlantillaWhatsAppDTO>();
+
+                                            objeto = JsonConvert.DeserializeObject<List<DatosPlantillaWhatsAppDTO>>(item.ObjetoPlantilla);
+
+                                            foreach (var obj in objeto)
+                                            {
+                                                //Elimina los caracteres con tilde
+                                                obj.texto = obj.texto.Replace("á", "a");
+                                                obj.texto = obj.texto.Replace("é", "e");
+                                                obj.texto = obj.texto.Replace("í", "i");
+                                                obj.texto = obj.texto.Replace("ó", "o");
+                                                obj.texto = obj.texto.Replace("ú", "u");
+
+                                                obj.texto = obj.texto.Replace("Á", "A");
+                                                obj.texto = obj.texto.Replace("É", "E");
+                                                obj.texto = obj.texto.Replace("Í", "I");
+                                                obj.texto = obj.texto.Replace("Ó", "O");
+                                                obj.texto = obj.texto.Replace("Ú", "U");
+
+                                                //Elimina las Ñ
+                                                obj.texto = obj.texto.Replace("ñ", "n");
+                                                obj.texto = obj.texto.Replace("Ñ", "N");
+
+
+                                                //Elimina los caracteres con tilde
+                                                obj.texto = obj.texto.Replace("á", "a");
+                                                obj.texto = obj.texto.Replace("é", "e");
+                                                obj.texto = obj.texto.Replace("í", "i");
+                                                obj.texto = obj.texto.Replace("ó", "o");
+                                                obj.texto = obj.texto.Replace("ú", "u");
+
+                                                obj.texto = obj.texto.Replace("Á", "A");
+                                                obj.texto = obj.texto.Replace("É", "E");
+                                                obj.texto = obj.texto.Replace("Í", "I");
+                                                obj.texto = obj.texto.Replace("Ó", "O");
+                                                obj.texto = obj.texto.Replace("Ú", "U");
+
+                                            }
+
+                                            objetoWhatsAppHook.Id = 0;
+                                            objetoWhatsAppHook.WaTo = item.CelularWhatsApp;
+                                            objetoWhatsAppHook.WaId = null;
+                                            objetoWhatsAppHook.WaType = "hsm";
+                                            objetoWhatsAppHook.WaTypeMensaje = 8;
+                                            objetoWhatsAppHook.WaRecipientType = "hsm";
+                                            objetoWhatsAppHook.WaBody = item.Descripcion;
+                                            objetoWhatsAppHook.WaFile = null;
+                                            objetoWhatsAppHook.WaFileName = null;
+                                            objetoWhatsAppHook.WaMimeType = null;
+                                            objetoWhatsAppHook.WaSha256 = null;
+                                            objetoWhatsAppHook.WaLink = null;
+                                            objetoWhatsAppHook.WaCaption = item.MensajePlantillaHtml;
+                                            objetoWhatsAppHook.IdPais = item.WhatsAppEmpresaIdPais;
+                                            objetoWhatsAppHook.EsMigracion = true;
+                                            objetoWhatsAppHook.IdMigracion = 0;
+                                            objetoWhatsAppHook.IdPersonal = item.IdPersonal;
+                                            objetoWhatsAppHook.IdAlumno = item.IdAlumno;
+                                            objetoWhatsAppHook.usuario = "WhatsAppMasivoPlantilla";
+                                            objetoWhatsAppHook.imagen = null;
+                                            objetoWhatsAppHook.botones = null;
+                                            objetoWhatsAppHook.DatosPlantillaWhatsApp = objeto;
+                                            var serializedResult = Serializer.Serialize(objetoWhatsAppHook);
+                                            string url = $"https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphMarketingMasivos";
+                                            //string url = $"https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphMarketingMasivos";
+
+                                            try
+                                            {
+
+                                                datoRespuesta = UrlPost(url, serializedResult);
+
+                                                if (datoRespuesta.EstadoMensaje == true)
+                                                {
+                                                    PreCampaniaGeneralDetalleResponsableAlumnoWhatsAppDTO Json = new PreCampaniaGeneralDetalleResponsableAlumnoWhatsAppDTO();
+                                                    //Json.CelularWhatsApp = objetoWhatsAppHook.WaTo;
+                                                    //Json.IdAlumno = objetoWhatsAppHook.IdAlumno;
+                                                    //Json.WhatsAppEmpresaIdPais = objetoWhatsAppHook.IdPais;
+                                                    //Json.MensajePlantillaHtml = objetoWhatsAppHook.WaCaption;
+                                                    //Json.ObjetoPlantilla = item.ObjetoPlantilla;
+                                                    item.WaId = datoRespuesta.WaId;
+                                                    //Json.IdPersonal = objetoWhatsAppHook.IdPersonal;
+                                                    var serializedResultInsertEnviado = Serializer.Serialize(item);
+                                                    bool ResultadoInserccion = _unitOfWork.WhatsAppConfiguracionPreEnvioRepository.InsertarCampaniaGeneralDetalleResponsableAlumnoEnviadoWhatsApp(serializedResultInsertEnviado, item.WaId, Prioridad.IdCampaniaGeneralDetalleResponsableWhatsApp);
+                                                    CantidadEnviados = CantidadEnviados + 1;
+                                                }
+                                                else
+                                                {
+
+                                                    MensajeEnviadoErroneoWhatsappLogDTO DatosErroneos = new MensajeEnviadoErroneoWhatsappLogDTO();
+                                                    DatosErroneos.CelularWhatsapp = item.CelularWhatsApp;
+                                                    DatosErroneos.IdAlumno = item.IdAlumno;
+                                                    DatosErroneos.IdCampaniaGeneralDetalleResponsableWhatsapp = item.IdCampaniaGeneralDetalleResponsableWhatsApp;
+                                                    DatosErroneos.IdPlantilla = item.IdPlantilla;
+                                                    DatosErroneos.MensajePlantillaHtml = item.MensajePlantillaHtml;
+                                                    DatosErroneos.ObjetoPlantilla = item.ObjetoPlantilla;
+                                                    DatosErroneos.IdPais = item.WhatsAppEmpresaIdPais;
+                                                    DatosErroneos.MensajeErroneo = datoRespuesta.Mensaje != null ? datoRespuesta.Mensaje : "";
+                                                    DatosErroneos.NumeroEnviado = datoRespuesta.NumeroEnvio != null ? datoRespuesta.NumeroEnvio : "";
+                                                    DatosErroneos.WaId = item.WaId != null ? item.WaId : "";
+                                                    DatosErroneos.Estado = true;
+                                                    DatosErroneos.FechaCreacion = DateTime.Now;
+                                                    DatosErroneos.FechaModificacion = DateTime.Now;
+                                                    DatosErroneos.UsuarioCreacion = "whatsapp";
+                                                    DatosErroneos.UsuarioModificacion = "whatsapp";
+
+
+                                                    bool ResultadoErroneo = _unitOfWork.WhatsAppConfiguracionPreEnvioRepository.InsertarMensajeEnviadoErroneoWhatsappLog(DatosErroneos);
+                                                    //aca has el guardado de la tabla de errores de envios ;)
+                                                    var Resul = datoRespuesta.EstadoMensaje;
+
+                                                }
+
+                                            }
+                                            catch { continue; }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        continue;
+                                    }
+
+                                }
+                                else
+                                {
+                                    entradaActiva[p] = false;
+                                }
+
+                                cantidadEnviadosPorPrioridad[p] = CantidadEnviados;
+                            }
+
+                            // Verificar si quedan pendientes entre asesores de este nivel de prioridad
+                            bool pendientesEnNivel = false;
+                            for (int q = 0; q < totalEntradas; q++)
+                            {
+                                if (prioridadesInfo[q].Prioridad == nivelActual &&
+                                    entradaActiva[q] && indices[q] < prioridadesPreRespuesta[q].Count)
+                                {
+                                    pendientesEnNivel = true;
+                                    break;
+                                }
+                            }
+
+                            if (!pendientesEnNivel)
+                                nivelIdx++;
+
+                            hayPendientes = nivelIdx < nivelesDistintos.Count;
+                        }
+
+                        /* Fase 3: Envio de correos de fin por prioridad */
+                        for (int p = 0; p < totalEntradas; p++)
+                        {
+                            try
+                            {
+                                string Subject = "Fin de Envio masivo - Prioridad : " + prioridadesConfig[p].Prioridad + " Hora Inicio: " + prioridadesHoraInicio[p] + " Asesor: " + prioridadesConfig[p].Asesor;
+                                string Message = "Campania-Prioridad: " + prioridadesConfig[p].Nombre + " <br/>" + "Cantidad de contactos peocesados " + prioridadesPreRespuesta[p].Count() + " <br/>" + "Cantidad de mensajes Enviado " + cantidadEnviadosPorPrioridad[p] + " <br/>" + " Hora Inicio : " + prioridadesHoraInicio[p] + " <br/>" + "Hora Fin : " + DateTime.Now + " <br/>" + "Prioridad: " + prioridadesConfig[p].Prioridad + " <br/>" + " Campania: " + prioridadesConfig[p].Nombre + " <br/>" + " Asesor: " + prioridadesConfig[p].Asesor;
+                                this.EnvioCorreoMasivosMarketing(Subject, Message);
+                            }
+                            catch { }
+                        }
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine($"Error general en EjecutarCampaniaGeneralEnvioWhatsAppAsync: {e.Message}");
+
+            }
+
+        }
 
 
         public async Task<bool> EjecutarCampaniaGeneralEnvioWhatsAppAsync()
@@ -777,12 +1209,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         {
             try
             {
-
-
                 List<AsesoresMktDTO> correosAlerta = new List<AsesoresMktDTO>();
                 List<string> correosAlerta2 = new List<string>();
-                //correosAlerta2.Add("emayta@bsginstitute.com");
-                correosAlerta2.Add("achipanaa@bsginstitute.com");
+                correosAlerta2.Add("jllanque@bsginstitute.com");
                 List<string> correosAlertaCopia = new List<string>();
 
                 correosAlerta.AddRange(_unitOfWork.RegistroRecuperacionWhatsAppRepository.ListaAsesoresMarketing());
@@ -1007,7 +1436,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
         public ResultadoEjecucionCampaniaDTO EjecutarCampaniaGeneralEnvioWhatsAppBoton()
         {
-
             try
             {
                 var resultado = _unitOfWork.CampaniaGeneralRepository.ObtenerPrioridadesEnvioWhatsApp2();
@@ -1023,7 +1451,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     {
                         string Subject = "Inicio de Envio masivo " + ListaDePrioridades[0].NombreCampania + " Hora Inicio: " + ListaDePrioridades[0].HoraEnvio;
                         StringBuilder messageBuilder = new StringBuilder();
-
 
                         foreach (var Prioridad in ListaDePrioridades)
                         {
@@ -1043,7 +1470,13 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                     }
 
-                    foreach (var Prioridad in ListaDePrioridades)
+                    /* Fase 1: Pre-procesamiento - Recopilar datos de todas las prioridades */
+                    var prioridadesInfo = new List<ObtenerPrioridadesEnvioWhatsAppDTO>();
+                    var prioridadesPreRespuesta = new List<List<PreCampaniaGeneralDetalleResponsableAlumnoWhatsAppDTO>>();
+                    var prioridadesConfig = new List<DetalleCampaniaDTO>();
+                    var prioridadesHoraInicio = new List<DateTime>();
+
+                    foreach (var PrioridadItem in ListaDePrioridades)
                     {
                         int RespuestaInsertarLog = 0;
 
@@ -1052,7 +1485,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             try
                             {
 
-                                List<CampaniaGeneralDetalleResponsableAlumnoLogWhatsAppDTO> IdLogActivoParaDeleteLogico = _unitOfWork.WhatsAppConfiguracionLogEjecucionRepository.ObtenerLogActivoCampaniaGeneralDetalleResponsableWhatsApp(Prioridad.IdCampaniaGeneralDetalleResponsableWhatsApp);
+                                List<CampaniaGeneralDetalleResponsableAlumnoLogWhatsAppDTO> IdLogActivoParaDeleteLogico = _unitOfWork.WhatsAppConfiguracionLogEjecucionRepository.ObtenerLogActivoCampaniaGeneralDetalleResponsableWhatsApp(PrioridadItem.IdCampaniaGeneralDetalleResponsableWhatsApp);
                                 if (IdLogActivoParaDeleteLogico.Count() > 0)
                                 {
                                     foreach (var Log in IdLogActivoParaDeleteLogico)
@@ -1061,7 +1494,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                                     }
                                 }
-                                RespuestaInsertarLog = _unitOfWork.WhatsAppConfiguracionLogEjecucionRepository.InsertarLogWhatsApp(Prioridad.IdCampaniaGeneralDetalleResponsableWhatsApp, Prioridad.HoraEnvio, Prioridad.FechaInicioEnvioWhatsapp, "InsertarLogWhatsApp");
+                                RespuestaInsertarLog = _unitOfWork.WhatsAppConfiguracionLogEjecucionRepository.InsertarLogWhatsApp(PrioridadItem.IdCampaniaGeneralDetalleResponsableWhatsApp, PrioridadItem.HoraEnvio, PrioridadItem.FechaInicioEnvioWhatsapp, "InsertarLogWhatsApp");
                                 if (RespuestaInsertarLog == 0)
                                 {
                                     continue;
@@ -1074,24 +1507,49 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             var Hora_Inicio = DateTime.Now;
 
                             List<PreCampaniaGeneralDetalleResponsableAlumnoWhatsAppDTO> PreRespuesta = new List<PreCampaniaGeneralDetalleResponsableAlumnoWhatsAppDTO>();
-                            PreRespuesta = _unitOfWork.WhatsAppConfiguracionPreEnvioRepository.PreListaWhatsAppEnvioMasivo(Prioridad.IdCampaniaGeneralDetalleResponsableWhatsApp);
+                            PreRespuesta = _unitOfWork.WhatsAppConfiguracionPreEnvioRepository.PreListaWhatsAppEnvioMasivo(PrioridadItem.IdCampaniaGeneralDetalleResponsableWhatsApp);
                             DetalleCampaniaDTO ConfiguracionPre = new DetalleCampaniaDTO();
-                            ConfiguracionPre = _unitOfWork.WhatsAppConfiguracionPreEnvioRepository.ObtenerDetalleDeCampaniaWhatsApp(Prioridad.IdCampaniaGeneralDetalleResponsableWhatsApp);
+                            ConfiguracionPre = _unitOfWork.WhatsAppConfiguracionPreEnvioRepository.ObtenerDetalleDeCampaniaWhatsApp(PrioridadItem.IdCampaniaGeneralDetalleResponsableWhatsApp);
 
-                            /* Inicio ejecucion envio */
                             if (PreRespuesta.Any())
                             {
-                                WhatsAppConfiguracionEnvioDetalle EnvioMensajes = new WhatsAppConfiguracionEnvioDetalle();
-                                //try
-                                //{
-                                //    string Subject = "Inicio de Envio masivo - Prioridad : " + ConfiguracionPre.Prioridad + " Hora Inicio: " + Hora_Inicio + " Asesor: " + ConfiguracionPre.Asesor;
-                                //    string Message = "Campania-Prioridad: " + ConfiguracionPre.Nombre + " <br/>" + "Cantidad de contactos peocesados " + PreRespuesta.Count() + " <br/>" + " Hora Inicio : " + Hora_Inicio+ " <br/>" + "Prioridad: " + ConfiguracionPre.Prioridad + " <br/>" + " Campania: " + ConfiguracionPre.Nombre + " <br/>" + " Asesor: " + ConfiguracionPre.Asesor;
-                                //    this.EnvioCorreoMasivosMarketing(Subject, Message);
-                                //}
-                                //catch {}
-                                int CantidadEnviados = 0;
-                                foreach (var item in PreRespuesta)
-                                {
+                                prioridadesInfo.Add(PrioridadItem);
+                                prioridadesPreRespuesta.Add(PreRespuesta);
+                                prioridadesConfig.Add(ConfiguracionPre);
+                                prioridadesHoraInicio.Add(Hora_Inicio);
+                            }
+                        }
+                        catch { }
+                    }
+
+                    /* Fase 2: Envio secuencial por prioridad con Round-Robin entre asesores */
+                    if (prioridadesInfo.Count > 0)
+                    {
+                        int totalEntradas = prioridadesInfo.Count;
+                        int[] indices = new int[totalEntradas];
+                        int[] cantidadEnviadosPorPrioridad = new int[totalEntradas];
+                        bool[] entradaActiva = new bool[totalEntradas];
+                        for (int i = 0; i < totalEntradas; i++) entradaActiva[i] = true;
+
+                        // Obtener niveles de prioridad distintos en orden ascendente
+                        var nivelesDistintos = prioridadesInfo.Select(x => x.Prioridad).Distinct().OrderBy(x => x).ToList();
+                        int nivelIdx = 0;
+
+                        bool hayPendientes = true;
+                        while (hayPendientes)
+                        {
+                            int nivelActual = nivelesDistintos[nivelIdx];
+                            for (int p = 0; p < totalEntradas; p++)
+                            {
+                                // Solo procesar entradas del nivel de prioridad actual
+                                if (prioridadesInfo[p].Prioridad != nivelActual) continue;
+                                if (!entradaActiva[p] || indices[p] >= prioridadesPreRespuesta[p].Count)
+                                    continue;
+
+                                var Prioridad = prioridadesInfo[p];
+                                var item = prioridadesPreRespuesta[p][indices[p]];
+                                indices[p]++;
+                                int CantidadEnviados = cantidadEnviadosPorPrioridad[p];
 
                                     var logsActivos = _unitOfWork.WhatsAppConfiguracionPreEnvioRepository.logsActivos(Prioridad.IdCampaniaGeneralDetalleResponsableWhatsApp);
 
@@ -1100,9 +1558,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                         if (_unitOfWork.WhatsAppConfiguracionPreEnvioRepository.ValidarEnvioDuplicado(item.CelularWhatsApp, item.Dias) == false)
 
                                         {
-                                            //if (_unitOfWork.WhatsAppConfiguracionPreEnvioRepository.ValidarDesuscritos(item.CelularWhatsApp) == false)
-                                            //{
-
                                             var detalle = _unitOfWork.WhatsAppConfiguracionPreEnvioRepository.ObtenerDetallePlantillaWhatsApp(item.IdPlantilla);
                                             var respuesta = new List<BotonDTO>();
 
@@ -1365,11 +1820,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                                 }
                                                 catch { continue; }
                                             }
-                                            //}
-                                            //else
-                                            //{
-                                            //    continue;
-                                            //}
 
                                         }
                                         else
@@ -1381,23 +1831,41 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                     }
                                     else
                                     {
-                                        break;
+                                        entradaActiva[p] = false;
                                     }
-                                }
-                                try
-                                {
-                                    string Subject = "Fin de Envio masivo - Prioridad : " + ConfiguracionPre.Prioridad + " Hora Inicio: " + Hora_Inicio + " Asesor: " + ConfiguracionPre.Asesor;
-                                    string Message = "Campania-Prioridad: " + ConfiguracionPre.Nombre + " <br/>" + "Cantidad de contactos peocesados " + PreRespuesta.Count() + " <br/>" + "Cantidad de mensajes Enviado " + CantidadEnviados + " <br/>" + " Hora Inicio : " + Hora_Inicio + " <br/>" + "Hora Fin : " + DateTime.Now + " <br/>" + "Prioridad: " + ConfiguracionPre.Prioridad + " <br/>" + " Campania: " + ConfiguracionPre.Nombre + " <br/>" + " Asesor: " + ConfiguracionPre.Asesor;
-                                    this.EnvioCorreoMasivosMarketing(Subject, Message);
-                                }
-                                catch { }
+
+                                cantidadEnviadosPorPrioridad[p] = CantidadEnviados;
                             }
-                            else
+
+                            // Verificar si quedan pendientes entre asesores de este nivel de prioridad
+                            bool pendientesEnNivel = false;
+                            for (int q = 0; q < totalEntradas; q++)
                             {
-                                continue;
+                                if (prioridadesInfo[q].Prioridad == nivelActual &&
+                                    entradaActiva[q] && indices[q] < prioridadesPreRespuesta[q].Count)
+                                {
+                                    pendientesEnNivel = true;
+                                    break;
+                                }
                             }
+
+                            if (!pendientesEnNivel)
+                                nivelIdx++;
+
+                            hayPendientes = nivelIdx < nivelesDistintos.Count;
                         }
-                        catch { }
+
+                        /* Fase 3: Envio de correos de fin por prioridad */
+                        for (int p = 0; p < totalEntradas; p++)
+                        {
+                            try
+                            {
+                                string Subject = "Fin de Envio masivo - Prioridad : " + prioridadesConfig[p].Prioridad + " Hora Inicio: " + prioridadesHoraInicio[p] + " Asesor: " + prioridadesConfig[p].Asesor;
+                                string Message = "Campania-Prioridad: " + prioridadesConfig[p].Nombre + " <br/>" + "Cantidad de contactos peocesados " + prioridadesPreRespuesta[p].Count() + " <br/>" + "Cantidad de mensajes Enviado " + cantidadEnviadosPorPrioridad[p] + " <br/>" + " Hora Inicio : " + prioridadesHoraInicio[p] + " <br/>" + "Hora Fin : " + DateTime.Now + " <br/>" + "Prioridad: " + prioridadesConfig[p].Prioridad + " <br/>" + " Campania: " + prioridadesConfig[p].Nombre + " <br/>" + " Asesor: " + prioridadesConfig[p].Asesor;
+                                this.EnvioCorreoMasivosMarketing(Subject, Message);
+                            }
+                            catch { }
+                        }
                     }
                 }
 

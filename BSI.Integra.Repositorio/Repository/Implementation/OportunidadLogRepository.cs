@@ -510,11 +510,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                        SubEstadoLlamada,
 	                        NombreGrabacion,
 	                        UrlGrabacion,
+                            UrlGrabacion2,
 	                        WebphoneGrabacion,
 	                        TelefonoDestinoReal,
 	                        TelefonoDestino,
 	                        OrigenLlamada,
-	                        AnexoCentral 
+	                        AnexoCentral,
+                            esLlamadaCalificada,
+                            esLlamadaTranscrita
 	                    FROM com.V_ObtenerOportunidadLogReporteSeguimientoV5
 	                    WHERE 
 		                    IdOportunidad = @idOportunidad
@@ -625,7 +628,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                 CicloRN2,
                                 IdClasificacionPersona,
                                 IdPersonalAreaTrabajo
-                        FROM com.T_OportunidadLog
+                        FROM com.V_TOportunidadLog_Obtener
                         WHERE Estado = 1 AND IdOportunidad = @idOportunidad
                         ORDER BY Fecha_Log DESC";
                 var resultadoQuery = _dapperRepository.FirstOrDefault(query, new { idOportunidad });
@@ -669,7 +672,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                 CicloRN2,
                                 IdClasificacionPersona,
                                 IdPersonalAreaTrabajo
-                        FROM com.T_OportunidadLog
+                        FROM com.V_TOportunidadLog_Obtener
                         WHERE Estado = 1 AND IdOportunidad = @idOportunidad
                         ORDER BY Fecha_Log DESC";
                 var resultadoQuery = await _dapperRepository.FirstOrDefaultAsync(query, new { idOportunidad });
@@ -698,7 +701,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                 UsuarioModificacion, FechaCreacion, FechaModificacion, RowVersion, IdMigracion, IdClasificacionPersona, IdPersonalAreaTrabajo, IdFaseOportunidad_IP AS IdFaseOportunidadIp,
                                 IdOcurrenciaActividadAlterno
                     FROM 
-                        com.T_OportunidadLog
+                        com.V_TOportunidadLog_Obtener
                     WHERE 
                         Estado = 1 AND IdOportunidad = @IdOportunidadLog ORDER BY Fecha_Log DESC";
                 var resultadoQuery = _dapperRepository.FirstOrDefault(query, new { IdOportunidadLog = idOportunidadLog });
@@ -729,7 +732,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var query = @"
                     SELECT TOP 1 Id, Fecha_Log,FechaCambioFase,FechaCambioFaseIS,IdPersonal_Asignado,IdCentroCosto,FechaCambioFaseAnt,FechaCambioAsesor,
 	                    FechaCambioAsesorAnt,CambioFaseAsesor,CicloRN2,IdClasificacionPersona,IdPersonalAreaTrabajo
-                    FROM com.T_OportunidadLog
+                    FROM com.V_TOportunidadLog_Obtener
                     WHERE Estado = 1 AND IdOportunidad = @idOportunidad
                     ORDER BY Fecha_Log DESC";
                 var resultadoQuery = _dapperRepository.FirstOrDefault(query, new { idOportunidad });
@@ -760,7 +763,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                 FechaCreacion, FechaModificacion, RowVersion, IdMigracion, IdClasificacionPersona, IdPersonalAreaTrabajo, IdOcurrenciaAlterno, UsuarioModificacion, IdContacto,
                                 IdFaseOportunidad_IC AS IdFaseOportunidadIc, FechaCambioFaseAnt
                             FROM 
-                                com.T_OportunidadLog
+                                com.V_TOportunidadLog_Obtener
                             WHERE 
                                 Estado = 1 AND IdOportunidad = @IdOportunidad ORDER BY FechaCreacion DESC";
                 var resultadoQuery = _dapperRepository.FirstOrDefault(query, new { IdOportunidad = idOportunidad });
@@ -790,7 +793,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                 FechaCreacion, FechaModificacion, RowVersion, IdMigracion, IdClasificacionPersona, IdPersonalAreaTrabajo, IdOcurrenciaAlterno, UsuarioModificacion, IdContacto,
                                 IdFaseOportunidad_IC AS IdFaseOportunidadIc, FechaCambioFaseAnt
                             FROM 
-                                com.T_OportunidadLog
+                                com.V_TOportunidadLog_Obtener
                             WHERE 
                                 Estado = 1 AND IdOportunidad = @IdOportunidad ORDER BY FechaCreacion DESC";
                 var resultadoQuery = _dapperRepository.QueryDapper(query, new { IdOportunidad = idOportunidad });
@@ -848,7 +851,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var query = @"SELECT IdPersonal_Asignado AS Valor
-                                FROM com.T_OportunidadLog 
+                                FROM com.V_TOportunidadLog_Obtener 
                                 WHERE IdOportunidad = @IdOportunidad AND Estado  = 1 AND IdPersonal_Asignado IS NOT NULL
                                 ORDER BY Fecha_Log ASC";
                 var res = _dapperRepository.QueryDapper(query, new { IdOportunidad = idOportunidad });

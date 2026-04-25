@@ -549,6 +549,36 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+        /// Autor: Jose Vega
+        /// Fecha: 06/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene Publico Objetivo para Agenda Nueva V3
+        /// </summary>
+        /// <param name="idPGeneral">Id del Programa General</param>
+        /// <param name="idAlumno">Id del Alumno</param>
+        /// <returns> List<PGeneralPublicoObjetivoParaAgendaDTO> </returns>
+        public IEnumerable<PGeneralPublicoObjetivoParaAgendaDTO> ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3PorAlumno(int idOportunidad)
+        {
+            try
+            {
+                List<PGeneralPublicoObjetivoParaAgendaDTO> publicoObjetivo = new List<PGeneralPublicoObjetivoParaAgendaDTO>();
+
+                var parametros = new { idOportunidad};
+                var resultadoStoreProcedure = _dapperRepository.QuerySPDapper("com.SP_ObtenerPublicoObjetivoPorOportunidad", parametros);
+
+                if (!string.IsNullOrEmpty(resultadoStoreProcedure) && !resultadoStoreProcedure.Contains("[]"))
+                {
+                    publicoObjetivo = JsonConvert.DeserializeObject<List<PGeneralPublicoObjetivoParaAgendaDTO>>(resultadoStoreProcedure);
+                }
+                return publicoObjetivo;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// Autor: Jonathan Caipo
         /// Fecha: 12/12/2022
         /// Version: 1.0
@@ -1882,6 +1912,46 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
         }
+        // En PGeneralRepository
+
+        public async Task<List<ListaCursosPorProgramaDTO>> ListaCursosHijoPorIdPGeneralAsync(int idPGeneral)
+        {
+            try
+            {
+                var query = "SELECT Id,IdHijo,Curso FROM pla.V_ListaCursosPorProgramaId WHERE Id = @IdPGeneral ORDER BY Orden";
+                var respuesta = await _dapperRepository.QueryDapperAsync(query, new { IdPGeneral = idPGeneral });
+
+                if (!string.IsNullOrEmpty(respuesta) && !respuesta.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<List<ListaCursosPorProgramaDTO>>(respuesta) ?? new List<ListaCursosPorProgramaDTO>();
+                }
+                return new List<ListaCursosPorProgramaDTO>();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<List<ContenidoHijoDTO>> ContenidoEstructuraHijoPadreAsync(int idPGeneral)
+        {
+            try
+            {
+                var query = "SELECT Contenido,Documento,NumeroFila FROM pw.V_PW_EstructuraCarreraTecnicaPortal WHERE IdPGeneral=@IdPGeneral ORDER BY NumeroFila";
+                var respuesta = await _dapperRepository.QueryDapperAsync(query, new { IdPGeneral = idPGeneral });
+
+                if (!string.IsNullOrEmpty(respuesta) && !respuesta.Contains("[]") && respuesta != "null")
+                {
+                    return JsonConvert.DeserializeObject<List<ContenidoHijoDTO>>(respuesta) ?? new List<ContenidoHijoDTO>();
+                }
+                return new List<ContenidoHijoDTO>();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
         /// Autor: Max Mantilla Rodríguez.
         /// Fecha: 17/11/2022
         /// Version: 1.0
@@ -2703,6 +2773,30 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
         }
+
+        public IEnumerable<ComboDTO> ObtenerPGeneralActivo()
+        {
+            try
+            {
+                var query = @"
+                    SELECT 
+                        Id,
+                        Nombre
+                    FROM  pla.T_PGeneral
+                    WHERE Estado = 1 ";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<IEnumerable<ComboDTO>>(resultado)!;
+                }
+                return new List<ComboDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#DPwR-O-001@Error en Obtener() {ex.Message}", ex);
+            }
+        }
+
 
     }
 }

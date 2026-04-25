@@ -5,6 +5,7 @@ using BSI.Integra.Aplicacion.Transversal.Socket;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Transactions;
 using static BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.WhatsAppMensajeEnviadoApiComercialDTO;
@@ -20,6 +21,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
     public class AsignacionManualService : IAsignacionManualService
     {
         private static readonly int OCURRENCIA_ASIGNACION_MANUAL = 35;
+        private static readonly HashSet<int> _idFaseCerrada = new() { 9, 41, 10, 42, 6, 26, 27, 34, 4, 11, 36, 23, 5 };
         private IUnitOfWork _unitOfWork;
         //private Oportunidad _oportunidad;
         private Mapper _mapper;
@@ -713,9 +715,27 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
                             var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                            var RemarketingEmbudoHistorico = new RemarketingEmbudoHistoricoService(_unitOfWork);
+                            try
+                            {
+                                if (_idFaseCerrada.Contains((int)asig.IdFaseOportunidad))
+                                {
+                                    ClasificarScoreOportunidadRemarketing((int)asig.IdOportunidad);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                             try
                             {
                                 FacebookFormularioLeadingLog.EvaluarConversionFacebook((int)asig.IdOportunidad);
+                            }
+                            catch (Exception ex)
+                            {
+                            }
+                            try
+                            {
+                                RemarketingEmbudoHistorico.EvaluarEmbudoRemarketingAlumno((int)asig.IdAlumno, Usuario);
                             }
                             catch (Exception ex)
                             {
@@ -798,8 +818,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 }
 
                 
-                try
-                {
+            try
+            {
                     foreach (var item in listaOportunidades)
                     {
                         if (item.AplicaEnvioWhatsapp)
@@ -1084,7 +1104,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                                     UsuarioCreacion = Usuario,
                                     UsuarioModificacion = Usuario
                                 };
-                                asigTemp=(_repAsignacionOportunidad.Add(asig));
+                                asigTemp = (_repAsignacionOportunidad.Add(asig));
                             }
                             else
                             {
@@ -1163,9 +1183,27 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
                             var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                            var RemarketingEmbudoHistorico = new RemarketingEmbudoHistoricoService(_unitOfWork);
+                            try
+                            {
+                                if (_idFaseCerrada.Contains((int)asig.IdFaseOportunidad))
+                                {
+                                    ClasificarScoreOportunidadRemarketing((int)asig.IdOportunidad);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                             try
                             {
                                 FacebookFormularioLeadingLog.EvaluarConversionFacebook((int)asig.IdOportunidad);
+                            }
+                            catch (Exception ex)
+                            {
+                            }
+                            try
+                            {
+                                RemarketingEmbudoHistorico.EvaluarEmbudoRemarketingAlumno((int)asig.IdAlumno, Usuario);
                             }
                             catch (Exception ex)
                             {
@@ -1300,7 +1338,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 _repLog.Insert(new TLog
                 {
                     Ip = "-",
-                    Usuario="-",
+                    Usuario = "-",
                     Maquina = "-",
                     Ruta = "AsignarAsesorAuto-GENERAL",
                     Parametros = $"{AsignarAsesor.IdAsesor},{AsignarAsesor.IdCentroCosto},{AsignarAsesor.IdOportunidades}/{Usuario}",
@@ -1610,9 +1648,27 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
                             var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                            var RemarketingEmbudoHistorico = new RemarketingEmbudoHistoricoService(_unitOfWork);
+                            try
+                            {
+                                if (_idFaseCerrada.Contains((int)oportunidadNueva.IdFaseOportunidad))
+                                {
+                                    ClasificarScoreOportunidadRemarketing((int)oportunidadNueva.Id);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                             try
                             {
                                 FacebookFormularioLeadingLog.EvaluarConversionFacebook(oportunidadNueva.Id);
+                            }
+                            catch (Exception ex)
+                            {
+                            }
+                            try
+                            {
+                                RemarketingEmbudoHistorico.EvaluarEmbudoRemarketingAlumno((int)oportunidadNueva.IdAlumno, Usuario);
                             }
                             catch (Exception ex)
                             {
@@ -1791,9 +1847,27 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
                             var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                            var RemarketingEmbudoHistorico = new RemarketingEmbudoHistoricoService(_unitOfWork);
+                            try
+                            {
+                                if (_idFaseCerrada.Contains((int)oportunidadNueva.IdFaseOportunidad))
+                                {
+                                    ClasificarScoreOportunidadRemarketing((int)oportunidadNueva.Id);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                             try
                             {
                                 FacebookFormularioLeadingLog.EvaluarConversionFacebook(oportunidadNueva.Id);
+                            }
+                            catch (Exception ex)
+                            {
+                            }
+                            try
+                            {
+                                RemarketingEmbudoHistorico.EvaluarEmbudoRemarketingAlumno((int)oportunidadNueva.IdAlumno, Usuario);
                             }
                             catch (Exception ex)
                             {
@@ -1980,9 +2054,29 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
                             var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                            var RemarketingEmbudoHistorico = new RemarketingEmbudoHistoricoService(_unitOfWork);
+                            try
+                            {
+                                var aux = false;
+                                if (_idFaseCerrada.Contains((int)oportunidadNueva.IdFaseOportunidad))
+                                {
+                                    aux = ClasificarScoreOportunidadRemarketing((int)oportunidadNueva.Id);
+                                }
+                                var aux2 = aux;
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                             try
                             {
                                 FacebookFormularioLeadingLog.EvaluarConversionFacebook(oportunidadNueva.Id);
+                            }
+                            catch (Exception ex)
+                            {
+                            }
+                            try
+                            {
+                                RemarketingEmbudoHistorico.EvaluarEmbudoRemarketingAlumno((int)oportunidadNueva.IdAlumno, Usuario);
                             }
                             catch (Exception ex)
                             {
@@ -2168,9 +2262,27 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
                             var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                            var RemarketingEmbudoHistorico = new RemarketingEmbudoHistoricoService(_unitOfWork);
+                            try
+                            {
+                                if (_idFaseCerrada.Contains((int)oportunidadNueva.IdFaseOportunidad))
+                                {
+                                    ClasificarScoreOportunidadRemarketing((int)oportunidadNueva.Id);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                             try
                             {
                                 FacebookFormularioLeadingLog.EvaluarConversionFacebook(oportunidadNueva.Id);
+                            }
+                            catch (Exception ex)
+                            {
+                            }
+                            try
+                            {
+                                RemarketingEmbudoHistorico.EvaluarEmbudoRemarketingAlumno((int)oportunidadNueva.IdAlumno, Usuario);
                             }
                             catch (Exception ex)
                             {
@@ -2304,9 +2416,27 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
                             var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                            var RemarketingEmbudoHistorico = new RemarketingEmbudoHistoricoService(_unitOfWork);
+                            try
+                            {
+                                if (_idFaseCerrada.Contains((int)oportunidadDTO.IdFaseOportunidad))
+                                {
+                                    ClasificarScoreOportunidadRemarketing((int)oportunidadDTO.Id);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                             try
                             {
                                 FacebookFormularioLeadingLog.EvaluarConversionFacebook(idOportunidad);
+                            }
+                            catch (Exception ex)
+                            {
+                            }
+                            try
+                            {
+                                RemarketingEmbudoHistorico.EvaluarEmbudoRemarketingAlumno((int)oportunidadDTO.IdAlumno, Usuario);
                             }
                             catch (Exception ex)
                             {
@@ -2494,9 +2624,27 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
                             var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                            var RemarketingEmbudoHistorico = new RemarketingEmbudoHistoricoService(_unitOfWork);
+                            try
+                            {
+                                if (_idFaseCerrada.Contains((int)oportunidadNueva.IdFaseOportunidad))
+                                {
+                                    ClasificarScoreOportunidadRemarketing((int)oportunidadNueva.Id);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                             try
                             {
                                 FacebookFormularioLeadingLog.EvaluarConversionFacebook(oportunidadNueva.Id);
+                            }
+                            catch (Exception ex)
+                            {
+                            }
+                            try
+                            {
+                                RemarketingEmbudoHistorico.EvaluarEmbudoRemarketingAlumno((int)oportunidadNueva.IdAlumno, Usuario);
                             }
                             catch (Exception ex)
                             {
@@ -2686,9 +2834,27 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.Commit();
                             oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
                             var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                            var RemarketingEmbudoHistorico = new RemarketingEmbudoHistoricoService(_unitOfWork);
+                            try
+                            {
+                                if (_idFaseCerrada.Contains((int)oportunidadAntigua.IdFaseOportunidad))
+                                {
+                                    ClasificarScoreOportunidadRemarketing((int)oportunidadAntigua.Id);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                             try
                             {
                                 FacebookFormularioLeadingLog.EvaluarConversionFacebook(oportunidadAntigua.Id);
+                            }
+                            catch (Exception ex)
+                            {
+                            }
+                            try
+                            {
+                                RemarketingEmbudoHistorico.EvaluarEmbudoRemarketingAlumno((int)oportunidadAntigua.IdAlumno, Usuario);
                             }
                             catch (Exception ex)
                             {
@@ -3821,9 +3987,27 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         _unitOfWork.Commit();
                         oportunidadService.Update(oportunidadService._asignacionManual.OportunidadNueva);
                         var FacebookFormularioLeadingLog = new FacebookFormularioLeadgenLogService(_unitOfWork);
+                        var RemarketingEmbudoHistorico = new RemarketingEmbudoHistoricoService(_unitOfWork);
+                        try
+                        {
+                            if (_idFaseCerrada.Contains((int)asig.IdFaseOportunidad))
+                            {
+                                ClasificarScoreOportunidadRemarketing((int)asig.IdOportunidad);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                        }
                         try
                         {
                             FacebookFormularioLeadingLog.EvaluarConversionFacebook((int)asig.IdOportunidad);
+                        }
+                        catch (Exception ex)
+                        {
+                        }
+                        try
+                        {
+                            RemarketingEmbudoHistorico.EvaluarEmbudoRemarketingAlumno((int)asig.IdAlumno, Usuario);
                         }
                         catch (Exception ex)
                         {
@@ -3908,6 +4092,23 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 _repLog.Insert(new TLog { Ip = "-", Usuario = "-", Maquina = "-", Ruta = "AsignarAsesor", Parametros = $"{AsignarAsesor.IdAsesor},{AsignarAsesor.IdCentroCosto},{AsignarAsesor.IdOportunidades}/{Usuario}", Mensaje = $"{ex.Message}-{(ex.InnerException != null ? ex.InnerException.Message : "No contiene InnerException")}", Excepcion = $"{ex}", Tipo = "UPDATE", IdPadre = 0, UsuarioCreacion = string.Empty, UsuarioModificacion = string.Empty, FechaCreacion = DateTime.Now, FechaModificacion = DateTime.Now, Estado = true });
 
                 return (ex.Message);
+            }
+        }
+        public bool ClasificarScoreOportunidadRemarketing(int IdOportunidad)
+        {
+            try
+            {
+                var url = $"http://ia-remarketing-api.bsginstitute.com/api/score_contacto/procesar_oportunidad?id_oportunidad={IdOportunidad}";
+                using (var client = new HttpClient())
+                {
+                    var response = client.PostAsync(url, null).GetAwaiter().GetResult();
+                    return response.IsSuccessStatusCode;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en ClasificarScoreOportunidadRemarketing: {ex.Message}");
+                return false;
             }
         }
     }

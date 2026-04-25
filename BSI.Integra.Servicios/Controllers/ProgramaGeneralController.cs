@@ -1232,7 +1232,7 @@ namespace BSI.Integra.Servicios.Controllers
         [HttpPost]
         public IActionResult ActualizarVersionPrograma([FromBody] UpdateOnlyVersionProgramaDTO jsonDTO)
         {
-            var actualizar = _pGeneralService.ActualizarVersionPrograma(jsonDTO, "ctumir_sis");
+            var actualizar = _pGeneralService.ActualizarVersionPrograma(jsonDTO, _tokenManager.UserName);
             return Ok(actualizar);
         }
         /// TipoFuncion: POST
@@ -1276,5 +1276,15 @@ namespace BSI.Integra.Servicios.Controllers
             var respuesta = _pGeneralService.ActualizarInformacionBeneficioDetalleRequisito(dto, _tokenManager.UserName);
             return Ok(respuesta);
         }
+
+        [HttpGet("[action]")]
+        public IActionResult ObtenerPGeneralActivo()
+        {
+            var resultado = _pGeneralService.ObtenerPGeneralActivo();
+            return Ok(resultado);
+        }
+
     }
+
+
 }

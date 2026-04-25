@@ -1,5 +1,7 @@
-﻿using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
+using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -76,6 +78,34 @@ namespace BSI.Integra.Servicios.Controllers
         public IActionResult EjecutarBIC(int idPaisSede)
         {
             var resultado = _contadorBicService.EjecutarBIC(idPaisSede);
+            return Ok(resultado);
+        }
+        /// Tipo Función: GET
+        /// Autor: Carlos H. Crispin Riquelme
+        /// Fecha: 24/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza el proceso de ejecutar bics1
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [HttpGet("[Action]/{idPaisSede}")]
+        public IActionResult EjecutarBIC1(int idPaisSede)
+        {
+            var resultado = _contadorBicService.EjecutarBIC1(idPaisSede);
+            return Ok(resultado);
+        }
+        /// Tipo Función: GET
+        /// Autor: Carlos H. Crispin Riquelme
+        /// Fecha: 24/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Realiza el proceso de ejecutar bics2
+        /// </summary>
+        /// <returns> List<ComboDTO> </returns>
+        [HttpGet("[Action]/{idPaisSede}")]
+        public IActionResult EjecutarBIC2(int idPaisSede)
+        {
+            var resultado = _contadorBicService.EjecutarBIC2(idPaisSede);
             return Ok(resultado);
         }
         /// Tipo Función: GET

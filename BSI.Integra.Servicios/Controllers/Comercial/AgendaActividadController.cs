@@ -2,10 +2,13 @@
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
+using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
+using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace BSI.Integra.Servicios.Controllers.Comercial
 {
@@ -219,6 +222,41 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             }
         }
         /// Tipo Función: GET
+        /// Autor: Jonathan Caipo
+        /// Fecha: 30/11/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la informacion de Oportunidades asociada a una ClasificacionPersona y un Alumno.
+        /// </summary>
+        /// <param name="idClasificacionPersona">Id de Clasificacion Persona</param>
+        /// <param name="idAlumno">Id del Alumno</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerOportunidadInformacionPersonalizado/{idOportunidad}")]
+        public IActionResult ObtenerOportunidadInformacionPersonalizado(int idOportunidad)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                IOportunidadService oportunidadService = new OportunidadService(_unitOfWork);
+                var oportunidad = oportunidadService.ObtenerPorId(idOportunidad);
+
+                if (oportunidad?.IdClasificacionPersona == null)
+                {
+                    return BadRequest("La oportunidad no tiene una clasificación de persona asociada.");
+                }
+                IAgendaActividadService agendaActividadService = new AgendaActividadService(_unitOfWork);
+                return Ok(agendaActividadService.ObtenerOportunidadInformacion(oportunidad.IdAlumno.Value, oportunidad.IdClasificacionPersona.Value));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 25/07/2022
         /// Versión: 1.0
@@ -295,6 +333,41 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 14/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información de competidores
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionCompetidores")]
+        public async Task<IActionResult> ObtenerInformacionCompetidores([FromBody] Dictionary<string, string> filtro)
+        {
+            try
+            {
+                if (filtro == null || !filtro.TryGetValue("idOportunidad", out var idOportunidadStr))
+                {
+                    return BadRequest(new { Error = "El campo 'idOportunidad' es requerido." });
+                }
+
+                if (!int.TryParse(idOportunidadStr, out int idOportunidad))
+                {
+                    return BadRequest(new { Error = "El valor de 'idOportunidad' debe ser un número entero válido." });
+                }
+
+                var servicio = new AgendaActividadService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionCompetidoresAsync(idOportunidad);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
             }
         }
 
@@ -387,6 +460,76 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         {
             return Ok(_agendaActividadService.ObtenerHistorialInteraccionesPorIdOportunidad3cx(idOportunidad));
         }
+
+        /// Tipo Función: GET
+        /// Autor: Carlos Crispin Riquelme
+        /// Fecha: 27//11/2023
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el Historial de Interacciones de la Oportunidad por su Id
+        /// </summary>
+        /// <param name="idActividadDetalle">Id de la Oportunidad</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("[action]/{idActividadDetalle}")]
+        public IActionResult ObtenerRecomendacionesPorIdActividadDetalle(int idActividadDetalle)
+        {
+            return Ok(_agendaActividadService.ObtenerRecomendacionesPorIdActividadDetalle(idActividadDetalle));
+        }
+
+
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 27//12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el Historial de Interacciones de la Oportunidad por su Id con transcripciones
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerHistorialInteraccionesPorIdOportunidadAnalisisMensajePersonalizado/{idOportunidad}")]
+        public async Task<IActionResult> ObtenerHistorialInteraccionesPorIdOportunidadAnalisisMensajePersonalizado(int idOportunidad)
+        {
+            var result = await _agendaActividadService.ObtenerHistorialInteraccionesPorIdOportunidadMensajePersonalizado(idOportunidad);
+            return Ok(result);
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Erick Marcelo Quispe.
+        /// Fecha: 05/08/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los Datos del Alumno
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <returns> Retorna 200 y lista de objetos para combo o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerDatosAlumnoPersonalizado/{idOportunidad}")]
+        public IActionResult ObtenerDatosAlumnoPersonalizado(int idOportunidad)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                // Obtener idClasificacionPersona desde la oportunidad
+                IOportunidadService oportunidadService = new OportunidadService(_unitOfWork);
+                var oportunidad = oportunidadService.ObtenerPorId(idOportunidad);
+
+                if (oportunidad?.IdClasificacionPersona == null)
+                {
+                    return BadRequest("La oportunidad no tiene una clasificación de persona asociada.");
+                }
+
+                IAgendaActividadService agendaActividadService = new AgendaActividadService(_unitOfWork);
+                var result = agendaActividadService.ObtenerDatosAlumnoPersonalizado(oportunidad.IdClasificacionPersona.Value, idOportunidad);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 01/08/2022
@@ -1529,6 +1672,72 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
 
         /// TipoFuncion: GET
         /// Autor: Junior Llerena
+        /// Fecha: 25/02/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las métricas comparativas de actividades ATC de un personal entre el día actual y el anterior
+        /// </summary>
+        /// <param name="idPersonal">ID del personal a consultar</param>
+        /// <param name="fecha">Fecha opcional a consultar (por defecto: hoy)</param>
+        /// <returns>Métricas comparativas con porcentajes de variación</returns>
+        /// GET: api/Comercial/AgendaActividad/ObtenerMetricasActividadesATC?idPersonal=6588&fecha=2026-02-20
+        [HttpGet]
+        [Route("ObtenerMetricasActividadesATC")]
+        public IActionResult ObtenerMetricasActividadesATC([FromQuery] int idPersonal, [FromQuery] DateTime? fecha = null)
+        {
+            try
+            {
+                // Validación: idPersonal debe ser mayor a 0
+                if (idPersonal <= 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        mensaje = "El ID del personal debe ser mayor a 0"
+                    });
+                }
+
+                // Validación: fecha no puede ser futura
+                var fechaConsulta = fecha ?? DateTime.Today;
+                if (fechaConsulta.Date > DateTime.Today)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        mensaje = "No se pueden consultar métricas de fechas futuras",
+                        fecha = fechaConsulta.ToString("yyyy-MM-dd")
+                    });
+                }
+
+                IAgendaActividadService agendaActividadService = new AgendaActividadService(_unitOfWork);
+
+                var resultado = agendaActividadService.ObtenerMetricasActividadesATC(idPersonal, fechaConsulta);
+
+                return Ok(resultado);
+            }
+            catch (ArgumentException argEx)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    mensaje = argEx.Message,
+                    error = "Validación de parámetros"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    mensaje = "Error al obtener métricas de actividades ATC",
+                    error = ex.Message,
+                    errorCode = "#AAC-OMAATC-001"
+                });
+            }
+        }
+
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
         /// Fecha: 01/12/2025
         /// Version: 1.0
         /// <summary>
@@ -1666,6 +1875,68 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             catch (Exception ex)
             {
                 return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        /// TipoFuncion: GET
+        /// Autor: Junior Llerena
+        /// Fecha: 23/02/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene información de empresa paga por código de matrícula, incluyendo coordinador y asesor
+        /// </summary>
+        /// <param name="codigoMatricula">Código de matrícula de la oportunidad</param>
+        /// <returns>Retorna información de empresa paga con indicador si es empresa, nombre de coordinador y asesor</returns>
+        [HttpGet("ObtenerInformacionEmpresaPorCodigoMatricula/{codigoMatricula}")]
+        public IActionResult ObtenerInformacionEmpresaPorCodigoMatricula(string codigoMatricula)
+        {
+            if (string.IsNullOrWhiteSpace(codigoMatricula))
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "El código de matrícula es requerido y no puede estar vacío"
+                });
+            }
+
+            try
+            {
+                IAgendaActividadService agendaActividadService = new AgendaActividadService(_unitOfWork);
+                var informacionEmpresa = _unitOfWork.OportunidadRepository.ObtenerEmpresaPagaPorCodigoMatricula(codigoMatricula);
+
+                if (informacionEmpresa == null)
+                {
+                    return Ok(new
+                    {
+                        success = true,
+                        esEmpresa = false,
+                        nombreCoordinador = (string)null,
+                        nombreAsesor = (string)null,
+                        message = "No se encontró información para el código de matrícula proporcionado"
+                    });
+                }
+
+                bool esEmpresa = !string.IsNullOrEmpty(informacionEmpresa.EmpresaPaga) &&
+                                 informacionEmpresa.EmpresaPaga.Trim().Equals("Si", StringComparison.OrdinalIgnoreCase);
+
+                return Ok(new
+                {
+                    success = true,
+                    esEmpresa = esEmpresa,
+                    nombreCoordinador = informacionEmpresa.NombreCoordinador,
+                    nombreAsesor = informacionEmpresa.NombreAsesor,
+                    message = esEmpresa ? "La oportunidad corresponde a una empresa" : "La oportunidad no corresponde a una empresa"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error al obtener información de empresa",
+                    error = ex.Message,
+                    errorCode = "#AAC-OIEP-001"
+                });
             }
         }
 

@@ -202,7 +202,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    UsuarioEnvioCorreoWebinar,
 	                    UsuarioEnvioWhatsAppWebinar,
 	                    FechaRegularizacionCorreoWebinar,
-	                    FechaRegularizacionWhatsAppWebinar
+	                    FechaRegularizacionWhatsAppWebinar,
+                        IdPEspecificoSesionEstado ,
+                        IdPEspecificoSesionEstadoObservacionDetalle
                     FROM pla.T_PEspecificoSesion WHERE Estado=1 AND Id = @id";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { id });
 
@@ -519,6 +521,40 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 30/09/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la fecha hora inicio de Pespecifico Sesion
+        /// </summary>
+        /// <param name="idsPEspecificoPadre">Lista de Id PEspecifico</param>
+        /// <returns> List<PEspecificoSesionFechaHoraInicioDTO> </returns>
+        public async Task<List<PEspecificoSesionFechaHoraInicioDTO>> ObtenerFechaHoraInicioPorIdsPEspecificoPadreAsync(List<int> idsPEspecificoPadre)
+        {
+            try
+            {
+                List<PEspecificoSesionFechaHoraInicioDTO> objeto = new();
+                string query = @"SELECT
+                            IdPEspecifico,
+                            FechaHoraInicio
+                        FROM pla.V_ListaFechaInicioPEspecificoPadrePEspecificoHijoPorIdPadre
+                        WHERE PEspecificoPadreId IN @idsPEspecificoPadre";
+
+                string respuesta = await _dapperRepository.QueryDapperAsync(query, new { idsPEspecificoPadre });
+
+                if (!string.IsNullOrEmpty(respuesta) && !respuesta.Contains("[]"))
+                {
+                    objeto = JsonConvert.DeserializeObject<List<PEspecificoSesionFechaHoraInicioDTO>>(respuesta) ?? new List<PEspecificoSesionFechaHoraInicioDTO>();
+                }
+
+                return objeto;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 22/04/2023
         /// Version: 1.0
@@ -549,6 +585,39 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+        /// Autor: Jose Vega
+        /// Fecha: 30/09/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la fecha hora inicio de Pespecifico Sesion
+        /// </summary>
+        /// <param name="idsPEspecifico">Lista de Id PEspecifico</param>
+        /// <returns> List<PEspecificoSesionFechaHoraInicioDTO> </returns>
+        public async Task<List<PEspecificoSesionFechaHoraInicioDTO>> ObtenerFechaHoraInicioPorIdsPEspecificoAsync(List<int> idsPEspecifico)
+        {
+            try
+            {
+                List<PEspecificoSesionFechaHoraInicioDTO> objeto = new();
+                string query = @"SELECT
+                            IdPEspecifico,
+                            FechaHoraInicio
+                        FROM pla.V_ListaFechaInicioPEspecificoSesionPorIdPEspecifico
+                        WHERE IdPEspecifico IN @idsPEspecifico";
+
+                string respuesta = await _dapperRepository.QueryDapperAsync(query, new { idsPEspecifico });
+
+                if (!string.IsNullOrEmpty(respuesta) && !respuesta.Contains("[]"))
+                {
+                    objeto = JsonConvert.DeserializeObject<List<PEspecificoSesionFechaHoraInicioDTO>>(respuesta) ?? new List<PEspecificoSesionFechaHoraInicioDTO>();
+                }
+
+                return objeto;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 22/04/2023
         /// Version: 1.0
@@ -572,6 +641,39 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 {
                     objeto = JsonConvert.DeserializeObject<List<PEspecificoSesionFechaHoraInicioDTO>>(repuesta)!;
                 }
+                return objeto;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        /// Autor: Jose Vega
+        /// Fecha: 30/09/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la fecha hora inicio de Pespecifico Sesion
+        /// </summary>
+        /// <param name="idsPEspecifico">Lista de Id PEspecifico</param>
+        /// <returns> List<PEspecificoSesionFechaHoraInicioDTO> </returns>
+        public async Task<List<PEspecificoSesionFechaHoraInicioDTO>> ObtenerFechaHoraInicioSinSesionPorIdsPEspecificoAsync(List<int> idsPEspecifico)
+        {
+            try
+            {
+                List<PEspecificoSesionFechaHoraInicioDTO> objeto = new();
+                string query = @"SELECT
+                            IdPEspecifico,
+                            FechaHoraInicio
+                        FROM pla.V_ListaFechaInicioPEspecificoSesionSinInicioPorIdPEspecifico
+                        WHERE Orden=1 AND IdPEspecifico IN @idsPEspecifico";
+
+                string respuesta = await _dapperRepository.QueryDapperAsync(query, new { idsPEspecifico });
+
+                if (!string.IsNullOrEmpty(respuesta) && !respuesta.Contains("[]"))
+                {
+                    objeto = JsonConvert.DeserializeObject<List<PEspecificoSesionFechaHoraInicioDTO>>(respuesta) ?? new List<PEspecificoSesionFechaHoraInicioDTO>();
+                }
+
                 return objeto;
             }
             catch (Exception ex)
@@ -941,7 +1043,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var IdMatriculaCabecera = detalleSesionesFiltro.IdMatriculaCabecera;
                 var CodigoMatricula = detalleSesionesFiltro.CodigoMatricula;
 
-                string _query = "SELECT IdPGeneral, IdPEspecifico, IdSesion, IdCoordinadoraAcademica, NombreCoordinadoraAcademica, IdMatriculaCabecera, CodigoMatricula, NombreAlumno, CentroCosto, EstadoMatricula, Confirmo,EnvioCorreo, EnvioWhatsApp " +
+                string _query = "SELECT IdPGeneral, IdAlumno, IdPEspecifico, IdSesion, IdCoordinadoraAcademica, EmailCoordinadoraAcademica, NombreCoordinadoraAcademica, IdMatriculaCabecera, CodigoMatricula, NombreAlumno, Email, CentroCosto, EstadoMatricula, Confirmo, EnvioCorreo, EnvioWhatsApp, CelularWhatsApp, IdPais " +
                     "FROM pla.V_ObtenerDetalleSesionAlumnosWebinar WHERE IdSesion = @IdSesion";
                 if (IdPGeneral != 0)
                     _query += " and IdPGeneral=@IdPGeneral";

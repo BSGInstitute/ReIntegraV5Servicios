@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Infrastructure;
@@ -599,7 +601,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 List<RegistroListaSeccionesDocumentoDTO> lista = new List<RegistroListaSeccionesDocumentoDTO>();
-                var query = "SELECT Titulo, Contenido, IdSeccionTipoDetalle_PW, NumeroFila, Cabecera, PiePagina, OrdenWeb FROM pla.V_ListaSeccionesPorIdPrograma_Documento WHERE Titulo != 'Estructura Curricular' AND Titulo != 'Beneficios' AND  Titulo != 'Certificacion' AND Titulo != 'Prerrequisitos' AND  IdPGeneral = @IdPGeneral";
+                var query = "SELECT Titulo, Contenido, IdSeccionTipoDetalle_PW, NumeroFila, Cabecera, PiePagina, OrdenWeb, IdDocumentoPW FROM pla.V_ListaSeccionesPorIdPrograma_Documento WHERE Titulo != 'Estructura Curricular' AND Titulo != 'Beneficios' AND  Titulo != 'Certificacion' AND Titulo != 'Prerrequisitos' AND  IdPGeneral = @IdPGeneral";
                 var res = await _dapperRepository.QueryDapperAsync(query, new { IdPGeneral = idPGeneral });
                 if (!string.IsNullOrEmpty(res) && !res.Contains("[]"))
                 {
@@ -612,6 +614,134 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener datos complementarios programa general V1
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns>List<RegistroListaSeccionesDocumentoDTO></returns> 
+        public async Task<List<RegistroListaSeccionesDocumentoDTO>> ObtenerDatosComplementariosProgramaGeneralV1Async(int idPGeneral)
+        {
+            try
+            {
+                List<RegistroListaSeccionesDocumentoDTO> datosComplementarios = new List<RegistroListaSeccionesDocumentoDTO>();
+                string querySeccion = @"SELECT Titulo, Contenido,IdPGeneral, OrdenWeb
+                    FROM pla.V_DatoProgramaGeneralContenidoPorIdPrograma
+                    WHERE IdPGeneral = @IdPGeneral AND Titulo LIKE '%Estructura Curricular%'";
+
+                var resultado = await _dapperRepository.QueryDapperAsync(querySeccion, new { IdPGeneral = idPGeneral }); // Asegúrate que el parámetro coincida
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    datosComplementarios = JsonConvert.DeserializeObject<List<RegistroListaSeccionesDocumentoDTO>>(resultado);
+                }
+                return datosComplementarios;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 05/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la lista de cursos hijos asociados a un programa general activo.
+        /// </summary>
+        /// <param name="idPGeneral">Id del Programa General padre</param>
+        /// <returns>List<CursoHijoV2DTO></returns>
+        public async Task<List<CursoHijoV2DTO>> ObtenerCursosHijosPorIdPGeneralAsync(int idPGeneral)
+        {
+            var query = @"
+                SELECT Id, IdPgeneral, Nombre, Pg_titulo, pw_duracion, Orden
+                FROM pla.V_TPgeneral_ObtenerHijos
+                WHERE Estado = 1 AND IdPGeneral_Padre = @idPGeneral
+                ORDER BY Orden ASC";
+
+            var resultado = await _dapperRepository.QueryDapperAsync(query, new { idPGeneral });
+
+            if (string.IsNullOrWhiteSpace(resultado) || resultado == "[]")
+                return new List<CursoHijoV2DTO>();
+
+            try
+            {
+                return JsonConvert.DeserializeObject<List<CursoHijoV2DTO>>(resultado) ?? new List<CursoHijoV2DTO>();
+            }
+            catch
+            {
+                return new List<CursoHijoV2DTO>();
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 05/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene los registros de estructura curricular de un curso hijo específico.
+        /// </summary>
+        /// <param name="idHijo">Id del curso hijo (IdPGeneral del curso)</param>
+        /// <returns>List<RegistroSeccionContenidoDTO></returns>
+        public async Task<List<RegistroSeccionContenidoDTO>> ObtenerEstructuraCurricularPorIdHijoAsync(int idHijo)
+        {
+            var query = @"
+        SELECT Id, Titulo, Contenido, IdPGeneral, Orden, NumeroFila, NombreTitulo
+        FROM pla.V_ListaSeccionesPorIdPrograma_Silabos 
+        WHERE IdPGeneral = @idHijo
+          AND Estado = 1
+          AND Titulo LIKE '%Estructura Curricular%'
+        ORDER BY NumeroFila ASC";
+
+            var resultado = await _dapperRepository.QueryDapperAsync(query, new { idHijo });
+
+            if (string.IsNullOrWhiteSpace(resultado) || resultado == "[]")
+                return new List<RegistroSeccionContenidoDTO>();
+
+            try
+            {
+                return JsonConvert.DeserializeObject<List<RegistroSeccionContenidoDTO>>(resultado) ?? new List<RegistroSeccionContenidoDTO>();
+            }
+            catch
+            {
+                return new List<RegistroSeccionContenidoDTO>();
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 05/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la nota adicional de la estructura curricular (si existe) asociada a un programa o curso.
+        /// </summary>
+        /// <param name="idPGeneral">Id del Programa General o Curso</param>
+        /// <returns>string (contenido de la nota) o null si no existe</returns>
+        public async Task<string> ObtenerNotaEstructuraCurricularAsync(int idPGeneral)
+        {
+            var query = @"SELECT Contenido
+                            FROM pla.V_TPGeneralDocumentoPW_DescripcionEstructura
+                            WHERE IdPGeneral = @idPGeneral AND Rn = 1;";
+
+            var resultado = await _dapperRepository.FirstOrDefaultAsync(query, new { idPGeneral });
+
+            if (string.IsNullOrEmpty(resultado) || resultado == "[]" || resultado == "null")
+                return null;
+
+            try
+            {
+                var obj = JsonConvert.DeserializeObject<dynamic>(resultado);
+                var contenido = obj?.Contenido?.ToString();
+
+                return string.IsNullOrWhiteSpace(contenido) ? null : contenido;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 10/08/2022
         /// Version: 1.0
@@ -691,6 +821,31 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception e)
             {
                 throw new Exception(e.Message);
+            }
+        }
+
+        public List<CertificacionPrograma> ObtenerCertificadoPorIdPGeneral(int idPGeneral)
+        {
+            try
+            {
+                List<CertificacionPrograma> rpta = new List<CertificacionPrograma>();
+
+                var query = "pla.SP_CertificacionPGeneralObtener";
+                var parametros = new
+                {
+                    IdPGeneral = idPGeneral,
+               
+                };
+                var resultado = _dapperRepository.QuerySPDapper(query, parametros);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<CertificacionPrograma>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#IOSF-MKT-001@Error en ObtenerCertificadoPorIdPGeneral() {ex.Message}", ex);
             }
         }
         /// Autor: Jonathan Caipo

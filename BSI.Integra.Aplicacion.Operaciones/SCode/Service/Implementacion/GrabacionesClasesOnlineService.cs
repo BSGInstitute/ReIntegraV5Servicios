@@ -142,6 +142,25 @@ namespace BSI.Integra.Aplicacion.Operaciones.SCode.Service.Implementacion
             }
         }
 
+        /// Autor: Marco Jose Villanueva Torres
+        /// Fecha: 2026-04-09
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene la fecha de la ultima sesion asignada a PEspecifico Padre
+        /// </summary>
+        /// <param name="idPEspecifico">Id del programa especifico</param>
+        /// <returns> PEspecificoUltimaSesionDTO </returns>
+        public PEspecificoUltimaSesionDTO ObtenerUltimaSesionPorIdPEspecifico(int idPEspecifico)
+        {
+            try
+            {
+                return _unitOfWork.GrabacionesClasesOnlineRepository.ObtenerUltimaSesionPorIdPEspecifico(idPEspecifico);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
     }
 }

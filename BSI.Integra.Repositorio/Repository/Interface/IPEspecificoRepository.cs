@@ -27,6 +27,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         List<SeccionEtiquetaDTO> ObtenerSeccionEtiquetaPorIdCentroCosto(int idCentroCosto);
         Task<List<SeccionEtiquetaDTO>> ObtenerSeccionEtiquetaPorIdCentroCostoAsync(int idCentroCosto);
         List<PEspecificoPorIdPGeneral> ObtenerPorIdPGeneral(int idPGeneral);
+        Task<List<PEspecificoPorIdPGeneral>> ObtenerPorIdPGeneralAsync(int idPGeneral);
         FechaInicioProgramaEspecificoDTO FechaProgramaEspecifico(int idProgramaGeneral, int idProgramaEspecifico);
         Task<FechaInicioProgramaEspecificoDTO> FechaProgramaEspecificoAsync(int idProgramaGeneral, int idProgramaEspecifico);
         SeccionEtiquetaDTO? ObtenerContenidoTemplate(Guid IdPlantillaPW, Guid IdSeccionPW, int idCentroCosto);
@@ -102,5 +103,18 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         PEspecificoDetalleFechaByPGeneral ObtenerFechaInicioCursoPorIdPEspeficico(int idPEspecifico);
 		IEnumerable<PEspecificoByPGeneral> ObtenerPEspecificoByProgramaGeneral(int idPGeneral);
         public bool ActualizarConfiguracionPEspecificoAlumnoResumen(int idPEspecifico, string usuario);
+        string ObtenerNombreDocentePlanificacion(int idClasificacionPersona);
+        string ObtenerNombreCursoPorCentroCosto(int idCentroCosto);
+        string ObtenerNombrePaisDocentePlanificacion(int idClasificacionPersona);
+        string ObtenerPlazoOtorgadoPorCentroCosto(int idCentroCosto);
+        string ObtenerTarifaDocentePorCentroCosto(int idCentroCosto);
+        string ObtenerMonedaDocentePorCentroCosto(int idCentroCosto);
+        string ObtenerPlazoPagoDocentePorCentroCosto(int idCentroCosto);
+        int ObtenerIncrementoZonaHorariaDocente(int idClasificacionPersona);
+        string ObtenerFechaPrimeraSesionPorCentroCosto(int idCentroCosto, int incrementoHoras = 0);
+        string ObtenerFechaHoraWebinarPorCentroCosto(int idCentroCosto, int incrementoHoras = 0);
+        List<SesionPlanificacionDTO> ObtenerSesionesPlanificacion(int idCentroCosto, int incrementoHoras = 0);
+        List<CriterioEvaluacionPlanificacionDTO> ObtenerCriteriosEvaluacionPorCentroCosto(int idCentroCosto);
+        IEnumerable<PEspecificoCatalogoDTO> ObtenerCatalogo();
     }
 }

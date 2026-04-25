@@ -62,6 +62,25 @@ namespace BSI.Integra.Aplicacion.Servicios.SCode.Service.Implementacion.Wavix
                 throw ex;
             }
         }
+        /// Autor:Joseph Llanque
+        /// Fecha: 16/03/2023
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene configuracion de numero por usuario
+        /// </summary> 
+        /// <returns> IEnumerable<WavixPersonalDTO> </returns>
+        public IEnumerable<NumeroAsesorWavixDTO>? GetConfigurationTrunks()
+        {
+            try
+            {
+                return _unitOfWork.WavixRepository.GetConfigurationTrunks();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// Autor:Carlos Crispin
         /// Fecha: 20/11/2024
         /// Version: 1.0
@@ -217,9 +236,34 @@ namespace BSI.Integra.Aplicacion.Servicios.SCode.Service.Implementacion.Wavix
                 // 2.2.  Validar que exista un token diario
                 var tokenVigente = _unitOfWork.WavixRepository.ObtenerTokenVigente(personalConfig.Id);
 
-                // 2.1 Obtener lista de troncales 
-                var troncales = await ListarSipTrunks(apiKey,1,100);
-                var troncalEncontrada = troncales.sip_trunks.FirstOrDefault(x=>x.name == personalConfig.IdSipTrunk);
+                // 2.1 Obtener lista de troncales recursivamente (paginación de 100 en 100)
+                List<SipTrunkDTO> todasLasTroncales = new List<SipTrunkDTO>();
+                int paginaActual = 1;
+                const int tamanioPagina = 100;
+                bool hayMasPaginas = true;
+
+                while (hayMasPaginas)
+                {
+                    var respuestaPagina = await ListarSipTrunks(apiKey, paginaActual, tamanioPagina);
+                    if (respuestaPagina?.sip_trunks != null && respuestaPagina.sip_trunks.Count > 0)
+                    {
+                        todasLasTroncales.AddRange(respuestaPagina.sip_trunks);
+                        if (respuestaPagina.sip_trunks.Count < tamanioPagina)
+                        {
+                            hayMasPaginas = false;
+                        }
+                        else
+                        {
+                            paginaActual++;
+                        }
+                    }
+                    else
+                    {
+                        hayMasPaginas = false;
+                    }
+                }
+
+                var troncalEncontrada = todasLasTroncales.FirstOrDefault(x => x.name == personalConfig.IdSipTrunk);
 
                 // 3. Obtener configuración del SIP trunk desde Wavix API
                 var sipTrunkConfig = await ObtenerSipTrunkPorId(apiKey, troncalEncontrada.id);
@@ -316,6 +360,121 @@ namespace BSI.Integra.Aplicacion.Servicios.SCode.Service.Implementacion.Wavix
 
             } catch (Exception ex) {
                 throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene la lista de tokens activos de un personal
+        /// </summary>
+        /// <param name="idPersonal">ID del personal</param>
+        /// <returns>Lista de tokens activos</returns>
+        public List<TokenActivoListDTO> ObtenerTokensActivos(int idPersonal)
+        {
+            try
+            {
+                return _unitOfWork.WavixRepository.ObtenerTokensActivos(idPersonal);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene un token específico por su UUID
+        /// </summary>
+        /// <param name="tokenUuid">UUID del token</param>
+        /// <returns>Token encontrado o null</returns>
+        public TokenActivoListDTO ObtenerTokenPorUuid(string tokenUuid)
+        {
+            try
+            {
+                return _unitOfWork.WavixRepository.ObtenerTokenPorUuid(tokenUuid);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// Invalida (elimina lógicamente) un token por su UUID
+        /// </summary>
+        /// <param name="tokenUuid">UUID del token a invalidar</param>
+        /// <param name="usuario">Usuario que realiza la operación</param>
+        /// <returns>Respuesta de la operación</returns>
+        public TokenOperacionResponseDTO InvalidarToken(string tokenUuid, string usuario)
+        {
+            try
+            {
+                var resultado = _unitOfWork.WavixRepository.InvalidarToken(tokenUuid, usuario);
+                return new TokenOperacionResponseDTO
+                {
+                    Exito = resultado,
+                    Mensaje = resultado ? "Token invalidado correctamente" : "No se encontró el token o ya estaba inactivo",
+                    TokenUuid = tokenUuid
+                };
+            }
+            catch (Exception ex)
+            {
+                return new TokenOperacionResponseDTO
+                {
+                    Exito = false,
+                    Mensaje = $"Error al invalidar token: {ex.Message}",
+                    TokenUuid = tokenUuid
+                };
+            }
+        }
+
+        /// <summary>
+        /// Actualiza el payload de un token en la API de Wavix
+        /// PUT /v2/webrtc/tokens/{uuid}
+        /// </summary>
+        /// <param name="apiKey">API Key para autenticación</param>
+        /// <param name="tokenUuid">UUID del token a actualizar</param>
+        /// <param name="payload">Nuevo payload</param>
+        /// <returns>Respuesta de la operación</returns>
+        public async Task<TokenOperacionResponseDTO> ActualizarTokenPayload(string apiKey, string tokenUuid, object payload)
+        {
+            try
+            {
+                string baseUrl = $"https://api.wavix.com/v2/webrtc/tokens/{tokenUuid}";
+                string requestUrl = $"{baseUrl}?appid={apiKey}";
+
+                var requestBody = new { payload = payload };
+                string jsonContent = JsonConvert.SerializeObject(requestBody);
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await _httpClient.PutAsync(requestUrl, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return new TokenOperacionResponseDTO
+                    {
+                        Exito = true,
+                        Mensaje = "Payload actualizado correctamente",
+                        TokenUuid = tokenUuid
+                    };
+                }
+                else
+                {
+                    string errorContent = await response.Content.ReadAsStringAsync();
+                    return new TokenOperacionResponseDTO
+                    {
+                        Exito = false,
+                        Mensaje = $"Error al actualizar payload: {response.StatusCode} - {errorContent}",
+                        TokenUuid = tokenUuid
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new TokenOperacionResponseDTO
+                {
+                    Exito = false,
+                    Mensaje = $"Error al actualizar payload: {ex.Message}",
+                    TokenUuid = tokenUuid
+                };
             }
         }
     }

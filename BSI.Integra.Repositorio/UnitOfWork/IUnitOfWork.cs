@@ -1,4 +1,7 @@
-﻿using BSI.Integra.Repositorio.Repository.Interface;
+﻿using BSI.Integra.Persistencia.Modelos.IntegraDB;
+using BSI.Integra.Repositorio.Repository;
+using BSI.Integra.Repositorio.Repository.Implementation;
+using BSI.Integra.Repositorio.Repository.Interface;
 using BSI.Integra.Repositorio.Repository.Interface.Comercial;
 using BSI.Integra.Repositorio.Repository.Interface.Configuracion;
 using BSI.Integra.Repositorio.Repository.Interface.Finanzas.Siigo;
@@ -318,6 +321,11 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IComprobantePagoPorFurRepository ComprobantePagoPorFurRepository { get; }
         IFurPagoRepository FurPagoRepository { get; }
         IComprobantePagoRepository ComprobantePagoRepository { get; }
+        IGestionPagoRepository GestionPagoRepository { get; }
+        IGestionPagoCronogramaRepository GestionPagoCronogramaRepository { get; }
+        IGestionPagoArchivoRepository GestionPagoArchivoRepository { get; }
+        IModalidadPagoRepository ModalidadPagoRepository { get; }
+        IPagoEstadoRepository PagoEstadoRepository { get; }
         IModoFurRepository ModoFurRepository { get; }
         IModoPersonalFurRepository ModoPersonalFurRepository { get; }
         IFurFaseAprobacionRepository FurFaseAprobacionRepository { get; }
@@ -677,6 +685,8 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         ISeccionPwRepository SeccionPwRepository { get; }
         ICourierRepository CourierRepository { get; }
         ICourierDetalleRepository CourierDetalleRepository { get; }
+        IDocentePostulanteRepository DocentePostulanteRepository { get; }
+        IFaseGestionContactoRepository FaseGestionContactoRepository { get; }
         IPlantillaPaisRepository PlantillaPaisRepository { get; }
         ISeccionTipoDetallePwRepository SeccionTipoDetallePwRepository { get; }
         IMaterialPespecificoRepository MaterialPespecificoRepository { get; }
@@ -898,6 +908,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IMotivoInactividadRepository MotivoInactividadRepository { get; }
         ISistemaPensionarioRepository SistemaPensionarioRepository { get; }
         IMelissaRepository MelissaRepository { get; }
+
         IFacturamaRepository FacturamaRepository { get; }
         IPersonalRemuneracionRepository PersonalRemuneracionRepository { get; }
         IPersonalCeseRepository PersonalCeseRepository { get; }
@@ -931,9 +942,22 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         ICentralLlamadaDireccionRepository CentralLlamadaDireccionRepository { get; }
         IEvaluacionCategoriaRepository EvaluacionCategoriaRepository { get; }
 
+        IFaseCalificacionRepository FaseCalificacionRepository { get; }
+        ICriterioCalificacionLlamadaRepository CriterioCalificacionLlamadaRepository { get; }
+        ILineamientoCalificacionRepository LineamientoCalificacionRepository { get; }
+        ICriticidadCalificacionRepository CriticidadCalificacionRepository { get; }
+        IPuntosGeneralesRepository PuntosGeneralesRepository { get; }
+
+
+
         IPEspecificoCodigoPartnerRepository PEspecificoCodigoPartnerRepository { get; }
         IMatriculaFormularioProgresivoRepository MatriculaFormularioProgresivoRepository { get; }
 
+        ITranscripcionLlamadaRepository TranscripcionLlamadaRepository { get; }
+        IFraseCombinadaRepository FraseCombinadaRepository { get; }
+        IFraseReconocidaRepository FraseReconocidaRepository { get; }
+        IDetalleFraseReconocidaRepository DetalleFraseReconocidaRepository { get; }
+        IRecomendacionRepository RecomendacionRepository { get; }
         IProcesoSeleccionPuntajeCalificacionRepository ProcesoSeleccionPuntajeCalificacionRepository { get; }
         IProgramaGeneralProblemaFactorRepository ProgramaGeneralProblemaFactorRepository { get; }
         IProgramaGeneralProblemaFactorDetalleRepository ProgramaGeneralProblemaFactorDetalleRepository { get; }
@@ -955,6 +979,12 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IPaqueteTutorVirtualPaisRepository PaqueteTutorVirtualPaisRepository { get; }
         IPaqueteTutorVirtualBeneficioRepository PaqueteTutorVirtualBeneficioRepository { get; }
         IMontoPagoLogRepository MontoPagoLogRepository { get; }
+
+        //TransicionFase
+        ICriterioCalificacionFaseRepository CriterioCalificacionFaseRepository { get; }
+        ITransicionFaseCriterioOportunidadRepository TransicionFaseCriterioOportunidadRepository { get; }
+        ITransicionFaseOportunidadRepository TransicionFaseOportunidadRepository { get; }
+        ILineamientoCalificacionFaseRepository LineamientoCalificacionFaseRepository { get; }
         IMedioComunicacionRepository MedioComunicacionRepository { get; }
         IBloqueHorarioDetalleRepository BloqueHorarioDetalleRepository { get; }
         IPreferenciaComunicacionAcademicaRepository PreferenciaComunicacionAcademicaRepository { get; }
@@ -963,5 +993,45 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IRemarketingEmbudoEsquemaRepository RemarketingEmbudoEsquemaRepository { get; }
         IRemarketingEmbudoNivelRepository RemarketingEmbudoNivelRepository { get; }
         IRemarketingEmbudoHistoricoRepository RemarketingEmbudoHistoricoRepository { get; }
+
+        IGestionContactoRepository GestionContactoRepository { get; }
+        IGestionContactoLogRepository GestionContactoLogRepository { get; }
+        IActividadDetalleGestionContactoRepository ActividadDetalleGestionContactoRepository { get; }
+
+        IGestionDocenteFlujoRepository GestionDocenteFlujoRepository { get; }
+        IGestionDocenteActividadCabeceraRepository GestionDocenteActividadCabeceraRepository { get; }
+        IGestionDocenteActividadCabeceraFlujoRepository GestionDocenteActividadCabeceraFlujoRepository { get; }
+        IGestionDocenteActividadDetalleRepository GestionDocenteActividadDetalleRepository { get; }
+        IGestionDocenteOcurrenciaRepository GestionDocenteOcurrenciaRepository { get; }
+        IGestionDocenteDisparadorDetalleRepository GestionDocenteDisparadorDetalleRepository { get; }
+        IGestionDocenteDisparadorOcurrenciaDetalleRepository GestionDocenteDisparadorOcurrenciaDetalleRepository { get; }
+        IGestionDocenteDisparadorReglaTiempoFijoRepository GestionDocenteDisparadorReglaTiempoFijoRepository { get; }
+        IGestionDocenteDisparadorReglaTiempoRelativoRepository GestionDocenteDisparadorReglaTiempoRelativoRepository { get; }
+        IGestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository GestionDocenteDisparadorReglaTiempoRelativoReferenciaRepository { get; }
+        IGestionDocenteOcurrenciaIaConfiguracionRepository GestionDocenteOcurrenciaIaConfiguracionRepository { get; }
+        IGestionDocenteIaEntrenamientoEjemploRepository GestionDocenteIaEntrenamientoEjemploRepository { get; }
+        IGestionContactoActividadDetalleSesionRepository GestionContactoActividadDetalleSesionRepository { get; }
+        IGestionDocenteAgendaRepository GestionDocenteAgendaRepository { get; }
+        ICriterioTareaRepository CriterioTareaRepository { get; }
+        ISubCriterioTareaRepository SubCriterioTareaRepository { get; }
+        IProyectoAplicacionRepository ProyectoAplicacionRepository { get; }
+        IPEspecificoSesionEstadoRepository PEspecificoSesionEstadoRepository { get; }
+
+        IPEspecificoSesionEstadoObservacionRepository PEspecificoSesionEstadoObservacionRepository { get; }
+        IPEspecificoSesionEstadoObservacionDetalleRepository PEspecificoSesionEstadoObservacionDetalleRepository { get; }
+        IProveedorPEspecificoRepository ProveedorPEspecificoRepository { get; }
+        IReporteDashboardRepository ReporteDashboardRepository { get; }
+        IWhatsAppMensajeEnviadoApiAtcRepository WhatsAppMensajeEnviadoApiAtcRepository { get; }
+        IFacebookResenaRepository FacebookResenaRepository { get; }
+        IGoogleResenaRepository GoogleResenaRepository { get; }
+        IGooglePlacesConfiguracionRepository GooglePlacesConfiguracionRepository { get; }
+        IGooglePlacesCredencialApiRepository GooglePlacesCredencialApiRepository { get; }
+        ILinkedinResenaRepository LinkedinResenaRepository { get; }
+        IComputrabajoConfiguracionRepository ComputrabajoConfiguracionRepository { get; }
+        IComputrabajoResenaRepository ComputrabajoResenaRepository { get; }
+        IGlassdoorConfiguracionRepository GlassdoorConfiguracionRepository { get; }
+        IGlassdoorResenaRepository GlassdoorResenaRepository { get; }
+        IFacebookConfiguracionRepository FacebookConfiguracionRepository { get; }
+        ILinkedinConfiguracionRepository LinkedinConfiguracionRepository { get; }
     }
 }

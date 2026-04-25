@@ -3,8 +3,8 @@ using BSI.Integra.Aplicacion.Base.Exceptions;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
-using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Servicios.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
@@ -194,6 +194,125 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
             return listaPEspecifico;
         }
+
+        /// Autor: Erick Marcelo Quispe.
+        /// Fecha: 10/08/2022
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene en un objeto las fechas de las modalidades según la lógica del portal
+        /// </summary>
+        /// <param name="idPGeneral"> Id de Programa General </param>
+        /// <returns> List<ValorStringDTO> </returns>
+        public async Task<List<PEspecificoPorIdPGeneral>> ObtenerFechaInicioProgramaTodosAsync(int idPGeneral)
+        {
+            // Obtener los programas específicos
+            var pEspecificos = await _unitOfWork.PEspecificoRepository.ObtenerPorIdPGeneralAsync(idPGeneral);
+
+            if (pEspecificos == null || !pEspecificos.Any())
+                return null;
+
+            int IdCategoria = pEspecificos.Select(w => w.IdCategoria).FirstOrDefault();
+            List<int> idsPEspecificos = pEspecificos.Select(x => x.Id).ToList();
+            List<PEspecificoSesionFechaHoraInicioDTO> fechasHoraInicioSesion = new();
+
+            var pEspecificoSesionService = new PEspecificoSesionService(_unitOfWork);
+
+            if (IdCategoria == CategoriaPrograma.CURSOS
+                || IdCategoria == CategoriaPrograma.BOOTCAMP
+                || IdCategoria == CategoriaPrograma.CARRERA_PROFESIONAL)
+            {
+                fechasHoraInicioSesion = await pEspecificoSesionService.ObtenerFechaHoraInicioSesionPorIdPEspecificoAsync(idsPEspecificos, 2);
+            }
+            else if (IdCategoria == CategoriaPrograma.PROGRAMAS)
+            {
+                fechasHoraInicioSesion = await pEspecificoSesionService.ObtenerFechaHoraInicioSesionPorIdPEspecificoAsync(idsPEspecificos, 1);
+            }
+
+            List<PEspecificoPorIdPGeneral> listaPrevioPEspecifico = new();
+
+            foreach (var item in pEspecificos)
+            {
+                if (item.Tipo.ToLower() == "online asincronica")
+                {
+                    DateTime fechaAOnine = (DateTime.Now.Day < 25) ? DateTime.Now : DateTime.Now.AddDays(8);
+                    item.FechaInicio = fechaAOnine;
+                    item.FechaInicioTexto = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(fechaAOnine.ToString("MMMM yyyy"));
+                }
+                else
+                {
+                    if (item.FechaInicio == null)
+                    {
+                        DateTime? fechaHoraInicio = fechasHoraInicioSesion
+                            .Where(x => x.IdPEspecifico == item.Id && x.FechaHoraInicio.Value > DateTime.Now)
+                            .OrderBy(x => x.FechaHoraInicio)
+                            .Select(x => x.FechaHoraInicio)
+                            .FirstOrDefault();
+
+                        if (fechaHoraInicio != null)
+                        {
+                            item.FechaInicio = fechaHoraInicio.Value;
+                            item.FechaInicioTexto = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(item.FechaInicio.Value.ToString("dd MMMM yyyy"));
+                        }
+                        else
+                            item.FechaInicioTexto = "Por definir";
+                    }
+                    else
+                        item.FechaInicioTexto = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(item.FechaInicio.Value.ToString("dd MMMM yyyy"));
+                }
+                listaPrevioPEspecifico.Add(item);
+            }
+
+            var listaCiudades = (from x in listaPrevioPEspecifico
+                                 group x by new { x.Tipo, x.Ciudad } into gy
+                                 select new
+                                 {
+                                     gy.Key.Tipo,
+                                     gy.Key.Ciudad
+                                 }).ToList();
+
+            List<PEspecificoPorIdPGeneral> listaPEspecifico = new();
+
+            foreach (var item in listaCiudades)
+            {
+                var pEspecificoLanzamientoPorEjecucion = (from x in listaPrevioPEspecifico
+                                                          where (x.EstadoPId == EstadoPespecifico.LANZAMIENTO || x.EstadoPId == EstadoPespecifico.POR_EJECUCION)
+                                                          && x.Tipo == item.Tipo
+                                                          && x.Ciudad == item.Ciudad
+                                                          && x.IdCategoria != CategoriaPrograma.SUBCRIPCIONES
+                                                          && x.FechaInicio != null
+                                                          select x)
+                                                         .OrderBy(x => x.FechaInicio)
+                                                         .Take(3)
+                                                         .ToList();
+
+                if (pEspecificoLanzamientoPorEjecucion != null && pEspecificoLanzamientoPorEjecucion.Count > 0)
+                {
+                    foreach (var item2 in pEspecificoLanzamientoPorEjecucion)
+                        listaPEspecifico.Add(item2);
+                }
+                else
+                {
+                    var pEspecificoCiudad = listaPrevioPEspecifico
+                        .Where(x => x.Tipo == item.Tipo && x.Ciudad == item.Ciudad && x.IdCategoria != CategoriaPrograma.SUBCRIPCIONES)
+                        .OrderBy(x => x.FechaCreacion)
+                        .FirstOrDefault();
+
+                    if (pEspecificoCiudad != null)
+                        listaPEspecifico.Add(pEspecificoCiudad);
+                }
+            }
+
+            listaPEspecifico.AddRange(listaPrevioPEspecifico.Where(x => x.IdCategoria == CategoriaPrograma.SUBCRIPCIONES).ToList());
+
+            listaPEspecifico = listaPEspecifico.Select(c =>
+            {
+                c.FechaInicioTexto = (c.EstadoPId != EstadoPespecifico.LANZAMIENTO && c.EstadoPId != EstadoPespecifico.POR_EJECUCION) ? "Por definir" : c.FechaInicioTexto;
+                return c;
+            }).OrderBy(x => x.FechaInicio).ToList();
+
+            return listaPEspecifico;
+        }
+
         /// Autor: Jonathan Caipo
         /// Fecha: 20/10/2022
         /// Version: 1.0
@@ -2206,7 +2325,13 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 var listaCentroCosto = _unitOfWork.CentroCostoRepository.ObtenerCentroCostoParaPEspecifico(pGeneral.Codigo, condicion, dto.Anio.ToString(), nombreCiudad);
                 var filtradoPorCodigo = listaCentroCosto.Where(s => s.IdPgeneral.Equals(pGeneral.Codigo));
 
-                string roman = ToRoman(filtradoPorCodigo.Count() + 1);
+                int gruposCreados = filtradoPorCodigo.Count();
+                var versionPrograma = _unitOfWork.PGeneralVersionProgramaRepository.ObtenerPGeneralVersionProgramaDetallePorIdPGeneral(dto.IdProgramaGeneral).FirstOrDefault();
+                int? gruposAsignados = versionPrograma?.GruposAsignados > 0 ? versionPrograma.GruposAsignados : null;
+                bool haAlcanzadoLimite = gruposAsignados.HasValue && gruposCreados >= gruposAsignados.Value;
+
+                int numero = gruposCreados + 1;
+                string roman = ToRoman(numero);
                 modalidad = string.IsNullOrEmpty(modalidad) ? string.Empty : $"{modalidad} ";
 
                 nombrePEspecificoNuevo = $"{pGeneral.Nombre} {modalidad}{dto.Anio} {roman} {nombreCiudad}";
@@ -2220,8 +2345,12 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 nuevoCentroCosto.Codigo = codigoCentroCosto;
                 nuevoCentroCosto.CentroCosto.IdAreaCc = "9-3";
                 nuevoCentroCosto.NombreProgramaEspecifico = nombrePEspecificoNuevo;
+                nuevoCentroCosto.NombreProgramaEspecificoNumerico = $"{nombrePEspecificoNuevo} Grupo {numero}";
                 nuevoCentroCosto.CodigoBanco = "A" + (_unitOfWork.CentroCostoRepository.ObtenerUltimoIdCentroCosto() + 1);
                 nuevoCentroCosto.NombreProgramaGeneral = pGeneral.Nombre;
+                nuevoCentroCosto.GruposAsignados = gruposAsignados;
+                nuevoCentroCosto.GruposCreados = gruposCreados;
+                nuevoCentroCosto.HaAlcanzadoLimiteGrupos = haAlcanzadoLimite;
 
                 return nuevoCentroCosto;
             }
@@ -2297,8 +2426,10 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 pEspecifico.ActualizacionAutomatica = dto.ActualizacionAutomatica;
                 pEspecifico.IdCursoMoodle = dto.IdCursoMoodle;
                 pEspecifico.IdCursoMoodlePrueba = dto.IdCursoMoodlePrueba;
+                pEspecifico.IdEstadoCupos = dto.IdEstadoCupos;
                 pEspecifico.CursoIndividual = dto.CursoIndividual;
                 pEspecifico.UrlDocumentoCronograma = dto.UrlDocumentoCronograma;
+                pEspecifico.UrlDocumentoCronogramaGrupos = dto.UrlDocumentoCronogramaGrupos;
                 pEspecifico.IdTipoProgramaCarrera = dto.IdTipoProgramaCarrera;
                 pEspecifico.UsuarioModificacion = usuario;
                 pEspecifico.FechaModificacion = DateTime.Now;
@@ -2306,11 +2437,11 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 pEspecifico.TutorVirtualActivo = dto.TutorVirtualActivo;
                 var resultado = _unitOfWork.PEspecificoRepository.Update(pEspecifico);
                 var listaCursosHijos = _unitOfWork.PespecificoPadrePespecificoHijoRepository.ObtenerInformacionPespecificosHijos(dto.Id);
-                foreach(var EspecificoHijo in listaCursosHijos)
+                foreach (var EspecificoHijo in listaCursosHijos)
                 {
                     var pEspecificoHijo = _unitOfWork.PEspecificoRepository.ObtenerPorId(EspecificoHijo.Id);
                     pEspecificoHijo.ResumenClaseActivo = dto.ResumenClaseActivo;
-                    pEspecificoHijo.TutorVirtualActivo = dto.TutorVirtualActivo; 
+                    pEspecificoHijo.TutorVirtualActivo = dto.TutorVirtualActivo;
                     _unitOfWork.PEspecificoRepository.Update(pEspecificoHijo);
                     if (dto.ResumenClaseActivo == true)
                     {
@@ -3278,6 +3409,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         pespecificoSesion.Duracion = estructuraSesiones[i].Duracion.Value;
                         pespecificoSesion.IdAmbiente = estructuraSesiones[i].Curso.IdAmbiente;
                         pespecificoSesion.IdModalidadCurso = estructuraSesiones[i].Curso.IdModalidadCurso;
+                        pespecificoSesion.IdPEspecificoSesionEstado = 5;
                         pespecificoSesion.SesionAutoGenerada = true;
 
                         if (listaCursos.Count() == 0)//si es curso individual se guarda el expositor del curso en la sesion
@@ -3955,6 +4087,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 dtoSesion.Estado = true;
                 dtoSesion.FechaCreacion = DateTime.Now;
                 dtoSesion.FechaModificacion = DateTime.Now;
+                dtoSesion.IdPEspecificoSesionEstado = 5;
                 dtoSesion.UsuarioCreacion = usuario;
                 dtoSesion.UsuarioModificacion = usuario;
 
@@ -3985,13 +4118,16 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     IdPespecifico = dto.IdPespecifico,
                     FechaHoraInicio = dto.FechaHoraInicio,
                     Duracion = dto.Duracion,
-                    IdExpositor = dto.IdPespecifico,
+                    IdExpositor = dto.IdExpositor,
                     IdAmbiente = dto.IdAmbiente,
                     Comentario = dto.Comentario,
                     SesionAutoGenerada = dto.SesionAutoGenerada,
                     Grupo = (dto.Grupo != 0) ? dto.Grupo : 1,
+                    GrupoSesion = dto.GrupoSesion,
                     Version = 0,
                     IdModalidadCurso = pEspecifico.TipoId,
+                    IdPEspecificoSesionEstado = dto.IdPEspecificoSesionEstado ?? 5,
+                    Reprogramacion = dto.Reprogramacion,
                     Estado = true,
                     FechaCreacion = DateTime.Now,
                     FechaModificacion = DateTime.Now,
@@ -4018,6 +4154,74 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     IdTipoPrograma = idTipoPrograma,
                     IdPEspecificoSesion = pesesion.Id,
                     FechaSesion = pesesion.FechaHoraInicio
+                };
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        /// <summary>
+        /// Inserta una sesión reprogramada con todos los datos específicos
+        /// </summary>
+        /// <param name="dto">Datos de la sesión reprogramada</param>
+        /// <param name="usuario">Usuario que realiza la acción</param>
+        /// <returns>Respuesta con información de la sesión creada</returns>
+        public RptaActualizarDuracionInsertarSesionDTO InsertarSesionReprogramada(ReprogramarSesionDTO dto, string usuario)
+        {
+            try
+            {
+                PEspecifico? pEspecifico = _unitOfWork.PEspecificoRepository.ObtenerPorId(dto.IdPespecifico);
+                if (pEspecifico == null || pEspecifico.Id == 0)
+                {
+                    throw new BadRequestException("Pespecifico no existente");
+                }
+
+                // Actualizar duración total del programa
+                pEspecifico.Duracion = (Convert.ToDecimal(pEspecifico.Duracion) + dto.Duracion).ToString();
+                pEspecifico.FechaModificacion = DateTime.Now;
+                pEspecifico.UsuarioModificacion = usuario;
+
+                // Crear nueva sesión reprogramada
+                PEspecificoSesion sesionReprogramada = new PEspecificoSesion()
+                {
+                    IdPespecifico = dto.IdPespecifico,
+                    FechaHoraInicio = dto.FechaHoraInicio,
+                    Duracion = dto.Duracion,
+                    IdProveedor = dto.IdExpositor,
+                    IdAmbiente = dto.IdAmbiente,
+                    Comentario = dto.Comentario ?? string.Empty,
+                    SesionAutoGenerada = false,
+                    Grupo = dto.Grupo,
+                    GrupoSesion = dto.GrupoSesion,
+                    Version = 0,
+                    IdModalidadCurso = dto.IdModalidadCurso ?? pEspecifico.TipoId,
+                    IdPEspecificoSesionEstado = 7, // Estado "Por-Reprogramar"
+                    Reprogramacion = false,
+                    Estado = true,
+                    FechaCreacion = DateTime.Now,
+                    FechaModificacion = DateTime.Now,
+                    UsuarioCreacion = usuario,
+                    UsuarioModificacion = usuario,
+                };
+
+                _unitOfWork.PEspecificoRepository.Update(pEspecifico);
+                var sesionCreada = _unitOfWork.PEspecificoSesionRepository.Add(sesionReprogramada);
+                _unitOfWork.Commit();
+
+                int idTipoPrograma = 0;
+                if (pEspecifico.IdProgramaGeneral > 0)
+                {
+                    var pGeneral = _unitOfWork.PGeneralRepository
+                        .ObtenerPGeneralPorId(pEspecifico.IdProgramaGeneral.Value);
+                    idTipoPrograma = pGeneral?.IdTipoPrograma ?? 0;
+                }
+
+                return new RptaActualizarDuracionInsertarSesionDTO()
+                {
+                    IdTipoPrograma = idTipoPrograma,
+                    IdPEspecificoSesion = sesionCreada.Id,
+                    FechaSesion = sesionCreada.FechaHoraInicio
                 };
             }
             catch (Exception ex)
@@ -4093,6 +4297,10 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     {
                         pEspecifico.IdCursoMoodlePrueba = dto.IdCursoMoodlePrueba == 0 ? null : dto.IdCursoMoodlePrueba;
                     }
+                    if (dto.IdEstadoCupos != null)
+                    {
+                        pEspecifico.IdEstadoCupos = dto.IdEstadoCupos;
+                    }
 
                     pEspecifico.UsuarioModificacion = usuario;
                     pEspecifico.FechaModificacion = DateTime.Now;
@@ -4134,6 +4342,76 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             _unitOfWork.Commit();
                         }
                     }
+
+                    // ========== CREAR GESTIONCONTACTO PARA ASIGNACIÓN DE DOCENTE ==========
+                    if (dto.IdProveedor != null && pEspecifico.IdCentroCosto.HasValue)
+                    {
+                        var proveedor = _unitOfWork.ProveedorRepository.ObtenerPorId(dto.IdProveedor.Value);
+                        if (proveedor == null || proveedor.Id == 0)
+                        {
+                            throw new BadRequestException("#PES-ADAPE-002@No existe el proveedor especificado");
+                        }
+
+                        var persona = _unitOfWork.PersonaRepository.ObtenerPorEmail(proveedor.Email);
+                        if (persona == null)
+                        {
+                            throw new BadRequestException($"#PES-ADAPE-003@El proveedor {proveedor.Nombre1} {proveedor.ApePaterno} no tiene una Persona asociada");
+                        }
+
+                        var clasificacionPersona = _unitOfWork.ClasificacionPersonaRepository
+                            .FirstBy(w => w.IdPersona == persona.Id
+                                       && w.IdTipoPersona == 4
+                                       && w.IdTablaOriginal == proveedor.Id
+                                       && w.Estado == true);
+
+                        if (clasificacionPersona == null)
+                        {
+                            throw new BadRequestException($"#PES-ADAPE-004@El proveedor {proveedor.Nombre1} {proveedor.ApePaterno} (ID: {proveedor.Id}) no tiene ClasificacionPersona válida");
+                        }
+
+                        // Verificar si ya existe gestión activa
+                        var gestionExistente = _unitOfWork.GestionContactoRepository
+                            .FirstBy(w => w.IdClasificacionPersona == clasificacionPersona.Id
+                                       && w.IdCentroCosto == pEspecifico.IdCentroCosto
+                                       && w.Estado == true);
+
+                        if (gestionExistente == null)
+                        {
+                            try
+                            {
+                                DateTime fechaActual = DateTime.Now;
+
+                                // Obtener el ID del personal que está haciendo el cambio
+                                int idPersonalAsignado = _unitOfWork.PersonalRepository.ObtenerIdPersonalPorUserName(usuario);
+
+                                var nuevaGestion = new GestionContacto
+                                {
+                                    IdCentroCosto = pEspecifico.IdCentroCosto,
+                                    IdPersonalAsignado = idPersonalAsignado,
+                                    IdClasificacionPersona = clasificacionPersona.Id,
+                                    IdFaseGestionContacto = 1,
+                                    IdOrigen = 1124,
+                                    IdEstadoGestionContacto = 2,
+                                    UltimoComentario = $"Asignación automática de docente a curso: {pEspecifico.Nombre} - Proveedor: {proveedor.Nombre1} {proveedor.ApePaterno}",
+                                    EstadoSeguimientoWhatsApp = false,
+                                    Estado = true,
+                                    UsuarioCreacion = usuario,
+                                    UsuarioModificacion = usuario,
+                                    FechaCreacion = fechaActual,
+                                    FechaModificacion = fechaActual
+                                };
+
+                                _unitOfWork.GestionContactoRepository.AddAsync(nuevaGestion);
+                                _unitOfWork.Commit();
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new BadRequestException($"#PES-ADAPE-005@Error al crear GestionContacto: {ex.Message}");
+                            }
+                        }
+                    }
+                    // ========== FIN GESTIONCONTACTO ==========
+
                     var listaSesiones = _unitOfWork.PEspecificoSesionRepository.GetBy(x => x.IdPespecifico == dto.Id && x.Grupo == 1);
                     foreach (var item in listaSesiones)
                     {
@@ -4385,5 +4663,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 		{
 			return _unitOfWork.PEspecificoRepository.ObtenerPEspecificoByProgramaGeneral(idPGeneral);
 		}
+        public IEnumerable<PEspecificoCatalogoDTO> ObtenerCatalogoPEspecifico()
+        {
+            return _unitOfWork.PEspecificoRepository.ObtenerCatalogo();
+        }
 	}
 }

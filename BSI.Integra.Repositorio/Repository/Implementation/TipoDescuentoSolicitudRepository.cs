@@ -97,11 +97,36 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             _dapperRepository.QuerySPDapper("pla.SP_TipoDescuentoAprobarSolicitud", parametros);
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 24/04/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Rechaza una solicitud de tipo de descuento a nivel Supervisor (estado 7 -> 9).
+        /// </summary>
+        public void RechazarSolicitudSupervisor(
+            int idSolicitud,
+            string? comentarioRespuesta,
+            string? nombreArchivoRespuesta,
+            string? contentTypeRespuesta,
+            string usuario)
+        {
+            var parametros = new
+            {
+                IdTipoDescuentoSolicitud = idSolicitud,
+                ComentarioRespuesta = comentarioRespuesta,
+                NombreArchivoRespuesta = nombreArchivoRespuesta,
+                ContentTypeRespuesta = contentTypeRespuesta,
+                Usuario = usuario
+            };
+
+            _dapperRepository.QuerySPDapper("pla.SP_TipoDescuentoRechazarSolicitudSupervisor", parametros);
+        }
+
         /// Autor: Lolo Zaa
         /// Fecha: 14/01/2026
         /// Version: 1.0
         /// <summary>
-        /// Rechaza una solicitud de tipo de descuento a nivel Coordinador
+        /// Rechaza una solicitud de tipo de descuento a nivel Coordinador (estado 1 -> 3).
         /// </summary>
         public void RechazarSolicitudCoordinador(
             int idSolicitud,
@@ -149,9 +174,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
         /// Autor: Lolo Zaa
         /// Fecha: 14/01/2026
-        /// Version: 1.0
+        /// Autor Modificacion: Jose Vega
+        /// Fecha Modificacion: 24/04/2026
+        /// Version: 1.1
         /// <summary>
-        /// Lista solicitudes de descuento con filtros y paginación
+        /// Lista solicitudes de descuento con filtros y paginación.
+        /// Reenvía al SP el filtro IdsAsesoresFiltro resuelto por la capa de servicio.
         /// </summary>
         public TipoDescuentoSolicitudPaginadoDTO ListarSolicitudes(TipoDescuentoSolicitudFiltroDTO filtro)
         {
@@ -162,7 +190,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 FechaInicio = filtro.FechaInicio,
                 FechaFin = filtro.FechaFin,
                 NumeroPagina = filtro.NumeroPagina,
-                RegistrosPorPagina = filtro.RegistrosPorPagina
+                RegistrosPorPagina = filtro.RegistrosPorPagina,
+                IdsAsesoresFiltro = filtro.IdsAsesoresFiltro != null && filtro.IdsAsesoresFiltro.Any() ? string.Join(",", filtro.IdsAsesoresFiltro) : null
             };
 
             var resultado = _dapperRepository.QuerySPDapper("pla.SP_TipoDescuentoListarSolicitudes", parametros);

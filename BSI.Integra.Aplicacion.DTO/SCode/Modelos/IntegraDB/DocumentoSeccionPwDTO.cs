@@ -97,6 +97,7 @@
         public string Cabecera { get; set; }
         public string PiePagina { get; set; }
         public int? OrdenWeb { get; set; }
+        public int? IdDocumentoPW { get; set; }
         public string NombreCurso { get; set; }
     }
     public class RegistroListaSeccionesDocumentoV2DTO
@@ -239,5 +240,15 @@
         public string Titulo { get; set; }
         public string Cabecera { get; set; }
         public string Solucion { get; set; }
+    }
+    public class CertificacionPrograma
+    {
+        public int IdPGeneral { get; set; }
+        public string Titulo { get; set; }
+        public string Cabecera { get; set; }
+        public string Contenido { get; set; }
+        public int IdSeccionTipoDetalle_PW { get; set; }
+        public int NumeroFila { get; set; }
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.Base.Exceptions;
+using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
@@ -68,6 +69,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         PorcentajeCuotas = dto.PorcentajeCuotas,
                         CuotasAdicionales = dto.CuotasAdicionales,
                         IdTipoDescuentoNivelAprobacion = dto.IdTipoDescuentoNivelAprobacion,
+                        AplicaProgramaCompleto = dto.AplicaProgramaCompleto,
+                        Activo = dto.Activo,
                         UsuarioCreacion = usuario,
                         UsuarioModificacion = usuario,
                         FechaCreacion = DateTime.Now,
@@ -146,6 +149,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         tipoDescuento.PorcentajeCuotas = dto.PorcentajeCuotas;
                         tipoDescuento.CuotasAdicionales = dto.CuotasAdicionales;
                         tipoDescuento.IdTipoDescuentoNivelAprobacion = dto.IdTipoDescuentoNivelAprobacion;
+                        tipoDescuento.AplicaProgramaCompleto = dto.AplicaProgramaCompleto;
+                        tipoDescuento.Activo = dto.Activo;
                         tipoDescuento.UsuarioModificacion = usuario;
                         tipoDescuento.FechaModificacion = DateTime.Now;
                         tipoDescuento.Estado = true;
@@ -275,6 +280,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     FormulaTipoDescuentos = _unitOfWork.FormulaTipoDescuentoRepository.ObtenerTodoGrid(),
                     ProgramasGeneral = _unitOfWork.PGeneralRepository.ObtenerProgramasFiltro(),
                     TiposUsuario = _unitOfWork.AgendaTipoUsuarioRepository.ObtenerTipoUsuarioFiltro(),
+                    AplicaA = new List<ComboDTO>
+                    {
+                        new ComboDTO { Id = 0, Nombre = "Curso" },
+                        new ComboDTO { Id = 1, Nombre = "Programa completo" },
+                    },
                 };
                 return combos;
             }

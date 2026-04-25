@@ -18,7 +18,15 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         IEnumerable<ChatDetalleIntegraComboDTO> ObtenerCombo();
         HistorialChatRecibidosDTO ObtenerHistorialChatRecibidos(int idPersonal, int idAlumno);
         List<ChatDetalleIntegra> DetalleChatPorIdInteraccion(int idInteraccion);
+        List<ChatHistorialComercialDTO> DetalleChatPorIdAlumno(int idAlumno,int idPgeneral);
         List<ChatDetalleIntegra> ObtenerDetalleChatPorIdInteraccionControlMensajesSoporte(int idAlumno);
         ChatDetalleIntegra ObtenerPorIntegraChatYRemintente(int idInteraccionChatIntegra, string idRemitente);
+        public List<ChatActivoDetalleIntegraDTO> ObtenerChatsAcademicosHabilitadosCoordinadora(int IdCoordinadorAcademico, bool EsOnline);
+
+        // Chatbot ATC
+        ObtenerActividadesAtcResponseDTO ObtenerActividadesAtc(int idPEspecifico, int idAlumno);
+        AmpliarFechaEntregaResponseDTO AmpliarFechaEntrega(int idPEspecifico, int idAlumno, int idActividad, string fecha, string tipoActividad);
+        ObtenerAsistenciaAtcResponseDTO ObtenerAsistenciaAtc(int idPEspecifico, int idAlumno);
+        RegistrarAsistenciaAtcResponseDTO RegistrarAsistenciaAtc(int sesionId, int idAlumno);
     }
 }

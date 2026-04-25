@@ -29,6 +29,7 @@
         public string Estado { get; set; }
         public string Categoria { get; set; }
         public string Tipo { get; set; }
+        public long Uid { get; set; }
     }
     public class ObtenerBandejaEntradaArgumentosDTO
     {

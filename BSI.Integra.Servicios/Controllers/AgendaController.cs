@@ -140,7 +140,7 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 throw;
             }
-        }
+            }
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 12/08/2022
@@ -1331,6 +1331,7 @@ namespace BSI.Integra.Servicios.Controllers
                 throw;
             }
         }
+        
         /// Tipo Función: POST
         /// Autor: Joseph Llanque
         /// Fecha: 03/07/2024

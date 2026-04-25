@@ -89,5 +89,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         public IEnumerable<ProgramaGeneralComboDTO> ProgramaGneralconUrlVersion();
         List<PgeneralConfiguracionPlantillaDTO> ObtenerConfiguracionPlantilla(int IdPGeneral);
         ResultadoPVersionDTO ActualizarVersionPrograma(UpdateOnlyVersionProgramaDTO data, string usuario);
+        IEnumerable<ComboDTO> ObtenerPGeneralActivo();
     }
 }

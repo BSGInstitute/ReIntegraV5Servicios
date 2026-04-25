@@ -4,10 +4,7 @@ using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Aplicacion.Servicios.Service.Implementacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
-using iText.Layout.Properties;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Newtonsoft.Json;
 using System.Text;
 
 namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
@@ -15,6 +12,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
     public class AsistenciaWebinarService : IAsistenciaWebinarService
     {
         private IUnitOfWork _unitOfWork;
+        private const int ID_PLANTILLA_CANCELACION_WEBINAR = 2076;
 
         public AsistenciaWebinarService(IUnitOfWork unitOfWork)
         {
@@ -148,71 +146,213 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         {
             try
             {
-                PEspecificoSesion Objeto = new PEspecificoSesion();
                 var programaEspecificoSesion = _unitOfWork.PEspecificoSesionRepository.ObtenerPorId(dto.IdPEspecificoSesion);
+                if (programaEspecificoSesion == null)
+                    throw new Exception($"No se encontró la sesión con Id {dto.IdPEspecificoSesion}.");
+                if (programaEspecificoSesion.FechaCancelacionWebinar != null)
+                    throw new Exception("El webinar ya fue cancelado anteriormente. No se puede volver a cancelar ni reenviar las notificaciones.");
+
                 programaEspecificoSesion.FechaCancelacionWebinar = DateTime.Now;
                 programaEspecificoSesion.ComentarioCancelacionWebinar = dto.ComentarioCancelacion;
-                programaEspecificoSesion.UsuarioModificacion = usuario;
+                programaEspecificoSesion.UsuarioModificacion = !string.IsNullOrWhiteSpace(usuario) ? usuario : "SYSTEM";
                 programaEspecificoSesion.EsWebinarConfirmado = dto.Confirmo;
                 _unitOfWork.PEspecificoSesionRepository.Update(programaEspecificoSesion);
                 _unitOfWork.Commit();
-                //var correos = ObtenerAlumnosCorreoInscritosWebinar(dto.IdPEspecificoSesion);
-                //if (correos.Count > 0)
-                //{
-                //    EnviarMailWebinarCancelado(correos, dto.ComentarioCancelacion);
-                //}
+
+                var motivoCancelacion = dto.ComentarioCancelacion;
+                var nombreWebinar = _unitOfWork.PEspecificoRepository.ObtenerNombrePEspecifico(programaEspecificoSesion.IdPespecifico);
+                var alumnos = _unitOfWork.PEspecificoSesionRepository
+                    .ObtenerDetalleSesionesPorAlumnosFiltrado(new SesionFiltroDTO { IdSesion = dto.IdPEspecificoSesion })
+                    ?.Where(x => x.Confirmo == "CONFIRMADO")
+                    .ToList() ?? new List<DetalleSesionesAlumnosDTO>();
+
+                var correos = alumnos
+                    .Where(x => !string.IsNullOrWhiteSpace(x.Email))
+                    .Select(x => new AlumnoCorreoCoordinadoraDTO
+                    {
+                        EmailCoordinadora = x.EmailCoordinadoraAcademica?.Trim() ?? string.Empty,
+                        EmailAlumno = x.Email.Trim()
+                    })
+                    .Distinct()
+                    .ToList();
+
+                var alumnosWsp = alumnos
+                    .Where(x => !string.IsNullOrWhiteSpace(x.CelularWhatsApp))
+                    .Select(x =>
+                    {
+                        string celular = x.CelularWhatsApp.Trim();
+                        string codigoPais = x.IdPais.ToString();
+                        if (celular.StartsWith("00" + codigoPais))
+                            celular = celular.Substring(2);
+                        else if (!celular.StartsWith(codigoPais))
+                            celular = codigoPais + celular;
+                        return new AlumnoWhatsAppCancelacionDTO
+                        {
+                            CelularWhatsApp = celular,
+                            IdAlumno = x.IdAlumno,
+                            IdPais = x.IdPais,
+                            NombreAlumno = x.NombreAlumno ?? "",
+                            IdPersonal_Asignado = x.IdCoordinadoraAcademica
+                        };
+                    })
+                    .ToList();
+
+                if (correos.Count > 0)
+                {
+                    _ = Task.Run(() => EnviarMailWebinarCancelado(correos, motivoCancelacion, nombreWebinar));
+                }
+                if (alumnosWsp.Count > 0)
+                {
+                    EnviarWhatsAppWebinarCancelado(alumnosWsp, motivoCancelacion, nombreWebinar);
+                }
                 return true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw;
             }
         }
-        private List<string> ObtenerAlumnosCorreoInscritosWebinar (int IdPEspecificoSesion)
+
+        private void EnviarWhatsAppWebinarCancelado(List<AlumnoWhatsAppCancelacionDTO> alumnos, string motivoCancelacion, string nombreWebinar)
         {
-            var detalleSesionesFiltro = new SesionFiltroDTO
+            const string urlAtc = "https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphAtc";
+            var plantilla = _unitOfWork.PlantillaRepository.ObtenerPlantillaClaveValor(ID_PLANTILLA_CANCELACION_WEBINAR);
+
+            var handler = new HttpClientHandler
             {
-                IdSesion = IdPEspecificoSesion,
+                ServerCertificateCustomValidationCallback = (m, c, ch, e) => true
             };
-            return _unitOfWork
-                .PEspecificoSesionRepository
-                .ObtenerDetalleSesionesPorAlumnosFiltrado(detalleSesionesFiltro)?
-                .Where(x => x.Confirmo == "CONFIRMADO" && !string.IsNullOrWhiteSpace(x.Email))
-                .Select(x => x.Email)
-                .Distinct()
-                .ToList()
-                ?? new List<string>();
-        }
-        private void EnviarMailWebinarCancelado(
-            List<string> alumnosSendMail,
-            string mensajeMotivoCancelado)
-        {
-            try
+
+            using var client = new HttpClient(handler);
+
+            foreach (var alumno in alumnos)
             {
-                //TODO: Cambiar configuracion
-                string mensaje = "<h3>NOTIFICACIÓN DE CANCELACIÓN Y REPROGRAMACIÓN</h3><br><br>";
-                mensaje += "Estimado participante,<br>";
-                mensaje += mensajeMotivoCancelado;
-
-                var mailDataPersonalizado = new TMKMailDataDTO
-                {
-                    Sender = "ddelcarpio@bsginstitute.com",
-                    Recipient = string.Join(",", alumnosSendMail.Distinct()),
-                    Subject = "Webinar cancelado",
-                    Message = mensaje,
-                    Cc = "",
-                    Bcc = ""
-                };
-
                 try
                 {
-                    var mailService = new TMK_MailService();
-                    mailService.SetData(mailDataPersonalizado);
-                    mailService.SendMessageTask();
+                    string caption = (plantilla?.Texto ?? "")
+                        .Replace("{tAlumnos.nombre1}", alumno.NombreAlumno)
+                        .Replace("{webinar}", nombreWebinar ?? "")
+                        .Replace("{comentario}", motivoCancelacion);
+
+                    var body = new
+                    {
+                        Id = 0,
+                        WaTo = alumno.CelularWhatsApp,
+                        WaType = "hsm",
+                        WaTypeMensaje = 8,
+                        WaRecipientType = "hsm",
+                        WaBody = plantilla?.Descripcion ?? "",
+                        WaCaption = caption,
+                        IdPais = alumno.IdPais,
+                        EsMigracion = true,
+                        IdMigracion = 0,
+                        IdPersonal = alumno.IdPersonal_Asignado,
+                        IdAlumno = alumno.IdAlumno,
+                        usuario = "SYSTEM",
+                        datosPlantillaWhatsApp = new[]
+                        {
+                            new { codigo = "{tAlumnos.nombre1}", texto = alumno.NombreAlumno },
+                            new { codigo = "{webinar}", texto = nombreWebinar ?? "" },
+                            new { codigo = "{comentario}", texto = motivoCancelacion }
+                        }
+                    };
+
+                    var json = JsonConvert.SerializeObject(body);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    client.PostAsync(urlAtc, content).Wait();
                 }
                 catch { }
             }
-            catch { }
+        }
+
+        private void EnviarMailWebinarCancelado(
+            List<AlumnoCorreoCoordinadoraDTO> alumnosSendMail,
+            string mensajeMotivoCancelado,
+            string nombreWebinar
+            )
+        {
+            string mensaje = @"
+                <div style='font-family: Arial, sans-serif; max-width: 620px; margin: 0 auto; color: #333;'>
+                    <div style='background-color: #002855; padding: 24px 30px;'>
+                        <h1 style='color: #ffffff; margin: 0; font-size: 22px; letter-spacing: 1px;'>BSG Institute</h1>
+                    </div>
+                    <div style='padding: 32px 30px; background-color: #ffffff;'>
+                        <h2 style='color: #002855; font-size: 18px; margin-top: 0;'>Notificación de Cancelación de Webinar</h2>
+                        <p style='margin-bottom: 16px;'>Estimado/a participante,</p>
+                        <p style='margin-bottom: 20px;'>
+                            Le comunicamos que el webinar <strong>" + nombreWebinar + @"</strong> en el que se encontraba inscrito/a ha sido <strong>cancelado</strong>.
+                        </p>
+                        <div style='background-color: #f4f6f9; border-left: 4px solid #002855; padding: 16px 20px; margin-bottom: 24px; border-radius: 0 4px 4px 0;'>
+                            <p style='margin: 0; font-size: 14px;'><strong>Motivo:</strong></p>
+                            <p style='margin: 8px 0 0 0; font-size: 14px;'>" + mensajeMotivoCancelado + @"</p>
+                        </div>
+                        <p style='margin-bottom: 8px;'>
+                            Lamentamos los inconvenientes que esto pueda ocasionar. Para mayor información o consultas,
+                            comuníquese con su coordinadora académica.
+                        </p>
+                        <p style='margin-top: 32px; margin-bottom: 4px;'>Atentamente,</p>
+                        <p style='margin: 0; font-weight: bold; color: #002855;'>BSG Institute</p>
+                    </div>
+                    <div style='background-color: #f4f6f9; padding: 14px 30px; text-align: center; font-size: 11px; color: #888;'>
+                        <p style='margin: 0;'>Este mensaje fue generado automáticamente. Por favor, no responda a este correo.</p>
+                    </div>
+                </div>";
+
+            var correosEnCopia = string.Join(",", new[]
+            {
+                "cobandot@bsginstitute.com, coordinaciondocente@bsginstitute.com, ccrispin@bsginstitute.com, ctumir@bsginstitute.com"
+            });
+
+            var correosUnicos = alumnosSendMail
+                .Where(x => !string.IsNullOrWhiteSpace(x.EmailAlumno) && !string.IsNullOrWhiteSpace(x.EmailCoordinadora))
+                .GroupBy(x => x.EmailAlumno.Trim().ToLower())
+                .Select(g => g.First())
+                .ToList();
+
+            foreach (var alumno in correosUnicos)
+            {
+                try
+                {
+                    var mailData = new TMKMailDataDTO
+                    {
+                        Sender = alumno.EmailCoordinadora,
+                        Recipient = alumno.EmailAlumno,
+                        Subject = "Webinar cancelado",
+                        Message = mensaje,
+                        Cc = correosEnCopia,
+                        Bcc = ""
+                    };
+
+                    var mailService = new TMK_MailService();
+                    mailService.SetData(mailData);
+                    mailService.SendMessageTask();
+
+                    try
+                    {
+                        var gmailCorreo = new GmailCorreo
+                        {
+                            IdEtiqueta = 1, // sent:1, inbox:2
+                            Asunto = mailData.Subject,
+                            Fecha = DateTime.Now,
+                            EmailBody = mailData.Message,
+                            Seen = false,
+                            Remitente = alumno.EmailCoordinadora,
+                            Cc = correosEnCopia,
+                            Bcc = "",
+                            Destinatarios = alumno.EmailAlumno,
+                            Estado = true,
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now,
+                            UsuarioCreacion = "SYSTEM",
+                            UsuarioModificacion = "SYSTEM",
+                            IdClasificacionPersona = 5
+                        };
+                        _unitOfWork.GmailCorreoRepository.Add(gmailCorreo);
+                    }
+                    catch { }
+                }
+                catch { }
+            }
         }
 
 

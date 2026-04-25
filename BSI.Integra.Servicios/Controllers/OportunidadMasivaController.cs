@@ -43,7 +43,7 @@ namespace BSI.Integra.Servicios.Controllers
             string nombreArchivo = Path.GetFileName(archivo.FileName);
 
             string newId = servicio.InsertarArchivo(nombreArchivo, "OportunidadMasiva");
-        
+
 
             if (string.IsNullOrEmpty(newId))
                 return StatusCode(500, "El archivo se subió a Azure pero no se guardó en la BD.");
@@ -52,7 +52,7 @@ namespace BSI.Integra.Servicios.Controllers
         }
 
 
-  
+
 
         [HttpPost("DescargarArchivo")]
         public IActionResult DescargarArchivo([FromBody] ArchivoMasivoDTO request)
@@ -104,8 +104,6 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
- 
-       
         [Route("[Action]")]
         [HttpPost]
         public ActionResult ProcesarOportunidadedMasiva([FromForm] IFormFile file, [FromForm] string usuario)
@@ -121,6 +119,7 @@ namespace BSI.Integra.Servicios.Controllers
                 throw ex;
             }
         }
+
         [Route("[Action]")]
         [HttpPost]
         public ActionResult InsertarMasivoHistorial(HistorialOportunidaMasivodDTO datos)
@@ -128,7 +127,7 @@ namespace BSI.Integra.Servicios.Controllers
             try
             {
                 var servicio = new OportunidadMasivaService(unitOfWork);
-             servicio.InsertarHistorialOportunidad(datos.IdOportunidad,datos.Usuario);
+                servicio.InsertarHistorialOportunidad(datos.IdOportunidad, datos.Usuario);
                 return Ok(new { message = "Historial de oportunidad insertado correctamente." });
             }
             catch (Exception ex)
@@ -149,7 +148,6 @@ namespace BSI.Integra.Servicios.Controllers
             try
             {
                 var servicio = new OportunidadMasivaService(unitOfWork);
-
 
                 var respuesta = servicio.ObtenerOportunidadesMasivas();
                 return Ok(respuesta);

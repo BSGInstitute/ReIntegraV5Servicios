@@ -18,6 +18,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Interface.Marketing.WhatsApp
         object WhatsAppUltimoMensajeEnviadosChat(int idPersonal);
         object WhatsAppHistorialMensajeChat(int idPersonal, string numero, string area);
         object WhatsAppObtenerMensajeMultimedia(string waId);
+        object WhatsAppObtenerMensajeMultimediaPla(string waId);
         object ObtenerConversacionPorNumero(string numero, int idPais);
         PersonalAlumnoDTO ObtenerConversacionPorOportunidad(string numero, int idPais);
         PersonalAlumnoDTO ObtenerPersonalConfiguracion(string numero, int idCentroCosto, int idPais);

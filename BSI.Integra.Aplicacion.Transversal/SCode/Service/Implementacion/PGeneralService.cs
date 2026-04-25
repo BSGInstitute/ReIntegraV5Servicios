@@ -11,6 +11,7 @@ using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Implementation;
 using BSI.Integra.Repositorio.UnitOfWork;
+using DocumentFormat.OpenXml.Vml;
 using System.Linq;
 using System.Transactions;
 using static BSI.Integra.Aplicacion.Base.Enums.Enums;
@@ -245,6 +246,57 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw ex;
             }
         }
+        /// Autor: Jose Vega
+        /// Fecha: 06/11/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene Publico Objetivo para Agenda Nueva V3
+        /// </summary>
+        /// <param name="idPGeneral">Id del Programa General</param>
+        /// <param name="idAlumno">Id del Alumno</param>
+        /// <returns> List<PGeneralPublicoObjetivoSalidaDTO> </returns>
+        public IEnumerable<PGeneralPublicoObjetivoSalidaDTO> ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3PorAlumno(int idOportunidad)
+        {
+            IEnumerable<PGeneralPublicoObjetivoParaAgendaDTO> datosRepo;
+            try
+            {
+                datosRepo = _unitOfWork.PGeneralRepository.ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3PorAlumno(idOportunidad);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            if (datosRepo == null)
+            {
+                return Enumerable.Empty<PGeneralPublicoObjetivoSalidaDTO>();
+            }
+
+            string ObtenerTextoRespuesta(int idRespuesta)
+            {
+                if (idRespuesta == 0) return null;
+                _mapeoRespuestas.TryGetValue(idRespuesta, out string txt);
+                return txt;
+            }
+
+            var resultadoTransformado = datosRepo.Select(prereq => new PGeneralPublicoObjetivoSalidaDTO
+            {
+                Id = prereq.Id,
+                IdPGeneral = prereq.IdPGeneral,
+                Contenido = prereq.Contenido,
+                Respuesta = ObtenerTextoRespuesta(prereq.Respuesta)
+            });
+
+            return resultadoTransformado;
+        }
+        private static readonly Dictionary<int, string> _mapeoRespuestas = new Dictionary<int, string>
+        {
+            { 1, "Cumple al 100%" },
+            { 2, "Cumple al 75%" },
+            { 3, "Cumple al 50%" },
+            { 4, "Cumple al 25%" },
+            { 5, "No cumple" }
+        };
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 04/08/2022
         /// Version: 1.0
@@ -3255,6 +3307,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 pgeneral.NombreCorto = programaGeneralDTO.PGeneral.NombreCorto;
                 pgeneral.IdPagina = programaGeneralDTO.PGeneral.IdPagina;
                 pgeneral.ChatActivo = programaGeneralDTO.PGeneral.ChatActivo;
+                pgeneral.TutorVirtualActivo = programaGeneralDTO.PGeneral.TutorVirtualActivo;
                 pgeneral.PwDescripcionGeneral = programaGeneralDTO.PGeneral.PwDescripcionGeneral;
                 pgeneral.TieneProyectoDeAplicacion = programaGeneralDTO.PGeneral.TieneProyectoDeAplicacion;
                 pgeneral.TieneCertificadoModular = programaGeneralDTO.PGeneral.TieneCertificadoModular;
@@ -3285,6 +3338,20 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 _unitOfWork.PGeneralRepository.Update(pgeneral);
                 _unitOfWork.Commit();
 
+                bool esPadre = _unitOfWork.PGeneralRepository.ProgramaGeneralPadre(pgeneral.Id);
+
+                if (esPadre)
+                {
+                    var cursosHijo = _unitOfWork.PGeneralRepository.ListaCursosHijoPorIdPGeneral(pgeneral.Id);
+                    foreach(var curso in cursosHijo)
+                    {
+                        PGeneral pgeneralHijo = _unitOfWork.PGeneralRepository.ObtenerPorId(curso.IdHijo);
+                        pgeneralHijo.TutorVirtualActivo = programaGeneralDTO.PGeneral.TutorVirtualActivo;
+                        _unitOfWork.PGeneralRepository.Update(pgeneralHijo);
+                        _unitOfWork.Commit();
+                    }
+
+                }
                 PgeneralCriterioEvaluacionHijo pgeneralcriterioevaluacion = new PgeneralCriterioEvaluacionHijo();
 
                 var criterioEvaluacionHijo = _unitOfWork.PgeneralCriterioEvaluacionHijoRepository.ObtenerModalidadesPorIdPGeneral(programaGeneralDTO.PGeneral.IdPgeneral.Value).ToList();//Aqui estamos recuperando que modalidades tiene el curso en la tabla de hijos
@@ -5549,6 +5616,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     if (existente != null)
                     {
                         existente.CantidadMesAccesoAdicionalWebinar = itemVersion.CantidadMesAccesoAdicionalWebinar;
+                        existente.GruposAsignados = itemVersion.GruposAsignados;
                         existente.CantidadWebinarAsignado = itemVersion.CantidadWebinarAsignado;
                         existente.CreditoDisponibleTutorVirtual = itemVersion.CreditoDisponibleTutorVirtual;
                         existente.Duracion = itemVersion.Duracion;
@@ -5565,6 +5633,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             CantidadWebinarAsignado = itemVersion.CantidadWebinarAsignado,
                             CreditoDisponibleTutorVirtual = itemVersion.CreditoDisponibleTutorVirtual,
                             Duracion = itemVersion.Duracion,
+                            GruposAsignados = itemVersion.GruposAsignados,
                             IdVersionPrograma = itemVersion.IdVersionPrograma,
                             IdPgeneral = data.IdPgeneral,
                             UsuarioCreacion = usuario,
@@ -5584,6 +5653,11 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             {
                 return new ResultadoPVersionDTO { Estado = false, Mensaje = ex.Message };
             }
+        }
+
+        public IEnumerable<ComboDTO> ObtenerPGeneralActivo()
+        {
+            return _unitOfWork.PGeneralRepository.ObtenerPGeneralActivo();
         }
     }
 }

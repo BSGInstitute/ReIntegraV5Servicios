@@ -94,5 +94,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         PruebaCFD ObtenerAlumnoPorDNIV2(StringDTO valor);
         InformacionAlumnoDTO ObtenerInformacionAlumno(int idAlumno);
         int ValidarAlumnoExiste(AlumnoAutocompleteEmailDTO filtro);
+
+        AvanceAonlineAlumnoEnHorasDTO ObtenerAvanceAonlineHoras(int idMatriculaCabecera);
     }
 }

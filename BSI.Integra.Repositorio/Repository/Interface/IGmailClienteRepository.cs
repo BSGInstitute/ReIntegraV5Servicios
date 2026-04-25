@@ -19,6 +19,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<GmailClienteComboDTO> ObtenerCombo();
         CorreoClienteCredencialDTO? ObtenerClienteCredencial(int idAsesor);
         public GmailCliente ObtenerPorIdAsesor(int idAsesor);
+        IEnumerable<TGmailCliente> ObtenerGmailClientePorAreaTrabajo(int idPersonalAreaTrabajo);
 
     }
 }

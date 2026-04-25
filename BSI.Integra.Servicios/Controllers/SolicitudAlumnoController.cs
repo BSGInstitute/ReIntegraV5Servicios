@@ -198,7 +198,7 @@ namespace BSI.Integra.Servicios.Controllers
         /// Fecha: 08/03/2023
         /// Versión: 1.0
         /// <summary>
-        /// Obteniene Solicitudes Por Filtro 
+        /// Obteniene Solicitudes Por Filtro
         /// </summary>
         /// <param name="SolicitudAlumnoDetalle"> Parametros de entrada </param>
         /// <param name="Files"> Documentos de envío </param>
@@ -219,12 +219,93 @@ namespace BSI.Integra.Servicios.Controllers
             }
 
         }
+
+        /// TipoFuncion: POST
+        /// Autor: Alexis Arroyo 
+        /// Fecha: 14/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene Solicitudes Por Filtro de Asesor/Revisor asignado
+        /// </summary>
+        /// <param name="FiltroSolcitud">Filtro con IdPersonalRevision, estados y fechas</param>
+        /// <returns>Lista de SolicitudAlumnoFiltradaDTO</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerSolicitudesPorFiltroAsesor([FromBody] FiltroSolicitudAlumnoPorAsesorDTO FiltroSolcitud)
+        {
+            try
+            {
+                var solicitudAlumnoService = new SolicitudAlumnoService(unitOfWork);
+                var resultado = solicitudAlumnoService.ObtenerSolicitudesPorFiltroAsesor(FiltroSolcitud);
+                return Ok(resultado);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        /// TipoFuncion: POST
+        /// Autor: Alexis Arroyo
+        /// Fecha: 15/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene Solicitudes agrupadas: Derivadas (no resueltas de Atención al Cliente) y Resueltas (de otras áreas)
+        /// </summary>
+        /// <param name="FiltroSolcitud">Filtro con IdPersonalRevision y fechas</param>
+        /// <returns>RespuestaSolicitudesAlumnoDTO con SolicitudesDerivadas y SolicitudesResueltas</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerSolicitudesAgrupadasPorAsesor([FromBody] FiltroSolicitudAlumnoPorAsesorDTO FiltroSolcitud)
+        {
+            try
+            {
+                var solicitudAlumnoService = new SolicitudAlumnoService(unitOfWork);
+                var resultado = solicitudAlumnoService.ObtenerSolicitudesAgrupadasPorAsesor(FiltroSolcitud);
+                return Ok(resultado);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        /// TipoFuncion: POST
+        /// Autor: Alexis Arroyo
+        /// Fecha: 20/01/2026
+        /// Versión: 1.0
+        /// <summary> 
+        /// Actualiza el estado de una solicitud de alumno
+        /// </summary>
+        /// <param name="request">Objeto con el ID de la solicitud a actualizar</param>
+        /// <returns>True si se actualizó correctamente</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ActualizarEstadoSolicitud([FromBody] ActualizarEstadoSolicitudRequest request)
+        {
+            try
+            {
+                if (request == null || request.IdSolicitud <= 0)
+                {
+                    return BadRequest("El IdSolicitud es requerido y debe ser mayor a 0");
+                }
+
+                var solicitudAlumnoService = new SolicitudAlumnoService(unitOfWork);
+                var resultado = solicitudAlumnoService.ActualizarEstadoSolicitud(request.IdSolicitud);
+                return Ok(resultado);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
         /// TipoFuncion: POST
         /// Autor: Joseph Llanque.
         /// Fecha: 08/03/2023
-        /// Versión: 1.0
+        /// Versión: 1.0    
         /// <summary>
-        /// Obteniene Solicitudes Por Filtro 
+        /// Obteniene Solicitudes Por Filtro
         /// </summary>
         /// <param name="SolicitudAlumnoDetalle"> Parametros de entrada </param>
         /// <param name="Files"> Documentos de envío </param>

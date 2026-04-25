@@ -16,6 +16,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
             TPespecificoCodigoPartners = new HashSet<TPespecificoCodigoPartner>();
             TPreguntaProgramaCapacitacions = new HashSet<TPreguntaProgramaCapacitacion>();
             TProgramaGeneralMaterialEstudioAdicionalEspecificos = new HashSet<TProgramaGeneralMaterialEstudioAdicionalEspecifico>();
+            TProveedorPespecificos = new HashSet<TProveedorPespecifico>();
             TSolicitudAlumnos = new HashSet<TSolicitudAlumno>();
             TSolicitudOperacionesAccesoTemporalDetalles = new HashSet<TSolicitudOperacionesAccesoTemporalDetalle>();
         }
@@ -265,6 +266,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Indica si el registro tendrá Tutor Virtual habilitado
         /// </summary>
         public bool? TutorVirtualActivo { get; set; }
+        public int? IdEstadoCupos { get; set; }
 
         public virtual TCentroCosto? IdCentroCostoNavigation { get; set; }
         public virtual ICollection<TCabeceraGestionContacto> TCabeceraGestionContactos { get; set; }
@@ -276,6 +278,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual ICollection<TPespecificoCodigoPartner> TPespecificoCodigoPartners { get; set; }
         public virtual ICollection<TPreguntaProgramaCapacitacion> TPreguntaProgramaCapacitacions { get; set; }
         public virtual ICollection<TProgramaGeneralMaterialEstudioAdicionalEspecifico> TProgramaGeneralMaterialEstudioAdicionalEspecificos { get; set; }
+        public virtual ICollection<TProveedorPespecifico> TProveedorPespecificos { get; set; }
         public virtual ICollection<TSolicitudAlumno> TSolicitudAlumnos { get; set; }
         public virtual ICollection<TSolicitudOperacionesAccesoTemporalDetalle> TSolicitudOperacionesAccesoTemporalDetalles { get; set; }
     }

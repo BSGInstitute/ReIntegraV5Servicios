@@ -6,6 +6,7 @@
         public int TotalLlamadasEjecutadas { get; set; }
         public int TotalLlamadasManual { get; set; }
         public int TotalLlamadasContestaCorta { get; set; }
+        public int TotalLlamadasContestaOcupado { get; set; }
 
         public int TotalLlamadasEjecutadasConLlamada { get; set; }
     }
@@ -29,6 +30,7 @@
         public int CantidadTotalEjecutada { get; set; }
         public int CantidadTotalManual { get; set; }
         public int CantidadTotalContestaCorta { get; set; }
+        public int CantidadTotalContestaOcupado { get; set; }
 
 
     }

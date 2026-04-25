@@ -40,7 +40,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             {
 
                 var resultado = _unitOfWork.IntegraAspNetUserRepository.ObtenerAccesoPorIp(ipPublica);
-                
+
                 if (resultado == null)
                 {
                     throw new UnauthorizedAccessRequestException("Usted no puede ingresar mediante su red actual");
@@ -61,6 +61,9 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw;
             }
         }
+
+
+
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 22/12/2023
         /// Version: 1.0

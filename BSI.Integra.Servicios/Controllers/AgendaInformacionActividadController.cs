@@ -2,6 +2,7 @@
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.Finanzas.Service.Implementacion;
 using BSI.Integra.Aplicacion.GestionPersonas.Service.Implementacion;
 using BSI.Integra.Aplicacion.Marketing.Service.Implementacion;
@@ -16,14 +17,20 @@ using BSI.Integra.Repositorio.Repository.Implementation;
 using BSI.Integra.Repositorio.Repository.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Helpers;
+using BSI.Integra.Servicios.Helpers.InformacionProgramaEstructurada;
+using HtmlAgilityPack;
+using iText.Kernel.Pdf.Statistics;
 using iTextSharp.text.pdf.codec.wmf;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Globalization;
 using System.Security.Claims;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Transactions;
-
+using static BSI.Integra.Servicios.Controllers.AgendaInformacionActividadController;
 namespace BSI.Integra.Servicios.Controllers
 {
     /// Controlador: AgendaInformacionActividadController
@@ -114,6 +121,73 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 06/11/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el Publico Objetivo para un Programa General para la nueva version de la agenda
+        /// </summary>
+        /// <param name="idOportunidad">Id del Programa General</param>
+        /// <param name="idAlumno">Id del Alumno</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerPublicoObjetivoProgramaNuevaAgendaV3PorAlumno/{idOportunidad}")]
+        public IActionResult ObtenerPublicoObjetivoProgramaNuevaAgendaV3PorAlumno(int idOportunidad)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new PGeneralService(_unitOfWork);
+                return Ok(servicio.ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3PorAlumno(idOportunidad));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        /// Tipo Función: GET
+        /// Autor: Carlos Crispin R.
+        /// Mdificado por: Jose Vega (2025-08-27) - Ajuste para retornar JSON estructurado en la respuesta.
+        /// Fecha: 09/10/2024
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el Publico Objetivo para un Programa General para la nueva version de la agenda
+        /// </summary>
+        /// <param name="idCentroCosto">Id del Centro de Costo asociado al Programa</param>
+        /// <param name="idOportunidad">Id de la Oportunidad asociada a las Respuestas</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerPublicoObjetivoProgramaNuevaAgendaV3json/{idCentroCosto}/{idOportunidad}")]
+        public IActionResult ObtenerPublicoObjetivoProgramaNuevaAgendaV3json(int idCentroCosto, int idOportunidad)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var servicio = new PGeneralService(_unitOfWork);
+
+                // Resultado original
+                var resultado = servicio.ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3(idCentroCosto, idOportunidad);
+
+                // Proyecta a JToken para limpieza homogénea
+                var token = Newtonsoft.Json.Linq.JToken.FromObject(resultado);
+
+                // Limpia HTML/entidades en todos los strings del grafo
+                JsonSanitizerHelpers.LimpiarHtmlRecursivo(token);
+
+                // Devuelve JSON limpio e indentado
+                return Content(token.ToString(Newtonsoft.Json.Formatting.Indented), "application/json");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 22/07/2022
@@ -166,6 +240,44 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// Tipo Función: GET
+        /// Autor: Erick Marcelo Quispe.
+        /// Mdificado por: Jose Vega (2025-08-27) - Ajuste para retornar JSON estructurado en la respuesta.
+        /// Fecha: 22/07/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene las Motivaciones y sus Argumentos asociados a un Programa General.
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad asociada al Programa</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerArgumentosMotivacionProgramaPorIdOportunidadjson/{idOportunidad}")]
+        public IActionResult ObtenerArgumentosMotivacionProgramaPorIdOportunidadjson(int idOportunidad)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var servicio = new ProgramaGeneralMotivacionService(_unitOfWork);
+
+                // Resultado original
+                var resultado = servicio.ObtenerMotivacionesDetalleParaAgendaPorIdOportunidad(idOportunidad);
+
+                // Proyecta a JToken para limpieza homogénea
+                var token = Newtonsoft.Json.Linq.JToken.FromObject(resultado);
+
+                // Limpia HTML/entidades en todos los strings del grafo (detalle, solucion, etc.)
+                JsonSanitizerHelpers.LimpiarHtmlRecursivo(token);
+
+                // Devuelve JSON limpio e indentado
+                return Content(token.ToString(Newtonsoft.Json.Formatting.Indented), "application/json");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         /// Tipo Función: GET
         /// Autor: Jonathan Caipo
         /// Fecha: 30/11/2022
@@ -193,6 +305,45 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// Tipo Función: GET
+        /// Autor: Jonathan Caipo
+        /// Mdificado por: Jose Vega (2025-08-27) - Ajuste para retornar JSON estructurado en la respuesta.
+        /// Fecha: 30/11/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la informacion de Oportunidades asociada a una ClasificacionPersona y un Alumno.
+        /// </summary>
+        /// <param name="idClasificacionPersona">Id de Clasificacion Persona</param>
+        /// <param name="idAlumno">Id del Alumno</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerOportunidadInformacionjson/{idAlumno}/{idClasificacionPersona}")]
+        public IActionResult ObtenerOportunidadInformacionjson(int idAlumno, int idClasificacionPersona)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var servicio = new OportunidadInformacionService(_unitOfWork);
+
+                // Resultado original
+                var resultado = servicio.ObtenerOportunidadInformacion(idAlumno, idClasificacionPersona);
+
+                // Proyecta a JToken para limpieza homogénea
+                var token = Newtonsoft.Json.Linq.JToken.FromObject(resultado);
+
+                // Limpia HTML/entidades en todos los strings del grafo
+                JsonSanitizerHelpers.LimpiarHtmlRecursivo(token);
+
+                // Devuelve JSON limpio e indentado
+                return Content(token.ToString(Newtonsoft.Json.Formatting.Indented), "application/json");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 25/07/2022
@@ -213,6 +364,44 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 var servicio = new ProgramaGeneralProblemaService(_unitOfWork);
                 return Ok(servicio.ObtenerProgramaGeneralProblemaDetalleParaAgendaPorIdOportunidad(idOportunidad));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Erick Marcelo Quispe.
+        /// Mdificado por: Jose Vega (2025-08-27) - Ajuste para retornar JSON estructurado en la respuesta.
+        /// Fecha: 25/07/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene Problemas de ProgramaGeneral y sus Argumentos asociados a una Oportunidad.
+        /// </summary>
+        /// <param name="idOportunidad">Id del Alumno</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerProgramaGeneralProblemaDetallePorIdOportunidadjson/{idOportunidad}")]
+        public IActionResult ObtenerProgramaGeneralProblemaDetallePorIdOportunidadjson(int idOportunidad)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var servicio = new ProgramaGeneralProblemaService(_unitOfWork);
+
+                // Obtiene el resultado original
+                var resultado = servicio.ObtenerProgramaGeneralProblemaDetalleParaAgendaPorIdOportunidad(idOportunidad);
+
+                // Proyecta a JToken para poder limpiar HTML en todo el grafo
+                var token = Newtonsoft.Json.Linq.JToken.FromObject(resultado);
+
+                // Limpia HTML/entidades en todos los strings (detalle, solucion, etc.)
+                JsonSanitizerHelpers.LimpiarHtmlRecursivo(token);
+
+                // Devuelve JSON limpio e indentado
+                return Content(token.ToString(Newtonsoft.Json.Formatting.Indented), "application/json");
             }
             catch (Exception ex)
             {
@@ -369,6 +558,41 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 07/11/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los Prerequisitos, Beneficios y Competidores asociados a una Oportunidad
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerPrerequisitosBeneficiosCompetidoresPorIdOportunidadV2/{idOportunidad}")]
+        public IActionResult ObtenerPrerequisitosBeneficiosCompetidoresPorIdOportunidadV2(int idOportunidad)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicioPrerequisito = new ProgramaGeneralPrerequisitoService(_unitOfWork);
+
+                var datosOportunidad = new OportunidadPrerequisitoGeneralesCompetidorDTO();
+
+
+                datosOportunidad.PrerequisitosGenerales =
+                    servicioPrerequisito.ObtenerProgramaGeneralPrerequisitoPorIdOportunidadV2(idOportunidad).ToList();
+
+                return Ok(datosOportunidad);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         /// Tipo Función: GET
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 27/07/2022
@@ -1042,6 +1266,623 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(e.Message);
             }
         }
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información programa todo
+        /// </summary>
+        /// <param name="request">Request</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionProgramaTodo")]
+        public async Task<IActionResult> ObtenerInformacionProgramaTodo([FromBody] CargarInformacionProgramaTodoRequestDTO request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { Error = "Modelo de solicitud inválido", Detalle = ModelState });
+            }
+
+            try
+            {
+                var servicio = new InformacionProgramaService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionProgramaTodoAsync(request.idCentroCosto, request.codigoPais);
+                return Ok(respuesta);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor", Detalle = e.Message });
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 29/12/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información programa todo
+        /// </summary>
+        /// <param name="request">Request</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionProgramaTodoV2")]
+        public async Task<IActionResult> ObtenerInformacionProgramaTodoV2([FromBody] CargarInformacionProgramaTodoRequestDTO request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var servicio = new InformacionProgramaService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionProgramaTodoAsync(request.idCentroCosto, request.codigoPais);
+
+                if (respuesta.Informacion == null)
+                {
+                    return Ok(new { informacion = (object)null });
+                }
+
+                dynamic info = respuesta.Informacion;
+
+                var informacion = new
+                {
+                    objetivos = info.Objetivos,
+                    estructuraCurricular = info.EstructuraCurricular,
+                    certificacion = info.Certificacion,
+                    duracionHorarios = info.DuracionHorarios,
+                    prerrequisitos = info.Prerrequisitos,
+                    beneficios = info.Beneficios
+                };
+
+                return Ok(new { informacion });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor", Detalle = e.Message });
+            }
+        }
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información programa inversión
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionProgramaInversion")]
+        public async Task<IActionResult> ObtenerInformacionProgramaInversion([FromBody] Dictionary<string, string> filtro)
+        {
+            try
+            {
+                if (filtro == null)
+                {
+                    return BadRequest(new { Error = "El cuerpo de la solicitud no puede estar vacío." });
+                }
+
+                if (!filtro.TryGetValue("idPGeneral", out var idPGeneralStr) ||
+                    !int.TryParse(idPGeneralStr, out int idPGeneral))
+                {
+                    return BadRequest(new { Error = "El campo 'idPGeneral' es requerido y debe ser un número entero." });
+                }
+
+                int codigoPais = 604;
+                if (filtro.TryGetValue("codigoPais", out var codigoPaisStr))
+                {
+                    if (!int.TryParse(codigoPaisStr, out codigoPais))
+                    {
+                        return BadRequest(new { Error = "El campo 'codigoPais' debe ser un número entero válido." });
+                    }
+                }
+
+                var servicio = new InformacionProgramaService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionProgramaInversionAsync(idPGeneral, codigoPais);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información programa presentación
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionProgramaPresentacion")]
+        public async Task<IActionResult> ObtenerInformacionProgramaPresentacion([FromBody] Dictionary<string, string> filtro)
+        {
+            try
+            {
+                if (filtro == null || !filtro.TryGetValue("idPGeneral", out var idStr) ||
+                    !int.TryParse(idStr, out int idPGeneral))
+                {
+                    return BadRequest(new { Error = "El campo 'idPGeneral' es requerido y debe ser un número entero." });
+                }
+
+                var servicio = new InformacionProgramaService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionProgramaPresentacionAsync(idPGeneral);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información programa público objetivo
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionProgramaPublicoObjetivo")]
+        public async Task<IActionResult> ObtenerInformacionProgramaPublicoObjetivo([FromBody] Dictionary<string, string> filtro)
+        {
+            try
+            {
+                if (filtro == null || !filtro.TryGetValue("idPGeneral", out var idStr) ||
+                    !int.TryParse(idStr, out int idPGeneral))
+                {
+                    return BadRequest(new { Error = "El campo 'idPGeneral' es requerido y debe ser un número entero." });
+                }
+
+                var servicio = new InformacionProgramaService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionProgramaPublicoObjetivoAsync(idPGeneral);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información programa duración horarios
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionProgramaDuracionHorariosAsync")]
+        public async Task<IActionResult> ObtenerInformacionProgramaDuracionHorariosAsync([FromBody] Dictionary<string, string> filtro)
+        {
+            try
+            {
+                if (filtro == null || !filtro.TryGetValue("idPGeneral", out var idPGeneralStr))
+                {
+                    return BadRequest(new { Error = "El campo 'idPGeneral' es requerido." });
+                }
+
+                if (!int.TryParse(idPGeneralStr, out int idPGeneral))
+                {
+                    return BadRequest(new { Error = "El valor de 'idPGeneral' debe ser un número entero válido." });
+                }
+
+                var servicio = new InformacionProgramaService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionProgramaDuracionHorariosAsync(idPGeneral);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información programa prerrequisitos
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionProgramaPrerrequisitosAsync")]
+        public async Task<IActionResult> ObtenerInformacionProgramaPrerrequisitosAsync([FromBody] Dictionary<string, string> filtro)
+        {
+            try
+            {
+                if (filtro == null || !filtro.TryGetValue("idPGeneral", out var idPGeneralStr))
+                {
+                    return BadRequest(new { Error = "El campo 'idPGeneral' es requerido." });
+                }
+
+                if (!int.TryParse(idPGeneralStr, out int idPGeneral))
+                {
+                    return BadRequest(new { Error = "El valor de 'idPGeneral' debe ser un número entero válido." });
+                }
+
+                var servicio = new InformacionProgramaService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionProgramaPrerrequisitosAsync(idPGeneral);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener estructura curricular
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerEstructuraCurricular")]
+        public async Task<IActionResult> ObtenerEstructuraCurricular([FromBody] Dictionary<string, string> filtro)
+        {
+            try
+            {
+                if (filtro == null || !filtro.TryGetValue("idPGeneral", out var idStr) ||
+                    !int.TryParse(idStr, out int idPGeneral))
+                {
+                    return BadRequest(new { Error = "El campo 'idPGeneral' es requerido y debe ser un número entero." });
+                }
+
+                var servicio = new InformacionProgramaService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionProgramaEstructuraCurricularAsync(idPGeneral);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Jose Vega
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener información programa expositores
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionProgramaExpositores")]
+        public async Task<IActionResult> ObtenerInformacionProgramaExpositores([FromBody] Dictionary<string, string> filtro)
+        {
+            try
+            {
+                if (filtro == null || !filtro.TryGetValue("idPGeneral", out var idPGeneralStr))
+                {
+                    return BadRequest(new { Error = "El campo 'idPGeneral' es requerido." });
+                }
+
+                if (!int.TryParse(idPGeneralStr, out int idPGeneral))
+                {
+                    return BadRequest(new { Error = "El valor de 'idPGeneral' debe ser un número entero válido." });
+                }
+
+                var servicio = new InformacionProgramaService(_unitOfWork);
+                var respuesta = await servicio.CargarInformacionProgramaExpositoresAsync(idPGeneral);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener resumen programa modalidades
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <param name="idCentroCosto">Id de Centro de Costo</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet]
+        [Route("ObtenerModalidades/{idPGeneral}")]
+        public async Task<ActionResult<ModalidadesProgramaResponseDTO>> ObtenerModalidades(int idPGeneral)
+        {
+            try
+            {
+                var resultado = await _servicioPrincipal.ObtenerModalidadesPorPrograma(idPGeneral);
+
+                if (!string.IsNullOrEmpty(resultado.Error))
+                {
+                    return BadRequest(new { Error = "El parámetro idPGeneral no es el correcto" });
+                }
+
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+
+                return Ok(new ModalidadesProgramaResponseDTO
+                {
+                    IdPGeneral = idPGeneral,
+                    EsProgramaOCurso = "Error",
+                    Modalidades = new List<ModalidadDTO>(),
+                    Error = $"Error interno del servidor: {ex.Message}"
+                });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener objetivos programa
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("ObtenerObjetivosPrograma/{idPGeneral}")]
+        public async Task<IActionResult> ObtenerObjetivosPrograma(int idPGeneral)
+        {
+            try
+            {
+                if (idPGeneral <= 0)
+                {
+                    return BadRequest(new { Error = "El parámetro idPGeneral debe ser mayor a 0" });
+                }
+
+                using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(900));
+                var result = await _servicioPrincipal.GetObjetivosAsync(idPGeneral);
+
+                Response.Headers.Add("Cache-Control", "public, max-age=1800"); // 30 minutos
+                Response.Headers.Add("ETag", $"\"{idPGeneral}_{result?.Objetivos?.Count ?? 0}\"");
+
+                return Ok(result);
+            }
+            catch (TaskCanceledException)
+            {
+                return StatusCode(408, new { Error = "Request timeout", IdPGeneral = idPGeneral });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Get beneficios programa
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("beneficios/{idPGeneral}")]
+        public async Task<IActionResult> GetBeneficiosPrograma(int idPGeneral)
+        {
+            try
+            {
+                if (idPGeneral <= 0)
+                {
+                    return BadRequest(new { Error = "El parámetro idPGeneral debe ser mayor a 0" });
+                }
+
+                var result = await _servicioPrincipal.GetBeneficiosProgramaAsync(idPGeneral);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Get certificaciones programa
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("certificaciones/{idPGeneral}")]
+        public async Task<IActionResult> GetCertificacionesPrograma(int idPGeneral)
+        {
+            try
+            {
+                if (idPGeneral <= 0)
+                {
+                    return BadRequest(new { Error = "El parámetro idPGeneral debe ser mayor a 0" });
+                }
+
+                var result = await _servicioPrincipal.GetCertificacionesProgramaAsync(idPGeneral);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Get metodologia programa
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("metodologia/{idPGeneral}")]
+        public async Task<IActionResult> GetMetodologiaPrograma(int idPGeneral)
+        {
+            try
+            {
+                if (idPGeneral <= 0)
+                {
+                    return BadRequest(new { Error = "El parámetro idPGeneral debe ser mayor a 0" });
+                }
+
+                var result = await _servicioPrincipal.GetMetodologiaProgramaAsync(idPGeneral);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Get pautas complementarias programa
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("pautas-complementarias/{idPGeneral}")]
+        public async Task<IActionResult> GetPautasComplementariasPrograma(int idPGeneral)
+        {
+            try
+            {
+                if (idPGeneral <= 0)
+                {
+                    return BadRequest(new { Error = "El parámetro idPGeneral debe ser mayor a 0" });
+                }
+
+                var result = await _servicioPrincipal.GetPautasComplementariasProgramaAsync(idPGeneral);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Get perfil profesional cliente
+        /// </summary>
+        /// <param name="idAlumno">Id de Alumno</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("perfil-profesional-cliente/{idAlumno}")]
+        public async Task<IActionResult> GetPerfilProfesionalCliente(int idAlumno)
+        {
+            try
+            {
+                if (idAlumno <= 0)
+                {
+                    return BadRequest(new { Error = "El parámetro idAlumno debe ser mayor a 0" });
+                }
+
+                var result = await _servicioPrincipal.GetPerfilProfesionalClienteAsync(idAlumno);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = "Error interno del servidor.", Detalle = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Lolo Zaa
+        /// Fecha: 02/10/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Get detalle programa o curso
+        /// </summary>
+        /// <param name="idPGeneral">Id de Programa General</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpGet("detalle-programa-curso-v2/{idPGeneral}")]
+
+        public async Task<IActionResult> GetDetalleProgramaOCursoAsync(int idPGeneral)
+
+        {
+
+            if (idPGeneral <= 0)
+
+                return BadRequest(new { Error = "IdPGeneral debe ser mayor a 0" });
+
+            try
+
+            {
+
+                var result = await _servicioPrincipal.ObtenerSilaboPorIdAsync(idPGeneral);
+
+                return Ok(result);
+
+            }
+
+            catch (Exception ex)
+
+            {
+
+                return StatusCode(500, new { Error = ex.Message, IdPGeneral = idPGeneral });
+
+            }
+
+        }
+
+
+        /// Tipo Función: POST
+        /// Autor: Erick Marcelo Quispe.
+        /// Mdificado por: Jose Vega (2025-08-27) - Ajuste para retornar JSON estructurado en la respuesta.
+        /// Fecha: 11/08/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Genera HTML de resumen de programas Versión 1
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionProgramav1json")]
+        public IActionResult ObtenerInformacionProgramav1json([FromBody] Dictionary<string, string> filtro)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var informacionProgramaService = new InformacionProgramaService(_unitOfWork);
+
+                var idCentroCosto = Convert.ToInt32(filtro["idCentroCosto"]);
+                var codigoPais = Convert.ToInt32(filtro["codigoPais"]);
+                var idMatriculaCabecera = Convert.ToInt32(filtro["idMatriculaCabecera"]);
+                var idOportunidad = Convert.ToInt32(filtro["idOportunidad"]);
+
+                var respuesta = informacionProgramaService.CargarInformacionProgramaAutomaticojson(
+                    idCentroCosto, codigoPais, idMatriculaCabecera, idOportunidad
+                );
+
+                var raiz = JObject.FromObject(respuesta);
+
+                // NO limpiar todo aún. NormalizarEstructura ya:
+                //  - parsea InformacionPrograma a JSON estructurado (si aplica)
+                //  - luego aplica LimpiarHtmlRecursivo sobre el grafo resultante
+                JsonSanitizerHelpers.NormalizarEstructura(raiz);
+
+                return Content(raiz.ToString(Newtonsoft.Json.Formatting.Indented), "application/json");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         /// Tipo Función: POST
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 11/08/2022
@@ -2053,6 +2894,39 @@ namespace BSI.Integra.Servicios.Controllers
         }
 
         /// TipoFuncion: POST
+        /// Autor: Alexis Arroyo
+        /// Fecha: 03/02/2025
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene información del programa en formato estructurado InformacionProgramaSpeechV2DTO
+        /// Combina la lógica de V2 con el formato de retorno de ByIdPGeneral
+        /// </summary>
+        /// <param name="filtros">Filtros de busqueda (idPGeneral, codigoPais)</param>
+        /// <returns> InformacionProgramaSpeechV2DTO </returns>
+        [Route("[Action]")]
+        [HttpPost]
+        public ActionResult ObtenerInformacionProgramaV3([FromBody] Dictionary<string, string> filtros)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var informacionProgramaService = new InformacionProgramaService(_unitOfWork);
+                var idPGeneral = Convert.ToInt32(filtros["idPGeneral"]);
+                var idCodigoPais = Convert.ToInt32(filtros["codigoPais"]);
+                var respuesta = informacionProgramaService.CargarInformacionProgramaV3(idPGeneral, idCodigoPais);
+
+                return Ok(new { respuesta });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        /// TipoFuncion: POST
         /// Autor: Juan D. Huanaco Quispe.
         /// Fecha: 15/04/2024
         /// Versión: 1.0
@@ -2353,7 +3227,7 @@ namespace BSI.Integra.Servicios.Controllers
                 {
                     speechBienvenidaDespedidaDTO.IdPlantillaBienvenida = 1448;
                 }
-                else if (alumno.IdCodigoPais == 51 && alumno.Modalidad == "Online Sincronica") 
+                else if (alumno.IdCodigoPais == 51 && alumno.Modalidad == "Online Sincronica")
                 {
                     speechBienvenidaDespedidaDTO.IdPlantillaBienvenida = 1671;
                 }
@@ -3358,11 +4232,10 @@ namespace BSI.Integra.Servicios.Controllers
         /// </summary>
         /// <returns> Información de Interacciones de Oportunidad  </returns>
         /// <returns> Lista de Objeto DTO : List<ReporteSeguimientoOportunidadLogGridDTO> </returns>
-        [Route("[action]/{idAlumno}/{idOportunidad}/{idPadre}")]
+        [Route("[action]/{idAlumno}/{idOportunidad}/{idPadre}/{pageNumber}/{pageSize}")]
         [HttpGet]
-        public ActionResult ObtenerHistorialInteraccionesOportunidadATC(int idAlumno, int? idOportunidad, int? idPadre)
+        public ActionResult ObtenerHistorialInteraccionesOportunidadATC(int idAlumno, int? idOportunidad, int? idPadre, int pageNumber, int pageSize)
         {
-            
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -3373,7 +4246,45 @@ namespace BSI.Integra.Servicios.Controllers
                 ReporteService reporteService = new ReporteService(_unitOfWork);
                 int idOportunidadtemp = idOportunidad == null ? 0 : idOportunidad.Value;
                 int idPadretemp = idPadre == null ? 0 : idPadre.Value;
-                var resultado = reporteService.ObtenerOportunidadesLogPorAlumnoATC(idAlumno, idOportunidadtemp, idPadretemp);
+                var resultado = reporteService.ObtenerOportunidadesLogPorAlumnoATC(idAlumno, idOportunidadtemp, idPadretemp, pageNumber, pageSize);
+                var listanueva = new List<ReporteSeguimientoNWActividadAlternoATCDTO>
+                {
+                    resultado.Items.Where(x => x.Estado == "NO EJECUTADO").FirstOrDefault()
+                };
+                listanueva.AddRange(resultado.Items.Where(x => x.Estado != "NO EJECUTADO").OrderByDescending(x => x.FechaModificacion).ToList());
+
+                return Ok(new { Actividades = listanueva, TotalActividades = resultado.TotalActividades });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        /// TipoFuncion: GET
+        /// Autor: Jonathan Caipo
+        /// Fecha: 16/11/2022
+        /// Version: 1.0
+        /// <summary>
+        ///  Obtiene Historial de Interacciones de Oportunidad
+        /// </summary>
+        /// <returns> Información de Interacciones de Oportunidad  </returns>
+        /// <returns> Lista de Objeto DTO : List<ReporteSeguimientoOportunidadLogGridDTO> </returns>
+        [Route("[action]/{idAlumno}/{idOportunidad}/{idPadre}/{pageNumber}/{pageSize}")]
+        [HttpGet]
+        public ActionResult ObtenerHistorialInteraccionesOportunidadOperaciones(int idAlumno, int? idOportunidad, int? idPadre,int pageNumber, int pageSize)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                OportunidadService oportunidadService = new OportunidadService(_unitOfWork);
+                ReporteService reporteService = new ReporteService(_unitOfWork);
+                int idOportunidadtemp = idOportunidad == null ? 0 : idOportunidad.Value;
+                int idPadretemp = idPadre == null ? 0 : idPadre.Value;
+                var resultado = reporteService.ObtenerOportunidadesLogPorAlumnoOperaciones(idAlumno, idOportunidadtemp, idPadretemp, pageNumber, pageSize);
                 var listanueva = new List<ReporteSeguimientoNWActividadAlternoATCDTO>
                 {
                     resultado.Where(x => x.Estado == "NO EJECUTADO").FirstOrDefault()
@@ -4413,6 +5324,47 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [Route("[Action]/{idMatriculaCabecera}")]
+        [HttpGet]
+        public ActionResult ObtenerDatosAvanceAonlineATC(int idMatriculaCabecera)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var datosAvanceAonline = new AlumnoService(_unitOfWork);
+                var datosCobranza = datosAvanceAonline.obtenerDatosAvanceAonlineATC(idMatriculaCabecera);
+                return Ok(datosCobranza);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("[Action]/{idMatriculaCabecera}")]
+        [HttpGet]
+        public ActionResult ObtenerAvanceAonlineHoras(int idMatriculaCabecera) { 
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                IAlumnoService datosAvanceAonlinePorHoras = new AlumnoService(_unitOfWork);
+                var response = datosAvanceAonlinePorHoras.ObtenerAvanceAonlineHoras(idMatriculaCabecera);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         /// TipoFuncion: GET
         /// Autor: Joseph LLanque.
         /// Fecha: 05/04/2023
@@ -4686,7 +5638,7 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            
+
         }
 
         /// Tipo Función: GET
@@ -4716,11 +5668,105 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 return BadRequest(ex.Message);
             }
+            }
+
+
+        /// Tipo Función: POST
+        /// Autor: Erick Marcelo Quispe.
+        /// Mdificado por: Jose Vega (2025-08-27) - Ajuste para retornar JSON estructurado en la respuesta.
+        /// Fecha: 11/08/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Genera HTML de resumen de programas Versión 1
+        /// </summary>
+        /// <param name="filtro">Filtros</param>
+        /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
+        [HttpPost("ObtenerInformacionProgramaSpeechjson")]
+        public IActionResult ObtenerInformacionProgramaSpeechjson([FromBody] Dictionary<string, string> filtro)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var informacionProgramaService = new InformacionProgramaService(_unitOfWork);
+
+                var idCentroCosto = Convert.ToInt32(filtro["idCentroCosto"]);
+                var codigoPais = Convert.ToInt32(filtro["codigoPais"]);
+                var idMatriculaCabecera = Convert.ToInt32(filtro["idMatriculaCabecera"]);
+                var idOportunidad = Convert.ToInt32(filtro["idOportunidad"]);
+
+
+                var respuesta = informacionProgramaService.CargarInformacionProgramaAutomaticoSpeechjson(
+                    idCentroCosto, codigoPais, idMatriculaCabecera, idOportunidad
+                );
+
+
+                var raiz = JObject.FromObject(respuesta);
+
+                JsonSanitizerHelpers.NormalizarEstructura(raiz);
+
+                return Content(raiz.ToString(Newtonsoft.Json.Formatting.Indented), "application/json");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 05/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el speech de bienvenida y despedida procesado con etiquetas reemplazadas
+        /// Endpoint consolidado que realiza todo el flujo:
+        /// 1. Obtiene información de oportunidad y alumno (con país)
+        /// 2. Obtiene cabecera del programa
+        /// 3. Obtiene y filtra plantillas por fase y país
+        /// 4. Reemplaza todas las etiquetas con datos reales
+        /// 5. Retorna speech listo para usar
+        /// </summary>
+        /// <param name="idActividadDetalle">ID de la actividad detalle</param>
+        /// <returns>Speech de bienvenida y despedida procesado</returns>
+        [HttpGet("ObtenerSpeechBienvenidaProcesado/{idActividadDetalle}")]
+        public IActionResult ObtenerSpeechBienvenidaProcesado(int idActividadDetalle)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (idActividadDetalle <= 0)
+            {
+                return BadRequest("El ID de actividad detalle debe ser mayor a 0");
+            }
+
+            try
+            {
+                var speechBienvenidaService = new SpeechBienvenidaService(_unitOfWork);
+                var resultado = speechBienvenidaService.ObtenerSpeechBienvenidaProcesado(idActividadDetalle);
+                return Ok(resultado);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    mensaje = "Error interno al procesar el speech de bienvenida",
+                    detalle = ex.Message
+                });
+            }
         }
 
     }
-
-
-
 
 }

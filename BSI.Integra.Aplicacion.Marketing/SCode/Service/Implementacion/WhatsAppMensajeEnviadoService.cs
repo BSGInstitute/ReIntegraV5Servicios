@@ -502,6 +502,26 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                 throw new Exception(e.Message);
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 11/03/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene mensaje multimedia de WhatsApp (Planificación)
+        /// </summary>
+        /// <param name="waId"> Id de chat WhatsApp </param>
+        /// <returns> String </returns>
+        public string ObtenerMensajeMultimediaPla(string waId)
+        {
+            try
+            {
+                return _unitOfWork.WhatsAppMensajeEnviadoRepository.ObtenerMensajeMultimediaPla(waId);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
         /// Autor: Gilmer Qm
         /// Fecha: 15/03/2023
         /// <summary>
@@ -667,7 +687,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                         FechaCreacion = y.Key.FechaCreacion,
                     }).ToList(),
 
-                    MensajePorCelular = x.GroupBy(y => new { y.Estatus, y.Tipo, y.IdAlumnoCelular, y.Celular, y.Alumno, y.Mensaje, y.Personal, y.FechaMensaje, y.NumeroWhatsappEmpresa }).Select(y => new ObtenerChatWhatsAppMarketingMensajeDTO
+                    MensajePorCelular = x.GroupBy(y => new { y.Estatus, y.Tipo, y.IdAlumnoCelular, y.Celular, y.Alumno, y.Mensaje, y.Personal, y.FechaMensaje, y.NumeroWhatsappEmpresa, y.CodigoArea, y.PersonalFiltrado }).Select(y => new ObtenerChatWhatsAppMarketingMensajeDTO
                     {
                         Estatus = y.Key.Estatus,
                         Tipo = y.Key.Tipo,
@@ -678,6 +698,8 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                         Personal = y.Key.Personal,
                         FechaMensaje = y.Key.FechaMensaje,
                         NumeroWhatsappEmpresa = y.Key.NumeroWhatsappEmpresa,
+                        CodigoArea = y.Key.CodigoArea,
+                        PersonalFiltrado = y.Key.PersonalFiltrado,
                     }).ToList(),
                 }).ToList();
                 if (resultadoAgrupado.Count() == 0)
@@ -735,7 +757,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                     }).ToList(),
 
 
-                    MensajePorCelular = x.GroupBy(y => new { y.Estatus, y.Tipo, y.IdAlumnoCelular, y.Celular, y.Alumno, y.Mensaje, y.Personal, y.FechaMensaje, y.NumeroWhatsappEmpresa }).Select(y => new ObtenerChatWhatsAppMarketingMensajeDTO
+                    MensajePorCelular = x.GroupBy(y => new { y.Estatus, y.Tipo, y.IdAlumnoCelular, y.Celular, y.Alumno, y.Mensaje, y.Personal, y.FechaMensaje, y.NumeroWhatsappEmpresa, y.CodigoArea, y.PersonalFiltrado }).Select(y => new ObtenerChatWhatsAppMarketingMensajeDTO
                     {
                         Estatus = y.Key.Estatus,
                         Tipo = y.Key.Tipo,
@@ -746,6 +768,8 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                         Personal = y.Key.Personal,
                         FechaMensaje = y.Key.FechaMensaje,
                         NumeroWhatsappEmpresa = y.Key.NumeroWhatsappEmpresa,
+                        CodigoArea = y.Key.CodigoArea,
+                        PersonalFiltrado = y.Key.PersonalFiltrado,
                     }).ToList(),
                 }).ToList();
                 if (resultadoAgrupado.Count() == 0)
