@@ -189,6 +189,14 @@ builder.Services.AddScoped<IConfiguracionExternaRepository, ConfiguracionExterna
 builder.Services.AddScoped<IConfiguracionExternaService, ConfiguracionExternaService>();
 builder.Services.AddScoped<IChatbotActividadBotIARepository, ChatbotActividadBotIARepository>();
 builder.Services.AddScoped<IChatbotActividadBotIAService, ChatbotActividadBotIAService>();
+builder.Services.AddScoped<IFacebookResenaService, FacebookResenaService>();
+builder.Services.AddScoped<IGoogleResenaService, GoogleResenaService>();
+builder.Services.AddScoped<IComputrabajoConfiguracionService, ComputrabajoConfiguracionService>();
+builder.Services.AddScoped<IComputrabajoResenaService, ComputrabajoResenaService>();
+builder.Services.AddScoped<IGlassdoorConfiguracionService, GlassdoorConfiguracionService>();
+builder.Services.AddScoped<IGlassdoorResenaService, GlassdoorResenaService>();
+builder.Services.AddScoped<IFacebookConfiguracionService, FacebookConfiguracionService>();
+builder.Services.AddScoped<ILinkedinConfiguracionService, LinkedinConfiguracionService>();
 
 builder.Services.AddHttpContextAccessor();
 

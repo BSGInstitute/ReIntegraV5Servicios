@@ -23,6 +23,13 @@ namespace BSI.Integra.Repositorio.Repository.Interface
             string? contentTypeRespuesta,
             string usuario);
 
+        void RechazarSolicitudSupervisor(
+            int idSolicitud,
+            string? comentarioRespuesta,
+            string? nombreArchivoRespuesta,
+            string? contentTypeRespuesta,
+            string usuario);
+
         void RechazarSolicitudCoordinador(
             int idSolicitud,
             string? comentarioRespuesta,
