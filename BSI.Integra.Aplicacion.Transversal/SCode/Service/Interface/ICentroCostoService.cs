@@ -14,6 +14,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         IEnumerable<ComboDTO> ObtenerRecientesAutocomplete(string nombreParcial);
         IEnumerable<ComboDTO> ObtenerFiltroAutocomplete(string valor);
         IEnumerable<ComboDTO> ObtenerAutocompleteV2(string valor, string usuario);
+        IEnumerable<ComboDTO> ObtenerAutocompleteV3(string valor, string usuario);
         IEnumerable<ComboDTO> ObtenerAutocompleteCentroCosto(string nombreParcial);
         IEnumerable<ComboDTO> ObtenerAutocompleteConPGeneral(string nombreParcial);
         PlantillaCentroCostoDTO ObtenerCentroCostoParaPEspecifico(int idCentroCosto);

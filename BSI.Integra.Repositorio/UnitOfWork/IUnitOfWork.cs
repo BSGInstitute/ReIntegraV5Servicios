@@ -1022,5 +1022,17 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IProveedorPEspecificoRepository ProveedorPEspecificoRepository { get; }
         IReporteDashboardRepository ReporteDashboardRepository { get; }
         IWhatsAppMensajeEnviadoApiAtcRepository WhatsAppMensajeEnviadoApiAtcRepository { get; }
+        IFacebookResenaRepository FacebookResenaRepository { get; }
+        IGoogleResenaRepository GoogleResenaRepository { get; }
+        IGooglePlacesConfiguracionRepository GooglePlacesConfiguracionRepository { get; }
+        IGooglePlacesCredencialApiRepository GooglePlacesCredencialApiRepository { get; }
+        ILinkedinResenaRepository LinkedinResenaRepository { get; }
+        IComputrabajoConfiguracionRepository ComputrabajoConfiguracionRepository { get; }
+        IComputrabajoResenaRepository ComputrabajoResenaRepository { get; }
+        IGlassdoorConfiguracionRepository GlassdoorConfiguracionRepository { get; }
+        IGlassdoorResenaRepository GlassdoorResenaRepository { get; }
+        IFacebookConfiguracionRepository FacebookConfiguracionRepository { get; }
+        ILinkedinConfiguracionRepository LinkedinConfiguracionRepository { get; }
+        IModeloPredictivoProbabilidadEscalonadoRepository ModeloPredictivoProbabilidadEscalonadoRepository { get; }
     }
 }

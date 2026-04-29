@@ -4,6 +4,7 @@ using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Linkedin;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Infrastructure;
@@ -5150,6 +5151,139 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 if (!string.IsNullOrEmpty(resultadoSP) && !resultadoSP.Contains("[]"))
                 {
                     resultado = JsonConvert.DeserializeObject<OportunidadEmpresaPagaDTO>(resultadoSP);
+                }
+
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<HistorialOportunidadPlanoDTO> ObtenerHistorialOportunidadesAlumno(int idAlumno)
+        {
+            try
+            {
+                var resultado = new List<HistorialOportunidadPlanoDTO>();
+
+                var query = @"
+                    ;WITH OportunidadesAlumno AS (
+                        SELECT
+                            O.Id AS IdOportunidad,
+                            O.IdAlumno,
+                            O.FechaCreacion AS FechaInicio,
+                            (
+                                SELECT TOP 1 OL.FechaCambioFase
+                                FROM com.T_OportunidadLog OL WITH (NOLOCK)
+                                INNER JOIN pla.T_FaseOportunidad FC WITH (NOLOCK) ON OL.IdFaseOportunidad = FC.Id
+                                WHERE OL.IdOportunidad = O.Id
+                                  AND OL.Estado = 1
+                                  AND FC.EsCierre = 1
+                                  AND OL.FechaCambioFase IS NOT NULL
+                                ORDER BY OL.FechaCambioFase ASC
+                            ) AS FechaCierre,
+                            O.IdFaseOportunidad_Maxima AS IdFaseOportunidadMaxima,
+                            O.IdFaseOportunidad
+                        FROM com.T_Oportunidad O WITH (NOLOCK)
+                        WHERE O.IdAlumno = @idAlumno
+                          AND O.Estado = 1
+                    ),
+                    EmailsAlumno AS (
+                        SELECT A.Email1, A.Email2
+                        FROM mkt.T_Alumno A WITH (NOLOCK)
+                        WHERE A.Id = @idAlumno
+                    )
+                    SELECT
+                        OA.IdOportunidad AS IdOportunidad,
+                        OA.FechaInicio AS FechaCreacion,
+                        FM.Codigo AS FaseMaxima,
+                        FC.Codigo AS FaseCierre,
+                        ISNULL((
+                            SELECT COUNT(*)
+                            FROM com.V_NumeroActividadesEstadoOcurrencia V WITH (NOLOCK)
+                            WHERE V.IdOportunidad = OA.IdOportunidad
+                              AND V.IdEstadoOcurrencia = 1
+                        ), 0) AS LlamadasEjecutadas,
+                        ISNULL((
+                            SELECT COUNT(*)
+                            FROM com.V_NumeroActividadesEstadoOcurrencia V WITH (NOLOCK)
+                            WHERE V.IdOportunidad = OA.IdOportunidad
+                              AND V.IdEstadoOcurrencia = 2
+                        ), 0) AS LlamadasNoEjecutadas,
+                        ISNULL((
+                            SELECT COUNT(*)
+                            FROM com.V_NumeroActividadesEstadoOcurrencia V WITH (NOLOCK)
+                            WHERE V.IdOportunidad = OA.IdOportunidad
+                              AND V.IdEstadoOcurrencia = 7
+                        ), 0) AS LlamadasManual,
+                        ISNULL((
+                            SELECT COUNT(*)
+                            FROM mkt.T_WhatsAppMensajeRecibidoMkt W WITH (NOLOCK)
+                            WHERE W.IdAlumno = OA.IdAlumno
+                              AND W.Estado = 1
+                              AND W.FechaCreacion >= CAST(OA.FechaInicio AS DATE)
+                              AND (OA.FechaCierre IS NULL OR W.FechaCreacion < OA.FechaCierre)
+                              AND NOT EXISTS (
+                                  SELECT 1
+                                  FROM OportunidadesAlumno OA2
+                                  WHERE OA2.IdAlumno = OA.IdAlumno
+                                    AND OA2.IdOportunidad <> OA.IdOportunidad
+                                    AND W.FechaCreacion >= CAST(OA2.FechaInicio AS DATE)
+                                    AND (OA2.FechaCierre IS NULL OR W.FechaCreacion < OA2.FechaCierre)
+                                    AND OA2.FechaInicio > OA.FechaInicio
+                              )
+                        ), 0) AS WhatsappMensajesUsuario,
+                        ISNULL((
+                            SELECT COUNT(*)
+                            FROM mkt.T_CorreoGmail CG WITH (NOLOCK)
+                            CROSS JOIN EmailsAlumno EA
+                            WHERE CG.Estado = 1
+                              AND (
+                                    (EA.Email1 IS NOT NULL AND EA.Email1 <> '' AND CG.EmailRemitente LIKE '%' + EA.Email1 + '%')
+                                 OR (EA.Email2 IS NOT NULL AND EA.Email2 <> '' AND CG.EmailRemitente LIKE '%' + EA.Email2 + '%')
+                              )
+                              AND CG.Fecha >= CAST(OA.FechaInicio AS DATE)
+                              AND (OA.FechaCierre IS NULL OR CG.Fecha < OA.FechaCierre)
+                              AND NOT EXISTS (
+                                  SELECT 1
+                                  FROM OportunidadesAlumno OA2
+                                  WHERE OA2.IdAlumno = OA.IdAlumno
+                                    AND OA2.IdOportunidad <> OA.IdOportunidad
+                                    AND CG.Fecha >= CAST(OA2.FechaInicio AS DATE)
+                                    AND (OA2.FechaCierre IS NULL OR CG.Fecha < OA2.FechaCierre)
+                                    AND OA2.FechaInicio > OA.FechaInicio
+                              )
+                        ), 0) AS CorreoCorreosUsuario,
+                        ISNULL((
+                            SELECT COUNT(*)
+                            FROM com.T_ChatDetalleIntegra CD WITH (NOLOCK)
+                            INNER JOIN com.T_InteraccionChatIntegra CI WITH (NOLOCK) ON CI.Id = CD.IdInteraccionChatIntegra
+                            WHERE CI.IdAlumno = OA.IdAlumno
+                              AND CD.Estado = 1
+                              AND CD.IdRemitente = 'visitante'
+                              AND CD.Fecha >= CAST(OA.FechaInicio AS DATE)
+                              AND (OA.FechaCierre IS NULL OR CD.Fecha < OA.FechaCierre)
+                              AND NOT EXISTS (
+                                  SELECT 1
+                                  FROM OportunidadesAlumno OA2
+                                  WHERE OA2.IdAlumno = OA.IdAlumno
+                                    AND OA2.IdOportunidad <> OA.IdOportunidad
+                                    AND CD.Fecha >= CAST(OA2.FechaInicio AS DATE)
+                                    AND (OA2.FechaCierre IS NULL OR CD.Fecha < OA2.FechaCierre)
+                                    AND OA2.FechaInicio > OA.FechaInicio
+                              )
+                        ), 0) AS PortalWebMensajesUsuario
+                    FROM OportunidadesAlumno OA
+                    LEFT JOIN pla.T_FaseOportunidad FM WITH (NOLOCK) ON FM.Id = OA.IdFaseOportunidadMaxima
+                    LEFT JOIN pla.T_FaseOportunidad FC WITH (NOLOCK) ON FC.Id = OA.IdFaseOportunidad
+                    ORDER BY OA.FechaInicio DESC;";
+
+                var respuesta = _dapperRepository.QueryDapper(query, new { idAlumno });
+
+                if (!string.IsNullOrEmpty(respuesta) && !respuesta.Contains("[]"))
+                {
+                    resultado = JsonConvert.DeserializeObject<List<HistorialOportunidadPlanoDTO>>(respuesta) ?? new List<HistorialOportunidadPlanoDTO>();
                 }
 
                 return resultado;
