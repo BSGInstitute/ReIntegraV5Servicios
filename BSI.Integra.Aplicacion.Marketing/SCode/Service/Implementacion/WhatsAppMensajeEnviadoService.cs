@@ -1268,7 +1268,41 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                 throw ex;
             }
         }
-        /// <param name="area"> Area </param>
+        /// Autor: Carlos Crispin R.
+        /// Fecha: 29/04/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene Historial de Chats recibidos
+        /// </summary>
+        /// <param name="idPersonal"> Id de Personal </param>
+        /// <param name="numero"> Número de WhatsApp </param>
+        /// <param name="area">  Area </param>
+        /// <param name="idAlumno"> Area </param>
+        
+        /// <returns> Lista de ObjetosDTO: List<WhatsAppMensajesDTO> </returns>
+        public List<WhatsAppHistorialMensajesOperacionesDTO> ListaHistorialPortalWebMensajeChatOperaciones(int idPersonal, string numero, string area,int idAlumno)
+        {
+            try
+            {
+                var oportunidad = _unitOfWork.OportunidadRepository.ObtenerDatosOportunidadATCAlumno(idAlumno, idPersonal);
+                if (oportunidad != null)
+                {
+                    var matriculacabecera = _unitOfWork.OportunidadClasificacionOperacionesRepository.ObtenerPorIdOportunidad(oportunidad.IdOportunidad);
+                    var historial = _unitOfWork.ChatDetalleIntegraRepository.ObtenerHistorialChatDetalleIntegraFlotante(matriculacabecera.IdMatriculaCabecera);
+                    return historial;
+                }
+                else
+                {
+                    return null;
+                }
+
+                return _unitOfWork.WhatsAppMensajeEnviadoRepository.ListaHistorialMensajeChatOperaciones(idPersonal, numero, area);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         // Autor: Margiory Ramirez
         /// Fecha: 11/10/2024

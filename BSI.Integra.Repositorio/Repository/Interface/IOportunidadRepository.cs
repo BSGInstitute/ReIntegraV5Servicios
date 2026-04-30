@@ -102,6 +102,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         DatosOportunidadReprogramacionManualOperacionesSubEstadoDTO ObtenerSubEstadoAlumno(int idOportunidad);
         DatosAlumnoDTO ObtenerDatosAlumno(int idOportunidad);
         DatosAlumnoOportunidadDTO ObtenerDatosOportunidadAlumno(int idAlumno);
+        OportunidadATCDTO ObtenerDatosOportunidadATCAlumno(int idAlumno,int idPersonal);
         PersonalAlumnoDTO ObtenerOportunidadPorNumero(string numero);
         PersonalAlumnoDTO ObtenerOportunidadPorNumero(int idCentroCosto, string numero);
         OportunidadTiempoCapacitacionDTO ObtenerTiempoCapacitacionPorIdOportunidad(int idOportunidad);
