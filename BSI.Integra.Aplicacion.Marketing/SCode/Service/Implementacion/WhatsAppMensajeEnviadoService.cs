@@ -1268,6 +1268,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                 throw ex;
             }
         }
+        /// <param name="area"> Area </param>
 
         // Autor: Margiory Ramirez
         /// Fecha: 11/10/2024
