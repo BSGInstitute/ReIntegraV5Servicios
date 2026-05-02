@@ -224,6 +224,14 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string ContraseniaWeb { get; set; }
         public DateTime? FechaInscritoWeb { get; set; }
         public int CantidadAlumnosMatriculados { get; set; }
+
+        public int? TipoMensaje { get; set; }
+        public int? IdMensaje { get; set; }
+        public string AsuntoMensaje { get; set; }
+        public string TextoMensaje { get; set; }
+        public DateTime? FechaMensaje { get; set; }
+        public string Origen { get; set; }
+        public int? IdDocentePostulante { get; set; }
     }
 
     /// Autor: Joseph Llanque
@@ -291,6 +299,14 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string ContraseniaWeb { get; set; }
         public DateTime? FechaInscritoWeb { get; set; }
         public int CantidadAlumnosMatriculados { get; set; }
+
+        public int? TipoMensaje { get; set; }
+        public int? IdMensaje { get; set; }
+        public string AsuntoMensaje { get; set; }
+        public string TextoMensaje { get; set; }
+        public DateTime? FechaMensaje { get; set; }
+        public string Origen { get; set; }
+        public int? IdDocentePostulante { get; set; }
 
         public List<ActividadCabeceraItemDTO> Actividades { get; set; }
     }
