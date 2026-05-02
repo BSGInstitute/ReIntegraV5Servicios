@@ -322,6 +322,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string? Aula { get; set; }
         public string? Coordinador { get; set; }
         public string? ModalidadClasificada { get; set; }
+        public string? Observacion { get; set; }
     }
 
     /// <summary>
