@@ -8639,5 +8639,14 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private IModeloPredictivoProbabilidadEscalonadoRepository _modeloPredictivoProbabilidadEscalonadoRepository;
+        IModeloPredictivoProbabilidadEscalonadoRepository IUnitOfWork.ModeloPredictivoProbabilidadEscalonadoRepository
+        {
+            get
+            {
+                return _modeloPredictivoProbabilidadEscalonadoRepository ?? new ModeloPredictivoProbabilidadEscalonadoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
     }
 }

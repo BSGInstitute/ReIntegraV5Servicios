@@ -3,13 +3,11 @@ using System.Collections.Generic;
 
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
-    public partial class TModeloPredictivoProbabilidad
+    /// <summary>
+    /// Esta tabla almacena detalles de resultados de probabilidad del modelo predictivo escalonado
+    /// </summary>
+    public partial class TModeloPredictivoProbabilidadEscalonado
     {
-        public TModeloPredictivoProbabilidad()
-        {
-            TModeloPredictivoProbabilidadEscalonados = new HashSet<TModeloPredictivoProbabilidadEscalonado>();
-        }
-
         /// <summary>
         /// Llave primaria
         /// </summary>
@@ -17,19 +15,23 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// <summary>
         /// Llave foranea con la tabla T_ModeloPredictivoTipo
         /// </summary>
-        public int IdModeloPredictivoTipo { get; set; }
+        public int IdModeloPredictivoProbabilidad { get; set; }
         /// <summary>
-        /// Indica el tipo de entrenamiento del Modelo Predictivo asociado
+        /// FK con la tabla T_ModeloPredictivoEscalonadoClasificacion
         /// </summary>
-        public int Tipo { get; set; }
+        public int IdModeloPredictivoEscalonadoClasificacion { get; set; }
         /// <summary>
-        /// Llave foranea con la tabla T_Oportunidad
+        /// Probabilidad calculada basado unicamente el perfil del lead (Area formacion, trabajo, cargo e industria)
         /// </summary>
-        public int IdOportunidad { get; set; }
+        public decimal ProbabilidadPerfil { get; set; }
         /// <summary>
-        /// Probabilidad calculada
+        /// Probabilidad calculada basado en el perfil del lead + variables de tasa conversion
         /// </summary>
-        public decimal Probabilidad { get; set; }
+        public decimal ProbabilidadPerfilTasaConversion { get; set; }
+        /// <summary>
+        /// Probabilidad calculada basado en el perfil del lead + variables de tasa conversion + variables de interaccion
+        /// </summary>
+        public decimal? ProbabilidadPerfilTasaConversionInteraccion { get; set; }
         /// <summary>
         /// Estado del registro (creado o eliminado)
         /// </summary>
@@ -54,17 +56,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Campo de sistema automatico que guarda la version del registro
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
-        /// <summary>
-        /// Id de la tabla Original al migrar
-        /// </summary>
-        public int? IdMigracion { get; set; }
-        /// <summary>
-        /// Indica la version de la configuracion punto corte que le corresponde
-        /// </summary>
-        public int? Version { get; set; }
 
-        public virtual TModeloPredictivoTipo IdModeloPredictivoTipoNavigation { get; set; } = null!;
-        public virtual TOportunidad IdOportunidadNavigation { get; set; } = null!;
-        public virtual ICollection<TModeloPredictivoProbabilidadEscalonado> TModeloPredictivoProbabilidadEscalonados { get; set; }
+        public virtual TModeloPredictivoEscalonadoClasificacion IdModeloPredictivoEscalonadoClasificacionNavigation { get; set; } = null!;
+        public virtual TModeloPredictivoProbabilidad IdModeloPredictivoProbabilidadNavigation { get; set; } = null!;
     }
 }

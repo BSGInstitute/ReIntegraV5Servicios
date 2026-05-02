@@ -386,9 +386,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
         /// Autor: Erick Marcelo Quispe.
         /// Fecha: 27/07/2022
-        /// Version: 1.0
+        /// Version: 1.1
+        /// Modificado: Lolo Zaa - 15/01/2026
         /// <summary>
         /// Obtiene Tipos de Descuento asociados a una Oportunidad y un Tipo de Personal.
+        /// Incluye descuentos de la vista mkt.V_TiposDescuentos y descuentos solicitados de pla.V_TiposDescuentosSolicitud
         /// </summary>
         /// <param name="idOportunidad">Id de la Oportunidad</param>
         /// <param name="tipoPersonal">Tipo de Personal</param>
@@ -399,9 +401,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 List<TipoDescuentoOportunidadDTO> tiposDescuento = new List<TipoDescuentoOportunidadDTO>();
                 var query = @"
-                    SELECT Id,Codigo,Descripcion,Formula,PorcentajeGeneral,PorcentajeMatricula,FraccionesMatricula,PorcentajeCuotas,CuotasAdicionales,Tipo
-                    FROM mkt.V_TiposDescuentos
-                    WHERE IdOportunidad = @idOportunidad AND Tipo = @tipoPersonal";
+                    SELECT IdTipoDescuento AS Id,Codigo,Descripcion,Formula,PorcentajeGeneral,PorcentajeMatricula,FraccionesMatricula,PorcentajeCuotas,CuotasAdicionales,Tipo,AplicaProgramaCompleto AS AplicaPrograma
+                    FROM [mkt].[V_TipoDescuentoSolicitud]
+                    WHERE  IdTipoDescuento>226
+                    UNION
+                    SELECT IdTipoDescuento AS Id,Codigo,Descripcion,Formula,PorcentajeGeneral,PorcentajeMatricula,FraccionesMatricula,PorcentajeCuotas,CuotasAdicionales,Tipo, AplicaPrograma
+                    FROM pla.V_TiposDescuentosSolicitudOportunidad
+                    WHERE IdOportunidad = @idOportunidad and IdTipoDescuento>226";
                 var resultadoQuery = _dapperRepository.QueryDapper(query, new { idOportunidad, tipoPersonal });
                 if (!string.IsNullOrEmpty(resultadoQuery) && !resultadoQuery.Contains("[]"))
                 {
@@ -414,6 +420,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+        
 
         /// Autor: Lolo Zaa
         /// Fecha: 16/01/2026
@@ -471,13 +478,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         td.CuotasAdicionales,
                         td.IdTipoDescuentoNivelAprobacion,
                         na.Nombre AS NombreNivelAprobacion,
-                        td.AplicaProgramaCompleto,
+                        td.AplicaProgramaCompleto AS AplicaPrograma,
                         ISNULL(td.Activo, 0) AS Activo
                     FROM pla.T_TipoDescuento td
                     LEFT JOIN pla.T_FormulaTipoDescuento ftd ON ftd.Id = td.Formula
                     LEFT JOIN pla.T_TipoDescuentoNivelAprobacion na ON na.Id = td.IdTipoDescuentoNivelAprobacion
                     WHERE td.Estado = 1 
-                    AND CAST(td.FechaCreacion AS DATE) >= '2026-03-24' --FILTRO TEMPORAL
                     ORDER BY td.Id DESC";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
@@ -526,7 +532,48 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        
+
+        /// Autor: jllanque
+        /// Fecha: 16/04/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene información del tipo de programa (Programa/Curso) a partir de un IdCentroCosto.
+        /// Cadena: CentroCosto → PEspecifico → PGeneral → TipoPrograma
+        /// </summary>
+        /// <param name="idCentroCosto">Id del Centro de Costo</param>
+        /// <returns> InfoProgramaCentroCostoDTO </returns>
+        public InfoProgramaCentroCostoDTO ObtenerInfoProgramaPorCentroCosto(int idCentroCosto)
+        {
+            try
+            {
+                InfoProgramaCentroCostoDTO rpta = null;
+                var query = @"
+                    SELECT
+                        cc.Id AS IdCentroCosto,
+                        cc.Nombre AS NombreCentroCosto,
+                        pe.Id AS IdPEspecifico,
+                        pe.Nombre AS NombrePEspecifico,
+                        pg.Id AS IdPGeneral,
+                        pg.Nombre AS NombrePGeneral,
+                        pg.IdTipoPrograma,
+                        tp.Nombre AS NombreTipoPrograma
+                    FROM pla.T_CentroCosto cc
+                    LEFT JOIN pla.T_PEspecifico pe ON pe.IdCentroCosto = cc.Id AND pe.Estado = 1
+                    LEFT JOIN pla.T_PGeneral pg ON pg.Id = pe.IdProgramaGeneral AND pg.Estado = 1
+                    LEFT JOIN pla.T_TipoPrograma tp ON tp.Id = pg.IdTipoPrograma AND tp.Estado = 1
+                    WHERE cc.Id = @idCentroCosto AND cc.Estado = 1";
+                var resultado = _dapperRepository.FirstOrDefault(query, new { idCentroCosto });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    rpta = JsonConvert.DeserializeObject<InfoProgramaCentroCostoDTO>(resultado)!;
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
     }
 }

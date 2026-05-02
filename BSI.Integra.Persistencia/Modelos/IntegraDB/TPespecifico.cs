@@ -104,10 +104,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// <summary>
         /// DESCRIPCION
         /// </summary>
-        public int? IdEstadoCupos { get; set; }
-        /// <summary>
-        /// DESCRIPCION
-        /// </summary>
         public int? TipoId { get; set; }
         /// <summary>
         /// Es foreing key tCategoriaP
@@ -270,6 +266,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Indica si el registro tendrá Tutor Virtual habilitado
         /// </summary>
         public bool? TutorVirtualActivo { get; set; }
+        public int? IdEstadoCupos { get; set; }
 
         public virtual TCentroCosto? IdCentroCostoNavigation { get; set; }
         public virtual ICollection<TCabeceraGestionContacto> TCabeceraGestionContactos { get; set; }

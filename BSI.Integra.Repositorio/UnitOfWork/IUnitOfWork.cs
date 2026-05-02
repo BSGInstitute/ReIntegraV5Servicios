@@ -1033,5 +1033,6 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IGlassdoorResenaRepository GlassdoorResenaRepository { get; }
         IFacebookConfiguracionRepository FacebookConfiguracionRepository { get; }
         ILinkedinConfiguracionRepository LinkedinConfiguracionRepository { get; }
+        IModeloPredictivoProbabilidadEscalonadoRepository ModeloPredictivoProbabilidadEscalonadoRepository { get; }
     }
 }

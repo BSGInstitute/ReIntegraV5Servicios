@@ -3,9 +3,12 @@ using System.Collections.Generic;
 
 namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
-    public partial class TModeloPredictivoProbabilidad
+    /// <summary>
+    /// Esta tabla almacena detalles de resultados de probabilidad del modelo predictivo escalonado
+    /// </summary>
+    public partial class TModeloPredictivoEscalonadoClasificacion
     {
-        public TModeloPredictivoProbabilidad()
+        public TModeloPredictivoEscalonadoClasificacion()
         {
             TModeloPredictivoProbabilidadEscalonados = new HashSet<TModeloPredictivoProbabilidadEscalonado>();
         }
@@ -15,21 +18,13 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public int Id { get; set; }
         /// <summary>
-        /// Llave foranea con la tabla T_ModeloPredictivoTipo
+        /// Nombre del area a la que pertenece el modelo
         /// </summary>
-        public int IdModeloPredictivoTipo { get; set; }
+        public int IdModeloPredictivoEscalonado { get; set; }
         /// <summary>
-        /// Indica el tipo de entrenamiento del Modelo Predictivo asociado
+        /// Llave foranea con la tabla T_AreaCapacitacion
         /// </summary>
-        public int Tipo { get; set; }
-        /// <summary>
-        /// Llave foranea con la tabla T_Oportunidad
-        /// </summary>
-        public int IdOportunidad { get; set; }
-        /// <summary>
-        /// Probabilidad calculada
-        /// </summary>
-        public decimal Probabilidad { get; set; }
+        public int? IdAreaCapacitacion { get; set; }
         /// <summary>
         /// Estado del registro (creado o eliminado)
         /// </summary>
@@ -54,17 +49,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Campo de sistema automatico que guarda la version del registro
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
-        /// <summary>
-        /// Id de la tabla Original al migrar
-        /// </summary>
-        public int? IdMigracion { get; set; }
-        /// <summary>
-        /// Indica la version de la configuracion punto corte que le corresponde
-        /// </summary>
-        public int? Version { get; set; }
 
-        public virtual TModeloPredictivoTipo IdModeloPredictivoTipoNavigation { get; set; } = null!;
-        public virtual TOportunidad IdOportunidadNavigation { get; set; } = null!;
+        public virtual TAreaCapacitacion? IdAreaCapacitacionNavigation { get; set; }
+        public virtual TModeloPredictivoEscalonado IdModeloPredictivoEscalonadoNavigation { get; set; } = null!;
         public virtual ICollection<TModeloPredictivoProbabilidadEscalonado> TModeloPredictivoProbabilidadEscalonados { get; set; }
     }
 }
