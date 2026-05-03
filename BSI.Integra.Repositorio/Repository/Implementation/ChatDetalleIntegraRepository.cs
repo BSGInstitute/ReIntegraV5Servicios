@@ -368,13 +368,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 List<VersionFormularioDTO> rpta = new List<VersionFormularioDTO>();
                 var query = @"
-                SELECT 
+                SELECT
                     Id,
                     Nombre,
                     Descripcion,
                     Origen,
                     Version,
-                    Estado
+                    Estado,
+                    IdMedioComunicacion
                 FROM ia.T_VersionFormularioEvaluacionChatbot
                 WHERE Estado = 1
                 ORDER BY Version DESC";
@@ -436,18 +437,25 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// Obtiene hilos de chat con información completa de alumnos y matrículas
         /// </summary>
         /// <returns>Lista de hilos de chat con datos de alumnos</returns>
-        public IEnumerable<ChatbotHiloChatPorAlumnoDTO> ObtenerHilosChatConAlumnos()
+        public IEnumerable<ChatbotAlumnoChatPaginadoDTO> ObtenerHilosChatConAlumnos(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize, string? codigoMatricula)
         {
             try
             {
-                List<ChatbotHiloChatPorAlumnoDTO> rpta = new List<ChatbotHiloChatPorAlumnoDTO>();
+                List<ChatbotAlumnoChatPaginadoDTO> rpta = new List<ChatbotAlumnoChatPaginadoDTO>();
                 var query = @"ia.SP_ChatbotPortalHiloChat_ObtenerHilosConAlumno";
 
-                var resultado = _dapperRepository.QueryDapper(query, null);
+                var resultado = _dapperRepository.QuerySPDapper(query, new
+                {
+                    FechaInicio      = fechaInicio,
+                    FechaFin         = fechaFin,
+                    PageNumber       = pageNumber,
+                    PageSize         = pageSize,
+                    CodigoMatricula  = codigoMatricula
+                });
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
-                    rpta = JsonConvert.DeserializeObject<List<ChatbotHiloChatPorAlumnoDTO>>(resultado);
+                    rpta = JsonConvert.DeserializeObject<List<ChatbotAlumnoChatPaginadoDTO>>(resultado);
                 }
                 return rpta;
             }
@@ -510,6 +518,82 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        /// Autor: Alexis Arroyo
+        /// Fecha: 27/04/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene respuestas del formulario aplicado para un hilo de WhatsApp ATC,
+        /// buscando por IdMedioComunicacion + IdOriginal en T_FormularioAplicadoChatbot.
+        /// </summary>
+        public IEnumerable<RespuestaClienteDTO> ObtenerRespuestasUsuarioPorFormularioAplicadoWhatsapp(int idChatbotWhatsAppHiloChat)
+        {
+            try
+            {
+                List<RespuestaClienteDTO> rpta = new List<RespuestaClienteDTO>();
+                var resultado = _dapperRepository.QuerySPDapper(
+                    "ia.SP_TRespuestaClienteChatbot_ObtenerRespuestasUsuarioWhatsapp",
+                    new { IdChatbotWhatsAppHiloChat = idChatbotWhatsAppHiloChat });
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<RespuestaClienteDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Alexis Arroyo
+        /// Fecha: 27/04/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Inserta la evaluación completa para un hilo de WhatsApp ATC usando
+        /// IdMedioComunicacion + IdOriginal en lugar de IdChatbotPortalHiloChat.
+        /// </summary>
+        public InsertarRespuestaEvaluacionResultadoDTO InsertarRespuestaEvaluacionCompletaWhatsapp(
+            int idMedioComunicacion,
+            int idOriginal,
+            int idVersionFormularioEvaluacionChatbot,
+            string usuarioCreacion,
+            int? idSolicitudProblema,
+            string respuestasSeleccionadasJson = null,
+            string respuestasTextoJson = null,
+            string problemasIdentificadosJson = null)
+        {
+            try
+            {
+                var _resultado = new InsertarRespuestaEvaluacionResultadoDTO();
+                var parametros = new
+                {
+                    IdMedioComunicacion = idMedioComunicacion,
+                    IdOriginal = idOriginal,
+                    IdVersionFormularioEvaluacionChatbot = idVersionFormularioEvaluacionChatbot,
+                    UsuarioCreacion = usuarioCreacion,
+                    IdSolicitudProblema = idSolicitudProblema,
+                    RespuestasSeleccionadas = respuestasSeleccionadasJson,
+                    RespuestasTexto = respuestasTextoJson,
+                    ProblemasIdentificados = problemasIdentificadosJson
+                };
+
+                var resultado = _dapperRepository.QuerySPFirstOrDefault(
+                    "ia.SP_TFormularioAplicadoChatbot_InsertarEvaluacionCompletaWhatsapp",
+                    parametros);
+
+                if (!string.IsNullOrEmpty(resultado))
+                {
+                    _resultado = JsonConvert.DeserializeObject<InsertarRespuestaEvaluacionResultadoDTO>(resultado);
+                }
+                return _resultado;
+            }
+            catch (Exception e)
+            {
+                throw e;
             }
         }
 
@@ -590,6 +674,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             int idVersionFormularioEvaluacionChatbot,
             string usuarioCreacion,
             int? idSolicitudProblema,
+            int idMedioComunicacion,
+            int idOriginal,
             string respuestasSeleccionadasJson = null,
             string respuestasTextoJson = null,
             string problemasIdentificadosJson = null)
@@ -605,6 +691,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     IdVersionFormularioEvaluacionChatbot = idVersionFormularioEvaluacionChatbot,
                     UsuarioCreacion = usuarioCreacion,
                     IdSolicitudProblema = idSolicitudProblema,
+                    IdMedioComunicacion = idMedioComunicacion,
+                    IdOriginal = idOriginal,
                     RespuestasSeleccionadas = respuestasSeleccionadasJson,
                     RespuestasTexto = respuestasTextoJson,
                     ProblemasIdentificados = problemasIdentificadosJson
@@ -621,6 +709,38 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception e)
             {
                 throw e;
+            }
+        }
+
+        /// Autor: Alexis Arroyo
+        /// Fecha: 2026-04-29
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene hilos de chat paginados (Portal + WhatsApp) para un alumno desde una fecha de corte.
+        /// </summary>
+        public IEnumerable<HiloChatPaginadoDTO> ObtenerHilosPaginadosPorAlumno(
+            int idAlumno, DateTime fechaInicio, DateTime fechaFin, int pageNumber, int pageSize)
+        {
+            try
+            {
+                var query = "ia.SP_ObtenerHilosPaginadosPorAlumno";
+                var resultado = _dapperRepository.QuerySPDapper(query, new
+                {
+                    IdAlumno   = idAlumno,
+                    FechaInicio = fechaInicio,
+                    FechaFin    = fechaFin,
+                    PageNumber = pageNumber,
+                    PageSize   = pageSize
+                });
+
+                if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
+                    return Enumerable.Empty<HiloChatPaginadoDTO>();
+
+                return JsonConvert.DeserializeObject<List<HiloChatPaginadoDTO>>(resultado);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 
@@ -1375,6 +1495,59 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 _dapperRepository.QuerySPDapper("pw.SP_PW_RegistrarAsistenciaMatricula",
                     new { IdMatriculaCabecera = idMatriculaCabecera, IdPEspecificoSesion = idPEspecificoSesion });
                 return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Alexis Arroyo
+        /// Fecha: 2026-05-02
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las solicitudes vinculadas a un hilo de chat (Portal o WhatsApp).
+        /// Llama a ia.SP_ObtenerSolicitudesPorHiloChat.
+        /// </summary>
+        public IEnumerable<SolicitudPorHiloChatDTO> ObtenerSolicitudesPorHiloChat(int idHiloChat, int idChatbotTipo)
+        {
+            try
+            {
+                var query = "ia.SP_ObtenerSolicitudesPorHiloChat";
+                var resultado = _dapperRepository.QuerySPDapper(query, new
+                {
+                    IdHiloChat    = idHiloChat,
+                    IdChatbotTipo = idChatbotTipo
+                });
+
+                if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
+                    return Enumerable.Empty<SolicitudPorHiloChatDTO>();
+
+                return JsonConvert.DeserializeObject<List<SolicitudPorHiloChatDTO>>(resultado);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Alexis Arroyo
+        /// Fecha: 2026-04-27
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el historial de mensajes WhatsApp ATC de un alumno.
+        /// Llama a ia.SP_TChatbotWhatsAppAtcHiloChat_ObtenerMensajesPorAlumno.
+        /// </summary>
+        public IEnumerable<ChatbotMensajeWhatsAppAtcDTO> ObtenerChatWhatsAppAtcPorAlumno(int idAlumno)
+        {
+            try
+            {
+                var resultado = new List<ChatbotMensajeWhatsAppAtcDTO>();
+                var query = "ia.SP_TChatbotWhatsAppAtcHiloChat_ObtenerMensajesPorAlumno";
+                var response = _dapperRepository.QuerySPDapper(query, new { idAlumno });
+                if (!string.IsNullOrEmpty(response) && !response.Contains("[]"))
+                    resultado = JsonConvert.DeserializeObject<List<ChatbotMensajeWhatsAppAtcDTO>>(response);
+                return resultado;
             }
             catch (Exception ex)
             {

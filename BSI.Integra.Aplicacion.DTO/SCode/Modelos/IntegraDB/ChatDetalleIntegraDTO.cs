@@ -150,6 +150,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string Origen { get; set; }
         public int Version { get; set; }
         public bool Estado { get; set; }
+        public int? IdMedioComunicacion { get; set; }
     }
 
     public class TipoEntradaDTO
@@ -191,8 +192,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 
     public class InsertarRespuestaEvaluacionCompletaRequestDTO
     {
-        [Required]
-        public int IdChatbotPortalHiloChat { get; set; }
+        public int? IdChatbotPortalHiloChat { get; set; }
 
         [Required]
         public int IdVersionFormularioEvaluacionChatbot { get; set; }
@@ -204,6 +204,12 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public List<RespuestaSeleccionadaDTO> RespuestasSeleccionadas { get; set; } = new List<RespuestaSeleccionadaDTO>();
         public List<RespuestaTextoDTO> RespuestasTexto { get; set; } = new List<RespuestaTextoDTO>();
         public List<ProblemaIdentificadoDTO> ProblemasIdentificados { get; set; } = new List<ProblemaIdentificadoDTO>();
+
+        /// <summary>Canal de origen: 1 = Portal, 2 = WhatsApp</summary>
+        public int IdMedioComunicacion { get; set; }
+
+        /// <summary>ID polimórfico del hilo: Portal → T_ChatbotPortalHiloChat.Id, WhatsApp → T_ChatbotWhatsAppAtcHiloChat.Id</summary>
+        public int IdOriginal { get; set; }
     }
 
     public class InsertarRespuestaEvaluacionResultadoDTO
@@ -253,10 +259,12 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public bool Cerrado { get; set; }
         public bool Derivado { get; set; }
         public bool? DerivacionCerrado { get; set; }
-        public bool? EsCalificadoFormulario { get; set; }
         public string SubEstadoMatricula { get; set; }
         public DateTime FechaCreacion { get; set; }
-
+        public int IdOrigen { get; set; }      // 1 = Portal, 2 = WhatsApp
+        public string Origen { get; set; }     // "Portal Web" / "WhatsApp"
+        public string Email { get; set; }
+        public int TotalCount { get; set; }
     }
 
     public class ChatbotHiloChatPorSegmentoDTO
@@ -277,6 +285,31 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdChatbotPortalHiloChat { get; set; }
     }
 
+    public class ObtenerRespuestasClienteWhatsappRequestDTO
+    {
+        public int IdChatbotWhatsAppHiloChat { get; set; }
+    }
+
+    public class InsertarRespuestaEvaluacionCompletaWhatsappRequestDTO
+    {
+        [Required]
+        public int IdMedioComunicacion { get; set; }
+
+        [Required]
+        public int IdOriginal { get; set; }
+
+        [Required]
+        public int IdVersionFormularioEvaluacionChatbot { get; set; }
+
+        [Required]
+        [MaxLength(50)]
+        public string UsuarioCreacion { get; set; }
+        public int? IdSolicitudProblema { get; set; }
+        public List<RespuestaSeleccionadaDTO> RespuestasSeleccionadas { get; set; } = new List<RespuestaSeleccionadaDTO>();
+        public List<RespuestaTextoDTO> RespuestasTexto { get; set; } = new List<RespuestaTextoDTO>();
+        public List<ProblemaIdentificadoDTO> ProblemasIdentificados { get; set; } = new List<ProblemaIdentificadoDTO>();
+    }
+
     public class RespuestaClienteDTO
     {
         public int IdPregunta { get; set; }
@@ -290,6 +323,76 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public bool EsTextoLibre { get; set; }
         public bool EsProblemaIdentificado { get; set; }
         public DateTime FechaCreacion { get; set; }
+        public int? IdSolicitudProblema { get; set; }
+
+	}
+
+    /// <summary>
+    /// Resultado agrupado por alumno para el endpoint ObtenerHilosChatConAlumnos.
+    /// Una fila por alumno único con estadísticas de sus hilos de chat.
+    /// </summary>
+    public class ChatbotAlumnoChatPaginadoDTO
+    {
+        public int IdAlumno { get; set; }
+        public string NombreAlumno { get; set; }
+        public string Email { get; set; }
+        public string CodigoMatricula { get; set; }
+        public string EstadoMatricula { get; set; }
+        public int? CodigoAreaDerivacion { get; set; }
+        public bool Derivado { get; set; }
+        public int TotalChats { get; set; }
+        public int PendientesCalificacion { get; set; }
+        public DateTime FechaUltimoChat { get; set; }
+        /// <summary>Total de alumnos únicos (viene del SP vía COUNT(*) OVER()); se usa para calcular la paginación.</summary>
+        public int TotalCount { get; set; }
+    }
+
+    // === DTOs Paginación Hilos por Alumno ===
+
+    public class ObtenerHilosPaginadosRequestDTO
+    {
+        [Required]
+        public int IdAlumno { get; set; }
+
+        [Required]
+        public DateTime? FechaInicio { get; set; }
+
+        [Required]
+        public DateTime? FechaFin { get; set; }
+
+        public int PageNumber { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+    }
+
+    public class ObtenerHilosConAlumnosPaginadosRequestDTO
+    {
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaFin { get; set; }
+        public string? CodigoMatricula { get; set; }
+        public int PageNumber { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+    }
+
+    public class HiloChatPaginadoDTO
+    {
+        public int IdHilo { get; set; }
+        public DateTime FechaCreacion { get; set; }
+        public string Origen { get; set; }
+        public int IdOrigen { get; set; }
+        public bool EsCalificado { get; set; }
+        public DateTime? FechaCalificacion { get; set; }
+        public string UltimoMensaje { get; set; }
+        public int TotalMensajes { get; set; }
+        public int TotalCount { get; set; }
+    }
+
+    public class PagedResponseDTO<T>
+    {
+        public List<T> Items { get; set; }
+        public int TotalCount { get; set; }
+        public int PageNumber { get; set; }
+        public int PageSize { get; set; }
+        public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
     }
 
     // === DTOs Chatbot ATC - Obtener Actividades ===
@@ -447,5 +550,41 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     {
         public string Mensaje { get; set; }
         public Dictionary<string, string> Error { get; set; }
+    }
+
+    // === DTOs Solicitudes por Hilo Chat ===
+
+    public class ObtenerSolicitudesPorHiloChatRequestDTO
+    {
+        [Required]
+        public int IdHiloChat { get; set; }
+
+        /// <summary>1 = WhatsApp ATC | 2 = Portal Web</summary>
+        [Required]
+        public int IdChatbotTipo { get; set; }
+    }
+
+    public class SolicitudPorHiloChatDTO
+    {
+        public int IdChatbotAlumnoSolicitud { get; set; }
+        public DateTime FechaVinculacion { get; set; }
+        public string? EstadoSolicitud { get; set; }
+        public string? DetalleSolicitud { get; set; }
+        public string? ComentarioSolucion { get; set; }
+        public DateTime FechaSolicitud { get; set; }
+    }
+
+    public class ChatbotMensajeWhatsAppAtcDTO
+    {
+        public int IdHiloChatWhatsApp { get; set; }
+        public int? IdAlumno { get; set; }
+        public bool EsUsuario { get; set; }
+        public string Contenido { get; set; }
+        public string TipoMensaje { get; set; }
+        public string WaFile { get; set; }
+        public string WaMimeType { get; set; }
+        public string WaFileName { get; set; }
+        public string WaCaption { get; set; }
+        public DateTime FechaCreacion { get; set; }
     }
 }
