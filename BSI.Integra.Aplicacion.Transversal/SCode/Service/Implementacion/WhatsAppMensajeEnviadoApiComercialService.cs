@@ -125,13 +125,13 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         if (datoRespuesta.Mensaje.Contains("131026"))
                         {
                             respuesta.Mensaje = "El cliente no tiene whatsapp activo o esta inhabilitado temporalmente!!!";
-                            datoRespuesta.EstadoMensaje = true;
+                            datoRespuesta.EstadoMensaje = false;
                             //Actualizo el estado de whatsapp
                         }
                         else if (datoRespuesta.Mensaje.Contains("000001"))
                         {
                             respuesta.Mensaje = "El asesor no tiene chip asignado para el pais del alumno!!!";
-                            datoRespuesta.EstadoMensaje = true;
+                            datoRespuesta.EstadoMensaje = false;
                         }
 
                     }
@@ -147,7 +147,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 {
                     var resultado = _unitOfWork.WhatsAppMensajeEnviadoRepository.InsertarMensajesLogJsonEnvios(json.IdAlumno, json.WaTo, ex.Message);
                 }
-                respuesta.Estado = true;
+                respuesta.Estado = false;
                 respuesta.Mensaje = "Fallo algo al momento de enviar el whatsapp, volver a intentar!!!";
 
 

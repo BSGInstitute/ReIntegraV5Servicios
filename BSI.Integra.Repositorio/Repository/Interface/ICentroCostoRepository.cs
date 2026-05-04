@@ -22,6 +22,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<ComboDTO> ObtenerRecientesAutocomplete(string nombreParcial);
         IEnumerable<ComboDTO> ObtenerFiltroAutocomplete(string nombreParcial);
         IEnumerable<ComboDTO> ObtenerAutocompletePorTipoProgramaCarrera(string valor, int? tipoProgramaCarrera);
+        IEnumerable<ComboDTO> ObtenerAutocompletePorTipoProgramaCarreraV3(string valor, int? tipoProgramaCarrera);
         IEnumerable<ComboDTO> ObtenerAutocompleteCentroCosto(string nombreParcial);
         CentroCosto ObtenerPorId(int idCentroCosto);
         IEnumerable<ComboDTO> ObtenerAutocompleteConPGeneral(string nombreParcial);

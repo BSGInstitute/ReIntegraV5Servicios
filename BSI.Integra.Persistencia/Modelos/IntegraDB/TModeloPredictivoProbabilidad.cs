@@ -5,6 +5,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     public partial class TModeloPredictivoProbabilidad
     {
+        public TModeloPredictivoProbabilidad()
+        {
+            TModeloPredictivoProbabilidadEscalonados = new HashSet<TModeloPredictivoProbabilidadEscalonado>();
+        }
+
         /// <summary>
         /// Llave primaria
         /// </summary>
@@ -53,8 +58,13 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Id de la tabla Original al migrar
         /// </summary>
         public int? IdMigracion { get; set; }
+        /// <summary>
+        /// Indica la version de la configuracion punto corte que le corresponde
+        /// </summary>
+        public int? Version { get; set; }
 
         public virtual TModeloPredictivoTipo IdModeloPredictivoTipoNavigation { get; set; } = null!;
         public virtual TOportunidad IdOportunidadNavigation { get; set; } = null!;
+        public virtual ICollection<TModeloPredictivoProbabilidadEscalonado> TModeloPredictivoProbabilidadEscalonados { get; set; }
     }
 }

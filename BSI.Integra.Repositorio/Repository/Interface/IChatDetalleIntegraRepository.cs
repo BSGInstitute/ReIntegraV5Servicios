@@ -30,6 +30,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         List<DatosSesionChatComercialDTO> GetIdUltimaInteraccionComercial(int idAlumno);
         ChatDetalleIntegra ObtenerPorIntegraChatYRemintente(int idInteraccionChatIntegra, string idRemitente);
         List<HistorialChatDetalleIntegraDTO> ObtenerHistorialChatDetalleIntegra(int idMatriculaCabecera);
+        List<WhatsAppHistorialMensajesOperacionesDTO> ObtenerHistorialChatDetalleIntegraFlotante(int idMatriculaCabecera);
         IEnumerable<PreguntaEvaluacion2DTO> ObtenerPreguntasPorVersionFormulario(int IdVersionFormularioEvaluacionChatbot);
         IEnumerable<RespuestaEvaluacionDTO> ObtenerRespuestasPorPregunta(int idPregunta);
         IEnumerable<RespuestaEvaluacionDTO> ObtenerRespuestasPorVersionFormulario(int IdVersionFormularioEvaluacionChatbot);

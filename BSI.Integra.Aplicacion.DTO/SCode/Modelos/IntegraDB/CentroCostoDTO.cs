@@ -43,8 +43,12 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public CentroCostoDTO CentroCosto { get; set; }
         public string Codigo { get; set; }
         public string NombreProgramaEspecifico { get; set; }
+        public string NombreProgramaEspecificoNumerico { get; set; }
         public string NombreProgramaGeneral { get; set; }
         public string CodigoBanco { get; set; }
+        public int? GruposAsignados { get; set; }
+        public int GruposCreados { get; set; }
+        public bool HaAlcanzadoLimiteGrupos { get; set; }
     }
     public class PlantillaCentroCostoDTO
     {

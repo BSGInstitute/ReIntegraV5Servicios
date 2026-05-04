@@ -26,5 +26,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<TipoDescuento> ObtenerPorIds(int idTipoDescuento);
         IEnumerable<TipoDescuentoConNivelAprobacionDTO> ObtenerTipoDescuentoConNivelAprobacion();
         IEnumerable<TipoDescuentoNivelAprobacionDTO> ObtenerNivelesAprobacion();
+        InfoProgramaCentroCostoDTO ObtenerInfoProgramaPorCentroCosto(int idCentroCosto);
     }
 }

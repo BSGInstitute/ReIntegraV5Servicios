@@ -927,6 +927,23 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+        public List<WhatsAppHistorialMensajesOperacionesDTO> ObtenerHistorialChatDetalleIntegraFlotante(int idMatriculaCabecera)
+        {
+            try
+            {
+                List<WhatsAppHistorialMensajesOperacionesDTO> rpta = new List<WhatsAppHistorialMensajesOperacionesDTO>();
+                var resultado = _dapperRepository.QuerySPDapper("[ia].[SP_ChatbotPortal_HistorialChatSoporteFlotante]", new { idMatriculaCabecera });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<WhatsAppHistorialMensajesOperacionesDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         /// Autor: Joseph Llanque
         ///// Fecha: 05/12/2022

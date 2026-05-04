@@ -26,12 +26,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        //private const string WebhookUrl = "https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphAtc";
-        private const string WebhookUrl = "https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphAtc";
+        private const string WebhookUrl = "https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphAtc";
+        //private const string WebhookUrl = "https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphAtc";
 
         private const int EstadoBot = 1; // ia.T_ChatbotConversacionEstado
 
-        private const int IdActor = 2; // Id del actor 
+        private const int EstadoDerivado = 2; // ia.T_ChatbotConversacionEstado
+
+		private const int IdActor = 2; // Id del actor 
         public WhatsAppMensajeEnviadoApiAtcService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -80,7 +82,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 {
                     idHilo = hilo.Id;
 
-                    if (hilo.IdChatbotConversacionEstado == EstadoBot)
+                    if (hilo.IdChatbotConversacionEstado == EstadoBot || hilo.IdChatbotConversacionEstado == EstadoDerivado)
                     {
                         // Actualizar el estado del hilo a Asesor
                         await repo.ActualizarHiloAsesor(idHilo, usuario);
