@@ -278,6 +278,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 
         public bool? EsCalificadoFormulario { get; set; }
         public DateTime FechaCreacion { get; set; }
+        public DateTime? FechaCalificacion { get; set; }
     }
 
     public class ObtenerRespuestasClienteRequestDTO
