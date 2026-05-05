@@ -809,7 +809,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                            IdPersonalAreaTrabajo, IdCondicionTipoPago, MonedaPagoReal, IdEmpresa
                     FROM FIN.V_ObtenerFurFinanzas
                     WHERE IdPersonalAreaTrabajo = 19
-                      AND IdFaseAprobacion1 IN (3, 5)
+                      AND IdFaseAprobacion1 IN (3, 5, 9)
                       AND Antiguo = 0
                     ORDER BY Id DESC";
                 return (await conn.QueryAsync<FurDTO>(sql)).ToList();

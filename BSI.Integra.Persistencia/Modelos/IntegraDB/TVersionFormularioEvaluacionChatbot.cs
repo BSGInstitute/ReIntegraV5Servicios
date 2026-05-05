@@ -31,6 +31,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public string Origen { get; set; } = null!;
         /// <summary>
+        /// FK a pla.T_MedioComunicacion — reemplaza gradualmente al campo Origen (string)
+        /// </summary>
+        public int? IdMedioComunicacion { get; set; }
+        /// <summary>
         /// Número de versión actual del formulario
         /// </summary>
         public int Version { get; set; }

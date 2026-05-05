@@ -2509,5 +2509,37 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 12/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene Programa y Probabilidad de Inscripcion por idOportunidad
+        /// </summary>
+        /// <param name="idOportunidad">Id de Oportunidad</param>
+        /// <returns> ColorPerfilProgramaDTO </returns>
+        public ColorPerfilProgramaV2DTO ObtenerProgramaYProbabilidad(int idOportunidad)
+        {
+            try
+            {
+                return _unitOfWork.ModeloPredictivoProbabilidadRepository.ObtenerProgramaYProbabilidad(idOportunidad);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public AnalisisProgramasAlumnoDTO ObtenerAnalisisProgramasAlumno(int idOportunidad)
+        {
+            try
+            {
+                return _unitOfWork.ModeloPredictivoProbabilidadRepository.ObtenerAnalisisProgramasAlumno(idOportunidad);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }

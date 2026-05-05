@@ -4,11 +4,9 @@ using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
-using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace BSI.Integra.Servicios.Controllers.Comercial
 {
@@ -1940,6 +1938,39 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
             }
         }
 
+        /// TipoFuncion: GET
+        /// Autor: Jose Vega
+        /// Fecha: 12/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el programa y la probabilidad de inscripción registrada de la oportunidad.
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <returns> ColorPerfilProgramaV2DTO </returns>
+        [Route("[Action]/{idOportunidad}")]
+        [HttpGet]
+        public IActionResult ObtenerProgramaYProbabilidadV2(int idOportunidad)
+        {
+            IAgendaActividadService agendaActividadService = new AgendaActividadService(_unitOfWork);
+            return Ok(agendaActividadService.ObtenerProgramaYProbabilidad(idOportunidad));
+        }
+
+        /// TipoFuncion: GET
+        /// Autor: Jose Vega
+        /// Fecha: 12/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene analisis de programas del alumno
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <returns> AnalisisProgramasAlumnoDTO </returns>
+        [Route("[Action]/{idOportunidad}")]
+        [HttpGet]
+        public IActionResult ObtenerAnalisisProgramasAlumno(int idOportunidad)
+        {
+            IAgendaActividadService agendaActividadService = new AgendaActividadService(_unitOfWork);
+            return Ok(agendaActividadService.ObtenerAnalisisProgramasAlumno(idOportunidad));
+        }
 
     }
 }
