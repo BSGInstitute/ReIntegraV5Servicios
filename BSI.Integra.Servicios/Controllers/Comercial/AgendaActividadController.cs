@@ -4,11 +4,9 @@ using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
-using BSI.Integra.Aplicacion.Transversal.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace BSI.Integra.Servicios.Controllers.Comercial
 {

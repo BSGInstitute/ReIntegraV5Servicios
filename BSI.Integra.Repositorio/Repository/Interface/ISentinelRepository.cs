@@ -1,4 +1,5 @@
 ﻿using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.ExperianSentinel;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -25,5 +26,11 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         SentinelDatosContactoDTO ObtenerDatosAlumnoSentinel(int idAlumno);
         SentinelDatosCabeceraDTO ObtenerCabeceraSentinel(int idSentinel);
         SentinelCredencialDTO ObtenerCredencial();
+
+        /// <summary>
+        /// Obtiene las credenciales para el servicio REST de Experian Sentinel.
+        /// Lee desde la vista fin.V_ObtenerSentinelCredencialRest (creada por DBA).
+        /// </summary>
+        SentinelCredencialRestDTO ObtenerCredencialRest();
     }
 }
