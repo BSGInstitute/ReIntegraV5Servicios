@@ -62,6 +62,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public DateTime? FechaFin { get; set; }
         public int NumeroPagina { get; set; } = 1;
         public int RegistrosPorPagina { get; set; } = 10;
+        public List<int>? IdsAsesoresFiltro { get; set; }
     }
 
     /// <summary>

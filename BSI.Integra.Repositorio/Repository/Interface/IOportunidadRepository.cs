@@ -3,6 +3,7 @@ using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.DTO.SCode;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using Google.Api.Ads.AdWords.v201809;
@@ -101,6 +102,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         DatosOportunidadReprogramacionManualOperacionesSubEstadoDTO ObtenerSubEstadoAlumno(int idOportunidad);
         DatosAlumnoDTO ObtenerDatosAlumno(int idOportunidad);
         DatosAlumnoOportunidadDTO ObtenerDatosOportunidadAlumno(int idAlumno);
+        OportunidadATCDTO ObtenerDatosOportunidadATCAlumno(int idAlumno,int idPersonal);
         PersonalAlumnoDTO ObtenerOportunidadPorNumero(string numero);
         PersonalAlumnoDTO ObtenerOportunidadPorNumero(int idCentroCosto, string numero);
         OportunidadTiempoCapacitacionDTO ObtenerTiempoCapacitacionPorIdOportunidad(int idOportunidad);
@@ -109,6 +111,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         FlagActualizarCorreoDTO VerificacionOportunidades(int idAlumnoPrincipal, int idAlumnoSecundario);
         FlagReasignacionDTO ResignacionOportunidades(int idAlumnoPrincipal, int idAlumnoSecundario);
         List<OportunidadProgramadaManualDTO> ObtenerProgramacionManualConsecutivos();
+        ResultadoDTO LimpiarProgramacionManualConsecutivos();
         public OportunidadAnteriorAlternoDTO? ValidarOportundadVentaCruzada(int idOportunidad);
         int? ObtnerUltimoRN1(OportunidadAnteriorAlternoDTO oportunidad);
         void ActualizarSeguimientoWhatsAppOportunidad(int idOportunidad, int idActividad, bool estado);
@@ -149,5 +152,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         // RN2: verifica si alguno de los alumnos similares tiene oportunidades activas en fases RN2
         bool ExistenOportunidadesParaAlumnos(List<int> idAlumnos, int idPersonalAsignado);
         OportunidadEmpresaPagaDTO ObtenerEmpresaPagaPorCodigoMatricula(string codigoMatricula);
+
+        IEnumerable<HistorialOportunidadPlanoDTO> ObtenerHistorialOportunidadesAlumno(int idAlumno);
     }
 }

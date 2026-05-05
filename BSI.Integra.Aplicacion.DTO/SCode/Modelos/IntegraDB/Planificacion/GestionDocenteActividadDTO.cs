@@ -382,8 +382,15 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
 
     public class ReemplazoEtiquetaPlantillaDocenteDTO
     {
-        public int IdGestionContacto { get; set; }
         public int IdPlantilla { get; set; }
+
+        /// Si se proporciona, se resuelven IdCentroCosto, IdClasificacionPersona e IdPersonal internamente
+        public int? IdGestionContacto { get; set; }
+
+        /// Parámetros directos 
+        public int? IdCentroCosto { get; set; }
+        public int? IdClasificacionPersona { get; set; }
+        public int? IdPersonal { get; set; }
     }
 
     public class PlantillaDisponiblePlanificacionDTO
@@ -391,6 +398,8 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public int IdPlantilla { get; set; }
         public string NombrePlantilla { get; set; }
         public bool EstadoPlantilla { get; set; }
+        public string Descripcion { get; set; }
+
     }
 
     /// Autor: Joseph Llanque
@@ -399,7 +408,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
     /// <summary>
     /// DTO para actualizar un detalle de actividad existente (elimina el anterior y crea uno nuevo).
     /// </summary>
-        public class ActualizarActividadDetalleRequestDTO
+    public class ActualizarActividadDetalleRequestDTO
         {
             public int IdDetalleAnterior { get; set; }
             public InsertarActividadDetalleRequestDTO NuevoDetalle { get; set; }

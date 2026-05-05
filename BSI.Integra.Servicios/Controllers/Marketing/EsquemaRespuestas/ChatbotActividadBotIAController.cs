@@ -41,6 +41,22 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.EsquemaRespuestas
             }
         }
 
+        /// <summary>Retorna el catalogo de medios de comunicacion disponibles para bot IA.</summary>
+        [HttpGet]
+        [Route("[action]")]
+        public IActionResult ObtenerListadoMedioComunicacion()
+        {
+            try
+            {
+                var listado = _chatbotActividadBotIAService.ObtenerListadoMedioComunicacion();
+                return Ok(listado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         /// <summary>Retorna el catalogo de numeros WhatsApp disponibles para asignacion.</summary>
         [HttpGet]
         [Route("[action]")]

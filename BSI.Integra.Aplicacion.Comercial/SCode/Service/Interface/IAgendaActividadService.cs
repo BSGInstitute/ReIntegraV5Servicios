@@ -83,5 +83,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         AlumnoCodigosDescuentosDTO ObtenerCodigoDescuentoAlumno(int idAlumno);
         bool ActualizarCentroCosto(int idCentroCosto, int idActividad);
         bool ValidarEsOportunidadEmpresa(string codigoMatricula);
+        AnalisisProgramasAlumnoDTO ObtenerAnalisisProgramasAlumno(int idOportunidad);
+        ColorPerfilProgramaV2DTO ObtenerProgramaYProbabilidad(int idOportunidad);
     }
 }

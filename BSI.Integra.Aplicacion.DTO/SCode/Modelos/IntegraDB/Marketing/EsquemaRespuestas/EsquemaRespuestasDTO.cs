@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,8 +16,20 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing.EsquemaRe
 
     public class AsistenteWhatsAppAsignacionNumeroDTO
     {
-        public int    IdNumero        { get; set; }
-        public string NumeroAsociado  { get; set; }
+        [JsonProperty("Id")]
+        public int    IdNumero             { get; set; }
+
+        [JsonProperty("NumeroWhatsApp")]
+        public string NumeroAsociado       { get; set; }
+
+        [JsonProperty("NumeroIdentificador")]
+        public string NumeroIdentificador  { get; set; }
+
+        [JsonProperty("IdPais")]
+        public int    IdPais               { get; set; }
+
+        [JsonProperty("EsquemaRespuesta")]
+        public int    EsquemaRespuesta     { get; set; }
     }
 
     public class ChatbotEsquemaAsignacionFaseDTO

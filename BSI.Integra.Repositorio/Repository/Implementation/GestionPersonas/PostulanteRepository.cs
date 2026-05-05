@@ -1008,6 +1008,39 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.GestionPersonas
                 throw new Exception(e.Message);
             }
         }
+
+        /// Autor: Marco Villanueva
+        /// Fecha: 08/04/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Cambia el proceso de seleccion del postulante usando el SP alterno
+        /// </summary>
+        /// <returns> bool </returns>
+        public bool CambiarProcesoSeleccionPostulanteAlterno(PostulanteProcesoNuevoDTO Informacion)
+        {
+            try
+            {
+                var idsEtapas = Informacion.IdsProcesoSeleccionEtapa != null
+                    ? string.Join(",", Informacion.IdsProcesoSeleccionEtapa)
+                    : "";
+
+                string query = "gp.SP_CambiarProcesoSeleccionPostulante_Alterno";
+                var res = _dapperRepository.QuerySPFirstOrDefault(query, new
+                {
+                    IdPostulante = Informacion.IdPostulante,
+                    IdProcesoSeleccionOrigen = Informacion.IdProcesoSeleccionOrigen ?? 0,
+                    IdProcesoSeleccionDestino = Informacion.IdProcesoSeleccionDestino ?? 0,
+                    IdsProcesoSeleccionEtapa = idsEtapas,
+                    IdPersonalSolicitaCambio = Informacion.IdPersonal ?? 0
+                });
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
         public IEnumerable<PostulanteProcesoEvaluacionesDTO> HabilitarExamenesEvaluaciones(PostulanteExamenesDTO parametros)
         {
             try

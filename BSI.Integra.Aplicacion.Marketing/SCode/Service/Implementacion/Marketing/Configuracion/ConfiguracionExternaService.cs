@@ -18,7 +18,8 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketin
     /// </summary>
     public class ConfiguracionExternaService : IConfiguracionExternaService
     {
-        private const string ApiBaseUrl = "http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/testing/";
+        //private const string ApiBaseUrl = "http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/testing/";
+        private const string ApiBaseUrl = "http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/";
 
         private readonly IConfiguracionExternaRepository _configuracionExternaRepository;
 

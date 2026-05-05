@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.ExperianSentinel;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Infrastructure;
@@ -468,7 +469,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// Version: 1.0
         /// <summary>
         /// Obtiene credenciales de Sentinel
-        /// </summary> 
+        /// </summary>
         /// <returns>SentinelCredencialDTO</returns>
         public SentinelCredencialDTO ObtenerCredencial()
         {
@@ -481,6 +482,45 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     sentinelCredencial = JsonConvert.DeserializeObject<SentinelCredencialDTO>(resultado);
                 }
                 return sentinelCredencial;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Christopher Tumir.
+        /// Fecha: 17/04/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las credenciales para el servicio REST de Experian Sentinel.
+        /// Lee desde la vista fin.V_ObtenerSentinelCredencialRest (creada por DBA).
+        /// </summary>
+        /// <returns>SentinelCredencialRestDTO</returns>
+        public SentinelCredencialRestDTO ObtenerCredencialRest()
+        {
+            try
+            {
+                var credencial = new SentinelCredencialRestDTO();
+                var query = @"
+                    SELECT
+                        ClientId,
+                        ClientSecret,
+                        Username,
+                        Password,
+                        GxEmail,
+                        GxKey,
+                        GxUsuario,
+                        TipDocConsulta,
+                        UrlToken,
+                        UrlConsulta
+                    FROM fin.V_ObtenerSentinelCredencialRest";
+                var resultado = _dapperRepository.FirstOrDefault(query, null);
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    credencial = JsonConvert.DeserializeObject<SentinelCredencialRestDTO>(resultado)!;
+                }
+                return credencial;
             }
             catch (Exception ex)
             {

@@ -11,9 +11,11 @@ namespace BSI.Integra.Servicios.Controllers
     /// Controlador: SolicitudNivelAprobacionDescuentoController
     /// Autor: Lolo Zaa
     /// Fecha: 12/01/2026
+    /// Autor Modificacion: Jose Vega
+    /// Fecha Modificacion: 24/04/2026
     /// <summary>
-    /// Gestión de solicitudes de aprobación para tipos de descuento
-    /// Flujo: Solicitante -> Coordinador -> Gerencia
+    /// Gestión de solicitudes de aprobación para tipos de descuento.
+    /// Flujo jerárquico: Solicitante -> Coordinador -> Supervisor -> Gerencia.
     /// </summary>
     [Route("api/SolicitudNivelAprobacionDescuento")]
     [ApiController]
@@ -84,13 +86,83 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
-        /// TipoFuncion: PUT
-        /// Autor: Lolo Zaa
-        /// Fecha: 14/01/2026
+        /// TipoFuncion: POST
+        /// Autor: Jose Vega
+        /// Fecha: 24/04/2026
         /// Versión: 1.0
         /// <summary>
-        /// Aprueba una solicitud de tipo de descuento a nivel Coordinador
-        /// Estado: Pendiente -> Aceptado Coordinador
+        /// Aprueba una solicitud de tipo de descuento a nivel Supervisor.
+        /// Estado actual: 7 (Pendiente Supervisor) -> 8 (Aprobado Supervisor) o 6 (Pendiente Gerencia).
+        /// </summary>
+        /// <param name="dto">Datos de aprobación con archivo opcional</param>
+        /// <returns>Mensaje de éxito</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult AprobarSolicitudSupervisor([FromForm] TipoDescuentoSolicitudRespuestaEntradaDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
+                dto.Usuario = registroClaimToken.UserName;
+
+                _tipoDescuentoSolicitudService.AprobarSolicitudSupervisor(dto);
+
+                return Ok(new { mensaje = "Solicitud aprobada por supervisor correctamente" });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { mensaje = e.Message });
+            }
+        }
+
+        /// TipoFuncion: POST
+        /// Autor: Jose Vega
+        /// Fecha: 24/04/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Rechaza una solicitud de tipo de descuento a nivel Supervisor.
+        /// Estado actual: 7 (Pendiente Supervisor) -> 9 (Rechazado Supervisor).
+        /// </summary>
+        /// <param name="dto">Datos de rechazo con archivo opcional</param>
+        /// <returns>Mensaje de éxito</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult RechazarSolicitudSupervisor([FromForm] TipoDescuentoSolicitudRespuestaEntradaDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
+                dto.Usuario = registroClaimToken.UserName;
+
+                _tipoDescuentoSolicitudService.RechazarSolicitudSupervisor(dto);
+
+                return Ok(new { mensaje = "Solicitud rechazada por supervisor correctamente" });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { mensaje = e.Message });
+            }
+        }
+
+        /// TipoFuncion: POST
+        /// Autor: Lolo Zaa
+        /// Fecha: 14/01/2026
+        /// Autor Modificacion: Jose Vega
+        /// Fecha Modificacion: 24/04/2026
+        /// Versión: 1.1
+        /// <summary>
+        /// Aprueba una solicitud de tipo de descuento a nivel Coordinador.
+        /// Estado actual: 1 (Pendiente Coordinador) -> 2 (Aprobado Coordinador) o 7 (Pendiente Supervisor).
         /// </summary>
         /// <param name="dto">Datos de aprobación con archivo opcional</param>
         /// <returns>Mensaje de éxito</returns>
@@ -118,13 +190,13 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
-        /// TipoFuncion: PUT
+        /// TipoFuncion: POST
         /// Autor: Lolo Zaa
         /// Fecha: 14/01/2026
         /// Versión: 1.0
         /// <summary>
-        /// Rechaza una solicitud de tipo de descuento a nivel Coordinador
-        /// Estado: Pendiente -> Rechazado Coordinador
+        /// Rechaza una solicitud de tipo de descuento a nivel Coordinador.
+        /// Estado actual: 1 (Pendiente Coordinador) -> 3 (Rechazado Coordinador).
         /// </summary>
         /// <param name="dto">Datos de rechazo con archivo opcional</param>
         /// <returns>Mensaje de éxito</returns>
@@ -235,7 +307,10 @@ namespace BSI.Integra.Servicios.Controllers
         {
             try
             {
-                var resultado = _tipoDescuentoSolicitudService.ListarSolicitudes(filtro);
+                var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
+                // IdsAsesoresFiltro lo resuelve el backend a partir del token; no se acepta del cliente.
+                filtro.IdsAsesoresFiltro = null;
+                var resultado = _tipoDescuentoSolicitudService.ListarSolicitudes(filtro, registroClaimToken.IdPersonal);
                 return Ok(resultado);
             }
             catch (Exception e)

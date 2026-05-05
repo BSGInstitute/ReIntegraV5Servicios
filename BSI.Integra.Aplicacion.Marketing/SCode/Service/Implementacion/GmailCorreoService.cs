@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.Base.Exceptions;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion;
 using BSI.Integra.Aplicacion.Marketing.Service.Interface;
 using BSI.Integra.Aplicacion.Servicios.Service.Implementacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
@@ -467,11 +468,16 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
 
                 if (informacionCorreo.IdPlantilla.HasValue && informacionCorreo.IdPlantilla.Value > 0)
                 {
-                    var plantillaCorreo = _unitOfWork.PlantillaRepository.ObtenerPlantillaCorreo(informacionCorreo.IdPlantilla.Value);
-                    if (plantillaCorreo == null)
-                        throw new BadRequestException("Plantilla no encontrada");
-                    mensajeCorreo = plantillaCorreo.Cuerpo;
-                    asuntoCorreo = plantillaCorreo.Asunto;
+                    var resultado = _reemplazoEtiquetaService.ReemplazarEtiquetasPlanificacion(
+                        new ReemplazoEtiquetaPlantillaDocenteDTO
+                        {
+                            IdPlantilla = informacionCorreo.IdPlantilla.Value,
+                            IdGestionContacto = informacionCorreo.IdGestionContacto > 0 ? informacionCorreo.IdGestionContacto : null,
+                            IdCentroCosto = informacionCorreo.IdCentroCosto,
+                            IdClasificacionPersona = informacionCorreo.IdClasificacionPersona
+                        });
+                    mensajeCorreo = resultado.EmailReemplazado.CuerpoHTML ?? "";
+                    asuntoCorreo = resultado.EmailReemplazado.Asunto ?? "";
                 }
                 else
                 {
@@ -479,9 +485,6 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                     mensajeCorreo = Encoding.UTF8.GetString(dataMensaje);
                     asuntoCorreo = informacionCorreo.Asunto;
                 }
-
-                // Reemplazo de etiquetas de planificación
-                mensajeCorreo = _reemplazoEtiquetaService.ReemplazarEtiquetasPlanificacion(mensajeCorreo, informacionCorreo.IdCentroCosto ?? 0, informacionCorreo.IdClasificacionPersona ?? 0);
 
                 if (!mensajeCorreo.Contains("https://repositorioweb.blob.core.windows.net/firmas/"))
                 {
@@ -774,20 +777,20 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
         {
             try
             {
-                var plantillaCorreo = _unitOfWork.PlantillaRepository.ObtenerPlantillaCorreo(request.IdPlantilla);
-                if (plantillaCorreo == null)
-                    throw new BadRequestException("Plantilla no encontrada");
-
-                var asunto = plantillaCorreo.Asunto;
-                var cuerpo = plantillaCorreo.Cuerpo;
-
-                var cuerpoReemplazado = _reemplazoEtiquetaService
-                    .ReemplazarEtiquetasPlanificacion(cuerpo, request.IdCentroCosto, request.IdClasificacionPersona);
+                var resultado = _reemplazoEtiquetaService.ReemplazarEtiquetasPlanificacion(
+                    new ReemplazoEtiquetaPlantillaDocenteDTO
+                    {
+                        IdPlantilla = request.IdPlantilla,
+                        IdCentroCosto = request.IdCentroCosto,
+                        IdClasificacionPersona = request.IdClasificacionPersona
+                    });
 
                 return new PreviewMensajePlaResponseDTO
                 {
-                    Asunto = asunto,
-                    CuerpoHtml = cuerpoReemplazado
+                    Asunto = resultado.EmailReemplazado.Asunto ?? "",
+                    CuerpoHtml = resultado.EmailReemplazado.CuerpoHTML
+                        ?? resultado.WhatsAppReemplazado?.Plantilla
+                        ?? ""
                 };
             }
             catch (Exception ex)

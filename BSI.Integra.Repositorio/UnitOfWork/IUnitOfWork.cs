@@ -321,6 +321,11 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IComprobantePagoPorFurRepository ComprobantePagoPorFurRepository { get; }
         IFurPagoRepository FurPagoRepository { get; }
         IComprobantePagoRepository ComprobantePagoRepository { get; }
+        IGestionPagoRepository GestionPagoRepository { get; }
+        IGestionPagoCronogramaRepository GestionPagoCronogramaRepository { get; }
+        IGestionPagoArchivoRepository GestionPagoArchivoRepository { get; }
+        IModalidadPagoRepository ModalidadPagoRepository { get; }
+        IPagoEstadoRepository PagoEstadoRepository { get; }
         IModoFurRepository ModoFurRepository { get; }
         IModoPersonalFurRepository ModoPersonalFurRepository { get; }
         IFurFaseAprobacionRepository FurFaseAprobacionRepository { get; }
@@ -1015,5 +1020,19 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IPEspecificoSesionEstadoObservacionRepository PEspecificoSesionEstadoObservacionRepository { get; }
         IPEspecificoSesionEstadoObservacionDetalleRepository PEspecificoSesionEstadoObservacionDetalleRepository { get; }
         IProveedorPEspecificoRepository ProveedorPEspecificoRepository { get; }
+        IReporteDashboardRepository ReporteDashboardRepository { get; }
+        IWhatsAppMensajeEnviadoApiAtcRepository WhatsAppMensajeEnviadoApiAtcRepository { get; }
+        IFacebookResenaRepository FacebookResenaRepository { get; }
+        IGoogleResenaRepository GoogleResenaRepository { get; }
+        IGooglePlacesConfiguracionRepository GooglePlacesConfiguracionRepository { get; }
+        IGooglePlacesCredencialApiRepository GooglePlacesCredencialApiRepository { get; }
+        ILinkedinResenaRepository LinkedinResenaRepository { get; }
+        IComputrabajoConfiguracionRepository ComputrabajoConfiguracionRepository { get; }
+        IComputrabajoResenaRepository ComputrabajoResenaRepository { get; }
+        IGlassdoorConfiguracionRepository GlassdoorConfiguracionRepository { get; }
+        IGlassdoorResenaRepository GlassdoorResenaRepository { get; }
+        IFacebookConfiguracionRepository FacebookConfiguracionRepository { get; }
+        ILinkedinConfiguracionRepository LinkedinConfiguracionRepository { get; }
+        IModeloPredictivoProbabilidadEscalonadoRepository ModeloPredictivoProbabilidadEscalonadoRepository { get; }
     }
 }
