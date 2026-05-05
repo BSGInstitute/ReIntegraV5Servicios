@@ -110,8 +110,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 }
                 //fin limpia el \t
                 var serializedResult = Serializer.Serialize(objetoWhatsAppHook);
-                //string url = $"https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphComercial";
-                string url = $"https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphComercial";
+                string url = $"https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphComercial";
+                //string url = $"https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphComercial";
 
                 RespuestaMensajeWhatsappDTO respuesta = new RespuestaMensajeWhatsappDTO();
                 try
