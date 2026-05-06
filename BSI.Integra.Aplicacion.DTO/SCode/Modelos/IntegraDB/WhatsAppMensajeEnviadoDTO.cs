@@ -143,6 +143,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     {
         public string Numero { get; set; }
         public int Tipo { get; set; }
+        public int Esbot { get;  set; }
         public int IdPais { get; set; }
         public string Mensaje { get; set; }
         public int? IdPersonal { get; set; }

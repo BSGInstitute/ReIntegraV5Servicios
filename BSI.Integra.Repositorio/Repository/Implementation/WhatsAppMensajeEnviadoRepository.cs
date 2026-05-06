@@ -744,6 +744,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         query = @$"SELECT	DISTINCT
                                 		Numero
                                 		,Tipo
+                                        ,Esbot
                                 		,Mensaje
                                 		,IdPersonal
                                 		,IdAlumno
@@ -759,6 +760,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                 		resultado.WaId
                                 		,Numero
                                 		,Tipo
+                                        ,Esbot
                                 		,Mensaje
                                 		,IdPersonal
                                 		,ISNULL(IdAlumno, 0)	IdAlumno
@@ -801,6 +803,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                 GROUP BY
                                 	Numero
                                 	,Tipo
+                                    ,Esbot
                                 	,Mensaje
                                 	,IdPersonal
                                 	,IdAlumno
