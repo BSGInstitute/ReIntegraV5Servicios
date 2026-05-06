@@ -369,6 +369,30 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
         }
 
+        public PagedResponseDTO<ChatbotHiloChatPorSegmentoPaginadoDTO> ObtenerHilosChatPorSegmentoPaginado(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize)
+        {
+            try
+            {
+                var items = _unitOfWork.ChatDetalleIntegraRepository
+                    .ObtenerHilosChatPorSegmentoPaginado(fechaInicio, fechaFin, pageNumber, pageSize)
+                    .ToList();
+
+                var totalCount = items.FirstOrDefault()?.TotalCount ?? 0;
+
+                return new PagedResponseDTO<ChatbotHiloChatPorSegmentoPaginadoDTO>
+                {
+                    Items      = items,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize   = pageSize
+                };
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// Autor: Jose Vega
         /// Fecha: 24/10/2025
         /// Versión: 1.0
@@ -582,6 +606,36 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                         request.IdAlumno,
                         request.FechaInicio.Value,
                         request.FechaFin.Value,
+                        request.PageNumber,
+                        request.PageSize)
+                    .ToList();
+
+                var totalCount = items.FirstOrDefault()?.TotalCount ?? 0;
+
+                return new PagedResponseDTO<HiloChatPaginadoDTO>
+                {
+                    Items      = items,
+                    TotalCount = totalCount,
+                    PageNumber = request.PageNumber,
+                    PageSize   = request.PageSize
+                };
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public PagedResponseDTO<HiloChatPaginadoDTO> ObtenerHilosPaginadosPorSegmento(
+            ObtenerHilosPaginadosPorSegmentoRequestDTO request)
+        {
+            try
+            {
+                var items = _unitOfWork.ChatDetalleIntegraRepository
+                    .ObtenerHilosPaginadosPorSegmento(
+                        request.IdContactoPortalSegmento,
+                        request.FechaInicio,
+                        request.FechaFin,
                         request.PageNumber,
                         request.PageSize)
                     .ToList();

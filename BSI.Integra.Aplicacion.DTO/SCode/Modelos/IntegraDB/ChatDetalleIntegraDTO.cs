@@ -374,6 +374,38 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int PageSize { get; set; } = 10;
     }
 
+    public class ObtenerHilosPorSegmentoPaginadosRequestDTO
+    {
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaFin { get; set; }
+        public int PageNumber { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+    }
+
+    public class ObtenerHilosPaginadosPorSegmentoRequestDTO
+    {
+        [Required]
+        public string IdContactoPortalSegmento { get; set; }
+
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaFin { get; set; }
+
+        public int PageNumber { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+    }
+
+    public class ChatbotHiloChatPorSegmentoPaginadoDTO
+    {
+        public string IdContactoPortalSegmento { get; set; }
+        public int? CodigoAreaDerivacion { get; set; }
+        public bool Derivado { get; set; }
+        public int TotalChats { get; set; }
+        public int PendientesCalificacion { get; set; }
+        public DateTime FechaUltimoChat { get; set; }
+        /// <summary>Total de segmentos únicos (viene del SP); se usa para calcular la paginación.</summary>
+        public int TotalCount { get; set; }
+    }
+
     public class HiloChatPaginadoDTO
     {
         public int IdHilo { get; set; }

@@ -493,6 +493,33 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        public IEnumerable<ChatbotHiloChatPorSegmentoPaginadoDTO> ObtenerHilosChatPorSegmentoPaginado(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize)
+        {
+            try
+            {
+                List<ChatbotHiloChatPorSegmentoPaginadoDTO> rpta = new List<ChatbotHiloChatPorSegmentoPaginadoDTO>();
+                var query = @"ia.SP_ChatbotPortalHiloChat_ObtenerSegmentosSinAlumnoPaginado";
+
+                var resultado = _dapperRepository.QuerySPDapper(query, new
+                {
+                    FechaInicio = fechaInicio,
+                    FechaFin    = fechaFin,
+                    PageNumber  = pageNumber,
+                    PageSize    = pageSize
+                });
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ChatbotHiloChatPorSegmentoPaginadoDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// Autor: Jose Vega
         /// Fecha: 23/10/2025
         /// Versión: 1.0
@@ -731,6 +758,32 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     FechaFin    = fechaFin,
                     PageNumber = pageNumber,
                     PageSize   = pageSize
+                });
+
+                if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
+                    return Enumerable.Empty<HiloChatPaginadoDTO>();
+
+                return JsonConvert.DeserializeObject<List<HiloChatPaginadoDTO>>(resultado);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<HiloChatPaginadoDTO> ObtenerHilosPaginadosPorSegmento(
+            string idContactoPortalSegmento, DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize)
+        {
+            try
+            {
+                var query = "ia.SP_ObtenerHilosPaginadosPorSegmento";
+                var resultado = _dapperRepository.QuerySPDapper(query, new
+                {
+                    IdContactoPortalSegmento = idContactoPortalSegmento,
+                    FechaInicio              = fechaInicio,
+                    FechaFin                 = fechaFin,
+                    PageNumber               = pageNumber,
+                    PageSize                 = pageSize
                 });
 
                 if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
