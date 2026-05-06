@@ -7,7 +7,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing
     // ---------------------------------------------------------------------------
     // Historial de Oportunidades por Alumno — DTO de respuesta del SP
     // mkt.SP_OportunidadHistorialPorAlumno
-    // Autor: develop-mvaldiviac | Fecha: 2026-05-05
+    // Autor: Miguel Valdivia | Fecha: 2026-05-05
     // ---------------------------------------------------------------------------
 
     /// <summary>
@@ -26,7 +26,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing
 
     // ---------------------------------------------------------------------------
     // Calificacion Batch V2 — DTOs de request (perfil_lead + historial_oportunidades)
-    // Autor: develop-mvaldiviac | Fecha: 2026-05-05
+    // Autor: Miguel Valdivia  | Fecha: 2026-05-05
     // ---------------------------------------------------------------------------
 
     public class CalificacionBatchV2RequestDTO
@@ -88,7 +88,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing
 
     // ---------------------------------------------------------------------------
     // Extraccion Batch — DTOs de request para api-ia.bsginstitute.com
-    // Autor: develop-mvaldiviac | Fecha: 2026-05-04
+    // Autor: Miguel Valdivia  | Fecha: 2026-05-04
     // ---------------------------------------------------------------------------
 
     // ---------------------------------------------------------------------------

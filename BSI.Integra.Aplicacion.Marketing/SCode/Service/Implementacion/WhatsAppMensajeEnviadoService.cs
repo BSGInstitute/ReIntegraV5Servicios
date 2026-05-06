@@ -1964,7 +1964,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
 
         // ---------------------------------------------------------------------------
         // Modal Masivo — IA batch (proxy hacia ia-asistente-marketing-whatsapp-api.bsginstitute.com)
-        // Autor: develop-mvaldiviac | Fecha: 2026-05-04
+        // Autor: Miguel Valdivia  | Fecha: 2026-05-04
         // ---------------------------------------------------------------------------
 
         private const string IA_MASIVO_BASE = "http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/testing";

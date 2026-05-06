@@ -2515,7 +2515,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        /// Autor: develop-mvaldiviac
+        /// Autor: Miguel Valdivia 
         /// Fecha: 2026-05-05
         /// Versión: 1.0
         /// <summary>

@@ -33,7 +33,7 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.WhatsApp
             return Ok();
         }
 
-        /// Autor: develop-mvaldiviac
+        /// Autor: Miguel Valdivia 
         /// Fecha: 2026-05-05
         /// Versión: 1.0
         /// <summary>
@@ -56,7 +56,7 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.WhatsApp
             }
         }
 
-        /// Autor: develop-mvaldiviac
+        /// Autor: Miguel Valdivia 
         /// Fecha: 2026-05-05
         /// Versión: 1.0
         /// <summary>
@@ -78,7 +78,7 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.WhatsApp
             }
         }
 
-        /// Autor: develop-mvaldiviac
+        /// Autor: Miguel Valdivia 
         /// Fecha: 2026-05-05
         /// Versión: 1.0
         /// <summary>
@@ -100,7 +100,7 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.WhatsApp
             }
         }
 
-        /// Autor: develop-mvaldiviac
+        /// Autor: Miguel Valdivia 
         /// Fecha: 2026-05-05
         /// Versión: 1.0
         /// <summary>

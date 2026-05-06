@@ -1788,10 +1788,10 @@ namespace BSI.Integra.Servicios.Controllers
 
         // -------------------------------------------------------
         // Modal Masivo Oportunidades WhatsApp
-        // Autor: develop-mvaldiviac | Fecha: 2026-04-24
+        // Autor: Miguel Valdivia  | Fecha: 2026-04-24
         // -------------------------------------------------------
 
-        /// Autor: develop-mvaldiviac
+        /// Autor: Miguel Valdivia 
         /// Fecha: 2026-04-24
         /// Versión: 1.0
         /// <summary>
@@ -1817,7 +1817,7 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
-        /// Autor: develop-mvaldiviac
+        /// Autor: Miguel Valdivia 
         /// Fecha: 2026-04-24
         /// Versión: 1.0
         /// <summary>
@@ -1843,7 +1843,7 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
-        /// Autor: develop-mvaldiviac
+        /// Autor: Miguel Valdivia 
         /// Fecha: 2026-04-24
         /// Versión: 1.0
         /// <summary>
@@ -1894,7 +1894,7 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
-        /// Autor: develop-mvaldiviac
+        /// Autor: Miguel Valdivia 
         /// Fecha: 2026-05-04
         /// Versión: 1.0
         /// <summary>
@@ -1916,7 +1916,7 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
-        /// Autor: develop-mvaldiviac
+        /// Autor: Miguel Valdivia 
         /// Fecha: 2026-05-04
         /// Versión: 1.0
         /// <summary>
@@ -1938,7 +1938,7 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
-        /// Autor: develop-mvaldiviac
+        /// Autor: Miguel Valdivia 
         /// Fecha: 2026-05-04
         /// Versión: 1.0
         /// <summary>
@@ -1960,7 +1960,7 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
-        /// Autor: develop-mvaldiviac
+        /// Autor: Miguel Valdivia 
         /// Fecha: 2026-05-04
         /// Versión: 1.0
         /// <summary>
@@ -1982,7 +1982,7 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
-        /// Autor: develop-mvaldiviac
+        /// Autor: Miguel Valdivia 
         /// Fecha: 2026-05-04
         /// Versión: 1.0
         /// <summary>
