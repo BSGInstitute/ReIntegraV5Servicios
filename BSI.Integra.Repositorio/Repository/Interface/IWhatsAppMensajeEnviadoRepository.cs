@@ -1,5 +1,7 @@
 ﻿using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using Newtonsoft.Json;
@@ -79,7 +81,11 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public string ObtenerRangoProbabilidadAlumno(int idAlumno);
         public List<MensajeExtraccionRegistroDTO> ObtenerChatWhatsAppMarketingPorCelularRangoFecha(string celularAlumno, DateTime fechaInicio, DateTime fechaFin);
 
+        // Modal Masivo Oportunidades WhatsApp
+        List<MensajeChatMasivoDTO> ObtenerMensajes48hPorCelular(string celularWhatsApp);
 
+        // Historial de oportunidades por alumno (para calificacion IA V2)
+        List<HistorialOportunidadMasivoDTO> ObtenerHistorialOportunidadesPorAlumno(int idAlumno);
     }
 
 }

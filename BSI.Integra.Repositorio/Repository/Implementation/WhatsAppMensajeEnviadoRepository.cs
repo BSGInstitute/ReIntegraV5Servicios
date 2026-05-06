@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -2021,7 +2023,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 ObtenerAtributosAlumnoDTO ObtenerAtributosAlumno = new ObtenerAtributosAlumnoDTO();
                 var query = string.Empty;
-                query = @"SELECT 
+                query = @"SELECT
 	                        ALU.Id,
 	                        ALU.Nombre1,
 	                        ALU.Nombre2,
@@ -2039,7 +2041,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                        COALESCE(ALU.IdCargo, 0) AS IdCargo,
                             COALESCE(ALU.IdTamanioEmpresaAgenda, 0) AS IdTamanioEmpresaAgenda,
 	                        COALESCE(Desuscrito.Estado, 0) AS Desuscrito,
-	                        COALESCE(Archivado.Estado, 0) AS Archivado
+	                        COALESCE(Archivado.Estado, 0) AS Archivado,
+                            COALESCE(ALU.IdCodigoPais, 0) AS IdCodigoPais
                         FROM mkt.T_Alumno AS ALU
                         OUTER APPLY (
 	                        SELECT TOP 1 WD.Estado
@@ -2477,6 +2480,87 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 }
 
                 return ChatsWhatsAppMarketing;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        /// Autor: Miguel Valdivia
+        /// Fecha: 2026-04-27
+        /// Versión: 2.1
+        /// <summary>
+        /// Retorna los mensajes recientes para un celular dado,
+        /// invocando el SP mkt.SP_WhatsAppMensajeObtenerRecientesPorCelular.
+        /// Columnas devueltas: TipoMensaje, WaType, Mensaje, Archivo, NombreArchivo, FechaMensaje, PersonalFiltrado.
+        /// </summary>
+        public List<MensajeChatMasivoDTO> ObtenerMensajes48hPorCelular(string celularWhatsApp)
+
+        {
+            try
+            {
+                var query = "EXEC mkt.SP_WhatsAppMensajeObtenerRecientesPorCelular @CelularWhatsApp";
+                var respuesta = _dapperRepository.QueryDapper(query, new { CelularWhatsApp = celularWhatsApp });
+                if (!string.IsNullOrEmpty(respuesta) && !respuesta.Contains("[]"))
+                {
+                    var mensajes = JsonConvert.DeserializeObject<List<MensajeChatMasivoDTO>>(respuesta) ?? new List<MensajeChatMasivoDTO>();
+                    return mensajes.OrderBy(m => m.FechaMensaje).ToList();
+                }
+                return new List<MensajeChatMasivoDTO>();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        /// Autor: develop-mvaldiviac
+        /// Fecha: 2026-05-05
+        /// Versión: 1.0
+        /// <summary>
+        /// Retorna el historial de oportunidades de un alumno,
+        /// ejecutando la consulta directamente.
+        /// Columnas: IdOportunidad, FaseOportunidad, FaseMaxima, NombrePrograma, FechaSolicitud, Asesor.
+        /// </summary>
+        public List<HistorialOportunidadMasivoDTO> ObtenerHistorialOportunidadesPorAlumno(int idAlumno)
+        {
+            try
+            {
+                string query = @"
+            SELECT
+                O.Id                                AS IdOportunidad,
+                O.IdAlumno                          AS IdAlumno,
+                FO_Actual.Codigo                    AS FaseOportunidad,
+                FO_Maxima.Codigo                    AS FaseMaxima,
+                PG.Nombre                           AS NombrePrograma,
+                O.FechaRegistroCampania             AS FechaSolicitud,
+                CONCAT(P.Nombres, ' ', P.Apellidos) AS Asesor
+            FROM com.T_Oportunidad O
+                INNER JOIN gp.T_Personal P 
+                    ON O.IdPersonal_Asignado = P.Id
+                INNER JOIN pla.T_FaseOportunidad FO_Actual 
+                    ON FO_Actual.Id = O.IdFaseOportunidad
+                INNER JOIN pla.T_FaseOportunidad FO_Maxima 
+                    ON FO_Maxima.Id = O.IdFaseOportunidad_Maxima
+                INNER JOIN pla.T_CentroCosto CC 
+                    ON O.IdCentroCosto = CC.Id
+                INNER JOIN pla.T_PEspecifico PE 
+                    ON CC.Id = PE.IdCentroCosto
+                    AND PE.Estado = 1
+                INNER JOIN pla.T_PGeneral PG 
+                    ON PE.IdProgramaGeneral = PG.Id
+            WHERE
+                O.Estado = 1
+                AND O.IdPersonalAreaTrabajo = 8
+                AND O.IdAlumno = @IdAlumno;";
+
+                var respuesta = _dapperRepository.QueryDapper(query, new { IdAlumno = idAlumno });
+                if (!string.IsNullOrEmpty(respuesta) && !respuesta.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<List<HistorialOportunidadMasivoDTO>>(respuesta) ?? new List<HistorialOportunidadMasivoDTO>();
+                }
+                return new List<HistorialOportunidadMasivoDTO>();
             }
             catch (Exception e)
             {
