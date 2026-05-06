@@ -1,4 +1,4 @@
-using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.Planificacion.Service.Implementacion;
 using BSI.Integra.Aplicacion.Planificacion.Service.Interface;
 using BSI.Integra.Repositorio.UnitOfWork;
@@ -30,16 +30,16 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// </summary>
         /// <param name="anio">Anio para filtrar (opcional)</param>
         /// <param name="idProgramaEspecificoPadre">Id del programa especifico padre (opcional)</param>
-        /// <param name="centroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <param name="idCentroCostoPadre">Centro de costo padre (opcional)</param>
         /// <returns>ReporteDashboardResumenDTO con los KPIs</returns>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerResumen(int? anio, int? idProgramaEspecificoPadre, string? centroCostoPadre)
+        public async Task<IActionResult> ObtenerResumen(int? anio, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerResumenAsync(anio, idProgramaEspecificoPadre, centroCostoPadre);
+                var resultado = await service.ObtenerResumenAsync(anio, idProgramaEspecificoPadre, idCentroCostoPadre);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -53,16 +53,16 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// </summary>
         /// <param name="anio">Anio para filtrar (opcional)</param>
         /// <param name="idProgramaEspecificoPadre">Id del programa especifico padre (opcional)</param>
-        /// <param name="centroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <param name="idCentroCostoPadre">Centro de costo padre (opcional)</param>
         /// <returns>Lista de ReporteDashboardEstadoDTO</returns>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerResumenPorEstado(int? anio, int? idProgramaEspecificoPadre, string? centroCostoPadre)
+        public async Task<IActionResult> ObtenerResumenPorEstado(int? anio, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerResumenPorEstadoAsync(anio, idProgramaEspecificoPadre, centroCostoPadre);
+                var resultado = await service.ObtenerResumenPorEstadoAsync(anio, idProgramaEspecificoPadre, idCentroCostoPadre);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -77,16 +77,16 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <param name="anio">Anio para filtrar (opcional)</param>
         /// <param name="estado">Estado para filtrar (opcional)</param>
         /// <param name="idProgramaEspecificoPadre">Id del programa especifico padre (opcional)</param>
-        /// <param name="centroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <param name="idCentroCostoPadre">Centro de costo padre (opcional)</param>
         /// <returns>Lista de ReporteDashboardModalidadDTO</returns>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerResumenPorModalidad(int? anio, string? estado, int? idProgramaEspecificoPadre, string? centroCostoPadre)
+        public async Task<IActionResult> ObtenerResumenPorModalidad(int? anio, string? estado, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerResumenPorModalidadAsync(anio, estado, idProgramaEspecificoPadre, centroCostoPadre);
+                var resultado = await service.ObtenerResumenPorModalidadAsync(anio, estado, idProgramaEspecificoPadre, idCentroCostoPadre);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -104,16 +104,16 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <param name="fechaFin">Fecha fin para filtrar (opcional)</param>
         /// <param name="modalidad">Modalidad para filtrar (opcional)</param>
         /// <param name="idProgramaEspecificoPadre">Id del programa especifico padre (opcional)</param>
-        /// <param name="centroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <param name="idCentroCostoPadre">Centro de costo padre (opcional)</param>
         /// <returns>Lista de ReporteDashboardProgramaDTO</returns>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerProgramasPorEstado(string? estado, int? anio, DateTime? fechaInicio, DateTime? fechaFin, string? modalidad, int? idProgramaEspecificoPadre, string? centroCostoPadre)
+        public async Task<IActionResult> ObtenerProgramasPorEstado(string? estado, int? anio, DateTime? fechaInicio, DateTime? fechaFin, string? modalidad, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerProgramasPorEstadoAsync(estado, anio, fechaInicio, fechaFin, modalidad, idProgramaEspecificoPadre, centroCostoPadre);
+                var resultado = await service.ObtenerProgramasPorEstadoAsync(estado, anio, fechaInicio, fechaFin, modalidad, idProgramaEspecificoPadre, idCentroCostoPadre);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -130,16 +130,16 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <param name="fechaFin">Fecha fin (opcional)</param>
         /// <param name="idProgramaPadre">Id del programa padre (opcional)</param>
         /// <param name="anio">Anio para filtrar (opcional)</param>
-        /// <param name="centroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <param name="idCentroCostoPadre">Centro de costo padre (opcional)</param>
         /// <returns>Lista de ReporteDashboardCursoDTO</returns>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerDetalleCursos(DateTime? fecha, DateTime? fechaInicio, DateTime? fechaFin, int? idProgramaPadre, int? anio, string? centroCostoPadre)
+        public async Task<IActionResult> ObtenerDetalleCursos(DateTime? fecha, DateTime? fechaInicio, DateTime? fechaFin, int? idProgramaPadre, int? anio, int? idCentroCostoPadre)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerDetalleCursosAsync(fecha, fechaInicio, fechaFin, idProgramaPadre, anio, centroCostoPadre);
+                var resultado = await service.ObtenerDetalleCursosAsync(fecha, fechaInicio, fechaFin, idProgramaPadre, anio, idCentroCostoPadre);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -156,16 +156,16 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <param name="estado">Estado para filtrar (opcional)</param>
         /// <param name="soloActivos">Solo docentes activos (opcional, default false)</param>
         /// <param name="idProgramaEspecificoPadre">Id del programa especifico padre (opcional)</param>
-        /// <param name="centroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <param name="idCentroCostoPadre">Centro de costo padre (opcional)</param>
         /// <returns>Lista de ReporteDashboardDocenteDTO</returns>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerDocentesAsignados(int? anio, int? idDocente, string? estado, bool soloActivos = false, int? idProgramaEspecificoPadre = null, string? centroCostoPadre = null)
+        public async Task<IActionResult> ObtenerDocentesAsignados(int? anio, int? idDocente, string? estado, bool soloActivos = false, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerDocentesAsignadosAsync(anio, idDocente, estado, soloActivos, idProgramaEspecificoPadre, centroCostoPadre);
+                var resultado = await service.ObtenerDocentesAsignadosAsync(anio, idDocente, estado, soloActivos, idProgramaEspecificoPadre, idCentroCostoPadre);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -179,16 +179,16 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// </summary>
         /// <param name="anio">Anio para filtrar (opcional)</param>
         /// <param name="idProgramaEspecificoPadre">Id del programa especifico padre (opcional)</param>
-        /// <param name="centroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <param name="idCentroCostoPadre">Centro de costo padre (opcional)</param>
         /// <returns>Lista de ReporteDashboardGraficoPorMesDTO</returns>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerGraficoPorMes(int? anio, int? idProgramaEspecificoPadre, string? centroCostoPadre)
+        public async Task<IActionResult> ObtenerGraficoPorMes(int? anio, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerGraficoPorMesAsync(anio, idProgramaEspecificoPadre, centroCostoPadre);
+                var resultado = await service.ObtenerGraficoPorMesAsync(anio, idProgramaEspecificoPadre, idCentroCostoPadre);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -248,16 +248,16 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <param name="mesInicio">Mes inicio para filtrar (opcional)</param>
         /// <param name="mesFin">Mes fin para filtrar (opcional)</param>
         /// <param name="idProgramaEspecificoPadre">Id del programa especifico padre (opcional)</param>
-        /// <param name="centroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <param name="idCentroCostoPadre">Centro de costo padre (opcional)</param>
         /// <returns>Lista de ReporteDashboardSemanalDTO</returns>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerResumenSemanal(int? anio, int? mesInicio, int? mesFin, int? idProgramaEspecificoPadre, string? centroCostoPadre)
+        public async Task<IActionResult> ObtenerResumenSemanal(int? anio, int? mesInicio, int? mesFin, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerResumenSemanalAsync(anio, mesInicio, mesFin, idProgramaEspecificoPadre, centroCostoPadre);
+                var resultado = await service.ObtenerResumenSemanalAsync(anio, mesInicio, mesFin, idProgramaEspecificoPadre, idCentroCostoPadre);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -296,16 +296,16 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// </summary>
         /// <param name="anio">Anio para filtrar (opcional)</param>
         /// <param name="idProgramaEspecificoPadre">Id del programa especifico padre (opcional)</param>
-        /// <param name="centroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <param name="idCentroCostoPadre">Centro de costo padre (opcional)</param>
         /// <returns>Lista de ReporteDashboardEstadoSesionDTO</returns>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerResumenPorEstadoSesion(int? anio, int? idProgramaEspecificoPadre, string? centroCostoPadre)
+        public async Task<IActionResult> ObtenerResumenPorEstadoSesion(int? anio, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerResumenPorEstadoSesionAsync(anio, idProgramaEspecificoPadre, centroCostoPadre);
+                var resultado = await service.ObtenerResumenPorEstadoSesionAsync(anio, idProgramaEspecificoPadre, idCentroCostoPadre);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -320,16 +320,16 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <param name="anio">Anio para filtrar (opcional)</param>
         /// <param name="idEstadoSesion">Id del estado de sesion (opcional)</param>
         /// <param name="idProgramaEspecificoPadre">Id del programa especifico padre (opcional)</param>
-        /// <param name="centroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <param name="idCentroCostoPadre">Centro de costo padre (opcional)</param>
         /// <returns>Lista de ReporteDashboardSesionDetalleDTO</returns>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerSesionesPorEstado(int? anio, int? idEstadoSesion, int? idProgramaEspecificoPadre, string? centroCostoPadre)
+        public async Task<IActionResult> ObtenerSesionesPorEstado(int? anio, int? idEstadoSesion, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerSesionesPorEstadoAsync(anio, idEstadoSesion, idProgramaEspecificoPadre, centroCostoPadre);
+                var resultado = await service.ObtenerSesionesPorEstadoAsync(anio, idEstadoSesion, idProgramaEspecificoPadre, idCentroCostoPadre);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -343,16 +343,16 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// </summary>
         /// <param name="anio">Anio para filtrar (opcional)</param>
         /// <param name="idProgramaEspecificoPadre">Id del programa especifico padre (opcional)</param>
-        /// <param name="centroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <param name="idCentroCostoPadre">Centro de costo padre (opcional)</param>
         /// <returns>Lista de ReporteDashboardEvolucionEstadoSesionDTO</returns>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerEvolucionEstadoSesion(int? anio, int? idProgramaEspecificoPadre, string? centroCostoPadre)
+        public async Task<IActionResult> ObtenerEvolucionEstadoSesion(int? anio, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerEvolucionEstadoSesionAsync(anio, idProgramaEspecificoPadre, centroCostoPadre);
+                var resultado = await service.ObtenerEvolucionEstadoSesionAsync(anio, idProgramaEspecificoPadre, idCentroCostoPadre);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -366,16 +366,16 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// </summary>
         /// <param name="anio">Anio para filtrar (opcional)</param>
         /// <param name="idProgramaEspecificoPadre">Id del programa especifico padre (opcional)</param>
-        /// <param name="centroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <param name="idCentroCostoPadre">Centro de costo padre (opcional)</param>
         /// <returns>ReporteDashboardKPIsEstadoSesionDTO</returns>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerKPIsEstadoSesion(int? anio, int? idProgramaEspecificoPadre, string? centroCostoPadre)
+        public async Task<IActionResult> ObtenerKPIsEstadoSesion(int? anio, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerKPIsEstadoSesionAsync(anio, idProgramaEspecificoPadre, centroCostoPadre);
+                var resultado = await service.ObtenerKPIsEstadoSesionAsync(anio, idProgramaEspecificoPadre, idCentroCostoPadre);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -441,7 +441,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             DateTime? fechaFin,
             int? idProgramaPadre,
             int? anio,
-            string? centroCostoPadre,
+            int? idCentroCostoPadre,
             string? modalidadClasificada,
             int? semanaInicio,
             int? semanaFin)
@@ -449,7 +449,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerDetalleCursosV3Async(fecha, fechaInicio, fechaFin, idProgramaPadre, anio, centroCostoPadre, modalidadClasificada, semanaInicio, semanaFin);
+                var resultado = await service.ObtenerDetalleCursosV3Async(fecha, fechaInicio, fechaFin, idProgramaPadre, anio, idCentroCostoPadre, modalidadClasificada, semanaInicio, semanaFin);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -522,6 +522,25 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         }
 
         /// <summary>
+        /// Retorna programas especificos donde el docente (idProveedor) tiene sesiones asignadas
+        /// </summary>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerPEspecificoPorDocente(int idProveedor)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerPEspecificoPorDocenteAsync(idProveedor);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Retorna seguimiento de sesiones de un docente (KPIs + resumen por programa + detalle sesiones)
         /// </summary>
         [Route("[action]")]
@@ -541,16 +560,16 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         }
 
         /// <summary>
-        /// Retorna notas de alumnos por programa: RS1 resumen por criterio (para grafico), RS2 detalle alumno x criterio
+        /// Retorna notas de alumnos calculadas (Tareas/Asistencia/PromedioFinal) por PEspecifico
         /// </summary>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerNotasAlumnosPorPrograma(int? idPEspecifico)
+        public async Task<IActionResult> ObtenerNotasPorPEspecifico(int idPEspecifico, int grupo = 1)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerNotasAlumnosPorProgramaAsync(idPEspecifico);
+                var resultado = await service.ObtenerNotasPorPEspecificoAsync(idPEspecifico, grupo);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -558,5 +577,25 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 throw;
             }
         }
+
+        /// <summary>
+        /// Obtiene FURs del area 19, tipo PO, estados 3 y 5 para Dashboard 3
+        /// </summary>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerFursDashboard3()
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerFursDashboard3Async();
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }

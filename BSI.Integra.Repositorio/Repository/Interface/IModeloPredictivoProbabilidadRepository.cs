@@ -1,5 +1,6 @@
 ﻿using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using System;
@@ -21,6 +22,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<TModeloPredictivoProbabilidad> Update(IEnumerable<ModeloPredictivoProbabilidad> listadoEntidad);
         bool Delete(IEnumerable<int> listadoIds, string usuario);
         #endregion
-      
+
+        ColorPerfilProgramaV2DTO ObtenerProgramaYProbabilidad(int idOportunidad);
+        AnalisisProgramasAlumnoDTO ObtenerAnalisisProgramasAlumno(int idOportunidad);
     }
 }

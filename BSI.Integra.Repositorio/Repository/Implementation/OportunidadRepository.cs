@@ -3700,6 +3700,25 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(ex.Message);
             }
         }
+        public OportunidadATCDTO ObtenerDatosOportunidadATCAlumno(int idAlumno,int idPersonal)
+        {
+            try
+            {
+                string _queryOportunidad = @"SELECT
+                                                Id AS IdOportunidad
+                                            FROM
+                                                COM.T_Oportunidad
+                                                            WHERE
+                                                IdAlumno = @IdAlumno and IdPersonalAreaTrabajo=3 and IdPersonal_Asignado=@IdPersonal and estado=1;";
+                var queryOportunidad = _dapperRepository.FirstOrDefault(_queryOportunidad, new { IdAlumno = idAlumno, IdPersonal = idPersonal });
+                var Oportunidad = JsonConvert.DeserializeObject<OportunidadATCDTO>(queryOportunidad);
+                return Oportunidad;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
         /// Autor: Gilmer Qm
         /// Fecha: 15/03/2023
         /// <summary>

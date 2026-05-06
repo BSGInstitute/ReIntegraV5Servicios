@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Persistencia.Entidades.IntegraDB.Planificacion;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -192,6 +193,92 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+
+        /// Autor: Jose Vega
+        /// Fecha: 12/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene Programa y Probabilidad de Inscripcion por idOportunidad
+        /// </summary>
+        /// <param name="idOportunidad">Id de Oportunidad</param>
+        /// <returns> ColorPerfilProgramaDTO </returns>
+        public ColorPerfilProgramaV2DTO ObtenerProgramaYProbabilidad(int idOportunidad)
+        {
+            try
+            {
+                string query = "EXEC mkt.SP_ModeloPredictivoProbabilidadObtenerPrograma @IdOportunidad = @IdOportunidad";
+                var resultado = _dapperRepository.FirstOrDefault(query, new { IdOportunidad = idOportunidad });
+                if (!string.IsNullOrEmpty(resultado))
+                {
+                    return JsonConvert.DeserializeObject<ColorPerfilProgramaV2DTO>(resultado);
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 12/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene analisis de programas del alumno
+        /// </summary>
+        /// <param name="idOportunidad">Id de Oportunidad</param>
+        /// <returns> AnalisisProgramasAlumnoDTO </returns>
+        public AnalisisProgramasAlumnoDTO ObtenerAnalisisProgramasAlumno(int idOportunidad)
+        {
+            try
+            {
+                var response = new AnalisisProgramasAlumnoDTO();
+
+                string queryAlumno = "SELECT IdAlumno FROM com.T_Oportunidad WITH(NOLOCK) WHERE Id = @idOportunidad";
+                var idAlumnoStr = _dapperRepository.FirstOrDefault(queryAlumno, new { idOportunidad });
+
+                if (string.IsNullOrEmpty(idAlumnoStr)) return response;
+
+                var alumnoObj = JsonConvert.DeserializeObject<dynamic>(idAlumnoStr);
+                int idAlumno = alumnoObj.IdAlumno;
+
+                var jsonUltima = _dapperRepository.FirstOrDefault(
+                    "EXEC mkt.SP_ModeloPredictivoProbabilidadObtenerUltimaOportunidadAlumno @IdAlumno = @IdAlumno",
+                    new { IdAlumno = idAlumno }
+                );
+
+                if (!string.IsNullOrEmpty(jsonUltima))
+                {
+                    response.UltimaOportunidad = JsonConvert.DeserializeObject<ProgramaProbabilidadDTO>(jsonUltima);
+                }
+
+                var jsonMayor = _dapperRepository.QueryDapper(
+                    "EXEC mkt.SP_ModeloPredictivoProbabilidadObtenerMayorProbabilidadAlumno @IdAlumno = @IdAlumno",
+                    new { IdAlumno = idAlumno }
+                );
+
+                if (!string.IsNullOrEmpty(jsonMayor) && !jsonMayor.Contains("[]"))
+                {
+                    response.MayorProbabilidad = JsonConvert.DeserializeObject<List<ProgramaProbabilidadDTO>>(jsonMayor);
+                }
+
+                var jsonVenta = _dapperRepository.QueryDapper(
+                    "EXEC mkt.SP_ModeloPredictivoProbabilidadObtenerVentaCruzadaAlumno @IdAlumno = @IdAlumno",
+                    new { IdAlumno = idAlumno }
+                );
+
+                if (!string.IsNullOrEmpty(jsonVenta) && !jsonVenta.Contains("[]"))
+                {
+                    response.VentaCruzada = JsonConvert.DeserializeObject<List<ProgramaProbabilidadDTO>>(jsonVenta);
+                }
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
-     
+
 }

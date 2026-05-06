@@ -79,5 +79,24 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex);
             }
         }
+        /// TipoFuncion: POST
+        /// <summary>
+        /// Finaliza una conversacion activa de WhatsApp ATC cambiando su estado a CERRADA_ASESOR.
+        /// Busca el hilo por IdAlumno (primario) o WaTo (fallback).
+        /// </summary>
+        [Route("[action]")]
+        [HttpPost]
+        public async Task<IActionResult> FinalizarConversacionV2([FromBody] FinalizarConversacionDTO json)
+        {
+            try
+            {
+                var resultado = await _service.FinalizarConversacion(json, _tokenManager.UserName);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
     }
 }

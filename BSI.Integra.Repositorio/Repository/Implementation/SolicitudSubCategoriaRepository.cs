@@ -213,6 +213,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var comboDTOs = new List<ComboSubCategoriaDTO>();
                 var query = @"SELECT Id,Descripcion AS Nombre,IdSolicitudCategoria,DescripcionSolucion, Titulo
+
                                 FROM ope.T_SolicitudProblema 
                                 WHERE Estado =1";
                 var resultado = _dapperRepository.QueryDapper(query, null);
