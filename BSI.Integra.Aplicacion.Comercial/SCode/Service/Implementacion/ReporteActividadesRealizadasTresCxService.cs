@@ -3,6 +3,7 @@ using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using System.Linq;
 
 namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
@@ -869,6 +870,31 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             catch (Exception Ex)
             {
                 throw new Exception(Ex.Message);
+            }
+        }
+
+        public List<ProcesadoDataChatAsistenteVirtualDTO> ReporteChatAsistenteVirtual(ReporteChatAsistenteVirtualFiltrosDTO? filtro)
+        {
+            try
+            {
+
+                var filtroOrdenado = new ReporteChatAsistenteVirtualFiltroOrdenadoDTO();
+
+                if (filtro.Asesores.Count() > 0)
+                {
+                    filtroOrdenado.Asesores = string.Join(",", filtro.Asesores);
+                }
+
+                filtroOrdenado.FechaInicio = new DateTime(filtro.FechaInicio.Year, filtro.FechaInicio.Month, filtro.FechaInicio.Day, 0, 0, 0);
+                filtroOrdenado.FechaFin = new DateTime(filtro.FechaFin.Year, filtro.FechaFin.Month, filtro.FechaFin.Day, 23, 59, 59);
+                
+
+                var data = _unitOfWork.ReporteTresCxRepository.ReporteChatAsistenteVirtual(filtroOrdenado);
+                return data;
+            }
+            catch (Exception ex)
+            {
+                return null;
             }
         }
     }

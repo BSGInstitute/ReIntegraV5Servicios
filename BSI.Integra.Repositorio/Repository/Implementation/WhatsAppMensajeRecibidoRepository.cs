@@ -193,7 +193,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         public List<WhatsAppMensajesRecibidosOperacionesDTO> ObtenerMensajesRecibidosOperaciones(int idPersonal)
         {
             List<WhatsAppMensajesRecibidosOperacionesDTO> conversacion = new List<WhatsAppMensajesRecibidosOperacionesDTO>();
-            string query = "[ope].[SP_MensajesRecibidosWhatsAppOperacionesVersionTemp]";
+            string query = "[ope].[SP_MensajesRecibidosWhatsAppOperacionesVersionTemp_eliminar27042026]";
             var queryConversacion = _dapperRepository.QuerySPDapper(query, new { idPersonal });
             if (queryConversacion == null || queryConversacion == "")
             {

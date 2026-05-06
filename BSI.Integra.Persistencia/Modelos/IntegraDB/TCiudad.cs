@@ -7,7 +7,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TCiudad()
         {
+            TComputrabajoResenas = new HashSet<TComputrabajoResena>();
             TDocentePostulantes = new HashSet<TDocentePostulante>();
+            TGlassdoorResenas = new HashSet<TGlassdoorResena>();
         }
 
         /// <summary>
@@ -64,6 +66,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public int? IdMigracion { get; set; }
         public int? LongCelularAlterno { get; set; }
 
+        public virtual ICollection<TComputrabajoResena> TComputrabajoResenas { get; set; }
         public virtual ICollection<TDocentePostulante> TDocentePostulantes { get; set; }
+        public virtual ICollection<TGlassdoorResena> TGlassdoorResenas { get; set; }
     }
 }

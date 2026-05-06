@@ -683,7 +683,16 @@
         public int Id { get; set; }
     }
 
+    public class ActualizarAsignacionPaisAsesorDTO
+    {
+        public int IdAsignacionRegular { get; set; }
+        public string AsignacionPais { get; set; }
+    }
 
+    public class ObtenerAsignacionPaisAsesorDTO
+    {
+        public string AsignacionPais { get; set; }
+    }
 
 
 }

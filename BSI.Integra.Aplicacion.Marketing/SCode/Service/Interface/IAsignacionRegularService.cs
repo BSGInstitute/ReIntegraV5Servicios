@@ -50,6 +50,8 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Interface
         bool? InsertarCategoriaOrigenPorSector(int IdOrigenSector, ListaCategoriaOrigenDTO ListaCategoriaOrigen, String UsuarioCreacion);
         bool? AgruparCategoriaOrigen(bool Agrupar, int IdCategoriaOrigen, String UsuarioModificacion);
         bool? ActualizarPrioridad(int idAsignacionRegular, int Prioridad, String UsuarioModificacion);
+        bool? ActualizarAsignacionPaisAsesor(ActualizarAsignacionPaisAsesorDTO request, string usuarioModificacion);
+        ObtenerAsignacionPaisAsesorDTO ObtenerAsignacionPaisAsesor(int idAsignacionRegular);
 
     }
 

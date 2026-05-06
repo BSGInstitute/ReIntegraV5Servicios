@@ -7,10 +7,12 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Marketing.EsquemaRespuest
     {
         List<ChatbotActividadBotIAListadoDTO> ObtenerListadoChatbotActividadBotIA();
         List<ChatbotActividadBotIANumeroDTO>  ObtenerNumerosPorActividades();
+        List<MedioComunicacionDTO>            ObtenerListadoMedioComunicacion();
         int  InsertarChatbotActividadBotIA(InsertarChatbotActividadBotIADTO request, string usuario);
-        void InsertarChatbotActividadBotIANumero(int idChatbotActividadBotIA, int idAsistenteMarketingWhatsAppAsignacion, string usuario);
+        void InsertarChatbotActividadBotIANumero(int idChatbotActividadBotIA, int idAsistenteMarketingWhatsAppAsignacion, bool estado, string usuario);
         void EliminarChatbotActividadBotIANumeros(int idChatbotActividadBotIA, string usuario);
         void DesactivarNumerosWhatsAppDeActividad(int idChatbotActividadBotIA, string usuario);
+        void ReactivarNumerosWhatsAppDeActividad(int idChatbotActividadBotIA, string usuario);
         void ActualizarChatbotActividadBotIA(ActualizarChatbotActividadBotIADTO request, string usuario);
         void EliminarChatbotActividadBotIA(int idChatbotActividadBotIA, string usuario);
     }

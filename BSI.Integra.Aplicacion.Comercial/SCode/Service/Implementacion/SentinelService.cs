@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.Comercial.Service.Interface;
 using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.ExperianSentinel;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
-using BSI.Integra.Aplicacion.Servicios.Builder;
+using BSI.Integra.Aplicacion.Transversal.ExperianSentinel;
 using BSI.Integra.Aplicacion.Transversal.Service.Implementacion;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
-using SentinelServicio;
 
 namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
 {
@@ -21,6 +21,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
     {
         private IUnitOfWork _unitOfWork;
         private Mapper _mapper;
+
         public SentinelService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -370,38 +371,28 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         /// Fecha: 24/09/2022
         /// Version: 1.0
         /// <summary>
-        /// Consulta al servicio de Sentinel por DNI  del Alumno y guarda la informacion retornada
-        /// asociada al Id del Alumno en Integra
+        /// Consulta Experian Sentinel y procesa la respuesta para el alumno indicado.
+        /// Selecciona el proveedor activo (REST o SOAP) via SentinelTipoServicioConfig.
         /// </summary>
-        /// <param name="dni">dni de alumno</param>
-        /// <param name="usuario">usuario que genera la consulta</param>
-        /// <returns>ActualizarSentinelResultadoDTO</returns>
+        /// <param name="dni">DNI del alumno</param>
+        /// <param name="usuario">Usuario que genera la operación</param>
+        /// <returns>ActualizarSentinelResultadoDTO con los datos mapeados listos para persistir</returns>
         public ActualizarSentinelResultadoDTO ActualizarSentinelAlumno(string dni, string usuario)
         {
             try
             {
-                WS_BSGrupoSoapPortClient client = new WS_BSGrupoSoapPortClient();
+                var cliente = ExperianSentinelClientFactory.Crear(SentinelTipoServicioConfig.TipoActual, _unitOfWork);
+                var respuestaExperian = cliente.ConsultarAsync(dni, "D").GetAwaiter().GetResult();
 
-                SDT_IC_EstandarSDT_IC_EstandarItem[] sdt_bsgrupo_estandar;
-                SDT_IC_RepSBSSDT_IC_RepSBSItem[] sdt_bsgrupo_repsbs;
-                SDT_IC_LinCreItem[] sdt_bsgrupo_lincre;
-                SDT_IC_ResVenSDT_IC_ResVenItem[] sdt_bsgrupo_resven;
-                SDT_IC_InfGen sdt_bsgrupo_infgen;
-                SDT_IC_RepLegSDT_IC_RepLegItem[] sdt_bsgrupo_repleg;
-                SDT_IC_PosHisSDT_IC_PosHisItem[] sdt_bsgrupo_poshis;
-
-                //Consultamos al servicio de Sentinel//Antigua Contraseña:Empres@grup09
-                SentinelCredencialDTO sentinelCredencialDTO = _unitOfWork.SentinelRepository.ObtenerCredencial();
-                client.Execute(sentinelCredencialDTO.DNI, sentinelCredencialDTO.Clave, sentinelCredencialDTO.Servicio.Value, sentinelCredencialDTO.TipoDocumento, dni, out sdt_bsgrupo_estandar, out sdt_bsgrupo_repsbs,
-               out sdt_bsgrupo_lincre, out sdt_bsgrupo_resven, out sdt_bsgrupo_infgen, out sdt_bsgrupo_repleg, out sdt_bsgrupo_poshis);
-
-                var sdt_bsgrupo_estandar_dtos = BuilderOrquestaSentinel_SDT_BSGrupo_EstandarItemDTO.builderListEntityDTO(sdt_bsgrupo_estandar.ToList());
-                var sdt_bsgrupo_repsbs_dtos = BuilderOrquestaSentinel_SDT_BSGrupo_RepSBSItemDTO.builderListEntityDTO(sdt_bsgrupo_repsbs.ToList());
-                var sdt_bsgrupo_lincre_dtos = BuilderOrquestaSentinel_SDT_BSGrupo_LinCreItemDTO.builderListEntityDTO(sdt_bsgrupo_lincre.ToList());
-                var sdt_bsgrupo_resven_dtos = BuilderOrquestaSentinel_SDT_BSGrupo_ResVenItemDTO.builderListEntityDTO(sdt_bsgrupo_resven.ToList());
-                var sdt_bsgrupo_infgen_dto = BuilderOrquestaSentinel_SDT_BSGrupo_InfGenDTO.builderEntityDTO(sdt_bsgrupo_infgen);
-                var sdt_bsgrupo_repleg_dtos = BuilderOrquestaSentinel_SDT_BSGrupo_RepLegItemDTO.builderListEntityDTO(sdt_bsgrupo_repleg.ToList());
-                var sdt_bsgrupo_poshis_dtos = BuilderOrquestaSentinel_SDT_BSGrupo_PosHisItemDTO.builderListEntityDTO(sdt_bsgrupo_poshis.ToList());
+                // A partir de aqui el método opera sobre respuestaExperian
+                // independientemente de si vino de SOAP o REST.
+                var sdt_bsgrupo_estandar_dtos = respuestaExperian.Estandar;
+                var sdt_bsgrupo_repsbs_dtos   = respuestaExperian.RepSBS;
+                var sdt_bsgrupo_lincre_dtos   = respuestaExperian.LinCre;
+                var sdt_bsgrupo_resven_dtos   = respuestaExperian.ResVen;
+                var sdt_bsgrupo_infgen_dto    = respuestaExperian.InfGen;
+                var sdt_bsgrupo_repleg_dtos   = respuestaExperian.RepLeg;
+                var sdt_bsgrupo_poshis_dtos   = respuestaExperian.PosHis;
 
                 var dniRuc = new List<SentinelSdtEstandarItemDTO>();
                 var deuda = new List<SentinelSdtRepSbsitemDTO>();
@@ -734,12 +725,12 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         /// Fecha: 24/11/2022
         /// Version: 1.0
         /// <summary>
-        /// Actualiza sentinel del Alumno por medio de dni, idContacto y usuario
+        /// Consulta Experian Sentinel y persiste los datos para el alumno indicado por idContacto.
         /// </summary>
-        /// <param name="dni"></param>
-        /// <param name="idContacto"></param>
-        /// <param name="usuario"></param>
-        /// <returns></returns>
+        /// <param name="dni">DNI del alumno</param>
+        /// <param name="idContacto">Id del contacto/alumno en Integra</param>
+        /// <param name="usuario">Usuario que genera la operación</param>
+        /// <returns>SentinelRespuestaDTO con el resultado de la operación</returns>
         public SentinelRespuestaDTO ActualizarSentinelAlumno(string dni, int idContacto, string usuario)
         {
             try
@@ -867,6 +858,18 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 throw ex;
             }
         }
+        public async Task<ExperianSentinelRespuestaDTO> ConsultarExperianAsync(string tipo, string dni)
+        {
+            var cliente = ExperianSentinelClientFactory.Crear(tipo, _unitOfWork);
+            return await cliente.ConsultarAsync(dni, "D");
+        }
+
+        public async Task<object> ConsultarExperianAsyncCrudo(string tipo, string dni)
+        {
+            var cliente = ExperianSentinelClientFactory.Crear(tipo, _unitOfWork);
+            return await cliente.ConsultarAsyncCrudo(dni, "D");
+        }
+
         /// <summary>
         /// Obtiene codigo de matricula
         /// </summary>

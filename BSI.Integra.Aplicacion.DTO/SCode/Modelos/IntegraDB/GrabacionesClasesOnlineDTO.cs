@@ -110,4 +110,13 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB
         public string NumeroDia { get; set; }
     }
 
+    /// <summary>
+    /// DTO para el resultado del SP SP_PEspecificoUltimaSesionPorIdPEspecifico
+    /// </summary>
+    public class PEspecificoUltimaSesionDTO
+    {
+        public int Id { get; set; }
+        public DateTime? FechaHoraInicio { get; set; }
+    }
+
 }

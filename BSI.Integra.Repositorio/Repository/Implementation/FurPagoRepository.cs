@@ -183,8 +183,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         }
 
         /// Autor : Griselberto Huaman. 
-        /// Fecha: 20/09/2022
-        /// Version: 1.0
+        /// Fecha: 20/09/2022 
+        /// Autor Modificacion: Gilmer Qm
+        /// Fecha Modificacion: 29/04/2026
+        /// Descripcion Modificacion: Se sustituye select crudo por SP (Optimizacion)
+        /// Version: 2.0
         /// <summary>
         ///  Obtiene todos la lista de furpagos relacionado a un fur.
         /// </summary>
@@ -196,30 +199,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 List<FurPagoDTO> listaFurPago = new List<FurPagoDTO>();
                 area = (area != 0) ? area : null;
                 ciudad = (ciudad != 0) ? ciudad : null;
-                anio = (anio!= 0) ? anio : null;
+                anio = (anio != 0) ? anio : null;
                 semana = (semana != 0) ? semana : null;
                 moneda = (moneda != 0) ? moneda : null;
                 estado = (estado == true || estado == false) ? estado : null;
 
-
-                var _query = @"
-                    SELECT IdFur, Codigo, IdProveedor, NombreProveedor, NombreProveedorComprobante, IdProducto, NombreProducto, IdCC, IdPais, NombreCentroCosto, 
-                            NumeroCuenta, DescripcionCuenta, Cantidad, MonedaFur, NombreMonedaFur, PrecioUnitarioSoles, PrecioUnitarioDolares, PrecioTotalSoles, PrecioTotalDolares, IdDocumentoPago, 
-                            NombreDocumento, NumeroRecibo, Descripcion, NumeroComprobante, FechaEfectivo, PagoMonedaOrigen, PagoDolares, Usuario, FechaModificacion, IdPersonaTrabajo, 
-                            IdCiudad, NumeroSemana, EstadoCancelado, FechaAnio, MonedaPagoRealizado, NombreMonedaPagoRealizado 
-                    FROM fin.V_ObtenerFurConFurPago 
-                    WHERE 
-                        (IdPersonaTrabajo = @area OR @area is null) AND 
-                        (IdCiudad = @ciudad OR @ciudad is null) AND 
-                        (NumeroSemana = @semana OR @semana is null) AND 
-                        (EstadoCancelado = @estado OR @estado is null) AND 
-                        (FechaAnio = @anio OR @anio is null) AND 
-                        (MonedaPagoRealizado = @moneda OR @moneda is null) AND 
-                        FaseAprobacion = 5 AND (Antiguo = 0 OR Antiguo is null) AND
-                        Estado = 1 AND EstadoMoneda = 1 AND 
-                        EstadoCiudad = 1 AND EstadoArea = 1";
-
-                var listaFurPagoDB = _dapperRepository.QueryDapper(_query, new { area, ciudad, anio, semana, moneda, estado });
+                var _query = "fin.SP_FurPagoObtenerPorFiltro";
+                var listaFurPagoDB = _dapperRepository.QuerySPDapper(_query, new { area, ciudad, anio, semana, moneda, estado });
                 if (!string.IsNullOrEmpty(listaFurPagoDB) && !listaFurPagoDB.Contains("[]"))
                 {
                     listaFurPago = JsonConvert.DeserializeObject<List<FurPagoDTO>>(listaFurPagoDB);
@@ -328,7 +314,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         ///  Genera el Reporte de Estado de Cuenta por Proveedor
         /// </summary>
         /// <returns></returns>
-        public List<ReporteEstadoCuentaProveedorDTO> GenerarReporteEstadoCuentaProveedor(string? Empresa, string? Ciudad,int? Proveedor ,string Comprobante, string FechaInicio,string FechaFin,string CuentaContable)
+        public List<ReporteEstadoCuentaProveedorDTO> GenerarReporteEstadoCuentaProveedor(string? Empresa, string? Ciudad, int? Proveedor, string Comprobante, string FechaInicio, string FechaFin, string CuentaContable)
         {
             try
             {

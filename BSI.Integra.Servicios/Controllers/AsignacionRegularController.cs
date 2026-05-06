@@ -26,7 +26,7 @@ namespace BSI.Integra.Servicios.Controllers
         private IUnitOfWork unitOfWork;
         private readonly IServiceScopeFactory _scopeFactory;
 
-        public AsignacionRegularController(IUnitOfWork unitOfWork,  IServiceScopeFactory scopeFactory)
+        public AsignacionRegularController(IUnitOfWork unitOfWork, IServiceScopeFactory scopeFactory)
         {
             this.unitOfWork = unitOfWork;
 
@@ -635,15 +635,15 @@ namespace BSI.Integra.Servicios.Controllers
 
                             bool resultado = await servicioEnScope.EjecutarAsignacionDatosAutomatizada(usuario);
 
-                                if (resultado)
-                                    servicioEnScope.EnvioCorreoValidado(" La asignación de datos finalizó correctamente.");
-                                else
-                                    servicioEnScope.EnvioCorreoValidado(" La asignación terminó con errores o no pudo ejecutarse.");
+                            if (resultado)
+                                servicioEnScope.EnvioCorreoValidado(" La asignación de datos finalizó correctamente.");
+                            else
+                                servicioEnScope.EnvioCorreoValidado(" La asignación terminó con errores o no pudo ejecutarse.");
                         }
                         catch (Exception ex)
                         {
 
-                                servicioEnScope.EnvioCorreoValidado($" Ocurrió un error interno en segundo plano: {ex.Message}");
+                            servicioEnScope.EnvioCorreoValidado($" Ocurrió un error interno en segundo plano: {ex.Message}");
                         }
 
                     }
@@ -773,7 +773,7 @@ namespace BSI.Integra.Servicios.Controllers
 
 
 
-      
+
 
         [HttpGet("AsignacionAutomatizadaAsesorWhats")]
         public IActionResult AsignacionAutomatizadaAsesorWhats()
@@ -1390,6 +1390,66 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 return BadRequest(ex.Message);
 
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Humberto Oscata
+        /// Fecha: 29/04/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el valor de AsignacionPais del asesor a partir del IdAsignacionRegular
+        /// </summary>
+        /// <param name="IdAsignacionRegular">Id del registro en T_AsignacionRegular</param>
+        /// <returns>Retorna 200 con el AsignacionPais o 400 y mensaje de error</returns>
+        [HttpGet("ObtenerAsignacionPaisAsesor/{IdAsignacionRegular}")]
+        public IActionResult ObtenerAsignacionPaisAsesor(int IdAsignacionRegular)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new AsignacionRegularService(unitOfWork);
+                var respuesta = servicio.ObtenerAsignacionPaisAsesor(IdAsignacionRegular);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Humberto Oscata
+        /// Fecha: 29/04/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Actualiza el valor de asingacionPais para un asesor en asignación regular
+        /// </summary>
+        /// <param name="request">Objeto con IdAsignacionRegular y AsignacionPais</param>
+        /// <returns>Retorna 200 con resultado o 400 y mensaje de error</returns>
+        [HttpPost("ActualizarAsignacionPaisAsesor")]
+        public IActionResult ActualizarAsignacionPaisAsesor([FromBody] ActualizarAsignacionPaisAsesorDTO request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var claimsIdentity = User.Identity as ClaimsIdentity;
+                var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
+                var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
+
+                var servicio = new AsignacionRegularService(unitOfWork);
+                var respuesta = servicio.ActualizarAsignacionPaisAsesor(request, usuario);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
     }

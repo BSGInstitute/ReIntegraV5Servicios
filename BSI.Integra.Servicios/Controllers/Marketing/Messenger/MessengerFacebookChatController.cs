@@ -1,5 +1,7 @@
-﻿using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Messenger;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Messenger;
 using BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.Messenger;
+using BSI.Integra.Aplicacion.Marketing.Service.Implementacion;
 using BSI.Integra.Repositorio.UnitOfWork;
 using BSI.Integra.Servicios.Helpers;
 using Microsoft.AspNetCore.Cors;
@@ -70,7 +72,7 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Messenger
             {
                 List<ChatMessengerFacebookDTO> result = _messengerFacebookChatService.ObtenerHistorialChatPorPSID(request);
 
-                if(result == null || result.Count == 0)
+                if (result == null || result.Count == 0)
                     return NotFound("No se encontró historial de chat para el identificador");
 
                 return Ok(result);
@@ -136,6 +138,55 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Messenger
             catch (Exception ex)
             {
                 return StatusCode(500, new { enviado = false, mensaje = "Ocurrió un error interno del servidor." });
+            }
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 22/04/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Captura registros de alumnos en base a chats de messenger mediante un modelo IA
+        /// </summary>
+        /// <param name="datosExtraccionRegistrosMessenger">Contiene PSID del alumno y rango de antiguedad de chats</param>
+        /// <returns>Datos capturados por el modelo IA</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public async Task<ActionResult> CapturarRegistrosMessengerIA([FromBody] DatosExtraccionRegistrosMessengerDTO datosExtraccionRegistrosMessenger)
+        {
+            try
+            {
+                var resultado = await _messengerFacebookChatService.CapturarRegistrosModeloIA(datosExtraccionRegistrosMessenger);
+
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 22/04/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Desactiva la interacción automática del asistente Messenger para un cliente y campania específicos
+        /// </summary>
+        /// <param name="identificadorAmbitoPagina">PSID del alumno</param>
+        /// <param name="idAlumno">ID del alumno</param>
+        /// <returns>Resultado del servicio externo</returns>
+        [Route("[action]/{identificadorAmbitoPagina}/{idAlumno}")]
+        [HttpPost]
+        public async Task<ActionResult> DesactivarInteraccionAutomaticaMessenger(string identificadorAmbitoPagina, string idAlumno)
+        {
+            try
+            {
+                var resultado = await _messengerFacebookChatService.DesactivarInteraccionAutomaticaMessenger(identificadorAmbitoPagina, idAlumno);
+
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
     }
