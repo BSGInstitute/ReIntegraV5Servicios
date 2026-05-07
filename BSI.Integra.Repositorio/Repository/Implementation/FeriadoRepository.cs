@@ -5,6 +5,7 @@ using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation
 {
@@ -148,7 +149,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var query = @"
                     SELECT Id, Tipo, Dia, Motivo, Frecuencia, IdTroncalCiudad
-                    FROM pla.V_TFeriado_Activos";
+                    FROM pla.V_TFeriado_Obtener";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
@@ -260,7 +261,19 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     new { IdTroncalPais_Lista = lista });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
-                    return JsonConvert.DeserializeObject<IEnumerable<FeriadoConPaisDTO>>(resultado)!;
+                    // Mapeo manual: el SP devuelve la columna como IdFeriado (estandar BSG)
+                    // pero el DTO mantiene Id para no romper el contrato del API hacia el front.
+                    var jArray = JArray.Parse(resultado);
+                    return jArray.OfType<JObject>().Select(j => new FeriadoConPaisDTO
+                    {
+                        Id = j.Value<int>("IdFeriado"),
+                        Tipo = j.Value<int?>("Tipo"),
+                        Dia = j.Value<DateTime>("Dia"),
+                        Motivo = j.Value<string>("Motivo") ?? string.Empty,
+                        Frecuencia = j.Value<int>("Frecuencia"),
+                        IdTroncalCiudad = j.Value<int>("IdTroncalCiudad"),
+                        IdTroncalPais = j.Value<int>("IdTroncalPais")
+                    }).ToList();
                 }
                 return new List<FeriadoConPaisDTO>();
             }
