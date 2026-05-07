@@ -18,5 +18,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         Feriado? ObtenerPorId(int id);
         IEnumerable<Feriado> ObtenerPorIds(IEnumerable<int> ids);
         IEnumerable<Feriado> ObtenerPorTipo(int tipo);
+        IEnumerable<FeriadoConPaisDTO> ObtenerPorPaises(IEnumerable<int> idsTroncalPais);
+        IEnumerable<ComboTroncalCiudadDTO> ObtenerComboTroncalCiudad();
+        IEnumerable<ComboTroncalPaisDTO> ObtenerComboTroncalPais();
     }
 }

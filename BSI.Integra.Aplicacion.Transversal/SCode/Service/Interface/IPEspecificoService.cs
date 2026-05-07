@@ -38,6 +38,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         IEnumerable<ComboDTO> ObtenerNumeroGrupos(int pEspecificoId, bool cursoIndividual);
         ConfigurarWebinarDTO InsertarConfiguracionWebinar(ConfigurarWebinarDTO dto, string usuario);
         IEnumerable<CronogramaGrupoDTO> ObtenerCronogramaPEspecifico(FiltroObtenerSesionesDTO dto);
+        int[] ObtenerIdsTroncalPaisFeriado(int idPespecifico);
         bool VerificarDuracionPorIdPespecificoPadre(int idPespecificoPadre);
         bool ActualizarFechaPorSesion(ActualizarFechaPorSesionDTO dto, string usuario);
         byte[]? GenerarReporteAmbienteExcel(FiltroReporteAmbienteDTO filtro);

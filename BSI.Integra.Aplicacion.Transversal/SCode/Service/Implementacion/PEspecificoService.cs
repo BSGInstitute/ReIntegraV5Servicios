@@ -2518,7 +2518,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     EstadoPid = dto.Pespecifico.EstadoPid,
                     TipoId = dto.Pespecifico.TipoId,
                     OrigenPrograma = dto.Pespecifico.OrigenPrograma,
-                    IdCiudad = dto.Pespecifico.IdCiudad,
+                    IdCiudad = dto.IdCiudad,
                     Duracion = dto.Pespecifico.Duracion,
                     ActualizacionAutomatica = dto.Pespecifico.ActualizacionAutomatica,
                     IdCursoMoodle = dto.Pespecifico.IdCursoMoodle,
@@ -2578,7 +2578,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         {
                             throw new BadRequestException("No existe pespecifico");
                         }
-                    }
+                        }
                     else
                     {
                         _unitOfWork.PEspecificoRepository.Add(pEspecificoPadre);
@@ -3176,6 +3176,40 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 throw;
             }
         }
+        /// Autor: aarroyoh
+        /// Fecha: 07/05/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Devuelve la lista de IdTroncalPais aplicables al PE para consultar feriados:
+        /// siempre Peru (oficina BSG) + el pais del PE si difiere. El front lo usa para encadenar
+        /// con /Feriado/ListarPorPaises sin tener que decidir nada de logica de negocio.
+        /// </summary>
+        /// <param name="idPespecifico">Id del programa especifico</param>
+        /// <returns>int[] con los IdTroncalPais (Peru + pais del PE deduplicado)</returns>
+        public int[] ObtenerIdsTroncalPaisFeriado(int idPespecifico)
+        {
+            try
+            {
+                var pe = _unitOfWork.PEspecificoRepository.ObtenerPorId(idPespecifico);
+                if (pe == null || pe.Id == 0)
+                {
+                    throw new BadRequestException($"No existe el programa especifico {idPespecifico}");
+                }
+
+                var idTroncalPaisPe = _unitOfWork.PEspecificoRepository.ObtenerIdTroncalPaisPorIdPespecifico(idPespecifico).Valor;
+
+                if (idTroncalPaisPe.HasValue && idTroncalPaisPe.Value != PEspecificoSesionService.ID_TRONCAL_PAIS_PERU)
+                {
+                    return new[] { PEspecificoSesionService.ID_TRONCAL_PAIS_PERU, idTroncalPaisPe.Value };
+                }
+
+                return new[] { PEspecificoSesionService.ID_TRONCAL_PAIS_PERU };
+            }
+            catch
+            {
+                throw;
+            }
+        }
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 31/05/2023
         /// Version: 1.0
@@ -3310,7 +3344,11 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         throw new BadRequestException($"No existe el registro frecuenciaPespecifico {dto.IdPespecifico}");
                     }
                     var frecuenciaDetalle = _unitOfWork.PespecificoFrecuenciaDetalleRepository.ObtenerPorIdPespecificoFrecuencia(frecuenciaPespecifico.Id.Value).ToList();
-                    var listaFeriados = _mapper.Map<IEnumerable<FeriadoDTO>>(_unitOfWork.FeriadoRepository.ObtenerPorTipo(0));
+                    var idTroncalPaisPe = _unitOfWork.PEspecificoRepository.ObtenerIdTroncalPaisPorIdPespecifico(dto.IdPespecifico).Valor;
+                    var idsTroncalPaisFeriados = idTroncalPaisPe.HasValue && idTroncalPaisPe.Value != PEspecificoSesionService.ID_TRONCAL_PAIS_PERU
+                        ? new[] { PEspecificoSesionService.ID_TRONCAL_PAIS_PERU, idTroncalPaisPe.Value }
+                        : new[] { PEspecificoSesionService.ID_TRONCAL_PAIS_PERU };
+                    var listaFeriados = _unitOfWork.FeriadoRepository.ObtenerPorPaises(idsTroncalPaisFeriados);
                     if (frecuenciaPespecifico.IdFrecuencia == null || frecuenciaPespecifico.IdFrecuencia == 0)
                     {
                         throw new BadRequestException($"IdFrecuencia no definido");
@@ -3398,7 +3436,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                             fechaTemp = fechaAsignar;
                         }
 
-                        fechaAsignar = pEspecificoSesionService.ObtenerFechaAsignar(estructuraSesiones[i].Curso, fechaAsignar, estructuraSesiones[i].Dia.Value, diasFrecuencia, listaFeriados);
+                        fechaAsignar = pEspecificoSesionService.ObtenerFechaAsignarPorPais(fechaAsignar, estructuraSesiones[i].Dia.Value, diasFrecuencia, listaFeriados);
                         fechaAsignar = fechaAsignar.Date + frecuenciaDetalle[i % diasFrecuencia.Length].HoraDia;
                         estructuraSesiones[i].FechaAsignar = fechaAsignar;
 

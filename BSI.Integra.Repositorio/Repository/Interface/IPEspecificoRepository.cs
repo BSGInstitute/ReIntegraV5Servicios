@@ -35,6 +35,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         PEspecificoIdTipoDTO ObtenerTipoIdPorIdCentroCosto(int idCentroCosto);
         List<PEspecificoPGeneralFiltroDTO> ObtenerCombo();
         IntDTO ObtenerIdCiudad(int idPEspecifico);
+        IntDTO ObtenerIdTroncalPaisPorIdPespecifico(int idPespecifico);
         StringDTO ObtenerSeccionEtiquetaAgendaMensaje(string idSeccion, string idPlantilla, int idCentroCosto);
         PeriodoDuracionProgramaEspecificoDTO ObtenerPeriodoDuracion(int idPEspecifico, int idMatriculaCabecera);
         string ObtenerUrlAccesoSesionOnline(int id);
