@@ -15,5 +15,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         List<CorreoResumenDocenteDTO> ObtenerHistorialCorreos(int idProveedor, int idPEspecifico);
         CorreoDetalleDocenteDTO ObtenerDetalleCorreo(int idCorreo);
         ContadorAlertasDTO ObtenerContadorAlertas();
+        List<MensajeRecibidoAgendaDTO> ObtenerMensajesRecibidos(int idPersonalAsignado);
     }
 }

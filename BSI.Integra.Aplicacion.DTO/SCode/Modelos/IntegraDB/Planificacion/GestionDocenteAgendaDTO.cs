@@ -224,6 +224,48 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string ContraseniaWeb { get; set; }
         public DateTime? FechaInscritoWeb { get; set; }
         public int CantidadAlumnosMatriculados { get; set; }
+
+        // Tab "Mensajes Recibidos" (SP pla.SP_GestionDocenteMensajesRecibidosObtener)
+        public int? TipoMensaje { get; set; }
+        public int? IdMensaje { get; set; }
+        public string AsuntoMensaje { get; set; }
+        public string TextoMensaje { get; set; }
+        public DateTime? FechaMensaje { get; set; }
+        public string Origen { get; set; }
+        public int? IdDocentePostulante { get; set; }
+    }
+
+    /// Autor: Joseph Llanque
+    /// Fecha: 07/05/2026
+    /// Versión: 1.0
+    /// <summary>
+    /// DTO dedicado al endpoint ObtenerMensajesRecibidos.
+    /// Una fila por (docente, canal): hasta 2 filas por docente, una por TipoMensaje
+    /// (1 = Email, 2 = WhatsApp). El frontend agrupa por IdGestionContacto si lo necesita.
+    /// </summary>
+    public class MensajeRecibidoAgendaDTO
+    {
+        public int IdGestionContacto { get; set; }
+        public int? IdClasificacionPersona { get; set; }
+        public int? IdProveedor { get; set; }
+        public int? IdDocentePostulante { get; set; }
+        public string NombreDocente { get; set; }
+        public string Celular { get; set; }
+        public string Correo { get; set; }
+        public int? IdPersonal_Asignado { get; set; }
+        public string PersonalAsignado { get; set; }
+        public int? IdCentroCosto { get; set; }
+        public string NombreCentroCosto { get; set; }
+        public string CodigoCentroCosto { get; set; }
+        /// <summary>IdPEspecifico (curso) principal del docente, resuelto via T_PEspecifico.IdCentroCosto. Necesario para abrir la ficha.</summary>
+        public int? IdPEspecifico { get; set; }
+        /// <summary>1 = Email, 2 = WhatsApp.</summary>
+        public int? TipoMensaje { get; set; }
+        public int? IdMensaje { get; set; }
+        public string AsuntoMensaje { get; set; }
+        public string TextoMensaje { get; set; }
+        public DateTime? FechaMensaje { get; set; }
+        public string Origen { get; set; }
     }
 
     /// Autor: Joseph Llanque
@@ -291,6 +333,15 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string ContraseniaWeb { get; set; }
         public DateTime? FechaInscritoWeb { get; set; }
         public int CantidadAlumnosMatriculados { get; set; }
+
+        // Tab "Mensajes Recibidos" (SP pla.SP_GestionDocenteMensajesRecibidosObtener)
+        public int? TipoMensaje { get; set; }
+        public int? IdMensaje { get; set; }
+        public string AsuntoMensaje { get; set; }
+        public string TextoMensaje { get; set; }
+        public DateTime? FechaMensaje { get; set; }
+        public string Origen { get; set; }
+        public int? IdDocentePostulante { get; set; }
 
         public List<ActividadCabeceraItemDTO> Actividades { get; set; }
     }
