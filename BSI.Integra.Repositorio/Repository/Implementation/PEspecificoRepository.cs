@@ -2806,23 +2806,18 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 string _query = @"
-                ;WITH SesionesOrdenadas AS (
-                    SELECT
-                        pe.Nombre AS NombreCurso,
-                        ROW_NUMBER() OVER (ORDER BY ses.FechaHoraInicio ASC) AS NumeroSesion,
-                        DATEADD(HOUR, @IncrementoHoras, ses.FechaHoraInicio) AS FechaSesion,
-                        CONVERT(VARCHAR(5), DATEADD(HOUR, @IncrementoHoras, ses.FechaHoraInicio), 108) AS HoraInicio,
-                        CONVERT(VARCHAR(5), DATEADD(MINUTE, ses.Duracion, DATEADD(HOUR, @IncrementoHoras, ses.FechaHoraInicio)), 108) AS HoraFin,
-                        ses.Grupo AS Tema,
-                        ses.FechaHoraInicio AS OrdenFecha
-                    FROM pla.T_PEspecificoSesion ses
-                    INNER JOIN pla.T_PEspecifico pe ON ses.IdPEspecifico = pe.Id
-                    WHERE ses.IdPEspecifico = (SELECT TOP 1 Id FROM pla.T_PEspecifico WHERE IdCentroCosto = @IdCentroCosto AND Estado = 1)
-                        AND ses.Estado = 1
-                )
-                SELECT NombreCurso, NumeroSesion, FechaSesion, HoraInicio, HoraFin, Tema
-                FROM SesionesOrdenadas
-                ORDER BY OrdenFecha ASC";
+                SELECT
+                    pe.Nombre AS NombreCurso,
+                    ISNULL(ses.GrupoSesion, 0) AS NumeroSesion,
+                    DATEADD(HOUR, @IncrementoHoras, ses.FechaHoraInicio) AS FechaSesion,
+                    CONVERT(VARCHAR(5), DATEADD(HOUR, @IncrementoHoras, ses.FechaHoraInicio), 108) AS HoraInicio,
+                    CONVERT(VARCHAR(5), DATEADD(MINUTE, ses.Duracion, DATEADD(HOUR, @IncrementoHoras, ses.FechaHoraInicio)), 108) AS HoraFin,
+                    ses.Grupo AS Tema
+                FROM pla.T_PEspecificoSesion ses
+                INNER JOIN pla.T_PEspecifico pe ON ses.IdPEspecifico = pe.Id
+                WHERE ses.IdPEspecifico = (SELECT TOP 1 Id FROM pla.T_PEspecifico WHERE IdCentroCosto = @IdCentroCosto AND Estado = 1)
+                    AND ses.Estado = 1
+                ORDER BY ses.FechaHoraInicio ASC";
                 var _queryRespuesta = _dapperRepository.QueryDapper(_query, new { IdCentroCosto = idCentroCosto, IncrementoHoras = incrementoHoras });
                 if (_queryRespuesta != "null")
                     return JsonConvert.DeserializeObject<List<SesionPlanificacionDTO>>(_queryRespuesta);
