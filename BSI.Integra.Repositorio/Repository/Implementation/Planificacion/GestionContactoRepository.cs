@@ -748,6 +748,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
                 List<ActividadFlujoRawDTO> registrosPlanos;
                 List<OcurrenciaCongeladaDTO> ocurrenciasPlanas;
+                List<DisparadorOcurrenciaPreviaDTO> disparadorOcurrenciaPrevia = new List<DisparadorOcurrenciaPreviaDTO>();
+                List<OcurrenciaMarcadaDTO> ocurrenciasMarcadas = new List<OcurrenciaMarcadaDTO>();
 
                 using (var conn = _connectionFactory.GetConnection)
                 {
@@ -758,6 +760,18 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     {
                         registrosPlanos = (await multi.ReadAsync<ActividadFlujoRawDTO>()).ToList();
                         ocurrenciasPlanas = (await multi.ReadAsync<OcurrenciaCongeladaDTO>()).ToList();
+                        // Result-sets nuevos (v1.5 del SP) para calcular rama activa.
+                        // Si el SP esta en una version anterior, IsConsumed = true tras leer
+                        // los 2 result-sets esperados. En ese caso saltamos los Reads extras y
+                        // los flags EstaEnRamaActiva quedan en true por default (compatibilidad).
+                        if (!multi.IsConsumed)
+                        {
+                            disparadorOcurrenciaPrevia = (await multi.ReadAsync<DisparadorOcurrenciaPreviaDTO>()).ToList();
+                        }
+                        if (!multi.IsConsumed)
+                        {
+                            ocurrenciasMarcadas = (await multi.ReadAsync<OcurrenciaMarcadaDTO>()).ToList();
+                        }
                     }
                 }
 
@@ -775,6 +789,56 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 var ocurrenciasPorDetalle = ocurrenciasPlanas
                     .GroupBy(o => o.IdGestionDocenteActividadDetalleCongelada)
                     .ToDictionary(g => g.Key, g => g.ToList() as IEnumerable<OcurrenciaCongeladaDTO>);
+
+                // ===== Calculo de "rama activa" por detalle congelado =====
+                // Si el padre de la ocurrencia previa que dispara el detalle ya marco OTRA
+                // ocurrencia hermana, este detalle pertenece a una rama descartada.
+                // Si el padre aun no marco nada, queda como "rama_pendiente" (visible).
+                var disparadorAOcurrenciaPrevia = disparadorOcurrenciaPrevia
+                    .ToDictionary(x => x.IdDisparadorCongelado, x => x.IdOcurrenciaPreviaCongelada);
+                var ocurrenciasMarcadasIds = new HashSet<int>(
+                    ocurrenciasMarcadas.Select(x => x.IdGestionDocenteOcurrenciaCongelada));
+                var detallesPadreConMarca = new HashSet<int>(
+                    ocurrenciasMarcadas.Select(x => x.IdDetalleCongeladaPadre));
+                var ocurrenciaCongeladaADetallePadre = ocurrenciasPlanas
+                    .ToDictionary(
+                        o => o.IdGestionDocenteOcurrenciaCongelada,
+                        o => o.IdGestionDocenteActividadDetalleCongelada);
+
+                var esRamaActivaPorDetalle = new Dictionary<int, bool>();
+                var motivoExclusionPorDetalle = new Dictionary<int, string>();
+                foreach (var grupoDetalle in registrosPlanos
+                    .GroupBy(r => r.IdGestionDocenteActividadDetalleCongelada))
+                {
+                    bool esActiva = true;
+                    string motivo = null;
+                    foreach (var idDisp in grupoDetalle.Select(r => r.IdDisparadorCongelado).Distinct())
+                    {
+                        if (!disparadorAOcurrenciaPrevia.TryGetValue(idDisp, out var idOcPrevia))
+                            continue;  // disparador no es de tipo "ocurrencia-anterior"
+                        if (!ocurrenciaCongeladaADetallePadre.TryGetValue(idOcPrevia, out var idDetallePadre))
+                            continue;
+                        if (!detallesPadreConMarca.Contains(idDetallePadre))
+                        {
+                            // padre aun sin marcar → ambas ramas potencialmente vivas
+                            motivo = "rama_pendiente";
+                            continue;
+                        }
+                        if (ocurrenciasMarcadasIds.Contains(idOcPrevia))
+                        {
+                            // padre marco JUSTO esta rama → activa, sin motivo
+                            motivo = null;
+                            esActiva = true;
+                            break;
+                        }
+                        // padre marco OTRA rama hermana → este disparador es descartado
+                        esActiva = false;
+                        motivo = "rama_descartada";
+                        break;
+                    }
+                    esRamaActivaPorDetalle[grupoDetalle.Key] = esActiva;
+                    motivoExclusionPorDetalle[grupoDetalle.Key] = motivo;
+                }
 
                 var primerRegistro = registrosPlanos.First();
                 bool esCategoria2 = primerRegistro.IdSesion.HasValue;
@@ -843,6 +907,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                             ComentarioOcurrenciaMarcada = detalleGroup.Key.ComentarioOcurrenciaMarcada,
                                             UsuarioEjecucion = detalleGroup.Key.UsuarioEjecucion,
                                             ClasificacionComentarioIA = detalleGroup.Key.ClasificacionComentarioIA,
+                                            EstaEnRamaActiva = esRamaActivaPorDetalle.TryGetValue(detalleGroup.Key.IdGestionDocenteActividadDetalleCongelada, out var raC2) ? raC2 : true,
+                                            MotivoExclusion = motivoExclusionPorDetalle.TryGetValue(detalleGroup.Key.IdGestionDocenteActividadDetalleCongelada, out var meC2) ? meC2 : null,
                                             Disparadores = detalleGroup.Select(r => new DisparadorDTO
                                             {
                                                 IdDisparadorCongelado = r.IdDisparadorCongelado,
@@ -921,6 +987,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                                     ComentarioOcurrenciaMarcada = detalleGroup.Key.ComentarioOcurrenciaMarcada,
                                     UsuarioEjecucion = detalleGroup.Key.UsuarioEjecucion,
                                     ClasificacionComentarioIA = detalleGroup.Key.ClasificacionComentarioIA,
+                                    EstaEnRamaActiva = esRamaActivaPorDetalle.TryGetValue(detalleGroup.Key.IdGestionDocenteActividadDetalleCongelada, out var raC1) ? raC1 : true,
+                                    MotivoExclusion = motivoExclusionPorDetalle.TryGetValue(detalleGroup.Key.IdGestionDocenteActividadDetalleCongelada, out var meC1) ? meC1 : null,
                                     Disparadores = detalleGroup.Select(r => new DisparadorDTO
                                     {
                                         IdDisparadorCongelado = r.IdDisparadorCongelado,
@@ -1143,6 +1211,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
 
                 if (!disparadoresData.Any())
                 {
+                    // El asesor confirmó la ocurrencia → si el GC estaba en estado 2 (Alerta)
+                    // por la propuesta IA del schedule, baja a 1 (Activo). El proximo tick
+                    // del schedule lo subira otra vez si vuelve a haber pendiente.
+                    await BajarEstadoGCSiAlertaAsync(request.IdGestionDocenteOcurrenciaCongelada, request.UsuarioCreacion);
+
                     await _dbContext.SaveChangesAsync();
                     await transaction.CommitAsync();
                     return new ResultadoEjecucionDTO
@@ -1233,6 +1306,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     }
                 }
 
+                // Misma lógica de cierre de alerta que el branch sin dependientes.
+                await BajarEstadoGCSiAlertaAsync(request.IdGestionDocenteOcurrenciaCongelada, request.UsuarioCreacion);
+
                 await _dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -1252,6 +1328,47 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                     Error   = $"Error al marcar ocurrencia: {ex.Message}"
                 };
             }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 07/05/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Resuelve el cierre de alerta del GestionContacto al confirmar una ocurrencia
+        /// (típicamente la propuesta de la IA en flujo MARM).
+        ///
+        /// Recorre la cadena de tablas congeladas: ocurrencia → detalle → cabecera → flujo →
+        /// docenteFlujo → gestionContacto. Si el GC está actualmente en estado 2 (Alerta),
+        /// lo baja a 1 (Activo). El predicate `AND IdEstadoGestionContacto = 2` actúa como
+        /// guarda — si el GC no está alertado (1, 3, 4) este método es no-op.
+        ///
+        /// El próximo tick del schedule lo volverá a subir a 2 si detecta nuevamente una
+        /// ocurrencia pendiente, manteniendo la coherencia del workflow de alertas.
+        ///
+        /// Se ejecuta dentro de la misma transacción del marcado (DbContext.Database
+        /// reusa la transacción activa automáticamente).
+        /// </summary>
+        private async Task BajarEstadoGCSiAlertaAsync(int idOcurrenciaCongelada, string usuario)
+        {
+            await _dbContext.Database.ExecuteSqlInterpolatedAsync($@"
+                UPDATE GC
+                SET GC.IdEstadoGestionContacto = 1,
+                    GC.UsuarioModificacion     = {usuario},
+                    GC.FechaModificacion       = GETDATE()
+                FROM pla.T_GestionContacto GC
+                INNER JOIN pla.T_GestionContactoDocenteFlujo GCDF
+                    ON GCDF.IdGestionContacto = GC.Id
+                INNER JOIN pla.T_GestionContactoFlujoCongelado FC
+                    ON FC.IdGestionContactoDocenteFlujo = GCDF.Id
+                INNER JOIN pla.T_GestionDocenteActividadCabeceraCongelada AC
+                    ON AC.IdGestionContactoFlujoCongelado = FC.Id
+                INNER JOIN pla.T_GestionDocenteActividadDetalleCongelada AD
+                    ON AD.IdGestionDocenteActividadCabeceraCongelada = AC.Id
+                INNER JOIN pla.T_GestionDocenteOcurrenciaCongelada OC
+                    ON OC.IdGestionDocenteActividadDetalleCongelada = AD.Id
+                WHERE OC.Id = {idOcurrenciaCongelada}
+                  AND GC.Estado = 1
+                  AND GC.IdEstadoGestionContacto = 2;");
         }
 
         /// Autor: Lolo Zaa

@@ -217,6 +217,13 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string ComentarioOcurrenciaMarcada { get; set; }
         public string UsuarioEjecucion { get; set; }
         public string ClasificacionComentarioIA { get; set; }
+
+        // Indicadores de "rama activa" calculados en C# tras leer los result-sets 3 y 4
+        // del SP_GestionDocenteActividadesFlujoPorCategoria. Para detalles que dependen
+        // de una ocurrencia previa: si esa ocurrencia previa NO fue la marcada, este
+        // detalle pertenece a una rama descartada y el frontend lo deshabilita.
+        public bool EstaEnRamaActiva { get; set; } = true;
+        public string MotivoExclusion { get; set; }  // null | "rama_descartada" | "rama_pendiente"
     }
 
     /// <summary>
@@ -315,6 +322,24 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string ComentarioOcurrenciaMarcada { get; set; }
         public string UsuarioEjecucion { get; set; }
         public string ClasificacionComentarioIA { get; set; }
+    }
+
+    // Mapeo plano del 3er result-set del SP_GestionDocenteActividadesFlujoPorCategoria.
+    // Une cada disparador congelado con la ocurrencia previa que lo dispara
+    // (solo aplica a disparadores tipo ocurrencia-anterior).
+    public class DisparadorOcurrenciaPreviaDTO
+    {
+        public int IdDisparadorCongelado { get; set; }
+        public int IdOcurrenciaPreviaCongelada { get; set; }
+    }
+
+    // Mapeo plano del 4to result-set del SP_GestionDocenteActividadesFlujoPorCategoria.
+    // Lista cada ocurrencia ya marcada en el flujo y el detalle padre al que pertenece,
+    // para poder calcular cual rama quedo descartada.
+    public class OcurrenciaMarcadaDTO
+    {
+        public int IdGestionDocenteOcurrenciaCongelada { get; set; }
+        public int IdDetalleCongeladaPadre { get; set; }
     }
 
     /// <summary>

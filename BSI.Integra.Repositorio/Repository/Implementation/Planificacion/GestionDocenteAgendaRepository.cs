@@ -170,28 +170,45 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
+        /// <summary>
+        /// SPs de tab que aceptan filtro opcional por @IdPersonalAsignado.
+        /// Convención: el SP debe declarar el parámetro como NULL por default
+        /// para mantener retrocompatibilidad con llamadas sin filtro.
+        /// Cuando se agregue un nuevo SP de tab que soporte el filtro, sumarlo aquí.
+        /// </summary>
+        private static readonly HashSet<string> SpsConFiltroPersonalAsignado = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "pla.SP_GestionDocenteMensajesRecibidosObtener",
+        };
+
         /// Autor: Jose Vega
         /// Fecha: 24/02/2026
-        /// Versión: 1.0
+        /// Versión: 2.0 — 2026-05-06: pasa @IdPersonalAsignado al SP cuando éste lo soporta
+        ///                            (whitelist SpsConFiltroPersonalAsignado), reduciendo
+        ///                            el universo de búsqueda en BD en lugar de filtrar en memoria.
         /// <summary>
         /// Ejecuta el SP dinámico almacenado en tab.VistaBaseDatos y retorna la lista de actividades.
-        /// Si idAsesor > 0 filtra los resultados por IdPersonalAsignado en memoria.
+        /// Si idAsesor > 0 y el SP está en la whitelist de filtro por personal, le pasa el
+        /// parámetro @IdPersonalAsignado al SP. Para el resto de SPs, se mantiene la llamada sin filtro
+        /// (compatibilidad con tabs existentes que no aceptan parámetros).
         /// </summary>
         public List<ActividadAgendaPlanificacionDTO> ObtenerActividades(AgendaTabConfiguracionPlanificacionAlternoDTO tab, int idAsesor)
         {
             try
             {
                 var lista = new List<ActividadAgendaPlanificacionDTO>();
-                var resultadoDB = _dapperRepository.QuerySPDapper(tab.VistaBaseDatos, null);
+
+                object parametros = null;
+                if (idAsesor > 0 && SpsConFiltroPersonalAsignado.Contains(tab.VistaBaseDatos))
+                {
+                    parametros = new { IdPersonalAsignado = idAsesor };
+                }
+
+                var resultadoDB = _dapperRepository.QuerySPDapper(tab.VistaBaseDatos, parametros);
                 if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
                 {
                     lista = JsonConvert.DeserializeObject<List<ActividadAgendaPlanificacionDTO>>(resultadoDB);
                 }
-                //comentado para probar con asesora generica, descomentar en produccion con criteiro de aiginaciones
-                //if (idAsesor > 0)
-                //{
-                //    lista = lista.Where(a => a.IdPersonalAsignado == idAsesor).ToList();
-                //}
 
                 return lista;
             }
@@ -449,6 +466,36 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 }
 
                 return resultado;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 07/05/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Ejecuta pla.SP_GestionDocenteMensajesRecibidosObtener pasando el filtro
+        /// opcional @IdPersonalAsignado. Endpoint dedicado al tab "Mensajes Recibidos"
+        /// (no pasa por la pipeline genérica de tabs).
+        /// </summary>
+        public List<MensajeRecibidoAgendaDTO> ObtenerMensajesRecibidos(int idPersonalAsignado)
+        {
+            try
+            {
+                var lista = new List<MensajeRecibidoAgendaDTO>();
+                object parametros = idPersonalAsignado > 0
+                    ? new { IdPersonalAsignado = idPersonalAsignado }
+                    : null;
+
+                var resultadoDB = _dapperRepository.QuerySPDapper("pla.SP_GestionDocenteMensajesRecibidosObtener", parametros);
+                if (!string.IsNullOrEmpty(resultadoDB) && !resultadoDB.Contains("[]"))
+                {
+                    lista = JsonConvert.DeserializeObject<List<MensajeRecibidoAgendaDTO>>(resultadoDB);
+                }
+                return lista;
             }
             catch (Exception ex)
             {
