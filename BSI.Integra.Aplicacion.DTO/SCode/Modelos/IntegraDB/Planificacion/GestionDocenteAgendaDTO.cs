@@ -225,7 +225,6 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public DateTime? FechaInscritoWeb { get; set; }
         public int CantidadAlumnosMatriculados { get; set; }
 
-        // Tab "Mensajes Recibidos" (SP pla.SP_GestionDocenteMensajesRecibidosObtener)
         public int? TipoMensaje { get; set; }
         public int? IdMensaje { get; set; }
         public string AsuntoMensaje { get; set; }
@@ -334,7 +333,6 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public DateTime? FechaInscritoWeb { get; set; }
         public int CantidadAlumnosMatriculados { get; set; }
 
-        // Tab "Mensajes Recibidos" (SP pla.SP_GestionDocenteMensajesRecibidosObtener)
         public int? TipoMensaje { get; set; }
         public int? IdMensaje { get; set; }
         public string AsuntoMensaje { get; set; }
