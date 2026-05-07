@@ -76,6 +76,7 @@ namespace BSI.Integra.Persistencia.Entidades.IntegraDB
         public virtual ICollection<SolicitudAlumno> SolicitudAlumnos { get; set; }
         public virtual ICollection<SolicitudOperacionesAccesoTemporalDetalle> SolicitudOperacionesAccesoTemporalDetalles { get; set; }
         public bool? ResumenClaseActivo {  get; set; }
-        public bool? TutorVirtualActivo {  get; set; } 
+        public bool? TutorVirtualActivo {  get; set; }
+        public int? IdEstadoCupos { get; set; }
     }
 }

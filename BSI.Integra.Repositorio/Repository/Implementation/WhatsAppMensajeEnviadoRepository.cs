@@ -351,7 +351,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                     FROM [com].[V_HistorialChatWhatsAppCom] AS resultado
                                     LEFT JOIN com.T_WhatsAppEstadoMensajeEnviadoCom AS estado ON estado.WaId = resultado.WaId
                                     LEFT JOIN conf.T_WhatsAppConfiguracionApi AS wapi ON resultado.PhoneNumberId=wapi.NumeroIndentificador
-                                    WHERE MensajeOfensivo = 0 AND (resultado.Numero ='{numeroMexicoIn}' OR resultado.Numero = '{numeroMexicoOut}' OR resultado.Numero = '{numeroCanadaIn}' OR resultado.Numero=@numero)
+                                    WHERE MensajeOfensivo = 0 AND (resultado.Tipo = 1 OR resultado.IdPais != 0) AND (resultado.Numero ='{numeroMexicoIn}' OR resultado.Numero = '{numeroMexicoOut}' OR resultado.Numero = '{numeroCanadaIn}' OR resultado.Numero=@numero)
                                 ) AS final
                                 GROUP BY Numero, NumeroRespuesta, Tipo, SubTipo, Mensaje, IdPersonal, IdAlumno, IdPais, Registro, FechaCreacion, NombrePersonal
                                 ORDER BY FechaCreacion ASC;";
@@ -744,6 +744,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         query = @$"SELECT	DISTINCT
                                 		Numero
                                 		,Tipo
+                                        ,Esbot
                                 		,Mensaje
                                 		,IdPersonal
                                 		,IdAlumno
@@ -759,6 +760,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                 		resultado.WaId
                                 		,Numero
                                 		,Tipo
+                                        ,Esbot
                                 		,Mensaje
                                 		,IdPersonal
                                 		,ISNULL(IdAlumno, 0)	IdAlumno
@@ -801,6 +803,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                 GROUP BY
                                 	Numero
                                 	,Tipo
+                                    ,Esbot
                                 	,Mensaje
                                 	,IdPersonal
                                 	,IdAlumno

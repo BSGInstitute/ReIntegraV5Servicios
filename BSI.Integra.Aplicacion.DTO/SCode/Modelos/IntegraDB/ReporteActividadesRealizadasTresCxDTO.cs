@@ -250,4 +250,16 @@
         public int DiferenciaFechaActualFechaRealmin { get; set; }
 
     }
+
+    public class ProcesadoDataChatAsistenteVirtualDTO
+    {
+        public int IdPersonal { get; set; }
+        public string Personal { get; set; }
+        public int IdHiloChat { get; set; }
+        public string Mensaje { get; set; }
+        public string Usuario { get; set; }
+        public DateTime FechaMensaje { get; set; }
+        public DateTime FechaChat { get; set; }
+
+    }
 }

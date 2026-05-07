@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
@@ -20,14 +22,17 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
     {
         private IUnitOfWork _unitOfWork;
 
-        // IDs de personal con rol Coordinador
-        private static readonly int[] IdsCoordinadores = { 135, 259, 4094 };
-        // IDs de personal con rol Gerencia
-        private static readonly int[] IdsGerencia = { 213 };
+        private static readonly int[] IdsSupervisores = { 135, 259 };
+        private static readonly int[] IdsCoordinadores = { 4094, 5112, 4765, 6584, 6632 };
+        private static readonly int[] IdsGerencia = { 213, 6589, 5276, 5564 };
 
-        // Constantes para tipos de aprobación
         private const string TIPO_APROBACION_COORDINADOR = "COORDINADOR";
+        private const string TIPO_APROBACION_SUPERVISOR = "SUPERVISOR";
         private const string TIPO_APROBACION_GERENCIA = "GERENCIA";
+
+        private const int NIVEL_SUPERVISOR = 2;
+        private const int NIVEL_GERENCIA = 3;
+        private const int NIVEL_COORDINADOR = 4;
 
         public TipoDescuentoSolicitudService(IUnitOfWork unitOfWork)
         {
@@ -36,18 +41,19 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
         /// Autor: Lolo Zaa
         /// Fecha: 12/01/2026
-        /// Version: 1.3
+        /// Autor Modificacion: Jose Vega
+        /// Fecha Modificacion: 24/04/2026
+        /// Version: 1.4
         /// <summary>
-        /// Inserta una nueva solicitud de aprobación para tipo de descuento
-        /// Si el solicitante es Coordinador o Gerencia, auto-aprueba según corresponda
-        /// Si el tipo de descuento tiene NivelAprobacion = 3, se auto-aprueba Coordinador (estado 6)
+        /// Inserta una nueva solicitud de aprobación para tipo de descuento.
+        /// Si el solicitante es Coordinador, Supervisor o Gerencia, dispara la
+        /// auto-aprobación en cascada según el nivel del descuento.
         /// </summary>
         public void InsertarSolicitud(TipoDescuentoSolicitudEntradaDTO solicitud)
         {
             string? nombreArchivo = null;
             string? contentType = null;
 
-            // Procesar archivo si existe
             if (solicitud.Files != null && solicitud.Files.Count > 0)
             {
                 var file = solicitud.Files.First();
@@ -62,11 +68,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 }
             }
 
-            // Obtener el nivel de aprobación del tipo de descuento
             var tipoDescuento = _unitOfWork.TipoDescuentoRepository.ObtenerPorId(solicitud.IdTipoDescuento);
             var nivelAprobacion = tipoDescuento?.IdTipoDescuentoNivelAprobacion;
 
-            // Crear la solicitud
             _unitOfWork.TipoDescuentoSolicitudRepository.InsertarSolicitud(
                 solicitud.IdTipoDescuento,
                 solicitud.IdOportunidad,
@@ -77,46 +81,84 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 solicitud.Usuario
             );
 
-            // Determinar si requiere auto-aprobación
-            var esCoordinador = IdsCoordinadores.Contains(solicitud.IdPersonalSolicitante);
-            var esGerencia = IdsGerencia.Contains(solicitud.IdPersonalSolicitante);
-            var requiereAutoAprobacionCoordinador = nivelAprobacion == 3 || esCoordinador || esGerencia;
+            AutoAprobarCascada(
+                solicitud.IdTipoDescuento,
+                solicitud.IdOportunidad,
+                solicitud.IdPersonalSolicitante,
+                nivelAprobacion,
+                solicitud.Usuario
+            );
+        }
 
-            if (requiereAutoAprobacionCoordinador)
+        /// Autor: Jose Vega
+        /// Fecha: 24/04/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Aplica las firmas automáticas que le corresponden al solicitante según su rol
+        /// y avanza la solicitud en el flujo jerárquico Coordinador -> Supervisor -> Gerencia.
+        /// </summary>
+        private void AutoAprobarCascada(
+            int idTipoDescuento,
+            int idOportunidad,
+            int idPersonalSolicitante,
+            int? nivelAprobacion,
+            string usuario)
+        {
+            var esSupervisor = IdsSupervisores.Contains(idPersonalSolicitante);
+            var esCoordinador = IdsCoordinadores.Contains(idPersonalSolicitante);
+            var esGerencia = IdsGerencia.Contains(idPersonalSolicitante);
+
+            if (!esSupervisor && !esCoordinador && !esGerencia)
             {
-                // Obtener el ID de la solicitud recién creada
-                var idSolicitud = _unitOfWork.TipoDescuentoSolicitudRepository
-                    .ObtenerIdSolicitudPendiente(solicitud.IdTipoDescuento, solicitud.IdOportunidad);
+                return;
+            }
 
-                if (idSolicitud.HasValue)
-                {
-                    // Auto-aprobar como Coordinador
-                    var comentarioAutoAprobacion = nivelAprobacion == 3
-                        ? "Auto-aprobación por nivel de aprobación del descuento"
-                        : "Auto-aprobación por rol de solicitante";
+            var idSolicitud = _unitOfWork.TipoDescuentoSolicitudRepository
+                .ObtenerIdSolicitudPendiente(idTipoDescuento, idOportunidad);
 
-                    _unitOfWork.TipoDescuentoSolicitudRepository.AprobarSolicitud(
-                        idSolicitud.Value,
-                        TIPO_APROBACION_COORDINADOR,
-                        comentarioAutoAprobacion,
-                        null,
-                        null,
-                        solicitud.Usuario
-                    );
+            if (!idSolicitud.HasValue)
+            {
+                return;
+            }
 
-                    // Si es Gerencia, también auto-aprobar como Gerencia
-                    if (esGerencia)
-                    {
-                        _unitOfWork.TipoDescuentoSolicitudRepository.AprobarSolicitud(
-                            idSolicitud.Value,
-                            TIPO_APROBACION_GERENCIA,
-                            "Auto-aprobación por rol de solicitante",
-                            null,
-                            null,
-                            solicitud.Usuario
-                        );
-                    }
-                }
+            const string motivo = "Auto-aprobación por rol de solicitante";
+
+            _unitOfWork.TipoDescuentoSolicitudRepository.AprobarSolicitud(
+                idSolicitud.Value,
+                TIPO_APROBACION_COORDINADOR,
+                motivo,
+                null,
+                null,
+                usuario
+            );
+
+            if (nivelAprobacion == NIVEL_COORDINADOR)
+            {
+                return;
+            }
+
+            if (esSupervisor || esGerencia)
+            {
+                _unitOfWork.TipoDescuentoSolicitudRepository.AprobarSolicitud(
+                    idSolicitud.Value,
+                    TIPO_APROBACION_SUPERVISOR,
+                    motivo,
+                    null,
+                    null,
+                    usuario
+                );
+            }
+
+            if (nivelAprobacion == NIVEL_GERENCIA && esGerencia)
+            {
+                _unitOfWork.TipoDescuentoSolicitudRepository.AprobarSolicitud(
+                    idSolicitud.Value,
+                    TIPO_APROBACION_GERENCIA,
+                    motivo,
+                    null,
+                    null,
+                    usuario
+                );
             }
         }
 
@@ -269,11 +311,54 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             return (nombreArchivo, contentType);
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 24/04/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Aprueba una solicitud de tipo de descuento a nivel Supervisor.
+        /// Transiciones (segun nivel del descuento): estado 7 -> 8 (nivel 2) o 7 -> 6 (nivel 3).
+        /// </summary>
+        public void AprobarSolicitudSupervisor(TipoDescuentoSolicitudRespuestaEntradaDTO dto)
+        {
+            var (nombreArchivo, contentType) = ProcesarArchivoRespuesta(dto.Files);
+
+            _unitOfWork.TipoDescuentoSolicitudRepository.AprobarSolicitud(
+                dto.IdSolicitud,
+                TIPO_APROBACION_SUPERVISOR,
+                dto.ComentarioRespuesta,
+                nombreArchivo,
+                contentType,
+                dto.Usuario
+            );
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 24/04/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Rechaza una solicitud de tipo de descuento a nivel Supervisor (estado 7 -> 9).
+        /// </summary>
+        public void RechazarSolicitudSupervisor(TipoDescuentoSolicitudRespuestaEntradaDTO dto)
+        {
+            var (nombreArchivo, contentType) = ProcesarArchivoRespuesta(dto.Files);
+
+            _unitOfWork.TipoDescuentoSolicitudRepository.RechazarSolicitudSupervisor(
+                dto.IdSolicitud,
+                dto.ComentarioRespuesta,
+                nombreArchivo,
+                contentType,
+                dto.Usuario
+            );
+        }
+
         /// Autor: Lolo Zaa
         /// Fecha: 16/01/2026
-        /// Version: 1.1
+        /// Autor Modificacion: Jose Vega
+        /// Fecha Modificacion: 24/04/2026
+        /// Version: 1.2
         /// <summary>
-        /// Aprueba una solicitud de tipo de descuento a nivel Coordinador
+        /// Aprueba una solicitud de tipo de descuento a nivel Coordinador.
+        /// Transiciones (segun nivel del descuento): estado 1 -> 2 (nivel 4) o 1 -> 7 (niveles 2 y 3).
         /// </summary>
         public void AprobarSolicitudCoordinador(TipoDescuentoSolicitudRespuestaEntradaDTO dto)
         {
@@ -293,7 +378,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         /// Fecha: 14/01/2026
         /// Version: 1.0
         /// <summary>
-        /// Rechaza una solicitud de tipo de descuento a nivel Coordinador
+        /// Rechaza una solicitud de tipo de descuento a nivel Coordinador (estado 1 -> 3).
         /// </summary>
         public void RechazarSolicitudCoordinador(TipoDescuentoSolicitudRespuestaEntradaDTO dto)
         {
@@ -349,13 +434,49 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
 
         /// Autor: Lolo Zaa
         /// Fecha: 14/01/2026
+        /// Autor Modificacion: Jose Vega
+        /// Fecha Modificacion: 24/04/2026
+        /// Version: 1.1
+        /// <summary>
+        /// Lista solicitudes de descuento con filtros y paginación. El universo de
+        /// oportunidades visibles depende del rol del usuario consultante:
+        /// Gerencia ve todas; Supervisor / Coordinador ven sólo las propias y las
+        /// de sus subordinados directos (com.SP_TPersonal_GetSubordinadosVentas).
+        /// </summary>
+        public TipoDescuentoSolicitudPaginadoDTO ListarSolicitudes(TipoDescuentoSolicitudFiltroDTO filtro, int idPersonalUsuario)
+        {
+            filtro.IdsAsesoresFiltro = ResolverIdsAsesoresPermitidos(idPersonalUsuario);
+            return _unitOfWork.TipoDescuentoSolicitudRepository.ListarSolicitudes(filtro);
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 24/04/2026
         /// Version: 1.0
         /// <summary>
-        /// Lista solicitudes de descuento con filtros y paginación
+        /// Devuelve la lista de IDs de asesores que el usuario tiene autorizado consultar.
+        /// Retorna null cuando el usuario es Gerencia (ve todo, sin filtro).
+        /// Para los demás roles incluye al propio usuario porque
+        /// com.SP_TPersonal_GetSubordinadosVentas no se incluye a sí mismo.
         /// </summary>
-        public TipoDescuentoSolicitudPaginadoDTO ListarSolicitudes(TipoDescuentoSolicitudFiltroDTO filtro)
+        private List<int>? ResolverIdsAsesoresPermitidos(int idPersonalUsuario)
         {
-            return _unitOfWork.TipoDescuentoSolicitudRepository.ListarSolicitudes(filtro);
+            if (IdsGerencia.Contains(idPersonalUsuario))
+            {
+                return null;
+            }
+
+            var ids = new HashSet<int> { idPersonalUsuario };
+
+            var subordinados = _unitOfWork.PersonalRepository.ObtenerPersonalAsignadoVentas(idPersonalUsuario);
+            if (subordinados != null)
+            {
+                foreach (var s in subordinados)
+                {
+                    ids.Add(s.Id);
+                }
+            }
+
+            return ids.ToList();
         }
 
         /// Autor: Joseph Llanque

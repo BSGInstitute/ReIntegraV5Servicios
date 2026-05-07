@@ -30,6 +30,7 @@
         public int IdCentroCosto { get; set; }
         public int? IdProveedor { get; set; }
         public int? IdEstadoPEspecifico { get; set; }
+        public int? IdEstadoCupos { get; set; }
         public int? IdModalidadCurso { get; set; }
         public int? IdCursoMoodle { get; set; }
         public int? IdCursoMoodlePrueba { get; set; }

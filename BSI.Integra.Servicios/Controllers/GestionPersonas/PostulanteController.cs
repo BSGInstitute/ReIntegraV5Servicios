@@ -912,6 +912,31 @@ namespace BSI.Integra.Servicios.Controllers.GestionPersonas
             }
         }
 
+        /// Autor: Marco Villanueva
+        /// Fecha: 08/04/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Cambia el proceso de seleccion del postulante usando el SP alterno
+        /// </summary>
+        /// <returns> objeto con mensaje y valor </returns>
+        [HttpPost]
+        [Route("[Action]")]
+        public ActionResult CambiarProcesoSeleccionPostulanteAlterno([FromBody] PostulanteProcesoNuevoDTO Informacion)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                return Ok(_postulanteService.CambiarProcesoSeleccionPostulanteAlterno(Informacion));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         /// Autor: Eliot Arias F.
         /// Fecha: 14/11/2024
         /// Versión: 1.0

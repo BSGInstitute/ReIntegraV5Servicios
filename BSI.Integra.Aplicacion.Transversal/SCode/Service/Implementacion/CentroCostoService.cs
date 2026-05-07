@@ -231,6 +231,17 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 return _unitOfWork.CentroCostoRepository.ObtenerAutocompletePorTipoProgramaCarrera(valor, null);
             }
         }
+        public IEnumerable<ComboDTO> ObtenerAutocompleteV3(string valor, string usuario)
+        {
+            if (usuario == "AdminInst")
+            {
+                return _unitOfWork.CentroCostoRepository.ObtenerAutocompletePorTipoProgramaCarreraV3(valor, 2);
+            }
+            else
+            {
+                return _unitOfWork.CentroCostoRepository.ObtenerAutocompletePorTipoProgramaCarreraV3(valor, null);
+            }
+        }
         /// Autor: Daniel Huaita
         /// Fecha: 16/02/2023
         /// Version: 1.0

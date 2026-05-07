@@ -2146,6 +2146,36 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             }
         }
 
+        /// Autor: Marco Villanueva
+        /// Fecha: 08/04/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Cambia el proceso de seleccion del postulante usando el SP alterno
+        /// </summary>
+        /// <returns> objeto con mensaje y valor </returns>
+        public Object CambiarProcesoSeleccionPostulanteAlterno(PostulanteProcesoNuevoDTO Informacion)
+        {
+            try
+            {
+                var resultado = _unitOfWork.PostulanteRepository.CambiarProcesoSeleccionPostulanteAlterno(Informacion);
+
+                var Postulantelog1 = PostulanteLog(Informacion, "IdProcesoSeleccion", Informacion.IdProcesoSeleccionDestino, id => _unitOfWork.ProcesoSeleccionRepository.FirstById(id).Nombre);
+
+                var Postulantelog2 = PostulanteLog(Informacion, "IdConvocatoriaPersonal", Informacion.IdProcesoSeleccionDestino, id => _unitOfWork.ProcesoSeleccionRepository.FirstById(id).Codigo);
+                var list = new List<PostulanteLog>();
+                list.Add(Postulantelog1);
+                list.Add(Postulantelog2);
+                _unitOfWork.PostulanteLogRepository.Add(list);
+                _unitOfWork.Commit();
+
+                return (new { mensaje = "Proceso de Seleccion Actualizado Con Exito", valor = true });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error en CambiarProcesoSeleccionPostulanteAlterno " + ex.Message);
+            }
+        }
+
         /// Autor: Eliot Arias F.
         /// Fecha: 14/11/2024
         /// Versión: 1.0

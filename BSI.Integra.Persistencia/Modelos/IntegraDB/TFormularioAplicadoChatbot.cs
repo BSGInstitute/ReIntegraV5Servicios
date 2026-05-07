@@ -20,9 +20,17 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public int Id { get; set; }
         /// <summary>
-        /// Identificador del chat del portal asociado
+        /// Identificador del chat del portal asociado (nullable: registros WhatsApp no lo usan)
         /// </summary>
-        public int IdChatbotPortalHiloChat { get; set; }
+        public int? IdChatbotPortalHiloChat { get; set; }
+        /// <summary>
+        /// Identificador del medio de comunicación (FK a pla.T_MedioComunicacion)
+        /// </summary>
+        public int? IdMedioComunicacion { get; set; }
+        /// <summary>
+        /// ID polimórfico del hilo según canal: Portal → T_ChatbotPortalHiloChat.Id, WhatsApp → T_ChatbotWhatsAppAtcHiloChat.Id
+        /// </summary>
+        public int? IdOriginal { get; set; }
         /// <summary>
         /// Identificador de la versión del formulario aplicado
         /// </summary>
@@ -52,7 +60,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
 
-        public virtual TChatbotPortalHiloChat IdChatbotPortalHiloChatNavigation { get; set; } = null!;
+        public virtual TChatbotPortalHiloChat? IdChatbotPortalHiloChatNavigation { get; set; }
         public virtual TVersionFormularioEvaluacionChatbot IdVersionFormularioEvaluacionChatbotNavigation { get; set; } = null!;
         public virtual ICollection<TProblemaIdentificadoChatbot> TProblemaIdentificadoChatbots { get; set; }
         public virtual ICollection<TRespuestaClienteChatbot> TRespuestaClienteChatbots { get; set; }

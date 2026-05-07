@@ -6043,6 +6043,57 @@ namespace BSI.Integra.Aplicacion.Comercial.SCode.Service.Implementacion
             return (esValido, observaciones);
         }
 
+        /// Autor: Jose Vega
+        /// Fecha: 12/01/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtener objeciones por oportunidad
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <returns> Objeto con lista de objeciones y error </returns>
+        public object ObtenerObjecionesPorOportunidad(int idOportunidad)
+        {
+            try
+            {
+                var oportunidad = _unitOfWork.OportunidadRepository.ObtenerDatosCompuestosPorIdOportunidad(idOportunidad);
+                if (oportunidad == null)
+                {
+                    return new { objeciones = new List<object>(), error = "Oportunidad no encontrada" };
+                }
+
+                if (oportunidad.IdPgeneral == null)
+                {
+                    return new { objeciones = new List<object>(), error = "Oportunidad no tiene programa general" };
+                }
+
+                var serviceObjeciones = new ProgramaGeneralProblemaDetalleService(_unitOfWork);
+                var objeciones = serviceObjeciones.ObtenerProblemasClienteAgendaV6(oportunidad.IdPgeneral.Value, idOportunidad);
+
+                var listaObjeciones = objeciones
+                    .Where(x => x.EsSolucionado)
+                    .Select(o => new
+                    {
+                        problemaClienteNombre = o.ProblemaClienteNombre,
+                        problemaClienteSolucionTitulo = o.ProblemaClienteSolucionTitulo,
+                        subSoluciones = o.SubSoluciones.Select(s => new { subSolucion = s.SubSolucion }).ToList()
+                    }).ToList();
+
+                return new
+                {
+                    objeciones = listaObjeciones,
+                    error = (string?)null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new
+                {
+                    objeciones = new List<object>(),
+                    error = ex.Message
+                };
+            }
+        }
+
     }
 }
 
