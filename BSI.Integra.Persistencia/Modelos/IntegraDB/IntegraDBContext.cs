@@ -28063,6 +28063,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsUnicode(false)
                     .HasComment("Tipo MIME del archivo (application/pdf, image/jpeg, etc.)");
 
+                entity.Property(e => e.EsComprobante).HasComment("Indica si el archivo corresponde a un Comprobante (1) o a Otros Archivos (0). Aplica solo a archivos de cabecera (IdGestionPagoCronograma NULL). Lo setea el backend según el endpoint usado");
+
                 entity.Property(e => e.Estado).HasComment("Estado del registro (1: activo, 0: eliminado)");
 
                 entity.Property(e => e.FechaCreacion)

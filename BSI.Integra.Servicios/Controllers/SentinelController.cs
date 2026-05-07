@@ -1,4 +1,6 @@
 ﻿using BSI.Integra.Aplicacion.Comercial.Service.Implementacion;
+using BSI.Integra.Aplicacion.DTO.ExperianSentinel;
+using BSI.Integra.Aplicacion.Transversal.ExperianSentinel;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Repositorio.UnitOfWork;
 using Microsoft.AspNetCore.Cors;
@@ -300,5 +302,82 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("TipoServicio")]
+        public IActionResult ObtenerTipoServicio()
+        {
+            try
+            {
+                return Ok(new { TipoServicio = SentinelTipoServicioConfig.TipoActual });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("CambiarTipoServicio")]
+        public IActionResult CambiarTipoServicio([FromBody] CambiarTipoServicioRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request?.Tipo))
+                return BadRequest("El campo 'Tipo' es requerido. Valores válidos: REST, SOAP");
+
+            try
+            {
+                SentinelTipoServicioConfig.Cambiar(request.Tipo);
+                return Ok(new { TipoServicio = SentinelTipoServicioConfig.TipoActual });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("ConsultarCrudo/{tipo}/{dni}")]
+        public async Task<IActionResult> ConsultarCrudoExperian(string tipo, string dni)
+        {
+            if (string.IsNullOrWhiteSpace(dni))
+                return BadRequest("El DNI es requerido.");
+
+            tipo = tipo?.Trim().ToUpperInvariant() ?? string.Empty;
+            if (tipo != "SOAP" && tipo != "REST")
+                return BadRequest("El tipo debe ser 'SOAP' o 'REST'.");
+
+            try
+            {
+                var cliente = ExperianSentinelClientFactory.Crear(tipo, unitOfWork);
+                return Ok(await cliente.ConsultarAsyncCrudo(dni, "D"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("Consultar/{tipo}/{dni}")]
+        public async Task<IActionResult> ConsultarExperian(string tipo, string dni)
+        {
+            if (string.IsNullOrWhiteSpace(dni))
+                return BadRequest("El DNI es requerido.");
+
+            tipo = tipo?.Trim().ToUpperInvariant() ?? string.Empty;
+            if (tipo != "SOAP" && tipo != "REST")
+                return BadRequest("El tipo debe ser 'SOAP' o 'REST'.");
+
+            try
+            {
+                var cliente = ExperianSentinelClientFactory.Crear(tipo, unitOfWork);
+                return Ok(await cliente.ConsultarAsync(dni, "D"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+    }
+
+    public class CambiarTipoServicioRequest
+    {
+        public string Tipo { get; set; } = string.Empty;
     }
 }

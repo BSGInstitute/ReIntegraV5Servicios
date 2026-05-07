@@ -279,7 +279,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 int? IdAsignacionRegular = null;
                 List<ObtenerListaAsesorDTO> ConfiguracionPais = new List<ObtenerListaAsesorDTO>();
-                var resultado = _dapperRepository.QuerySPDapper("mkt.SP_AsignacionRegularAsesor", new { IdAsignacionRegular = IdAsignacionRegular } );
+                var resultado = _dapperRepository.QuerySPDapper("mkt.SP_AsignacionRegularAsesor", new { IdAsignacionRegular = IdAsignacionRegular });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
                     ConfiguracionPais = JsonConvert.DeserializeObject<List<ObtenerListaAsesorDTO>>(resultado);
@@ -1933,6 +1933,58 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     EstadoActualizacion = JsonConvert.DeserializeObject<EstadoActualizacionDTO>(resultado);
                 }
                 return EstadoActualizacion.Valor.Value;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 29/04/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el valor de AsignacionPais del asesor a partir del IdAsignacionRegular
+        /// </summary>
+        /// <returns> ObtenerAsignacionPaisAsesorDTO </returns>
+        public ObtenerAsignacionPaisAsesorDTO ObtenerAsignacionPaisAsesor(int idAsignacionRegular)
+        {
+            try
+            {
+                ObtenerAsignacionPaisAsesorDTO resultado = new ObtenerAsignacionPaisAsesorDTO();
+                var respuesta = _dapperRepository.QuerySPFirstOrDefault("mkt.SP_TAsesorCentroCostoObtenerAsignacionPais", new { IdAsignacionRegular = idAsignacionRegular });
+                if (!string.IsNullOrEmpty(respuesta) && respuesta != "null")
+                {
+                    resultado = JsonConvert.DeserializeObject<ObtenerAsignacionPaisAsesorDTO>(respuesta);
+                }
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 29/04/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza la etiqueta del asesor en asignación regular
+        /// </summary>
+        /// <returns> bool </returns>
+        public bool? ActualizarAsignacionPaisAsesor(int idAsignacionRegular, string asignacionPais, string usuarioModificacion)
+        {
+            try
+            {
+                EstadoActualizacionDTO RespuestaBool = new EstadoActualizacionDTO();
+                RespuestaBool.Valor = false;
+                var resultado = _dapperRepository.QuerySPFirstOrDefault("mkt.SP_TAsesorCentroCosto_ActualizarAsignacionPais", new { IdAsignacionRegular = idAsignacionRegular, AsignacionPais = asignacionPais, UsuarioModificacion = usuarioModificacion });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    RespuestaBool = JsonConvert.DeserializeObject<EstadoActualizacionDTO>(resultado);
+                    return RespuestaBool.Valor;
+                }
+                return RespuestaBool.Valor;
             }
             catch (Exception ex)
             {

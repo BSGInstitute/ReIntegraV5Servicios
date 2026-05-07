@@ -2070,7 +2070,7 @@ namespace BSI.Integra.Servicios.Controllers
         /// <param name="idActividadDetalle">Id de ActividadDetalle</param>
         /// <returns> Retorna 200 y objeto o 400 y mensaje de error </returns>
         [HttpGet("[action]/{idOportunidad}/{idActividadDetalle}")]
-        public IActionResult ObtenerFechaHoraActividadReprogramacionAutomaticaV2(int idOportunidad,int idActividadDetalle)
+        public IActionResult ObtenerFechaHoraActividadReprogramacionAutomaticaV2(int idOportunidad, int idActividadDetalle)
         {
             try
             {
@@ -2173,114 +2173,13 @@ namespace BSI.Integra.Servicios.Controllers
             try
             {
                 var servicioSentinel = new SentinelService(_unitOfWork);
-                var servicioEstandarItem = new SentinelSdtEstandarItemService(_unitOfWork);
-                var servicioInfGen = new SentinelSdtInfGenService(_unitOfWork);
-                var servicioLincreItem = new SentinelSdtLincreItemService(_unitOfWork);
-                var servicioPoshis = new SentinelSdtPoshisItemService(_unitOfWork);
-                var servicioRepLeg = new SentinelRepLegItemService(_unitOfWork);
-                var servicioRepSBS = new SentinelSdtRepSbsitemService(_unitOfWork);
-                var servicioResVen = new SentinelSdtResVenItemService(_unitOfWork);
-                var alumnoService = new AlumnoService(_unitOfWork);
-
-                var resultadoSentinel = servicioSentinel.ObtenerIdSentinelPorDni(dni);
-                var idSentinel = 0;
-                if (resultadoSentinel != null && resultadoSentinel.Valor != null)
+                var result = servicioSentinel.ActualizarSentinelAlumno(dni, idContacto, usuario);
+                return Ok(new
                 {
-                    idSentinel = resultadoSentinel.Valor.Value;
-                }
-                var alumno = alumnoService.ObtenerPorId(idContacto);
-                SentinelDTO sentinel = new SentinelDTO();
-
-                bool rpta = false;
-                bool estado = true;
-                if (idSentinel != null && idSentinel > 0)
-                {
-                    sentinel = servicioSentinel.ObtenerSentinelPorDni(dni);
-                    var sentinelSdtEstandarItem = servicioEstandarItem.ObtenerPorIdSentinel(idSentinel);
-                    var sentinelSdtInfGen = servicioInfGen.ObtenerPorIdSentinel(idSentinel);
-                    var sentinelSdtLincreItem = servicioLincreItem.ObtenerPorIdSentinel(idSentinel);
-                    var sentinelSdtPoshisItem = servicioPoshis.ObtenerPorIdSentinel(idSentinel);
-                    var sentinelRepLegItem = servicioRepLeg.ObtenerPorIdSentinel(idSentinel);
-                    var sentinelSdtRepSBSItem = servicioRepSBS.ObtenerPorIdSentinel(idSentinel);
-                    var sentinelSdtResVenItem = servicioResVen.ObtenerPorIdSentinel(idSentinel);
-
-                    if (sentinelSdtEstandarItem != null && sentinelSdtEstandarItem.Count() > 0) { servicioEstandarItem.Delete(sentinelSdtEstandarItem.Select(p => p.Id).ToList(), usuario); }
-                    if (sentinelSdtInfGen != null && sentinelSdtInfGen.Count() > 0) { servicioInfGen.Delete(sentinelSdtInfGen.Select(p => p.Id).ToList(), usuario); }
-                    if (sentinelSdtLincreItem != null && sentinelSdtLincreItem.Count() > 0) { servicioLincreItem.Delete(sentinelSdtLincreItem.Select(p => p.Id).ToList(), usuario); }
-                    if (sentinelSdtPoshisItem != null && sentinelSdtPoshisItem.Count() > 0) { servicioPoshis.Delete(sentinelSdtPoshisItem.Select(p => p.Id).ToList(), usuario); }
-                    if (sentinelRepLegItem != null && sentinelRepLegItem.Count() > 0) { servicioRepLeg.Delete(sentinelRepLegItem.Select(p => p.Id).ToList(), usuario); }
-                    if (sentinelSdtRepSBSItem != null && sentinelSdtRepSBSItem.Count() > 0) { servicioRepSBS.Delete(sentinelSdtRepSBSItem.Select(p => p.Id).ToList(), usuario); }
-                    if (sentinelSdtResVenItem != null && sentinelSdtResVenItem.Count() > 0) { servicioResVen.Delete(sentinelSdtResVenItem.Select(p => p.Id).ToList(), usuario); }
-                    /* Estado = 1 */
-                    var resultadoActualizar = servicioSentinel.ActualizarSentinelAlumno(dni, usuario);
-                    if (resultadoActualizar.DatosGenerales.Dni == "")
-                    {
-                        estado = false;
-                    }
-                    if (estado)
-                    {
-                        alumno.Dni = dni;
-                        alumno = alumnoService.ValidarEstadoContactoWhatsAppTemporalAlterno(alumno);
-                        if (resultadoActualizar.DatosGenerales != null)
-                        {
-                            alumno.FechaNacimiento = resultadoActualizar.DatosGenerales.FechaNacimiento;
-                        }
-
-                        alumno.IdEmpresa = (alumno.IdEmpresa == 0 || alumno.IdEmpresa == -1) ? null : alumno.IdEmpresa;
-                        alumnoService.Update(alumno);
-                        var entidadSentinel = servicioSentinel.MapeoEntidadDesdeDTO(sentinel);
-                        entidadSentinel.SentinelRepLegItems = servicioRepLeg.MapeoEntidadesDesdeListaDTO(resultadoActualizar.Cargo);
-                        entidadSentinel.SentinelSdtEstandarItems = servicioEstandarItem.MapeoEntidadesDesdeListaDTO(resultadoActualizar.DniRuc);
-                        entidadSentinel.SentinelSdtInfGens = servicioInfGen.MapeoEntidadesDesdeListaDTO(new SentinelSdtInfGenDTO[] { resultadoActualizar.DatosGenerales }.ToList());
-                        entidadSentinel.SentinelSdtLincreItems = servicioLincreItem.MapeoEntidadesDesdeListaDTO(resultadoActualizar.LineaCredito);
-                        entidadSentinel.SentinelSdtPoshisItems = servicioPoshis.MapeoEntidadesDesdeListaDTO(resultadoActualizar.PosicionHistoria);
-                        entidadSentinel.SentinelSdtRepSbsitems = servicioRepSBS.MapeoEntidadesDesdeListaDTO(resultadoActualizar.Deuda);
-                        entidadSentinel.SentinelSdtResVenItems = servicioResVen.MapeoEntidadesDesdeListaDTO(resultadoActualizar.DatosVencidas);
-                        entidadSentinel.Dni = dni;
-                        entidadSentinel.UsuarioModificacion = usuario;
-                        entidadSentinel.FechaModificacion = DateTime.Now;
-                        servicioSentinel.Update(entidadSentinel);
-                        rpta = true;
-                    }
-                }
-                else
-                {
-                    sentinel.Dni = dni;
-                    sentinel.Estado = true;
-                    sentinel.UsuarioCreacion = usuario;
-                    sentinel.UsuarioModificacion = usuario;
-                    sentinel.FechaCreacion = DateTime.Now;
-                    sentinel.FechaModificacion = DateTime.Now;
-                    var resultadoActualizar = servicioSentinel.ActualizarSentinelAlumno(dni, usuario);
-                    if (resultadoActualizar.DatosGenerales.Dni == "")
-                    {
-                        estado = false;
-                        //return BadRequest("El numero de DNI a consultar es invalido o no esta registrado en sentinel");
-                    }
-                    if (estado)
-                    {
-                        alumno = alumnoService.ValidarEstadoContactoWhatsAppTemporalAlterno(alumno);
-                        if (resultadoActualizar.DatosGenerales != null)
-                        {
-                            alumno.FechaNacimiento = resultadoActualizar.DatosGenerales.FechaNacimiento;
-                            alumno.UsuarioModificacion = usuario;
-                            alumno.FechaModificacion = DateTime.Now;
-                        }
-                        alumno.Dni = dni;
-                        alumnoService.Update(alumno);
-                        var entidadSentinel = servicioSentinel.MapeoEntidadDesdeDTO(sentinel);
-                        entidadSentinel.SentinelRepLegItems = servicioRepLeg.MapeoEntidadesDesdeListaDTO(resultadoActualizar.Cargo);
-                        entidadSentinel.SentinelSdtEstandarItems = servicioEstandarItem.MapeoEntidadesDesdeListaDTO(resultadoActualizar.DniRuc);
-                        entidadSentinel.SentinelSdtInfGens = servicioInfGen.MapeoEntidadesDesdeListaDTO(new SentinelSdtInfGenDTO[] { resultadoActualizar.DatosGenerales }.ToList());
-                        entidadSentinel.SentinelSdtLincreItems = servicioLincreItem.MapeoEntidadesDesdeListaDTO(resultadoActualizar.LineaCredito);
-                        entidadSentinel.SentinelSdtPoshisItems = servicioPoshis.MapeoEntidadesDesdeListaDTO(resultadoActualizar.PosicionHistoria);
-                        entidadSentinel.SentinelSdtRepSbsitems = servicioRepSBS.MapeoEntidadesDesdeListaDTO(resultadoActualizar.Deuda);
-                        entidadSentinel.SentinelSdtResVenItems = servicioResVen.MapeoEntidadesDesdeListaDTO(resultadoActualizar.DatosVencidas);
-                        servicioSentinel.Add(entidadSentinel);
-                        rpta = true;
-                    }
-                }
-                return Ok(new { rpta, idSentinel = sentinel.Id, estado });
+                    rpta = result.Respuesta,
+                    idSentinel = result.IdSentinel,
+                    estado = result.Estado
+                });
             }
             catch (Exception ex)
             {
@@ -3188,7 +3087,7 @@ namespace BSI.Integra.Servicios.Controllers
         /// <returns> Objeto DTO : SpeechBienvenidaDespedidaDTO </returns>
         [Route("[action]/{idActividadDetalle}")]
         [HttpGet]
-        public ActionResult ObtenerIdSpeechBienvenidaDespedida(int idActividadDetalle )
+        public ActionResult ObtenerIdSpeechBienvenidaDespedida(int idActividadDetalle)
         {
             if (!ModelState.IsValid)
             {
@@ -3231,7 +3130,7 @@ namespace BSI.Integra.Servicios.Controllers
                 {
                     speechBienvenidaDespedidaDTO.IdPlantillaBienvenida = 1671;
                 }
-                else if(alumno.IdCodigoPais == 51 && alumno.Modalidad == "Online Asincronica")
+                else if (alumno.IdCodigoPais == 51 && alumno.Modalidad == "Online Asincronica")
                 {
                     speechBienvenidaDespedidaDTO.IdPlantillaBienvenida = 1675;
                 }
@@ -4271,7 +4170,7 @@ namespace BSI.Integra.Servicios.Controllers
         /// <returns> Lista de Objeto DTO : List<ReporteSeguimientoOportunidadLogGridDTO> </returns>
         [Route("[action]/{idAlumno}/{idOportunidad}/{idPadre}/{pageNumber}/{pageSize}")]
         [HttpGet]
-        public ActionResult ObtenerHistorialInteraccionesOportunidadOperaciones(int idAlumno, int? idOportunidad, int? idPadre,int pageNumber, int pageSize)
+        public ActionResult ObtenerHistorialInteraccionesOportunidadOperaciones(int idAlumno, int? idOportunidad, int? idPadre, int pageNumber, int pageSize)
         {
 
             if (!ModelState.IsValid)
@@ -4764,7 +4663,8 @@ namespace BSI.Integra.Servicios.Controllers
 
                         }
                         break;
-                };
+                }
+                ;
 
 
                 //EnvioCorreoAlumno( /*idplantilla*/1396,datosAlumno.IdPersonal, datosAlumno.EmailPersonal, datosAlumno.EmailAlumno, dto.ActividadAntigua.IdOportunidad.Value);
@@ -5347,7 +5247,8 @@ namespace BSI.Integra.Servicios.Controllers
 
         [Route("[Action]/{idMatriculaCabecera}")]
         [HttpGet]
-        public ActionResult ObtenerAvanceAonlineHoras(int idMatriculaCabecera) { 
+        public ActionResult ObtenerAvanceAonlineHoras(int idMatriculaCabecera)
+        {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -5668,7 +5569,7 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            }
+        }
 
 
         /// Tipo Función: POST

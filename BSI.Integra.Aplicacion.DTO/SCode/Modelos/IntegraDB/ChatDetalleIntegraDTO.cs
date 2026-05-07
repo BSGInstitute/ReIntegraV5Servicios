@@ -619,5 +619,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string WaFileName { get; set; }
         public string WaCaption { get; set; }
         public DateTime FechaCreacion { get; set; }
+        public int EsBot { get; set; }
+        public string Personal { get; set; }
     }
 }

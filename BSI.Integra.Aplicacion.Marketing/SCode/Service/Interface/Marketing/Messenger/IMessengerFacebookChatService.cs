@@ -1,4 +1,5 @@
-﻿using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Messenger;
+﻿using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Messenger;
 
 namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.Messenger
 {
@@ -9,5 +10,7 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.Mes
         List<ObtenerDatosGeneralesAlumnosPorPSIDResponseDTO> ObtenerDatosGeneralesAlumnosPorPSID(ObtenerDatosGeneralesAlumnosPorPSIDRequestDTO request);
         Task<EnviarMensajeResponse> EnviarMensajeTexto(EnviarMensajeTextoRequest request);
         bool GuardarAlumnoOportunidadRegistro(string identificadorAmbitoPagina, int idOportunidad, string usuario);
+        Task<DatosExtraccionRegistrosResponseDTO> CapturarRegistrosModeloIA(DatosExtraccionRegistrosMessengerDTO datosExtraccionRegistrosMessenger);
+        Task<DesactivarInteraccionResponseDTO> DesactivarInteraccionAutomaticaMessenger(string identificadorAmbitoPagina, string idAlumno);
     }
 }
