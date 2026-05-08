@@ -621,5 +621,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public DateTime FechaCreacion { get; set; }
         public int EsBot { get; set; }
         public string Personal { get; set; }
+        public string WaType { get; set; }
+
     }
 }
