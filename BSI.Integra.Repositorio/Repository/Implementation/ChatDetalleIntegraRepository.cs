@@ -745,7 +745,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene hilos de chat paginados (Portal + WhatsApp) para un alumno desde una fecha de corte.
         /// </summary>
-        public IEnumerable<HiloChatPaginadoDTO> ObtenerHilosPaginadosPorAlumno(
+        public IEnumerable<HiloChatAlumnoPaginadoDTO> ObtenerHilosPaginadosPorAlumno(
             int idAlumno, DateTime fechaInicio, DateTime fechaFin, int pageNumber, int pageSize)
         {
             try
@@ -761,9 +761,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 });
 
                 if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
-                    return Enumerable.Empty<HiloChatPaginadoDTO>();
+                    return Enumerable.Empty<HiloChatAlumnoPaginadoDTO>();
 
-                return JsonConvert.DeserializeObject<List<HiloChatPaginadoDTO>>(resultado);
+                return JsonConvert.DeserializeObject<List<HiloChatAlumnoPaginadoDTO>>(resultado);
             }
             catch (Exception ex)
             {
@@ -771,12 +771,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public IEnumerable<HiloChatPaginadoDTO> ObtenerHilosPaginadosPorSegmento(
+        public IEnumerable<HiloChatNoAlumnoPaginadoDTO> ObtenerHilosPaginadosPorSegmento(
             string idContactoPortalSegmento, DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize)
         {
             try
             {
-                var query = "ia.SP_ObtenerHilosPaginadosPorSegmento";
+                var query = "ia.SP_ChatbotPortalHiloChatPaginadosPorSegmento";
                 var resultado = _dapperRepository.QuerySPDapper(query, new
                 {
                     IdContactoPortalSegmento = idContactoPortalSegmento,
@@ -787,9 +787,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 });
 
                 if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
-                    return Enumerable.Empty<HiloChatPaginadoDTO>();
+                    return Enumerable.Empty<HiloChatNoAlumnoPaginadoDTO>();
 
-                return JsonConvert.DeserializeObject<List<HiloChatPaginadoDTO>>(resultado);
+                return JsonConvert.DeserializeObject<List<HiloChatNoAlumnoPaginadoDTO>>(resultado);
             }
             catch (Exception ex)
             {

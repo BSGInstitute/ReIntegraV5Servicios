@@ -46,8 +46,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<RespuestaClienteDTO> ObtenerRespuestasUsuarioPorFormularioAplicadoWhatsapp(int idChatbotWhatsAppHiloChat);
         InsertarRespuestaEvaluacionResultadoDTO InsertarRespuestaEvaluacionCompletaWhatsapp(int idMedioComunicacion, int idOriginal, int idVersionFormularioEvaluacionChatbot, string usuarioCreacion, int? idSolicitudProblema, string respuestasSeleccionadasJson = null, string respuestasTextoJson = null, string problemasIdentificadosJson = null);
         IEnumerable<int> ObtenerIdsPreguntaPorIdsRespuesta(IEnumerable<int> idsRespuesta);
-        IEnumerable<HiloChatPaginadoDTO> ObtenerHilosPaginadosPorAlumno(int idAlumno, DateTime fechaInicio, DateTime fechaFin, int pageNumber, int pageSize);
-        IEnumerable<HiloChatPaginadoDTO> ObtenerHilosPaginadosPorSegmento(string idContactoPortalSegmento, DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize);
+        IEnumerable<HiloChatAlumnoPaginadoDTO> ObtenerHilosPaginadosPorAlumno(int idAlumno, DateTime fechaInicio, DateTime fechaFin, int pageNumber, int pageSize);
+        IEnumerable<HiloChatNoAlumnoPaginadoDTO> ObtenerHilosPaginadosPorSegmento(string idContactoPortalSegmento, DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize);
         IEnumerable<SolicitudPorHiloChatDTO> ObtenerSolicitudesPorHiloChat(int idHiloChat, int idChatbotTipo);
         List<ChatActivoDetalleIntegraDTO> ObtenerChatsAcademicosHabilitadosCoordinadora(int IdCoordinadorAcademico, bool EsOnline);
 

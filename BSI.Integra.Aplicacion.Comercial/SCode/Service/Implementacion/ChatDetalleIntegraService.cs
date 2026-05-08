@@ -596,7 +596,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         /// <summary>
         /// Obtiene hilos paginados (Portal + WhatsApp) para un alumno desde una fecha de corte.
         /// </summary>
-        public PagedResponseDTO<HiloChatPaginadoDTO> ObtenerHilosPaginadosPorAlumno(
+        public PagedResponseDTO<HiloChatAlumnoPaginadoDTO> ObtenerHilosPaginadosPorAlumno(
             ObtenerHilosPaginadosRequestDTO request)
         {
             try
@@ -612,7 +612,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
 
                 var totalCount = items.FirstOrDefault()?.TotalCount ?? 0;
 
-                return new PagedResponseDTO<HiloChatPaginadoDTO>
+                return new PagedResponseDTO<HiloChatAlumnoPaginadoDTO>
                 {
                     Items      = items,
                     TotalCount = totalCount,
@@ -626,7 +626,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
         }
 
-        public PagedResponseDTO<HiloChatPaginadoDTO> ObtenerHilosPaginadosPorSegmento(
+        public PagedResponseDTO<HiloChatNoAlumnoPaginadoDTO> ObtenerHilosPaginadosPorSegmento(
             ObtenerHilosPaginadosPorSegmentoRequestDTO request)
         {
             try
@@ -642,7 +642,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
 
                 var totalCount = items.FirstOrDefault()?.TotalCount ?? 0;
 
-                return new PagedResponseDTO<HiloChatPaginadoDTO>
+                return new PagedResponseDTO<HiloChatNoAlumnoPaginadoDTO>
                 {
                     Items      = items,
                     TotalCount = totalCount,

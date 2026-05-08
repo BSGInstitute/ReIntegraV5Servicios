@@ -188,6 +188,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public bool EsUsuario { get; set; }
         public string Contenido { get; set; }
         public string IdContactoPortalSegmento { get; set; }
+        public int? EsBot { get; set; }
+        public string Personal { get; set; } = "";
     }
 
     public class InsertarRespuestaEvaluacionCompletaRequestDTO
@@ -406,12 +408,24 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int TotalCount { get; set; }
     }
 
-    public class HiloChatPaginadoDTO
+    public class HiloChatAlumnoPaginadoDTO
     {
         public int IdHilo { get; set; }
         public DateTime FechaCreacion { get; set; }
         public string Origen { get; set; }
         public int IdOrigen { get; set; }
+        public bool EsCalificado { get; set; }
+        public DateTime? FechaCalificacion { get; set; }
+        public string UltimoMensaje { get; set; }
+        public int TotalMensajes { get; set; }
+        public int TotalCount { get; set; }
+    }
+    public class HiloChatNoAlumnoPaginadoDTO
+    {
+        public int IdChatbotPortalHiloChat { get; set; }
+        public DateTime FechaCreacion { get; set; }
+        public string Origen { get; set; }
+        public int IdMedioComunicacion_Origen { get; set; }
         public bool EsCalificado { get; set; }
         public DateTime? FechaCalificacion { get; set; }
         public string UltimoMensaje { get; set; }
