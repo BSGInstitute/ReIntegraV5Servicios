@@ -416,6 +416,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public DateTime? FechaCalificacion { get; set; }
         public string UltimoMensaje { get; set; }
         public int TotalMensajes { get; set; }
+        public int TotalMensajesBot { get; set; }
         public int TotalCount { get; set; }
     }
 
