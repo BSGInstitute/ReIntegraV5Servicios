@@ -2520,42 +2520,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// Versión: 1.0
         /// <summary>
         /// Retorna el historial de oportunidades de un alumno,
-        /// ejecutando la consulta directamente.
+        /// invocando el SP mkt.SP_OportunidadHistorialPorAlumno.
         /// Columnas: IdOportunidad, FaseOportunidad, FaseMaxima, NombrePrograma, FechaSolicitud, Asesor.
         /// </summary>
         public List<HistorialOportunidadMasivoDTO> ObtenerHistorialOportunidadesPorAlumno(int idAlumno)
         {
             try
             {
-                string query = @"
-            SELECT
-                O.Id                                AS IdOportunidad,
-                O.IdAlumno                          AS IdAlumno,
-                FO_Actual.Codigo                    AS FaseOportunidad,
-                FO_Maxima.Codigo                    AS FaseMaxima,
-                PG.Nombre                           AS NombrePrograma,
-                O.FechaRegistroCampania             AS FechaSolicitud,
-                CONCAT(P.Nombres, ' ', P.Apellidos) AS Asesor
-            FROM com.T_Oportunidad O
-                INNER JOIN gp.T_Personal P 
-                    ON O.IdPersonal_Asignado = P.Id
-                INNER JOIN pla.T_FaseOportunidad FO_Actual 
-                    ON FO_Actual.Id = O.IdFaseOportunidad
-                INNER JOIN pla.T_FaseOportunidad FO_Maxima 
-                    ON FO_Maxima.Id = O.IdFaseOportunidad_Maxima
-                INNER JOIN pla.T_CentroCosto CC 
-                    ON O.IdCentroCosto = CC.Id
-                INNER JOIN pla.T_PEspecifico PE 
-                    ON CC.Id = PE.IdCentroCosto
-                    AND PE.Estado = 1
-                INNER JOIN pla.T_PGeneral PG 
-                    ON PE.IdProgramaGeneral = PG.Id
-            WHERE
-                O.Estado = 1
-                AND O.IdPersonalAreaTrabajo = 8
-                AND O.IdAlumno = @IdAlumno;";
-
-                var respuesta = _dapperRepository.QueryDapper(query, new { IdAlumno = idAlumno });
+                var respuesta = _dapperRepository.QuerySPDapper("mkt.SP_OportunidadHistorialPorAlumno", new { IdAlumno = idAlumno });
                 if (!string.IsNullOrEmpty(respuesta) && !respuesta.Contains("[]"))
                 {
                     return JsonConvert.DeserializeObject<List<HistorialOportunidadMasivoDTO>>(respuesta) ?? new List<HistorialOportunidadMasivoDTO>();

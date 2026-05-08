@@ -17,7 +17,9 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.What
         private Mapper _mapper;
         private readonly IUnitOfWork unitOfWork;
 
-        private const string IA_MASIVO_BASE = "http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/testing";
+        //private const string IA_MASIVO_BASE = "http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/testing";
+        private const string IA_MASIVO_BASE = "http://ia-asistente-marketing-whatsapp-api.bsginstitute.com";
+
 
         public WhatsAppEnvioMasivoService(IUnitOfWork unitOfWork)
         {
