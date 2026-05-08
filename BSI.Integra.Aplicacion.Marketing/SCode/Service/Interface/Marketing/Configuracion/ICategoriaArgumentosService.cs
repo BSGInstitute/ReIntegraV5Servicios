@@ -10,8 +10,10 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Interface.Marketing.Con
 {
     public interface ICategoriaArgumentosService
     {
-        List<ProgramaConfigurado> ObtenerListadoProgramaConfigurado();
-        int CrearProgramaConfigurado(CrearProgramaGeneralConfiguradoDTO request, string usuario);
+        List<ProgramaGeneralListadoDTO> ObtenerListadoProgramaConfigurado();
+
+        List<ProgramaGeneralListadoDTO> ObtenerProgramasDisponiblesConfigurar();
+
         bool EliminarProgramaConfigurado(int id, string usuario);
 
         ProgramaConfiguradoDetalleDTO ObtenerProgramaConfiguradoDetalle(int id);

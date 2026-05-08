@@ -10,8 +10,10 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Marketing.Configuracion
 {
     public interface ICategoriaArgumentosRepository
     {
-        List<ProgramaConfigurado> ObtenerListadoProgramaConfigurado();
-        int CrearProgramaConfigurado(CrearProgramaGeneralConfiguradoDTO request, string usuario);
+        List<ProgramaGeneralListadoDTO> ObtenerListadoProgramaConfigurado();
+
+        List<ProgramaGeneralListadoDTO> ObtenerProgramasDisponiblesConfigurar();
+
         bool EliminarProgramaConfigurado(int id, string usuario);
 
         ProgramaConfiguradoDetalleDTO ObtenerProgramaConfiguradoDetalle(int id);

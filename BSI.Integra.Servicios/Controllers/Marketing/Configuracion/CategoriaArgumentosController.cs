@@ -42,25 +42,22 @@ namespace BSI.Integra.Servicios.Controllers.Marketing.Configuracion
         }
 
         /// Autor: Humberto Oscata
-        /// Fecha: 08/01/2026
+        /// Fecha: 07/05/2026
         /// Version: 1.0
         /// <summary>
-        /// Crea un nuevo registro para programa configurado
+        /// Obtiene los programas de pla.T_PGeneral que no tienen argumentos activos configurados aún.
+        /// Usado por el modal "Agregar Programa" para poblar el dropdown de selección.
+        /// Al seleccionar, el frontend navega directo al detalle SIN hacer POST de creación.
         /// </summary>
-        /// <param name="request">Cuerpo para crear nuevo programa</param>
-        /// <returns>Estado creacion</returns>
-        [HttpPost]
+        /// <returns>Listado de programas disponibles para configurar</returns>
+        [HttpGet]
         [Route("[action]")]
-        public IActionResult CrearProgramaConfigurado(CrearProgramaGeneralConfiguradoDTO request)
+        public IActionResult ObtenerProgramasDisponiblesConfigurar()
         {
             try
             {
-                var claimsIdentity = User.Identity as ClaimsIdentity;
-                var _respuestaCorrecta = ValidacionClaim.ValidarClaimFechaExpiracion(claimsIdentity);
-                var usuario = _respuestaCorrecta.RegistroClaimToken.UserName;
-
-                var resultado = _categoriaArgumentosService.CrearProgramaConfigurado(request, usuario);
-                return Ok(resultado);
+                var listado = _categoriaArgumentosService.ObtenerProgramasDisponiblesConfigurar();
+                return Ok(listado);
             }
             catch (Exception ex)
             {
