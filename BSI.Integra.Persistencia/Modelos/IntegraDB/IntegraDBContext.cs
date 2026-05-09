@@ -64763,8 +64763,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
             modelBuilder.Entity<TWhatsappAgenteLlamadaEstado>(entity =>
             {
-                entity.HasKey(e => e.IdAgenteLlamadaEstado);
-
                 entity.ToTable("T_WhatsappAgenteLlamadaEstado", "com");
 
                 entity.HasIndex(e => new { e.IdPersonalAreaTrabajo, e.IdPais, e.EstadoDisponibilidad }, "IX_T_WhatsappAgenteLlamadaEstado_Area");
@@ -64772,19 +64770,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.HasIndex(e => new { e.IdPersonal, e.IdPais }, "UX_T_WhatsappAgenteLlamadaEstado_Agente")
                     .IsUnique();
 
-                entity.Property(e => e.Estado)
-                    .IsRequired()
-                    .HasDefaultValueSql("((1))");
-
-                entity.Property(e => e.EstadoDisponibilidad).HasDefaultValueSql("((1))");
-
                 entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
 
                 entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
 
-                entity.Property(e => e.FechaUltimaActualizacion)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                entity.Property(e => e.FechaUltimaActualizacion).HasColumnType("datetime");
 
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
@@ -64792,6 +64782,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.SignalRconnectionId)
                     .HasMaxLength(200)
+                    .IsUnicode(false)
                     .HasColumnName("SignalRConnectionId");
 
                 entity.Property(e => e.UsuarioCreacion)
@@ -64805,23 +64796,21 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
             modelBuilder.Entity<TWhatsappLlamadaEstadoLog>(entity =>
             {
-                entity.HasKey(e => e.IdLog);
-
                 entity.ToTable("T_WhatsappLlamadaEstadoLog", "com");
 
-                entity.HasIndex(e => new { e.IdWhatsappLlamada, e.FechaTransicion }, "IX_T_WhatsappLlamadaEstadoLog_Llamada");
+                entity.HasIndex(e => new { e.IdWhatsappLlamada, e.FechaCreacion }, "IX_T_WhatsappLlamadaEstadoLog_Llamada");
 
                 entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
 
                 entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
 
-                entity.Property(e => e.FechaTransicion)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                entity.Property(e => e.Motivo)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
 
-                entity.Property(e => e.Motivo).HasMaxLength(100);
-
-                entity.Property(e => e.Origen).HasMaxLength(50);
+                entity.Property(e => e.Origen)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
@@ -64838,8 +64827,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
             modelBuilder.Entity<TWhatsappLlamadum>(entity =>
             {
-                entity.HasKey(e => e.IdWhatsappLlamada);
-
                 entity.ToTable("T_WhatsappLlamada", "com");
 
                 entity.HasIndex(e => new { e.IdPersonal, e.FechaRinging }, "IX_T_WhatsappLlamada_Agente")
@@ -64850,28 +64837,23 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.HasIndex(e => new { e.NumeroWhatsApp, e.IdPais }, "IX_T_WhatsappLlamada_Numero_Pais");
 
                 entity.HasIndex(e => e.WaId, "UX_T_WhatsappLlamada_WaId")
-                    .IsUnique()
-                    .HasFilter("([WaId] IS NOT NULL)");
+                    .IsUnique();
 
-                entity.Property(e => e.CallId).HasMaxLength(200);
+                entity.Property(e => e.CallId)
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
 
-                entity.Property(e => e.ConsentimientoEstado).HasMaxLength(20);
+                entity.Property(e => e.ConsentimientoEstado)
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.ConsentimientoExpira).HasColumnType("datetime");
 
                 entity.Property(e => e.ConsentimientoFecha).HasColumnType("datetime");
 
-                entity.Property(e => e.Estado)
-                    .IsRequired()
-                    .HasDefaultValueSql("((1))");
-
-                entity.Property(e => e.EstadoLlamada).HasDefaultValueSql("((1))");
-
                 entity.Property(e => e.FechaConexion).HasColumnType("datetime");
 
-                entity.Property(e => e.FechaCreacion)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
 
                 entity.Property(e => e.FechaFin).HasColumnType("datetime");
 
@@ -64879,21 +64861,37 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.FechaRinging).HasColumnType("datetime");
 
-                entity.Property(e => e.GrabacionBlobNombre).HasMaxLength(300);
+                entity.Property(e => e.GrabacionBlobNombre)
+                    .HasMaxLength(300)
+                    .IsUnicode(false);
 
-                entity.Property(e => e.GrabacionUrl).HasMaxLength(500);
+                entity.Property(e => e.GrabacionUrl)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
 
-                entity.Property(e => e.IdNumeroWhatsApp).HasMaxLength(50);
+                entity.Property(e => e.IdNumeroWhatsApp)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
 
-                entity.Property(e => e.MotivoFin).HasMaxLength(50);
+                entity.Property(e => e.MotivoFin)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
 
-                entity.Property(e => e.NumeroWhatsApp).HasMaxLength(30);
+                entity.Property(e => e.NumeroWhatsApp)
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.PayloadWebhookRaw).IsUnicode(false);
 
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
                     .IsConcurrencyToken();
 
-                entity.Property(e => e.TemplateConsentimientoId).HasMaxLength(100);
+                entity.Property(e => e.SdpOffer).IsUnicode(false);
+
+                entity.Property(e => e.TemplateConsentimientoId)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.UsuarioCreacion)
                     .HasMaxLength(50)
@@ -64903,7 +64901,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
-                entity.Property(e => e.WaId).HasMaxLength(100);
+                entity.Property(e => e.WaId)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<TZonaHorariaPai>(entity =>
