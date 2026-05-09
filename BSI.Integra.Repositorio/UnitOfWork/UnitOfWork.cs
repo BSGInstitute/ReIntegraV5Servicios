@@ -380,6 +380,16 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private ILlamadasWhatsAppRepository _llamadasWhatsAppRepository;
+
+        ILlamadasWhatsAppRepository IUnitOfWork.LlamadasWhatsAppRepository
+        {
+            get
+            {
+                return _llamadasWhatsAppRepository ?? new LlamadasWhatsAppRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
         private ICentroCostoRepository _centroCostoRepository;
 
         ICentroCostoRepository IUnitOfWork.CentroCostoRepository
@@ -8518,6 +8528,133 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             get
             {
                 return _proveedorPEspecificoRepository ?? new ProveedorPEspecificoRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IReporteDashboardRepository _reporteDashboardRepository;
+        IReporteDashboardRepository IUnitOfWork.ReporteDashboardRepository
+        {
+            get
+            {
+                return _reporteDashboardRepository ?? new ReporteDashboardRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IWhatsAppMensajeEnviadoApiAtcRepository _whatsAppMensajeEnviadoApiAtcRepository;
+        IWhatsAppMensajeEnviadoApiAtcRepository IUnitOfWork.WhatsAppMensajeEnviadoApiAtcRepository
+        {
+            get
+            {
+                return _whatsAppMensajeEnviadoApiAtcRepository ?? new WhatsAppMensajeEnviadoApiAtcRepository(_connectionFactory, _dapperRepository);
+            }
+        }
+
+
+        private IFacebookResenaRepository _resenaFacebookRepository;
+        IFacebookResenaRepository IUnitOfWork.FacebookResenaRepository
+        {
+            get
+            {
+                return _resenaFacebookRepository ?? new FacebookResenaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGoogleResenaRepository _resenaGoogleRepository;
+        IGoogleResenaRepository IUnitOfWork.GoogleResenaRepository
+        {
+            get
+            {
+                return _resenaGoogleRepository ?? new GoogleResenaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGooglePlacesConfiguracionRepository _googlePlacesConfiguracionRepository;
+        IGooglePlacesConfiguracionRepository IUnitOfWork.GooglePlacesConfiguracionRepository
+        {
+            get
+            {
+                return _googlePlacesConfiguracionRepository ?? new GooglePlacesConfiguracionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGooglePlacesCredencialApiRepository _googlePlacesCredencialApiRepository;
+        IGooglePlacesCredencialApiRepository IUnitOfWork.GooglePlacesCredencialApiRepository
+        {
+            get
+            {
+                return _googlePlacesCredencialApiRepository ?? new GooglePlacesCredencialApiRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private ILinkedinResenaRepository _resenaLinkedinRepository;
+        ILinkedinResenaRepository IUnitOfWork.LinkedinResenaRepository
+        {
+            get
+            {
+                return _resenaLinkedinRepository ?? new LinkedinResenaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IComputrabajoConfiguracionRepository _computrabajoConfiguracionRepository;
+        IComputrabajoConfiguracionRepository IUnitOfWork.ComputrabajoConfiguracionRepository
+        {
+            get
+            {
+                return _computrabajoConfiguracionRepository ?? new ComputrabajoConfiguracionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IComputrabajoResenaRepository _resenaComputrabajoRepository;
+        IComputrabajoResenaRepository IUnitOfWork.ComputrabajoResenaRepository
+        {
+            get
+            {
+                return _resenaComputrabajoRepository ?? new ComputrabajoResenaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGlassdoorConfiguracionRepository _glassdoorConfiguracionRepository;
+        IGlassdoorConfiguracionRepository IUnitOfWork.GlassdoorConfiguracionRepository
+        {
+            get
+            {
+                return _glassdoorConfiguracionRepository ?? new GlassdoorConfiguracionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IGlassdoorResenaRepository _resenaGlassdoorRepository;
+        IGlassdoorResenaRepository IUnitOfWork.GlassdoorResenaRepository
+        {
+            get
+            {
+                return _resenaGlassdoorRepository ?? new GlassdoorResenaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IFacebookConfiguracionRepository _facebookConfiguracionRepository;
+        IFacebookConfiguracionRepository IUnitOfWork.FacebookConfiguracionRepository
+        {
+            get
+            {
+                return _facebookConfiguracionRepository ?? new FacebookConfiguracionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private ILinkedinConfiguracionRepository _linkedinConfiguracionRepository;
+        ILinkedinConfiguracionRepository IUnitOfWork.LinkedinConfiguracionRepository
+        {
+            get
+            {
+                return _linkedinConfiguracionRepository ?? new LinkedinConfiguracionRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private IModeloPredictivoProbabilidadEscalonadoRepository _modeloPredictivoProbabilidadEscalonadoRepository;
+        IModeloPredictivoProbabilidadEscalonadoRepository IUnitOfWork.ModeloPredictivoProbabilidadEscalonadoRepository
+        {
+            get
+            {
+                return _modeloPredictivoProbabilidadEscalonadoRepository ?? new ModeloPredictivoProbabilidadEscalonadoRepository(_context, _connectionFactory, _dapperRepository);
             }
         }
 

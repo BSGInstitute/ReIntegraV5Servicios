@@ -910,6 +910,34 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception("Error en ObtenerIdCiudad()", ex);
             }
         }
+        /// Autor: aarroyoh
+        /// Fecha: 07/05/2026
+        /// Version: 2.0
+        /// <summary>
+        /// Obtiene el IdTroncalPais (pla.T_TroncalPais.Id) asociado al PE delegando la logica
+        /// al SP pla.SP_PEspecificoObtenerIdTroncalPaisFeriado. La cadena de joins (PE → Ciudad
+        /// → Pais → TroncalPais) y la colacion case/accent insensitive viven dentro del SP.
+        /// Devuelve IntDTO con Valor=null si el PE no tiene ciudad o algun eslabon esta inactivo.
+        /// </summary>
+        public IntDTO ObtenerIdTroncalPaisPorIdPespecifico(int idPespecifico)
+        {
+            try
+            {
+                IntDTO rpta = new();
+                string resultado = _dapperRepository.QuerySPFirstOrDefault(
+                    "pla.SP_PEspecificoObtenerIdTroncalPaisFeriado",
+                    new { IdPEspecifico = idPespecifico });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    rpta = JsonConvert.DeserializeObject<IntDTO>(resultado)!;
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error en ObtenerIdTroncalPaisPorIdPespecifico()", ex);
+            }
+        }
         /// Autor: Jonathan Caipo
         /// Fecha: 14/10/2022
         /// Version: 1.0
@@ -1879,7 +1907,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                    Codigo,
 	                    IdArea,
 	                    IdSubArea,
-	                    IdCategoria
+	                    IdCategoria,
+                        IdTipoPrograma
                     FROM pla.V_TPGeneral_ObtenerDatosParaPespecifico
                     WHERE
 	                    Estado = 1

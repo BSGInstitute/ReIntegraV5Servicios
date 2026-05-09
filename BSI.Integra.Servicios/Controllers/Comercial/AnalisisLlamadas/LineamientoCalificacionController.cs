@@ -1876,6 +1876,31 @@ namespace BSI.Integra.Servicios.Controllers.Comercial.AnalisisLlamadas
             }
         }
 
+        /// Tipo Función: GET
+        /// Autor: Jose Vega
+        /// Fecha: 12/01/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtener objeciones por oportunidad
+        /// </summary>
+        /// <param name="idOportunidad">Id de la Oportunidad</param>
+        /// <returns> JSON con objeciones y error </returns>
+        [HttpGet("ObtenerObjecionesPorOportunidad/{idOportunidad}")]
+        public IActionResult ObtenerObjecionesPorOportunidad(int idOportunidad)
+        {
+            try
+            {
+                var lineamientoCalificacionService = new LineamientoCalificacionService(unitOfWork);
+                var respuesta = lineamientoCalificacionService.ObtenerObjecionesPorOportunidad(idOportunidad);
+
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { objeciones = new List<string>(), error = ex.Message });
+            }
+        }
+
     }
 
 }

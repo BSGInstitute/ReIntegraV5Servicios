@@ -5,6 +5,7 @@ using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 using BSI.Integra.Repositorio.Repository.Interface;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace BSI.Integra.Repositorio.Repository.Implementation
 {
@@ -147,14 +148,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var query = @"
-                    SELECT [Id]
-                          ,[Tipo]
-                          ,[Dia]
-                          ,[Motivo]
-                          ,[Frecuencia]
-                          ,[IdTroncalCiudad]
-                    FROM [pla].[T_Feriado]
-                    WHERE Estado=1";
+                    SELECT Id, Tipo, Dia, Motivo, Frecuencia, IdTroncalCiudad
+                    FROM pla.V_TFeriado_Obtener";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
@@ -179,9 +174,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var query = @"
-                        SELECT Id, Tipo, Dia, Motivo, Frecuencia, IdTroncalCiudad, Estado, FechaCreacion, FechaModificacion, UsuarioCreacion, UsuarioModificacion, RowVersion, IdMigracion 
-                        FROM pla.T_Feriado
-                        WHERE Estado = 1 AND Id=@id";
+                        SELECT Id, Tipo, Dia, Motivo, Frecuencia, IdTroncalCiudad, Estado, FechaCreacion, FechaModificacion, UsuarioCreacion, UsuarioModificacion, RowVersion, IdMigracion
+                        FROM pla.V_TFeriado_Activos
+                        WHERE Id = @id";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { id });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
@@ -206,9 +201,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var query = @"
-                        SELECT Id, Tipo, Dia, Motivo, Frecuencia, IdTroncalCiudad, Estado, FechaCreacion, FechaModificacion, UsuarioCreacion, UsuarioModificacion, RowVersion, IdMigracion 
-                        FROM pla.T_Feriado
-                        WHERE Estado = 1 AND Id IN @ids";
+                        SELECT Id, Tipo, Dia, Motivo, Frecuencia, IdTroncalCiudad, Estado, FechaCreacion, FechaModificacion, UsuarioCreacion, UsuarioModificacion, RowVersion, IdMigracion
+                        FROM pla.V_TFeriado_Activos
+                        WHERE Id IN @ids";
                 var resultado = _dapperRepository.QueryDapper(query, new { ids });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
@@ -233,9 +228,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var query = @"
-                        SELECT Id, Tipo, Dia, Motivo, Frecuencia, IdTroncalCiudad, Estado, FechaCreacion, FechaModificacion, UsuarioCreacion, UsuarioModificacion, RowVersion, IdMigracion 
-                        FROM pla.T_Feriado
-                        WHERE Estado = 1 AND Tipo = @tipo";
+                        SELECT Id, Tipo, Dia, Motivo, Frecuencia, IdTroncalCiudad, Estado, FechaCreacion, FechaModificacion, UsuarioCreacion, UsuarioModificacion, RowVersion, IdMigracion
+                        FROM pla.V_TFeriado_Activos
+                        WHERE Tipo = @tipo";
                 var resultado = _dapperRepository.QueryDapper(query, new { tipo });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                 {
@@ -246,6 +241,97 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception ex)
             {
                 throw new Exception($"#FR-OPIs-001@Error en ObtenerPorIds: {ex.Message}", ex);
+            }
+        }
+        /// Autor: aarroyoh
+        /// Fecha: 06/05/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene feriados activos cruzados con TroncalCiudad (vista pla.V_FeriadoConPais)
+        /// filtrando por uno o varios IdTroncalPais. Por defecto se usa Perú + el país del PE.
+        /// </summary>
+        /// <returns>Lista FeriadoConPaisDTO</returns>
+        public IEnumerable<FeriadoConPaisDTO> ObtenerPorPaises(IEnumerable<int> idsTroncalPais)
+        {
+            try
+            {
+                var lista = string.Join(",", idsTroncalPais ?? Enumerable.Empty<int>());
+                var resultado = _dapperRepository.QuerySPDapper(
+                    "pla.SP_FeriadoObtenerPorPaises",
+                    new { IdTroncalPais_Lista = lista });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    // Mapeo manual: el SP devuelve la columna como IdFeriado (estandar BSG)
+                    // pero el DTO mantiene Id para no romper el contrato del API hacia el front.
+                    var jArray = JArray.Parse(resultado);
+                    return jArray.OfType<JObject>().Select(j => new FeriadoConPaisDTO
+                    {
+                        Id = j.Value<int>("IdFeriado"),
+                        Tipo = j.Value<int?>("Tipo"),
+                        Dia = j.Value<DateTime>("Dia"),
+                        Motivo = j.Value<string>("Motivo") ?? string.Empty,
+                        Frecuencia = j.Value<int>("Frecuencia"),
+                        IdTroncalCiudad = j.Value<int>("IdTroncalCiudad"),
+                        IdTroncalPais = j.Value<int>("IdTroncalPais")
+                    }).ToList();
+                }
+                return new List<FeriadoConPaisDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#FR-OPP-001@Error en ObtenerPorPaises: {ex.Message}", ex);
+            }
+        }
+        /// Autor: aarroyoh
+        /// Fecha: 06/05/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Combo de TroncalCiudad activos (Id, Nombre, IdTroncalPais) para alimentar dropdowns del CRUD de feriados.
+        /// El IdTroncalPais se incluye para que el front pueda filtrar ciudades por país sin un round-trip extra.
+        /// </summary>
+        public IEnumerable<ComboTroncalCiudadDTO> ObtenerComboTroncalCiudad()
+        {
+            try
+            {
+                var query = @"
+                        SELECT Id, Nombre, IdTroncalPais
+                        FROM pla.V_TTroncalCiudad_Obtener";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<IEnumerable<ComboTroncalCiudadDTO>>(resultado)!;
+                }
+                return new List<ComboTroncalCiudadDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#FR-OCC-001@Error en ObtenerComboTroncalCiudad: {ex.Message}", ex);
+            }
+        }
+        /// Autor: aarroyoh
+        /// Fecha: 06/05/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Combo de paises activos (Id, NombrePais aliasado a Nombre) desde conf.T_Pais.
+        /// La columna IdTroncalPais en T_TroncalCiudad apunta a esta tabla, no a una T_TroncalPais.
+        /// </summary>
+        public IEnumerable<ComboTroncalPaisDTO> ObtenerComboTroncalPais()
+        {
+            try
+            {
+                var query = @"
+                        SELECT Id, Nombre
+                        FROM pla.V_TTroncalPais_Obtener";
+                var resultado = _dapperRepository.QueryDapper(query, null);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<IEnumerable<ComboTroncalPaisDTO>>(resultado)!;
+                }
+                return new List<ComboTroncalPaisDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#FR-OCP-001@Error en ObtenerComboTroncalPais: {ex.Message}", ex);
             }
         }
     }

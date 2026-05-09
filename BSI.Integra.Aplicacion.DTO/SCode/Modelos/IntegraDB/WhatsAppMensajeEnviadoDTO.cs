@@ -145,6 +145,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     {
         public string Numero { get; set; }
         public int Tipo { get; set; }
+        public int Esbot { get;  set; }
         public int IdPais { get; set; }
         public string Mensaje { get; set; }
         public int? IdPersonal { get; set; }
@@ -418,40 +419,40 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public T_WhatsAppMensajeRecibido obj { get; set; }
 
     }
-        public class ReemplazoPlantillaDTO
-        {
-            public List<DatosPlantillaWhatsAppDTO> datos { get; set; }
-            public string textoPlantilla { get; set; }
-        }
-        public class AsesorSignalDTO
-        {
-            public string Id { get; set; }
-            public string Nombre { get; set; }
-            public int IdIntegra { get; set; }
-            public bool EnLinea { get; set; }
-            public int IdProgramaGeneral { get; set; }
-            public int CodigoPais { get; set; }
-            public string Correo { get; set; }
-        }
-        public partial class InfoApiWhatsappDTO
-        {
-            public string Numero { get; set; }
-            public string VName { get; set; }
-            public int IdPais { get; set; }
-            public string Bearer { get; set; }
-            public string NumeroIndentificador { get; set; }
-            public string VersionApi { get; set; }
-            public DateTime FechaExpiracion { get; set; }
-        }
-        #region Mensaje de Texto
-        // Mensaje de Texto
-        public class MensajeTextoEnvio
-        {
-            public string to { get; set; }
-            public string type { get; set; }
-            public string recipient_type { get; set; }
-            public text text { get; set; }
-        }
+    public class ReemplazoPlantillaDTO
+    {
+        public List<DatosPlantillaWhatsAppDTO> datos { get; set; }
+        public string textoPlantilla { get; set; }
+    }
+    public class AsesorSignalDTO
+    {
+        public string Id { get; set; }
+        public string Nombre { get; set; }
+        public int IdIntegra { get; set; }
+        public bool EnLinea { get; set; }
+        public int IdProgramaGeneral { get; set; }
+        public int CodigoPais { get; set; }
+        public string Correo { get; set; }
+    }
+    public partial class InfoApiWhatsappDTO
+    {
+        public string Numero { get; set; }
+        public string VName { get; set; }
+        public int IdPais { get; set; }
+        public string Bearer { get; set; }
+        public string NumeroIndentificador { get; set; }
+        public string VersionApi { get; set; }
+        public DateTime FechaExpiracion { get; set; }
+    }
+    #region Mensaje de Texto
+    // Mensaje de Texto
+    public class MensajeTextoEnvio
+    {
+        public string to { get; set; }
+        public string type { get; set; }
+        public string recipient_type { get; set; }
+        public text text { get; set; }
+    }
 
     public partial class text
     {

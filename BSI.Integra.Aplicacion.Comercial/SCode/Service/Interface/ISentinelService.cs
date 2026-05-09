@@ -1,4 +1,5 @@
 ﻿using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO.ExperianSentinel;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 
@@ -26,6 +27,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
         SueldosDescripcionDTO ObtenerPromedioSueldo(int? idEmpresa, string dni, int? idCargo, int? idIndustria);
         SueldoPromedioDTO ObtenerSueldoPromedio(SueldoPromedioArgumentosDTO argumentos);
         ActualizarSentinelResultadoDTO ActualizarSentinelAlumno(string dni, string usuario);
+        Task<ExperianSentinelRespuestaDTO> ConsultarExperianAsync(string tipo, string dni);
         Sentinel MapeoEntidadDesdeDTO(SentinelDTO sentinelDTO);
 
     }

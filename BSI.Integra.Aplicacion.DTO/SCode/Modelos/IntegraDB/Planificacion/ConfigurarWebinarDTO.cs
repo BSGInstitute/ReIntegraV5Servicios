@@ -4,8 +4,8 @@
     {
         public int Id { get; set; }
         public int IdPespecifico { get; set; }
-        public string Modalidad { get; set; } = null!;
-        public string Codigo { get; set; } = null!;
+        public string Modalidad { get; set; } = null;
+        public string Codigo { get; set; } = null;
         public int IdOperadorComparacionAvance { get; set; }
         public int ValorAvance { get; set; }
         public int? ValorAvanceOpc { get; set; }

@@ -23,6 +23,19 @@
         public List<int>? IdSubestadoMatricula { get; set; }
     }
 
+    public class ReporteChatAsistenteVirtualFiltrosDTO
+    {
+        public List<int> Asesores { get; set; }
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaFin { get; set; }
+    }
+    public class ReporteChatAsistenteVirtualFiltroOrdenadoDTO
+    {
+        public string Asesores { get; set; }
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaFin { get; set; }
+    }
+
     public class ProcesadoDataActividadesRealizadasDTO
     {
         public int IdActividad { get; set; }

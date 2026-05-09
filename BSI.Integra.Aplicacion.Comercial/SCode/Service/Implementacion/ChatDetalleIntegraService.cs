@@ -326,11 +326,23 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         /// Obtiene hilos de chat con información de alumnos y matrículas
         /// </summary>
         /// <returns>Lista de hilos de chat con datos de alumnos</returns>
-        public IEnumerable<ChatbotHiloChatPorAlumnoDTO> ObtenerHilosChatConAlumnos()
+        public PagedResponseDTO<ChatbotAlumnoChatPaginadoDTO> ObtenerHilosChatConAlumnos(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize, string? codigoMatricula)
         {
             try
             {
-                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerHilosChatConAlumnos();
+                var items = _unitOfWork.ChatDetalleIntegraRepository
+                    .ObtenerHilosChatConAlumnos(fechaInicio, fechaFin, pageNumber, pageSize, codigoMatricula)
+                    .ToList();
+
+                var totalCount = items.FirstOrDefault()?.TotalCount ?? 0;
+
+                return new PagedResponseDTO<ChatbotAlumnoChatPaginadoDTO>
+                {
+                    Items      = items,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize   = pageSize
+                };
             }
             catch (Exception ex)
             {
@@ -350,6 +362,30 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             try
             {
                 return _unitOfWork.ChatDetalleIntegraRepository.ObtenerHilosChatPorSegmento();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public PagedResponseDTO<ChatbotHiloChatPorSegmentoPaginadoDTO> ObtenerHilosChatPorSegmentoPaginado(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize)
+        {
+            try
+            {
+                var items = _unitOfWork.ChatDetalleIntegraRepository
+                    .ObtenerHilosChatPorSegmentoPaginado(fechaInicio, fechaFin, pageNumber, pageSize)
+                    .ToList();
+
+                var totalCount = items.FirstOrDefault()?.TotalCount ?? 0;
+
+                return new PagedResponseDTO<ChatbotHiloChatPorSegmentoPaginadoDTO>
+                {
+                    Items      = items,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize   = pageSize
+                };
             }
             catch (Exception ex)
             {
@@ -390,8 +426,11 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 if (request == null)
                     throw new BadRequestException("Entidad Nula");
 
-                if (request.IdChatbotPortalHiloChat <= 0)
-                    throw new BadRequestException("IdChatbotPortalHiloChat debe ser mayor a 0");
+                if (request.IdMedioComunicacion <= 0)
+                    throw new BadRequestException("IdMedioComunicacion debe ser mayor a 0");
+
+                if (request.IdOriginal <= 0)
+                    throw new BadRequestException("IdOriginal debe ser mayor a 0");
 
                 if (request.IdVersionFormularioEvaluacionChatbot <= 0)
                     throw new BadRequestException("IdVersionFormulario debe ser mayor a 0");
@@ -459,15 +498,41 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                     ? JsonConvert.SerializeObject(request.ProblemasIdentificados)
                     : null;
 
-                var resultado = _unitOfWork.ChatDetalleIntegraRepository.InsertarRespuestaEvaluacionCompleta(
-                    request.IdChatbotPortalHiloChat,
-                    request.IdVersionFormularioEvaluacionChatbot,
-                    usuario,
-                    request.IdSolicitudProblema,
-                    respuestasSeleccionadasJson,
-                    respuestasTextoJson,
-                    problemasIdentificadosJson
-                );
+                InsertarRespuestaEvaluacionResultadoDTO resultado;
+
+                if (request.IdMedioComunicacion == 5)
+                {
+                    // Portal Web: SP original con IdChatbotPortalHiloChat = IdOriginal
+                    resultado = _unitOfWork.ChatDetalleIntegraRepository.InsertarRespuestaEvaluacionCompleta(
+                        request.IdOriginal,
+                        request.IdVersionFormularioEvaluacionChatbot,
+                        usuario,
+                        request.IdSolicitudProblema,
+                        request.IdMedioComunicacion,
+                        request.IdOriginal,
+                        respuestasSeleccionadasJson,
+                        respuestasTextoJson,
+                        problemasIdentificadosJson
+                    );
+                }
+                else if (request.IdMedioComunicacion == 1)
+                {
+                    // WhatsApp ATC: SP con IdMedioComunicacion + IdOriginal
+                    resultado = _unitOfWork.ChatDetalleIntegraRepository.InsertarRespuestaEvaluacionCompletaWhatsapp(
+                        request.IdMedioComunicacion,
+                        request.IdOriginal,
+                        request.IdVersionFormularioEvaluacionChatbot,
+                        usuario,
+                        request.IdSolicitudProblema,
+                        respuestasSeleccionadasJson,
+                        respuestasTextoJson,
+                        problemasIdentificadosJson
+                    );
+                }
+                else
+                {
+                    throw new BadRequestException($"IdMedioComunicacion {request.IdMedioComunicacion} no soportado. Valores válidos: 1 (WhatsApp ATC), 5 (Portal Web).");
+                }
 
                 return new InsertarRespuestaEvaluacionCompletaResponseDTO
                 {
@@ -477,6 +542,133 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                     TotalRespuestasInsertadas = resultado.TotalRespuestasInsertadas,
                     TotalProblemasIdentificados = resultado.TotalProblemasIdentificados
                 };
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Alexis Arroyo
+        /// Fecha: 27/04/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene las respuestas del formulario aplicado para un hilo de WhatsApp ATC.
+        /// </summary>
+        public IEnumerable<RespuestaClienteDTO> ObtenerRespuestasUsuarioPorFormularioAplicadoWhatsapp(int idChatbotWhatsAppHiloChat)
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerRespuestasUsuarioPorFormularioAplicadoWhatsapp(idChatbotWhatsAppHiloChat);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en servicio al obtener respuestas WhatsApp: {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Alexis Arroyo
+        /// Fecha: 27/04/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Inserta la evaluación completa para un hilo de WhatsApp ATC.
+        /// Usa IdMedioComunicacion + IdOriginal en lugar de IdChatbotPortalHiloChat.
+        /// </summary>
+        public InsertarRespuestaEvaluacionCompletaResponseDTO InsertarRespuestaEvaluacionCompletaWhatsapp(InsertarRespuestaEvaluacionCompletaWhatsappRequestDTO request, string usuario)
+        {
+            var requestUnificado = new InsertarRespuestaEvaluacionCompletaRequestDTO
+            {
+                IdMedioComunicacion                  = request.IdMedioComunicacion,
+                IdOriginal                           = request.IdOriginal,
+                IdVersionFormularioEvaluacionChatbot = request.IdVersionFormularioEvaluacionChatbot,
+                UsuarioCreacion                      = request.UsuarioCreacion,
+                IdSolicitudProblema                  = request.IdSolicitudProblema,
+                RespuestasSeleccionadas              = request.RespuestasSeleccionadas,
+                RespuestasTexto                      = request.RespuestasTexto,
+                ProblemasIdentificados               = request.ProblemasIdentificados
+            };
+            return InsertarRespuestaEvaluacionCompleta(requestUnificado, usuario);
+        }
+
+        /// Autor: BSI Dev
+        /// Fecha: 2026-04-29
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene hilos paginados (Portal + WhatsApp) para un alumno desde una fecha de corte.
+        /// </summary>
+        public PagedResponseDTO<HiloChatAlumnoPaginadoDTO> ObtenerHilosPaginadosPorAlumno(
+            ObtenerHilosPaginadosRequestDTO request)
+        {
+            try
+            {
+                var items = _unitOfWork.ChatDetalleIntegraRepository
+                    .ObtenerHilosPaginadosPorAlumno(
+                        request.IdAlumno,
+                        request.FechaInicio.Value,
+                        request.FechaFin.Value,
+                        request.PageNumber,
+                        request.PageSize)
+                    .ToList();
+
+                var totalCount = items.FirstOrDefault()?.TotalCount ?? 0;
+
+                return new PagedResponseDTO<HiloChatAlumnoPaginadoDTO>
+                {
+                    Items      = items,
+                    TotalCount = totalCount,
+                    PageNumber = request.PageNumber,
+                    PageSize   = request.PageSize
+                };
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public PagedResponseDTO<HiloChatNoAlumnoPaginadoDTO> ObtenerHilosPaginadosPorSegmento(
+            ObtenerHilosPaginadosPorSegmentoRequestDTO request)
+        {
+            try
+            {
+                var items = _unitOfWork.ChatDetalleIntegraRepository
+                    .ObtenerHilosPaginadosPorSegmento(
+                        request.IdContactoPortalSegmento,
+                        request.FechaInicio,
+                        request.FechaFin,
+                        request.PageNumber,
+                        request.PageSize)
+                    .ToList();
+
+                var totalCount = items.FirstOrDefault()?.TotalCount ?? 0;
+
+                return new PagedResponseDTO<HiloChatNoAlumnoPaginadoDTO>
+                {
+                    Items      = items,
+                    TotalCount = totalCount,
+                    PageNumber = request.PageNumber,
+                    PageSize   = request.PageSize
+                };
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+		///Autor: BSI Dev
+		/// Fecha: 2026-05-02
+		/// Versión: 1.0
+		/// <summary>
+		/// Obtiene las solicitudes vinculadas a un hilo de chat (Portal o WhatsApp).
+		/// </summary>
+		public IEnumerable<SolicitudPorHiloChatDTO> ObtenerSolicitudesPorHiloChat(
+            ObtenerSolicitudesPorHiloChatRequestDTO request)
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository
+                    .ObtenerSolicitudesPorHiloChat(request.IdHiloChat, request.IdChatbotTipo);
             }
             catch (Exception)
             {
@@ -927,6 +1119,24 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 }
 
                 return response;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: BSI Institute - Backend Team
+        /// Fecha: 2026-04-27
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el historial de mensajes WhatsApp ATC de un alumno.
+        /// </summary>
+        public IEnumerable<ChatbotMensajeWhatsAppAtcDTO> ObtenerChatWhatsAppAtcPorAlumno(int idAlumno)
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerChatWhatsAppAtcPorAlumno(idAlumno);
             }
             catch (Exception ex)
             {

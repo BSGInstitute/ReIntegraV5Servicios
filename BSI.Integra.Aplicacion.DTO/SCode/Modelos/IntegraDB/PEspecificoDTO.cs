@@ -64,6 +64,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string? UrlDocumentoCronogramaGrupos { get; set; }
         public int? IdTroncalPartner { get; set; }
         public int? IdCursoMoodlePrueba { get; set; }
+        public int? IdEstadoCupos { get; set; }
         public int? IdCursoRa { get; set; }
         public int? IdProveedor { get; set; }
         public int? IdProveedorCalificaProyecto { get; set; }
@@ -257,6 +258,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? IdProgramaGeneral { get; set; }
         public string Ciudad { get; set; }
         public int? EstadoPId { get; set; }
+        public int IdEstadoCupos { get; set; }
         public int? TipoId { get; set; }
         public short? OrigenPrograma { get; set; }
         public int? IdCiudad { get; set; }
@@ -376,6 +378,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdArea { get; set; }
         public int IdSubArea { get; set; }
         public int IdCategoria { get; set; }
+        public int IdTipoPrograma { get; set; }
     }
     public class CategoriaCiudadDTO
     {
@@ -526,6 +529,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string Duracion { get; set; }
         public int? IdAmbiente { get; set; }
         public int? IdEstadoPEspecifico { get; set; }
+        public int? IdEstadoCupos { get; set; }
         public int? IdModalidadCurso { get; set; }
         public int? IdCursoMoodle { get; set; }
         public int? IdCursoMoodlePrueba { get; set; }

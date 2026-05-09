@@ -735,4 +735,9 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int IdPersonal_Asignado { get; set; }
         public DateTime? FechaCreacion { get; set; }
     }
+
+    public class OportunidadATCDTO
+    {
+        public int IdOportunidad { get; set; }
+    }
 }

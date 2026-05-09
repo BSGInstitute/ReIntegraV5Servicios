@@ -55,6 +55,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IPlantillaRepository PlantillaRepository { get; }
         IGmailCorreoRepository GmailCorreoRepository { get; }
         IWhatsAppMensajeEnviadoRepository WhatsAppMensajeEnviadoRepository { get; }
+        ILlamadasWhatsAppRepository LlamadasWhatsAppRepository { get; }
         ICentroCostoRepository CentroCostoRepository { get; }
         IMatriculaCabeceraDatosCertificadoMensajeRepository MatriculaCabeceraDatosCertificadoMensajeRepository { get; }
         IPlantillaClaveValorRepository PlantillaClaveValorRepository { get; }
@@ -1020,5 +1021,19 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IPEspecificoSesionEstadoObservacionRepository PEspecificoSesionEstadoObservacionRepository { get; }
         IPEspecificoSesionEstadoObservacionDetalleRepository PEspecificoSesionEstadoObservacionDetalleRepository { get; }
         IProveedorPEspecificoRepository ProveedorPEspecificoRepository { get; }
+        IReporteDashboardRepository ReporteDashboardRepository { get; }
+        IWhatsAppMensajeEnviadoApiAtcRepository WhatsAppMensajeEnviadoApiAtcRepository { get; }
+        IFacebookResenaRepository FacebookResenaRepository { get; }
+        IGoogleResenaRepository GoogleResenaRepository { get; }
+        IGooglePlacesConfiguracionRepository GooglePlacesConfiguracionRepository { get; }
+        IGooglePlacesCredencialApiRepository GooglePlacesCredencialApiRepository { get; }
+        ILinkedinResenaRepository LinkedinResenaRepository { get; }
+        IComputrabajoConfiguracionRepository ComputrabajoConfiguracionRepository { get; }
+        IComputrabajoResenaRepository ComputrabajoResenaRepository { get; }
+        IGlassdoorConfiguracionRepository GlassdoorConfiguracionRepository { get; }
+        IGlassdoorResenaRepository GlassdoorResenaRepository { get; }
+        IFacebookConfiguracionRepository FacebookConfiguracionRepository { get; }
+        ILinkedinConfiguracionRepository LinkedinConfiguracionRepository { get; }
+        IModeloPredictivoProbabilidadEscalonadoRepository ModeloPredictivoProbabilidadEscalonadoRepository { get; }
     }
 }

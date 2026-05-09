@@ -141,6 +141,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TComprobantePagoOportunidad> TComprobantePagoOportunidads { get; set; } = null!;
         public virtual DbSet<TComprobantePagoPorFur> TComprobantePagoPorFurs { get; set; } = null!;
         public virtual DbSet<TCompromisoAlumno> TCompromisoAlumnos { get; set; } = null!;
+        public virtual DbSet<TComputrabajoConfiguracion> TComputrabajoConfiguracions { get; set; } = null!;
+        public virtual DbSet<TComputrabajoResena> TComputrabajoResenas { get; set; } = null!;
         public virtual DbSet<TCondicionPago> TCondicionPagos { get; set; } = null!;
         public virtual DbSet<TCondicionTipoPago> TCondicionTipoPagos { get; set; } = null!;
         public virtual DbSet<TConfiguracionAccesoPersonal> TConfiguracionAccesoPersonals { get; set; } = null!;
@@ -314,6 +316,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TEstadoCertificadoFisico> TEstadoCertificadoFisicos { get; set; } = null!;
         public virtual DbSet<TEstadoCivil> TEstadoCivils { get; set; } = null!;
         public virtual DbSet<TEstadoConvocatorium> TEstadoConvocatoria { get; set; } = null!;
+        public virtual DbSet<TEstadoCupo> TEstadoCupos { get; set; } = null!;
         public virtual DbSet<TEstadoEtapaProcesoSeleccion> TEstadoEtapaProcesoSeleccions { get; set; } = null!;
         public virtual DbSet<TEstadoGestionContacto> TEstadoGestionContactos { get; set; } = null!;
         public virtual DbSet<TEstadoMatricula> TEstadoMatriculas { get; set; } = null!;
@@ -348,9 +351,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TFacebookAudienciaAlumno> TFacebookAudienciaAlumnos { get; set; } = null!;
         public virtual DbSet<TFacebookAudienciaCuentaPublicitarium> TFacebookAudienciaCuentaPublicitaria { get; set; } = null!;
         public virtual DbSet<TFacebookAudiencium> TFacebookAudiencia { get; set; } = null!;
+        public virtual DbSet<TFacebookConfiguracion> TFacebookConfiguracions { get; set; } = null!;
         public virtual DbSet<TFacebookCuentaPublicitarium> TFacebookCuentaPublicitaria { get; set; } = null!;
         public virtual DbSet<TFacebookFormularioLeadgen> TFacebookFormularioLeadgens { get; set; } = null!;
         public virtual DbSet<TFacebookFormularioLeadgenLog> TFacebookFormularioLeadgenLogs { get; set; } = null!;
+        public virtual DbSet<TFacebookResena> TFacebookResenas { get; set; } = null!;
         public virtual DbSet<TFaseByPlantilla> TFaseByPlantillas { get; set; } = null!;
         public virtual DbSet<TFaseCalificacion> TFaseCalificacions { get; set; } = null!;
         public virtual DbSet<TFaseGestionContacto> TFaseGestionContactos { get; set; } = null!;
@@ -459,6 +464,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TGestionPago> TGestionPagos { get; set; } = null!;
         public virtual DbSet<TGestionPagoArchivo> TGestionPagoArchivos { get; set; } = null!;
         public virtual DbSet<TGestionPagoCronograma> TGestionPagoCronogramas { get; set; } = null!;
+        public virtual DbSet<TGlassdoorConfiguracion> TGlassdoorConfiguracions { get; set; } = null!;
+        public virtual DbSet<TGlassdoorResena> TGlassdoorResenas { get; set; } = null!;
         public virtual DbSet<TGmailCliente> TGmailClientes { get; set; } = null!;
         public virtual DbSet<TGmailCorreo> TGmailCorreos { get; set; } = null!;
         public virtual DbSet<TGmailCorreoArchivoAdjunto> TGmailCorreoArchivoAdjuntos { get; set; } = null!;
@@ -466,6 +473,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TGoogleAdsConversionQueue> TGoogleAdsConversionQueues { get; set; } = null!;
         public virtual DbSet<TGoogleAdsSubcuentum> TGoogleAdsSubcuenta { get; set; } = null!;
         public virtual DbSet<TGoogleFormularioLeadgen> TGoogleFormularioLeadgens { get; set; } = null!;
+        public virtual DbSet<TGooglePlacesConfiguracion> TGooglePlacesConfiguracions { get; set; } = null!;
+        public virtual DbSet<TGooglePlacesCredencialApi> TGooglePlacesCredencialApis { get; set; } = null!;
+        public virtual DbSet<TGoogleResena> TGoogleResenas { get; set; } = null!;
         public virtual DbSet<TGradoEstudio> TGradoEstudios { get; set; } = null!;
         public virtual DbSet<TGrupoComparacionProcesoSeleccion> TGrupoComparacionProcesoSeleccions { get; set; } = null!;
         public virtual DbSet<TGrupoComponenteEvaluacion> TGrupoComponenteEvaluacions { get; set; } = null!;
@@ -497,6 +507,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TLinkedInLead> TLinkedInLeads { get; set; } = null!;
         public virtual DbSet<TLinkedInLeadLog> TLinkedInLeadLogs { get; set; } = null!;
         public virtual DbSet<TLinkedInToken> TLinkedInTokens { get; set; } = null!;
+        public virtual DbSet<TLinkedinConfiguracion> TLinkedinConfiguracions { get; set; } = null!;
+        public virtual DbSet<TLinkedinResena> TLinkedinResenas { get; set; } = null!;
         public virtual DbSet<TListaNegraMensaje> TListaNegraMensajes { get; set; } = null!;
         public virtual DbSet<TLlamadaActividad> TLlamadaActividads { get; set; } = null!;
         public virtual DbSet<TLlamadaAutomaticaDetalleCabeceraConfiguracion> TLlamadaAutomaticaDetalleCabeceraConfiguracions { get; set; } = null!;
@@ -553,9 +565,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TModeloPredictivoCargo> TModeloPredictivoCargos { get; set; } = null!;
         public virtual DbSet<TModeloPredictivoCategoriaDato> TModeloPredictivoCategoriaDatos { get; set; } = null!;
         public virtual DbSet<TModeloPredictivoEscalaProbabilidad> TModeloPredictivoEscalaProbabilidads { get; set; } = null!;
+        public virtual DbSet<TModeloPredictivoEscalonado> TModeloPredictivoEscalonados { get; set; } = null!;
+        public virtual DbSet<TModeloPredictivoEscalonadoClasificacion> TModeloPredictivoEscalonadoClasificacions { get; set; } = null!;
         public virtual DbSet<TModeloPredictivoFormacion> TModeloPredictivoFormacions { get; set; } = null!;
         public virtual DbSet<TModeloPredictivoIndustrium> TModeloPredictivoIndustria { get; set; } = null!;
         public virtual DbSet<TModeloPredictivoProbabilidad> TModeloPredictivoProbabilidads { get; set; } = null!;
+        public virtual DbSet<TModeloPredictivoProbabilidadEscalonado> TModeloPredictivoProbabilidadEscalonados { get; set; } = null!;
         public virtual DbSet<TModeloPredictivoTipo> TModeloPredictivoTipos { get; set; } = null!;
         public virtual DbSet<TModeloPredictivoTipoDato> TModeloPredictivoTipoDatos { get; set; } = null!;
         public virtual DbSet<TModeloPredictivoTrabajo> TModeloPredictivoTrabajos { get; set; } = null!;
@@ -1091,6 +1106,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TWhatsAppPlantillaPorOcurrenciaActividad> TWhatsAppPlantillaPorOcurrenciaActividads { get; set; } = null!;
         public virtual DbSet<TWhatsAppUsuario> TWhatsAppUsuarios { get; set; } = null!;
         public virtual DbSet<TWhatsAppUsuarioCredencial> TWhatsAppUsuarioCredencials { get; set; } = null!;
+        public virtual DbSet<TWhatsappAgenteLlamadaEstado> TWhatsappAgenteLlamadaEstados { get; set; } = null!;
+        public virtual DbSet<TWhatsappLlamadaEstadoLog> TWhatsappLlamadaEstadoLogs { get; set; } = null!;
+        public virtual DbSet<TWhatsappLlamadum> TWhatsappLlamada { get; set; } = null!;
         public virtual DbSet<TZonaHorariaPai> TZonaHorariaPais { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -8766,6 +8784,129 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Usuario de modificacion del registro");
 
                 entity.Property(e => e.Version).HasComment("Numero de compromiso");
+            });
+
+            modelBuilder.Entity<TComputrabajoConfiguracion>(entity =>
+            {
+                entity.ToTable("T_ComputrabajoConfiguracion", "mkt");
+
+                entity.HasComment("Tabla que almacena la configuracion de cuenta de empleador en Computrabajo con rating general, total de evaluaciones y URL del perfil. La captura es manual y periodica (quincenal) debido a que Computrabajo no dispone de API publica");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico de la configuracion de Computrabajo (PK)");
+
+                entity.Property(e => e.Estado).HasComment("Estado logico del registro (1=Activo, 0=Eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la ultima modificacion del registro");
+
+                entity.Property(e => e.FechaSincronizacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la ultima actualizacion manual de los datos desde Computrabajo");
+
+                entity.Property(e => e.NombreEmpresa)
+                    .HasMaxLength(200)
+                    .HasComment("Nombre de la empresa tal como se muestra en el perfil de Computrabajo");
+
+                entity.Property(e => e.ResenaTotal).HasComment("Total de evaluaciones acumuladas en el perfil de empleador de Computrabajo. Se congela en cada sincronización de reseñas.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de control de versiones (timestamp automatico)");
+
+                entity.Property(e => e.UrlPerfil)
+                    .HasMaxLength(500)
+                    .HasComment("URL publica del perfil de empleador en Computrabajo");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creo el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modifico por ultima vez el registro");
+
+                entity.Property(e => e.Valoracion)
+                    .HasColumnType("decimal(3, 2)")
+                    .HasComment("Rating general de la empresa en escala 0.00 a 5.00 estrellas");
+            });
+
+            modelBuilder.Entity<TComputrabajoResena>(entity =>
+            {
+                entity.ToTable("T_ComputrabajoResena", "mkt");
+
+                entity.HasComment("Tabla que almacena las resenas individuales de empleador publicadas en Computrabajo, vinculadas a la configuracion de empleador correspondiente. Incluye control de visibilidad en frontend, auditoria completa y referencias a pais y ciudad. Captura manual periodica por ausencia de API publica");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico de la resena de Computrabajo (PK)");
+
+                entity.Property(e => e.Cargo)
+                    .HasMaxLength(200)
+                    .HasComment("Cargo o puesto declarado por el autor de la resena");
+
+                entity.Property(e => e.Contenido).HasComment("Contenido de la resena publicada en Computrabajo");
+
+                entity.Property(e => e.Desventaja).HasComment("Aspectos negativos declarados por el autor en la resena");
+
+                entity.Property(e => e.Estado).HasComment("Estado logico del registro (1=Activo, 0=Eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la ultima modificacion del registro");
+
+                entity.Property(e => e.FechaResena)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de publicacion de la resena en Computrabajo");
+
+                entity.Property(e => e.IdCiudad).HasComment("FK hacia la ciudad de origen de la resena (conf.T_Ciudad)");
+
+                entity.Property(e => e.IdComputrabajoConfiguracion).HasComment("FK hacia la configuracion de empleador de Computrabajo (mkt.T_ComputrabajoConfiguracion)");
+
+                entity.Property(e => e.Mostrar).HasComment("Controla si la resena se muestra en el Homepage/Frontend (1=Visible, 0=Oculta)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de control de versiones (timestamp automatico)");
+
+                entity.Property(e => e.TipoEmpleado)
+                    .HasMaxLength(50)
+                    .HasComment("Tipo de vinculo laboral del autor al momento de publicar la resena (Actual / Anterior)");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creo el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modifico por ultima vez el registro");
+
+                entity.Property(e => e.Valoracion).HasComment("Calificacion otorgada por el autor en escala 1 a 5 estrellas");
+
+                entity.Property(e => e.Ventaja).HasComment("Aspectos positivos declarados por el autor en la resena");
+
+                entity.HasOne(d => d.IdCiudadNavigation)
+                    .WithMany(p => p.TComputrabajoResenas)
+                    .HasForeignKey(d => d.IdCiudad)
+                    .HasConstraintName("FK_T_ComputrabajoResena_Ciudad_IdCiudad");
+
+                entity.HasOne(d => d.IdComputrabajoConfiguracionNavigation)
+                    .WithMany(p => p.TComputrabajoResenas)
+                    .HasForeignKey(d => d.IdComputrabajoConfiguracion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_ComputrabajoResena_ComputrabajoConfiguracion_IdComputrabajoConfiguracion");
             });
 
             modelBuilder.Entity<TCondicionPago>(entity =>
@@ -18971,6 +19112,29 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Sistema Automatico Usuario de modificacion");
             });
 
+            modelBuilder.Entity<TEstadoCupo>(entity =>
+            {
+                entity.ToTable("T_EstadoCupos", "pla");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
+
+                entity.Property(e => e.Nombre).HasMaxLength(300);
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken();
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+            });
+
             modelBuilder.Entity<TEstadoEtapaProcesoSeleccion>(entity =>
             {
                 entity.ToTable("T_EstadoEtapaProcesoSeleccion", "gp");
@@ -20798,6 +20962,60 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Sistema Automatico Usuario de modificacion");
             });
 
+            modelBuilder.Entity<TFacebookConfiguracion>(entity =>
+            {
+                entity.ToTable("T_FacebookConfiguracion", "mkt");
+
+                entity.HasComment("Tabla que almacena la configuracion de las paginas de Facebook de BSG Institute. Incluye identificador de pagina, nombre, token de acceso, total de opiniones, valoracion promedio y control de\r\n  visibilidad en frontend");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico de la configuracion de pagina de Facebook (PK)");
+
+                entity.Property(e => e.Estado).HasComment("Estado logico del registro (1=Activo, 0=Eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la ultima modificacion del registro");
+
+                entity.Property(e => e.IdentificadorPagina)
+                    .HasMaxLength(100)
+                    .HasComment("Identificador unico de la pagina de Facebook (Page ID)");
+
+                entity.Property(e => e.Mostrar).HasComment("Controla si la pagina se muestra en el Homepage/Frontend (1=Visible, 0=Oculta)");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(200)
+                    .HasComment("Nombre de la pagina de Facebook");
+
+                entity.Property(e => e.ResenaTotal).HasComment("Total de opiniones recibidas en la pagina de Facebook. Se congela este campo en cada sincronización.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de control de versiones (timestamp automatico)");
+
+                entity.Property(e => e.TokenAccesoPagina)
+                    .HasMaxLength(500)
+                    .HasComment("Token de acceso de la pagina de Facebook para consumir la Graph API");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creo el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modifico por ultima vez el registro");
+
+                entity.Property(e => e.Valoracion)
+                    .HasColumnType("decimal(5, 2)")
+                    .HasComment("Valoracion promedio de la pagina en escala de 1.00 a 5.00");
+            });
+
             modelBuilder.Entity<TFacebookCuentaPublicitarium>(entity =>
             {
                 entity.ToTable("T_FacebookCuentaPublicitaria", "mkt");
@@ -21025,6 +21243,62 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasForeignKey(d => d.IdFacebookFormularioLeadgen)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_T_FacebookFormularioLeadgenLog_T_FacebookFormularioLeadgen");
+            });
+
+            modelBuilder.Entity<TFacebookResena>(entity =>
+            {
+                entity.ToTable("T_FacebookResena", "mkt");
+
+                entity.HasComment("Tabla que almacena las reseñas de Facebook obtenidas vía Graph API, con control de visibilidad en el frontend y auditoría completa");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la reseña (PK)");
+
+                entity.Property(e => e.Estado).HasComment("Estado lógico del registro (1=Activo, 0=Eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro");
+
+                entity.Property(e => e.FechaResena).HasComment("Fecha de creación de la reseña en Facebook (formato UTC)");
+
+                entity.Property(e => e.IdFacebookConfiguracion).HasComment("FK hacia la configuración de la página de Facebook (mkt.T_FacebookConfiguracion)");
+
+                entity.Property(e => e.IdentificadorHistoria)
+                    .HasMaxLength(100)
+                    .HasComment("ID único de la historia/open graph story en Facebook (clave para deduplicación)");
+
+                entity.Property(e => e.Mostrar).HasComment("Controla si la reseña se muestra en el Homepage/Frontend");
+
+                entity.Property(e => e.Recomienda).HasComment("Indica si el usuario recomienda (1) o no recomienda (0) el negocio");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de control de versiones (timestamp automático)");
+
+                entity.Property(e => e.TextoResena).HasComment("Texto completo de la reseña escrita por el usuario");
+
+                entity.Property(e => e.TieneTexto).HasComment("Indica si la reseña tiene texto escrito");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó por última vez el registro");
+
+                entity.HasOne(d => d.IdFacebookConfiguracionNavigation)
+                    .WithMany(p => p.TFacebookResenas)
+                    .HasForeignKey(d => d.IdFacebookConfiguracion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_FacebookResena_FacebookConfiguracion_IdFacebookConfiguracion");
             });
 
             modelBuilder.Entity<TFaseByPlantilla>(entity =>
@@ -26546,8 +26820,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.HasOne(d => d.IdGestionDocenteDisparadorReglaTiempoFijoNavigation)
                     .WithMany(p => p.TGestionDocenteDisparadorReglaTiempoFijoCongelados)
                     .HasForeignKey(d => d.IdGestionDocenteDisparadorReglaTiempoFijo)
-                    .IsRequired(false)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_T_GestionDocenteDisparadorReglaTiempoFijoCongelado_IdGestionDocenteDisparadorReglaTiempoFijo");
 
                 entity.HasOne(d => d.IdGestionDocenteEstadoEjecucionNavigation)
@@ -27794,6 +28066,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsUnicode(false)
                     .HasComment("Tipo MIME del archivo (application/pdf, image/jpeg, etc.)");
 
+                entity.Property(e => e.EsComprobante).HasComment("Indica si el archivo corresponde a un Comprobante (1) o a Otros Archivos (0). Aplica solo a archivos de cabecera (IdGestionPagoCronograma NULL). Lo setea el backend según el endpoint usado");
+
                 entity.Property(e => e.Estado).HasComment("Estado del registro (1: activo, 0: eliminado)");
 
                 entity.Property(e => e.FechaCreacion)
@@ -27895,6 +28169,137 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .WithMany(p => p.TGestionPagoCronogramas)
                     .HasForeignKey(d => d.IdGestionPago)
                     .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TGlassdoorConfiguracion>(entity =>
+            {
+                entity.ToTable("T_GlassdoorConfiguracion", "mkt");
+
+                entity.HasComment("Tabla que almacena la configuracion de cuenta de empleador en Glassdoor con rating general, total de evaluaciones, URL del perfil y EmployerId. La captura es manual y periodica debido a que la API publica de Glassdoor fue descontinuada en 2023");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico de la configuracion de Glassdoor (PK)");
+
+                entity.Property(e => e.Estado).HasComment("Estado logico del registro (1=Activo, 0=Eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la ultima modificacion del registro");
+
+                entity.Property(e => e.FechaSincronizacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la ultima actualizacion manual de los datos desde Glassdoor");
+
+                entity.Property(e => e.IdentificadorCuenta)
+                    .HasMaxLength(100)
+                    .HasComment("Identificador unico de empleador asignado por Glassdoor (EmployerId)");
+
+                entity.Property(e => e.NombreEmpresa)
+                    .HasMaxLength(200)
+                    .HasComment("Nombre de la empresa tal como se muestra en el perfil de Glassdoor");
+
+                entity.Property(e => e.ResenaTotal).HasComment("Total de evaluaciones acumuladas en el perfil de empleador de Glassdoor. Se congela en cada sincronización de reseñas.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de control de versiones (timestamp automatico)");
+
+                entity.Property(e => e.UrlPerfil)
+                    .HasMaxLength(500)
+                    .HasComment("URL publica del perfil de empleador en Glassdoor");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creo el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modifico por ultima vez el registro");
+
+                entity.Property(e => e.Valoracion)
+                    .HasColumnType("decimal(3, 2)")
+                    .HasComment("Rating general de la empresa en escala 0.00 a 5.00 estrellas");
+            });
+
+            modelBuilder.Entity<TGlassdoorResena>(entity =>
+            {
+                entity.ToTable("T_GlassdoorResena", "mkt");
+
+                entity.HasComment("Tabla que almacena las resenas individuales de empleador publicadas en Glassdoor, vinculadas a la configuracion de empleador correspondiente. Incluye control de visibilidad en frontend, auditoria completa y referencias a pais y ciudad. Captura manual periodica por descontinuacion de API en 2023");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico de la resena de Glassdoor (PK)");
+
+                entity.Property(e => e.Cargo)
+                    .HasMaxLength(200)
+                    .HasComment("Cargo o puesto declarado por el autor de la resena");
+
+                entity.Property(e => e.Contenido).HasComment("Contenido de la resena publicada en Glassdoor");
+
+                entity.Property(e => e.Desventaja).HasComment("Aspectos negativos declarados por el autor en la resena");
+
+                entity.Property(e => e.Estado).HasComment("Estado logico del registro (1=Activo, 0=Eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la ultima modificacion del registro");
+
+                entity.Property(e => e.FechaResena)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de publicacion de la resena en Glassdoor");
+
+                entity.Property(e => e.IdCiudad).HasComment("FK hacia la ciudad de origen de la resena (conf.T_Ciudad)");
+
+                entity.Property(e => e.IdGlassdoorConfiguracion).HasComment("FK hacia la configuracion de empleador de Glassdoor (mkt.T_GlassdoorConfiguracion)");
+
+                entity.Property(e => e.Mostrar).HasComment("Controla si la resena se muestra en el Homepage/Frontend (1=Visible, 0=Oculta)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de control de versiones (timestamp automatico)");
+
+                entity.Property(e => e.TipoEmpleado)
+                    .HasMaxLength(50)
+                    .HasComment("Tipo de vinculo laboral del autor al momento de publicar la resena (Actual / Anterior)");
+
+                entity.Property(e => e.Titulo)
+                    .HasMaxLength(300)
+                    .HasComment("Titulo o encabezado de la resena publicada en Glassdoor");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creo el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modifico por ultima vez el registro");
+
+                entity.Property(e => e.Valoracion).HasComment("Calificacion otorgada por el autor en escala 1 a 5 estrellas");
+
+                entity.Property(e => e.Ventaja).HasComment("Aspectos positivos declarados por el autor en la resena");
+
+                entity.HasOne(d => d.IdCiudadNavigation)
+                    .WithMany(p => p.TGlassdoorResenas)
+                    .HasForeignKey(d => d.IdCiudad)
+                    .HasConstraintName("FK_T_GlassdoorResena_Ciudad_IdCiudad");
+
+                entity.HasOne(d => d.IdGlassdoorConfiguracionNavigation)
+                    .WithMany(p => p.TGlassdoorResenas)
+                    .HasForeignKey(d => d.IdGlassdoorConfiguracion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GlassdoorResena_GlassdoorConfiguracion_IdGlassdoorConfiguracion");
             });
 
             modelBuilder.Entity<TGmailCliente>(entity =>
@@ -28576,6 +28981,197 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .WithMany(p => p.TGoogleFormularioLeadgens)
                     .HasForeignKey(d => d.IdGoogleAdsSubcuenta)
                     .HasConstraintName("FK_T_GoogleFormularioLeadgen_GoogleAdsSubcuenta_IdGoogleAdsSubcuenta");
+            });
+
+            modelBuilder.Entity<TGooglePlacesConfiguracion>(entity =>
+            {
+                entity.ToTable("T_GooglePlacesConfiguracion", "mkt");
+
+                entity.HasComment("Tabla que almacena la configuración de Google Places por sede de BSG Institute, incluyendo el PlaceId de Google Maps necesario para consultar reseñas vía Places API");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la configuración de sede (PK)");
+
+                entity.Property(e => e.Estado).HasComment("Estado lógico del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro");
+
+                entity.Property(e => e.IdentificadorCuenta)
+                    .HasMaxLength(100)
+                    .HasComment("Google Place ID único de la sede en Google Maps, usado para consultar reseñas vía Places API (ej: ChIJrwMeWYbIBRER...)");
+
+                entity.Property(e => e.Mostrar).HasComment("Controla si la cuenta se muestra en el Homepage/Frontend (1=Visible, 0=Oculta)");
+
+                entity.Property(e => e.NombreSede)
+                    .HasMaxLength(150)
+                    .HasComment("Nombre descriptivo de la sede de BSG Institute (ej: Miraflores, Arequipa, México, Colombia)");
+
+                entity.Property(e => e.ResenaTotal).HasComment("Total de reseñas acumuladas en el perfil de empleador de Google Places. Se congela este campo en cada sincronización.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de control de versiones (timestamp automático)");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó por última vez el registro");
+
+                entity.Property(e => e.Valoracion)
+                    .HasColumnType("decimal(3, 2)")
+                    .HasComment("Valoracion promedio de la pagina en escala de 1.00 a 5.00. Se congela este campo en cada sincronización.");
+            });
+
+            modelBuilder.Entity<TGooglePlacesCredencialApi>(entity =>
+            {
+                entity.ToTable("T_GooglePlacesCredencialApi", "mkt");
+
+                entity.HasComment("Tabla que almacena las credenciales de acceso a la Google Places API, incluyendo el API Key necesario para autenticar las consultas de reseñas por sede");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la credencial (PK)");
+
+                entity.Property(e => e.ApiKey)
+                    .HasMaxLength(500)
+                    .HasComment("API Key de Google Cloud para autenticar llamadas a la Places API (formato: AIzaSy...)");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500)
+                    .HasComment("Descripción adicional de la credencial o su uso");
+
+                entity.Property(e => e.Estado).HasComment("Estado lógico del registro (1=Activo, 0=Inactivo)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro");
+
+                entity.Property(e => e.NombreServicio)
+                    .HasMaxLength(150)
+                    .HasComment("Nombre del servicio al que pertenece la credencial (ej: BSG Places API)");
+
+                entity.Property(e => e.Oauth2ClientId)
+                    .HasMaxLength(500)
+                    .HasColumnName("OAuth2ClientId")
+                    .HasComment("Client ID de la credencial OAuth 2.0 de Google Cloud para autenticar vía Business Profile API");
+
+                entity.Property(e => e.Oauth2ClientSecret)
+                    .HasMaxLength(500)
+                    .HasColumnName("OAuth2ClientSecret")
+                    .HasComment("Client Secret de la credencial OAuth 2.0 de Google Cloud");
+
+                entity.Property(e => e.Oauth2RefreshToken)
+                    .HasMaxLength(1000)
+                    .HasColumnName("OAuth2RefreshToken")
+                    .HasComment("Refresh Token OAuth 2.0 para obtener Access Tokens automáticamente sin intervención humana");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de control de versiones (timestamp automático)");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó por última vez el registro");
+            });
+
+            modelBuilder.Entity<TGoogleResena>(entity =>
+            {
+                entity.ToTable("T_GoogleResena", "mkt");
+
+                entity.HasComment("Tabla que almacena las reseñas de Google obtenidas vía Places API, vinculadas a la configuración de sede correspondiente, con control de visibilidad en frontend y auditoría completa");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la reseña (PK)");
+
+                entity.Property(e => e.DescripcionTiempoRelativo)
+                    .HasMaxLength(100)
+                    .HasComment("Descripción de tiempo relativo de la reseña proporcionada por Google (ej: hace 2 semanas)");
+
+                entity.Property(e => e.Estado).HasComment("Estado lógico del registro (1=Activo, 0=Eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro");
+
+                entity.Property(e => e.FechaResena)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha de publicación de la reseña en Google (publishTime)");
+
+                entity.Property(e => e.FotoAutor)
+                    .HasMaxLength(500)
+                    .HasComment("URI de la foto de perfil del autor en Google");
+
+                entity.Property(e => e.IdGooglePlacesConfiguracion).HasComment("FK hacia la configuración de sede de Google Places (mkt.T_GooglePlacesConfiguracion)");
+
+                entity.Property(e => e.IdentificadorResena)
+                    .HasMaxLength(255)
+                    .HasComment("Identificador único de la reseña en Google Places API, clave para deduplicación (formato: places/{placeId}/reviews/{reviewId})");
+
+                entity.Property(e => e.IdiomaResena)
+                    .HasMaxLength(10)
+                    .HasComment("Código de idioma de la reseña (ej: es, en)");
+
+                entity.Property(e => e.Mostrar).HasComment("Controla si la reseña se muestra en el Homepage/Frontend (1=Visible, 0=Oculta)");
+
+                entity.Property(e => e.NombreAutor)
+                    .HasMaxLength(200)
+                    .HasComment("Nombre del autor de la reseña en Google Maps");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de control de versiones (timestamp automático)");
+
+                entity.Property(e => e.TextoResena).HasComment("Texto completo de la reseña escrita por el usuario");
+
+                entity.Property(e => e.UriAutor)
+                    .HasMaxLength(500)
+                    .HasComment("URI del perfil del autor en Google Maps");
+
+                entity.Property(e => e.UriGoogleMaps)
+                    .HasMaxLength(500)
+                    .HasComment("URI de la reseña en Google Maps");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó por última vez el registro");
+
+                entity.Property(e => e.Valoracion).HasComment("Calificación de la reseña en escala 1 a 5 estrellas");
+
+                entity.HasOne(d => d.IdGooglePlacesConfiguracionNavigation)
+                    .WithMany(p => p.TGoogleResenas)
+                    .HasForeignKey(d => d.IdGooglePlacesConfiguracion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_GoogleResena_GooglePlacesConfiguracion_IdGooglePlacesConfiguracion");
             });
 
             modelBuilder.Entity<TGradoEstudio>(entity =>
@@ -30349,6 +30945,126 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Usuario Modificacion del Token");
+            });
+
+            modelBuilder.Entity<TLinkedinConfiguracion>(entity =>
+            {
+                entity.ToTable("T_LinkedinConfiguracion", "mkt");
+
+                entity.HasComment("Tabla que almacena la configuracion de cuenta de empleador en LinkedIn con nombre de la empresa, enlace del perfil publico y total de opiniones acumuladas. La captura es manual y periodica debido a que LinkedIn no expone una API publica para la extraccion de resenas de empleador");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico de la configuracion de LinkedIn (PK)");
+
+                entity.Property(e => e.EnlacePagina)
+                    .HasMaxLength(500)
+                    .HasComment("URL publica del perfil de empleador en LinkedIn");
+
+                entity.Property(e => e.Estado).HasComment("Estado logico del registro (1=Activo, 0=Eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la ultima modificacion del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(200)
+                    .HasComment("Nombre de la empresa tal como se muestra en el perfil de LinkedIn");
+
+                entity.Property(e => e.ResenaTotal).HasComment("Total de opiniones acumuladas en el perfil de empleador de LinkedIn. Se congela este campo en cada sincronización.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de control de versiones (timestamp automatico)");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creo el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modifico por ultima vez el registro");
+            });
+
+            modelBuilder.Entity<TLinkedinResena>(entity =>
+            {
+                entity.ToTable("T_LinkedinResena", "mkt");
+
+                entity.HasComment("Tabla que almacena las reseñas y recomendaciones de LinkedIn, con control de visibilidad en el frontend y auditoría completa");
+
+                entity.Property(e => e.Id).HasComment("Identificador único de la reseña de LinkedIn (PK)");
+
+                entity.Property(e => e.Cargo)
+                    .HasMaxLength(200)
+                    .HasComment("Cargo o posición profesional del autor en el momento de la reseña");
+
+                entity.Property(e => e.Certificacion)
+                    .HasMaxLength(300)
+                    .HasComment("Nombre del certificado o curso de BSG Institute que el autor reseña o recomienda");
+
+                entity.Property(e => e.Empresa)
+                    .HasMaxLength(200)
+                    .HasComment("Empresa o institución donde trabaja el autor al momento de la reseña");
+
+                entity.Property(e => e.Estado).HasComment("Estado lógico del registro (1=Activo, 0=Eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro");
+
+                entity.Property(e => e.FechaResena)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha en que el autor publicó la reseña o recomendación en LinkedIn");
+
+                entity.Property(e => e.FotoAutor)
+                    .HasMaxLength(500)
+                    .HasComment("URI de la foto de perfil del autor en LinkedIn");
+
+                entity.Property(e => e.IdCiudad).HasComment("FK hacia la tabla de ciudades (referencia a la ciudad del autor)");
+
+                entity.Property(e => e.IdPais).HasComment("FK hacia la tabla de países (referencia al país del autor)");
+
+                entity.Property(e => e.Mostrar).HasComment("Controla si la reseña se muestra en el Homepage/Frontend (1=Visible, 0=Oculta)");
+
+                entity.Property(e => e.NombreAutor)
+                    .HasMaxLength(200)
+                    .HasComment("Nombre completo del autor de la reseña en LinkedIn");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de control de versiones (timestamp automático)");
+
+                entity.Property(e => e.TextoResena).HasComment("Texto completo de la reseña o recomendación escrita por el autor");
+
+                entity.Property(e => e.UrlPublicacion)
+                    .HasMaxLength(500)
+                    .HasComment("URL de la publicación o recomendación original en LinkedIn");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que modificó por última vez el registro");
+
+                entity.HasOne(d => d.IdLinkedinConfiguracionNavigation)
+                    .WithMany(p => p.TLinkedinResenas)
+                    .HasForeignKey(d => d.IdLinkedinConfiguracion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_LinkedinResena_LinkedinConfiguracion_IdLinkedinConfiguracion");
             });
 
             modelBuilder.Entity<TListaNegraMensaje>(entity =>
@@ -33821,6 +34537,99 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasConstraintName("FK_T_ModeloPredictivoEscalaProbabilidad_T_PGeneral");
             });
 
+            modelBuilder.Entity<TModeloPredictivoEscalonado>(entity =>
+            {
+                entity.ToTable("T_ModeloPredictivoEscalonado", "mkt");
+
+                entity.HasComment("Esta tabla almacena los modelos entrenados del modelo predictivo escalonado");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Descripcion del modelo");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de modificacion");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del area a la que pertenece el modelo");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TModeloPredictivoEscalonadoClasificacion>(entity =>
+            {
+                entity.ToTable("T_ModeloPredictivoEscalonadoClasificacion", "mkt");
+
+                entity.HasComment("Esta tabla almacena detalles de resultados de probabilidad del modelo predictivo escalonado");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de modificacion");
+
+                entity.Property(e => e.IdAreaCapacitacion).HasComment("Llave foranea con la tabla T_AreaCapacitacion");
+
+                entity.Property(e => e.IdModeloPredictivoEscalonado).HasComment("Nombre del area a la que pertenece el modelo");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de modificacion");
+
+                entity.HasOne(d => d.IdAreaCapacitacionNavigation)
+                    .WithMany(p => p.TModeloPredictivoEscalonadoClasificacions)
+                    .HasForeignKey(d => d.IdAreaCapacitacion)
+                    .HasConstraintName("FK_T_ModeloPredictivoEscalonadoClasificacion_T_AreaCapacitacion");
+
+                entity.HasOne(d => d.IdModeloPredictivoEscalonadoNavigation)
+                    .WithMany(p => p.TModeloPredictivoEscalonadoClasificacions)
+                    .HasForeignKey(d => d.IdModeloPredictivoEscalonado)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_ModeloPredictivoEscalonadoClasificacion_T_ModeloPredictivoEscalonado");
+            });
+
             modelBuilder.Entity<TModeloPredictivoFormacion>(entity =>
             {
                 entity.ToTable("T_ModeloPredictivoFormacion", "mkt");
@@ -33978,6 +34787,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
 
+                entity.Property(e => e.Version).HasComment("Indica la version de la configuracion punto corte que le corresponde");
+
                 entity.HasOne(d => d.IdModeloPredictivoTipoNavigation)
                     .WithMany(p => p.TModeloPredictivoProbabilidads)
                     .HasForeignKey(d => d.IdModeloPredictivoTipo)
@@ -33987,6 +34798,67 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .WithMany(p => p.TModeloPredictivoProbabilidads)
                     .HasForeignKey(d => d.IdOportunidad)
                     .HasConstraintName("FK_T_ModeloPredictivoProbabilidad_T_Oportunidad");
+            });
+
+            modelBuilder.Entity<TModeloPredictivoProbabilidadEscalonado>(entity =>
+            {
+                entity.ToTable("T_ModeloPredictivoProbabilidadEscalonado", "mkt");
+
+                entity.HasComment("Esta tabla almacena detalles de resultados de probabilidad del modelo predictivo escalonado");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de modificacion");
+
+                entity.Property(e => e.IdModeloPredictivoEscalonadoClasificacion).HasComment("FK con la tabla T_ModeloPredictivoEscalonadoClasificacion");
+
+                entity.Property(e => e.IdModeloPredictivoProbabilidad).HasComment("Llave foranea con la tabla T_ModeloPredictivoTipo");
+
+                entity.Property(e => e.ProbabilidadPerfil)
+                    .HasColumnType("decimal(6, 5)")
+                    .HasComment("Probabilidad calculada basado unicamente el perfil del lead (Area formacion, trabajo, cargo e industria)");
+
+                entity.Property(e => e.ProbabilidadPerfilTasaConversion)
+                    .HasColumnType("decimal(6, 5)")
+                    .HasComment("Probabilidad calculada basado en el perfil del lead + variables de tasa conversion");
+
+                entity.Property(e => e.ProbabilidadPerfilTasaConversionInteraccion)
+                    .HasColumnType("decimal(6, 5)")
+                    .HasComment("Probabilidad calculada basado en el perfil del lead + variables de tasa conversion + variables de interaccion");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de modificacion");
+
+                entity.HasOne(d => d.IdModeloPredictivoEscalonadoClasificacionNavigation)
+                    .WithMany(p => p.TModeloPredictivoProbabilidadEscalonados)
+                    .HasForeignKey(d => d.IdModeloPredictivoEscalonadoClasificacion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_ModeloPredictivoProbabilidadEscalonado_T_ModeloPredictivoEscalonadoClasificacion");
+
+                entity.HasOne(d => d.IdModeloPredictivoProbabilidadNavigation)
+                    .WithMany(p => p.TModeloPredictivoProbabilidadEscalonados)
+                    .HasForeignKey(d => d.IdModeloPredictivoProbabilidad)
+                    .HasConstraintName("FK_T_ModeloPredictivoProbabilidadEscalonado_T_ModeloPredictivoProbabilidad");
             });
 
             modelBuilder.Entity<TModeloPredictivoTipo>(entity =>
@@ -63887,6 +64759,151 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TWhatsappAgenteLlamadaEstado>(entity =>
+            {
+                entity.HasKey(e => e.IdAgenteLlamadaEstado);
+
+                entity.ToTable("T_WhatsappAgenteLlamadaEstado", "com");
+
+                entity.HasIndex(e => new { e.IdPersonalAreaTrabajo, e.IdPais, e.EstadoDisponibilidad }, "IX_T_WhatsappAgenteLlamadaEstado_Area");
+
+                entity.HasIndex(e => new { e.IdPersonal, e.IdPais }, "UX_T_WhatsappAgenteLlamadaEstado_Agente")
+                    .IsUnique();
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.EstadoDisponibilidad).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaUltimaActualizacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken();
+
+                entity.Property(e => e.SignalRconnectionId)
+                    .HasMaxLength(200)
+                    .HasColumnName("SignalRConnectionId");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<TWhatsappLlamadaEstadoLog>(entity =>
+            {
+                entity.HasKey(e => e.IdLog);
+
+                entity.ToTable("T_WhatsappLlamadaEstadoLog", "com");
+
+                entity.HasIndex(e => new { e.IdWhatsappLlamada, e.FechaTransicion }, "IX_T_WhatsappLlamadaEstadoLog_Llamada");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaTransicion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Motivo).HasMaxLength(100);
+
+                entity.Property(e => e.Origen).HasMaxLength(50);
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken();
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<TWhatsappLlamadum>(entity =>
+            {
+                entity.HasKey(e => e.IdWhatsappLlamada);
+
+                entity.ToTable("T_WhatsappLlamada", "com");
+
+                entity.HasIndex(e => new { e.IdPersonal, e.FechaRinging }, "IX_T_WhatsappLlamada_Agente")
+                    .HasFilter("([IdPersonal] IS NOT NULL)");
+
+                entity.HasIndex(e => new { e.IdPersonalAreaTrabajo, e.IdPais, e.FechaRinging }, "IX_T_WhatsappLlamada_Area_Fecha");
+
+                entity.HasIndex(e => new { e.NumeroWhatsApp, e.IdPais }, "IX_T_WhatsappLlamada_Numero_Pais");
+
+                entity.HasIndex(e => e.WaId, "UX_T_WhatsappLlamada_WaId")
+                    .IsUnique()
+                    .HasFilter("([WaId] IS NOT NULL)");
+
+                entity.Property(e => e.CallId).HasMaxLength(200);
+
+                entity.Property(e => e.ConsentimientoEstado).HasMaxLength(20);
+
+                entity.Property(e => e.ConsentimientoExpira).HasColumnType("datetime");
+
+                entity.Property(e => e.ConsentimientoFecha).HasColumnType("datetime");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.EstadoLlamada).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.FechaConexion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.FechaFin).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaRinging).HasColumnType("datetime");
+
+                entity.Property(e => e.GrabacionBlobNombre).HasMaxLength(300);
+
+                entity.Property(e => e.GrabacionUrl).HasMaxLength(500);
+
+                entity.Property(e => e.IdNumeroWhatsApp).HasMaxLength(50);
+
+                entity.Property(e => e.MotivoFin).HasMaxLength(50);
+
+                entity.Property(e => e.NumeroWhatsApp).HasMaxLength(30);
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken();
+
+                entity.Property(e => e.TemplateConsentimientoId).HasMaxLength(100);
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.WaId).HasMaxLength(100);
             });
 
             modelBuilder.Entity<TZonaHorariaPai>(entity =>

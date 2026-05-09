@@ -175,6 +175,17 @@ namespace BSI.Integra.Servicios.Controllers
             }
             return Ok(_centroCostoService.ObtenerAutocompleteV2(filtro.Valor, _tokenManager.UserName));
         }
+        [Authorize]
+        [JwtExpirationValidation]
+        [HttpPost("[action]")]
+        public IActionResult ObtenerAutocompleteV3([FromBody] StringDTO filtro)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            return Ok(_centroCostoService.ObtenerAutocompleteV3(filtro.Valor, _tokenManager.UserName));
+        }
         /// Autor: Daniel Huaita
         /// Fecha: 16/02/2023
         /// Version: 1.0

@@ -366,6 +366,46 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// Tipo Función: GET
+        /// Autor: Carlos Crispin R.
+        /// Fecha: 18/08/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene historial de mensajes recibidos a chat de asesor desde el portal web
+        /// </summary>
+        /// <param name="idPersonal"> Id de Personal </param>
+        /// <param name="numero"> Número de WhatsApp </param>
+        /// <param name="area"> Area </param>
+        /// <param name="idAlumno"> Area </param>
+        /// <returns> Lista de objetoDTO: List<WhatsAppMensajesDTO> </returns>
+        [HttpGet("PortalWebHistorialMensajeChatOperaciones/{idPersonal}/{numero}/{area}/{idAlumno}")]
+        public IActionResult PortalWebHistorialMensajeChatOperaciones(int idPersonal, string numero, string area, int idAlumno)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (idPersonal == null)
+            {
+                return BadRequest("Los datos enviados no pueden ser nulos o estar vacios.");
+            }
+            try
+            {
+
+                var servicio = new WhatsAppMensajeEnviadoService(_unitOfWork);
+                var resultado = servicio.ListaHistorialPortalWebMensajeChatOperaciones(idPersonal, numero, area,idAlumno);
+                if (resultado == null)
+                {
+                    return BadRequest("Error: Sin Datos");
+                }
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         /// Tipo Función: GET
         /// Autor: Daniel Huaita Carpio
         /// Fecha: 31/05/2023
