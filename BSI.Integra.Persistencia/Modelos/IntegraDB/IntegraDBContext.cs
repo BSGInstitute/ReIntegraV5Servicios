@@ -64763,7 +64763,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
             modelBuilder.Entity<TWhatsappAgenteLlamadaEstado>(entity =>
             {
-                entity.HasKey(e => e.IdAgenteLlamadaEstado);
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("T_WhatsappAgenteLlamadaEstado", "com");
 
@@ -64805,7 +64805,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
             modelBuilder.Entity<TWhatsappLlamadaEstadoLog>(entity =>
             {
-                entity.HasKey(e => e.IdLog);
+
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("T_WhatsappLlamadaEstadoLog", "com");
 
@@ -64838,7 +64839,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
             modelBuilder.Entity<TWhatsappLlamadum>(entity =>
             {
-                entity.HasKey(e => e.IdWhatsappLlamada);
+
+                entity.HasKey(e => e.Id);
 
                 entity.ToTable("T_WhatsappLlamada", "com");
 
