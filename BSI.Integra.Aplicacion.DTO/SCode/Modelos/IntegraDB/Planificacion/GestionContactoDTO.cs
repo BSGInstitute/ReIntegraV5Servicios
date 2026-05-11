@@ -135,6 +135,65 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Planificacion
         public string UsuarioCreacion { get; set; }
     }
 
+    /// Autor: Joseph Llanque
+    /// Fecha: 07/05/2026
+    /// Versión: 1.0
+    /// <summary>
+    /// Request unificado para el endpoint atómico /CrearOportunidadCompleta.
+    /// Combina los datos de los 3 endpoints originales (InsertarOportunidadDocente +
+    /// InsertarGestionContactoDocenteFlujo + CongelarFlujoDocente) en una sola
+    /// llamada con transacción única en backend. Cierra la clase de bug donde
+    /// quedaban GC creados sin flujo o sin congelar al fallar uno de los pasos.
+    /// </summary>
+    public class CrearOportunidadCompletaRequestDTO
+    {
+        public int? IdCentroCosto { get; set; }
+        /// <summary>ID de conf.T_ClasificacionPersona (combo General). Excluyente con IdProveedor.</summary>
+        public int? IdClasificacionPersona { get; set; }
+        /// <summary>ID de fin.T_Proveedor (cascada Asignado al Curso). Excluyente con IdClasificacionPersona.</summary>
+        public int? IdProveedor { get; set; }
+        public int IdPersonalAsignado { get; set; }
+        /// <summary>Flujo (pla.T_GestionDocenteFlujo.Id) que se vinculará y congelará para esta oportunidad.</summary>
+        public int IdGestionDocenteFlujo { get; set; }
+        /// <summary>Solo aplica para flujos categoría General (Cat 1). Si el flujo es Cat 2 (Ejecución de Curso), el SP la ignora y calcula desde sesiones del PE.</summary>
+        public DateTime? FechaInicioFlujoCongelado { get; set; }
+        public string UsuarioCreacion { get; set; }
+    }
+
+    /// Autor: Joseph Llanque
+    /// Fecha: 07/05/2026
+    /// Versión: 1.0
+    /// <summary>
+    /// Respuesta del endpoint atómico /CrearOportunidadCompleta. Devuelve los IDs
+    /// generados en cada paso para que el frontend pueda navegar o refrescar listados.
+    /// </summary>
+    public class CrearOportunidadCompletaResponseDTO
+    {
+        public int IdGestionContacto { get; set; }
+        public int IdGestionContactoDocenteFlujo { get; set; }
+        public bool FlujoCongelado { get; set; }
+        public string Mensaje { get; set; }
+    }
+
+    /// Autor: Joseph Llanque
+    /// Fecha: 07/05/2026
+    /// Versión: 1.0
+    /// <summary>
+    /// Respuesta del endpoint /EliminarOportunidad. Indica si la operación tuvo
+    /// éxito o por qué falló (flujo ya iniciado, ocurrencias marcadas, etc.).
+    /// </summary>
+    public class EliminarOportunidadResponseDTO
+    {
+        public bool Exito { get; set; }
+        public string Mensaje { get; set; }
+        /// <summary>Código del motivo cuando Exito=false: "FLUJO_INICIADO" | "OCURRENCIAS_MARCADAS" | "NO_ENCONTRADA".</summary>
+        public string Motivo { get; set; }
+        /// <summary>Cuando hay ocurrencias marcadas, cuántas son (para mostrar al user).</summary>
+        public int? CantidadOcurrenciasMarcadas { get; set; }
+        /// <summary>Cuando el flujo ya inició, la fecha de inicio que se detectó (primer disparador fijo).</summary>
+        public DateTime? FechaInicioFlujoDetectada { get; set; }
+    }
+
     public class DocenteComboDTO
     {
         /// <summary>ID de conf.T_ClasificacionPersona — único en el sistema independiente del tipo.</summary>

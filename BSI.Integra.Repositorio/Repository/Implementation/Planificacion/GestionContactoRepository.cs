@@ -468,6 +468,240 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
             }
         }
 
+        /// Autor: Joseph Llanque
+        /// Fecha: 07/05/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Crea una Oportunidad Docente completa en UNA SOLA transacción atómica:
+        ///   1. Inserta la cabecera en pla.T_GestionContacto.
+        ///   2. Inserta el vínculo con el flujo en pla.T_GestionContactoDocenteFlujo.
+        ///   3. Congela el flujo invocando pla.SP_FlujoDocenteCongelar.
+        /// Si cualquier paso falla, rollback total — nunca queda data huérfana.
+        ///
+        /// Reemplaza la orquestación previa que hacía 3 llamadas HTTP separadas desde
+        /// el frontend (createOportunidad.usecase.ts), donde un fallo entre paso 1 y
+        /// paso 3 dejaba GestionContactos sin flujo o sin congelar.
+        ///
+        /// El SP de congelamiento se invoca via ExecuteSqlRawAsync (no Dapper) para
+        /// que comparta la conexión y la transacción del DbContext.
+        /// </summary>
+        public async Task<CrearOportunidadCompletaResponseDTO> CrearOportunidadCompletaAsync(CrearOportunidadCompletaRequestDTO dto)
+        {
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            try
+            {
+                // Validación de input — al menos uno de los dos identificadores de docente.
+                if (!dto.IdClasificacionPersona.HasValue && !dto.IdProveedor.HasValue)
+                    throw new Exception("Se debe enviar IdClasificacionPersona (flujo General) o IdProveedor (flujo Asignado al Curso).");
+
+                if (dto.IdGestionDocenteFlujo <= 0)
+                    throw new Exception("IdGestionDocenteFlujo es obligatorio.");
+
+                if (dto.IdPersonalAsignado <= 0)
+                    throw new Exception("IdPersonalAsignado es obligatorio.");
+
+                // 1. Resolver idClasificacionPersona (puede venir directo o via Proveedor).
+                int idClasificacionPersona;
+                if (dto.IdClasificacionPersona.HasValue)
+                {
+                    idClasificacionPersona = dto.IdClasificacionPersona.Value;
+                }
+                else
+                {
+                    var clasificacion = ObtenerClasificacionPorProveedor(dto.IdProveedor.Value);
+                    if (clasificacion == null)
+                        throw new Exception($"No se encontró clasificación de persona para el proveedor {dto.IdProveedor.Value}.");
+                    idClasificacionPersona = clasificacion.IdClasificacionPersona;
+                }
+
+                DateTime fechaActual = DateTime.Now;
+                string usuario = string.IsNullOrWhiteSpace(dto.UsuarioCreacion) ? "sgradosn" : dto.UsuarioCreacion;
+
+                // 2. Insertar cabecera T_GestionContacto.
+                var nuevaGestion = new TGestionContacto
+                {
+                    IdCentroCosto             = dto.IdCentroCosto,
+                    IdPersonalAsignado        = dto.IdPersonalAsignado,
+                    IdClasificacionPersona    = idClasificacionPersona,
+                    IdFaseGestionContacto     = 2,
+                    IdOrigen                  = 1124,
+                    IdEstadoGestionContacto   = 1,
+                    UltimoComentario          = "Creacion de Oportunidad Docente Registrada",
+                    EstadoSeguimientoWhatsApp = false,
+                    Estado                    = true,
+                    UsuarioCreacion           = usuario,
+                    UsuarioModificacion       = usuario,
+                    FechaCreacion             = fechaActual,
+                    FechaModificacion         = fechaActual
+                };
+                _dbContext.TGestionContactos.Add(nuevaGestion);
+                await _dbContext.SaveChangesAsync();
+
+                // 3. Insertar vínculo T_GestionContactoDocenteFlujo.
+                var docenteFlujo = new TGestionContactoDocenteFlujo
+                {
+                    IdGestionContacto     = nuevaGestion.Id,
+                    IdGestionDocenteFlujo = dto.IdGestionDocenteFlujo,
+                    Estado                = true,
+                    UsuarioCreacion       = usuario,
+                    UsuarioModificacion   = usuario,
+                    FechaCreacion         = fechaActual,
+                    FechaModificacion     = fechaActual
+                };
+                _dbContext.TGestionContactoDocenteFlujos.Add(docenteFlujo);
+                await _dbContext.SaveChangesAsync();
+
+                // 4. Congelar flujo invocando SP via EF (comparte conexión y transacción).
+                //    El SP detecta la categoría del flujo internamente:
+                //      Cat 1 (General):     calcula disparadores TIEMPO_FIJO desde @FechaInicioFlujoCongelado.
+                //      Cat 2 (Ej. Curso):   calcula disparadores CRONOGRAMA desde sesiones del PE,
+                //                           ignora @FechaInicioFlujoCongelado.
+                await _dbContext.Database.ExecuteSqlRawAsync(
+                    "EXEC pla.SP_FlujoDocenteCongelar @IdGestionContactoDocenteFlujo, @UsuarioCreacion, @FechaInicioFlujoCongelado",
+                    new Microsoft.Data.SqlClient.SqlParameter("@IdGestionContactoDocenteFlujo", docenteFlujo.Id),
+                    new Microsoft.Data.SqlClient.SqlParameter("@UsuarioCreacion", usuario),
+                    new Microsoft.Data.SqlClient.SqlParameter("@FechaInicioFlujoCongelado", (object)dto.FechaInicioFlujoCongelado ?? DBNull.Value));
+
+                // 5. Commit único.
+                await transaction.CommitAsync();
+
+                return new CrearOportunidadCompletaResponseDTO
+                {
+                    IdGestionContacto             = nuevaGestion.Id,
+                    IdGestionContactoDocenteFlujo = docenteFlujo.Id,
+                    FlujoCongelado                = true,
+                    Mensaje                       = "Oportunidad creada y flujo congelado correctamente."
+                };
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw new Exception($"Error en CrearOportunidadCompletaAsync(): {ex.Message}", ex);
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 07/05/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Soft delete de Oportunidad Docente con dos validaciones de negocio.
+        /// El snapshot congelado se conserva intacto (auditoría histórica); solo se
+        /// desactiva la cabecera para que la fila desaparezca de los listados (el
+        /// listado ya filtra por gc.Estado = 1, ver ObtenerOportunidadesDocente).
+        /// </summary>
+        public async Task<EliminarOportunidadResponseDTO> EliminarOportunidadAsync(int idGestionContacto, string usuario)
+        {
+            try
+            {
+                // Validación 0: la oportunidad existe y está activa.
+                var existe = await _dbContext.TGestionContactos
+                    .Where(g => g.Id == idGestionContacto && g.Estado == true)
+                    .Select(g => g.Id)
+                    .FirstOrDefaultAsync();
+
+                if (existe == 0)
+                {
+                    return new EliminarOportunidadResponseDTO
+                    {
+                        Exito   = false,
+                        Mensaje = "La oportunidad no existe o ya fue eliminada.",
+                        Motivo  = "NO_ENCONTRADA"
+                    };
+                }
+
+                // Validación 1: ocurrencias marcadas.
+                const string sqlCountMarcadas = @"
+                    SELECT COUNT(1)
+                    FROM pla.T_GestionDocenteOcurrenciaMarcada OM WITH (NOLOCK)
+                    INNER JOIN pla.T_GestionContactoDocenteFlujo GCDF WITH (NOLOCK)
+                        ON GCDF.Id = OM.IdGestionContactoDocenteFlujo
+                    WHERE GCDF.IdGestionContacto = @IdGestionContacto
+                      AND OM.Estado = 1;";
+
+                string countMarcadasResult = await _dapperRepository.FirstOrDefaultAsync(
+                    sqlCountMarcadas, new { IdGestionContacto = idGestionContacto });
+                int cantidadMarcadas = int.TryParse(countMarcadasResult, out int c) ? c : 0;
+
+                if (cantidadMarcadas > 0)
+                {
+                    return new EliminarOportunidadResponseDTO
+                    {
+                        Exito                       = false,
+                        Mensaje                     = $"No se puede eliminar: la oportunidad tiene {cantidadMarcadas} ocurrencia(s) marcada(s).",
+                        Motivo                      = "OCURRENCIAS_MARCADAS",
+                        CantidadOcurrenciasMarcadas = cantidadMarcadas
+                    };
+                }
+
+                // Validación 2: el flujo ya inició (algún disparador fijo con Fecha <= GETDATE()).
+                const string sqlFechaInicio = @"
+                    SELECT MIN(RTF.Fecha) AS FechaInicio
+                    FROM pla.T_GestionContactoDocenteFlujo GCDF WITH (NOLOCK)
+                    INNER JOIN pla.T_GestionContactoFlujoCongelado FC WITH (NOLOCK)
+                        ON FC.IdGestionContactoDocenteFlujo = GCDF.Id
+                    INNER JOIN pla.T_GestionDocenteActividadCabeceraCongelada AC WITH (NOLOCK)
+                        ON AC.IdGestionContactoFlujoCongelado = FC.Id
+                    INNER JOIN pla.T_GestionDocenteActividadDetalleCongelada AD WITH (NOLOCK)
+                        ON AD.IdGestionDocenteActividadCabeceraCongelada = AC.Id
+                    INNER JOIN pla.T_GestionDocenteDisparadorCongelado DC WITH (NOLOCK)
+                        ON DC.IdGestionDocenteActividadDetalleCongelada = AD.Id
+                    INNER JOIN pla.T_GestionDocenteDisparadorReglaTiempoFijoCongelado RTF WITH (NOLOCK)
+                        ON RTF.IdGestionDocenteDisparadorCongelado = DC.Id
+                    WHERE GCDF.IdGestionContacto = @IdGestionContacto
+                      AND GCDF.Estado = 1
+                      AND RTF.Estado = 1;";
+
+                string fechaInicioStr = await _dapperRepository.FirstOrDefaultAsync(
+                    sqlFechaInicio, new { IdGestionContacto = idGestionContacto });
+
+                if (DateTime.TryParse(fechaInicioStr, out DateTime fechaInicio))
+                {
+                    if (fechaInicio <= DateTime.Now)
+                    {
+                        return new EliminarOportunidadResponseDTO
+                        {
+                            Exito                     = false,
+                            Mensaje                   = $"No se puede eliminar: el flujo ya inició el {fechaInicio:dd/MM/yyyy HH:mm}.",
+                            Motivo                    = "FLUJO_INICIADO",
+                            FechaInicioFlujoDetectada = fechaInicio
+                        };
+                    }
+                }
+
+                // Validaciones OK → soft delete.
+                var gestion = await _dbContext.TGestionContactos
+                    .FirstOrDefaultAsync(g => g.Id == idGestionContacto);
+
+                if (gestion == null)
+                {
+                    return new EliminarOportunidadResponseDTO
+                    {
+                        Exito   = false,
+                        Mensaje = "La oportunidad no existe.",
+                        Motivo  = "NO_ENCONTRADA"
+                    };
+                }
+
+                gestion.Estado              = false;
+                gestion.UltimoComentario    = "Oportunidad eliminada (soft delete)";
+                gestion.UsuarioModificacion = string.IsNullOrWhiteSpace(usuario) ? "sgradosn" : usuario;
+                gestion.FechaModificacion   = DateTime.Now;
+
+                _dbContext.TGestionContactos.Update(gestion);
+                await _dbContext.SaveChangesAsync();
+
+                return new EliminarOportunidadResponseDTO
+                {
+                    Exito   = true,
+                    Mensaje = "Oportunidad eliminada correctamente."
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en EliminarOportunidadAsync(): {ex.Message}", ex);
+            }
+        }
+
         /// Autor: Jose Vega
         /// Fecha: 09/03/2026
         /// Version: 1.0
