@@ -3312,17 +3312,24 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             StringBuilder sb = new StringBuilder();
             sb.Append("<table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; font-size: 12px;'>");
             sb.Append("<thead style='background-color: #f2f2f2;'>");
-            sb.Append("<tr><th>Fecha</th><th>Hora Inicio</th><th>Hora Fin</th><th>Tema</th></tr>");
+            sb.Append("<tr>");
+            sb.Append("<th>Curso</th>");
+            sb.Append("<th>Sesi&oacute;n</th>");
+            sb.Append("<th>Fecha inicio</th>");
+            sb.Append("<th>Hora Inicio</th>");
+            sb.Append("<th>Hora Fin</th>");
+            sb.Append("</tr>");
             sb.Append("</thead>");
             sb.Append("<tbody>");
 
             foreach (var sesion in sesiones)
             {
                 sb.Append("<tr>");
+                sb.Append($"<td>{sesion.NombreCurso}</td>");
+                sb.Append($"<td style='text-align: center;'>{sesion.NumeroSesion}</td>");
                 sb.Append($"<td>{(sesion.FechaSesion.HasValue ? sesion.FechaSesion.Value.ToString("dd/MM/yyyy") : "")}</td>");
                 sb.Append($"<td>{sesion.HoraInicio}</td>");
                 sb.Append($"<td>{sesion.HoraFin}</td>");
-                sb.Append($"<td>{sesion.Tema}</td>");
                 sb.Append("</tr>");
             }
 
