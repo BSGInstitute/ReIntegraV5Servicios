@@ -691,6 +691,28 @@ namespace BSI.Integra.Servicios.Controllers
         }
 
         /// Tipo Función: POST
+        /// Autor: Alexis Arroyo
+        /// Fecha: 05/05/2026
+        /// Versión: 1.0
+        /// <returns>Hilos de chat por segmento paginados con filtros opcionales por rango de fecha</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerHilosChatPorSegmentoPaginado([FromBody] ObtenerHilosPorSegmentoPaginadosRequestDTO dto)
+        {
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerHilosChatPorSegmentoPaginado(
+                    dto.FechaInicio, dto.FechaFin, dto.PageNumber, dto.PageSize);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
         /// Autor: Jose Vega
         /// Fecha: 22/10/2025
         /// Versión: 1.0
@@ -915,6 +937,30 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 var servicio = new ChatDetalleIntegraService(unitOfWork);
                 var respuesta = servicio.ObtenerHilosPaginadosPorAlumno(dto);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Alexis Arroyo
+        /// Fecha: 2026-05-05
+        /// Versión: 1.0
+        /// <returns>Hilos de chat paginados (Portal) por segmento (idContactoPortalSegmento)</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerHilosPaginadosPorSegmento([FromBody] ObtenerHilosPaginadosPorSegmentoRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerHilosPaginadosPorSegmento(dto);
                 return Ok(respuesta);
             }
             catch (Exception ex)

@@ -511,6 +511,22 @@ namespace BSI.Integra.Servicios.Controllers
             return Ok(_pEspecificoService.ObtenerCronogramaPEspecifico(dto));
         }
         /// Tipo Función: GET
+        /// Autor: aarroyoh
+        /// Fecha: 07/05/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Devuelve los IdTroncalPais aplicables al PE (Peru + pais del PE si difiere) para
+        /// que el front encadene con /api/Feriado/ListarPorPaises sin lógica adicional.
+        /// </summary>
+        /// <param name="idPespecifico">Id del programa especifico</param>
+        /// <returns>int[] con los IdTroncalPais</returns>
+        [HttpGet("ObtenerIdsTroncalPaisFeriado/{idPespecifico}")]
+        [Authorize]
+        public ActionResult<int[]> ObtenerIdsTroncalPaisFeriado(int idPespecifico)
+        {
+            return Ok(_pEspecificoService.ObtenerIdsTroncalPaisFeriado(idPespecifico));
+        }
+        /// Tipo Función: GET
 		/// Autor: Flavio R. Mamani Fabian
 		/// Fecha: 31/05/2023
 		/// Version: 1.0

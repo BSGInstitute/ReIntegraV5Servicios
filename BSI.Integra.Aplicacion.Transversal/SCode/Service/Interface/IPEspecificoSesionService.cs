@@ -15,6 +15,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         RptaActualizarDatosCronogramaSesionesDTO ActualizarDatosCronogramaSesiones(InformacionCronogramaSesionesDTO dto, string usuario);
         bool EstablecerSesionInicial(int idProgramaEspecificoSesion, string usuario);
         DateTime ObtenerFechaAsignar(InformacionPespecificoHijoDTO curso, DateTime fechaAsignar, byte dia, byte[] diasFrecuencia, IEnumerable<FeriadoDTO> listaFeriados);
+        DateTime ObtenerFechaAsignarPorPais(DateTime fechaAsignar, byte dia, byte[] diasFrecuencia, IEnumerable<FeriadoConPaisDTO> listaFeriados);
         bool CancelarWebinar(CancelarWebinarDTO dto, string usuario);
         bool EliminarSesion(int idProgramaEspecifico, int idProgramaEspecificoSesion, string usuario);
         bool ConfirmarWebinar(ConfirmacionWebinarDTO dto, string usuario);
