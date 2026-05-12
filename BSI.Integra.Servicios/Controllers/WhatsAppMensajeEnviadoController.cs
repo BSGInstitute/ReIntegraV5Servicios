@@ -366,6 +366,46 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// Tipo Función: GET
+        /// Autor: Carlos Crispin R.
+        /// Fecha: 18/08/2022
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene historial de mensajes recibidos a chat de asesor desde el portal web
+        /// </summary>
+        /// <param name="idPersonal"> Id de Personal </param>
+        /// <param name="numero"> Número de WhatsApp </param>
+        /// <param name="area"> Area </param>
+        /// <param name="idAlumno"> Area </param>
+        /// <returns> Lista de objetoDTO: List<WhatsAppMensajesDTO> </returns>
+        [HttpGet("PortalWebHistorialMensajeChatOperaciones/{idPersonal}/{numero}/{area}/{idAlumno}")]
+        public IActionResult PortalWebHistorialMensajeChatOperaciones(int idPersonal, string numero, string area, int idAlumno)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (idPersonal == null)
+            {
+                return BadRequest("Los datos enviados no pueden ser nulos o estar vacios.");
+            }
+            try
+            {
+
+                var servicio = new WhatsAppMensajeEnviadoService(_unitOfWork);
+                var resultado = servicio.ListaHistorialPortalWebMensajeChatOperaciones(idPersonal, numero, area,idAlumno);
+                if (resultado == null)
+                {
+                    return BadRequest("Error: Sin Datos");
+                }
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         /// Tipo Función: GET
         /// Autor: Daniel Huaita Carpio
         /// Fecha: 31/05/2023
@@ -1783,6 +1823,224 @@ namespace BSI.Integra.Servicios.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        // -------------------------------------------------------
+        // Modal Masivo Oportunidades WhatsApp
+        // Autor: Miguel Valdivia  | Fecha: 2026-04-24
+        // -------------------------------------------------------
+
+        /// Autor: Miguel Valdivia 
+        /// Fecha: 2026-04-24
+        /// Versión: 1.0
+        /// <summary>
+        /// Dado un IdAlumno, retorna el IdCentroCosto asignado en la última campaña activa.
+        /// GET /api/WhatsAppMensajeEnviado/ObtenerCentroCostoPorAlumno/{idAlumno}
+        /// </summary>
+        [Route("[action]/{idAlumno}")]
+        [HttpGet]
+        public IActionResult ObtenerCentroCostoPorAlumno(int idAlumno)
+        {
+            if (idAlumno <= 0)
+                return BadRequest("El IdAlumno debe ser mayor a 0.");
+            try
+            {
+                var servicio = new WhatsAppMensajeEnviadoService(_unitOfWork);
+                var request = new CentroCostoPorAlumnoRequestDTO { IdAlumno = idAlumno };
+                var resultado = servicio.ObtenerCentroCostoPorAlumno(request);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Autor: Miguel Valdivia 
+        /// Fecha: 2026-04-24
+        /// Versión: 1.0
+        /// <summary>
+        /// Dada una lista de celulares y rango de horas, retorna datos de pre-carga masiva
+        /// (perfil del alumno, mensajes recientes, historial de oportunidades, IdCentroCosto).
+        /// POST /api/WhatsAppMensajeEnviado/ObtenerDatosPreCargaMasiva
+        /// </summary>
+        [Route("[action]")]
+        [HttpPost]
+        public IActionResult ObtenerDatosPreCargaMasiva([FromBody] PreCargaMasivaRequestDTO request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            try
+            {
+                var servicio = new WhatsAppMensajeEnviadoService(_unitOfWork);
+                var resultado = servicio.ObtenerDatosPreCargaMasiva(request);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Autor: Miguel Valdivia 
+        /// Fecha: 2026-04-24
+        /// Versión: 1.0
+        /// <summary>
+        /// Actualiza datos de perfil (cargo, industria, área de formación, área de trabajo)
+        /// para una lista de alumnos. Se llama por cada lead que tenga perfilModificado = true.
+        /// POST /api/WhatsAppMensajeEnviado/ActualizarDatosAlumnoMasivo
+        /// </summary>
+        [Route("[action]")]
+        [HttpPost]
+        public IActionResult ActualizarDatosAlumnoMasivo([FromBody] List<ActualizarAlumnoMasivoItemDTO> lista)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            try
+            {
+                var usuario = "sistema";
+                var servicio = new WhatsAppMensajeEnviadoService(_unitOfWork);
+                var resultado = servicio.ActualizarDatosAlumnoMasivo(lista, usuario);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+
+        /// Autor: Miguel Valdivia
+        /// Fecha: 2026-05-04
+        /// Versión: 1.0
+        /// <summary>
+        /// Inicia una extraccion batch enviando los chats de varios leads al servicio de IA externo.
+        /// POST /api/WhatsAppMensajeEnviado/IniciarExtraccionBatch
+        /// </summary>
+        [HttpPost("IniciarExtraccionBatch")]
+        public async Task<ActionResult> IniciarExtraccionBatch([FromBody] ExtraccionBatchRequestDTO request)
+        {
+            try
+            {
+                var servicio = new WhatsAppMensajeEnviadoService(_unitOfWork);
+                var resultado = await servicio.IniciarExtraccionBatch(request);
+                return Content(resultado, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// Autor: Miguel Valdivia 
+        /// Fecha: 2026-05-04
+        /// Versión: 1.0
+        /// <summary>
+        /// Consulta el estado de una extraccion batch por su callId.
+        /// GET /api/WhatsAppMensajeEnviado/ObtenerEstadoExtraccion/{callId}
+        /// </summary>
+        [HttpGet("ObtenerEstadoExtraccion/{callId}")]
+        public async Task<ActionResult> ObtenerEstadoExtraccion(string callId)
+        {
+            try
+            {
+                var servicio = new WhatsAppMensajeEnviadoService(_unitOfWork);
+                var resultado = await servicio.ObtenerEstadoExtraccion(callId);
+                return Content(resultado, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// Autor: Miguel Valdivia 
+        /// Fecha: 2026-05-04
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los resultados de una extraccion batch por su callId.
+        /// GET /api/WhatsAppMensajeEnviado/ObtenerResultadosExtraccion/{callId}
+        /// </summary>
+        [HttpGet("ObtenerResultadosExtraccion/{callId}")]
+        public async Task<ActionResult> ObtenerResultadosExtraccion(string callId)
+        {
+            try
+            {
+                var servicio = new WhatsAppMensajeEnviadoService(_unitOfWork);
+                var resultado = await servicio.ObtenerResultadosExtraccion(callId);
+                return Content(resultado, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// Autor: Miguel Valdivia 
+        /// Fecha: 2026-05-04
+        /// Versión: 1.0
+        /// <summary>
+        /// Inicia una calificacion batch de leads mediante el servicio de IA externo.
+        /// POST /api/WhatsAppMensajeEnviado/IniciarCalificacionBatch
+        /// </summary>
+        [HttpPost("IniciarCalificacionBatch")]
+        public async Task<ActionResult> IniciarCalificacionBatch([FromBody] CalificacionLlamadaRequestDTO request)
+        {
+            try
+            {
+                var servicio = new WhatsAppMensajeEnviadoService(_unitOfWork);
+                var resultado = await servicio.IniciarCalificacionBatch(request);
+                return Content(resultado, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// Autor: Miguel Valdivia 
+        /// Fecha: 2026-05-04
+        /// Versión: 1.0
+        /// <summary>
+        /// Consulta el estado de una calificacion batch por su llamadaId.
+        /// GET /api/WhatsAppMensajeEnviado/ObtenerEstadoCalificacion/{llamadaId}
+        /// </summary>
+        [HttpGet("ObtenerEstadoCalificacion/{llamadaId}")]
+        public async Task<ActionResult> ObtenerEstadoCalificacion(string llamadaId)
+        {
+            try
+            {
+                var servicio = new WhatsAppMensajeEnviadoService(_unitOfWork);
+                var resultado = await servicio.ObtenerEstadoCalificacion(llamadaId);
+                return Content(resultado, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// Autor: Miguel Valdivia 
+        /// Fecha: 2026-05-04
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los resultados de una calificacion batch por su llamadaId.
+        /// GET /api/WhatsAppMensajeEnviado/ObtenerResultadosCalificacion/{llamadaId}
+        /// </summary>
+        [HttpGet("ObtenerResultadosCalificacion/{llamadaId}")]
+        public async Task<ActionResult> ObtenerResultadosCalificacion(string llamadaId)
+        {
+            try
+            {
+                var servicio = new WhatsAppMensajeEnviadoService(_unitOfWork);
+                var resultado = await servicio.ObtenerResultadosCalificacion(llamadaId);
+                return Content(resultado, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
             }
         }
     }

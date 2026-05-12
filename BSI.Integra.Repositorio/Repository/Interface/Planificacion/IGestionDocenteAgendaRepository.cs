@@ -41,5 +41,12 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         /// Obtiene el contador de alertas del docente ejecutando pla.SP_GestionDocenteAlertasContador.
         /// </summary>
         ContadorAlertasDTO ObtenerContadorAlertas();
+        /// <summary>
+        /// Obtiene los últimos mensajes recibidos (correo + whatsapp) por cada docente
+        /// ejecutando pla.SP_GestionDocenteMensajesRecibidosObtener con filtro opcional
+        /// por personal asignado. Devuelve una fila por canal (hasta 2 por docente).
+        /// </summary>
+        /// <param name="idPersonalAsignado">> 0 para filtrar por asesor; 0 para sin filtro.</param>
+        List<MensajeRecibidoAgendaDTO> ObtenerMensajesRecibidos(int idPersonalAsignado);
     }
 }

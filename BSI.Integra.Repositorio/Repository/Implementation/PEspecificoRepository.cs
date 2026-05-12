@@ -910,6 +910,34 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception("Error en ObtenerIdCiudad()", ex);
             }
         }
+        /// Autor: aarroyoh
+        /// Fecha: 07/05/2026
+        /// Version: 2.0
+        /// <summary>
+        /// Obtiene el IdTroncalPais (pla.T_TroncalPais.Id) asociado al PE delegando la logica
+        /// al SP pla.SP_PEspecificoObtenerIdTroncalPaisFeriado. La cadena de joins (PE → Ciudad
+        /// → Pais → TroncalPais) y la colacion case/accent insensitive viven dentro del SP.
+        /// Devuelve IntDTO con Valor=null si el PE no tiene ciudad o algun eslabon esta inactivo.
+        /// </summary>
+        public IntDTO ObtenerIdTroncalPaisPorIdPespecifico(int idPespecifico)
+        {
+            try
+            {
+                IntDTO rpta = new();
+                string resultado = _dapperRepository.QuerySPFirstOrDefault(
+                    "pla.SP_PEspecificoObtenerIdTroncalPaisFeriado",
+                    new { IdPEspecifico = idPespecifico });
+                if (!string.IsNullOrEmpty(resultado) && resultado != "null")
+                {
+                    rpta = JsonConvert.DeserializeObject<IntDTO>(resultado)!;
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error en ObtenerIdTroncalPaisPorIdPespecifico()", ex);
+            }
+        }
         /// Autor: Jonathan Caipo
         /// Fecha: 14/10/2022
         /// Version: 1.0
@@ -2807,17 +2835,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 string _query = @"
                 SELECT
-                    DATEADD(HOUR, @IncrementoHoras, FechaHoraInicio) AS FechaSesion,
-                    CONVERT(VARCHAR(5), DATEADD(HOUR, @IncrementoHoras, FechaHoraInicio), 108) AS HoraInicio,
-                    CONVERT(VARCHAR(5), DATEADD(MINUTE, Duracion, DATEADD(HOUR, @IncrementoHoras, FechaHoraInicio)), 108) AS HoraFin,
-                    Grupo AS Tema
-                FROM
-                    pla.T_PEspecificoSesion
-                WHERE
-                    IdPEspecifico = (SELECT TOP 1 Id FROM pla.T_PEspecifico WHERE IdCentroCosto = @IdCentroCosto AND Estado = 1)
-                    AND Estado = 1
-                ORDER BY
-                    FechaHoraInicio ASC";
+                    pe.Nombre AS NombreCurso,
+                    ISNULL(ses.GrupoSesion, 0) AS NumeroSesion,
+                    DATEADD(HOUR, @IncrementoHoras, ses.FechaHoraInicio) AS FechaSesion,
+                    CONVERT(VARCHAR(5), DATEADD(HOUR, @IncrementoHoras, ses.FechaHoraInicio), 108) AS HoraInicio,
+                    CONVERT(VARCHAR(5), DATEADD(MINUTE, ses.Duracion, DATEADD(HOUR, @IncrementoHoras, ses.FechaHoraInicio)), 108) AS HoraFin,
+                    ses.Grupo AS Tema
+                FROM pla.T_PEspecificoSesion ses
+                INNER JOIN pla.T_PEspecifico pe ON ses.IdPEspecifico = pe.Id
+                WHERE ses.IdPEspecifico = (SELECT TOP 1 Id FROM pla.T_PEspecifico WHERE IdCentroCosto = @IdCentroCosto AND Estado = 1)
+                    AND ses.Estado = 1
+                ORDER BY ses.FechaHoraInicio ASC";
                 var _queryRespuesta = _dapperRepository.QueryDapper(_query, new { IdCentroCosto = idCentroCosto, IncrementoHoras = incrementoHoras });
                 if (_queryRespuesta != "null")
                     return JsonConvert.DeserializeObject<List<SesionPlanificacionDTO>>(_queryRespuesta);

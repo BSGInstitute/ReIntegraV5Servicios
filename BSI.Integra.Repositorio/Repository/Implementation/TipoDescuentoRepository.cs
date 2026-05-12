@@ -401,13 +401,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 List<TipoDescuentoOportunidadDTO> tiposDescuento = new List<TipoDescuentoOportunidadDTO>();
                 var query = @"
-                    SELECT IdTipoDescuento AS Id,Codigo,Descripcion,Formula,PorcentajeGeneral,PorcentajeMatricula,FraccionesMatricula,PorcentajeCuotas,CuotasAdicionales,Tipo,AplicaProgramaCompleto AS AplicaPrograma
-                    FROM [mkt].[V_TipoDescuentoSolicitud]
-                    WHERE  IdTipoDescuento>226
-                    UNION
-                    SELECT IdTipoDescuento AS Id,Codigo,Descripcion,Formula,PorcentajeGeneral,PorcentajeMatricula,FraccionesMatricula,PorcentajeCuotas,CuotasAdicionales,Tipo, AplicaPrograma
-                    FROM pla.V_TiposDescuentosSolicitudOportunidad
-                    WHERE IdOportunidad = @idOportunidad and IdTipoDescuento>226";
+                    SELECT Id,Codigo,Descripcion,Formula,PorcentajeGeneral,PorcentajeMatricula,FraccionesMatricula,PorcentajeCuotas,CuotasAdicionales,Tipo
+                      FROM mkt.V_TiposDescuentos
+                      WHERE IdOportunidad = @idOportunidad AND Tipo = @tipoPersonal";
                 var resultadoQuery = _dapperRepository.QueryDapper(query, new { idOportunidad, tipoPersonal });
                 if (!string.IsNullOrEmpty(resultadoQuery) && !resultadoQuery.Contains("[]"))
                 {

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
+using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Infrastructure;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -744,6 +746,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                         query = @$"SELECT	DISTINCT
                                 		Numero
                                 		,Tipo
+                                        ,Esbot
                                 		,Mensaje
                                 		,IdPersonal
                                 		,IdAlumno
@@ -759,6 +762,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                 		resultado.WaId
                                 		,Numero
                                 		,Tipo
+                                        ,Esbot
                                 		,Mensaje
                                 		,IdPersonal
                                 		,ISNULL(IdAlumno, 0)	IdAlumno
@@ -801,6 +805,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                 GROUP BY
                                 	Numero
                                 	,Tipo
+                                    ,Esbot
                                 	,Mensaje
                                 	,IdPersonal
                                 	,IdAlumno
@@ -2021,7 +2026,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 ObtenerAtributosAlumnoDTO ObtenerAtributosAlumno = new ObtenerAtributosAlumnoDTO();
                 var query = string.Empty;
-                query = @"SELECT 
+                query = @"SELECT
 	                        ALU.Id,
 	                        ALU.Nombre1,
 	                        ALU.Nombre2,
@@ -2039,7 +2044,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 	                        COALESCE(ALU.IdCargo, 0) AS IdCargo,
                             COALESCE(ALU.IdTamanioEmpresaAgenda, 0) AS IdTamanioEmpresaAgenda,
 	                        COALESCE(Desuscrito.Estado, 0) AS Desuscrito,
-	                        COALESCE(Archivado.Estado, 0) AS Archivado
+	                        COALESCE(Archivado.Estado, 0) AS Archivado,
+                            COALESCE(ALU.IdCodigoPais, 0) AS IdCodigoPais
                         FROM mkt.T_Alumno AS ALU
                         OUTER APPLY (
 	                        SELECT TOP 1 WD.Estado
@@ -2477,6 +2483,59 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 }
 
                 return ChatsWhatsAppMarketing;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        /// Autor: Miguel Valdivia
+        /// Fecha: 2026-04-27
+        /// Versión: 2.1
+        /// <summary>
+        /// Retorna los mensajes recientes para un celular dado,
+        /// invocando el SP mkt.SP_WhatsAppMensajeObtenerRecientesPorCelular.
+        /// Columnas devueltas: TipoMensaje, WaType, Mensaje, Archivo, NombreArchivo, FechaMensaje, PersonalFiltrado.
+        /// </summary>
+        public List<MensajeChatMasivoDTO> ObtenerMensajes48hPorCelular(string celularWhatsApp)
+
+        {
+            try
+            {
+                var query = "EXEC mkt.SP_WhatsAppMensajeObtenerRecientesPorCelular @CelularWhatsApp";
+                var respuesta = _dapperRepository.QueryDapper(query, new { CelularWhatsApp = celularWhatsApp });
+                if (!string.IsNullOrEmpty(respuesta) && !respuesta.Contains("[]"))
+                {
+                    var mensajes = JsonConvert.DeserializeObject<List<MensajeChatMasivoDTO>>(respuesta) ?? new List<MensajeChatMasivoDTO>();
+                    return mensajes.OrderBy(m => m.FechaMensaje).ToList();
+                }
+                return new List<MensajeChatMasivoDTO>();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        /// Autor: Miguel Valdivia 
+        /// Fecha: 2026-05-05
+        /// Versión: 1.0
+        /// <summary>
+        /// Retorna el historial de oportunidades de un alumno,
+        /// invocando el SP mkt.SP_OportunidadHistorialPorAlumno.
+        /// Columnas: IdOportunidad, FaseOportunidad, FaseMaxima, NombrePrograma, FechaSolicitud, Asesor.
+        /// </summary>
+        public List<HistorialOportunidadMasivoDTO> ObtenerHistorialOportunidadesPorAlumno(int idAlumno)
+        {
+            try
+            {
+                var respuesta = _dapperRepository.QuerySPDapper("mkt.SP_OportunidadHistorialPorAlumno", new { IdAlumno = idAlumno });
+                if (!string.IsNullOrEmpty(respuesta) && !respuesta.Contains("[]"))
+                {
+                    return JsonConvert.DeserializeObject<List<HistorialOportunidadMasivoDTO>>(respuesta) ?? new List<HistorialOportunidadMasivoDTO>();
+                }
+                return new List<HistorialOportunidadMasivoDTO>();
             }
             catch (Exception e)
             {

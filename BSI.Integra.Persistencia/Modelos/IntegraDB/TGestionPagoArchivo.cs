@@ -52,6 +52,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// RowVersion
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
+        /// <summary>
+        /// Indica si el archivo corresponde a un Comprobante (1) o a Otros Archivos (0). Aplica solo a archivos de cabecera (IdGestionPagoCronograma NULL). Lo setea el backend según el endpoint usado
+        /// </summary>
+        public bool EsComprobante { get; set; }
 
         public virtual TGestionPagoCronograma? IdGestionPagoCronogramaNavigation { get; set; }
         public virtual TGestionPago IdGestionPagoNavigation { get; set; } = null!;

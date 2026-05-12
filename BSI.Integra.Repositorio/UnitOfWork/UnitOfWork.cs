@@ -380,6 +380,16 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private ILlamadasWhatsAppRepository _llamadasWhatsAppRepository;
+
+        ILlamadasWhatsAppRepository IUnitOfWork.LlamadasWhatsAppRepository
+        {
+            get
+            {
+                return _llamadasWhatsAppRepository ?? new LlamadasWhatsAppRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
         private ICentroCostoRepository _centroCostoRepository;
 
         ICentroCostoRepository IUnitOfWork.CentroCostoRepository

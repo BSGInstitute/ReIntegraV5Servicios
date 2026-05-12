@@ -8,7 +8,7 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Interface
         #region Metodos Base
         GestionPago Add(GestionPago entidad);
         GestionPago Update(GestionPago entidad);
-        bool Delete(int id, string usuario);
+        bool Delete(int idGestionPago, string usuario);
 
         List<GestionPago> Add(List<GestionPago> listadoEntidad);
         List<GestionPago> Update(List<GestionPago> listadoEntidad);
@@ -17,6 +17,7 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Interface
 
         // Consultas
         IEnumerable<GestionPagoDTO> ObtenerGestionesPago(FiltroGestionPagoDTO filtro);
+        IEnumerable<ReporteComprobanteGestionPagoDTO> ObtenerReporteComprobantesYPagos(FiltroGestionPagoDTO filtro);
         GestionPagoDTO? ObtenerGestionPagoPorId(int id);
         GestionPagoDTO? ObtenerGestionPagoPorComprobante(int idComprobantePago);
 
@@ -36,8 +37,15 @@ namespace BSI.Integra.Aplicacion.Finanzas.Service.Interface
         bool ActualizarGestionPago(GestionPagoActualizarDTO dto);
         bool RegistrarConformidad(GestionPagoConformidadDTO dto);
         bool LevantarObservacion(GestionPagoLevantamientoDTO dto);
-        bool RegistrarPagoCuota(GestionPagoCronogramaPagoDTO dto);
-        bool InsertarArchivo(int idGestionPago, GestionPagoArchivoInsertarDTO dto);
+                bool RegistrarPagoCuota(GestionPagoCronogramaPagoDTO dto);
+
+        // Operaciones de Cuota Individual
+        int InsertarCuota(CronogramaInsertarDTO dto);
+        bool ActualizarCuota(CronogramaActualizarDTO dto);
+        bool EliminarCuota(int idCuota, string usuario);
+        Task<bool> InsertarArchivoAsync(int idGestionPago, GestionPagoArchivoInsertarDTO dto);
+        Task<(Stream stream, string contentType, string nombreArchivo)> DescargarArchivoAsync(int idArchivo);
         bool EliminarArchivo(int idArchivo, string usuario);
     }
 }
+

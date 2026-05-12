@@ -619,6 +619,31 @@ namespace BSI.Integra.Servicios.Controllers
         }
 
         /// Tipo Función: POST
+        /// Autor: Alexis Arroyo
+        /// Fecha: 2026-04-27
+        /// Versión: 1.0
+        /// <returns>Historial de mensajes WhatsApp ATC por IdAlumno</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerChatBotWhatsAppAtcPorAlumno([FromBody] ObtenerChatRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerChatWhatsAppAtcPorAlumno(dto.IdAlumno);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
         /// Autor: Jose Vega
         /// Fecha: 18/10/2025
         /// Versión: 1.0
@@ -650,12 +675,35 @@ namespace BSI.Integra.Servicios.Controllers
         /// <returns>Datos de hilos de chat con información de alumnos y matrículas</returns>
         [Route("[action]")]
         [HttpPost]
-        public ActionResult ObtenerHilosChatConAlumnos()
+        public ActionResult ObtenerHilosChatConAlumnos([FromBody] ObtenerHilosConAlumnosPaginadosRequestDTO dto)
         {
             try
             {
                 var servicio = new ChatDetalleIntegraService(unitOfWork);
-                var respuesta = servicio.ObtenerHilosChatConAlumnos();
+                var respuesta = servicio.ObtenerHilosChatConAlumnos(
+                    dto.FechaInicio, dto.FechaFin, dto.PageNumber, dto.PageSize, dto.CodigoMatricula);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Alexis Arroyo
+        /// Fecha: 05/05/2026
+        /// Versión: 1.0
+        /// <returns>Hilos de chat por segmento paginados con filtros opcionales por rango de fecha</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerHilosChatPorSegmentoPaginado([FromBody] ObtenerHilosPorSegmentoPaginadosRequestDTO dto)
+        {
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerHilosChatPorSegmentoPaginado(
+                    dto.FechaInicio, dto.FechaFin, dto.PageNumber, dto.PageSize);
                 return Ok(respuesta);
             }
             catch (Exception ex)
@@ -703,6 +751,57 @@ namespace BSI.Integra.Servicios.Controllers
                 var servicio = new ChatDetalleIntegraService(unitOfWork);
                 var usuario = User.Identity.Name ?? "Sistema";
                 var resultado = servicio.InsertarRespuestaEvaluacionCompleta(dto, usuario);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Alexis Arroyo
+        /// Fecha: 27/04/2026
+        /// Versión: 1.0
+        /// <returns>Lista de respuestas del cliente para un hilo de WhatsApp ATC</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerRespuestasUsuarioPorFormularioAplicadoWhatsapp([FromBody] ObtenerRespuestasClienteWhatsappRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerRespuestasUsuarioPorFormularioAplicadoWhatsapp(dto.IdChatbotWhatsAppHiloChat);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Alexis Arroyo
+        /// Fecha: 27/04/2026
+        /// Versión: 1.0
+        /// <returns>Resultado de la inserción completa de la evaluación para WhatsApp ATC</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult InsertarRespuestaEvaluacionCompletaWhatsapp([FromBody] InsertarRespuestaEvaluacionCompletaWhatsappRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var usuario = User.Identity.Name ?? "Sistema";
+                var resultado = servicio.InsertarRespuestaEvaluacionCompletaWhatsapp(dto, usuario);
                 return Ok(resultado);
             }
             catch (Exception ex)
@@ -822,6 +921,78 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        /// Tipo Función: POST
+        /// Autor: Alexis Arroyo
+        /// Fecha: 2026-04-29
+        /// Versión: 1.0
+        /// <returns>Hilos de chat paginados (Portal + WhatsApp) por alumno desde fecha de corte</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerHilosPaginadosPorAlumno([FromBody] ObtenerHilosPaginadosRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerHilosPaginadosPorAlumno(dto);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Alexis Arroyo
+        /// Fecha: 2026-05-05
+        /// Versión: 1.0
+        /// <returns>Hilos de chat paginados (Portal) por segmento (idContactoPortalSegmento)</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerHilosPaginadosPorSegmento([FromBody] ObtenerHilosPaginadosPorSegmentoRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerHilosPaginadosPorSegmento(dto);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Alexis Arroyo
+        /// Fecha: 2026-05-02
+        /// Versión: 1.0
+        /// <returns>Solicitudes vinculadas a un hilo de chat (Portal o WhatsApp)</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerSolicitudesPorHiloChat([FromBody] ObtenerSolicitudesPorHiloChatRequestDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerSolicitudesPorHiloChat(dto);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         /// Tipo Función: POST
         /// Autor: Max Mantilla
         /// Fecha: 2024-12-10

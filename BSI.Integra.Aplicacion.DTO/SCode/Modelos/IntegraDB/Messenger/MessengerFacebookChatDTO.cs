@@ -11,6 +11,10 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Messenger
         public string TipoMensaje { get; set; } = string.Empty;
         public string Contenido { get; set; } = string.Empty;
         public DateTime FechaMensaje { get; set; }
+        public string? EstadoInteraccion { get; set; }
+        public bool? RequiereDerivacion { get; set; }
+        public string? MensajeParaAsesor { get; set; }
+        public string? TipoMensajeDetectado { get; set; }
     }
 
     public class ChatMessengerFacebookDTO
@@ -51,7 +55,7 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Messenger
     public class OportunidadDatoGeneralDTO
     {
         public int IdOportunidad { get; set; }
-        public DateTime FechaModificacionOportunidad { get; set; } 
+        public DateTime FechaModificacionOportunidad { get; set; }
     }
 
     public class ValidarExistePSIDResponse
@@ -80,5 +84,9 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Messenger
         public string? RawResponse { get; set; } = string.Empty;
     }
 
-
+    public class DatosExtraccionRegistrosMessengerDTO
+    {
+        public int Rango { get; set; }
+        public string IdentificadorAmbitoPagina { get; set; }
+    }
 }
