@@ -3,6 +3,7 @@ using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Comercial;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
+using System.Collections.Generic;
 
 namespace BSI.Integra.Aplicacion.Marketing.Service.Interface
 {
@@ -69,5 +70,18 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Interface
         Task<DesactivarInteraccionResponseDTO> DesactivarInteraccionAutomaticaWhatsapp(string celularAlumno, string idCampania);
         Task<DatosInteraccionAutomaticaResponseDTO> ObtenerDatosExtraidosInteraccionAutomatica(string celularAlumno);
         Task<DesactivarInteraccionResponseDTO> ValidarGuardadoDatosInteraccionAutomatica(string celularAlumno);
+
+        // Modal Masivo Oportunidades WhatsApp
+        CentroCostoPorAlumnoResponseDTO ObtenerCentroCostoPorAlumno(CentroCostoPorAlumnoRequestDTO request);
+        List<PreCargaMasivaItemDTO> ObtenerDatosPreCargaMasiva(PreCargaMasivaRequestDTO request);
+        bool ActualizarDatosAlumnoMasivo(List<ActualizarAlumnoMasivoItemDTO> lista, string usuario);
+
+        // Batch IA — Extraccion y Calificacion
+        Task<string> IniciarExtraccionBatch(ExtraccionBatchRequestDTO request);
+        Task<string> ObtenerEstadoExtraccion(string callId);
+        Task<string> ObtenerResultadosExtraccion(string callId);
+        Task<string> IniciarCalificacionBatch(CalificacionLlamadaRequestDTO request);
+        Task<string> ObtenerEstadoCalificacion(string llamadaId);
+        Task<string> ObtenerResultadosCalificacion(string llamadaId);
     }
 }

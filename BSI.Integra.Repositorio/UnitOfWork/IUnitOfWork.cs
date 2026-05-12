@@ -55,6 +55,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IPlantillaRepository PlantillaRepository { get; }
         IGmailCorreoRepository GmailCorreoRepository { get; }
         IWhatsAppMensajeEnviadoRepository WhatsAppMensajeEnviadoRepository { get; }
+        ILlamadasWhatsAppRepository LlamadasWhatsAppRepository { get; }
         ICentroCostoRepository CentroCostoRepository { get; }
         IMatriculaCabeceraDatosCertificadoMensajeRepository MatriculaCabeceraDatosCertificadoMensajeRepository { get; }
         IPlantillaClaveValorRepository PlantillaClaveValorRepository { get; }

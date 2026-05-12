@@ -1056,6 +1056,67 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
         }
+
+        /// Autor: Miguel Valdivia
+        /// Fecha: 2026-04-24
+        /// Versión: 1.0
+        /// <summary>
+        /// Dado un IdAlumno, retorna el IdCentroCosto que la campaña le asignó (última asignación activa).
+        /// </summary>
+        public int? ObtenerIdCentroCostoPorIdAlumno(int idAlumno)
+        {
+            try
+            {
+                var query = @"SELECT TOP 1 r.IdCentroCosto
+                    FROM mkt.T_CampaniaGeneralDetalleResponsableAlumnoWhatsApp a WITH(NOLOCK)
+                    INNER JOIN mkt.T_CampaniaGeneralDetalleResponsableWhatsApp r WITH(NOLOCK)
+                        ON r.Id = a.IdCampaniaGeneralDetalleResponsableWhatsApp
+                    WHERE a.IdAlumno = @IdAlumno
+                      AND a.Estado = 1
+                      AND r.Estado = 1
+                    ORDER BY a.FechaCreacion DESC";
+                var respuesta = _dapperRepository.FirstOrDefault(query, new { IdAlumno = idAlumno });
+                if (!string.IsNullOrEmpty(respuesta) && respuesta != "null")
+                {
+                    var dto = JsonConvert.DeserializeObject<dynamic>(respuesta);
+                    if (dto != null && dto.IdCentroCosto != null)
+                        return (int?)dto.IdCentroCosto;
+                }
+                return null;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        /// Autor: Miguel Valdivia
+        /// Fecha: 2026-04-24
+        /// Versión: 1.0
+        /// <summary>
+        /// Dado un celular, retorna el IdAlumno correspondiente desde mkt.T_Alumno.
+        /// </summary>
+        public int? ObtenerIdAlumnoPorCelular(string celular)
+        {
+            try
+            {
+                var query = @"SELECT TOP 1 Id FROM mkt.T_Alumno WITH(NOLOCK)
+                    WHERE (Celular = @Celular OR Celular2 = @Celular)
+                      AND Estado = 1";
+                var respuesta = _dapperRepository.FirstOrDefault(query, new { Celular = celular });
+                if (!string.IsNullOrEmpty(respuesta) && respuesta != "null")
+                {
+                    var dto = JsonConvert.DeserializeObject<dynamic>(respuesta);
+                    if (dto != null && dto.Id != null)
+                        return (int?)dto.Id;
+                }
+                return null;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
     }
 }
 

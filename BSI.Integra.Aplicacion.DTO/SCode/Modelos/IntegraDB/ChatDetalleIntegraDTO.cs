@@ -188,6 +188,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public bool EsUsuario { get; set; }
         public string Contenido { get; set; }
         public string IdContactoPortalSegmento { get; set; }
+        public int? EsBot { get; set; }
+        public string Personal { get; set; } = "";
     }
 
     public class InsertarRespuestaEvaluacionCompletaRequestDTO
@@ -374,12 +376,57 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int PageSize { get; set; } = 10;
     }
 
-    public class HiloChatPaginadoDTO
+    public class ObtenerHilosPorSegmentoPaginadosRequestDTO
+    {
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaFin { get; set; }
+        public int PageNumber { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+    }
+
+    public class ObtenerHilosPaginadosPorSegmentoRequestDTO
+    {
+        [Required]
+        public string IdContactoPortalSegmento { get; set; }
+
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaFin { get; set; }
+
+        public int PageNumber { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+    }
+
+    public class ChatbotHiloChatPorSegmentoPaginadoDTO
+    {
+        public string IdContactoPortalSegmento { get; set; }
+        public int? CodigoAreaDerivacion { get; set; }
+        public bool Derivado { get; set; }
+        public int TotalChats { get; set; }
+        public int PendientesCalificacion { get; set; }
+        public DateTime FechaUltimoChat { get; set; }
+        /// <summary>Total de segmentos únicos (viene del SP); se usa para calcular la paginación.</summary>
+        public int TotalCount { get; set; }
+    }
+
+    public class HiloChatAlumnoPaginadoDTO
     {
         public int IdHilo { get; set; }
         public DateTime FechaCreacion { get; set; }
         public string Origen { get; set; }
         public int IdOrigen { get; set; }
+        public bool EsCalificado { get; set; }
+        public DateTime? FechaCalificacion { get; set; }
+        public string UltimoMensaje { get; set; }
+        public int TotalMensajes { get; set; }
+        public int TotalMensajesBot { get; set; }
+        public int TotalCount { get; set; }
+    }
+    public class HiloChatNoAlumnoPaginadoDTO
+    {
+        public int IdChatbotPortalHiloChat { get; set; }
+        public DateTime FechaCreacion { get; set; }
+        public string Origen { get; set; }
+        public int IdMedioComunicacion_Origen { get; set; }
         public bool EsCalificado { get; set; }
         public DateTime? FechaCalificacion { get; set; }
         public string UltimoMensaje { get; set; }
@@ -587,5 +634,9 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string WaFileName { get; set; }
         public string WaCaption { get; set; }
         public DateTime FechaCreacion { get; set; }
+        public int EsBot { get; set; }
+        public string Personal { get; set; }
+        public string WaType { get; set; }
+
     }
 }

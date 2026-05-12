@@ -24,6 +24,14 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
     /// </summary>
     public class PEspecificoSesionService : IPEspecificoSesionService
     {
+        /// <summary>
+        /// Id de Peru en pla.T_TroncalPais (NO en conf.T_Pais — son tablas distintas).
+        /// pla.T_Feriado se relaciona con esta jerarquia: T_Feriado.IdTroncalCiudad → T_TroncalCiudad.IdTroncalPais → T_TroncalPais.Id.
+        /// Se usa como pais por defecto cuando el PE no tiene ciudad asignada y como fallback
+        /// siempre presente al armar el filtro de feriados (Peru + pais del PE).
+        /// </summary>
+        public const int ID_TRONCAL_PAIS_PERU = 1;
+
         private IUnitOfWork _unitOfWork;
         private Mapper _mapper;
 
@@ -745,6 +753,65 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         {
             int daysToAdd = ((int)day - (int)start.DayOfWeek + 7) % 7;
             return start.AddDays(daysToAdd);
+        }
+        /// Autor: aarroyoh
+        /// Fecha: 06/05/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Predicado de feriado por pais. La lista ya viene filtrada desde el repo
+        /// (FeriadoRepository.ObtenerPorPaises con Peru + pais del PE), asi que aca
+        /// solo aplicamos la regla anual (Frecuencia=0) o unica (Frecuencia=1).
+        /// </summary>
+        private bool FechaEsFeriadoPorPais(DateTime fecha, IEnumerable<FeriadoConPaisDTO> feriados)
+        {
+            foreach (var feriado in feriados)
+            {
+                if (feriado.Frecuencia == 1
+                    && feriado.Dia.Year == fecha.Year
+                    && feriado.Dia.Month == fecha.Month
+                    && feriado.Dia.Day == fecha.Day)
+                    return true;
+                if (feriado.Frecuencia == 0
+                    && feriado.Dia.Month == fecha.Month
+                    && feriado.Dia.Day == fecha.Day)
+                    return true;
+            }
+            return false;
+        }
+        /// Autor: aarroyoh
+        /// Fecha: 06/05/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Sobrecarga de ObtenerFechaAsignar que filtra feriados por pais en lugar de por ciudad.
+        /// Mantiene exactamente el mismo flujo de avance (buscar proximo dia de la semana de la
+        /// frecuencia, saltar si cae en feriado). Se usa desde InsertarFrecuencia cuando ya
+        /// resolvimos Peru + pais del PE en el caller.
+        /// </summary>
+        public DateTime ObtenerFechaAsignarPorPais(DateTime fechaAsignar, byte dia, byte[] diasFrecuencia, IEnumerable<FeriadoConPaisDTO> listaFeriados)
+        {
+            int cont = Array.IndexOf(diasFrecuencia, dia);
+            DateTime fechaTemp;
+
+            while (true)
+            {
+                fechaTemp = fechaAsignar;
+                fechaAsignar = ObtenerProximoDiaSemana(fechaAsignar, (DayOfWeek)diasFrecuencia[cont]);
+                if (fechaAsignar.DayOfYear == fechaTemp.DayOfYear && cont == (cont + 1) % diasFrecuencia.Length)
+                {
+                    fechaAsignar = fechaAsignar.AddDays(1);
+                    continue;
+                }
+
+                if (FechaEsFeriadoPorPais(fechaAsignar, listaFeriados))
+                {
+                    cont = (cont + 1) % diasFrecuencia.Length;
+                    fechaAsignar = fechaAsignar.AddDays(1);
+                }
+                else
+                    break;
+            }
+
+            return fechaAsignar;
         }
         public bool CancelarWebinar(CancelarWebinarDTO dto, string usuario)
         {

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BSI.Integra.Aplicacion.Base.Exceptions;
+using System.Linq;
 using BSI.Integra.Aplicacion.Comercial.Service.Implementacion;
 using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
@@ -1050,23 +1051,23 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                 {
                     _unitOfWork.WhatsAppMensajeEnviadoRepository.ActualizarDatosAlumno(AlumnoActualizar.Id, "IdCargo", ObtenerAtributosOriginalAlumno.IdCargo.ToString(), AlumnoActualizar.IdCargo.ToString(), Usuario);
                 }
-                if (AlumnoActualizar.Nombre1 != ObtenerAtributosOriginalAlumno.Nombre1)
+                if (AlumnoActualizar.Nombre1 != null && AlumnoActualizar.Nombre1 != ObtenerAtributosOriginalAlumno.Nombre1)
                 {
                     _unitOfWork.WhatsAppMensajeEnviadoRepository.ActualizarDatosAlumno(AlumnoActualizar.Id, "Nombre1", ObtenerAtributosOriginalAlumno.Nombre1, AlumnoActualizar.Nombre1, Usuario);
                 }
-                if (AlumnoActualizar.Nombre2 != ObtenerAtributosOriginalAlumno.Nombre2)
+                if (AlumnoActualizar.Nombre2 != null && AlumnoActualizar.Nombre2 != ObtenerAtributosOriginalAlumno.Nombre2)
                 {
                     _unitOfWork.WhatsAppMensajeEnviadoRepository.ActualizarDatosAlumno(AlumnoActualizar.Id, "Nombre2", ObtenerAtributosOriginalAlumno.Nombre2, AlumnoActualizar.Nombre2, Usuario);
                 }
-                if (AlumnoActualizar.Email2 != ObtenerAtributosOriginalAlumno.Email2)
+                if (AlumnoActualizar.Email2 != null && AlumnoActualizar.Email2 != ObtenerAtributosOriginalAlumno.Email2)
                 {
                     _unitOfWork.WhatsAppMensajeEnviadoRepository.ActualizarDatosAlumno(AlumnoActualizar.Id, "Email2", ObtenerAtributosOriginalAlumno.Email2, AlumnoActualizar.Email2, Usuario);
                 }
-                if (AlumnoActualizar.ApellidoPaterno != ObtenerAtributosOriginalAlumno.ApellidoPaterno)
+                if (AlumnoActualizar.ApellidoPaterno != null && AlumnoActualizar.ApellidoPaterno != ObtenerAtributosOriginalAlumno.ApellidoPaterno)
                 {
                     _unitOfWork.WhatsAppMensajeEnviadoRepository.ActualizarDatosAlumno(AlumnoActualizar.Id, "ApellidoPaterno", ObtenerAtributosOriginalAlumno.ApellidoPaterno, AlumnoActualizar.ApellidoPaterno, Usuario);
                 }
-                if (AlumnoActualizar.ApellidoMaterno != ObtenerAtributosOriginalAlumno.ApellidoMaterno)
+                if (AlumnoActualizar.ApellidoMaterno != null && AlumnoActualizar.ApellidoMaterno != ObtenerAtributosOriginalAlumno.ApellidoMaterno)
                 {
                     _unitOfWork.WhatsAppMensajeEnviadoRepository.ActualizarDatosAlumno(AlumnoActualizar.Id, "ApellidoMaterno", ObtenerAtributosOriginalAlumno.ApellidoMaterno, AlumnoActualizar.ApellidoMaterno, Usuario);
                 }
@@ -1079,7 +1080,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                     }
 
                 }
-                if (AlumnoActualizar.Telefono != ObtenerAtributosOriginalAlumno.Telefono)
+                if (AlumnoActualizar.Telefono != null && AlumnoActualizar.Telefono != ObtenerAtributosOriginalAlumno.Telefono)
                 {
                     _unitOfWork.WhatsAppMensajeEnviadoRepository.ActualizarDatosAlumno(AlumnoActualizar.Id, "Telefono", ObtenerAtributosOriginalAlumno.Telefono, AlumnoActualizar.Telefono, Usuario);
                 }
@@ -1092,11 +1093,11 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                     }
 
                 }
-                if (AlumnoActualizar.Dni != ObtenerAtributosOriginalAlumno.Dni)
+                if (AlumnoActualizar.Dni != null && AlumnoActualizar.Dni != ObtenerAtributosOriginalAlumno.Dni)
                 {
                     _unitOfWork.WhatsAppMensajeEnviadoRepository.ActualizarDatosAlumno(AlumnoActualizar.Id, "Dni", ObtenerAtributosOriginalAlumno.Dni, AlumnoActualizar.Dni, Usuario);
                 }
-                if (AlumnoActualizar.IdTamanioEmpresaAgenda != ObtenerAtributosOriginalAlumno.IdTamanioEmpresaAgenda)
+                if (AlumnoActualizar.IdTamanioEmpresaAgenda != null && AlumnoActualizar.IdTamanioEmpresaAgenda != ObtenerAtributosOriginalAlumno.IdTamanioEmpresaAgenda)
                 {
                     _unitOfWork.WhatsAppMensajeEnviadoRepository.ActualizarDatosAlumno(AlumnoActualizar.Id, "IdTamanioEmpresaAgenda", ObtenerAtributosOriginalAlumno.IdTamanioEmpresaAgenda.ToString(), AlumnoActualizar.IdTamanioEmpresaAgenda.ToString(), Usuario);
                 }
@@ -1725,6 +1726,247 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
             }
         }
 
+        // Modal Masivo Oportunidades WhatsApp
+        // Autor: Miguel Valdivia | Fecha: 2026-04-24
+        /// <summary>
+        /// Dado un IdAlumno, retorna el IdCentroCosto que la campaña le asignó.
+        /// </summary>
+        public CentroCostoPorAlumnoResponseDTO ObtenerCentroCostoPorAlumno(CentroCostoPorAlumnoRequestDTO request)
+        {
+            try
+            {
+                var idCentroCosto = _unitOfWork.CampaniaGeneralWhatsAppRepository.ObtenerIdCentroCostoPorIdAlumno(request.IdAlumno);
+                return new CentroCostoPorAlumnoResponseDTO { IdCentroCosto = idCentroCosto };
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Dada una lista de celulares y un rango de horas, retorna datos de pre-carga por alumno:
+        /// datos de perfil, mensajes recientes y historial de oportunidades.
+        /// </summary>
+        public List<PreCargaMasivaItemDTO> ObtenerDatosPreCargaMasiva(PreCargaMasivaRequestDTO request)
+        {
+            var resultado = new List<PreCargaMasivaItemDTO>();
+
+            // Preferir IdsAlumno (directo desde la grilla) sobre Celulares (lookup costoso)
+            bool usarIdsAlumno = request?.IdsAlumno != null && request.IdsAlumno.Count > 0;
+            bool usarCelulares = !usarIdsAlumno && request?.Celulares != null && request.Celulares.Count > 0;
+
+            if (!usarIdsAlumno && !usarCelulares)
+                return resultado;
+
+            int horasAtras = request.HorasAtras > 0 ? request.HorasAtras : 48;
+
+            if (usarIdsAlumno)
+            {
+                for (int i = 0; i < request.IdsAlumno.Count; i++)
+                {
+                    var idAlumno = request.IdsAlumno[i];
+                    var item = new PreCargaMasivaItemDTO
+                    {
+                        IdAlumno = idAlumno,
+                        Mensajes = new List<MensajeChatMasivoDTO>(),
+                        HistorialOportunidades = new List<object>(),
+                        CargadoOk = false
+                    };
+
+                    try
+                    {
+                        // 1. Datos del perfil del alumno (idAlumno ya conocido — sin lookup por celular)
+                        var datosAlumno = _unitOfWork.WhatsAppMensajeEnviadoRepository.ObtenerDatosAlumnoWhatsApp(idAlumno);
+                        item.Alumno = datosAlumno;
+
+                        // 2. Celular desde perfil (para incluirlo en la respuesta)
+                        if (datosAlumno != null)
+                        {
+                            dynamic alumnoDto = datosAlumno;
+                            try { item.Celular = alumnoDto?.Celular; } catch { }
+                        }
+
+                        // 3. IdCentroCosto de la campaña + NombreCentroCosto para el combobox del frontend
+                        item.IdCentroCosto = _unitOfWork.CampaniaGeneralWhatsAppRepository.ObtenerIdCentroCostoPorIdAlumno(idAlumno);
+                        if (item.IdCentroCosto.HasValue)
+                        {
+                            try
+                            {
+                                var cc = _unitOfWork.CentroCostoRepository.ObtenerPorId(item.IdCentroCosto.Value);
+                                item.NombreCentroCosto = cc?.Nombre;
+                            }
+                            catch { /* no crítico — el frontend puede buscar manualmente */ }
+                        }
+
+                        // 4. Mensajes en las últimas 48h (vía SP por celular con prefijo de país)
+                        // Usar celular del request (formato WhatsApp correcto desde grilla) si está disponible.
+                        // Evita reconstrucción desde T_Alumno que puede tener formatos variables (ej: "0052..." para México).
+                        string celularParaSP = string.Empty;
+                        if (request.Celulares != null && i < request.Celulares.Count
+                            && !string.IsNullOrWhiteSpace(request.Celulares[i]))
+                        {
+                            celularParaSP = request.Celulares[i];
+                        }
+                        else if (!string.IsNullOrWhiteSpace(item.Celular))
+                        {
+                            var codigoPais = datosAlumno?.IdCodigoPais ?? 0;
+                            celularParaSP = codigoPais > 0
+                                ? $"{codigoPais}{datosAlumno?.Celular}"
+                                : datosAlumno?.Celular;
+                        }
+                        var mensajes = !string.IsNullOrWhiteSpace(celularParaSP)
+                            ? _unitOfWork.WhatsAppMensajeEnviadoRepository.ObtenerMensajes48hPorCelular(celularParaSP)
+                            : new List<MensajeChatMasivoDTO>();
+                        item.Mensajes = mensajes ?? new List<MensajeChatMasivoDTO>();
+                        foreach (var msg in item.Mensajes)
+                            msg.MensajeHtml = ConstruirMensajeHtml(msg);
+                        item.FechaUltimaCaptura = item.Mensajes.Count > 0 ? item.Mensajes[0].FechaMensaje : (DateTime?)null;
+
+                        // 5. Historial de oportunidades
+                        var historial = _unitOfWork.WhatsAppMensajeEnviadoRepository.ObtenerHistorialAlumnoWhatsApp(idAlumno);
+                        item.HistorialOportunidades = historial?.Cast<object>().ToList() ?? new List<object>();
+
+                        item.CargadoOk = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        item.ErrorCarga = ex.Message;
+                        item.CargadoOk = false;
+                    }
+
+                    resultado.Add(item);
+                }
+            }
+            else
+            {
+                // Fallback: comportamiento original por celular (compatibilidad)
+                foreach (var celular in request.Celulares)
+                {
+                    var item = new PreCargaMasivaItemDTO
+                    {
+                        Celular = celular,
+                        Mensajes = new List<MensajeChatMasivoDTO>(),
+                        HistorialOportunidades = new List<object>(),
+                        CargadoOk = false
+                    };
+
+                    try
+                    {
+                        // Resolver IdAlumno desde celular (lookup por DB)
+                        var idAlumno = _unitOfWork.CampaniaGeneralWhatsAppRepository.ObtenerIdAlumnoPorCelular(celular);
+                        if (idAlumno == null)
+                        {
+                            item.ErrorCarga = "Alumno no encontrado para el celular";
+                            resultado.Add(item);
+                            continue;
+                        }
+                        item.IdAlumno = idAlumno.Value;
+
+                        var datosAlumno = _unitOfWork.WhatsAppMensajeEnviadoRepository.ObtenerDatosAlumnoWhatsApp(idAlumno.Value);
+                        item.Alumno = datosAlumno;
+
+                        item.IdCentroCosto = _unitOfWork.CampaniaGeneralWhatsAppRepository.ObtenerIdCentroCostoPorIdAlumno(idAlumno.Value);
+                        if (item.IdCentroCosto.HasValue)
+                        {
+                            try
+                            {
+                                var cc = _unitOfWork.CentroCostoRepository.ObtenerPorId(item.IdCentroCosto.Value);
+                                item.NombreCentroCosto = cc?.Nombre;
+                            }
+                            catch { /* no crítico */ }
+                        }
+
+                        var mensajes = !string.IsNullOrWhiteSpace(celular)
+                            ? _unitOfWork.WhatsAppMensajeEnviadoRepository.ObtenerMensajes48hPorCelular(celular)
+                            : new List<MensajeChatMasivoDTO>();
+                        item.Mensajes = mensajes ?? new List<MensajeChatMasivoDTO>();
+                        foreach (var msg in item.Mensajes)
+                            msg.MensajeHtml = ConstruirMensajeHtml(msg);
+                        item.FechaUltimaCaptura = item.Mensajes.Count > 0 ? item.Mensajes[0].FechaMensaje : (DateTime?)null;
+
+                        var historial = _unitOfWork.WhatsAppMensajeEnviadoRepository.ObtenerHistorialAlumnoWhatsApp(idAlumno.Value);
+                        item.HistorialOportunidades = historial?.Cast<object>().ToList() ?? new List<object>();
+
+                        item.CargadoOk = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        item.ErrorCarga = ex.Message;
+                        item.CargadoOk = false;
+                    }
+
+                    resultado.Add(item);
+                }
+            }
+
+            return resultado;
+        }
+
+        /// <summary>
+        /// Actualiza los datos de perfil de una lista de alumnos (cargo, industria, área, etc.).
+        /// Reutiliza el método ActualizarDatosAlumno existente por cada alumno.
+        /// </summary>
+        public bool ActualizarDatosAlumnoMasivo(List<ActualizarAlumnoMasivoItemDTO> lista, string usuario)
+        {
+            if (lista == null || lista.Count == 0)
+                return true;
+
+            foreach (var item in lista)
+            {
+                try
+                {
+                    var dto = new ObtenerAtributosAlumnoDTO
+                    {
+                        Id = item.Id,
+                        IdCargo = item.IdCargo,
+                        IdAFormacion = item.IdAFormacion,
+                        IdATrabajo = item.IdATrabajo,
+                        IdIndustria = item.IdIndustria,
+                        Nombre1 = item.Nombre1,
+                        ApellidoPaterno = item.ApellidoPaterno,
+                        Email2 = item.Email2,
+                    };
+                    ActualizarDatosAlumno(dto, usuario);
+                }
+                catch
+                {
+                    // Continuar con el siguiente alumno aunque uno falle
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Construye el HTML de presentación de un mensaje para el frontend a partir de los campos del SP.
+        /// WaType == null indica campaña masiva (el campo Mensaje ya contiene HTML de plantilla).
+        /// </summary>
+        private string ConstruirMensajeHtml(MensajeChatMasivoDTO msg)
+        {
+            switch (msg.WaType?.ToLower())
+            {
+                case "text":
+                case "button":
+                    return msg.Mensaje ?? string.Empty;
+                case "hsm":
+                case "template":
+                    return msg.Mensaje ?? string.Empty;
+                case "image":
+                    return $"<a href='{msg.Archivo ?? "#"}' target='_blank'> {(string.IsNullOrEmpty(msg.NombreArchivo) ? "Ver imagen" : msg.NombreArchivo)}</a>";
+                case "voice":
+                case "audio":
+                    return $"<a href='{msg.Archivo ?? "#"}' target='_blank'> {(string.IsNullOrEmpty(msg.NombreArchivo) ? "Escuchar audio" : msg.NombreArchivo)}</a>";
+                case "video":
+                    return $"<a href='{msg.Archivo ?? "#"}' target='_blank'> {(string.IsNullOrEmpty(msg.NombreArchivo) ? "Ver video" : msg.NombreArchivo)}</a>";
+                case "sticker":
+                    return $"<a href='{msg.Archivo ?? "#"}' target='_blank'> {(string.IsNullOrEmpty(msg.NombreArchivo) ? "Ver sticker" : msg.NombreArchivo)}</a>";
+                case null: // campañas masivas — Mensaje ya tiene el HTML de plantilla
+                    return msg.Mensaje ?? string.Empty;
+                default:
+                    return $"<a href='{msg.Archivo ?? "#"}' target='_blank'> {(string.IsNullOrEmpty(msg.NombreArchivo) ? "Ver documento" : msg.NombreArchivo)}</a>";
+            }
+        }
+
         private async Task<T> PostJsonAsync<T>(string url, string jsonString)
         {
             try
@@ -1752,6 +1994,152 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
             catch (Exception ex)
             {
                 throw new Exception($"Error en el metodo PostJsonAsync: {ex.Message}", ex);
+            }
+        }
+
+        // ---------------------------------------------------------------------------
+        // Modal Masivo — IA batch (proxy hacia ia-asistente-marketing-whatsapp-api.bsginstitute.com)
+        // Autor: Miguel Valdivia  | Fecha: 2026-05-04
+        // ---------------------------------------------------------------------------
+
+        private const string IA_MASIVO_BASE = "http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/testing";
+
+        /// <summary>
+        /// Inicia una extraccion batch enviando los chats de varios leads al servicio de IA.
+        /// POST /api/oportunidades/extraccion/batches
+        /// </summary>
+        public async Task<string> IniciarExtraccionBatch(ExtraccionBatchRequestDTO request)
+        {
+            using (var client = new HttpClient())
+            {
+                var iaPayload = new
+                {
+                    tenant_id = request.TenantId,
+                    conversations = request.Conversations.Select(l => new
+                    {
+                        conv_id = l.ConvId,
+                        agent_id = l.AgentId,
+                        channel = l.Channel,
+                        pais = l.Pais,
+                        chat_datetime = l.Messages != null && l.Messages.Any()
+                            ? l.Messages.Min(m => m.Timestamp)
+                            : DateTime.UtcNow.ToString("o"),
+                        messages = l.Messages?.Select(m => new
+                        {
+                            role = m.Role,
+                            content = m.Content,
+                            timestamp = m.Timestamp
+                        }).ToList()
+                    }).ToList()
+                };
+
+                var json = JsonConvert.SerializeObject(iaPayload);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync($"{IA_MASIVO_BASE}/api/oportunidades/extraccion/batches", content);
+                var body = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"Error al llamar al API de IA (IniciarExtraccionBatch): {body}");
+                return body;
+            }
+        }
+
+        /// <summary>
+        /// Consulta el estado de una extraccion batch por su callId.
+        /// GET /api/oportunidades/extraccion/batches/{callId}/status
+        /// </summary>
+        public async Task<string> ObtenerEstadoExtraccion(string callId)
+        {
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync($"{IA_MASIVO_BASE}/api/oportunidades/extraccion/batches/{callId}/status");
+                var body = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"Error al llamar al API de IA (ObtenerEstadoExtraccion): {body}");
+                return body;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene los resultados de una extraccion batch por su callId.
+        /// GET /api/oportunidades/extraccion/batches/{callId}/resultados
+        /// </summary>
+        public async Task<string> ObtenerResultadosExtraccion(string callId)
+        {
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync($"{IA_MASIVO_BASE}/api/oportunidades/extraccion/batches/{callId}/resultados");
+                var body = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"Error al llamar al API de IA (ObtenerResultadosExtraccion): {body}");
+                return body;
+            }
+        }
+
+        /// <summary>
+        /// Inicia una calificacion batch de leads mediante el servicio de IA.
+        /// POST /api/oportunidades/calificacion/llamadas
+        /// </summary>
+        public async Task<string> IniciarCalificacionBatch(CalificacionLlamadaRequestDTO request)
+        {
+            using (var client = new HttpClient())
+            {
+                var iaPayload = new
+                {
+                    tenant_id = request.TenantId,
+                    oportunidades = request.Oportunidades?.Select(o => new
+                    {
+                        identificador_lead = o.IdentificadorLead,
+                        agent_id = o.AgentId,
+                        origen = o.Origen,
+                        perfil = o.Perfil,
+                        historial = o.Historial,
+                        mensajes = o.Mensajes?.Select(m => new
+                        {
+                            role = m.Role,
+                            content = m.Content,
+                            timestamp = m.Timestamp
+                        }).ToList()
+                    }).ToList()
+                };
+                var json = JsonConvert.SerializeObject(iaPayload);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync($"{IA_MASIVO_BASE}/api/oportunidades/calificacion/llamadas", content);
+                var body = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"Error al llamar al API de IA (IniciarCalificacionBatch): {body}");
+                return body;
+            }
+        }
+
+        /// <summary>
+        /// Consulta el estado de una calificacion batch por su llamadaId.
+        /// GET /api/oportunidades/calificacion/llamadas/{llamadaId}/status
+        /// </summary>
+        public async Task<string> ObtenerEstadoCalificacion(string llamadaId)
+        {
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync($"{IA_MASIVO_BASE}/api/oportunidades/calificacion/llamadas/{llamadaId}/status");
+                var body = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"Error al llamar al API de IA (ObtenerEstadoCalificacion): {body}");
+                return body;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene los resultados de una calificacion batch por su llamadaId.
+        /// GET /api/oportunidades/calificacion/llamadas/{llamadaId}/resultados
+        /// </summary>
+        public async Task<string> ObtenerResultadosCalificacion(string llamadaId)
+        {
+            using (var client = new HttpClient())
+            {
+                var response = await client.GetAsync($"{IA_MASIVO_BASE}/api/oportunidades/calificacion/llamadas/{llamadaId}/resultados");
+                var body = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"Error al llamar al API de IA (ObtenerResultadosCalificacion): {body}");
+                return body;
             }
         }
     }

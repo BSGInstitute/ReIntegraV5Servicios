@@ -63,5 +63,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public string ObtenerUltimoMensajeCampaniaEnviado(string celularAlumno);
         public string ObtenerNumeroIdentificadorWhatsAppPorIdPersonal(int idPersonal);
 
+        // Modal Masivo Oportunidades WhatsApp
+        int? ObtenerIdCentroCostoPorIdAlumno(int idAlumno);
+        int? ObtenerIdAlumnoPorCelular(string celular);
     }
 }

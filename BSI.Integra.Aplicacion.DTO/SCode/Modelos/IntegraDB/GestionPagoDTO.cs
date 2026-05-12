@@ -1,4 +1,6 @@
-﻿namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
+using System.Text.Json.Serialization;
+
+namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 {
     /// <summary>
     /// DTO para lectura de gestión de pago con datos relacionados
@@ -24,11 +26,22 @@
         public decimal? MontoBruto { get; set; }
         public decimal? MontoNeto { get; set; }
         public int? IdProveedor { get; set; }
-        public string? NombreProveedor { get; set; }
+        [JsonPropertyName("nombreProveedor")]
+        public string? RazonSocial { get; set; }
         public int? IdMoneda { get; set; }
         public string? NombreMoneda { get; set; }
         public int? IdEmpresa { get; set; }
         public string? NombreEmpresa { get; set; }
+        public string? NombreCentroCosto { get; set; }
+        public string? NombreProducto { get; set; }
+        public string? NombreProgramaGeneral { get; set; }
+        public string? Fur { get; set; }
+        public string? Cantidad { get; set; }
+        public string? PrecioUnitario { get; set; }
+        public string? MesEjecucion { get; set; }
+        public string? FechaEjecucion { get; set; }
+        public List<GestionPagoCronogramaDTO>? Cronograma { get; set; }
+        public List<GestionPagoArchivoDTO>? Archivos { get; set; }
     }
 
     /// <summary>
@@ -62,6 +75,10 @@
         public int? IdEmpresa { get; set; }
         public DateTime? FechaDesde { get; set; }
         public DateTime? FechaHasta { get; set; }
+        public int? IdCentroCosto { get; set; }
+        public int? IdProducto { get; set; }
+        public int? IdProgramaGeneral { get; set; }
+        public int? IdFur { get; set; }
     }
 
     /// <summary>
@@ -106,5 +123,48 @@
         public string? Usuario { get; set; }
         public List<GestionPagoCronogramaInsertarDTO>? Cronograma { get; set; }
         public List<GestionPagoArchivoInsertarDTO>? Archivos { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para la grilla histórica de comprobantes (tengan o no gestión iniciada)
+    /// </summary>
+    public class ReporteComprobanteGestionPagoDTO
+    {
+        public int IdComprobantePago { get; set; }
+        public string? SerieComprobante { get; set; }
+        public string? NumeroComprobante { get; set; }
+        public DateTime? FechaEmision { get; set; }
+        public decimal? MontoBruto { get; set; }
+        public decimal? MontoNeto { get; set; }
+        public int? IdProveedor { get; set; }
+        [JsonPropertyName("nombreProveedor")]
+        public string? RazonSocial { get; set; }
+        public int? IdMoneda { get; set; }
+        public string? NombreMoneda { get; set; }
+        public int? IdEmpresa { get; set; }
+        public string? NombreEmpresa { get; set; }
+        public string? NombreCentroCosto { get; set; }
+        public string? NombreProducto { get; set; }
+        public string? NombreProgramaGeneral { get; set; }
+        public string? Fur { get; set; }
+        public string? Cantidad { get; set; }
+        public string? PrecioUnitario { get; set; }
+        public string? MesEjecucion { get; set; }
+        public string? FechaEjecucion { get; set; }
+
+        public int? IdGestionPago { get; set; }
+        public bool? ServicioValidado { get; set; }
+        public DateTime? FechaSolicitud { get; set; }
+        public string? ObservacionDocumentacion { get; set; }
+        public string? LevantamientoObservacion { get; set; }
+        public bool? ConformidadFinanzas { get; set; }
+        public string? ObservacionProgramacionPago { get; set; }
+        public int? IdModalidadPago { get; set; }
+        public string? NombreModalidadPago { get; set; }
+        public int? IdPagoEstado { get; set; }
+        public string? NombrePagoEstado { get; set; }
+
+        public List<GestionPagoCronogramaDTO>? Cronograma { get; set; }
+        public List<GestionPagoArchivoDTO>? Archivos { get; set; }
     }
 }

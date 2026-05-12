@@ -30,6 +30,20 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         IEnumerable<EstadoGestionContactoDTO> ObtenerEstadosGestionContacto();
         TGestionContactoDocenteFlujo InsertarGestionContactoDocenteFlujo(InsertarGestionContactoDocenteFlujoDTO dto);
         Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo, DateTime? fechaInicioFlujoCongelado = null);
+        /// <summary>
+        /// Crea una Oportunidad Docente atómica: cabecera + vínculo de flujo + congelamiento
+        /// dentro de UNA sola transacción. Si cualquier paso falla, rollback total.
+        /// Reemplaza la orquestación previa de 3 endpoints separados.
+        /// </summary>
+        Task<CrearOportunidadCompletaResponseDTO> CrearOportunidadCompletaAsync(CrearOportunidadCompletaRequestDTO dto);
+        /// <summary>
+        /// Soft delete de una Oportunidad Docente (Estado = 0 en T_GestionContacto).
+        /// Bloquea si: (a) hay ocurrencias marcadas, (b) el flujo ya inició (algún
+        /// disparador fijo con fecha &lt;= GETDATE()). El snapshot congelado se mantiene
+        /// intacto (no se borra) — solo se desactiva la cabecera para que no aparezca
+        /// en listados.
+        /// </summary>
+        Task<EliminarOportunidadResponseDTO> EliminarOportunidadAsync(int idGestionContacto, string usuario);
         Task<int> CongelarActividadPorSesionesAsync(int idGestionContactoDocenteFlujo, int idGestionDocenteActividadCabecera, string idPEspecificoSesion_Lista, string usuarioCreacion);
         Task<int> AgregarActividadExtraCongeladaAsync(int idGestionContactoFlujoCongelado, int idGestionDocenteActividadCabecera, string idPEspecificoSesion_Lista, string usuarioCreacion);
         OportunidadDocenteListResponseDTO ObtenerOportunidadesDocente(string busqueda, int pagina, int porPagina);

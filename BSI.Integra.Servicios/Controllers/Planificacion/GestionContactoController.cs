@@ -200,6 +200,84 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             }
         }
 
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 07/05/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Soft delete de Oportunidad Docente. Bloquea si: (a) hay ocurrencias marcadas
+        /// o (b) el flujo ya inició (algún disparador con fecha &lt;= ahora). El snapshot
+        /// congelado se mantiene intacto (auditoría histórica); solo se desactiva la
+        /// cabecera (Estado = 0) para que no aparezca en listados.
+        /// </summary>
+        /// <param name="id">ID de la oportunidad (pla.T_GestionContacto.Id).</param>
+        /// <returns>EliminarOportunidadResponseDTO con éxito/motivo.</returns>
+        [HttpPost("EliminarOportunidad/{id}")]
+        public async Task<IActionResult> EliminarOportunidad(int id)
+        {
+            try
+            {
+                if (id <= 0)
+                    return BadRequest(new { Exito = false, Mensaje = "Id de oportunidad inválido." });
+
+                var usuario = HttpContext?.User?.Identity?.Name ?? "sgradosn";
+                var resultado = await _gestionContactoService.EliminarOportunidadAsync(id, usuario);
+
+                // Si el negocio rechaza (flujo iniciado / ocurrencias marcadas) devolvemos 400
+                // para que el frontend pueda mostrar el mensaje específico en un toast.
+                if (!resultado.Exito)
+                    return BadRequest(resultado);
+
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Exito   = false,
+                    Mensaje = ex.Message,
+                    Detalle = ex.InnerException?.Message
+                });
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: Joseph Llanque
+        /// Fecha: 07/05/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Endpoint atómico que reemplaza la orquestación de 3 llamadas separadas
+        /// (InsertarOportunidadDocente + InsertarGestionContactoDocenteFlujo + CongelarFlujoDocente).
+        /// Crea cabecera, vínculo de flujo y congelamiento en UNA sola transacción.
+        /// Si cualquier paso falla, rollback total — nunca queda GestionContacto huérfano.
+        /// </summary>
+        /// <param name="dto">Request unificado con docente (cp.Id o idProveedor), flujo y fecha opcional.</param>
+        /// <returns>IDs generados (cabecera y vínculo) + confirmación del congelamiento.</returns>
+        [HttpPost("CrearOportunidadCompleta")]
+        public async Task<IActionResult> CrearOportunidadCompleta([FromBody] CrearOportunidadCompletaRequestDTO dto)
+        {
+            try
+            {
+                if (dto == null)
+                    return BadRequest(new { Exito = false, Mensaje = "Request body requerido." });
+
+                if (!ModelState.IsValid)
+                    return BadRequest(new { Exito = false, Mensaje = "Modelo inválido", Errores = ModelState });
+
+                var resultado = await _gestionContactoService.CrearOportunidadCompletaAsync(dto);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Exito   = false,
+                    Mensaje = ex.Message,
+                    Detalle = ex.InnerException?.Message
+                });
+            }
+        }
+
         [HttpPost("[action]")]
         public async Task<IActionResult> InsertarOportunidadDocente([FromBody] CrearOportunidadDocenteDTO dto)
         {

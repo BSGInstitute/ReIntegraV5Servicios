@@ -80,6 +80,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? IdCargo { get; set; }
         public bool? Desuscrito { get; set; }
         public bool? Archivado { get; set; }
+        /// <summary>Codigo de pais (ej: 57 para Colombia, 51 para Peru). Retornado por ObtenerDatosAlumnoWhatsApp para construir el celular con prefijo.</summary>
+        public int? IdCodigoPais { get; set; }
         //public string? UsuarioModificacion { get; set; }
         //public DateTime? FechaModificacion { get; set; }
 

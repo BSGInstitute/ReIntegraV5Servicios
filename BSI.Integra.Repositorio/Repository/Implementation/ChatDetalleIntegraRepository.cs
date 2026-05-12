@@ -493,6 +493,33 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        public IEnumerable<ChatbotHiloChatPorSegmentoPaginadoDTO> ObtenerHilosChatPorSegmentoPaginado(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize)
+        {
+            try
+            {
+                List<ChatbotHiloChatPorSegmentoPaginadoDTO> rpta = new List<ChatbotHiloChatPorSegmentoPaginadoDTO>();
+                var query = @"ia.SP_ChatbotPortalHiloChat_ObtenerSegmentosSinAlumnoPaginado";
+
+                var resultado = _dapperRepository.QuerySPDapper(query, new
+                {
+                    FechaInicio = fechaInicio,
+                    FechaFin    = fechaFin,
+                    PageNumber  = pageNumber,
+                    PageSize    = pageSize
+                });
+
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    rpta = JsonConvert.DeserializeObject<List<ChatbotHiloChatPorSegmentoPaginadoDTO>>(resultado);
+                }
+                return rpta;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// Autor: Jose Vega
         /// Fecha: 23/10/2025
         /// Versión: 1.0
@@ -718,7 +745,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene hilos de chat paginados (Portal + WhatsApp) para un alumno desde una fecha de corte.
         /// </summary>
-        public IEnumerable<HiloChatPaginadoDTO> ObtenerHilosPaginadosPorAlumno(
+        public IEnumerable<HiloChatAlumnoPaginadoDTO> ObtenerHilosPaginadosPorAlumno(
             int idAlumno, DateTime fechaInicio, DateTime fechaFin, int pageNumber, int pageSize)
         {
             try
@@ -734,9 +761,35 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 });
 
                 if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
-                    return Enumerable.Empty<HiloChatPaginadoDTO>();
+                    return Enumerable.Empty<HiloChatAlumnoPaginadoDTO>();
 
-                return JsonConvert.DeserializeObject<List<HiloChatPaginadoDTO>>(resultado);
+                return JsonConvert.DeserializeObject<List<HiloChatAlumnoPaginadoDTO>>(resultado);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<HiloChatNoAlumnoPaginadoDTO> ObtenerHilosPaginadosPorSegmento(
+            string idContactoPortalSegmento, DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize)
+        {
+            try
+            {
+                var query = "ia.SP_ChatbotPortalHiloChatPaginadosPorSegmento";
+                var resultado = _dapperRepository.QuerySPDapper(query, new
+                {
+                    IdContactoPortalSegmento = idContactoPortalSegmento,
+                    FechaInicio              = fechaInicio,
+                    FechaFin                 = fechaFin,
+                    PageNumber               = pageNumber,
+                    PageSize                 = pageSize
+                });
+
+                if (string.IsNullOrEmpty(resultado) || resultado.Contains("[]"))
+                    return Enumerable.Empty<HiloChatNoAlumnoPaginadoDTO>();
+
+                return JsonConvert.DeserializeObject<List<HiloChatNoAlumnoPaginadoDTO>>(resultado);
             }
             catch (Exception ex)
             {
