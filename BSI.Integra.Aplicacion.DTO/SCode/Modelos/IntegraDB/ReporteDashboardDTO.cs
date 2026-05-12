@@ -540,9 +540,11 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public decimal Porcentaje { get; set; }
     }
 
-    /// <summary>Respuesta completa de notas por PEspecifico</summary>
+    /// <summary>Respuesta completa de notas por un PEspecifico (incluye identificadores para multiselect)</summary>
     public class ReporteDashboardNotasPorPEspecificoDTO
     {
+        public int IdPEspecifico { get; set; }
+        public string? NombrePEspecifico { get; set; }
         public List<ReporteDashboardNotaEvaluacionDTO> Evaluaciones { get; set; } = new();
         public List<ReporteDashboardNotaAlumnoDTO> Alumnos { get; set; } = new();
         public bool EsOnline { get; set; }

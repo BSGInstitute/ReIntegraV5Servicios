@@ -1647,8 +1647,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
                     if (creacionCorrecta == null)
                     {
-                        var nombreTablaV3 = "talumnos";
-                        var nombreTablaV4 = "mkt.T_Alumno" +
+                        var nombreTablaV4 = "mkt.T_Alumno";
+                        var nombreTablaV3 = "talumnos" +
                             "";
                         var resultado = alumnoService.EliminarFisicaAlumno(nombreTablaV4, nombreTablaV3, oportunidad.Alumno.Id, null, 0);
                         if (resultado == true)

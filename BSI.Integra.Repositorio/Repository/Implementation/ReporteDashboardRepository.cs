@@ -629,7 +629,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     )).ToList();
                 }
 
-                // ── 4. Matriculas ──
+                // ── 4. Nombre del PEspecifico (para identificarlo en multiselect del frontend) ──
+                var nombrePEspecifico = await conn.QueryFirstOrDefaultAsync<string>(
+                    @"SELECT TOP 1 Nombre FROM pla.T_PEspecifico WHERE Id = @Id AND Estado = 1",
+                    new { Id = idPEspecifico }
+                ) ?? $"Programa {idPEspecifico}";
+
+                // ── 5. Matriculas ──
                 var matriculas = (await conn.QueryAsync<ReporteDashboardMatriculaRawDTO>(
                     @"SELECT MIN(IdMatriculaIntegra) AS IdMatriculaIntegra,
                              IdMatriculaCabecera, IdPEspecifico, CodigoMatricula, GrupoCurso, Alumno
@@ -781,6 +787,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
                 return new ReporteDashboardNotasPorPEspecificoDTO
                 {
+                    IdPEspecifico = idPEspecifico,
+                    NombrePEspecifico = nombrePEspecifico,
                     Evaluaciones = encabezados,
                     Alumnos = alumnos,
                     EsOnline = esOnline
