@@ -1515,6 +1515,42 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        /// Autor: Christopher Tumir
+        /// Fecha: 13/05/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene datos frescos de un programa especifico padre por su ID
+        /// </summary>
+        public ProgramaEspecificoPadreIndividualDTO ObtenerProgramaEspecificoPadreIndividualPorId(int id)
+        {
+            try
+            {
+                string query = "pla.SP_ProgramaEspecificoPadreIndividualFiltro";
+                string resultado = _dapperRepository.QuerySPDapper(query, new
+                {
+                    IdProgramaEspecifico = id.ToString(),
+                    IdCentroCosto = "",
+                    CodigoBs = "",
+                    IdEstadoPEspecifico = "",
+                    IdModalidadCurso = "",
+                    IdPGeneral = "",
+                    IdArea = "",
+                    IdSubArea = "",
+                    IdCentroCostoD = 0
+                });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    var lista = JsonConvert.DeserializeObject<IEnumerable<ProgramaEspecificoPadreIndividualDTO>>(resultado)!;
+                    return lista.FirstOrDefault()!;
+                }
+                return null!;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#PER-OPEPIPID-001@Error en ObtenerProgramaEspecificoPadreIndividualPorId: {ex.Message}", ex);
+            }
+        }
+
         /// Autor: Gretel Canasa
         /// Fecha: 29/08/2023
         /// Version: 1.0
