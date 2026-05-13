@@ -109,6 +109,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         string ObtenerNombrePaisDocentePlanificacion(int idClasificacionPersona);
         string ObtenerPlazoOtorgadoPorCentroCosto(int idCentroCosto);
         string ObtenerTarifaDocentePorCentroCosto(int idCentroCosto);
+        string ObtenerTarifaHonorariosDocenteParaRetenciones(int idCentroCosto, int idClasificacionPersona);
+        int ObtenerIdProveedorPorIdClasificacionPersona(int idClasificacionPersona);
+        string ObtenerDuracionProgramaEspecificoPorCentroCosto(int idCentroCosto);
         string ObtenerMonedaDocentePorCentroCosto(int idCentroCosto);
         string ObtenerPlazoPagoDocentePorCentroCosto(int idCentroCosto);
         int ObtenerIncrementoZonaHorariaDocente(int idClasificacionPersona);
