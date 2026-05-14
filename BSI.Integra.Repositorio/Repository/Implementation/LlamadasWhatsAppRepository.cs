@@ -41,16 +41,16 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
                 var parametros = new
                 {
-                    idPais = filtro.IdPais,
-                    idArea = filtro.IdPersonalAreaTrabajo,
+                    //idPais = filtro.IdPais,
+                    //idArea = filtro.IdPersonalAreaTrabajo,
                     idPersonal = filtro.IdPersonal,
-                    numero = filtro.NumeroWhatsApp,
-                    tipo = filtro.TipoLlamada,
-                    estado = filtro.EstadoLlamada,
-                    desde = filtro.FechaDesde,
-                    hasta = filtro.FechaHasta,
+                    //numero = filtro.NumeroWhatsApp,
+                    //tipo = filtro.TipoLlamada,
+                    //estado = filtro.EstadoLlamada,
+                    //desde = filtro.FechaDesde,
+                    //hasta = filtro.FechaHasta,
                     pagina = filtro.Pagina,
-                    porPagina = filtro.RegistrosPorPagina
+                    registrosPorPagina = filtro.RegistrosPorPagina
                 };
 
                 var json = _dapperRepository.QuerySPDapper("com.SP_WhatsappLlamada_ObtenerHistorial", parametros);
