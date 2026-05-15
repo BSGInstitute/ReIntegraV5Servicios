@@ -50,4 +50,34 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? IdPersonalAreaTrabajo { get; set; }
         public int TotalRegistros { get; set; }
     }
+
+    /// <summary>
+    /// Filas crudas devueltas por el repo para el lookup del último consentimiento.
+    /// El service aplica la lógica de vigencia sobre estos campos.
+    /// </summary>
+    public class WhatsAppConsentimientoRawDTO
+    {
+        public int       IdWhatsappLlamada    { get; set; }
+        public string?   WaId                 { get; set; }
+        public string?   ConsentimientoEstado { get; set; }
+        public DateTime? ConsentimientoFecha  { get; set; }
+        public DateTime? ConsentimientoExpira { get; set; }
+    }
+
+    /// <summary>
+    /// Respuesta del endpoint GET /api/LlamadasWhatsApp/EstadoConsentimiento.
+    /// El frontend la usa para decidir si mostrar "Solicitar llamada", "Esperando respuesta",
+    /// "Llamar ahora" (consentimiento vigente) o "Rechazó".
+    /// </summary>
+    public class LlamadaConsentimientoEstadoDTO
+    {
+        /// "aceptado" | "pendiente" | "rechazado" | "sin_solicitud"
+        public string    Estado               { get; set; } = "sin_solicitud";
+        public int?      IdWhatsappLlamada    { get; set; }
+        public DateTime? ConsentimientoFecha  { get; set; }
+        public DateTime? ConsentimientoExpira { get; set; }
+        public bool      PuedeSolicitar       { get; set; }
+        public bool      PuedeLlamar          { get; set; }
+        public string?   Mensaje              { get; set; }
+    }
 }
