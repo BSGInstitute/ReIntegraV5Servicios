@@ -8658,5 +8658,14 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private IBsgTentoRepository _bsgTentoRepository;
+        IBsgTentoRepository IUnitOfWork.BsgTentoRepository
+        {
+            get
+            {
+                return _bsgTentoRepository ?? new BsgTentoRepository(_dapperRepository);
+            }
+        }
+
     }
 }

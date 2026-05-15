@@ -368,5 +368,77 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 return BadRequest(e.Message);
             }
         }
+
+        /// Tipo Función: GET
+        /// Autor: Humberto Oscata
+        /// Fecha: 14/05/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el listado de niveles de dificultad disponibles para preguntas
+        /// </summary>
+        /// <returns>Lista de objetos (PreguntaProgramaCapacitacionDificultadDTO) con respuesta 200 o 400 con el mensaje de error</returns>
+        [Route("[action]")]
+        [HttpGet]
+        public IActionResult ObtenerDificultades()
+        {
+            try
+            {
+                var registros = _preguntaProgramaCapacitacionService.ObtenerDificultades();
+                return Ok(registros);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        /// Tipo Función: PUT
+        /// Autor: Humberto Oscata
+        /// Fecha: 14/05/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Actualiza el nivel de dificultad de una pregunta de programa de capacitacion
+        /// </summary>
+        /// <param name="actualizarDificultadPreguntaDTO">DTO con Id de la pregunta e Id del nivel de dificultad</param>
+        /// <returns>true con respuesta 200 o 400 con el mensaje de error</returns>
+        [Route("[action]")]
+        [HttpPut]
+        public IActionResult ActualizarDificultad([FromBody] ActualizarDificultadPreguntaDTO actualizarDificultadPreguntaDTO)
+        {
+            try
+            {
+                var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
+                _preguntaProgramaCapacitacionService.ActualizarDificultad(actualizarDificultadPreguntaDTO, registroClaimToken.UserName);
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        /// Tipo Función: GET
+        /// Autor: Humberto Oscata
+        /// Fecha: 14/05/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el nivel de dificultad asociado a una pregunta de programa de capacitacion
+        /// </summary>
+        /// <param name="id">(PK) de la pregunta</param>
+        /// <returns>Objeto (PreguntaProgramaCapacitacionDificultadDTO) con respuesta 200 o 400 con el mensaje de error</returns>
+        [Route("[action]/{id}")]
+        [HttpGet]
+        public IActionResult ObtenerDificultadPorIdPregunta(int id)
+        {
+            try
+            {
+                var resultado = _preguntaProgramaCapacitacionService.ObtenerDificultadPorIdPregunta(id);
+                return Ok(resultado);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

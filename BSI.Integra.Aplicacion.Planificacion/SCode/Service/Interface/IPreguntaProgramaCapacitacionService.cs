@@ -27,5 +27,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         ImportarExcelRespuestaDTO ImportarExcel(IFormFile archivo, string usuario);
         ImportarExcelRespuestaDTO ImportarRespuestasExcel(ImportarRespuestasExcelDTO importarRespuestasExcel, string usuario);
         List<CapituloSesionProgramaCapacitacionDTO> ObtenerCapituloSesionProgramaCapacitacion(int IdPGeneral);
+        List<PreguntaProgramaCapacitacionDificultadDTO> ObtenerDificultades();
+        void ActualizarDificultad(ActualizarDificultadPreguntaDTO dto, string usuarioModificacion);
+        PreguntaProgramaCapacitacionDificultadDTO ObtenerDificultadPorIdPregunta(int id);
     }
 }
