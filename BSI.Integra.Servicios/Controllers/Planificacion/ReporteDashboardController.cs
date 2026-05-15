@@ -252,12 +252,12 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <returns>Lista de ReporteDashboardSemanalDTO</returns>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerResumenSemanal(int? anio, int? mesInicio, int? mesFin, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
+        public async Task<IActionResult> ObtenerResumenSemanal(int? anio, int? mes, int? semana, int? diaMes, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerResumenSemanalAsync(anio, mesInicio, mesFin, idProgramaEspecificoPadre, idCentroCostoPadre);
+                var resultado = await service.ObtenerResumenSemanalAsync(anio, mes, semana, diaMes, idProgramaEspecificoPadre, idCentroCostoPadre);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -385,17 +385,20 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         }
 
         /// <summary>
-        /// Obtiene cambios de estado de programas basados en log
-        /// Transiciones: Lanzamiento->Ejecucion, Ejecucion->Concluido, *->Cancelado, agrupados por semana
+        /// Obtiene cambios de estado de programas agrupados por semana dentro del rango filtrado
         /// </summary>
+        /// <param name="anio">Anio a filtrar (requerido si se filtra por Mes/Semana/DiaMes)</param>
+        /// <param name="mes">Mes a filtrar (1-12) (opcional)</param>
+        /// <param name="semana">Numero de semana ISO (opcional)</param>
+        /// <param name="diaMes">Dia del mes (requiere mes) (opcional)</param>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerCambiosEstado(int? ultimasSemanas)
+        public async Task<IActionResult> ObtenerCambiosEstado(int? anio, int? mes, int? semana, int? diaMes)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerCambiosEstadoAsync(ultimasSemanas);
+                var resultado = await service.ObtenerCambiosEstadoAsync(anio, mes, semana, diaMes);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -473,6 +476,163 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
                 var resultado = await service.ObtenerSeguimientoClasesAsync(filtro);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        // ── Nuevos endpoints: Por Estado / Por Modalidad / Grafico Por Mes ─────
+
+        /// <summary>
+        /// Obtiene KPIs de programas agrupados por estado con filtros de fecha
+        /// </summary>
+        /// <param name="anio">Anio para filtrar (opcional)</param>
+        /// <param name="mes">Mes para filtrar (opcional)</param>
+        /// <param name="semana">Numero de semana ISO para filtrar (opcional)</param>
+        /// <param name="diaMes">Dia del mes para filtrar (requiere mes) (opcional)</param>
+        /// <param name="idProgramaEspecificoPadre">Id del programa especifico padre (opcional)</param>
+        /// <param name="idCentroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <returns>Lista de ReporteDashboardResumenProgramasDTO</returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerResumenPorEstadoProgramas(int? anio, int? mes, int? semana, int? diaMes, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerResumenPorEstadoProgramasAsync(anio, mes, semana, diaMes, idProgramaEspecificoPadre, idCentroCostoPadre);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene KPIs de cursos agrupados por estado con filtros de fecha
+        /// </summary>
+        /// <param name="anio">Anio para filtrar (opcional)</param>
+        /// <param name="mes">Mes para filtrar (opcional)</param>
+        /// <param name="semana">Numero de semana ISO para filtrar (opcional)</param>
+        /// <param name="diaMes">Dia del mes para filtrar (requiere mes) (opcional)</param>
+        /// <param name="idCentroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <returns>Lista de ReporteDashboardResumenCursosDTO</returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerResumenPorEstadoCursos(int? anio, int? mes, int? semana, int? diaMes, int? idCentroCostoPadre)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerResumenPorEstadoCursosAsync(anio, mes, semana, diaMes, idCentroCostoPadre);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene distribucion de programas por modalidad con filtros de fecha
+        /// </summary>
+        /// <param name="anio">Anio para filtrar (opcional)</param>
+        /// <param name="mes">Mes para filtrar (opcional)</param>
+        /// <param name="semana">Numero de semana ISO para filtrar (opcional)</param>
+        /// <param name="diaMes">Dia del mes para filtrar (requiere mes) (opcional)</param>
+        /// <param name="idEstadoPEspecifico">Id de estado del programa (opcional)</param>
+        /// <param name="idProgramaEspecificoPadre">Id del programa especifico padre (opcional)</param>
+        /// <param name="idCentroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <returns>Lista de ReporteDashboardModalidadProgramasDTO</returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerResumenPorModalidadProgramas(int? anio, int? mes, int? semana, int? diaMes, int? idEstadoPEspecifico, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerResumenPorModalidadProgramasAsync(anio, mes, semana, diaMes, idEstadoPEspecifico, idProgramaEspecificoPadre, idCentroCostoPadre);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene distribucion de cursos por modalidad con filtros de fecha
+        /// </summary>
+        /// <param name="anio">Anio para filtrar (opcional)</param>
+        /// <param name="mes">Mes para filtrar (opcional)</param>
+        /// <param name="semana">Numero de semana ISO para filtrar (opcional)</param>
+        /// <param name="diaMes">Dia del mes para filtrar (requiere mes) (opcional)</param>
+        /// <param name="idEstadoPEspecifico">Id de estado del curso (opcional)</param>
+        /// <param name="idCentroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <returns>Lista de ReporteDashboardModalidadCursosDTO</returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerResumenPorModalidadCursos(int? anio, int? mes, int? semana, int? diaMes, int? idEstadoPEspecifico, int? idCentroCostoPadre)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerResumenPorModalidadCursosAsync(anio, mes, semana, diaMes, idEstadoPEspecifico, idCentroCostoPadre);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene evolucion mensual de programas por estado con filtros de fecha
+        /// </summary>
+        /// <param name="anio">Anio para filtrar (opcional)</param>
+        /// <param name="mes">Mes para filtrar (opcional)</param>
+        /// <param name="semana">Numero de semana ISO para filtrar (opcional)</param>
+        /// <param name="diaMes">Dia del mes para filtrar (requiere mes) (opcional)</param>
+        /// <param name="idProgramaEspecificoPadre">Id del programa especifico padre (opcional)</param>
+        /// <param name="idCentroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <returns>Lista de ReporteDashboardGraficoPorMesProgramasDTO</returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerGraficoPorMesProgramas(int? anio, int? mes, int? semana, int? diaMes, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerGraficoPorMesProgramasAsync(anio, mes, semana, diaMes, idProgramaEspecificoPadre, idCentroCostoPadre);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene evolucion mensual de cursos por estado con filtros de fecha
+        /// </summary>
+        /// <param name="anio">Anio para filtrar (opcional)</param>
+        /// <param name="mes">Mes para filtrar (opcional)</param>
+        /// <param name="semana">Numero de semana ISO para filtrar (opcional)</param>
+        /// <param name="diaMes">Dia del mes para filtrar (requiere mes) (opcional)</param>
+        /// <param name="idCentroCostoPadre">Centro de costo padre (opcional)</param>
+        /// <returns>Lista de ReporteDashboardGraficoPorMesCursosDTO</returns>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerGraficoPorMesCursos(int? anio, int? mes, int? semana, int? diaMes, int? idCentroCostoPadre)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerGraficoPorMesCursosAsync(anio, mes, semana, diaMes, idCentroCostoPadre);
                 return Ok(resultado);
             }
             catch (Exception)

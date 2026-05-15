@@ -58,7 +58,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         /// <summary>
         /// Obtiene resumen semanal de sesiones
         /// </summary>
-        Task<List<ReporteDashboardSemanalDTO>> ObtenerResumenSemanalAsync(int? anio, int? mesInicio, int? mesFin, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
+        Task<List<ReporteDashboardSemanalDTO>> ObtenerResumenSemanalAsync(int? anio, int? mes = null, int? semana = null, int? diaMes = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
 
         /// <summary>
         /// Obtiene datos de sesiones para vista de calendario
@@ -88,7 +88,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         /// <summary>
         /// Obtiene cambios de estado de programas basados en log
         /// </summary>
-        Task<List<ReporteDashboardCambioEstadoDTO>> ObtenerCambiosEstadoAsync(int? ultimasSemanas = null);
+        Task<List<ReporteDashboardCambioEstadoDTO>> ObtenerCambiosEstadoAsync(int? anio = null, int? mes = null, int? semana = null, int? diaMes = null);
 
         /// <summary>
         /// Obtiene estados de programas hijo agrupados por dia o semana
@@ -137,5 +137,37 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         /// Obtiene FURs del area 19, tipo PO, estados 3 y 5 para Dashboard 3
         /// </summary>
         Task<List<FurDTO>> ObtenerFursDashboard3Async();
+
+        // ── Nuevos endpoints: Por Estado / Por Modalidad / Grafico Por Mes ───
+
+        /// <summary>
+        /// Obtiene KPIs de programas agrupados por estado con filtros de fecha
+        /// </summary>
+        Task<List<ReporteDashboardResumenProgramasDTO>> ObtenerResumenPorEstadoProgramasAsync(int? anio, int? mes, int? semana, int? diaMes, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
+
+        /// <summary>
+        /// Obtiene KPIs de cursos agrupados por estado con filtros de fecha
+        /// </summary>
+        Task<List<ReporteDashboardResumenCursosDTO>> ObtenerResumenPorEstadoCursosAsync(int? anio, int? mes, int? semana, int? diaMes, int? idCentroCostoPadre = null);
+
+        /// <summary>
+        /// Obtiene distribucion de programas por modalidad con filtros de fecha
+        /// </summary>
+        Task<List<ReporteDashboardModalidadProgramasDTO>> ObtenerResumenPorModalidadProgramasAsync(int? anio, int? mes, int? semana, int? diaMes, int? idEstadoPEspecifico = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
+
+        /// <summary>
+        /// Obtiene distribucion de cursos por modalidad con filtros de fecha
+        /// </summary>
+        Task<List<ReporteDashboardModalidadCursosDTO>> ObtenerResumenPorModalidadCursosAsync(int? anio, int? mes, int? semana, int? diaMes, int? idEstadoPEspecifico = null, int? idCentroCostoPadre = null);
+
+        /// <summary>
+        /// Obtiene evolucion mensual de programas por estado con filtros de fecha
+        /// </summary>
+        Task<List<ReporteDashboardGraficoPorMesProgramasDTO>> ObtenerGraficoPorMesProgramasAsync(int? anio, int? mes, int? semana, int? diaMes, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
+
+        /// <summary>
+        /// Obtiene evolucion mensual de cursos por estado con filtros de fecha
+        /// </summary>
+        Task<List<ReporteDashboardGraficoPorMesCursosDTO>> ObtenerGraficoPorMesCursosAsync(int? anio, int? mes, int? semana, int? diaMes, int? idCentroCostoPadre = null);
     }
 }

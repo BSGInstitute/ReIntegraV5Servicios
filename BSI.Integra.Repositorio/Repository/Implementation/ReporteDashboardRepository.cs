@@ -239,14 +239,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene resumen semanal de sesiones
         /// </summary>
-        public async Task<List<ReporteDashboardSemanalDTO>> ObtenerResumenSemanalAsync(int? anio, int? mesInicio, int? mesFin, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
+        public async Task<List<ReporteDashboardSemanalDTO>> ObtenerResumenSemanalAsync(int? anio, int? mes = null, int? semana = null, int? diaMes = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
                 using var conn = _connectionFactory.GetConnection;
                 var resultado = await conn.QueryAsync<ReporteDashboardSemanalDTO>(
-                    "pla.SP_ReporteDashboard_ObtenerResumenSemanal",
-                    new { Anio = anio, MesInicio = mesInicio, MesFin = mesFin, IdProgramaEspecificoPadre = idProgramaEspecificoPadre, IdCentroCostoPadre = idCentroCostoPadre },
+                    "pla.SP_ReporteDashboardObtenerResumenSemanal",
+                    new { Anio = anio, Mes = mes, Semana = semana, DiaMes = diaMes, IdProgramaEspecificoPadre = idProgramaEspecificoPadre, IdCentroCostoPadre = idCentroCostoPadre },
                     commandType: CommandType.StoredProcedure
                 );
                 return resultado.ToList();
@@ -365,14 +365,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene cambios de estado de programas basado en log
         /// </summary>
-        public async Task<List<ReporteDashboardCambioEstadoDTO>> ObtenerCambiosEstadoAsync(int? ultimasSemanas = null)
+        public async Task<List<ReporteDashboardCambioEstadoDTO>> ObtenerCambiosEstadoAsync(int? anio = null, int? mes = null, int? semana = null, int? diaMes = null)
         {
             try
             {
                 using var conn = _connectionFactory.GetConnection;
                 var resultado = await conn.QueryAsync<ReporteDashboardCambioEstadoDTO>(
-                    "pla.SP_ReporteDashboard_ObtenerCambiosEstado",
-                    new { UltimasSemanas = ultimasSemanas ?? 8 },
+                    "pla.SP_ReporteDashboardObtenerCambiosEstado",
+                    new { Anio = anio, Mes = mes, Semana = semana, DiaMes = diaMes },
                     commandType: CommandType.StoredProcedure
                 );
                 return resultado.ToList();
@@ -817,6 +817,181 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception ex)
             {
                 throw new Exception($"Error en ObtenerFursDashboard3Async: {ex.Message}");
+            }
+        }
+
+        // ── Nuevos endpoints: Por Estado / Por Modalidad / Grafico Por Mes ───
+
+        /// <summary>
+        /// Obtiene KPIs de programas agrupados por estado con filtros de fecha
+        /// </summary>
+        public async Task<List<ReporteDashboardResumenProgramasDTO>> ObtenerResumenPorEstadoProgramasAsync(int? anio, int? mes, int? semana, int? diaMes, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
+        {
+            try
+            {
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardResumenProgramasDTO>(
+                    "pla.SP_ReporteDashboardObtenerResumenProgramas",
+                    new
+                    {
+                        Anio                      = anio,
+                        Mes                       = mes,
+                        Semana                    = semana,
+                        DiaMes                    = diaMes,
+                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
+                        IdCentroCostoPadre        = idCentroCostoPadre
+                    },
+                    commandType: CommandType.StoredProcedure
+                );
+                return resultado.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerResumenPorEstadoProgramasAsync: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Obtiene KPIs de cursos agrupados por estado con filtros de fecha
+        /// </summary>
+        public async Task<List<ReporteDashboardResumenCursosDTO>> ObtenerResumenPorEstadoCursosAsync(int? anio, int? mes, int? semana, int? diaMes, int? idCentroCostoPadre = null)
+        {
+            try
+            {
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardResumenCursosDTO>(
+                    "pla.SP_ReporteDashboardObtenerResumenCursos",
+                    new
+                    {
+                        Anio                = anio,
+                        Mes                 = mes,
+                        Semana              = semana,
+                        DiaMes              = diaMes,
+                        IdCentroCostoPadre  = idCentroCostoPadre
+                    },
+                    commandType: CommandType.StoredProcedure
+                );
+                return resultado.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerResumenPorEstadoCursosAsync: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Obtiene distribucion de programas por modalidad con filtros de fecha
+        /// </summary>
+        public async Task<List<ReporteDashboardModalidadProgramasDTO>> ObtenerResumenPorModalidadProgramasAsync(int? anio, int? mes, int? semana, int? diaMes, int? idEstadoPEspecifico = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
+        {
+            try
+            {
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardModalidadProgramasDTO>(
+                    "pla.SP_ReporteDashboardObtenerModalidadProgramas",
+                    new
+                    {
+                        Anio                      = anio,
+                        Mes                       = mes,
+                        Semana                    = semana,
+                        DiaMes                    = diaMes,
+                        IdEstadoPEspecifico       = idEstadoPEspecifico,
+                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
+                        IdCentroCostoPadre        = idCentroCostoPadre
+                    },
+                    commandType: CommandType.StoredProcedure
+                );
+                return resultado.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerResumenPorModalidadProgramasAsync: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Obtiene distribucion de cursos por modalidad con filtros de fecha
+        /// </summary>
+        public async Task<List<ReporteDashboardModalidadCursosDTO>> ObtenerResumenPorModalidadCursosAsync(int? anio, int? mes, int? semana, int? diaMes, int? idEstadoPEspecifico = null, int? idCentroCostoPadre = null)
+        {
+            try
+            {
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardModalidadCursosDTO>(
+                    "pla.SP_ReporteDashboardObtenerModalidadCursos",
+                    new
+                    {
+                        Anio                 = anio,
+                        Mes                  = mes,
+                        Semana               = semana,
+                        DiaMes               = diaMes,
+                        IdEstadoPEspecifico  = idEstadoPEspecifico,
+                        IdCentroCostoPadre   = idCentroCostoPadre
+                    },
+                    commandType: CommandType.StoredProcedure
+                );
+                return resultado.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerResumenPorModalidadCursosAsync: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Obtiene evolucion mensual de programas por estado con filtros de fecha
+        /// </summary>
+        public async Task<List<ReporteDashboardGraficoPorMesProgramasDTO>> ObtenerGraficoPorMesProgramasAsync(int? anio, int? mes, int? semana, int? diaMes, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
+        {
+            try
+            {
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardGraficoPorMesProgramasDTO>(
+                    "pla.SP_ReporteDashboardObtenerGraficoPorMesProgramas",
+                    new
+                    {
+                        Anio                      = anio,
+                        Mes                       = mes,
+                        Semana                    = semana,
+                        DiaMes                    = diaMes,
+                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
+                        IdCentroCostoPadre        = idCentroCostoPadre
+                    },
+                    commandType: CommandType.StoredProcedure
+                );
+                return resultado.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerGraficoPorMesProgramasAsync: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Obtiene evolucion mensual de cursos por estado con filtros de fecha
+        /// </summary>
+        public async Task<List<ReporteDashboardGraficoPorMesCursosDTO>> ObtenerGraficoPorMesCursosAsync(int? anio, int? mes, int? semana, int? diaMes, int? idCentroCostoPadre = null)
+        {
+            try
+            {
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardGraficoPorMesCursosDTO>(
+                    "pla.SP_ReporteDashboardObtenerGraficoPorMesCursos",
+                    new
+                    {
+                        Anio                = anio,
+                        Mes                 = mes,
+                        Semana              = semana,
+                        DiaMes              = diaMes,
+                        IdCentroCostoPadre  = idCentroCostoPadre
+                    },
+                    commandType: CommandType.StoredProcedure
+                );
+                return resultado.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerGraficoPorMesCursosAsync: {ex.Message}");
             }
         }
 

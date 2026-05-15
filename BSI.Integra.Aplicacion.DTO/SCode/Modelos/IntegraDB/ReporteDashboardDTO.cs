@@ -138,6 +138,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     /// </summary>
     public class ReporteDashboardSemanalDTO
     {
+        public int Anio { get; set; }
         public int Semana { get; set; }
         public DateTime? FechaInicioSemana { get; set; }
         public DateTime? FechaFinSemana { get; set; }
@@ -546,6 +547,76 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public List<ReporteDashboardNotaEvaluacionDTO> Evaluaciones { get; set; } = new();
         public List<ReporteDashboardNotaAlumnoDTO> Alumnos { get; set; } = new();
         public bool EsOnline { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para KPIs de programas agrupados por estado
+    /// Usado por SP_ReporteDashboardObtenerResumenProgramas
+    /// </summary>
+    public class ReporteDashboardResumenProgramasDTO
+    {
+        public string? Estado { get; set; }
+        public int CantidadProgramas { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para KPIs de cursos agrupados por estado
+    /// Usado por SP_ReporteDashboardObtenerResumenCursos
+    /// </summary>
+    public class ReporteDashboardResumenCursosDTO
+    {
+        public string? Estado { get; set; }
+        public int CantidadCursos { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para distribucion de programas por modalidad
+    /// Usado por SP_ReporteDashboardObtenerModalidadProgramas
+    /// </summary>
+    public class ReporteDashboardModalidadProgramasDTO
+    {
+        public string? Modalidad { get; set; }
+        public int CantidadProgramas { get; set; }
+        public int CantidadSesiones { get; set; }
+        public decimal Porcentaje { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para distribucion de cursos por modalidad
+    /// Usado por SP_ReporteDashboardObtenerModalidadCursos
+    /// </summary>
+    public class ReporteDashboardModalidadCursosDTO
+    {
+        public string? Modalidad { get; set; }
+        public int CantidadCursos { get; set; }
+        public int CantidadSesiones { get; set; }
+        public decimal Porcentaje { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para grafico de evolucion mensual de programas
+    /// Usado por SP_ReporteDashboardObtenerGraficoPorMesProgramas
+    /// </summary>
+    public class ReporteDashboardGraficoPorMesProgramasDTO
+    {
+        public int Mes { get; set; }
+        public string? NombreMes { get; set; }
+        public string? EstadoPadre { get; set; }
+        public int CantidadProgramas { get; set; }
+        public int CantidadSesiones { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para grafico de evolucion mensual de cursos
+    /// Usado por SP_ReporteDashboardObtenerGraficoPorMesCursos
+    /// </summary>
+    public class ReporteDashboardGraficoPorMesCursosDTO
+    {
+        public int Mes { get; set; }
+        public string? NombreMes { get; set; }
+        public string? EstadoCurso { get; set; }
+        public int CantidadCursos { get; set; }
+        public int CantidadSesiones { get; set; }
     }
 
 }
