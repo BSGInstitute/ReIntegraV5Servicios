@@ -8549,6 +8549,15 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private IWhatsAppMensajeEnviadoApiPostulanteRepository _whatsAppMensajeEnviadoApiPostulanteRepository;
+        IWhatsAppMensajeEnviadoApiPostulanteRepository IUnitOfWork.WhatsAppMensajeEnviadoApiPostulanteRepository
+        {
+            get
+            {
+                return _whatsAppMensajeEnviadoApiPostulanteRepository ?? new WhatsAppMensajeEnviadoApiPostulanteRepository(_dapperRepository);
+            }
+        }
+
 
         private IFacebookResenaRepository _resenaFacebookRepository;
         IFacebookResenaRepository IUnitOfWork.FacebookResenaRepository

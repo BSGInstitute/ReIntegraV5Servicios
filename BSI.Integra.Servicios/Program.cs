@@ -260,6 +260,7 @@ builder.Services.AddScoped<BSI.Integra.Aplicacion.Transversal.Service.Interface.
 // WhatsApp Service
 builder.Services.AddScoped<BSI.Integra.Aplicacion.Transversal.Service.Interface.IWhatsAppMensajeEnviadoApiPlanificacionService, BSI.Integra.Aplicacion.Transversal.Service.Implementacion.WhatsAppMensajeEnviadoApiPlanificacionService>();
 builder.Services.AddScoped<BSI.Integra.Aplicacion.Transversal.Service.Interface.IWhatsAppMensajeEnviadoApiAtcService, BSI.Integra.Aplicacion.Transversal.Service.Implementacion.WhatsAppMensajeEnviadoApiAtcService>();
+builder.Services.AddScoped<BSI.Integra.Aplicacion.GestionPersonas.SCode.Service.Interface.IWhatsAppMensajeEnviadoApiPostulanteService, BSI.Integra.Aplicacion.GestionPersonas.SCode.Service.Implementacion.WhatsAppMensajeEnviadoApiPostulanteService>();
 
 // Servicio unificado de envio de actividades automaticas (Email + WhatsApp)
 builder.Services.AddScoped<BSI.Integra.Servicios.Services.IActividadEnvioService, BSI.Integra.Servicios.Services.ActividadEnvioService>();
@@ -273,8 +274,6 @@ builder.Services.AddHttpClient("PythonLlm", client =>
     client.BaseAddress = new Uri("http://ia-automatizacion-planificacion-api.bsginstitute.com");
     client.Timeout     = TimeSpan.FromSeconds(30);
 });
-
-
 
 //var connectionString = builder.Configuration.GetConnectionString("IntegraDB");
 
