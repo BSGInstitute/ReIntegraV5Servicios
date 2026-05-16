@@ -465,7 +465,17 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
             if (alumnoUbicacion.IdCiudad == null)
             {
-                throw new BadRequestException("El Alumno no tiene Ciudad.");
+                // Fallback: si el alumno no tiene ciudad registrada, se asigna la capital del país
+                // según el código de país (prefijo telefónico) para no bloquear la generación del documento.
+                alumnoUbicacion.IdCiudad = alumnoUbicacion.IdCodigoPais switch
+                {
+                    "52"  => 2407, // México - Ciudad de México
+                    "54"  => 1779, // Argentina - Buenos Aires
+                    "56"  => 1942, // Chile - Santiago
+                    "57"  => 1956, // Colombia - Bogotá
+                    "591" => 14,   // Bolivia - fallback Lima/Callao (no tiene ciudad propia mapeada)
+                    _     => 14    // Default: Perú - Lima/Callao (cod. 51)
+                };
             }
             if (alumnoUbicacion.IdCodigoPais == null)
             {
@@ -743,7 +753,17 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
             if (alumnoUbicacion.IdCiudad == null)
             {
-                throw new Exception("El Alumno no tiene Ciudad.");
+                // Fallback: si el alumno no tiene ciudad registrada, se asigna la capital del país
+                // según el código de país (prefijo telefónico) para no bloquear la generación del documento.
+                alumnoUbicacion.IdCiudad = alumnoUbicacion.IdCodigoPais switch
+                {
+                    "52"  => 2407, // México - Ciudad de México
+                    "54"  => 1779, // Argentina - Buenos Aires
+                    "56"  => 1942, // Chile - Santiago
+                    "57"  => 1956, // Colombia - Bogotá
+                    "591" => 14,   // Bolivia - fallback Lima/Callao (no tiene ciudad propia mapeada)
+                    _     => 14    // Default: Perú - Lima/Callao (cod. 51)
+                };
             }
             if (alumnoUbicacion.IdCodigoPais == null)
             {
@@ -2726,7 +2746,17 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
 
             if (alumnoUbicacion.IdCiudad == null)
             {
-                throw new Exception("El Alumno no tiene Ciudad.");
+                // Fallback: si el alumno no tiene ciudad registrada, se asigna la capital del país
+                // según el código de país (prefijo telefónico) para no bloquear la generación del documento.
+                alumnoUbicacion.IdCiudad = alumnoUbicacion.IdCodigoPais switch
+                {
+                    "52"  => 2407, // México - Ciudad de México
+                    "54"  => 1779, // Argentina - Buenos Aires
+                    "56"  => 1942, // Chile - Santiago
+                    "57"  => 1956, // Colombia - Bogotá
+                    "591" => 14,   // Bolivia - fallback Lima/Callao (no tiene ciudad propia mapeada)
+                    _     => 14    // Default: Perú - Lima/Callao (cod. 51)
+                };
             }
             if (alumnoUbicacion.IdCodigoPais == null)
             {
