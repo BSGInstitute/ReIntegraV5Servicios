@@ -16,6 +16,19 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing.Configura
         public DateTime FechaModificacion { get; set; }
     }
 
+    public class ProgramaGeneralListadoDTO
+    {
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+    }
+
+    /// DTO interno de deserialización para los SPs SP_PGeneralObtenerListadoConfigurados y SP_PGeneralObtenerDisponiblesConfigurar
+    public class ProgramaGeneralRawDTO
+    {
+        public int IdPGeneral { get; set; }
+        public string Nombre { get; set; }
+    }
+
     public class CrearProgramaGeneralConfiguradoDTO
     {
         public int IdProgramaGeneral { get; set; }
@@ -30,12 +43,11 @@ namespace BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB.Marketing.Configura
 
     public class ProgramaDetallePlano
     {
-        public int ProgramaId { get; set; }
-        public int IdProgramaGeneral { get; set; }
+        public int IdPGeneral { get; set; }
         public string NombrePrograma { get; set; }
-        public int CategoriaId { get; set; }
+        public int IdCategoriaArgumentoConfigurado { get; set; }
         public string NombreCategoria { get; set; }
-        public int? ArgumentoId { get; set; }
+        public int? IdRemarketingArgumento { get; set; }
         public string NombreArgumento { get; set; }
         public string DescripcionArgumento { get; set; }
         public int? PrioridadArgumento { get; set; }

@@ -19,14 +19,14 @@ namespace BSI.Integra.Aplicacion.Marketing.SCode.Service.Implementacion.Marketin
             categoriaArgumentoReporitory = _categoriaArgumentoReporitory;
         }
 
-        public List<ProgramaConfigurado> ObtenerListadoProgramaConfigurado()
+        public List<ProgramaGeneralListadoDTO> ObtenerListadoProgramaConfigurado()
         {
             return categoriaArgumentoReporitory.ObtenerListadoProgramaConfigurado();
         }
 
-        public int CrearProgramaConfigurado(CrearProgramaGeneralConfiguradoDTO request, string usuario)
+        public List<ProgramaGeneralListadoDTO> ObtenerProgramasDisponiblesConfigurar()
         {
-            return categoriaArgumentoReporitory.CrearProgramaConfigurado(request, usuario);
+            return categoriaArgumentoReporitory.ObtenerProgramasDisponiblesConfigurar();
         }
 
         public bool EliminarProgramaConfigurado(int id, string usuario)

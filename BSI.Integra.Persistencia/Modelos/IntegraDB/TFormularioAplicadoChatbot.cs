@@ -20,17 +20,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public int Id { get; set; }
         /// <summary>
-        /// Identificador del chat del portal asociado (nullable: registros WhatsApp no lo usan)
+        /// Identificador del chat del portal asociado
         /// </summary>
-        public int? IdChatbotPortalHiloChat { get; set; }
-        /// <summary>
-        /// Identificador del medio de comunicación (FK a pla.T_MedioComunicacion)
-        /// </summary>
-        public int? IdMedioComunicacion { get; set; }
-        /// <summary>
-        /// ID polimórfico del hilo según canal: Portal → T_ChatbotPortalHiloChat.Id, WhatsApp → T_ChatbotWhatsAppAtcHiloChat.Id
-        /// </summary>
-        public int? IdOriginal { get; set; }
+        public int IdChatbotPortalHiloChat { get; set; }
         /// <summary>
         /// Identificador de la versión del formulario aplicado
         /// </summary>
@@ -59,8 +51,17 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Versión de fila para concurrencia optimista
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
+        /// <summary>
+        /// Canal de comunicación del hilo (Portal Web, WhatsApp, etc.), JOIN a una de esas tablas por el campo IdOriginal
+        /// </summary>
+        public int? IdMedioComunicacion { get; set; }
+        /// <summary>
+        /// ID del hilo en la tabla origen según el medio de comunicación (polimórfico)
+        /// </summary>
+        public int? IdOriginal { get; set; }
 
-        public virtual TChatbotPortalHiloChat? IdChatbotPortalHiloChatNavigation { get; set; }
+        public virtual TChatbotPortalHiloChat IdChatbotPortalHiloChatNavigation { get; set; } = null!;
+        public virtual TMedioComunicacion? IdMedioComunicacionNavigation { get; set; }
         public virtual TVersionFormularioEvaluacionChatbot IdVersionFormularioEvaluacionChatbotNavigation { get; set; } = null!;
         public virtual ICollection<TProblemaIdentificadoChatbot> TProblemaIdentificadoChatbots { get; set; }
         public virtual ICollection<TRespuestaClienteChatbot> TRespuestaClienteChatbots { get; set; }

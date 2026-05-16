@@ -107,6 +107,21 @@ namespace BSI.Integra.Servicios.Controllers
             }
             return Ok(resultado);
         }
+        /// Tipo Función: GET
+        /// Autor: Christopher Tumir
+        /// Fecha: 13/05/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene datos frescos de un programa especifico padre por su ID
+        /// </summary>
+        /// <returns>Json</returns>
+        [Route("[action]/{id}")]
+        [HttpGet]
+        public ActionResult ObtenerProgramaEspecificoPadreIndividualPorId(int id)
+        {
+            var resultado = _unitOfWork.PEspecificoRepository.ObtenerProgramaEspecificoPadreIndividualPorId(id);
+            return Ok(resultado);
+        }
         /// Tipo Función: POST
 		/// Autor: Jonathan Caipo
 		/// Fecha: 03/05/2023

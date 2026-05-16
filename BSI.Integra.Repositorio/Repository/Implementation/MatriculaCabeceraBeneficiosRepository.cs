@@ -283,19 +283,30 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
         }
-
+        /// Autor: --
+        /// Fecha: --
+        /// Version: 2.0
+        /// Autor Modificacion: Gilmer Qm
+        /// Fecha Modifcacion: 2026-05-12
+        /// Descripcion Modificacion: Se sustituye la vista por SP para mejorar el rendimiento, se agrega ordenamiento por beneficio y se cambia el nombre del metodo para reflejar mejor su funcionalidad.
+        /// Version: 2.0
+        /// <summary>
+        /// Obtiene el Nombre de los Beneficios asociados a una Matricula Cabecera.
+        /// </summary>
+        /// <param name="version">Version de matricula alumno</param>
+        /// <returns> List<string> </returns>
         public IEnumerable<BeneficiosSolicitadosDTO> ObtenerBeneficiosSolicitadosSinRepetir()
         {
             try
             {
                 List<BeneficiosSolicitadosDTO> BeneficioSolicitado = new List<BeneficiosSolicitadosDTO>();
-                var _query = @"SELECT DISTINCT Beneficio FROM com.V_BeneficiosSolicitadosReporte ORDER BY Beneficio";
-                var resultado = _dapperRepository.QueryDapper(_query, null);
+                var _query = "ope.SP_MatriculaBeneficiosAgrupado";
+                var resultado = _dapperRepository.QuerySPDapper(_query, null);
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
                 {
                     BeneficioSolicitado = JsonConvert.DeserializeObject<List<BeneficiosSolicitadosDTO>>(resultado);
                 }
-                return BeneficioSolicitado;
+                return BeneficioSolicitado.OrderBy(x=> x.Beneficio);
             }
             catch (Exception e)
             {

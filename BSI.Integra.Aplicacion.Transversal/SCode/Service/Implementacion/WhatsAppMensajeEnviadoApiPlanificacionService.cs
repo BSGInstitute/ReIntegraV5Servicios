@@ -124,7 +124,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 objetoWhatsAppHook.WaTo = json.WaTo;
                 objetoWhatsAppHook.WaId = null;
                 objetoWhatsAppHook.WaType = "text";
-                objetoWhatsAppHook.WaTypeMensaje = 8;
+                objetoWhatsAppHook.WaTypeMensaje = 1;
                 objetoWhatsAppHook.WaRecipientType = "text";
                 objetoWhatsAppHook.WaBody = json.WaBody;
                 objetoWhatsAppHook.WaFile = null;

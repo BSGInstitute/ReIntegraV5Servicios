@@ -137,6 +137,33 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion.AgendaPlanificacion
         }
 
         /// Tipo Función: GET
+        /// Autor: Joseph Llanque
+        /// Fecha: 07/05/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Endpoint dedicado del tab "Mensajes Recibidos". Ejecuta directamente
+        /// pla.SP_GestionDocenteMensajesRecibidosObtener con filter opcional por
+        /// personal asignado. NO pasa por la pipeline genérica de tabs porque el
+        /// shape del SP es distinto (una fila por canal, columnas TipoMensaje,
+        /// AsuntoMensaje, etc.) y necesita parámetro propio.
+        /// </summary>
+        /// <param name="idPersonalAsignado">ID del personal asignado; 0 para sin filtro.</param>
+        /// <returns>Lista de MensajeRecibidoAgendaDTO (hasta 2 filas por docente).</returns>
+        [HttpGet("ObtenerMensajesRecibidos/{idPersonalAsignado}")]
+        public IActionResult ObtenerMensajesRecibidos(int idPersonalAsignado)
+        {
+            try
+            {
+                var lista = _gestionDocenteAgendaService.ObtenerMensajesRecibidos(idPersonalAsignado);
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Exito = false, Mensaje = ex.Message });
+            }
+        }
+
+        /// Tipo Función: GET
         /// Autor: Jose Vega
         /// Fecha: 03/03/2026
         /// Versión: 1.1

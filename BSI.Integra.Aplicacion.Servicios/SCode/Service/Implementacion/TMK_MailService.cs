@@ -220,4 +220,112 @@ namespace BSI.Integra.Aplicacion.Servicios.Service.Implementacion
             return _mailData;
         }
     }
+
+    /// Autor: Jose Vega
+    /// Fecha: 07/05/2026
+    /// Version: 1.0
+    /// <summary>
+    /// Servicio de envío de correos exclusivo para el flujo de Planificación.
+    /// Reutiliza TMKMailDataDTO pero envuelve el cuerpo unicamente en &lt;body&gt;...&lt;/body&gt;
+    /// (sin &lt;p&gt;) para respetar el HTML estructurado de la plantilla (ul/li, table, div).
+    /// </summary>
+    public class TMK_MailServicePla
+    {
+        string apiKey = "CHRrBNYkBMXLaEr3MFEw0A";
+        private TMKMailDataDTO _mailData;
+        List<EmailAttachment> Attached = new List<EmailAttachment>();
+
+        public void SetData(TMKMailDataDTO data)
+        {
+            _mailData = data;
+        }
+
+        public List<TMKMensajeIdDTO> SendMessageTask()
+        {
+            List<TMKMensajeIdDTO> mensaje_id = new List<TMKMensajeIdDTO>();
+            Task.Run(async () => { mensaje_id = await SendMessageWithFiles(); }).Wait();
+            return mensaje_id;
+        }
+
+        private async Task<List<TMKMensajeIdDTO>> SendMessageWithFiles()
+        {
+            MandrillApi _api = new MandrillApi(apiKey);
+            char[] delimitor = new char[] { ',' };
+            List<EmailAddress> Recipients = new List<EmailAddress>();
+
+            if (!string.IsNullOrEmpty(_mailData.Recipient))
+            {
+                string[] RecipientList = _mailData.Recipient.Split(delimitor, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string EmailAddress in RecipientList)
+                {
+                    Recipients.Add(new EmailAddress { Email = EmailAddress.Trim(), Type = "to" });
+                }
+            }
+            if (!string.IsNullOrEmpty(_mailData.Cc))
+            {
+                string[] CopiedList = _mailData.Cc.Split(delimitor, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string EmailAddress in CopiedList)
+                {
+                    Recipients.Add(new EmailAddress { Email = EmailAddress.Trim(), Type = "cc" });
+                }
+            }
+            if (!string.IsNullOrEmpty(_mailData.Bcc))
+            {
+                string[] CopiedList = _mailData.Bcc.Split(delimitor, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string EmailAddress in CopiedList)
+                {
+                    Recipients.Add(new EmailAddress { Email = EmailAddress.Trim(), Type = "bcc" });
+                }
+            }
+
+            List<EmailResult> Results = await _api.SendMessage(new SendMessageRequest(new EmailMessage
+            {
+                FromEmail = _mailData.Sender,
+                FromName = _mailData.RemitenteC,
+                Subject = _mailData.Subject,
+                Html = string.Format("<body>{0}</body>", _mailData.Message),
+                Attachments = _mailData.AttachedFiles,
+                PreserveRecipients = true,
+                To = Recipients,
+                TrackClicks = true,
+                TrackOpens = true,
+                Images = _mailData.EmbeddedFiles
+            })).ConfigureAwait(false);
+
+            List<TMKMensajeIdDTO> mensaje_id = new List<TMKMensajeIdDTO>();
+            foreach (var rpta in Results)
+            {
+                mensaje_id.Add(new TMKMensajeIdDTO
+                {
+                    MensajeId = rpta.Id,
+                    Email = rpta.Email,
+                    Estado = rpta.Status.ToString()
+                });
+            }
+            return mensaje_id;
+        }
+
+        public bool SetFiles(IFormFile files)
+        {
+            EmailAttachment objAdjunto = new EmailAttachment();
+            byte[] contenido = ConvertToByte(files);
+            objAdjunto.Content = Convert.ToBase64String(contenido);
+            objAdjunto.Name = files.FileName;
+            objAdjunto.Type = files.ContentType;
+            Attached.Add(objAdjunto);
+
+            if (Attached.Count != 0)
+            {
+                _mailData.AttachedFiles = Attached;
+                return true;
+            }
+            return false;
+        }
+
+        public byte[] ConvertToByte(IFormFile file)
+        {
+            BinaryReader rdr = new BinaryReader(file.OpenReadStream());
+            return rdr.ReadBytes((int)file.Length);
+        }
+    }
 }

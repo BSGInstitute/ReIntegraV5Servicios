@@ -48,5 +48,37 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(new { mensaje = ex.Message });
             }
         }
+
+        /// Tipo Función: GET
+        /// Autor: WhatsApp Business Calling API integration
+        /// Fecha: 2026-05-15
+        /// Versión: 1.0
+        /// <summary>
+        /// Consulta el estado actual del consentimiento de llamada saliente para un número.
+        /// Lo usa el frontend para decidir si mostrar "Solicitar llamada", "Esperando respuesta",
+        /// "Llamar ahora" (consentimiento vigente) o "Rechazado".
+        /// </summary>
+        /// <param name="numeroWhatsApp">Número del cliente (con código de país, con o sin `+`)</param>
+        /// <param name="idPais">Id del país del cliente</param>
+        /// <returns>Estado del consentimiento + flags PuedeSolicitar/PuedeLlamar</returns>
+        [HttpGet("EstadoConsentimiento")]
+        public IActionResult ObtenerEstadoConsentimiento(
+            [FromQuery] string numeroWhatsApp,
+            [FromQuery] int idPais)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(numeroWhatsApp))
+                    return BadRequest(new { mensaje = "numeroWhatsApp es requerido" });
+
+                var servicio = new LlamadasWhatsAppService(unitOfWork);
+                var resultado = servicio.ObtenerEstadoConsentimiento(numeroWhatsApp, idPais);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
+        }
     }
 }
