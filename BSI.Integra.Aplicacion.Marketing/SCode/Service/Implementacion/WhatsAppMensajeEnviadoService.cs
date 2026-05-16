@@ -1239,7 +1239,42 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                     {
                     }
 
-                    return (oportunidadReprogramacionNueva.Oportunidad.Id);
+                    // ── EnvioWhats post-creación de oportunidad ──────────────────────────
+                    var idOportunidadCreada = oportunidadReprogramacionNueva.Oportunidad.Id;
+                    try
+                    {
+                        if (dto.IdOrigen.HasValue && dto.IdOrigen.Value > 0)
+                        {
+                            var pais = _unitOfWork.AsignacionRegularRepository
+                                                  .ObtenerPaisPorOportunidad(idOportunidadCreada);
+
+                            if (pais != null && new[] { 51, 56, 57, 52 }.Contains(pais.Id))
+                            {
+                                var origenData = _unitOfWork.OrigenRepository
+                                                            .ObtenerIdCategoriaOrigenPorOrigen(dto.IdOrigen.Value);
+
+                                if (origenData != null)
+                                {
+                                    var asignacionService = new AsignacionManualService(_unitOfWork);
+                                    asignacionService.EnvioWhats(
+                                        idOportunidadCreada,
+                                        pais.Id,
+                                        dto.IdPersonalAsignado,
+                                        origenData.IdCategoriaOrigen
+                                    );
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Aislado — la oportunidad ya fue creada, este bloque no rompe el flujo principal
+                        // Para depurar: poner breakpoint aquí e inspeccionar errorMsg
+                        string errorMsg = $"[EnvioWhats] Oportunidad {idOportunidadCreada}: {ex.Message}";
+                    }
+                    // ─────────────────────────────────────────────────────────────────────
+
+                    return (idOportunidadCreada);
                     //return _unitOfWork.OportunidadRepository.ObtenerDatosOportunidad(oportunidadReprogramacionNueva.Oportunidad!.Id)!;
                 }
             }
