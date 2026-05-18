@@ -437,7 +437,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// Obtiene hilos de chat con información completa de alumnos y matrículas
         /// </summary>
         /// <returns>Lista de hilos de chat con datos de alumnos</returns>
-        public IEnumerable<ChatbotAlumnoChatPaginadoDTO> ObtenerHilosChatConAlumnos(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize, string? codigoMatricula)
+        public IEnumerable<ChatbotAlumnoChatPaginadoDTO> ObtenerHilosChatConAlumnos(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize, string? codigoMatricula, int intervencionBot)
         {
             try
             {
@@ -450,7 +450,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     FechaFin         = fechaFin,
                     PageNumber       = pageNumber,
                     PageSize         = pageSize,
-                    CodigoMatricula  = codigoMatricula
+                    CodigoMatricula  = codigoMatricula,
+                    IntervencionBot = intervencionBot
                 });
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
@@ -493,7 +494,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
-        public IEnumerable<ChatbotHiloChatPorSegmentoPaginadoDTO> ObtenerHilosChatPorSegmentoPaginado(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize)
+        public IEnumerable<ChatbotHiloChatPorSegmentoPaginadoDTO> ObtenerHilosChatPorSegmentoPaginado(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize, int intervencionBot)
         {
             try
             {
@@ -505,7 +506,8 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     FechaInicio = fechaInicio,
                     FechaFin    = fechaFin,
                     PageNumber  = pageNumber,
-                    PageSize    = pageSize
+                    PageSize    = pageSize,
+                    IntervencionBot = intervencionBot
                 });
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
