@@ -681,7 +681,7 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 var servicio = new ChatDetalleIntegraService(unitOfWork);
                 var respuesta = servicio.ObtenerHilosChatConAlumnos(
-                    dto.FechaInicio, dto.FechaFin, dto.PageNumber, dto.PageSize, dto.CodigoMatricula);
+                    dto.FechaInicio, dto.FechaFin, dto.PageNumber, dto.PageSize, dto.CodigoMatricula, dto.IntervencionBot);
                 return Ok(respuesta);
             }
             catch (Exception ex)
@@ -703,7 +703,7 @@ namespace BSI.Integra.Servicios.Controllers
             {
                 var servicio = new ChatDetalleIntegraService(unitOfWork);
                 var respuesta = servicio.ObtenerHilosChatPorSegmentoPaginado(
-                    dto.FechaInicio, dto.FechaFin, dto.PageNumber, dto.PageSize);
+                    dto.FechaInicio, dto.FechaFin, dto.PageNumber, dto.PageSize, dto.IntervencionBot);
                 return Ok(respuesta);
             }
             catch (Exception ex)

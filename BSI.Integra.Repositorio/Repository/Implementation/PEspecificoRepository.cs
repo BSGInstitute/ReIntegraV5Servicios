@@ -1515,6 +1515,42 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        /// Autor: Christopher Tumir
+        /// Fecha: 13/05/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene datos frescos de un programa especifico padre por su ID
+        /// </summary>
+        public ProgramaEspecificoPadreIndividualDTO ObtenerProgramaEspecificoPadreIndividualPorId(int id)
+        {
+            try
+            {
+                string query = "pla.SP_ProgramaEspecificoPadreIndividualFiltro";
+                string resultado = _dapperRepository.QuerySPDapper(query, new
+                {
+                    IdProgramaEspecifico = id.ToString(),
+                    IdCentroCosto = "",
+                    CodigoBs = "",
+                    IdEstadoPEspecifico = "",
+                    IdModalidadCurso = "",
+                    IdPGeneral = "",
+                    IdArea = "",
+                    IdSubArea = "",
+                    IdCentroCostoD = 0
+                });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    var lista = JsonConvert.DeserializeObject<IEnumerable<ProgramaEspecificoPadreIndividualDTO>>(resultado)!;
+                    return lista.FirstOrDefault()!;
+                }
+                return null!;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#PER-OPEPIPID-001@Error en ObtenerProgramaEspecificoPadreIndividualPorId: {ex.Message}", ex);
+            }
+        }
+
         /// Autor: Gretel Canasa
         /// Fecha: 29/08/2023
         /// Version: 1.0
@@ -2835,17 +2871,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 string _query = @"
                 SELECT
-                    DATEADD(HOUR, @IncrementoHoras, FechaHoraInicio) AS FechaSesion,
-                    CONVERT(VARCHAR(5), DATEADD(HOUR, @IncrementoHoras, FechaHoraInicio), 108) AS HoraInicio,
-                    CONVERT(VARCHAR(5), DATEADD(MINUTE, Duracion, DATEADD(HOUR, @IncrementoHoras, FechaHoraInicio)), 108) AS HoraFin,
-                    Grupo AS Tema
-                FROM
-                    pla.T_PEspecificoSesion
-                WHERE
-                    IdPEspecifico = (SELECT TOP 1 Id FROM pla.T_PEspecifico WHERE IdCentroCosto = @IdCentroCosto AND Estado = 1)
-                    AND Estado = 1
-                ORDER BY
-                    FechaHoraInicio ASC";
+                    pe.Nombre AS NombreCurso,
+                    ISNULL(ses.GrupoSesion, 0) AS NumeroSesion,
+                    DATEADD(HOUR, @IncrementoHoras, ses.FechaHoraInicio) AS FechaSesion,
+                    CONVERT(VARCHAR(5), DATEADD(HOUR, @IncrementoHoras, ses.FechaHoraInicio), 108) AS HoraInicio,
+                    CONVERT(VARCHAR(5), DATEADD(MINUTE, ses.Duracion, DATEADD(HOUR, @IncrementoHoras, ses.FechaHoraInicio)), 108) AS HoraFin,
+                    ses.Grupo AS Tema
+                FROM pla.T_PEspecificoSesion ses
+                INNER JOIN pla.T_PEspecifico pe ON ses.IdPEspecifico = pe.Id
+                WHERE ses.IdPEspecifico = (SELECT TOP 1 Id FROM pla.T_PEspecifico WHERE IdCentroCosto = @IdCentroCosto AND Estado = 1)
+                    AND ses.Estado = 1
+                ORDER BY ses.FechaHoraInicio ASC";
                 var _queryRespuesta = _dapperRepository.QueryDapper(_query, new { IdCentroCosto = idCentroCosto, IncrementoHoras = incrementoHoras });
                 if (_queryRespuesta != "null")
                     return JsonConvert.DeserializeObject<List<SesionPlanificacionDTO>>(_queryRespuesta);

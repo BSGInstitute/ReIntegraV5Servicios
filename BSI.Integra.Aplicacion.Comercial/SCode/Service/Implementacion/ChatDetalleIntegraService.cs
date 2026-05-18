@@ -326,12 +326,12 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         /// Obtiene hilos de chat con información de alumnos y matrículas
         /// </summary>
         /// <returns>Lista de hilos de chat con datos de alumnos</returns>
-        public PagedResponseDTO<ChatbotAlumnoChatPaginadoDTO> ObtenerHilosChatConAlumnos(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize, string? codigoMatricula)
+        public PagedResponseDTO<ChatbotAlumnoChatPaginadoDTO> ObtenerHilosChatConAlumnos(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize, string? codigoMatricula, int intervencionBot)
         {
             try
             {
                 var items = _unitOfWork.ChatDetalleIntegraRepository
-                    .ObtenerHilosChatConAlumnos(fechaInicio, fechaFin, pageNumber, pageSize, codigoMatricula)
+                    .ObtenerHilosChatConAlumnos(fechaInicio, fechaFin, pageNumber, pageSize, codigoMatricula, intervencionBot)
                     .ToList();
 
                 var totalCount = items.FirstOrDefault()?.TotalCount ?? 0;
@@ -369,12 +369,12 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
         }
 
-        public PagedResponseDTO<ChatbotHiloChatPorSegmentoPaginadoDTO> ObtenerHilosChatPorSegmentoPaginado(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize)
+        public PagedResponseDTO<ChatbotHiloChatPorSegmentoPaginadoDTO> ObtenerHilosChatPorSegmentoPaginado(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize, int intervencionBot)
         {
             try
             {
                 var items = _unitOfWork.ChatDetalleIntegraRepository
-                    .ObtenerHilosChatPorSegmentoPaginado(fechaInicio, fechaFin, pageNumber, pageSize)
+                    .ObtenerHilosChatPorSegmentoPaginado(fechaInicio, fechaFin, pageNumber, pageSize, intervencionBot)
                     .ToList();
 
                 var totalCount = items.FirstOrDefault()?.TotalCount ?? 0;
