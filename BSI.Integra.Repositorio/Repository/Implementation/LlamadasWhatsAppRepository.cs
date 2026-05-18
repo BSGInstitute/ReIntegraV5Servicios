@@ -74,5 +74,40 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(ex.Message);
             }
         }
+
+        /// Tipo Función: Lectura
+        /// Autor: WhatsApp Business Calling API integration
+        /// Fecha: 2026-05-15
+        /// Versión: 1.0
+        /// <summary>
+        /// Busca la última solicitud de consentimiento saliente (TipoLlamada=2) para un par
+        /// (numero, idPais). Se usa para que el frontend decida si mostrar "Solicitar", "Esperando",
+        /// "Llamar" o "Rechazado". El nombre de la columna PK es Id (no IdWhatsappLlamada);
+        /// se aliasea en el SELECT para que matchee con el DTO.
+        /// </summary>
+        public WhatsAppConsentimientoRawDTO? ObtenerUltimoConsentimiento(string numeroWhatsApp, int idPais)
+        {
+            try
+            {
+                const string sql = @"SELECT TOP 1 Id AS IdWhatsappLlamada, WaId,
+                                            ConsentimientoEstado, ConsentimientoFecha, ConsentimientoExpira
+                                     FROM com.T_WhatsappLlamada
+                                     WHERE NumeroWhatsApp = @NumeroWhatsApp
+                                       AND IdPais = @IdPais
+                                       AND TipoLlamada = 2
+                                       AND ConsentimientoEstado IS NOT NULL
+                                     ORDER BY Id DESC";
+
+                var parametros = new { NumeroWhatsApp = numeroWhatsApp, IdPais = idPais };
+                var json = _dapperRepository.FirstOrDefault(sql, parametros);
+
+                if (string.IsNullOrEmpty(json) || json == "null") return null;
+                return JsonConvert.DeserializeObject<WhatsAppConsentimientoRawDTO>(json);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

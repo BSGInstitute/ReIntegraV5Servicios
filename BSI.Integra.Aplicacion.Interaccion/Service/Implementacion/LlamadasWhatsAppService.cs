@@ -41,5 +41,89 @@ namespace BSI.Integra.Aplicacion.Interaccion.Service.Implementacion
                 throw new Exception(ex.Message);
             }
         }
+
+        /// <summary>
+        /// Aplica las reglas de vigencia del consentimiento sobre los datos crudos del repo:
+        ///  · aceptado + ConsentimientoExpira > now → vigente, puede llamar directo (sin re-solicitar).
+        ///  · pendiente + ConsentimientoExpira > now → esperando respuesta del cliente.
+        ///  · rechazado + ConsentimientoExpira > now → en cooldown, no se puede solicitar.
+        ///  · estado expirado (ConsentimientoExpira ≤ now) o sin solicitud → puede solicitar nuevo.
+        /// </summary>
+        public LlamadaConsentimientoEstadoDTO ObtenerEstadoConsentimiento(string numeroWhatsApp, int idPais)
+        {
+            try
+            {
+                // Normalizar el número: sin `+`, sin espacios ni guiones (mismo criterio que el backend de envío).
+                string numeroNormalizado = string.IsNullOrEmpty(numeroWhatsApp)
+                    ? numeroWhatsApp
+                    : numeroWhatsApp.TrimStart('+').Replace(" ", "").Replace("-", "");
+
+                var ultimo = _unitOfWork.LlamadasWhatsAppRepository.ObtenerUltimoConsentimiento(numeroNormalizado, idPais);
+
+                var resultado = new LlamadaConsentimientoEstadoDTO();
+
+                if (ultimo == null || string.IsNullOrEmpty(ultimo.ConsentimientoEstado))
+                {
+                    resultado.Estado         = "sin_solicitud";
+                    resultado.PuedeSolicitar = true;
+                    resultado.PuedeLlamar    = false;
+                    resultado.Mensaje        = "No hay solicitud previa. Podés enviar el template de consentimiento.";
+                    return resultado;
+                }
+
+                bool vigente = ultimo.ConsentimientoExpira.HasValue
+                            && ultimo.ConsentimientoExpira.Value > DateTime.Now;
+
+                string estadoLower = ultimo.ConsentimientoEstado.ToLowerInvariant();
+
+                resultado.IdWhatsappLlamada    = ultimo.IdWhatsappLlamada;
+                resultado.ConsentimientoFecha  = ultimo.ConsentimientoFecha;
+                resultado.ConsentimientoExpira = ultimo.ConsentimientoExpira;
+
+                if (!vigente)
+                {
+                    // El último consentimiento expiró. Se puede pedir uno nuevo.
+                    resultado.Estado         = "sin_solicitud";
+                    resultado.PuedeSolicitar = true;
+                    resultado.PuedeLlamar    = false;
+                    resultado.Mensaje        = "Consentimiento anterior expirado. Podés solicitarlo nuevamente.";
+                    return resultado;
+                }
+
+                switch (estadoLower)
+                {
+                    case "aceptado":
+                        resultado.Estado         = "aceptado";
+                        resultado.PuedeSolicitar = false;
+                        resultado.PuedeLlamar    = true;
+                        resultado.Mensaje        = $"Consentimiento vigente hasta {ultimo.ConsentimientoExpira:yyyy-MM-dd HH:mm}. Podés llamar directo.";
+                        break;
+                    case "pendiente":
+                        resultado.Estado         = "pendiente";
+                        resultado.PuedeSolicitar = false;
+                        resultado.PuedeLlamar    = false;
+                        resultado.Mensaje        = "Esperando respuesta del cliente al template enviado.";
+                        break;
+                    case "rechazado":
+                        resultado.Estado         = "rechazado";
+                        resultado.PuedeSolicitar = false;
+                        resultado.PuedeLlamar    = false;
+                        resultado.Mensaje        = $"Cliente rechazó. Volvé a intentar después de {ultimo.ConsentimientoExpira:yyyy-MM-dd HH:mm}.";
+                        break;
+                    default:
+                        resultado.Estado         = estadoLower;
+                        resultado.PuedeSolicitar = true;
+                        resultado.PuedeLlamar    = false;
+                        resultado.Mensaje        = $"Estado desconocido: {estadoLower}";
+                        break;
+                }
+
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

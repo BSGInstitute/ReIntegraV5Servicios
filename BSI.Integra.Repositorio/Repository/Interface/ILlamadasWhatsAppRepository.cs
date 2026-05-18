@@ -16,5 +16,11 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         /// Historial paginado consumiendo com.SP_WhatsappLlamada_ObtenerHistorial.
         /// </summary>
         LlamadasHistorialResultadoDTO ObtenerHistorialPaginado(LlamadasHistorialFiltroDTO filtro);
+
+        /// <summary>
+        /// Última solicitud de consentimiento (TipoLlamada=2) para un par (numero, idPais).
+        /// Devuelve null si no hay solicitud previa con ConsentimientoEstado seteado.
+        /// </summary>
+        WhatsAppConsentimientoRawDTO? ObtenerUltimoConsentimiento(string numeroWhatsApp, int idPais);
     }
 }

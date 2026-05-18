@@ -70,6 +70,16 @@ namespace BSI.Integra.Servicios.Configurations
             {
                 status = HttpStatusCode.Conflict;
             }
+            else if (exceptionType == typeof(BadGatewayException))
+            {
+                // FR-8: el webhook upstream devolvio 5xx o error de red.
+                status = HttpStatusCode.BadGateway;
+            }
+            else if (exceptionType == typeof(GatewayTimeoutException))
+            {
+                // FR-8: el webhook upstream no respondio dentro del timeout.
+                status = HttpStatusCode.GatewayTimeout;
+            }
             else
             {
                 status = HttpStatusCode.BadRequest;

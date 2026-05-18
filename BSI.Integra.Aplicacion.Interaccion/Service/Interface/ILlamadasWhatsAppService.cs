@@ -11,5 +11,12 @@ namespace BSI.Integra.Aplicacion.Interaccion.Service.Interface
     public interface ILlamadasWhatsAppService
     {
         LlamadasHistorialResultadoDTO ObtenerHistorial(LlamadasHistorialFiltroDTO filtro);
+
+        /// <summary>
+        /// Consulta el estado actual del consentimiento de llamada saliente para un número.
+        /// El frontend usa la respuesta para habilitar/deshabilitar el botón "Solicitar llamada"
+        /// y decidir si debe pedir consentimiento o si ya puede llamar directo.
+        /// </summary>
+        LlamadaConsentimientoEstadoDTO ObtenerEstadoConsentimiento(string numeroWhatsApp, int idPais);
     }
 }

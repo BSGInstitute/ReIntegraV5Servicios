@@ -812,9 +812,8 @@ namespace BSI.Integra.Aplicacion.GestionPersonas.SCode.Service.Implementacion
                 }
                 //fin limpia el \t
                 var serializedResult = Serializer.Serialize(objetoWhatsAppHook);
-                //string url = $"https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphGestionPersonas";
-                string url = $"https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphGestionPersonas";
-                //string url = $"https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphGestionPersonas";
+                // string url = $"https://localhost:7225/api/WebHookWhatsApp/WhatsAppMensajeApiGraphGp";
+                string url = $"https://hook-whatsapp.bsginstitute.com/api/WebHookWhatsApp/WhatsAppMensajeApiGraphGp";
 
                 RespuestaMensajeWhatsappDTO respuesta = new RespuestaMensajeWhatsappDTO();
                 try
