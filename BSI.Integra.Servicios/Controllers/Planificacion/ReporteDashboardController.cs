@@ -300,12 +300,12 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <returns>Lista de ReporteDashboardEstadoSesionDTO</returns>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerResumenPorEstadoSesion(int? anio, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
+        public async Task<IActionResult> ObtenerResumenPorEstadoSesion(DateTime? fechaInicio, DateTime? fechaFin, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerResumenPorEstadoSesionAsync(anio, idProgramaEspecificoPadre, idCentroCostoPadre);
+                var resultado = await service.ObtenerResumenPorEstadoSesionAsync(fechaInicio, fechaFin, idProgramaEspecificoPadre, idCentroCostoPadre);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -324,12 +324,12 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <returns>Lista de ReporteDashboardSesionDetalleDTO</returns>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerSesionesPorEstado(int? anio, int? idEstadoSesion, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
+        public async Task<IActionResult> ObtenerSesionesPorEstado(DateTime? fechaInicio, DateTime? fechaFin, int? idEstadoSesion, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerSesionesPorEstadoAsync(anio, idEstadoSesion, idProgramaEspecificoPadre, idCentroCostoPadre);
+                var resultado = await service.ObtenerSesionesPorEstadoAsync(fechaInicio, fechaFin, idEstadoSesion, idProgramaEspecificoPadre, idCentroCostoPadre);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -370,12 +370,12 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <returns>ReporteDashboardKPIsEstadoSesionDTO</returns>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerKPIsEstadoSesion(int? anio, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
+        public async Task<IActionResult> ObtenerKPIsEstadoSesion(DateTime? fechaInicio, DateTime? fechaFin, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerKPIsEstadoSesionAsync(anio, idProgramaEspecificoPadre, idCentroCostoPadre);
+                var resultado = await service.ObtenerKPIsEstadoSesionAsync(fechaInicio, fechaFin, idProgramaEspecificoPadre, idCentroCostoPadre);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -408,22 +408,25 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         }
 
         /// <summary>
-        /// Obtiene estados de programas hijo agrupados por dia o semana
+        /// Obtiene estados de programas hijo agrupados por Anio, Mes, Semana o Dia
         /// </summary>
         [Route("[action]")]
         [HttpGet]
         public async Task<IActionResult> ObtenerEstadosPorDia(
             string? idsPEspecificoHijo,
             string? estados,
-            string? agrupacion,
+            int? anio,
+            int? mes,
+            int? semana,
+            int? diaMes,
+            int? ultimasSemanas,
             DateTime? fechaInicio,
-            DateTime? fechaFin,
-            int? ultimasSemanas)
+            DateTime? fechaFin)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerEstadosPorDiaAsync(idsPEspecificoHijo, estados, agrupacion, fechaInicio, fechaFin, ultimasSemanas);
+                var resultado = await service.ObtenerEstadosPorDiaAsync(idsPEspecificoHijo, estados, anio, mes, semana, diaMes, ultimasSemanas, fechaInicio, fechaFin);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -673,6 +676,25 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
                 var resultado = await service.ObtenerPEspecificoFiltroAsync(busqueda);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene cursos (programas especificos hijo) filtrando opcionalmente por programa padre y/o busqueda
+        /// </summary>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerCursosPorPrograma(int? idProgramaPadre, string? busqueda)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerCursosPorProgramaAsync(idProgramaPadre, busqueda);
                 return Ok(resultado);
             }
             catch (Exception)

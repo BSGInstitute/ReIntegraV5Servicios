@@ -186,11 +186,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         /// <summary>
         /// Obtiene resumen de sesiones agrupadas por estado de sesion
         /// </summary>
-        public async Task<List<ReporteDashboardEstadoSesionDTO>> ObtenerResumenPorEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
+        public async Task<List<ReporteDashboardEstadoSesionDTO>> ObtenerResumenPorEstadoSesionAsync(DateTime? fechaInicio = null, DateTime? fechaFin = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
-                return await _unitOfWork.ReporteDashboardRepository.ObtenerResumenPorEstadoSesionAsync(anio, idProgramaEspecificoPadre, idCentroCostoPadre);
+                return await _unitOfWork.ReporteDashboardRepository.ObtenerResumenPorEstadoSesionAsync(fechaInicio, fechaFin, idProgramaEspecificoPadre, idCentroCostoPadre);
             }
             catch (Exception)
             {
@@ -201,11 +201,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         /// <summary>
         /// Obtiene detalle de sesiones filtradas por estado
         /// </summary>
-        public async Task<List<ReporteDashboardSesionDetalleDTO>> ObtenerSesionesPorEstadoAsync(int? anio, int? idEstadoSesion = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
+        public async Task<List<ReporteDashboardSesionDetalleDTO>> ObtenerSesionesPorEstadoAsync(DateTime? fechaInicio = null, DateTime? fechaFin = null, int? idEstadoSesion = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
-                return await _unitOfWork.ReporteDashboardRepository.ObtenerSesionesPorEstadoAsync(anio, idEstadoSesion, idProgramaEspecificoPadre, idCentroCostoPadre);
+                return await _unitOfWork.ReporteDashboardRepository.ObtenerSesionesPorEstadoAsync(fechaInicio, fechaFin, idEstadoSesion, idProgramaEspecificoPadre, idCentroCostoPadre);
             }
             catch (Exception)
             {
@@ -231,11 +231,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         /// <summary>
         /// Obtiene KPIs de estados de sesion
         /// </summary>
-        public async Task<ReporteDashboardKPIsEstadoSesionDTO> ObtenerKPIsEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
+        public async Task<ReporteDashboardKPIsEstadoSesionDTO> ObtenerKPIsEstadoSesionAsync(DateTime? fechaInicio = null, DateTime? fechaFin = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
-                return await _unitOfWork.ReporteDashboardRepository.ObtenerKPIsEstadoSesionAsync(anio, idProgramaEspecificoPadre, idCentroCostoPadre);
+                return await _unitOfWork.ReporteDashboardRepository.ObtenerKPIsEstadoSesionAsync(fechaInicio, fechaFin, idProgramaEspecificoPadre, idCentroCostoPadre);
             }
             catch (Exception)
             {
@@ -249,9 +249,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             catch (Exception) { throw; }
         }
 
-        public async Task<List<ReporteDashboardEstadoPorDiaDTO>> ObtenerEstadosPorDiaAsync(string? idsPEspecificoHijo, string? estados, string? agrupacion, DateTime? fechaInicio, DateTime? fechaFin, int? ultimasSemanas = null)
+        public async Task<List<ReporteDashboardEstadoPorDiaDTO>> ObtenerEstadosPorDiaAsync(string? idsPEspecificoHijo, string? estados, int? anio, int? mes, int? semana, int? diaMes, int? ultimasSemanas = null, DateTime? fechaInicio = null, DateTime? fechaFin = null)
         {
-            try { return await _unitOfWork.ReporteDashboardRepository.ObtenerEstadosPorDiaAsync(idsPEspecificoHijo, estados, agrupacion, fechaInicio, fechaFin, ultimasSemanas); }
+            try { return await _unitOfWork.ReporteDashboardRepository.ObtenerEstadosPorDiaAsync(idsPEspecificoHijo, estados, anio, mes, semana, diaMes, ultimasSemanas, fechaInicio, fechaFin); }
             catch (Exception) { throw; }
         }
 
@@ -278,6 +278,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         public async Task<List<ReporteDashboardPEspecificoFiltroDTO>> ObtenerPEspecificoFiltroAsync(string? busqueda = null)
         {
             try { return await _unitOfWork.ReporteDashboardRepository.ObtenerPEspecificoFiltroAsync(busqueda); }
+            catch (Exception) { throw; }
+        }
+
+        public async Task<List<ReporteDashboardCursoFiltroDTO>> ObtenerCursosPorProgramaAsync(int? idProgramaPadre, string? busqueda = null)
+        {
+            try { return await _unitOfWork.ReporteDashboardRepository.ObtenerCursosPorProgramaAsync(idProgramaPadre, busqueda); }
             catch (Exception) { throw; }
         }
 

@@ -281,14 +281,20 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene resumen de sesiones agrupadas por estado de sesion
         /// </summary>
-        public async Task<List<ReporteDashboardEstadoSesionDTO>> ObtenerResumenPorEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
+        public async Task<List<ReporteDashboardEstadoSesionDTO>> ObtenerResumenPorEstadoSesionAsync(DateTime? fechaInicio = null, DateTime? fechaFin = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
                 using var conn = _connectionFactory.GetConnection;
                 var resultado = await conn.QueryAsync<ReporteDashboardEstadoSesionDTO>(
                     "pla.SP_ReporteDashboard_ObtenerResumenPorEstadoSesion",
-                    new { Anio = anio, IdProgramaEspecificoPadre = idProgramaEspecificoPadre, IdCentroCostoPadre = idCentroCostoPadre },
+                    new
+                    {
+                        FechaInicio = fechaInicio.HasValue ? (object)fechaInicio.Value.Date : null,
+                        FechaFin    = fechaFin.HasValue    ? (object)fechaFin.Value.Date    : null,
+                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
+                        IdCentroCostoPadre        = idCentroCostoPadre
+                    },
                     commandType: CommandType.StoredProcedure
                 );
                 return resultado.ToList();
@@ -302,14 +308,21 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene detalle de sesiones filtradas por estado
         /// </summary>
-        public async Task<List<ReporteDashboardSesionDetalleDTO>> ObtenerSesionesPorEstadoAsync(int? anio, int? idEstadoSesion = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
+        public async Task<List<ReporteDashboardSesionDetalleDTO>> ObtenerSesionesPorEstadoAsync(DateTime? fechaInicio = null, DateTime? fechaFin = null, int? idEstadoSesion = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
                 using var conn = _connectionFactory.GetConnection;
                 var resultado = await conn.QueryAsync<ReporteDashboardSesionDetalleDTO>(
                     "pla.SP_ReporteDashboard_ObtenerSesionesPorEstado",
-                    new { Anio = anio, IdEstadoSesion = idEstadoSesion, IdProgramaEspecificoPadre = idProgramaEspecificoPadre, IdCentroCostoPadre = idCentroCostoPadre },
+                    new
+                    {
+                        FechaInicio = fechaInicio.HasValue ? (object)fechaInicio.Value.Date : null,
+                        FechaFin    = fechaFin.HasValue    ? (object)fechaFin.Value.Date    : null,
+                        IdEstadoSesion            = idEstadoSesion,
+                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
+                        IdCentroCostoPadre        = idCentroCostoPadre
+                    },
                     commandType: CommandType.StoredProcedure
                 );
                 return resultado.ToList();
@@ -344,14 +357,20 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene KPIs de estados de sesion
         /// </summary>
-        public async Task<ReporteDashboardKPIsEstadoSesionDTO> ObtenerKPIsEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
+        public async Task<ReporteDashboardKPIsEstadoSesionDTO> ObtenerKPIsEstadoSesionAsync(DateTime? fechaInicio = null, DateTime? fechaFin = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
                 using var conn = _connectionFactory.GetConnection;
                 var resultado = await conn.QueryFirstOrDefaultAsync<ReporteDashboardKPIsEstadoSesionDTO>(
                     "pla.SP_ReporteDashboard_ObtenerKPIsEstadoSesion",
-                    new { Anio = anio, IdProgramaEspecificoPadre = idProgramaEspecificoPadre, IdCentroCostoPadre = idCentroCostoPadre },
+                    new
+                    {
+                        FechaInicio = fechaInicio.HasValue ? (object)fechaInicio.Value.Date : null,
+                        FechaFin    = fechaFin.HasValue    ? (object)fechaFin.Value.Date    : null,
+                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
+                        IdCentroCostoPadre        = idCentroCostoPadre
+                    },
                     commandType: CommandType.StoredProcedure
                 );
                 return resultado ?? new ReporteDashboardKPIsEstadoSesionDTO();
@@ -386,7 +405,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene estados de programas hijo agrupados por dia o semana
         /// </summary>
-        public async Task<List<ReporteDashboardEstadoPorDiaDTO>> ObtenerEstadosPorDiaAsync(string? idsPEspecificoHijo, string? estados, string? agrupacion, DateTime? fechaInicio, DateTime? fechaFin, int? ultimasSemanas = null)
+        public async Task<List<ReporteDashboardEstadoPorDiaDTO>> ObtenerEstadosPorDiaAsync(string? idsPEspecificoHijo, string? estados, int? anio, int? mes, int? semana, int? diaMes, int? ultimasSemanas = null, DateTime? fechaInicio = null, DateTime? fechaFin = null)
         {
             try
             {
@@ -397,10 +416,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     {
                         IdsPEspecificoHijo = idsPEspecificoHijo,
                         Estados = estados,
-                        Agrupacion = agrupacion ?? "DIA",
-                        FechaInicio = fechaInicio,
-                        FechaFin = fechaFin,
-                        UltimasSemanas = ultimasSemanas
+                        Anio = anio,
+                        Mes = mes,
+                        Semana = semana,
+                        DiaMes = diaMes,
+                        UltimasSemanas = ultimasSemanas,
+                        FechaInicio = fechaInicio.HasValue ? (object)fechaInicio.Value.Date : null,
+                        FechaFin    = fechaFin.HasValue    ? (object)fechaFin.Value.Date    : null
                     },
                     commandType: CommandType.StoredProcedure
                 );
@@ -457,12 +479,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     "pla.SP_ReporteDashboard_ObtenerSeguimientoClases",
                     new
                     {
-                        FechaInicio = filtro.FechaInicio,
-                        FechaFin = filtro.FechaFin,
-                        EstadoCurso = filtro.EstadoCurso,
-                        Anio = filtro.Anio,
+                        FechaInicio  = filtro.FechaInicio,
+                        FechaFin     = filtro.FechaFin,
+                        EstadoCurso  = filtro.EstadoCurso,
+                        Anio         = filtro.Anio,
                         SemanaInicio = filtro.SemanaInicio,
-                        SemanaFin = filtro.SemanaFin
+                        SemanaFin    = filtro.SemanaFin,
+                        Modalidad        = filtro.Modalidad,
+                        IdProgramaPadre  = filtro.IdProgramaPadre,
+                        IdCurso          = filtro.IdCurso
                     },
                     commandType: CommandType.StoredProcedure
                 );
@@ -509,6 +534,27 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception ex)
             {
                 throw new Exception($"Error en ObtenerPEspecificoFiltroAsync: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Obtiene cursos (programas especificos hijo) filtrando opcionalmente por programa padre
+        /// </summary>
+        public async Task<List<ReporteDashboardCursoFiltroDTO>> ObtenerCursosPorProgramaAsync(int? idProgramaPadre, string? busqueda)
+        {
+            try
+            {
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardCursoFiltroDTO>(
+                    "pla.SP_ReporteDashboard_ObtenerCursosPorPrograma",
+                    new { IdProgramaPadre = idProgramaPadre, Busqueda = busqueda },
+                    commandType: CommandType.StoredProcedure
+                );
+                return resultado.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerCursosPorProgramaAsync: {ex.Message}");
             }
         }
 

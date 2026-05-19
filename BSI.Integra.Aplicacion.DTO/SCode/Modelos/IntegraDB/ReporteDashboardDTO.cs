@@ -295,6 +295,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     public class ReporteDashboardEstadoPorDiaDTO
     {
         public int? Anio { get; set; }
+        public int? Mes { get; set; }
+        public string? NombreMes { get; set; }
         public int? NumeroSemana { get; set; }
         public DateTime? FechaReferencia { get; set; }
         public DateTime? Fecha { get; set; }
@@ -353,6 +355,9 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int? Anio { get; set; }
         public int? SemanaInicio { get; set; }
         public int? SemanaFin { get; set; }
+        public string? Modalidad { get; set; }
+        public int? IdProgramaPadre { get; set; }
+        public int? IdCurso { get; set; }
     }
 
     // ── Dashboard 2: Seguimiento por Docente ─────────────────────────────────
@@ -376,6 +381,15 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string? Nombre { get; set; }
         public string? Estado { get; set; }
         public string? Tipo { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para cursos (programas especificos hijo) en el filtro de seguimiento
+    /// </summary>
+    public class ReporteDashboardCursoFiltroDTO
+    {
+        public int Id { get; set; }
+        public string? Nombre { get; set; }
     }
 
     /// <summary>
