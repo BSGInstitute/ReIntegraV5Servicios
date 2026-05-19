@@ -24,14 +24,22 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene el resumen de KPIs principales del dashboard
         /// </summary>
-        public async Task<ReporteDashboardResumenDTO> ObtenerResumenAsync(int? anio, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
+        public async Task<ReporteDashboardResumenDTO> ObtenerResumenAsync(int? anio, int? mes = null, int? semana = null, string? modalidad = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
                 using var conn = _connectionFactory.GetConnection;
                 var resultado = await conn.QueryFirstOrDefaultAsync<ReporteDashboardResumenDTO>(
                     "pla.SP_ReporteDashboard_ObtenerResumen",
-                    new { Anio = anio, IdProgramaEspecificoPadre = idProgramaEspecificoPadre, IdCentroCostoPadre = idCentroCostoPadre },
+                    new
+                    {
+                        Anio                      = anio,
+                        Mes                       = mes,
+                        Semana                    = semana,
+                        Modalidad                 = modalidad,
+                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
+                        IdCentroCostoPadre        = idCentroCostoPadre
+                    },
                     commandType: CommandType.StoredProcedure
                 );
                 return resultado ?? new ReporteDashboardResumenDTO();

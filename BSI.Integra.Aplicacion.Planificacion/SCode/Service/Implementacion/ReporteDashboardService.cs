@@ -21,11 +21,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         /// <summary>
         /// Obtiene el resumen de KPIs principales del dashboard
         /// </summary>
-        public async Task<ReporteDashboardResumenDTO> ObtenerResumenAsync(int? anio, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
+        public async Task<ReporteDashboardResumenDTO> ObtenerResumenAsync(int? anio, int? mes = null, int? semana = null, string? modalidad = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
         {
             try
             {
-                return await _unitOfWork.ReporteDashboardRepository.ObtenerResumenAsync(anio, idProgramaEspecificoPadre, idCentroCostoPadre);
+                return await _unitOfWork.ReporteDashboardRepository.ObtenerResumenAsync(anio, mes, semana, modalidad, idProgramaEspecificoPadre, idCentroCostoPadre);
             }
             catch (Exception)
             {

@@ -13,7 +13,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         /// <summary>
         /// Obtiene el resumen de KPIs principales del dashboard
         /// </summary>
-        Task<ReporteDashboardResumenDTO> ObtenerResumenAsync(int? anio, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
+        Task<ReporteDashboardResumenDTO> ObtenerResumenAsync(int? anio, int? mes = null, int? semana = null, string? modalidad = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
 
         /// <summary>
         /// Obtiene la distribucion de programas por estado

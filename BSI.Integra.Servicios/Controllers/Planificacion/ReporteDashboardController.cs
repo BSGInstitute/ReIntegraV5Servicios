@@ -34,12 +34,12 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <returns>ReporteDashboardResumenDTO con los KPIs</returns>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerResumen(int? anio, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
+        public async Task<IActionResult> ObtenerResumen(int? anio, int? mes, int? semana, string? modalidad, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerResumenAsync(anio, idProgramaEspecificoPadre, idCentroCostoPadre);
+                var resultado = await service.ObtenerResumenAsync(anio, mes, semana, modalidad, idProgramaEspecificoPadre, idCentroCostoPadre);
                 return Ok(resultado);
             }
             catch (Exception)
