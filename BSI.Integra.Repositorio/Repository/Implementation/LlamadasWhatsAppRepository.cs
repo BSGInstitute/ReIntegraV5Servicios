@@ -109,5 +109,34 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(ex.Message);
             }
         }
+
+        /// Tipo Función: Escritura
+        /// Autor: WhatsApp Business Calling API integration
+        /// Fecha: 2026-05-19
+        /// Versión: 1.0
+        /// <summary>
+        /// Actualiza la URL + nombre del blob de la grabación de una llamada vía
+        /// SP_WhatsappLlamada_ActualizarGrabacion. El SP también actualiza UsuarioModificacion
+        /// y FechaModificacion.
+        /// </summary>
+        public bool ActualizarGrabacion(int idWhatsappLlamada, string grabacionUrl, string grabacionBlobNombre, string usuarioModificacion)
+        {
+            try
+            {
+                var parametros = new
+                {
+                    Id                  = idWhatsappLlamada,
+                    GrabacionUrl        = grabacionUrl,
+                    GrabacionBlobNombre = grabacionBlobNombre,
+                    UsuarioModificacion = usuarioModificacion
+                };
+                _dapperRepository.QuerySPDapper("com.SP_WhatsappLlamada_ActualizarGrabacion", parametros);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }

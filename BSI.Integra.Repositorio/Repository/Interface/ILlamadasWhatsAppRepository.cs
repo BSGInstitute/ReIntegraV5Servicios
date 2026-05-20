@@ -22,5 +22,11 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         /// Devuelve null si no hay solicitud previa con ConsentimientoEstado seteado.
         /// </summary>
         WhatsAppConsentimientoRawDTO? ObtenerUltimoConsentimiento(string numeroWhatsApp, int idPais);
+
+        /// <summary>
+        /// Actualiza GrabacionUrl + GrabacionBlobNombre de una llamada vía SP_WhatsappLlamada_ActualizarGrabacion.
+        /// Usado cuando el frontend termina de grabar y sube el blob a Azure.
+        /// </summary>
+        bool ActualizarGrabacion(int idWhatsappLlamada, string grabacionUrl, string grabacionBlobNombre, string usuarioModificacion);
     }
 }
