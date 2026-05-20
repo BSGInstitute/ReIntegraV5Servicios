@@ -8667,5 +8667,41 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private IBsgTentoLogrosRepository _bsgTentoLogrosRepository;
+        IBsgTentoLogrosRepository IUnitOfWork.BsgTentoLogrosRepository
+        {
+            get
+            {
+                return _bsgTentoLogrosRepository ?? new BsgTentoLogrosRepository(_dapperRepository);
+            }
+        }
+
+        private IBsgTentoPowerUpRepository _bsgTentoPowerUpRepository;
+        IBsgTentoPowerUpRepository IUnitOfWork.BsgTentoPowerUpRepository
+        {
+            get
+            {
+                return _bsgTentoPowerUpRepository ?? new BsgTentoPowerUpRepository(_dapperRepository);
+            }
+        }
+
+        private IBsgTentoSocialRepository _bsgTentoSocialRepository;
+        IBsgTentoSocialRepository IUnitOfWork.BsgTentoSocialRepository
+        {
+            get
+            {
+                return _bsgTentoSocialRepository ?? new BsgTentoSocialRepository(_dapperRepository);
+            }
+        }
+
+        private IBsgTentoSuscripcionRepository _bsgTentoSuscripcionRepository;
+        IBsgTentoSuscripcionRepository IUnitOfWork.BsgTentoSuscripcionRepository
+        {
+            get
+            {
+                return _bsgTentoSuscripcionRepository ?? new BsgTentoSuscripcionRepository(_dapperRepository);
+            }
+        }
+
     }
 }

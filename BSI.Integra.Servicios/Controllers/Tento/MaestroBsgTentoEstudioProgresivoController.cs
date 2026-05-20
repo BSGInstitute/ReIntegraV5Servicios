@@ -15,17 +15,24 @@ namespace BSI.Integra.Servicios.Controllers.Tento
     [Route("api/[controller]")]
     [ApiController]
     [EnableCors("CorsVista")]
-    public class MaestroBsgTentoController : ControllerBase
+    public class MaestroBsgTentoEstudioProgresivoController : ControllerBase
     {
         private readonly IBsgTentoService _bsgTentoService;
         private readonly ITokenManager _tokenManager;
 
-        public MaestroBsgTentoController(IUnitOfWork unitOfWork, ITokenManager tokenManager)
+        public MaestroBsgTentoEstudioProgresivoController(IUnitOfWork unitOfWork, ITokenManager tokenManager)
         {
             _bsgTentoService = new BsgTentoService(unitOfWork);
             _tokenManager = tokenManager;
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 2026-05-15
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las áreas de capacitación que tienen ruta de estudio configurada en BSG Tento.
+        /// </summary>
+        /// <returns>Lista de áreas con ruta asociada.</returns>
         [HttpGet("[action]")]
         public IActionResult ObtenerAreasConRuta()
         {
@@ -33,6 +40,13 @@ namespace BSI.Integra.Servicios.Controllers.Tento
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 2026-05-15
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene las unidades del estudio progresivo correspondientes a un área de capacitación.
+        /// </summary>
+        /// <returns>Lista de unidades asociadas al área indicada.</returns>
         [HttpGet("[action]/{idAreaCapacitacion}")]
         public IActionResult ObtenerUnidadesPorArea(int idAreaCapacitacion)
         {
@@ -40,6 +54,13 @@ namespace BSI.Integra.Servicios.Controllers.Tento
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 2026-05-15
+        /// Version: 1.0
+        /// <summary>
+        /// Registra una nueva unidad en el estudio progresivo de BSG Tento.
+        /// </summary>
+        /// <returns>Id del registro creado.</returns>
         [Authorize]
         [JwtExpirationValidation]
         [HttpPost("[action]")]
@@ -49,6 +70,13 @@ namespace BSI.Integra.Servicios.Controllers.Tento
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 2026-05-15
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza los datos de una unidad del estudio progresivo de BSG Tento.
+        /// </summary>
+        /// <returns>true si la operación fue exitosa.</returns>
         [Authorize]
         [JwtExpirationValidation]
         [HttpPut("[action]")]
@@ -58,6 +86,13 @@ namespace BSI.Integra.Servicios.Controllers.Tento
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 2026-05-15
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza el orden de las unidades dentro del estudio progresivo de BSG Tento.
+        /// </summary>
+        /// <returns>true si la operación fue exitosa.</returns>
         [Authorize]
         [JwtExpirationValidation]
         [HttpPut("[action]")]
@@ -67,6 +102,13 @@ namespace BSI.Integra.Servicios.Controllers.Tento
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 2026-05-15
+        /// Version: 1.0
+        /// <summary>
+        /// Realiza la baja lógica de una unidad del estudio progresivo de BSG Tento.
+        /// </summary>
+        /// <returns>true si la operación fue exitosa.</returns>
         [Authorize]
         [JwtExpirationValidation]
         [HttpDelete("[action]/{id}")]
@@ -76,6 +118,13 @@ namespace BSI.Integra.Servicios.Controllers.Tento
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 2026-05-15
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene los pasos del estudio progresivo correspondientes a una unidad de BSG Tento.
+        /// </summary>
+        /// <returns>Lista de pasos asociados a la unidad indicada.</returns>
         [HttpGet("[action]/{idBsgTentoUnidad}")]
         public IActionResult ObtenerPasosPorUnidad(int idBsgTentoUnidad)
         {
@@ -83,6 +132,13 @@ namespace BSI.Integra.Servicios.Controllers.Tento
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 2026-05-15
+        /// Version: 1.0
+        /// <summary>
+        /// Registra un nuevo paso dentro de una unidad del estudio progresivo de BSG Tento.
+        /// </summary>
+        /// <returns>Id del registro creado.</returns>
         [Authorize]
         [JwtExpirationValidation]
         [HttpPost("[action]")]
@@ -92,6 +148,13 @@ namespace BSI.Integra.Servicios.Controllers.Tento
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 2026-05-15
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza los datos de un paso dentro de una unidad del estudio progresivo de BSG Tento.
+        /// </summary>
+        /// <returns>true si la operación fue exitosa.</returns>
         [Authorize]
         [JwtExpirationValidation]
         [HttpPut("[action]")]
@@ -101,6 +164,13 @@ namespace BSI.Integra.Servicios.Controllers.Tento
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 2026-05-15
+        /// Version: 1.0
+        /// <summary>
+        /// Actualiza el orden de los pasos dentro de una unidad del estudio progresivo de BSG Tento.
+        /// </summary>
+        /// <returns>true si la operación fue exitosa.</returns>
         [Authorize]
         [JwtExpirationValidation]
         [HttpPut("[action]")]
@@ -110,6 +180,13 @@ namespace BSI.Integra.Servicios.Controllers.Tento
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 2026-05-15
+        /// Version: 1.0
+        /// <summary>
+        /// Realiza la baja lógica de un paso del estudio progresivo de BSG Tento.
+        /// </summary>
+        /// <returns>true si la operación fue exitosa.</returns>
         [Authorize]
         [JwtExpirationValidation]
         [HttpDelete("[action]/{id}")]
@@ -119,6 +196,13 @@ namespace BSI.Integra.Servicios.Controllers.Tento
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
+        /// Autor: Humberto Oscata
+        /// Fecha: 2026-05-15
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el listado de programas disponibles para selección según el área de capacitación.
+        /// </summary>
+        /// <returns>Lista para combo/selector de programas.</returns>
         [HttpGet("[action]/{idAreaCapacitacion}")]
         public IActionResult ObtenerComboPrograma(int idAreaCapacitacion)
         {
