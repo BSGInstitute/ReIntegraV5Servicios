@@ -1,3 +1,4 @@
+using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
@@ -16,5 +17,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<ProveedorPEspecificoGridDTO> ObtenerPorIdProveedor(int idProveedor);
         bool ExistePorProveedorYPespecifico(int idProveedor, int idPespecifico);
         IEnumerable<ProveedorPorPEspecificoComboDTO> ObtenerProveedoresPorPEspecifico(int idPEspecifico, string? filtroNombre = null);
+        IEnumerable<ComboDTO> SugerirPorPEspecifico(int idPEspecifico);
     }
 }
