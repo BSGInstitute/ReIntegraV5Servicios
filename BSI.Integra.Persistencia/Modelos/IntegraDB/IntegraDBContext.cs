@@ -197,6 +197,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TControlDocAlumno> TControlDocAlumnos { get; set; } = null!;
         public virtual DbSet<TControlSolicitudOrigen> TControlSolicitudOrigens { get; set; } = null!;
         public virtual DbSet<TConvocatoriaPersonal> TConvocatoriaPersonals { get; set; } = null!;
+        public virtual DbSet<TConvocatoriaPersonalDetallePuesto> TConvocatoriaPersonalDetallePuestos { get; set; } = null!;
         public virtual DbSet<TConvocatoriaPersonalExperienciaDetalle> TConvocatoriaPersonalExperienciaDetalles { get; set; } = null!;
         public virtual DbSet<TConvocatoriaPersonalIdiomaDetalle> TConvocatoriaPersonalIdiomaDetalles { get; set; } = null!;
         public virtual DbSet<TConvocatoriaPersonalNivelEstudioDetalle> TConvocatoriaPersonalNivelEstudioDetalles { get; set; } = null!;
@@ -798,6 +799,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TProcesoPagoIvr> TProcesoPagoIvrs { get; set; } = null!;
         public virtual DbSet<TProcesoSeleccion> TProcesoSeleccions { get; set; } = null!;
         public virtual DbSet<TProcesoSeleccionEtapa> TProcesoSeleccionEtapas { get; set; } = null!;
+        public virtual DbSet<TProcesoSeleccionEtapaPublica> TProcesoSeleccionEtapaPublicas { get; set; } = null!;
         public virtual DbSet<TProcesoSeleccionPuntajeCalificacion> TProcesoSeleccionPuntajeCalificacions { get; set; } = null!;
         public virtual DbSet<TProcesoSeleccionRango> TProcesoSeleccionRangos { get; set; } = null!;
         public virtual DbSet<TProducto> TProductos { get; set; } = null!;
@@ -11898,6 +11900,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.RemIdMoneda).HasComment("id T_Moneada para Remuneració bruta");
 
+                entity.Property(e => e.RequiereUrgencia).HasComment("Indica si la convocatoria se precisa con urgencia. 1 = si, 0 o NULL = no. Se muestra como etiqueta destacada al postulante externo en el portal de bolsa de trabajo.");
+
                 entity.Property(e => e.RowVersion)
                     .IsRowVersion()
                     .IsConcurrencyToken()
@@ -11953,6 +11957,52 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .WithMany(p => p.TConvocatoriaPersonals)
                     .HasForeignKey(d => d.IdSedeTrabajo)
                     .HasConstraintName("FK_T_ConvocatoriaPersonal_T_SedeTrabajo");
+            });
+
+            modelBuilder.Entity<TConvocatoriaPersonalDetallePuesto>(entity =>
+            {
+                entity.ToTable("T_ConvocatoriaPersonalDetallePuesto", "gp");
+
+                entity.HasComment("Almacena las secciones de detalle del puesto que se visualizan en el portal web, asociadas a una convocatoria personal.");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico del registro.");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(1500)
+                    .IsUnicode(false)
+                    .HasComment("Contenido descriptivo de la seccion. Maximo 1500 caracteres.");
+
+                entity.Property(e => e.Estado).HasComment("1 = activo, 0 = eliminado logicamente.");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
+
+                entity.Property(e => e.IdConvocatoriaPersonal).HasComment("FK hacia T_ConvocatoriaPersonal. Convocatoria a la que pertenece el detalle.");
+
+                entity.Property(e => e.NroOrden).HasComment("Orden de visualizacion de la seccion dentro de la convocatoria.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken();
+
+                entity.Property(e => e.TituloSeccion)
+                    .HasMaxLength(300)
+                    .IsUnicode(false)
+                    .HasComment("Titulo de la seccion del puesto que se muestra en el portal web.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdConvocatoriaPersonalNavigation)
+                    .WithMany(p => p.TConvocatoriaPersonalDetallePuestos)
+                    .HasForeignKey(d => d.IdConvocatoriaPersonal)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
             modelBuilder.Entity<TConvocatoriaPersonalExperienciaDetalle>(entity =>
@@ -23122,6 +23172,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.IdChatbotPortalHiloChat).HasComment("Identificador del chat del portal asociado");
 
+                entity.Property(e => e.IdMedioComunicacion).HasComment("Canal de comunicación del hilo (Portal Web, WhatsApp, etc.), JOIN a una de esas tablas por el campo IdOriginal");
+
+                entity.Property(e => e.IdOriginal).HasComment("ID del hilo en la tabla origen según el medio de comunicación (polimórfico)");
+
                 entity.Property(e => e.IdVersionFormularioEvaluacionChatbot).HasComment("Identificador de la versión del formulario aplicado");
 
                 entity.Property(e => e.RowVersion)
@@ -23144,6 +23198,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasForeignKey(d => d.IdChatbotPortalHiloChat)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_T_FormularioAplicadoChatbot_ChatbotPortalHiloChat_IdChatbotPortalHiloChat");
+
+                entity.HasOne(d => d.IdMedioComunicacionNavigation)
+                    .WithMany(p => p.TFormularioAplicadoChatbots)
+                    .HasForeignKey(d => d.IdMedioComunicacion)
+                    .HasConstraintName("FK_T_FormularioAplicadoChatbot_MedioComunicacion");
 
                 entity.HasOne(d => d.IdVersionFormularioEvaluacionChatbotNavigation)
                     .WithMany(p => p.TFormularioAplicadoChatbots)
@@ -47980,6 +48039,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
                 entity.Property(e => e.IdProcesoSeleccion).HasComment("Primary key de gp.T_ProcesoSeleccion");
 
+                entity.Property(e => e.IdProcesoSeleccionEtapaPublica).HasComment("FK a T_ProcesoSeleccionEtapaPublica. Etapa publica asociada a esta etapa interna, visible al postulante externo en la bolsa de trabajo. Nullable: una etapa interna puede no tener etapa publica asignada.");
+
                 entity.Property(e => e.Nombre)
                     .IsUnicode(false)
                     .HasComment("Nombre de la Etapa del Proceso de Seleccion");
@@ -48000,6 +48061,48 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Ultimo usuario que modifico el registro");
+
+                entity.HasOne(d => d.IdProcesoSeleccionEtapaPublicaNavigation)
+                    .WithMany(p => p.TProcesoSeleccionEtapas)
+                    .HasForeignKey(d => d.IdProcesoSeleccionEtapaPublica);
+            });
+
+            modelBuilder.Entity<TProcesoSeleccionEtapaPublica>(entity =>
+            {
+                entity.ToTable("T_ProcesoSeleccionEtapaPublica", "gp");
+
+                entity.HasComment("Catalogo de etapas publicas del proceso de seleccion. Se usa para mostrar al postulante externo en que fase del proceso se encuentra dentro de la bolsa de trabajo.");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico de la etapa publica del proceso de seleccion");
+
+                entity.Property(e => e.Estado).HasComment("Indicador de registro activo: 1 = activo, 0 = eliminado logicamente");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la ultima modificacion del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(100)
+                    .HasComment("Nombre de la etapa publica mostrado al postulante externo (ej: Evaluacion, Entrevista, Finalizado)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista, autogenerado por SQL Server");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que inserto el registro por primera vez");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizo la ultima modificacion del registro");
             });
 
             modelBuilder.Entity<TProcesoSeleccionPuntajeCalificacion>(entity =>
@@ -63158,6 +63261,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasColumnType("datetime")
                     .HasComment("Fecha y hora de la última modificación");
 
+                entity.Property(e => e.IdMedioComunicacion).HasComment("Canal de comunicación del hilo (Portal Web, WhatsApp, etc.)");
+
                 entity.Property(e => e.Nombre)
                     .HasMaxLength(50)
                     .IsUnicode(false)
@@ -63184,6 +63289,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Usuario que modificó el registro");
 
                 entity.Property(e => e.Version).HasComment("Número de versión actual del formulario");
+
+                entity.HasOne(d => d.IdMedioComunicacionNavigation)
+                    .WithMany(p => p.TVersionFormularioEvaluacionChatbots)
+                    .HasForeignKey(d => d.IdMedioComunicacion);
             });
 
             modelBuilder.Entity<TVersionLineamientoCalificacion>(entity =>

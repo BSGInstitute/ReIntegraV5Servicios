@@ -31,10 +31,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public string Origen { get; set; } = null!;
         /// <summary>
-        /// FK a pla.T_MedioComunicacion — reemplaza gradualmente al campo Origen (string)
-        /// </summary>
-        public int? IdMedioComunicacion { get; set; }
-        /// <summary>
         /// Número de versión actual del formulario
         /// </summary>
         public int Version { get; set; }
@@ -62,7 +58,12 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Versión de fila para concurrencia optimista
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
+        /// <summary>
+        /// Canal de comunicación del hilo (Portal Web, WhatsApp, etc.)
+        /// </summary>
+        public int? IdMedioComunicacion { get; set; }
 
+        public virtual TMedioComunicacion? IdMedioComunicacionNavigation { get; set; }
         public virtual ICollection<TFormularioAplicadoChatbot> TFormularioAplicadoChatbots { get; set; }
         public virtual ICollection<TPreguntaEvaluacionChatbot> TPreguntaEvaluacionChatbots { get; set; }
     }

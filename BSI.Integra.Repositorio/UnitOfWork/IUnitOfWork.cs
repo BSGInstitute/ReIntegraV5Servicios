@@ -1023,6 +1023,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IProveedorPEspecificoRepository ProveedorPEspecificoRepository { get; }
         IReporteDashboardRepository ReporteDashboardRepository { get; }
         IWhatsAppMensajeEnviadoApiAtcRepository WhatsAppMensajeEnviadoApiAtcRepository { get; }
+        IWhatsAppMensajeEnviadoApiPostulanteRepository WhatsAppMensajeEnviadoApiPostulanteRepository { get; }
         IFacebookResenaRepository FacebookResenaRepository { get; }
         IGoogleResenaRepository GoogleResenaRepository { get; }
         IGooglePlacesConfiguracionRepository GooglePlacesConfiguracionRepository { get; }
