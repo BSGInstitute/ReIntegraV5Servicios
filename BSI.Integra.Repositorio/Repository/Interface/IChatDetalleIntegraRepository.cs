@@ -68,5 +68,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         List<SesionAsistenciaDTO> ObtenerAsistenciaPorMatricula(int idMatriculaCabecera, int idPEspecifico);
         bool RegistrarAsistenciaMatricula(int idMatriculaCabecera, int idPEspecificoSesion);
         IEnumerable<ChatbotMensajeWhatsAppAtcDTO> ObtenerChatWhatsAppAtcPorAlumno(int idAlumno);
+        IEnumerable<ChatbotMensajeWhatsAppAtcDTO> ObtenerChatWhatsAppAtcPorSolicitudAlumno(int idSolicitudAlumno);
     }
 }

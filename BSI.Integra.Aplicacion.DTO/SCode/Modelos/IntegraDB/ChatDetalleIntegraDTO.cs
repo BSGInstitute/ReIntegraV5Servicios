@@ -175,6 +175,10 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     {
         public int IdAlumno { get; set; }
     }
+    public class ObtenerChatRequestSolicitudDTO
+    {
+        public int IdSolicitud { get; set; }
+    }
 
     public class ObtenerChatRequest2DTO
     {

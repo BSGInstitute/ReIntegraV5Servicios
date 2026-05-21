@@ -642,6 +642,30 @@ namespace BSI.Integra.Servicios.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        /// Tipo Función: POST
+        /// Autor: Carlos Crispin
+        /// Fecha: 2026-05-21
+        /// Versión: 1.0
+        /// <returns>Historial de mensajes WhatsApp ATC por IdSolicitudAlumno</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerChatBotWhatsAppAtcPorSolicitudAlumno([FromBody] ObtenerChatRequestSolicitudDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerChatWhatsAppAtcPorSolicitudAlumno(dto.IdSolicitud);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
         /// Tipo Función: POST
         /// Autor: Jose Vega

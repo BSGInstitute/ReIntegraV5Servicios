@@ -1626,5 +1626,29 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw ex;
             }
         }
+
+        // Autor: Carlos Crispin
+        /// Fecha: 2026-05-21
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el historial de mensajes WhatsApp ATC de una solicitud.
+        /// Llama a ia.SP_TChatbotWhatsAppAtcHiloChat_ObtenerMensajesPorAlumno.
+        /// </summary>
+        public IEnumerable<ChatbotMensajeWhatsAppAtcDTO> ObtenerChatWhatsAppAtcPorSolicitudAlumno(int idSolicitudAlumno)
+        {
+            try
+            {
+                var resultado = new List<ChatbotMensajeWhatsAppAtcDTO>();
+                var query = "ia.SP_TChatbotWhatsAppAtcHiloChat_ObtenerMensajesPorSolicitud";
+                var response = _dapperRepository.QuerySPDapper(query, new { idSolicitudAlumno });
+                if (!string.IsNullOrEmpty(response) && !response.Contains("[]"))
+                    resultado = JsonConvert.DeserializeObject<List<ChatbotMensajeWhatsAppAtcDTO>>(response);
+                return resultado;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

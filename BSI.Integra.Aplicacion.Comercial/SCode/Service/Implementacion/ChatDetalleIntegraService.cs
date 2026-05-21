@@ -1143,5 +1143,23 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 throw ex;
             }
         }
+
+        /// Autor: BSI Institute - Backend Team
+        /// Fecha: 2026-04-27
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el historial de mensajes WhatsApp ATC de un alumno.
+        /// </summary>
+        public IEnumerable<ChatbotMensajeWhatsAppAtcDTO> ObtenerChatWhatsAppAtcPorSolicitudAlumno(int idSolicitudAlumno)
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerChatWhatsAppAtcPorAlumno(idSolicitudAlumno);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }
