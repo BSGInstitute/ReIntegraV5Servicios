@@ -122,6 +122,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         /// </summary>
         Task<List<ReporteDashboardPEspecificoFiltroDTO>> ObtenerPEspecificoFiltroAsync(string? busqueda = null);
         Task<List<ReporteDashboardCursoFiltroDTO>> ObtenerCursosPorProgramaAsync(int? idProgramaPadre, string? busqueda = null);
+        Task<List<ReporteDashboardPaisFiltroDTO>> ObtenerPaisesFiltroAsync();
 
         /// <summary>
         /// Obtiene el seguimiento completo de sesiones de un docente (KPIs + por programa + detalle)
@@ -164,11 +165,11 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         /// <summary>
         /// Obtiene evolucion mensual de programas por estado con filtros de fecha
         /// </summary>
-        Task<List<ReporteDashboardGraficoPorMesProgramasDTO>> ObtenerGraficoPorMesProgramasAsync(int? anio, int? mes, int? semana, int? diaMes, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
+        Task<List<ReporteDashboardGraficoPorMesProgramasDTO>> ObtenerGraficoPorMesProgramasAsync(string? anios, int? mes, int? semana, int? diaMes, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null, int? idPais = null, string? estado = null);
 
         /// <summary>
         /// Obtiene evolucion mensual de cursos por estado con filtros de fecha
         /// </summary>
-        Task<List<ReporteDashboardGraficoPorMesCursosDTO>> ObtenerGraficoPorMesCursosAsync(int? anio, int? mes, int? semana, int? diaMes, int? idCentroCostoPadre = null);
+        Task<List<ReporteDashboardGraficoPorMesCursosDTO>> ObtenerGraficoPorMesCursosAsync(string? anios, int? mes, int? semana, int? diaMes, int? idCentroCostoPadre = null, int? idPais = null, string? estado = null);
     }
 }

@@ -393,6 +393,15 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     }
 
     /// <summary>
+    /// DTO para item de pais en el filtro del dashboard
+    /// </summary>
+    public class ReporteDashboardPaisFiltroDTO
+    {
+        public int Id { get; set; }
+        public string? Nombre { get; set; }
+    }
+
+    /// <summary>
     /// DTO para KPIs generales del seguimiento de docente (RS1 del SP22)
     /// </summary>
     public class ReporteDashboardSeguimientoDocenteKPIsDTO
@@ -613,6 +622,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     /// </summary>
     public class ReporteDashboardGraficoPorMesProgramasDTO
     {
+        public int Anio { get; set; }
         public int Mes { get; set; }
         public string? NombreMes { get; set; }
         public string? EstadoPadre { get; set; }
@@ -626,6 +636,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     /// </summary>
     public class ReporteDashboardGraficoPorMesCursosDTO
     {
+        public int Anio { get; set; }
         public int Mes { get; set; }
         public string? NombreMes { get; set; }
         public string? EstadoCurso { get; set; }

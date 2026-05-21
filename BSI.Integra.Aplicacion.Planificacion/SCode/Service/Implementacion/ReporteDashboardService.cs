@@ -287,6 +287,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             catch (Exception) { throw; }
         }
 
+        public async Task<List<ReporteDashboardPaisFiltroDTO>> ObtenerPaisesFiltroAsync()
+        {
+            try { return await _unitOfWork.ReporteDashboardRepository.ObtenerPaisesFiltroAsync(); }
+            catch (Exception) { throw; }
+        }
+
         public async Task<List<ReporteDashboardPEspecificoPorDocenteDTO>> ObtenerPEspecificoPorDocenteAsync(int idProveedor)
         {
             try { return await _unitOfWork.ReporteDashboardRepository.ObtenerPEspecificoPorDocenteAsync(idProveedor); }
@@ -352,18 +358,18 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         /// <summary>
         /// Obtiene evolucion mensual de programas por estado con filtros de fecha
         /// </summary>
-        public async Task<List<ReporteDashboardGraficoPorMesProgramasDTO>> ObtenerGraficoPorMesProgramasAsync(int? anio, int? mes, int? semana, int? diaMes, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
+        public async Task<List<ReporteDashboardGraficoPorMesProgramasDTO>> ObtenerGraficoPorMesProgramasAsync(string? anios, int? mes, int? semana, int? diaMes, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null, int? idPais = null, string? estado = null)
         {
-            try { return await _unitOfWork.ReporteDashboardRepository.ObtenerGraficoPorMesProgramasAsync(anio, mes, semana, diaMes, idProgramaEspecificoPadre, idCentroCostoPadre); }
+            try { return await _unitOfWork.ReporteDashboardRepository.ObtenerGraficoPorMesProgramasAsync(anios, mes, semana, diaMes, idProgramaEspecificoPadre, idCentroCostoPadre, idPais, estado); }
             catch (Exception) { throw; }
         }
 
         /// <summary>
         /// Obtiene evolucion mensual de cursos por estado con filtros de fecha
         /// </summary>
-        public async Task<List<ReporteDashboardGraficoPorMesCursosDTO>> ObtenerGraficoPorMesCursosAsync(int? anio, int? mes, int? semana, int? diaMes, int? idCentroCostoPadre = null)
+        public async Task<List<ReporteDashboardGraficoPorMesCursosDTO>> ObtenerGraficoPorMesCursosAsync(string? anios, int? mes, int? semana, int? diaMes, int? idCentroCostoPadre = null, int? idPais = null, string? estado = null)
         {
-            try { return await _unitOfWork.ReporteDashboardRepository.ObtenerGraficoPorMesCursosAsync(anio, mes, semana, diaMes, idCentroCostoPadre); }
+            try { return await _unitOfWork.ReporteDashboardRepository.ObtenerGraficoPorMesCursosAsync(anios, mes, semana, diaMes, idCentroCostoPadre, idPais, estado); }
             catch (Exception) { throw; }
         }
 

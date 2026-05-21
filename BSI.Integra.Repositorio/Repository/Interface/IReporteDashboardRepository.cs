@@ -114,6 +114,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         Task<List<ReporteDashboardPEspecificoPorDocenteDTO>> ObtenerPEspecificoPorDocenteAsync(int idProveedor);
         Task<List<ReporteDashboardPEspecificoFiltroDTO>> ObtenerPEspecificoFiltroAsync(string? busqueda);
         Task<List<ReporteDashboardCursoFiltroDTO>> ObtenerCursosPorProgramaAsync(int? idProgramaPadre, string? busqueda);
+        Task<List<ReporteDashboardPaisFiltroDTO>> ObtenerPaisesFiltroAsync();
         Task<ReporteDashboardSeguimientoDocenteDTO> ObtenerSeguimientoDocenteAsync(int? idDocente, int? idPEspecifico, int? anio, DateTime? fechaInicio, DateTime? fechaFin);
 
         /// <summary>
@@ -152,11 +153,11 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         /// <summary>
         /// Obtiene evolucion mensual de programas por estado con filtros de fecha
         /// </summary>
-        Task<List<ReporteDashboardGraficoPorMesProgramasDTO>> ObtenerGraficoPorMesProgramasAsync(int? anio, int? mes, int? semana, int? diaMes, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
+        Task<List<ReporteDashboardGraficoPorMesProgramasDTO>> ObtenerGraficoPorMesProgramasAsync(string? anios, int? mes, int? semana, int? diaMes, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null, int? idPais = null, string? estado = null);
 
         /// <summary>
         /// Obtiene evolucion mensual de cursos por estado con filtros de fecha
         /// </summary>
-        Task<List<ReporteDashboardGraficoPorMesCursosDTO>> ObtenerGraficoPorMesCursosAsync(int? anio, int? mes, int? semana, int? diaMes, int? idCentroCostoPadre = null);
+        Task<List<ReporteDashboardGraficoPorMesCursosDTO>> ObtenerGraficoPorMesCursosAsync(string? anios, int? mes, int? semana, int? diaMes, int? idCentroCostoPadre = null, int? idPais = null, string? estado = null);
     }
 }

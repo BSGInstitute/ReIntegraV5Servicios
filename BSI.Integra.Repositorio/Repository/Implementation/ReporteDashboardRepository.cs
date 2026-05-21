@@ -566,6 +566,28 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        public async Task<List<ReporteDashboardPaisFiltroDTO>> ObtenerPaisesFiltroAsync()
+        {
+            try
+            {
+                using var conn = _connectionFactory.GetConnection;
+                var resultado = await conn.QueryAsync<ReporteDashboardPaisFiltroDTO>(
+                    @"SELECT P.Id, P.NombrePais AS Nombre
+                      FROM CONF.T_Pais P WITH (NOLOCK)
+                      INNER JOIN CONF.T_RegionCiudad RC WITH (NOLOCK) ON RC.IdPais = P.Id AND RC.Estado = 1
+                      INNER JOIN pla.T_PEspecifico PE WITH (NOLOCK) ON PE.IdCiudad = RC.CodigoBS AND PE.Estado = 1
+                      WHERE P.Estado = 1
+                      GROUP BY P.Id, P.NombrePais
+                      ORDER BY P.NombrePais"
+                );
+                return resultado.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en ObtenerPaisesFiltroAsync: {ex.Message}");
+            }
+        }
+
         public async Task<ReporteDashboardSeguimientoDocenteDTO> ObtenerSeguimientoDocenteAsync(int? idDocente, int? idPEspecifico, int? anio, DateTime? fechaInicio, DateTime? fechaFin)
         {
             try
@@ -995,7 +1017,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene evolucion mensual de programas por estado con filtros de fecha
         /// </summary>
-        public async Task<List<ReporteDashboardGraficoPorMesProgramasDTO>> ObtenerGraficoPorMesProgramasAsync(int? anio, int? mes, int? semana, int? diaMes, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null)
+        public async Task<List<ReporteDashboardGraficoPorMesProgramasDTO>> ObtenerGraficoPorMesProgramasAsync(string? anios, int? mes, int? semana, int? diaMes, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null, int? idPais = null, string? estado = null)
         {
             try
             {
@@ -1004,12 +1026,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     "pla.SP_ReporteDashboardObtenerGraficoPorMesProgramas",
                     new
                     {
-                        Anio                      = anio,
+                        Anios                     = anios,
                         Mes                       = mes,
                         Semana                    = semana,
                         DiaMes                    = diaMes,
                         IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
-                        IdCentroCostoPadre        = idCentroCostoPadre
+                        IdCentroCostoPadre        = idCentroCostoPadre,
+                        IDPais                    = idPais,
+                        Estado                    = estado
                     },
                     commandType: CommandType.StoredProcedure
                 );
@@ -1024,7 +1048,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <summary>
         /// Obtiene evolucion mensual de cursos por estado con filtros de fecha
         /// </summary>
-        public async Task<List<ReporteDashboardGraficoPorMesCursosDTO>> ObtenerGraficoPorMesCursosAsync(int? anio, int? mes, int? semana, int? diaMes, int? idCentroCostoPadre = null)
+        public async Task<List<ReporteDashboardGraficoPorMesCursosDTO>> ObtenerGraficoPorMesCursosAsync(string? anios, int? mes, int? semana, int? diaMes, int? idCentroCostoPadre = null, int? idPais = null, string? estado = null)
         {
             try
             {
@@ -1033,11 +1057,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     "pla.SP_ReporteDashboardObtenerGraficoPorMesCursos",
                     new
                     {
-                        Anio                = anio,
-                        Mes                 = mes,
-                        Semana              = semana,
-                        DiaMes              = diaMes,
-                        IdCentroCostoPadre  = idCentroCostoPadre
+                        Anios              = anios,
+                        Mes                = mes,
+                        Semana             = semana,
+                        DiaMes             = diaMes,
+                        IdCentroCostoPadre = idCentroCostoPadre,
+                        IDPais             = idPais,
+                        Estado             = estado
                     },
                     commandType: CommandType.StoredProcedure
                 );

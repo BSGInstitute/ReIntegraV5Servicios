@@ -605,12 +605,12 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <returns>Lista de ReporteDashboardGraficoPorMesProgramasDTO</returns>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerGraficoPorMesProgramas(int? anio, int? mes, int? semana, int? diaMes, int? idProgramaEspecificoPadre, int? idCentroCostoPadre)
+        public async Task<IActionResult> ObtenerGraficoPorMesProgramas(string? anios, int? mes, int? semana, int? diaMes, int? idProgramaEspecificoPadre, int? idCentroCostoPadre, int? idPais, string? estado)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerGraficoPorMesProgramasAsync(anio, mes, semana, diaMes, idProgramaEspecificoPadre, idCentroCostoPadre);
+                var resultado = await service.ObtenerGraficoPorMesProgramasAsync(anios, mes, semana, diaMes, idProgramaEspecificoPadre, idCentroCostoPadre, idPais, estado);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -630,12 +630,12 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <returns>Lista de ReporteDashboardGraficoPorMesCursosDTO</returns>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerGraficoPorMesCursos(int? anio, int? mes, int? semana, int? diaMes, int? idCentroCostoPadre)
+        public async Task<IActionResult> ObtenerGraficoPorMesCursos(string? anios, int? mes, int? semana, int? diaMes, int? idCentroCostoPadre, int? idPais, string? estado)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerGraficoPorMesCursosAsync(anio, mes, semana, diaMes, idCentroCostoPadre);
+                var resultado = await service.ObtenerGraficoPorMesCursosAsync(anios, mes, semana, diaMes, idCentroCostoPadre, idPais, estado);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -657,6 +657,25 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
                 var resultado = await service.ObtenerDocentesFiltroAsync(busqueda);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene paises con programas activos para el filtro del dashboard
+        /// </summary>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerPaisesFiltro()
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerPaisesFiltroAsync();
                 return Ok(resultado);
             }
             catch (Exception)
