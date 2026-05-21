@@ -2037,7 +2037,9 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
         // Autor: Miguel Valdivia  | Fecha: 2026-05-04
         // ---------------------------------------------------------------------------
 
-        private const string IA_MASIVO_BASE = "http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/testing";
+        //private const string IA_MASIVO_BASE = "http://ia-asistente-marketing-whatsapp-api.bsginstitute.com/testing";
+        private const string IA_MASIVO_BASE = "http://ia-asistente-marketing-whatsapp-api.bsginstitute.com";
+
 
         /// <summary>
         /// Inicia una extraccion batch enviando los chats de varios leads al servicio de IA.
