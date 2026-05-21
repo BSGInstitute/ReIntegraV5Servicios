@@ -19,8 +19,18 @@ namespace BSI.Integra.Repositorio.Repository.Interface
 
         /// <summary>
         /// Última solicitud de consentimiento (TipoLlamada=2) para un par (numero, idPais).
+        /// idNumeroWhatsApp es OPCIONAL — cuando viene, filtra adicionalmente para que el
+        /// consent matchee el número de negocio (phone_number_id) que usará la llamada. Crítico
+        /// cuando distintos asesores usan distintos WABA numbers: cada uno necesita su consent.
         /// Devuelve null si no hay solicitud previa con ConsentimientoEstado seteado.
         /// </summary>
-        WhatsAppConsentimientoRawDTO? ObtenerUltimoConsentimiento(string numeroWhatsApp, int idPais);
+        WhatsAppConsentimientoRawDTO? ObtenerUltimoConsentimiento(string numeroWhatsApp, int idPais, string? idNumeroWhatsApp = null);
+
+        /// <summary>
+        /// Resuelve el NumeroIndentificador (phone_number_id de Meta) que se usará para llamar
+        /// con (idPais, idPersonal). Sigue el mismo fallback que el sender: primero busca
+        /// config específica del asesor, después la genérica del área. Devuelve null si no hay.
+        /// </summary>
+        string? ResolverIdNumeroWhatsApp(int idPais, int idPersonal, int idPersonalAreaTrabajo = 8);
     }
 }

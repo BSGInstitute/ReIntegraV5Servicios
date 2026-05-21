@@ -48,8 +48,12 @@ namespace BSI.Integra.Aplicacion.Interaccion.Service.Implementacion
         ///  · pendiente + ConsentimientoExpira > now → esperando respuesta del cliente.
         ///  · rechazado + ConsentimientoExpira > now → en cooldown, no se puede solicitar.
         ///  · estado expirado (ConsentimientoExpira ≤ now) o sin solicitud → puede solicitar nuevo.
+        ///
+        /// Filtrado por IdNumeroWhatsApp (resuelto a partir del idPersonal): si dos asesores
+        /// usan distintos números de WhatsApp Business, el consent del Asesor 1 NO debe contar
+        /// como vigente para el Asesor 2. Meta valida el consent por par (WABA, consumer).
         /// </summary>
-        public LlamadaConsentimientoEstadoDTO ObtenerEstadoConsentimiento(string numeroWhatsApp, int idPais)
+        public LlamadaConsentimientoEstadoDTO ObtenerEstadoConsentimiento(string numeroWhatsApp, int idPais, int? idPersonal = null)
         {
             try
             {
@@ -58,7 +62,19 @@ namespace BSI.Integra.Aplicacion.Interaccion.Service.Implementacion
                     ? numeroWhatsApp
                     : numeroWhatsApp.TrimStart('+').Replace(" ", "").Replace("-", "");
 
-                var ultimo = _unitOfWork.LlamadasWhatsAppRepository.ObtenerUltimoConsentimiento(numeroNormalizado, idPais);
+                // Si vino idPersonal, resolver el IdNumeroWhatsApp (phone_number_id) para
+                // filtrar el consent al par (NumeroNegocio, NumeroCliente). Sin idPersonal,
+                // el filtro queda solo por (numero, idPais) — comportamiento legacy para
+                // callers que no necesitan distinguir entre asesores.
+                string? idNumeroWhatsApp = null;
+                if (idPersonal.HasValue && idPersonal.Value > 0)
+                {
+                    idNumeroWhatsApp = _unitOfWork.LlamadasWhatsAppRepository
+                        .ResolverIdNumeroWhatsApp(idPais, idPersonal.Value);
+                }
+
+                var ultimo = _unitOfWork.LlamadasWhatsAppRepository
+                    .ObtenerUltimoConsentimiento(numeroNormalizado, idPais, idNumeroWhatsApp);
 
                 var resultado = new LlamadaConsentimientoEstadoDTO();
 

@@ -60,11 +60,14 @@ namespace BSI.Integra.Servicios.Controllers
         /// </summary>
         /// <param name="numeroWhatsApp">Número del cliente (con código de país, con o sin `+`)</param>
         /// <param name="idPais">Id del país del cliente</param>
+        /// <param name="idPersonal">Opcional. Id del asesor que va a llamar — necesario cuando distintos
+        /// asesores usan distintos números de WhatsApp Business y cada uno requiere su propio consent.</param>
         /// <returns>Estado del consentimiento + flags PuedeSolicitar/PuedeLlamar</returns>
         [HttpGet("EstadoConsentimiento")]
         public IActionResult ObtenerEstadoConsentimiento(
             [FromQuery] string numeroWhatsApp,
-            [FromQuery] int idPais)
+            [FromQuery] int idPais,
+            [FromQuery] int? idPersonal = null)
         {
             try
             {
@@ -72,7 +75,7 @@ namespace BSI.Integra.Servicios.Controllers
                     return BadRequest(new { mensaje = "numeroWhatsApp es requerido" });
 
                 var servicio = new LlamadasWhatsAppService(unitOfWork);
-                var resultado = servicio.ObtenerEstadoConsentimiento(numeroWhatsApp, idPais);
+                var resultado = servicio.ObtenerEstadoConsentimiento(numeroWhatsApp, idPais, idPersonal);
                 return Ok(resultado);
             }
             catch (Exception ex)

@@ -85,7 +85,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// "Llamar" o "Rechazado". El nombre de la columna PK es Id (no IdWhatsappLlamada);
         /// se aliasea en el SELECT para que matchee con el DTO.
         /// </summary>
-        public WhatsAppConsentimientoRawDTO? ObtenerUltimoConsentimiento(string numeroWhatsApp, int idPais)
+        public WhatsAppConsentimientoRawDTO? ObtenerUltimoConsentimiento(string numeroWhatsApp, int idPais, string? idNumeroWhatsApp = null)
         {
             try
             {
@@ -96,9 +96,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                        AND IdPais = @IdPais
                                        AND TipoLlamada = 2
                                        AND ConsentimientoEstado IS NOT NULL
+                                       AND (@IdNumeroWhatsApp IS NULL OR IdNumeroWhatsApp = @IdNumeroWhatsApp)
                                      ORDER BY Id DESC";
 
-                var parametros = new { NumeroWhatsApp = numeroWhatsApp, IdPais = idPais };
+                var parametros = new
+                {
+                    NumeroWhatsApp   = numeroWhatsApp,
+                    IdPais           = idPais,
+                    IdNumeroWhatsApp = idNumeroWhatsApp
+                };
                 var json = _dapperRepository.FirstOrDefault(sql, parametros);
 
                 if (string.IsNullOrEmpty(json) || json == "null") return null;
@@ -108,6 +114,54 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 throw new Exception(ex.Message);
             }
+        }
+
+        /// Tipo Función: Lectura
+        /// Autor: WhatsApp Business Calling API integration
+        /// Fecha: 2026-05-21
+        /// Versión: 1.0
+        /// <summary>
+        /// Resuelve el NumeroIndentificador (phone_number_id de Meta) que un (idPais, idPersonal)
+        /// usaría para una llamada. Misma lógica de fallback que WebhookWhatsappApi:
+        ///   1. config específica del asesor: IdPersonal_Asignado = @IdPersonal + área.
+        ///   2. fallback: IdPersonal_Asignado IS NULL + mismo país y área.
+        /// idPais=591 (Bolivia) cae a 0 — mantiene paridad con el sender.
+        /// </summary>
+        public string? ResolverIdNumeroWhatsApp(int idPais, int idPersonal, int idPersonalAreaTrabajo = 8)
+        {
+            try
+            {
+                int idPaisResolver = idPais == 591 ? 0 : idPais;
+                const string sql = @"
+                    SELECT TOP 1 NumeroIndentificador
+                    FROM conf.T_WhatsAppConfiguracionApi
+                    WHERE Estado = 1
+                      AND IdPais = @IdPais
+                      AND IdPersonalAreaTrabajo = @IdArea
+                      AND (IdPersonal_Asignado = @IdPersonal OR IdPersonal_Asignado IS NULL)
+                    ORDER BY CASE WHEN IdPersonal_Asignado = @IdPersonal THEN 0 ELSE 1 END";
+
+                var parametros = new
+                {
+                    IdPais     = idPaisResolver,
+                    IdArea     = idPersonalAreaTrabajo,
+                    IdPersonal = idPersonal
+                };
+                var json = _dapperRepository.FirstOrDefault(sql, parametros);
+                if (string.IsNullOrEmpty(json) || json == "null") return null;
+
+                var dto = JsonConvert.DeserializeObject<ConfiguracionApiRawDTO>(json);
+                return dto?.NumeroIndentificador;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private class ConfiguracionApiRawDTO
+        {
+            public string? NumeroIndentificador { get; set; }
         }
     }
 }
