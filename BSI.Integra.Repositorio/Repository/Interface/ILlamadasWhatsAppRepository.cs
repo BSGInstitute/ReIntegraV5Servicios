@@ -32,5 +32,12 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         /// config específica del asesor, después la genérica del área. Devuelve null si no hay.
         /// </summary>
         string? ResolverIdNumeroWhatsApp(int idPais, int idPersonal, int idPersonalAreaTrabajo = 8);
+
+        /// <summary>
+        /// Actualiza GrabacionUrl + GrabacionBlobNombre de una llamada vía
+        /// SP_WhatsappLlamada_ActualizarGrabacion. Usado cuando el frontend termina de grabar
+        /// la llamada (MediaRecorder) y sube el blob a Azure.
+        /// </summary>
+        bool ActualizarGrabacion(int idWhatsappLlamada, string grabacionUrl, string grabacionBlobNombre, string usuarioModificacion);
     }
 }
