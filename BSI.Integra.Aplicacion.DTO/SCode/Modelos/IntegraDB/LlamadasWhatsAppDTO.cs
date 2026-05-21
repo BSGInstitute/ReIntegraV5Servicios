@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 
 namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
 {
@@ -79,5 +80,25 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public bool      PuedeSolicitar       { get; set; }
         public bool      PuedeLlamar          { get; set; }
         public string?   Mensaje              { get; set; }
+    }
+
+    /// <summary>
+    /// Request del frontend para subir la grabación de una llamada (entrante o saliente)
+    /// generada con MediaRecorder del browser. El backend la persiste en Azure Blob y actualiza
+    /// las columnas GrabacionUrl + GrabacionBlobNombre de com.T_WhatsappLlamada.
+    /// </summary>
+    public class SubirGrabacionLlamadaDTO
+    {
+        public int       IdWhatsappLlamada { get; set; }
+        public IFormFile File              { get; set; } = null!;
+    }
+
+    /// <summary>Respuesta del endpoint SubirGrabacion — URL pública del blob + nombre persistido.</summary>
+    public class SubirGrabacionLlamadaResultadoDTO
+    {
+        public bool   Ok          { get; set; }
+        public string Url         { get; set; } = string.Empty;
+        public string BlobNombre  { get; set; } = string.Empty;
+        public string? Mensaje    { get; set; }
     }
 }

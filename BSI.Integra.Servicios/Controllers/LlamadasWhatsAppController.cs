@@ -1,8 +1,12 @@
+using BSI.Integra.Aplicacion.Base.BO;
+using BSI.Integra.Aplicacion.Comercial.Service.Implementacion;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.Interaccion.Service.Implementacion;
 using BSI.Integra.Repositorio.UnitOfWork;
+using BSI.Integra.Servicios.Helpers;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BSI.Integra.Servicios.Controllers
 {
@@ -81,6 +85,85 @@ namespace BSI.Integra.Servicios.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { mensaje = ex.Message });
+            }
+        }
+
+        /// Tipo Función: POST
+        /// Autor: WhatsApp Business Calling API integration
+        /// Fecha: 2026-05-19
+        /// Versión: 1.0
+        /// <summary>
+        /// Recibe el blob de la grabación de una llamada (entrante o saliente) generado con
+        /// MediaRecorder del browser, lo sube a Azure Blob (storage 'repositorioaudiollamada',
+        /// container 'whatsapp-calling/Grabaciones/') y persiste GrabacionUrl + GrabacionBlobNombre
+        /// en com.T_WhatsappLlamada vía SP_WhatsappLlamada_ActualizarGrabacion.
+        /// </summary>
+        [HttpPost("SubirGrabacion")]
+        public IActionResult SubirGrabacion([FromForm] SubirGrabacionLlamadaDTO entidad)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (entidad?.File == null || entidad.File.Length == 0)
+                return BadRequest(new { mensaje = "Archivo de grabación vacío o no enviado" });
+
+            if (entidad.IdWhatsappLlamada <= 0)
+                return BadRequest(new { mensaje = "IdWhatsappLlamada inválido" });
+
+            try
+            {
+                var registroClaimToken = ValidacionClaim.ObtenerRegistroClaimToken(User.Identity as ClaimsIdentity);
+                string usuario = registroClaimToken?.UserName ?? "WebClient";
+
+                // Naming: llamada_<idLlamada>_<yyyyMMddHHmmss>.webm
+                // Extensión derivada del content-type para soportar webm/ogg/mp4 sin asumir formato.
+                string extension = entidad.File.ContentType switch
+                {
+                    string ct when ct.Contains("webm") => ".webm",
+                    string ct when ct.Contains("ogg")  => ".ogg",
+                    string ct when ct.Contains("mp4")  => ".mp4",
+                    string ct when ct.Contains("wav")  => ".wav",
+                    _                                   => ".webm"
+                };
+                string nombreArchivo = $"llamada_{entidad.IdWhatsappLlamada}_{DateTime.Now:yyyyMMddHHmmss}{extension}";
+
+                const string rutaBlob     = "whatsapp-calling/Grabaciones/";
+                const string rutaCompleta = $"https://repositorioaudiollamada.blob.core.windows.net/{rutaBlob}";
+
+                var gestionArchivo = new GestionArchivoLlamadaService(unitOfWork);
+                string url = gestionArchivo.SubirArchivoAudioLlamada(
+                    entidad.File.ConvertToByte(),
+                    entidad.File.ContentType,
+                    nombreArchivo,
+                    rutaCompleta,
+                    rutaBlob);
+
+                if (string.IsNullOrEmpty(url))
+                {
+                    return StatusCode(500, new SubirGrabacionLlamadaResultadoDTO
+                    {
+                        Ok = false,
+                        Mensaje = "Falló la subida del blob a Azure"
+                    });
+                }
+
+                unitOfWork.LlamadasWhatsAppRepository.ActualizarGrabacion(
+                    entidad.IdWhatsappLlamada, url, nombreArchivo, usuario);
+
+                return Ok(new SubirGrabacionLlamadaResultadoDTO
+                {
+                    Ok         = true,
+                    Url        = url,
+                    BlobNombre = nombreArchivo
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new SubirGrabacionLlamadaResultadoDTO
+                {
+                    Ok      = false,
+                    Mensaje = ex.Message
+                });
             }
         }
     }
