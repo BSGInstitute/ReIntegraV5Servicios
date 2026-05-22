@@ -267,24 +267,52 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <param name="idAlumno">ID del alumno</param>
         /// <returns>Lista de mensajes del chat</returns>
         public IEnumerable<ChatbotMensajeDTO> ObtenerChatPorAlumno(int idAlumno)
+        {
+            try
             {
-                try
-                {
-                    var resultado = new List<ChatbotMensajeDTO>();
-                    var query = "ia.SP_TChatbotPortalHiloChat_ObtenerPorAlumno";
-                    var response = _dapperRepository.QuerySPDapper(query, new { idAlumno });
+                var resultado = new List<ChatbotMensajeDTO>();
+                var query = "ia.SP_TChatbotPortalHiloChat_ObtenerPorAlumno";
+                var response = _dapperRepository.QuerySPDapper(query, new { idAlumno });
 
-                    if (!string.IsNullOrEmpty(response))
-                    {
-                        resultado = JsonConvert.DeserializeObject<List<ChatbotMensajeDTO>>(response);
-                    }
-                    return resultado;
-                }
-                catch (Exception e)
+                if (!string.IsNullOrEmpty(response))
                 {
-                    throw e;
+                    resultado = JsonConvert.DeserializeObject<List<ChatbotMensajeDTO>>(response);
                 }
+                return resultado;
             }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 18/10/2025
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el chat entre chatbot y cliente por IdAlumno
+        /// </summary>
+        /// <param name="idAlumno">ID del alumno</param>
+        /// <returns>Lista de mensajes del chat</returns>
+        public IEnumerable<ChatbotMensajeDTO> ObtenerChatPorSolicitud(int idSolicitudAlumno)
+        {
+            try
+            {
+                var resultado = new List<ChatbotMensajeDTO>();
+                var query = "ia.SP_TChatbotPortalHiloChat_ObtenerPorSolicitud ";
+                var response = _dapperRepository.QuerySPDapper(query, new { idSolicitudAlumno });
+
+                if (!string.IsNullOrEmpty(response))
+                {
+                    resultado = JsonConvert.DeserializeObject<List<ChatbotMensajeDTO>>(response);
+                }
+                return resultado;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
         /// Autor: Jose Vega
         /// Fecha: 18/10/2025

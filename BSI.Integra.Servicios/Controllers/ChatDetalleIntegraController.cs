@@ -619,6 +619,31 @@ namespace BSI.Integra.Servicios.Controllers
         }
 
         /// Tipo Función: POST
+        /// Autor: Carlos Crispin
+        /// Fecha: 21/05/2026
+        /// Versión: 1.0
+        /// <returns>Chat entre chatbot y cliente por IdSolicitudAlumno</returns>
+        [Route("[action]")]
+        [HttpPost]
+        public ActionResult ObtenerChatBotPorSolicitud([FromBody] ObtenerChatRequestSolicitudDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var servicio = new ChatDetalleIntegraService(unitOfWork);
+                var respuesta = servicio.ObtenerChatPorSolicitud(dto.IdSolicitud);
+                return Ok(respuesta);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// Tipo Función: POST
         /// Autor: Alexis Arroyo
         /// Fecha: 2026-04-27
         /// Versión: 1.0

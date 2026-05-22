@@ -299,6 +299,26 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
         }
 
+        /// Autor: Carlos Crispin
+        /// Fecha: 21/05/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el chat entre chatbot y cliente por IdSolicitudAlumno
+        /// </summary>
+        /// <param name="idSolicitudAlumno">ID de la solicitud</param>
+        /// <returns>Lista de mensajes del chat</returns>
+        public IEnumerable<ChatbotMensajeDTO> ObtenerChatPorSolicitud(int idSolicitudAlumno)
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerChatPorSolicitud(idSolicitudAlumno);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// Autor: Jose Vega
         /// Fecha: 20/10/2025
         /// Versión: 1.0
@@ -1154,7 +1174,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         {
             try
             {
-                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerChatWhatsAppAtcPorAlumno(idSolicitudAlumno);
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerChatWhatsAppAtcPorSolicitudAlumno(idSolicitudAlumno);
             }
             catch (Exception ex)
             {
