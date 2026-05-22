@@ -130,7 +130,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         Task<ReporteDashboardSeguimientoDocenteDTO> ObtenerSeguimientoDocenteAsync(int? idDocente, int? idPEspecifico, int? anio, DateTime? fechaInicio, DateTime? fechaFin);
 
         /// <summary>
-        /// Obtiene notas de alumnos calculadas por PEspecifico
+        /// Obtiene notas de alumnos calculadas por un PEspecifico (grupo opcional)
+        /// Incluye IdPEspecifico y NombrePEspecifico en la respuesta para soporte multiselect
         /// </summary>
         Task<ReporteDashboardNotasPorPEspecificoDTO> ObtenerNotasPorPEspecificoAsync(int idPEspecifico, int grupo);
 

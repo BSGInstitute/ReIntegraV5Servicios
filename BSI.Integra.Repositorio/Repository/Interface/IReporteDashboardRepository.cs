@@ -118,7 +118,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         Task<ReporteDashboardSeguimientoDocenteDTO> ObtenerSeguimientoDocenteAsync(int? idDocente, int? idPEspecifico, int? anio, DateTime? fechaInicio, DateTime? fechaFin);
 
         /// <summary>
-        /// Obtiene notas de alumnos por PEspecifico usando SP_PW_ListadoNotaProcesarOnline
+        /// Obtiene notas de alumnos por PEspecifico.
+        /// La respuesta incluye IdPEspecifico y NombrePEspecifico para soporte multiselect en el frontend.
         /// </summary>
         Task<ReporteDashboardNotasPorPEspecificoDTO> ObtenerNotasPorPEspecificoAsync(int idPEspecifico, int grupo);
 
