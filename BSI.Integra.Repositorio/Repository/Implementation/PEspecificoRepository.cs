@@ -82,7 +82,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             UrlCronogramaSemanal,
             IdTipoProgramaCarrera,
             IdCiclo,
-            IdEstadoCupos";
+            IdEstadoCupos,
+            TutorVirtualActivo,
+            ResumenClaseActivo";
         public PEspecificoRepository(IntegraDBContext context, IConnectionFactory connectionFactory, IDapperRepository dapperRepository) : base(context, connectionFactory, dapperRepository)
         {
             var config = new MapperConfiguration(cfg =>
