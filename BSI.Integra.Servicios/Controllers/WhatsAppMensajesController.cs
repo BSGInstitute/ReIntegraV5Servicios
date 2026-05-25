@@ -25,8 +25,8 @@ namespace BSI.Integra.Servicios.Controllers
     /// Gestión de WhatsAppMensajeEnviado
     /// </summary>
     [Route("api/WhatsAppMensajes")]
-    [ApiController]
-    [EnableCors("CorsVista")]
+    // [ApiController]
+    // [EnableCors("CorsVista")]
     public class WhatsAppMensajesController : ControllerBase
     {
         private ITokenManager _tokenManager;
