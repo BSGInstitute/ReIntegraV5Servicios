@@ -393,12 +393,15 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// <param name="diaMes">Dia del mes (requiere mes) (opcional)</param>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerCambiosEstado(int? anio, int? mes, int? semana, int? diaMes)
+        public async Task<IActionResult> ObtenerCambiosEstado(
+            int? anio, int? mes,
+            int? semanaDesde = null, int? semanaHasta = null,
+            int? diaMes = null)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerCambiosEstadoAsync(anio, mes, semana, diaMes);
+                var resultado = await service.ObtenerCambiosEstadoAsync(anio, mes, semanaDesde, semanaHasta, diaMes);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -415,18 +418,16 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         public async Task<IActionResult> ObtenerEstadosPorDia(
             string? idsPEspecificoHijo,
             string? estados,
-            int? anio,
-            int? mes,
-            int? semana,
-            int? diaMes,
-            int? ultimasSemanas,
-            DateTime? fechaInicio,
-            DateTime? fechaFin)
+            string? anos,
+            string? meses,
+            int? semanaDesde = null,
+            int? semanaHasta = null,
+            int? diaMes = null)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerEstadosPorDiaAsync(idsPEspecificoHijo, estados, anio, mes, semana, diaMes, ultimasSemanas, fechaInicio, fechaFin);
+                var resultado = await service.ObtenerEstadosPorDiaAsync(idsPEspecificoHijo, estados, anos, meses, semanaDesde, semanaHasta, diaMes);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -685,6 +686,25 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         }
 
         /// <summary>
+        /// Retorna programas generales que tienen PEspecificos activos (filtro cascada D2)
+        /// </summary>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerPGeneralesFiltro([FromQuery] string? busqueda = null)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerPGeneralesFiltroAsync(busqueda);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Retorna lista de programas especificos (padre e hijo) para filtro con busqueda
         /// </summary>
         [Route("[action]")]
@@ -765,12 +785,23 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// </summary>
         [Route("[action]")]
         [HttpGet]
-        public async Task<IActionResult> ObtenerNotasPorPEspecifico(int idPEspecifico, int grupo = 1)
+        public async Task<IActionResult> ObtenerNotasPorPEspecifico(
+            int idPEspecifico,
+            int grupo = 1,
+            [FromQuery] string? filtroPGeneral    = null,
+            [FromQuery] string? filtroEstadoNotas = null,
+            [FromQuery] string? filtroCodigoMat   = null,
+            [FromQuery] string? filtroCentroCosto = null,
+            [FromQuery] DateTime? filtroFechaDesde = null,
+            [FromQuery] DateTime? filtroFechaHasta = null)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
-                var resultado = await service.ObtenerNotasPorPEspecificoAsync(idPEspecifico, grupo);
+                var resultado = await service.ObtenerNotasPorPEspecificoAsync(
+                    idPEspecifico, grupo,
+                    filtroPGeneral, filtroEstadoNotas, filtroCodigoMat,
+                    filtroCentroCosto, filtroFechaDesde, filtroFechaHasta);
                 return Ok(resultado);
             }
             catch (Exception)
@@ -790,6 +821,68 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
                 var resultado = await service.ObtenerFursDashboard3Async();
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Busca PEspecificos por condiciones de filtro de notas (estado, CC, fechas, docente).
+        /// Devuelve TOP 30 para el dashboard de Calificación de Alumnos.
+        /// </summary>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> BuscarPEspecificosPorFiltroNotas(
+            [FromQuery] string? filtroEstadoNotas = null,
+            [FromQuery] string? filtroCentroCosto = null,
+            [FromQuery] DateTime? filtroFechaDesde = null,
+            [FromQuery] DateTime? filtroFechaHasta = null,
+            [FromQuery] int? idDocente = null,
+            [FromQuery] string? codigoMatricula = null)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.BuscarPEspecificosPorFiltroNotasAsync(
+                    filtroEstadoNotas, filtroCentroCosto,
+                    filtroFechaDesde, filtroFechaHasta, idDocente, codigoMatricula);
+                return Ok(resultado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Endpoint unificado de Calificación de Alumnos con paginación.
+        /// Reemplaza múltiples requests (búsqueda + RS1×N + RS2×N) por una sola llamada.
+        /// </summary>
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IActionResult> ObtenerCalificacionAlumnos(
+            [FromQuery] string? filtroEstadoNotas = null,
+            [FromQuery] string? filtroCentroCosto = null,
+            [FromQuery] DateTime? filtroFechaDesde = null,
+            [FromQuery] DateTime? filtroFechaHasta = null,
+            [FromQuery] int? idDocente = null,
+            [FromQuery] string? codigoMatricula = null,
+            [FromQuery] string? idsPEspecifico = null,
+            [FromQuery] int grupo = 1,
+            [FromQuery] int pagina = 1,
+            [FromQuery] int tamanoPagina = 20)
+        {
+            try
+            {
+                IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
+                var resultado = await service.ObtenerCalificacionAlumnosAsync(
+                    filtroEstadoNotas, filtroCentroCosto,
+                    filtroFechaDesde, filtroFechaHasta,
+                    idDocente, codigoMatricula, idsPEspecifico,
+                    grupo, pagina, tamanoPagina);
                 return Ok(resultado);
             }
             catch (Exception)

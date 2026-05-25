@@ -546,14 +546,20 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public decimal Nota { get; set; }
     }
 
-    /// <summary>Fila de alumno con sus notas por criterio y promedio final</summary>
+    /// <summary>Fila de alumno con sus notas por criterio, estado y observacion chatbot</summary>
     public class ReporteDashboardNotaAlumnoDTO
     {
         public int IdMatriculaCabecera { get; set; }
         public string? CodigoMatricula { get; set; }
         public string? Alumno { get; set; }
+        public string? CoordinadoraAcademica { get; set; }
+        public string? CentroCosto { get; set; }
+        public string? Curso { get; set; }
+        public string? EstadoMatricula { get; set; }
         public List<ReporteDashboardNotaCriterioDTO> Notas { get; set; } = new();
         public decimal PromedioFinal { get; set; }
+        public string? EstadoNotaAlumno { get; set; }
+        public string? ObservacionChatbot { get; set; }
     }
 
     /// <summary>Criterio de evaluacion para encabezado de columna</summary>
@@ -564,11 +570,76 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public decimal Porcentaje { get; set; }
     }
 
-    /// <summary>Respuesta completa de notas por un PEspecifico (incluye identificadores para multiselect)</summary>
-    public class ReporteDashboardNotasPorPEspecificoDTO
+    /// <summary>Fila padre — datos del programa para la tabla anidada de notas</summary>
+    public class ReporteDashboardNotaProgramaDTO
     {
         public int IdPEspecifico { get; set; }
-        public string? NombrePEspecifico { get; set; }
+        public string? Programa { get; set; }
+        public string? EstadoPrograma { get; set; }
+        public string? ModalidadPrograma { get; set; }
+        public string? CentroCostoProg { get; set; }
+        public string? Curso { get; set; }
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaTermino { get; set; }
+        public string? EstadoRegistroNotas { get; set; }
+        public string? SubEstadoRegistroNotas { get; set; }
+        public string? Docente { get; set; }
+        public string? Coordinadora { get; set; }
+        public string? ObservacionChatbot { get; set; }
+        public int ConteoChatbot { get; set; }
+        public DateTime? FechaRegistroNota { get; set; }
+        public int? PlazoCalificacion { get; set; }
+        public int TotalAlumnos { get; set; }
+        public int TotalCriterios { get; set; }
+        public int AlumnosConNotaCompleta { get; set; }
+    }
+
+    /// <summary>Raw row del SP RS1 (datos del programa)</summary>
+    public class ReporteDashboardNotaProgramaRawDTO
+    {
+        public int IdPEspecifico { get; set; }
+        public string? Programa { get; set; }
+        public string? EstadoPrograma { get; set; }
+        public string? ModalidadPrograma { get; set; }
+        public string? CentroCostoProg { get; set; }
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaTermino { get; set; }
+        public string? EstadoRegistroNotas { get; set; }
+        public string? SubEstadoRegistroNotas { get; set; }
+        public string? Docente { get; set; }
+        public string? Coordinadora { get; set; }
+        public string? ObservacionChatbot { get; set; }
+        public int ConteoChatbot { get; set; }
+        public DateTime? FechaRegistroNota { get; set; }
+        public int? PlazoCalificacion { get; set; }
+        public int TotalAlumnos { get; set; }
+        public int TotalCriterios { get; set; }
+        public int AlumnosConNotaCompleta { get; set; }
+    }
+
+    /// <summary>Raw row del SP RS2 (alumno con notas pivoteadas)</summary>
+    public class ReporteDashboardNotaAlumnoRawDTO
+    {
+        public int IdMatriculaCabecera { get; set; }
+        public string? CodigoMatricula { get; set; }
+        public string? NombreAlumno { get; set; }
+        public string? CoordinadoraAcademica { get; set; }
+        public string? CentroCosto { get; set; }
+        public string? Curso { get; set; }
+        public string? EstadoMatricula { get; set; }
+        public decimal? NotaCriterio1 { get; set; }
+        public decimal? NotaCriterio2 { get; set; }
+        public decimal? NotaCriterio3 { get; set; }
+        public decimal? NotaCriterio4 { get; set; }
+        public decimal? NotaCriterio5 { get; set; }
+        public string? EstadoNotaAlumno { get; set; }
+        public string? ObservacionChatbot { get; set; }
+    }
+
+    /// <summary>Respuesta completa de notas por PEspecifico (estructura anidada)</summary>
+    public class ReporteDashboardNotasPorPEspecificoDTO
+    {
+        public ReporteDashboardNotaProgramaDTO? Programa { get; set; }
         public List<ReporteDashboardNotaEvaluacionDTO> Evaluaciones { get; set; } = new();
         public List<ReporteDashboardNotaAlumnoDTO> Alumnos { get; set; } = new();
         public bool EsOnline { get; set; }
@@ -646,4 +717,73 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public int CantidadSesiones { get; set; }
     }
 
+    /// <summary>Programa General para el filtro en cascada del Dashboard Seguimiento Docente</summary>
+    public class ReporteDashboardPGeneralFiltroDTO
+    {
+        public int Id { get; set; }
+        public string? Nombre { get; set; }
+    }
+
+    /// <summary>Respuesta paginada de Calificación de Alumnos (SP unificado)</summary>
+    public class ReporteDashboardCalificacionAlumnosDTO
+    {
+        public int TotalRegistros { get; set; }
+        public int Pagina { get; set; }
+        public int TamanoPagina { get; set; }
+        public int TotalPaginas => TamanoPagina > 0 ? (int)Math.Ceiling((double)TotalRegistros / TamanoPagina) : 0;
+        public List<ReporteDashboardNotasPorPEspecificoDTO> Programas { get; set; } = new();
+    }
+
+    /// <summary>Raw row RS2 del SP unificado (programa con docente y coordinadora ya resueltos)</summary>
+    public class ReporteDashboardCalificacionProgramaRawDTO
+    {
+        public int IdPEspecifico { get; set; }
+        public string? Programa { get; set; }
+        public string? EstadoPrograma { get; set; }
+        public string? ModalidadPrograma { get; set; }
+        public string? CentroCostoProg { get; set; }
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaTermino { get; set; }
+        public string? EstadoRegistroNotas { get; set; }
+        public string? SubEstadoRegistroNotas { get; set; }
+        public string? Docente { get; set; }
+        public string? Coordinadora { get; set; }
+        public int TotalAlumnos { get; set; }
+        public int TotalCriterios { get; set; }
+        public int AlumnosConNotaCompleta { get; set; }
+        public DateTime? FechaRegistroNota { get; set; }
+        public int? PlazoCalificacion { get; set; }
+        public string? ObservacionChatbot { get; set; }
+        public int? ConteoChatbot { get; set; }
+    }
+
+    /// <summary>Raw row RS3 del SP unificado (alumno con notas)</summary>
+    public class ReporteDashboardCalificacionAlumnoRawDTO
+    {
+        public int IdPEspecifico { get; set; }
+        public int IdMatriculaCabecera { get; set; }
+        public string? CodigoMatricula { get; set; }
+        public string? NombreAlumno { get; set; }
+        public string? CoordinadoraAcademica { get; set; }
+        public string? CentroCosto { get; set; }
+        public string? Curso { get; set; }
+        public string? EstadoMatricula { get; set; }
+        public decimal? NotaCriterio1 { get; set; }
+        public decimal? NotaCriterio2 { get; set; }
+        public decimal? NotaCriterio3 { get; set; }
+        public decimal? NotaCriterio4 { get; set; }
+        public decimal? NotaCriterio5 { get; set; }
+        public string? EstadoNotaAlumno { get; set; }
+        public string? ObservacionChatbot { get; set; }
+    }
+
+    /// <summary>Raw row RS4 del SP unificado (criterio de evaluación)</summary>
+    public class ReporteDashboardCalificacionCriterioRawDTO
+    {
+        public int IdPEspecifico { get; set; }
+        public int IdEvaluacion { get; set; }
+        public string? NombreCriterio { get; set; }
+        public decimal Porcentaje { get; set; }
+        public int Orden { get; set; }
+    }
 }

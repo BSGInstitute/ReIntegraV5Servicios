@@ -88,12 +88,12 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         /// <summary>
         /// Obtiene cambios de estado de programas basados en log
         /// </summary>
-        Task<List<ReporteDashboardCambioEstadoDTO>> ObtenerCambiosEstadoAsync(int? anio = null, int? mes = null, int? semana = null, int? diaMes = null);
+        Task<List<ReporteDashboardCambioEstadoDTO>> ObtenerCambiosEstadoAsync(int? anio = null, int? mes = null, int? semanaDesde = null, int? semanaHasta = null, int? diaMes = null);
 
         /// <summary>
         /// Obtiene estados de programas hijo agrupados por Anio, Mes, Semana o Dia
         /// </summary>
-        Task<List<ReporteDashboardEstadoPorDiaDTO>> ObtenerEstadosPorDiaAsync(string? idsPEspecificoHijo, string? estados, int? anio, int? mes, int? semana, int? diaMes, int? ultimasSemanas = null, DateTime? fechaInicio = null, DateTime? fechaFin = null);
+        Task<List<ReporteDashboardEstadoPorDiaDTO>> ObtenerEstadosPorDiaAsync(string? idsPEspecificoHijo, string? estados, string? anos = null, string? meses = null, int? semanaDesde = null, int? semanaHasta = null, int? diaMes = null);
 
         /// <summary>
         /// Obtiene detalle de cursos V3 con modalidad clasificada (Inhouse/Presencial/Online)
@@ -133,7 +133,14 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         /// Obtiene notas de alumnos calculadas por un PEspecifico (grupo opcional)
         /// Incluye IdPEspecifico y NombrePEspecifico en la respuesta para soporte multiselect
         /// </summary>
-        Task<ReporteDashboardNotasPorPEspecificoDTO> ObtenerNotasPorPEspecificoAsync(int idPEspecifico, int grupo);
+        Task<ReporteDashboardNotasPorPEspecificoDTO> ObtenerNotasPorPEspecificoAsync(
+            int idPEspecifico, int grupo,
+            string? filtroPGeneral    = null,
+            string? filtroEstadoNotas = null,
+            string? filtroCodigoMat   = null,
+            string? filtroCentroCosto = null,
+            DateTime? filtroFechaDesde = null,
+            DateTime? filtroFechaHasta = null);
 
         // ── Dashboard 3: Furs ─────────────────────────────────────────────────
         /// <summary>
@@ -172,5 +179,33 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         /// Obtiene evolucion mensual de cursos por estado con filtros de fecha
         /// </summary>
         Task<List<ReporteDashboardGraficoPorMesCursosDTO>> ObtenerGraficoPorMesCursosAsync(string? anios, int? mes, int? semana, int? diaMes, int? idCentroCostoPadre = null, int? idPais = null, string? estado = null);
+
+        /// <summary>
+        /// Obtiene ProgramasGenerales que tienen PEspecificos activos (filtro cascada D2).
+        /// </summary>
+        Task<List<ReporteDashboardPGeneralFiltroDTO>> ObtenerPGeneralesFiltroAsync(string? busqueda = null);
+
+        /// <summary>
+        /// Busca PEspecificos por condiciones de filtro de notas para Calificación de Alumnos.
+        /// </summary>
+        Task<List<ReporteDashboardPEspecificoFiltroDTO>> BuscarPEspecificosPorFiltroNotasAsync(
+            string? filtroEstadoNotas = null,
+            string? filtroCentroCosto = null,
+            DateTime? filtroFechaDesde = null,
+            DateTime? filtroFechaHasta = null,
+            int? idDocente = null,
+            string? codigoMatricula = null);
+
+        Task<ReporteDashboardCalificacionAlumnosDTO> ObtenerCalificacionAlumnosAsync(
+            string? filtroEstadoNotas = null,
+            string? filtroCentroCosto = null,
+            DateTime? filtroFechaDesde = null,
+            DateTime? filtroFechaHasta = null,
+            int? idDocente = null,
+            string? codigoMatricula = null,
+            string? idsPEspecifico = null,
+            int grupo = 1,
+            int pagina = 1,
+            int tamanoPagina = 20);
     }
 }
