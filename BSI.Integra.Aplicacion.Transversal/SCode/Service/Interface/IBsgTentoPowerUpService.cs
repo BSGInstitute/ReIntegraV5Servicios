@@ -10,5 +10,6 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         void ActualizarPowerUp(BsgTentoPowerUpActualizarDTO dto, string usuarioModificacion);
         void ActualizarOrdenPowerUps(List<BsgTentoOrdenDTO> ordenList, string usuarioModificacion);
         void EliminarPowerUp(int id, string usuarioModificacion);
+        List<CanalDistribucionDTO> ObtenerCanalesDistribucion();
     }
 }

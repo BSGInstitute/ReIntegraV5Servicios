@@ -1221,8 +1221,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         /// Obtiene el nivel de dificultad asociado a una pregunta de programa de capacitacion
         /// </summary>
         /// <param name="id">Id de la pregunta (PK)</param>
-        /// <returns>Objeto de tipo PreguntaProgramaCapacitacionDificultadDTO o null si no existe</returns>
-        public PreguntaProgramaCapacitacionDificultadDTO ObtenerDificultadPorIdPregunta(int id)
+        /// <returns>Objeto de tipo DificultadPorPreguntaDTO o null si no existe</returns>
+        public DificultadPorPreguntaDTO ObtenerDificultadPorIdPregunta(int id)
         {
             return _unitOfWork.PreguntaProgramaCapacitacionRepository.ObtenerDificultadPorIdPregunta(id);
         }

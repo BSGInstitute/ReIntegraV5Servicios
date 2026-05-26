@@ -194,7 +194,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 List<ProgramasPorCodigoPaisComboDTO> rpta = new List<ProgramasPorCodigoPaisComboDTO>();
 
                 var query = "ope.SP_Agenda_ObtenerProgramasPorCodigoPais";
-                var resultado = _dapperRepository.QuerySPDapper(query, new { CodigoPais = codigoPais});
+                var resultado = _dapperRepository.QuerySPDapper(query, new { CodigoPais = codigoPais });
 
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
                     rpta = JsonConvert.DeserializeObject<List<ProgramasPorCodigoPaisComboDTO>>(resultado);
@@ -564,7 +564,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 List<PGeneralPublicoObjetivoParaAgendaDTO> publicoObjetivo = new List<PGeneralPublicoObjetivoParaAgendaDTO>();
 
-                var parametros = new { idOportunidad};
+                var parametros = new { idOportunidad };
                 var resultadoStoreProcedure = _dapperRepository.QuerySPDapper("com.SP_ObtenerPublicoObjetivoPorOportunidad", parametros);
 
                 if (!string.IsNullOrEmpty(resultadoStoreProcedure) && !resultadoStoreProcedure.Contains("[]"))
@@ -2803,7 +2803,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 var res = _dapperRepository.QuerySPFirstOrDefault(
-                    "pla.SP_TPGeneral_ObtenerHabilitadoBsgTento",
+                    "pla.SP_TPGeneral_ObtenerHabilitadoBsgTentoPorIdPGeneral",
                     new { IdPGeneral = idPGeneral });
                 if (!string.IsNullOrEmpty(res) && res != "null")
                     return JsonConvert.DeserializeObject<PGeneralBsgTentoDTO>(res)?.HabilitadoBsgTento;

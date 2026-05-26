@@ -36,9 +36,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 dto.CostoPuntos,
                 dto.IconoCodigo,
                 dto.ColorHexadecimal,
-                dto.DisponibleTienda,
-                dto.RecompensaDisponible,
-                dto.DisponibleRuletaDiaria,
                 dto.Orden,
                 UsuarioCreacion = usuarioCreacion
             };
@@ -61,9 +58,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 dto.CostoPuntos,
                 dto.IconoCodigo,
                 dto.ColorHexadecimal,
-                dto.DisponibleTienda,
-                dto.RecompensaDisponible,
-                dto.DisponibleRuletaDiaria,
                 dto.Orden,
                 UsuarioModificacion = usuarioModificacion
             });
@@ -79,6 +73,28 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             _dapperRepository.QuerySPDapper("tnt.SP_TPowerUp_Eliminar",
                 new { IdPowerUp = id, UsuarioModificacion = usuarioModificacion });
+        }
+
+        public List<CanalDistribucionDTO> ObtenerCanalesDistribucion()
+        {
+            var res = _dapperRepository.QuerySPDapper("tnt.SP_TCanalDistribucion_Obtener", null);
+            if (!string.IsNullOrEmpty(res) && res != "null" && !res.Contains("[]"))
+                return JsonConvert.DeserializeObject<List<CanalDistribucionDTO>>(res).OrderBy(x => x.Orden).ToList();
+            return new List<CanalDistribucionDTO>();
+        }
+
+        public List<PowerUpCanalDistribucionDTO> ObtenerTodosPowerUpCanalDistribucion()
+        {
+            var res = _dapperRepository.QuerySPDapper("tnt.SP_PowerUpCanalDistribucionObtenerTodos", null);
+            if (!string.IsNullOrEmpty(res) && res != "null" && !res.Contains("[]"))
+                return JsonConvert.DeserializeObject<List<PowerUpCanalDistribucionDTO>>(res);
+            return new List<PowerUpCanalDistribucionDTO>();
+        }
+
+        public void ActualizarPowerUpCanalDistribucion(int idPowerUp, int idCanalDistribucion, bool disponible, string usuarioModificacion)
+        {
+            _dapperRepository.QuerySPDapper("tnt.SP_PowerUpCanalDistribucionActualizar",
+                new { IdPowerUp = idPowerUp, IdCanalDistribucion = idCanalDistribucion, Disponible = disponible, UsuarioModificacion = usuarioModificacion });
         }
     }
 }

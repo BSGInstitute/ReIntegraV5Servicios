@@ -29,6 +29,6 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
         List<CapituloSesionProgramaCapacitacionDTO> ObtenerCapituloSesionProgramaCapacitacion(int IdPGeneral);
         List<PreguntaProgramaCapacitacionDificultadDTO> ObtenerDificultades();
         void ActualizarDificultad(ActualizarDificultadPreguntaDTO dto, string usuarioModificacion);
-        PreguntaProgramaCapacitacionDificultadDTO ObtenerDificultadPorIdPregunta(int id);
+        DificultadPorPreguntaDTO ObtenerDificultadPorIdPregunta(int id);
     }
 }

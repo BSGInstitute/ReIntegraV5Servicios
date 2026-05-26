@@ -31,9 +31,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 dto.Nombre,
                 dto.Descripcion,
                 dto.EsPremium,
-                dto.PowerUpsIlimitados,
-                dto.IncluyeAnuncio,
-                dto.ContenidoExclusivo,
                 dto.Orden,
                 UsuarioCreacion = usuarioCreacion
             };
@@ -51,9 +48,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 dto.Nombre,
                 dto.Descripcion,
                 dto.EsPremium,
-                dto.PowerUpsIlimitados,
-                dto.IncluyeAnuncio,
-                dto.ContenidoExclusivo,
                 dto.Orden,
                 UsuarioModificacion = usuarioModificacion
             });
@@ -63,6 +57,36 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             _dapperRepository.QuerySPDapper("tnt.SP_TPlanSuscripcion_Eliminar",
                 new { IdPlanSuscripcion = id, UsuarioModificacion = usuarioModificacion });
+        }
+
+        public List<BsgTentoBeneficioDTO> ObtenerBeneficios()
+        {
+            var res = _dapperRepository.QuerySPDapper("tnt.SP_TBeneficio_Obtener", null);
+            if (!string.IsNullOrEmpty(res) && res != "null" && !res.Contains("[]"))
+                return JsonConvert.DeserializeObject<List<BsgTentoBeneficioDTO>>(res).OrderBy(x => x.Orden).ToList();
+            return new List<BsgTentoBeneficioDTO>();
+        }
+
+        public List<PlataformaTiendaDTO> ObtenerPlataformasTienda()
+        {
+            var res = _dapperRepository.QuerySPDapper("tnt.SP_TPlataformaTienda_Obtener", null);
+            if (!string.IsNullOrEmpty(res) && res != "null" && !res.Contains("[]"))
+                return JsonConvert.DeserializeObject<List<PlataformaTiendaDTO>>(res).OrderBy(x => x.Orden).ToList();
+            return new List<PlataformaTiendaDTO>();
+        }
+
+        public List<PlanSuscripcionBeneficioDTO> ObtenerTodosPlanSuscripcionBeneficio()
+        {
+            var res = _dapperRepository.QuerySPDapper("tnt.SP_PlanSuscripcionBeneficioObtenerTodos", null);
+            if (!string.IsNullOrEmpty(res) && res != "null" && !res.Contains("[]"))
+                return JsonConvert.DeserializeObject<List<PlanSuscripcionBeneficioDTO>>(res);
+            return new List<PlanSuscripcionBeneficioDTO>();
+        }
+
+        public void ActualizarPlanSuscripcionBeneficio(int idPlanSuscripcion, int idBeneficio, bool activo, string usuarioModificacion)
+        {
+            _dapperRepository.QuerySPDapper("tnt.SP_PlanSuscripcionBeneficioActualizar",
+                new { IdPlanSuscripcion = idPlanSuscripcion, IdBeneficio = idBeneficio, Activo = activo, UsuarioModificacion = usuarioModificacion });
         }
     }
 }

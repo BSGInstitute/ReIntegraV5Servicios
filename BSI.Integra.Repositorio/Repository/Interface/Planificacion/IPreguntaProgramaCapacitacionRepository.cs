@@ -28,6 +28,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         List<PreguntaProgramaCapacitacionRegistradaDTO> ObtenerPreguntasRegistradas();
         List<PreguntaProgramaCapacitacionDificultadDTO> ObtenerDificultades();
         void ActualizarDificultad(int id, int idPreguntaProgramaCapacitacionDificultad, string usuarioModificacion);
-        PreguntaProgramaCapacitacionDificultadDTO ObtenerDificultadPorIdPregunta(int id);
+        DificultadPorPreguntaDTO ObtenerDificultadPorIdPregunta(int id);
     }
 }

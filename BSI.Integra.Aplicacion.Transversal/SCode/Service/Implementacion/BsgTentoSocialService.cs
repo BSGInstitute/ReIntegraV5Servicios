@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.Transversal.Service.Interface;
@@ -20,13 +21,16 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         public UsuarioBsgTentoDTO ObtenerUsuarioPorAspNetUser(string idAspNetUser) =>
             _unitOfWork.BsgTentoSocialRepository.ObtenerUsuarioPorAspNetUser(idAspNetUser);
 
-        public List<PublicacionAdminDTO> ObtenerPublicaciones(bool? visible) =>
-            _unitOfWork.BsgTentoSocialRepository.ObtenerPublicaciones(visible);
+        public List<PublicacionAdminDTO> ObtenerPublicaciones(bool? visible, DateTime fechaInicio, DateTime fechaFin) =>
+            _unitOfWork.BsgTentoSocialRepository.ObtenerPublicaciones(visible, fechaInicio, fechaFin);
 
         public void ActualizarVisibilidadPublicacion(int id, bool visible, string usuarioModificacion) =>
             _unitOfWork.BsgTentoSocialRepository.ActualizarVisibilidadPublicacion(id, visible, usuarioModificacion);
 
         public void EliminarPublicacion(int id, string usuarioModificacion) =>
             _unitOfWork.BsgTentoSocialRepository.EliminarPublicacion(id, usuarioModificacion);
+
+        public List<TipoReaccionDTO> ObtenerTiposReaccion() =>
+            _unitOfWork.BsgTentoSocialRepository.ObtenerTiposReaccion();
     }
 }

@@ -28,13 +28,16 @@ namespace BSI.Integra.Servicios.Controllers.Tento
         /// Fecha: 2026-05-16
         /// Version: 1.0
         /// <summary>
-        /// Obtiene publicaciones del feed social para moderación, filtrable por visibilidad
+        /// Obtiene publicaciones del feed social para moderación, filtradas por rango de fecha de modificación y, opcionalmente, por visibilidad
         /// </summary>
+        /// <param name="fechaInicio">Fecha inicial del rango de modificación (obligatoria)</param>
+        /// <param name="fechaFin">Fecha final del rango de modificación (obligatoria)</param>
+        /// <param name="visible">Filtro opcional por visibilidad de la publicación</param>
         /// <returns>Lista de publicaciones con datos de moderación</returns>
         [HttpGet("[action]")]
-        public IActionResult ObtenerPublicaciones(bool? visible = null)
+        public IActionResult ObtenerPublicaciones(DateTime fechaInicio, DateTime fechaFin, bool? visible = null)
         {
-            try { return Ok(_bsgTentoSocialService.ObtenerPublicaciones(visible)); }
+            try { return Ok(_bsgTentoSocialService.ObtenerPublicaciones(visible, fechaInicio, fechaFin)); }
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
@@ -68,6 +71,20 @@ namespace BSI.Integra.Servicios.Controllers.Tento
         public IActionResult EliminarPublicacion(int id)
         {
             try { _bsgTentoSocialService.EliminarPublicacion(id, _tokenManager.UserName); return Ok(true); }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 2026-05-23
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de tipos de reacción disponibles para las publicaciones del feed social
+        /// </summary>
+        /// <returns>Lista de tipos de reacción ordenados</returns>
+        [HttpGet("[action]")]
+        public IActionResult ObtenerTiposReaccion()
+        {
+            try { return Ok(_bsgTentoSocialService.ObtenerTiposReaccion()); }
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
     }

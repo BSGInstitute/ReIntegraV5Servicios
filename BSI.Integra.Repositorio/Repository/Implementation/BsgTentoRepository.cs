@@ -26,7 +26,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
         public List<BsgTentoUnidadDTO> ObtenerUnidadesPorArea(int idAreaCapacitacion)
         {
-            var res = _dapperRepository.QuerySPDapper("tnt.SP_TUnidadEstudio_ObtenerPorAreaCapacitacion", new { IdAreaCapacitacion = idAreaCapacitacion });
+            var res = _dapperRepository.QuerySPDapper("tnt.SP_TUnidadEstudio_ObtenerIdPorAreaCapacitacion", new { IdAreaCapacitacion = idAreaCapacitacion });
             if (!string.IsNullOrEmpty(res) && res != "null" && !res.Contains("[]"))
                 return JsonConvert.DeserializeObject<List<BsgTentoUnidadDTO>>(res)
                     .OrderBy(x => x.Orden).ToList();
@@ -62,7 +62,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
         public List<BsgTentoPasoDTO> ObtenerPasosPorUnidad(int idBsgTentoUnidad)
         {
-            var res = _dapperRepository.QuerySPDapper("tnt.SP_TPasoEstudioObtenerPorUnidadEstudio", new { IdUnidadEstudio = idBsgTentoUnidad });
+            var res = _dapperRepository.QuerySPDapper("tnt.SP_PasoEstudioObtenerPorIdUnidadEstudio", new { IdUnidadEstudio = idBsgTentoUnidad });
             if (!string.IsNullOrEmpty(res) && res != "null" && !res.Contains("[]"))
                 return JsonConvert.DeserializeObject<List<BsgTentoPasoDTO>>(res)
                     .OrderBy(x => x.Orden).ToList();
@@ -98,7 +98,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
         public List<BsgTentoComboDTO> ObtenerComboPrograma(int idAreaCapacitacion)
         {
-            var res = _dapperRepository.QuerySPDapper("tnt.SP_TPGeneral_ObtenerHabilitados", new { IdAreaCapacitacion = idAreaCapacitacion });
+            var res = _dapperRepository.QuerySPDapper("tnt.SP_TPGeneral_ObtenerHabilitadosPorIdAreaCapacitacion", new { IdAreaCapacitacion = idAreaCapacitacion });
             if (!string.IsNullOrEmpty(res) && res != "null" && !res.Contains("[]"))
                 return JsonConvert.DeserializeObject<List<BsgTentoComboDTO>>(res);
             return new List<BsgTentoComboDTO>();

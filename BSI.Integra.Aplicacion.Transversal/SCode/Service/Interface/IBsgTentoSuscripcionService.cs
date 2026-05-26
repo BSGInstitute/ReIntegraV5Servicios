@@ -9,5 +9,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         int InsertarPlan(PlanSuscripcionInsertarDTO dto, string usuarioCreacion);
         void ActualizarPlan(PlanSuscripcionActualizarDTO dto, string usuarioModificacion);
         void EliminarPlan(int id, string usuarioModificacion);
+        List<BsgTentoBeneficioDTO> ObtenerBeneficios();
+        List<PlataformaTiendaDTO> ObtenerPlataformasTienda();
     }
 }

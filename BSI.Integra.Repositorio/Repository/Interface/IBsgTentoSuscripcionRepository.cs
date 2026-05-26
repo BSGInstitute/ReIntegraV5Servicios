@@ -9,5 +9,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         int InsertarPlan(PlanSuscripcionInsertarDTO dto, string usuarioCreacion);
         void ActualizarPlan(PlanSuscripcionActualizarDTO dto, string usuarioModificacion);
         void EliminarPlan(int id, string usuarioModificacion);
+        List<BsgTentoBeneficioDTO> ObtenerBeneficios();
+        List<PlataformaTiendaDTO> ObtenerPlataformasTienda();
+        List<PlanSuscripcionBeneficioDTO> ObtenerTodosPlanSuscripcionBeneficio();
+        void ActualizarPlanSuscripcionBeneficio(int idPlanSuscripcion, int idBeneficio, bool activo, string usuarioModificacion);
     }
 }

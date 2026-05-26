@@ -30,4 +30,15 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string IdAspNetUser { get; set; }
         public string Nombre { get; set; }
     }
+
+    public class TipoReaccionDTO
+    {
+        public int Id { get; set; }
+        public string Codigo { get; set; }
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+        public string IconoCodigo { get; set; }
+        public string ColorHexadecimal { get; set; }
+        public int Orden { get; set; }
+    }
 }

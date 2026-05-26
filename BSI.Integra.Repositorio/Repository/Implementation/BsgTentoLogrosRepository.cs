@@ -25,7 +25,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
         public List<BsgTentoLogroDTO> ObtenerLogros(int? tipoLogro)
         {
-            var res = _dapperRepository.QuerySPDapper("tnt.SP_BsgTentoObtenerLogros", new { TipoLogro = tipoLogro });
+            var res = _dapperRepository.QuerySPDapper("tnt.SP_LogroObtenerPorTipoLogro", new { TipoLogro = tipoLogro });
             if (!string.IsNullOrEmpty(res) && res != "null" && !res.Contains("[]"))
                 return JsonConvert.DeserializeObject<List<BsgTentoLogroDTO>>(res);
             return new List<BsgTentoLogroDTO>();
@@ -93,7 +93,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
         public List<BsgTentoMisionDTO> ObtenerMisiones(int? tipoMision)
         {
-            var res = _dapperRepository.QuerySPDapper("tnt.SP_BsgTentoObtenerMisiones", new { IdTipoMision = tipoMision });
+            var res = _dapperRepository.QuerySPDapper("tnt.SP_MisionObtenerPorIdTipoMision", new { IdTipoMision = tipoMision });
             if (!string.IsNullOrEmpty(res) && res != "null" && !res.Contains("[]"))
                 return JsonConvert.DeserializeObject<List<BsgTentoMisionDTO>>(res);
             return new List<BsgTentoMisionDTO>();

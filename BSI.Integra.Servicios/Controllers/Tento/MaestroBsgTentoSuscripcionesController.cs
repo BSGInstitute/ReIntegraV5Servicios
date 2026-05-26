@@ -86,5 +86,33 @@ namespace BSI.Integra.Servicios.Controllers.Tento
             try { _bsgTentoSuscripcionService.EliminarPlan(id, _tokenManager.UserName); return Ok(true); }
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 2026-05-23
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de beneficios disponibles para asignar a planes de suscripción
+        /// </summary>
+        /// <returns>Lista de beneficios del catálogo</returns>
+        [HttpGet("[action]")]
+        public IActionResult ObtenerBeneficios()
+        {
+            try { return Ok(_bsgTentoSuscripcionService.ObtenerBeneficios()); }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 2026-05-23
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de plataformas de tienda
+        /// </summary>
+        /// <returns>Lista de plataformas de tienda del catálogo</returns>
+        [HttpGet("[action]")]
+        public IActionResult ObtenerPlataformasTienda()
+        {
+            try { return Ok(_bsgTentoSuscripcionService.ObtenerPlataformasTienda()); }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
     }
 }

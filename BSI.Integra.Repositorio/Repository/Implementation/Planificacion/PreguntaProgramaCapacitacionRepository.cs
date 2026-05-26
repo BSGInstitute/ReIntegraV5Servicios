@@ -385,7 +385,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 var res = _dapperRepository.QuerySPDapper("ope.SP_TPreguntaProgramaCapacitacionDificultad_Obtener", null);
                 if (!string.IsNullOrEmpty(res) && res != "null" && !res.Contains("[]"))
                     return JsonConvert.DeserializeObject<List<PreguntaProgramaCapacitacionDificultadDTO>>(res)
-                                     .OrderBy(x => x.IdPreguntaProgramaCapacitacionDificultad)
+                                     .OrderBy(x => x.Id)
                                      .ToList();
                 return new List<PreguntaProgramaCapacitacionDificultadDTO>();
             }
@@ -416,12 +416,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
         /// Obtiene el nivel de dificultad asociado a una pregunta de programa de capacitacion
         /// </summary>
         /// <param name="id">Id de la pregunta (PK)</param>
-        /// <returns>Objeto de tipo PreguntaProgramaCapacitacionDificultadDTO o null si no existe</returns>
-        public PreguntaProgramaCapacitacionDificultadDTO ObtenerDificultadPorIdPregunta(int id)
+        /// <returns>Objeto de tipo DificultadPorPreguntaDTO o null si no existe</returns>
+        public DificultadPorPreguntaDTO ObtenerDificultadPorIdPregunta(int id)
         {
-            var res = _dapperRepository.QuerySPFirstOrDefault("ope.SP_TPreguntaProgramaCapacitacionObtenerDificultadPorId", new { IdPreguntaProgramaCapacitacion = id });
+            var res = _dapperRepository.QuerySPFirstOrDefault("ope.SP_PreguntaProgramaCapacitacionObtenerDificultadPorIdPreguntaProgramaCapacitacion", new { IdPreguntaProgramaCapacitacion = id });
             if (!string.IsNullOrEmpty(res) && res != "null")
-                return JsonConvert.DeserializeObject<PreguntaProgramaCapacitacionDificultadDTO>(res);
+                return JsonConvert.DeserializeObject<DificultadPorPreguntaDTO>(res);
             return null;
         }
 

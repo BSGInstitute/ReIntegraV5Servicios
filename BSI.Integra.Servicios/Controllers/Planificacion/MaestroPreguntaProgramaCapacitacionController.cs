@@ -425,7 +425,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         /// Obtiene el nivel de dificultad asociado a una pregunta de programa de capacitacion
         /// </summary>
         /// <param name="id">(PK) de la pregunta</param>
-        /// <returns>Objeto (PreguntaProgramaCapacitacionDificultadDTO) con respuesta 200 o 400 con el mensaje de error</returns>
+        /// <returns>Objeto (DificultadPorPreguntaDTO) con respuesta 200 o 400 con el mensaje de error</returns>
         [Route("[action]/{id}")]
         [HttpGet]
         public IActionResult ObtenerDificultadPorIdPregunta(int id)

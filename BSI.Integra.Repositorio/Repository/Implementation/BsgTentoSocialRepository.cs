@@ -34,10 +34,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             return null;
         }
 
-        public List<PublicacionAdminDTO> ObtenerPublicaciones(bool? visible)
+        public List<PublicacionAdminDTO> ObtenerPublicaciones(bool? visible, DateTime fechaInicio, DateTime fechaFin)
         {
-            var res = _dapperRepository.QuerySPDapper("tnt.SP_BsgTentoObtenerPublicacionesAdmin",
-                new { Visible = visible });
+            var res = _dapperRepository.QuerySPDapper("tnt.SP_PublicacionObtenerPorVisibilidad",
+                new { Visible = visible, FechaModificacion_Inicio = fechaInicio, FechaModificacion_Fin = fechaFin });
             if (!string.IsNullOrEmpty(res) && res != "null" && !res.Contains("[]"))
                 return JsonConvert.DeserializeObject<List<PublicacionAdminDTO>>(res)
                     .OrderByDescending(x => x.FechaCreacion).ToList();
@@ -54,6 +54,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         {
             _dapperRepository.QuerySPDapper("tnt.SP_TPublicacion_Eliminar",
                 new { IdPublicacion = id, UsuarioModificacion = usuarioModificacion });
+        }
+
+        public List<TipoReaccionDTO> ObtenerTiposReaccion()
+        {
+            var res = _dapperRepository.QuerySPDapper("tnt.SP_TTipoReaccion_Obtener", null);
+            if (!string.IsNullOrEmpty(res) && res != "null" && !res.Contains("[]"))
+                return JsonConvert.DeserializeObject<List<TipoReaccionDTO>>(res).OrderBy(x => x.Orden).ToList();
+            return new List<TipoReaccionDTO>();
         }
     }
 }

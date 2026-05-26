@@ -103,5 +103,19 @@ namespace BSI.Integra.Servicios.Controllers.Tento
             try { _bsgTentoPowerUpService.EliminarPowerUp(id, _tokenManager.UserName); return Ok(true); }
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
+
+        /// Autor: Humberto Oscata
+        /// Fecha: 2026-05-23
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el catálogo de canales de distribución donde los power-ups pueden estar disponibles
+        /// </summary>
+        /// <returns>Lista de canales de distribución</returns>
+        [HttpGet("[action]")]
+        public IActionResult ObtenerCanalesDistribucion()
+        {
+            try { return Ok(_bsgTentoPowerUpService.ObtenerCanalesDistribucion()); }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
     }
 }
