@@ -141,5 +141,18 @@ namespace BSI.Integra.Aplicacion.Interaccion.Service.Implementacion
                 throw new Exception(ex.Message);
             }
         }
+
+        public List<ConsentResumenDTO> ObtenerConsentsPorAsesor(int idPersonal)
+        {
+            try
+            {
+                if (idPersonal <= 0) return new List<ConsentResumenDTO>();
+                return _unitOfWork.LlamadasWhatsAppRepository.ObtenerConsentsPorAsesor(idPersonal);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }
