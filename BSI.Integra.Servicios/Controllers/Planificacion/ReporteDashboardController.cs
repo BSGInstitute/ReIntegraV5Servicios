@@ -868,7 +868,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
             [FromQuery] string? filtroCentroCosto = null,
             [FromQuery] DateTime? filtroFechaDesde = null,
             [FromQuery] DateTime? filtroFechaHasta = null,
-            [FromQuery] int? idDocente = null,
+            [FromQuery] int? idProveedor = null,
             [FromQuery] string? codigoMatricula = null,
             [FromQuery] string? idsPEspecifico = null,
             [FromQuery] int grupo = 1,
@@ -881,7 +881,7 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
                 var resultado = await service.ObtenerCalificacionAlumnosAsync(
                     filtroEstadoNotas, filtroCentroCosto,
                     filtroFechaDesde, filtroFechaHasta,
-                    idDocente, codigoMatricula, idsPEspecifico,
+                    idProveedor, codigoMatricula, idsPEspecifico,
                     grupo, pagina, tamanoPagina);
                 return Ok(resultado);
             }

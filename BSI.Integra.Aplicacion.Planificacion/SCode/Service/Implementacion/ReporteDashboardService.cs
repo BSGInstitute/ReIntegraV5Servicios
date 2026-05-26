@@ -397,7 +397,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             string? filtroCentroCosto = null,
             DateTime? filtroFechaDesde = null,
             DateTime? filtroFechaHasta = null,
-            int? idDocente = null,
+            int? idProveedor = null,
             string? codigoMatricula = null,
             string? idsPEspecifico = null,
             int grupo = 1,
@@ -408,7 +408,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
             {
                 return await _unitOfWork.ReporteDashboardRepository.ObtenerCalificacionAlumnosAsync(
                     filtroEstadoNotas, filtroCentroCosto, filtroFechaDesde, filtroFechaHasta,
-                    idDocente, codigoMatricula, idsPEspecifico, grupo, pagina, tamanoPagina);
+                    idProveedor, codigoMatricula, idsPEspecifico, grupo, pagina, tamanoPagina);
             }
             catch (Exception) { throw; }
         }

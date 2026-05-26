@@ -201,7 +201,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Interface
             string? filtroCentroCosto = null,
             DateTime? filtroFechaDesde = null,
             DateTime? filtroFechaHasta = null,
-            int? idDocente = null,
+            int? idProveedor = null,
             string? codigoMatricula = null,
             string? idsPEspecifico = null,
             int grupo = 1,

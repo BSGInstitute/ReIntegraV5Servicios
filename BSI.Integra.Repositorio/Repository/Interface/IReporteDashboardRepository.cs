@@ -194,7 +194,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
             string? filtroCentroCosto = null,
             DateTime? filtroFechaDesde = null,
             DateTime? filtroFechaHasta = null,
-            int? idDocente = null,
+            int? idProveedor = null,
             string? codigoMatricula = null,
             string? idsPEspecifico = null,
             int grupo = 1,

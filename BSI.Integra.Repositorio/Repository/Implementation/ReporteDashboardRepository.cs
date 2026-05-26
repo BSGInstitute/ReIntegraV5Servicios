@@ -30,7 +30,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 using var conn = _connectionFactory.GetConnection;
                 var resultado = await conn.QueryFirstOrDefaultAsync<ReporteDashboardResumenDTO>(
-                    "pla.SP_ReporteDashboard_ObtenerResumen",
+                    "pla.SP_ReporteDashboardResumenGeneral",
                     new
                     {
                         Anio                      = anio,
@@ -295,7 +295,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 using var conn = _connectionFactory.GetConnection;
                 var resultado = await conn.QueryAsync<ReporteDashboardEstadoSesionDTO>(
-                    "pla.SP_ReporteDashboard_ObtenerResumenPorEstadoSesion",
+                    "pla.SP_ReporteDashboardObtenerResumenPorEstadoSesion",
                     new
                     {
                         FechaInicio = fechaInicio.HasValue ? (object)fechaInicio.Value.Date : null,
@@ -322,7 +322,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 using var conn = _connectionFactory.GetConnection;
                 var resultado = await conn.QueryAsync<ReporteDashboardSesionDetalleDTO>(
-                    "pla.SP_ReporteDashboard_ObtenerSesionesPorEstado",
+                    "pla.SP_ReporteDashboardObtenerSesionesPorEstado",
                     new
                     {
                         FechaInicio = fechaInicio.HasValue ? (object)fechaInicio.Value.Date : null,
@@ -371,7 +371,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 using var conn = _connectionFactory.GetConnection;
                 var resultado = await conn.QueryFirstOrDefaultAsync<ReporteDashboardKPIsEstadoSesionDTO>(
-                    "pla.SP_ReporteDashboard_ObtenerKPIsEstadoSesion",
+                    "pla.SP_ReporteDashboardObtenerKPIsEstadoSesion",
                     new
                     {
                         FechaInicio = fechaInicio.HasValue ? (object)fechaInicio.Value.Date : null,
@@ -419,7 +419,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 using var conn = _connectionFactory.GetConnection;
                 var resultado = await conn.QueryAsync<ReporteDashboardEstadoPorDiaDTO>(
-                    "pla.SP_ReporteDashboard_ObtenerEstadosPorDia",
+                    "pla.SP_ReporteDashboardObtenerEstadosPorDia",
                     new
                     {
                         IdsPEspecificoHijo = idsPEspecificoHijo,
@@ -482,7 +482,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 using var conn = _connectionFactory.GetConnection;
                 var resultado = await conn.QueryAsync<ReporteDashboardSeguimientoClaseDTO>(
-                    "pla.SP_ReporteDashboard_ObtenerSeguimientoClases",
+                    "pla.SP_ReporteDashboardObtenerSeguimientoClases",
                     new
                     {
                         FechaInicio  = filtro.FechaInicio,
@@ -619,7 +619,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             string? filtroCentroCosto = null,
             DateTime? filtroFechaDesde = null,
             DateTime? filtroFechaHasta = null,
-            int? idDocente = null,
+            int? idProveedor = null,
             string? codigoMatricula = null,
             string? idsPEspecifico = null,
             int grupo = 1,
@@ -630,14 +630,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 using var conn = _connectionFactory.GetConnection;
                 using var multi = await conn.QueryMultipleAsync(
-                    "pla.SP_ReporteDashboard_ObtenerCalificacionAlumnos",
+                    "pla.SP_ReporteDashboardObtenerCalificacionAlumnos",
                     new
                     {
                         FiltroEstadoNotas = string.IsNullOrWhiteSpace(filtroEstadoNotas) ? null : filtroEstadoNotas.Trim(),
                         FiltroCentroCosto = string.IsNullOrWhiteSpace(filtroCentroCosto) ? null : filtroCentroCosto.Trim(),
                         FiltroFechaDesde  = filtroFechaDesde.HasValue ? filtroFechaDesde.Value.Date : (DateTime?)null,
                         FiltroFechaHasta  = filtroFechaHasta.HasValue ? filtroFechaHasta.Value.Date : (DateTime?)null,
-                        IdDocente         = idDocente,
+                        IdProveedor       = idProveedor,
                         CodigoMatricula   = string.IsNullOrWhiteSpace(codigoMatricula) ? null : codigoMatricula.Trim(),
                         IdsPEspecifico    = string.IsNullOrWhiteSpace(idsPEspecifico)  ? null : idsPEspecifico.Trim(),
                         Grupo             = grupo,
@@ -1176,7 +1176,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 using var conn = _connectionFactory.GetConnection;
                 var resultado = await conn.QueryAsync<ReporteDashboardResumenProgramasDTO>(
-                    "pla.SP_ReporteDashboardObtenerResumenProgramas",
+                    "pla.SP_ReporteDashboardResumenProgramasPorEstado",
                     new
                     {
                         Anio                      = anio,
