@@ -175,6 +175,10 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     {
         public int IdAlumno { get; set; }
     }
+    public class ObtenerChatRequestSolicitudDTO
+    {
+        public int IdSolicitud { get; set; }
+    }
 
     public class ObtenerChatRequest2DTO
     {
@@ -372,6 +376,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public DateTime? FechaInicio { get; set; }
         public DateTime? FechaFin { get; set; }
         public string? CodigoMatricula { get; set; }
+        public int IntervencionBot { get; set;  }
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 10;
     }
@@ -380,6 +385,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     {
         public DateTime? FechaInicio { get; set; }
         public DateTime? FechaFin { get; set; }
+        public int IntervencionBot { get; set; }
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 10;
     }
@@ -431,6 +437,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public DateTime? FechaCalificacion { get; set; }
         public string UltimoMensaje { get; set; }
         public int TotalMensajes { get; set; }
+        public int TotalMensajesBot { get; set; }
         public int TotalCount { get; set; }
     }
 

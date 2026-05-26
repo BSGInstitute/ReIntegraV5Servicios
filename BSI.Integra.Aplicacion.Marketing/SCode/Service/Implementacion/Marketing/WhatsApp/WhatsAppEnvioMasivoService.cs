@@ -45,7 +45,9 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion.Marketing.What
             {
                 var resultado = unitOfWork.WhatsAppMensajeEnviadoRepository
                     .ObtenerHistorialOportunidadesPorAlumno(idAlumno);
-                return resultado ?? new List<HistorialOportunidadMasivoDTO>();
+                return (resultado ?? new List<HistorialOportunidadMasivoDTO>())
+                    .OrderByDescending(x => x.FechaSolicitud)
+                    .ToList();
             }
             catch (Exception ex)
             {

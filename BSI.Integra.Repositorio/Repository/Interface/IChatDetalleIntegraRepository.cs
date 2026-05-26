@@ -37,11 +37,12 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         IEnumerable<VersionFormularioDTO> ObtenerVersionesFormularioActivas();
         IEnumerable<TipoEntradaDTO> ObtenerTiposEntradaActivos();
         IEnumerable<ChatbotMensajeDTO> ObtenerChatPorAlumno(int idAlumno);
+        IEnumerable<ChatbotMensajeDTO> ObtenerChatPorSolicitud(int idSolicitudAlumno);
         InsertarRespuestaEvaluacionResultadoDTO InsertarRespuestaEvaluacionCompleta(int idChatbotPortalHiloChat, int idVersionFormularioEvaluacionChatbot, string usuarioCreacion, int? idSolicitudProblema, int idMedioComunicacion, int idOriginal, string respuestasSeleccionadasJson = null, string respuestasTextoJson = null, string problemasIdentificadosJson = null);
         IEnumerable<ChatbotMensajeDTO> ObtenerChatPorPortalSegmento(string IdContactoPortalSegmento);
-        IEnumerable<ChatbotAlumnoChatPaginadoDTO> ObtenerHilosChatConAlumnos(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize, string? codigoMatricula);
+        IEnumerable<ChatbotAlumnoChatPaginadoDTO> ObtenerHilosChatConAlumnos(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize, string? codigoMatricula, int intervencionBot);
         IEnumerable<ChatbotHiloChatPorSegmentoDTO> ObtenerHilosChatPorSegmento();
-        IEnumerable<ChatbotHiloChatPorSegmentoPaginadoDTO> ObtenerHilosChatPorSegmentoPaginado(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize);
+        IEnumerable<ChatbotHiloChatPorSegmentoPaginadoDTO> ObtenerHilosChatPorSegmentoPaginado(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize, int intervencionBot);
         IEnumerable<RespuestaClienteDTO> ObtenerRespuestasUsuarioPorFormularioAplicado(int IdFormularioAplicadoChatbot);
         IEnumerable<RespuestaClienteDTO> ObtenerRespuestasUsuarioPorFormularioAplicadoWhatsapp(int idChatbotWhatsAppHiloChat);
         InsertarRespuestaEvaluacionResultadoDTO InsertarRespuestaEvaluacionCompletaWhatsapp(int idMedioComunicacion, int idOriginal, int idVersionFormularioEvaluacionChatbot, string usuarioCreacion, int? idSolicitudProblema, string respuestasSeleccionadasJson = null, string respuestasTextoJson = null, string problemasIdentificadosJson = null);
@@ -68,5 +69,6 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         List<SesionAsistenciaDTO> ObtenerAsistenciaPorMatricula(int idMatriculaCabecera, int idPEspecifico);
         bool RegistrarAsistenciaMatricula(int idMatriculaCabecera, int idPEspecificoSesion);
         IEnumerable<ChatbotMensajeWhatsAppAtcDTO> ObtenerChatWhatsAppAtcPorAlumno(int idAlumno);
+        IEnumerable<ChatbotMensajeWhatsAppAtcDTO> ObtenerChatWhatsAppAtcPorSolicitudAlumno(int idSolicitudAlumno);
     }
 }
