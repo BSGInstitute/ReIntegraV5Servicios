@@ -83,6 +83,23 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     }
 
     /// <summary>
+    /// Resumen de un consentimiento solicitado por un asesor. Lo usa el panel "Mis consents"
+    /// del header global para que el agente pueda ver qué clientes le quedaron pendientes
+    /// aunque ya no esté en la ficha que originó la solicitud.
+    /// </summary>
+    public class ConsentResumenDTO
+    {
+        public int       IdWhatsappLlamada     { get; set; }
+        public string?   NumeroWhatsApp        { get; set; }
+        public int       IdPais                { get; set; }
+        public string?   ConsentimientoEstado  { get; set; }
+        public DateTime? ConsentimientoFecha   { get; set; }
+        public DateTime? ConsentimientoExpira  { get; set; }
+        public DateTime? FechaCreacion         { get; set; }
+        public int?      IdActividadDetalle    { get; set; }
+    }
+
+    /// <summary>
     /// Request del frontend para subir la grabación de una llamada (entrante o saliente)
     /// generada con MediaRecorder del browser. El backend la persiste en Azure Blob y actualiza
     /// las columnas GrabacionUrl + GrabacionBlobNombre de com.T_WhatsappLlamada.

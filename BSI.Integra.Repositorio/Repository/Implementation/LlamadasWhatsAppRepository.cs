@@ -173,6 +173,36 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// SP_WhatsappLlamada_ActualizarGrabacion. El SP también actualiza UsuarioModificacion
         /// y FechaModificacion.
         /// </summary>
+        public List<ConsentResumenDTO> ObtenerConsentsPorAsesor(int idPersonal)
+        {
+            try
+            {
+                const string sql = @"
+                    SELECT WL.Id AS IdWhatsappLlamada, 
+	                       CASE
+		                    WHEN ALU.Id IS NOT NULL THEN CONCAT(ALU.Nombre1,' ',ALU.ApellidoPaterno,' - ',WL.NumeroWhatsApp) 
+		                    ELSE CONCAT('No Identificado - ',WL.NumeroWhatsApp) 
+		                    END AS NumeroWhatsApp,
+	                       WL.IdPais,
+                           WL.ConsentimientoEstado, WL.ConsentimientoFecha, WL.ConsentimientoExpira,
+                           WL.FechaCreacion, WL.IdActividadDetalle
+                    FROM com.T_WhatsappLlamada WL
+                    LEFT JOIN com.T_ActividadDetalle AD ON WL.IdActividadDetalle=AD.Id
+                    LEFT JOIN mkt.T_Alumno ALU ON AD.IdAlumno=ALU.Id
+                    WHERE WL.IdPersonal = @IdPersonal
+                      AND WL.TipoLlamada = 2
+                      AND WL.ConsentimientoEstado IS NOT NULL
+                    ORDER BY ISNULL(WL.ConsentimientoFecha, WL.FechaCreacion) DESC";
+                var json = _dapperRepository.QueryDapper(sql, new { IdPersonal = idPersonal });
+                if (string.IsNullOrEmpty(json) || json == "null" || json.Contains("[]")) return new List<ConsentResumenDTO>();
+                return JsonConvert.DeserializeObject<List<ConsentResumenDTO>>(json) ?? new List<ConsentResumenDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public bool ActualizarGrabacion(int idWhatsappLlamada, string grabacionUrl, string grabacionBlobNombre, string usuarioModificacion)
         {
             try

@@ -312,6 +312,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TEsquemaEvaluacionPgeneralDetalle> TEsquemaEvaluacionPgeneralDetalles { get; set; } = null!;
         public virtual DbSet<TEsquemaEvaluacionPgeneralModalidad> TEsquemaEvaluacionPgeneralModalidads { get; set; } = null!;
         public virtual DbSet<TEsquemaEvaluacionPgeneralProveedor> TEsquemaEvaluacionPgeneralProveedors { get; set; } = null!;
+        public virtual DbSet<TEsquemaMetrica> TEsquemaMetricas { get; set; } = null!;
+        public virtual DbSet<TEsquemaMetricaParametro> TEsquemaMetricaParametros { get; set; } = null!;
+        public virtual DbSet<TEsquemaMetricaParametroOpcion> TEsquemaMetricaParametroOpcions { get; set; } = null!;
+        public virtual DbSet<TEsquemaMetricaPlantillaVersion> TEsquemaMetricaPlantillaVersions { get; set; } = null!;
         public virtual DbSet<TEstadoActividadDetalle> TEstadoActividadDetalles { get; set; } = null!;
         public virtual DbSet<TEstadoCabeceraGestionContacto> TEstadoCabeceraGestionContactos { get; set; } = null!;
         public virtual DbSet<TEstadoCertificadoFisico> TEstadoCertificadoFisicos { get; set; } = null!;
@@ -556,6 +560,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TMensajeTiempoInactivo> TMensajeTiempoInactivos { get; set; } = null!;
         public virtual DbSet<TMessengerChat> TMessengerChats { get; set; } = null!;
         public virtual DbSet<TMessengerEnvioMasivo> TMessengerEnvioMasivos { get; set; } = null!;
+        public virtual DbSet<TMetricaCampo> TMetricaCampos { get; set; } = null!;
+        public virtual DbSet<TMetricaCampoOpcion> TMetricaCampoOpcions { get; set; } = null!;
+        public virtual DbSet<TMetricaCatalogo> TMetricaCatalogos { get; set; } = null!;
         public virtual DbSet<TModalidadCurso> TModalidadCursos { get; set; } = null!;
         public virtual DbSet<TModalidadPago> TModalidadPagos { get; set; } = null!;
         public virtual DbSet<TModalidadTrabajo> TModalidadTrabajos { get; set; } = null!;
@@ -18960,6 +18967,183 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasConstraintName("FK_T_EsquemaEvaluacionPGeneralProveedor_T_Proveedor");
             });
 
+            modelBuilder.Entity<TEsquemaMetrica>(entity =>
+            {
+                entity.ToTable("T_EsquemaMetrica", "gp");
+
+                entity.HasComment("Metricas incluidas en cada version de esquema. Almacena el peso porcentual de la metrica y el PromptOverride opcional para afinar la instruccion de IA para este puesto. Resolucion del prompt efectivo en tiempo de evaluacion: si PromptOverride IS NOT NULL se usa el override; si es NULL se usa el PromptBase del catalogo; si ambos son NULL la IA solo usa los parametros estructurados.");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico autoincrementado.");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
+
+                entity.Property(e => e.IdEsquemaMetricaPlantillaVersion).HasComment("FK a T_EsquemaVersion. Version del esquema a la que pertenece esta metrica.");
+
+                entity.Property(e => e.IdMetricaCatalogo).HasComment("FK a T_MetricaCatalogo. Metrica del catalogo incluida en este esquema. UQ con IdEsquemaVersion.");
+
+                entity.Property(e => e.Peso)
+                    .HasColumnType("decimal(15, 2)")
+                    .HasComment("Peso porcentual de esta metrica en el esquema (0-100). La suma de todos los pesos de una version debe ser 100. Validado en SP_T_EsquemaVersion_Publicar antes de publicar.");
+
+                entity.Property(e => e.PromptOverride).HasComment("Instruccion especifica para este puesto y version que complementa o reemplaza el PromptBase del catalogo. NULL = heredar PromptBase sin modificaciones.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken();
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdEsquemaMetricaPlantillaVersionNavigation)
+                    .WithMany(p => p.TEsquemaMetricas)
+                    .HasForeignKey(d => d.IdEsquemaMetricaPlantillaVersion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_EsquemaMetrica_T_EsquemaMetricaPlantillaVersion_IdEsquemaVersion");
+
+                entity.HasOne(d => d.IdMetricaCatalogoNavigation)
+                    .WithMany(p => p.TEsquemaMetricas)
+                    .HasForeignKey(d => d.IdMetricaCatalogo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TEsquemaMetricaParametro>(entity =>
+            {
+                entity.ToTable("T_EsquemaMetricaParametro", "gp");
+
+                entity.HasComment("Un registro por cada campo configurado de una metrica en un esquema. El tipo del campo lo determina IdMetricaCampo via JOIN con T_MetricaCampo. Mapeo de columnas segun TipoCampo: number -> ValorNumerico, boolean -> ValorBooleano, text/textarea -> ValorTextoLibre, select/tags -> valores en T_EsquemaMetricaCampoOpcion y T_EsquemaMetricaParametroOpcion (todas las columnas directas quedan NULL). CHK garantiza que como maximo una columna directa tenga valor simultaneamente.");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico autoincrementado.");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
+
+                entity.Property(e => e.IdEsquemaMetrica).HasComment("FK a T_EsquemaMetrica. Metrica del esquema a la que pertenece este parametro.");
+
+                entity.Property(e => e.IdMetricaCampo).HasComment("FK a T_MetricaCampo. Determina que tipo de campo es y en que columna de valor se almacena el dato. UQ con IdEsquemaMetrica.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken();
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ValorBooleano).HasComment("Valor booleano para campos con TipoCampo = boolean. Ej: penalizar_brechas = 1. NULL para otros tipos.");
+
+                entity.Property(e => e.ValorNumerico).HasComment("Valor entero para campos con TipoCampo = number. Ej: anos_minimos = 5. NULL para otros tipos.");
+
+                entity.HasOne(d => d.IdEsquemaMetricaNavigation)
+                    .WithMany(p => p.TEsquemaMetricaParametros)
+                    .HasForeignKey(d => d.IdEsquemaMetrica)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdMetricaCampoNavigation)
+                    .WithMany(p => p.TEsquemaMetricaParametros)
+                    .HasForeignKey(d => d.IdMetricaCampo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TEsquemaMetricaParametroOpcion>(entity =>
+            {
+                entity.ToTable("T_EsquemaMetricaParametroOpcion", "gp");
+
+                entity.HasComment("Opciones seleccionadas activamente para un parametro de tipo select o tags. Referencia T_EsquemaMetricaCampoOpcion (pool propio del esquema) — nunca al catalogo de sugerencias. Para campos tipo select: exactamente 1 fila activa por parametro. Para campos tipo tags: 1 a N filas activas por parametro (multivalor).");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico autoincrementado.");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
+
+                entity.Property(e => e.IdEsquemaMetricaParametro).HasComment("FK a T_EsquemaMetricaParametro. Parametro raiz al que pertenece esta seleccion.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken();
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdEsquemaMetricaParametroNavigation)
+                    .WithMany(p => p.TEsquemaMetricaParametroOpcions)
+                    .HasForeignKey(d => d.IdEsquemaMetricaParametro)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdMetricaCampoOpcionNavigation)
+                    .WithMany(p => p.TEsquemaMetricaParametroOpcions)
+                    .HasForeignKey(d => d.IdMetricaCampoOpcion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_EsquemaMetricaParametroOpcion_MetricaCampoOpcion");
+            });
+
+            modelBuilder.Entity<TEsquemaMetricaPlantillaVersion>(entity =>
+            {
+                entity.ToTable("T_EsquemaMetricaPlantillaVersion", "gp");
+
+                entity.HasComment("Versiones de esquemas de evaluacion por puesto. Un puesto puede tener multiples versiones con ciclo de vida: borrador -> vigente -> archivada. Solo puede existir un registro con EstadoVersion = vigente por IdPuesto (regla de negocio aplicada en SP_T_EsquemaVersion_Publicar).");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico autoincrementado.");
+
+                entity.Property(e => e.EstadoVersion)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasComment("Estado del ciclo de vida. Valores validos: vigente | borrador | archivada. Solo puede existir un registro vigente por IdPuesto.");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaPublicacion)
+                    .HasColumnType("date")
+                    .HasComment("Fecha en que el borrador fue publicado como vigente. NULL mientras la version sea borrador.");
+
+                entity.Property(e => e.IdPuestoTrabajo).HasComment("FK a T_PuestoTrabajo. Puesto al que pertenece esta version de esquema.");
+
+                entity.Property(e => e.Motivo)
+                    .HasMaxLength(500)
+                    .HasComment("Descripcion del cambio que motiva esta version (ej: TypeScript como obligatorio y Certificaciones incorporada).");
+
+                entity.Property(e => e.NumeroVersion)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasComment("Etiqueta de version legible para el UI (ej: v2.0, v1.1, borrador).");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken();
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdPuestoTrabajoNavigation)
+                    .WithMany(p => p.TEsquemaMetricaPlantillaVersions)
+                    .HasForeignKey(d => d.IdPuestoTrabajo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
             modelBuilder.Entity<TEstadoActividadDetalle>(entity =>
             {
                 entity.ToTable("T_EstadoActividadDetalle", "com");
@@ -34007,6 +34191,134 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TMetricaCampo>(entity =>
+            {
+                entity.ToTable("T_MetricaCampo", "gp");
+
+                entity.HasComment("Campos configurables de cada metrica del catalogo. Define estructura, tipo y comportamiento visual del campo. No almacena valores ni opciones definitivas: las opciones sugeridas van en T_MetricaCampoOpcion, las opciones del esquema en T_EsquemaMetricaCampoOpcion y los valores del esquema en T_EsquemaMetricaParametro.");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico autoincrementado.");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
+
+                entity.Property(e => e.IdMetricaCatalogo).HasComment("FK a T_MetricaCatalogo. Metrica a la que pertenece este campo.");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Etiqueta legible para el UI del formulario (ej: Anos minimos, Skills obligatorias).");
+
+                entity.Property(e => e.Orden).HasComment("Posicion del campo en el formulario de configuracion de la metrica. Default 0.");
+
+                entity.Property(e => e.Requerido).HasComment("Campo que hacer referencia si un campo es requerido o no");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken();
+
+                entity.Property(e => e.TipoCampo)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasComment("Tipo de control del campo. Valores validos: number | select | boolean | tags | textarea | text. Determina en que columna de T_EsquemaMetricaParametro se almacena el valor y si usa tabla de opciones.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdMetricaCatalogoNavigation)
+                    .WithMany(p => p.TMetricaCampos)
+                    .HasForeignKey(d => d.IdMetricaCatalogo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TMetricaCampoOpcion>(entity =>
+            {
+                entity.ToTable("T_MetricaCampoOpcion", "gp");
+
+                entity.HasComment("Sugerencias de opciones del catalogo para campos de tipo select y tags. Son valores orientativos no vinculantes: el UI los ofrece como autocompletado al configurar un esquema, pero el esquema no esta obligado a usarlos. Las opciones propias de cada esquema viven en T_EsquemaMetricaCampoOpcion.");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico autoincrementado.");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
+
+                entity.Property(e => e.IdMetricaCampo).HasComment("FK a T_MetricaCampo. Solo campos con TipoCampo = select o tags.");
+
+                entity.Property(e => e.Opcion)
+                    .HasMaxLength(200)
+                    .HasComment("Valor sugerido disponible para este campo. Unico por campo. No vinculante para los esquemas: cada esquema define sus propias opciones en T_EsquemaMetricaCampoOpcion.");
+
+                entity.Property(e => e.Orden).HasComment("Posicion de la sugerencia en el selector de autocompletado del UI. Default 0.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken();
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.IdMetricaCampoNavigation)
+                    .WithMany(p => p.TMetricaCampoOpcions)
+                    .HasForeignKey(d => d.IdMetricaCampo)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TMetricaCatalogo>(entity =>
+            {
+                entity.ToTable("T_MetricaCatalogo", "gp");
+
+                entity.HasComment("Catalogo global de metricas reutilizables para evaluacion de CVs. Cada metrica define un criterio de evaluacion (ej: Experiencia Laboral, Skills Tecnicas). Contiene el PromptBase: instruccion general para la IA evaluadora que aplica a todos los puestos y puede ser afinado por PromptOverride en T_EsquemaMetrica.");
+
+                entity.HasIndex(e => e.Codigo, "UQ_T_MetricaCatalogo_Codigo")
+                    .IsUnique();
+
+                entity.Property(e => e.Id).HasComment("Identificador unico autoincrementado.");
+
+                entity.Property(e => e.Codigo)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Clave tecnica del sistema (ej: experiencia_laboral, skills_tecnicas). Unico. Usado para mapeo con el frontend.");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(500)
+                    .HasComment("Explicacion de que evalua esta metrica. Visible en el catalogo del frontend.");
+
+                entity.Property(e => e.FechaCreacion).HasColumnType("datetime");
+
+                entity.Property(e => e.FechaModificacion).HasColumnType("datetime");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasComment("Nombre legible de la metrica (ej: Experiencia Laboral, Skills Tecnicas).");
+
+                entity.Property(e => e.PromptBase).HasComment("Instruccion en lenguaje natural para la IA evaluadora. Aplica a todos los puestos. Puede ser afinado o reemplazado por PromptOverride en T_EsquemaMetrica para un puesto especifico.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken();
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<TModalidadCurso>(entity =>

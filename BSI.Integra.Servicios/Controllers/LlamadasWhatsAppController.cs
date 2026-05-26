@@ -88,6 +88,31 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
+        /// Tipo Función: GET
+        /// Autor: WhatsApp Business Calling API integration
+        /// Fecha: 2026-05-25
+        /// Versión: 1.0
+        /// <summary>
+        /// Devuelve los consentimientos solicitados por el asesor (todos los estados). Lo
+        /// consume el panel global de consents para que el agente pueda recuperar el contexto
+        /// aunque haya cambiado de ficha cuando el cliente respondió.
+        /// </summary>
+        [HttpGet("ConsentsPorAsesor")]
+        public IActionResult ObtenerConsentsPorAsesor([FromQuery] int idPersonal)
+        {
+            try
+            {
+                if (idPersonal <= 0) return BadRequest(new { mensaje = "idPersonal es requerido" });
+                var servicio = new LlamadasWhatsAppService(unitOfWork);
+                var resultado = servicio.ObtenerConsentsPorAsesor(idPersonal);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
+        }
+
         /// Tipo Función: POST
         /// Autor: WhatsApp Business Calling API integration
         /// Fecha: 2026-05-19

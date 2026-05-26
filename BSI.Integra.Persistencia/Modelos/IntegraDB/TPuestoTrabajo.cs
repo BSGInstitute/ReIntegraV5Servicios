@@ -8,6 +8,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public TPuestoTrabajo()
         {
             TDatoContratoPersonals = new HashSet<TDatoContratoPersonal>();
+            TEsquemaMetricaPlantillaVersions = new HashSet<TEsquemaMetricaPlantillaVersion>();
             TGrupoComparacionProcesoSeleccions = new HashSet<TGrupoComparacionProcesoSeleccion>();
             TModuloSistemaPuestoTrabajos = new HashSet<TModuloSistemaPuestoTrabajo>();
             TPerfilPuestoTrabajoPersonalAprobacions = new HashSet<TPerfilPuestoTrabajoPersonalAprobacion>();
@@ -60,6 +61,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
         public virtual TPersonalAreaTrabajo? IdPersonalAreaTrabajoNavigation { get; set; }
         public virtual ICollection<TDatoContratoPersonal> TDatoContratoPersonals { get; set; }
+        public virtual ICollection<TEsquemaMetricaPlantillaVersion> TEsquemaMetricaPlantillaVersions { get; set; }
         public virtual ICollection<TGrupoComparacionProcesoSeleccion> TGrupoComparacionProcesoSeleccions { get; set; }
         public virtual ICollection<TModuloSistemaPuestoTrabajo> TModuloSistemaPuestoTrabajos { get; set; }
         public virtual ICollection<TPerfilPuestoTrabajoPersonalAprobacion> TPerfilPuestoTrabajoPersonalAprobacions { get; set; }
