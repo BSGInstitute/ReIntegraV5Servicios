@@ -724,7 +724,14 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string? Nombre { get; set; }
     }
 
-    /// <summary>Respuesta paginada de Calificación de Alumnos (SP unificado)</summary>
+    /// <summary>Fila del RS2 del SP1 FiltrarProgramasCalificacion (IdPEspecifico + FechaTermino)</summary>
+    public class ReporteDashboardCalificacionFiltroResultDTO
+    {
+        public int IdPEspecifico { get; set; }
+        public DateTime? FechaTermino { get; set; }
+    }
+
+    /// <summary>Respuesta paginada de Calificación de Alumnos</summary>
     public class ReporteDashboardCalificacionAlumnosDTO
     {
         public int TotalRegistros { get; set; }
@@ -750,7 +757,7 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
         public string? Coordinadora { get; set; }
         public int TotalAlumnos { get; set; }
         public int TotalCriterios { get; set; }
-        public int AlumnosConNotaCompleta { get; set; }
+        public int AlumnosConNota { get; set; }
         public DateTime? FechaRegistroNota { get; set; }
         public int? PlazoCalificacion { get; set; }
         public string? ObservacionChatbot { get; set; }

@@ -33,12 +33,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     "pla.SP_ReporteDashboardResumenGeneral",
                     new
                     {
-                        Anio                      = anio,
-                        Mes                       = mes,
-                        Semana                    = semana,
-                        Modalidad                 = modalidad,
-                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
-                        IdCentroCostoPadre        = idCentroCostoPadre
+                        FechaHoraInicio_Anio   = anio,
+                        FechaHoraInicio_Mes    = mes,
+                        FechaHoraInicio_Semana = semana,
+                        Modalidad              = modalidad,
+                        IdPEspecifico_Padre    = idProgramaEspecificoPadre,
+                        IdCentroCosto_Padre    = idCentroCostoPadre
                     },
                     commandType: CommandType.StoredProcedure
                 );
@@ -254,7 +254,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 using var conn = _connectionFactory.GetConnection;
                 var resultado = await conn.QueryAsync<ReporteDashboardSemanalDTO>(
                     "pla.SP_ReporteDashboardObtenerResumenSemanal",
-                    new { Anio = anio, Mes = mes, Semana = semana, DiaMes = diaMes, IdProgramaEspecificoPadre = idProgramaEspecificoPadre, IdCentroCostoPadre = idCentroCostoPadre },
+                    new
+                    {
+                        FechaHoraInicio_Anio   = anio,
+                        FechaHoraInicio_Mes    = mes,
+                        FechaHoraInicio_Semana = semana,
+                        FechaHoraInicio_DiaMes = diaMes,
+                        IdPEspecifico_Padre    = idProgramaEspecificoPadre,
+                        IdCentroCosto_Padre    = idCentroCostoPadre
+                    },
                     commandType: CommandType.StoredProcedure
                 );
                 return resultado.ToList();
@@ -298,10 +306,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     "pla.SP_ReporteDashboardObtenerResumenPorEstadoSesion",
                     new
                     {
-                        FechaInicio = fechaInicio.HasValue ? (object)fechaInicio.Value.Date : null,
-                        FechaFin    = fechaFin.HasValue    ? (object)fechaFin.Value.Date    : null,
-                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
-                        IdCentroCostoPadre        = idCentroCostoPadre
+                        FechaHoraInicio_Inicio = fechaInicio.HasValue ? (object)fechaInicio.Value.Date : null,
+                        FechaHoraInicio_Fin    = fechaFin.HasValue    ? (object)fechaFin.Value.Date    : null,
+                        IdPEspecifico_Padre    = idProgramaEspecificoPadre,
+                        IdCentroCosto_Padre    = idCentroCostoPadre
                     },
                     commandType: CommandType.StoredProcedure
                 );
@@ -325,11 +333,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     "pla.SP_ReporteDashboardObtenerSesionesPorEstado",
                     new
                     {
-                        FechaInicio = fechaInicio.HasValue ? (object)fechaInicio.Value.Date : null,
-                        FechaFin    = fechaFin.HasValue    ? (object)fechaFin.Value.Date    : null,
-                        IdEstadoSesion            = idEstadoSesion,
-                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
-                        IdCentroCostoPadre        = idCentroCostoPadre
+                        FechaHoraInicio_Inicio = fechaInicio.HasValue ? (object)fechaInicio.Value.Date : null,
+                        FechaHoraInicio_Fin    = fechaFin.HasValue    ? (object)fechaFin.Value.Date    : null,
+                        IdPEspecificoSesionEstado = idEstadoSesion,
+                        IdPEspecifico_Padre    = idProgramaEspecificoPadre,
+                        IdCentroCosto_Padre    = idCentroCostoPadre
                     },
                     commandType: CommandType.StoredProcedure
                 );
@@ -374,10 +382,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     "pla.SP_ReporteDashboardObtenerKPIsEstadoSesion",
                     new
                     {
-                        FechaInicio = fechaInicio.HasValue ? (object)fechaInicio.Value.Date : null,
-                        FechaFin    = fechaFin.HasValue    ? (object)fechaFin.Value.Date    : null,
-                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
-                        IdCentroCostoPadre        = idCentroCostoPadre
+                        FechaHoraInicio_Inicio = fechaInicio.HasValue ? (object)fechaInicio.Value.Date : null,
+                        FechaHoraInicio_Fin    = fechaFin.HasValue    ? (object)fechaFin.Value.Date    : null,
+                        IdPEspecifico_Padre    = idProgramaEspecificoPadre,
+                        IdCentroCosto_Padre    = idCentroCostoPadre
                     },
                     commandType: CommandType.StoredProcedure
                 );
@@ -399,7 +407,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 using var conn = _connectionFactory.GetConnection;
                 var resultado = await conn.QueryAsync<ReporteDashboardCambioEstadoDTO>(
                     "pla.SP_ReporteDashboardObtenerCambiosEstado",
-                    new { Anio = anio, Mes = mes, SemanaDesde = semanaDesde, SemanaHasta = semanaHasta, DiaMes = diaMes },
+                    new
+                    {
+                        FechaHoraInicio_Anio        = anio,
+                        FechaHoraInicio_Mes         = mes,
+                        FechaHoraInicio_SemanaDesde = semanaDesde,
+                        FechaHoraInicio_SemanaHasta = semanaHasta,
+                        FechaHoraInicio_DiaMes      = diaMes
+                    },
                     commandType: CommandType.StoredProcedure
                 );
                 return resultado.ToList();
@@ -422,13 +437,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     "pla.SP_ReporteDashboardObtenerEstadosPorDia",
                     new
                     {
-                        IdsPEspecificoHijo = idsPEspecificoHijo,
-                        Estados            = estados,
-                        Anos               = string.IsNullOrWhiteSpace(anos)  ? null : anos.Trim(),
-                        Meses              = string.IsNullOrWhiteSpace(meses) ? null : meses.Trim(),
-                        SemanaDesde        = semanaDesde,
-                        SemanaHasta        = semanaHasta,
-                        DiaMes             = diaMes
+                        FechaHoraInicio_AnioLista   = string.IsNullOrWhiteSpace(anos) ? null : anos.Trim(),
+                        FechaHoraInicio_MesLista    = string.IsNullOrWhiteSpace(meses) ? null : meses.Trim(),
+                        FechaHoraInicio_SemanaDesde = semanaDesde,
+                        FechaHoraInicio_SemanaHasta = semanaHasta,
+                        FechaHoraInicio_DiaMes      = diaMes,
+                        IdPEspecifico_HijoLista     = idsPEspecificoHijo,
+                        EstadoPEspecifico_Lista     = estados
                     },
                     commandType: CommandType.StoredProcedure
                 );
@@ -485,15 +500,15 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     "pla.SP_ReporteDashboardObtenerSeguimientoClases",
                     new
                     {
-                        FechaInicio  = filtro.FechaInicio,
-                        FechaFin     = filtro.FechaFin,
-                        EstadoCurso  = filtro.EstadoCurso,
-                        Anio         = filtro.Anio,
-                        SemanaInicio = filtro.SemanaInicio,
-                        SemanaFin    = filtro.SemanaFin,
-                        Modalidad        = filtro.Modalidad,
-                        IdProgramaPadre  = filtro.IdProgramaPadre,
-                        IdCurso          = filtro.IdCurso
+                        FechaHoraInicio_Inicio     = filtro.FechaInicio,
+                        FechaHoraInicio_Fin        = filtro.FechaFin,
+                        EstadoCurso                = filtro.EstadoCurso,
+                        FechaHoraInicio_Anio       = filtro.Anio,
+                        FechaHoraInicio_SemanaInicio = filtro.SemanaInicio,
+                        FechaHoraInicio_SemanaFin  = filtro.SemanaFin,
+                        Modalidad                  = filtro.Modalidad,
+                        IdPEspecifico_Padre        = filtro.IdProgramaPadre,
+                        IdPEspecifico              = filtro.IdCurso
                     },
                     commandType: CommandType.StoredProcedure
                 );
@@ -629,46 +644,79 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             try
             {
                 using var conn = _connectionFactory.GetConnection;
-                using var multi = await conn.QueryMultipleAsync(
-                    "pla.SP_ReporteDashboardObtenerCalificacionAlumnos",
+
+                var paginaNorm     = pagina < 1 ? 1 : pagina;
+                var tamanoPaginaN  = tamanoPagina < 1 ? 20 : tamanoPagina;
+                var codigoMatN     = string.IsNullOrWhiteSpace(codigoMatricula) ? null : codigoMatricula.Trim();
+                var idsPEspecificN = string.IsNullOrWhiteSpace(idsPEspecifico)  ? null : idsPEspecifico.Trim();
+
+                // ── SP1: Filtrar programas y obtener IDs paginados ──────────────
+                using var sp1 = await conn.QueryMultipleAsync(
+                    "pla.SP_ReporteDashboard_FiltrarProgramasCalificacion",
                     new
                     {
-                        FiltroEstadoNotas = string.IsNullOrWhiteSpace(filtroEstadoNotas) ? null : filtroEstadoNotas.Trim(),
-                        FiltroCentroCosto = string.IsNullOrWhiteSpace(filtroCentroCosto) ? null : filtroCentroCosto.Trim(),
-                        FiltroFechaDesde  = filtroFechaDesde.HasValue ? filtroFechaDesde.Value.Date : (DateTime?)null,
-                        FiltroFechaHasta  = filtroFechaHasta.HasValue ? filtroFechaHasta.Value.Date : (DateTime?)null,
-                        IdProveedor       = idProveedor,
-                        CodigoMatricula   = string.IsNullOrWhiteSpace(codigoMatricula) ? null : codigoMatricula.Trim(),
-                        IdsPEspecifico    = string.IsNullOrWhiteSpace(idsPEspecifico)  ? null : idsPEspecifico.Trim(),
-                        Grupo             = grupo,
-                        Pagina            = pagina < 1 ? 1 : pagina,
-                        TamanoPagina      = tamanoPagina < 1 ? 20 : tamanoPagina,
+                        FiltroEstadoNotas  = string.IsNullOrWhiteSpace(filtroEstadoNotas) ? null : filtroEstadoNotas.Trim(),
+                        FiltroCentroCosto  = string.IsNullOrWhiteSpace(filtroCentroCosto) ? null : filtroCentroCosto.Trim(),
+                        FiltroFechaDesde   = filtroFechaDesde.HasValue ? filtroFechaDesde.Value.Date : (DateTime?)null,
+                        FiltroFechaHasta   = filtroFechaHasta.HasValue ? filtroFechaHasta.Value.Date : (DateTime?)null,
+                        IdProveedor        = idProveedor,
+                        CodigoMatricula    = codigoMatN,
+                        IdsPEspecifico_padre = idsPEspecificN,
+                        Grupo              = grupo,
+                        Pagina             = paginaNorm,
+                        TamanoPagina       = tamanoPaginaN,
                     },
                     commandType: CommandType.StoredProcedure,
                     commandTimeout: 60
                 );
 
-                // RS1: total de registros
-                var totalRow = await multi.ReadFirstOrDefaultAsync<dynamic>();
+                // RS1 del SP1: total de registros
+                var totalRow       = await sp1.ReadFirstOrDefaultAsync<dynamic>();
                 int totalRegistros = totalRow != null ? (int)totalRow.TotalRegistros : 0;
 
-                // RS2: programas de la página
-                var programasRaw = (await multi.ReadAsync<ReporteDashboardCalificacionProgramaRawDTO>()).ToList();
+                // RS2 del SP1: IDs de la página
+                var idsPagina = (await sp1.ReadAsync<ReporteDashboardCalificacionFiltroResultDTO>()).ToList();
 
-                // RS3: alumnos de esos programas
-                var alumnosRaw = (await multi.ReadAsync<ReporteDashboardCalificacionAlumnoRawDTO>()).ToList();
-
-                // RS4: criterios por programa
-                var criteriosRaw = (await multi.ReadAsync<ReporteDashboardCalificacionCriterioRawDTO>()).ToList();
-
-                // Construir resultado
                 var resultado = new ReporteDashboardCalificacionAlumnosDTO
                 {
                     TotalRegistros = totalRegistros,
-                    Pagina         = pagina,
-                    TamanoPagina   = tamanoPagina,
+                    Pagina         = paginaNorm,
+                    TamanoPagina   = tamanoPaginaN,
                 };
 
+                // Sin resultados: retornar inmediatamente sin llamar SP2 ni SP3
+                if (!idsPagina.Any())
+                    return resultado;
+
+                // CSV de IDs de la página para pasar a SP2 y SP3
+                var idsPaginaCsv = string.Join(",", idsPagina.Select(x => x.IdPEspecifico));
+
+                // ── SP2 y SP3 en secuencia en la misma conexión ─────────────────
+                // Nota: ejecutar en paralelo sobre la misma conexión requiere MARS.
+                // En este entorno MARS está deshabilitado, por eso evitamos Task.WhenAll.
+                using var sp2 = await conn.QueryMultipleAsync(
+                    "pla.SP_ReporteDashboard_ObtenerDatosProgramasCalificacion",
+                    new { IdsPEspecificoPagina = idsPaginaCsv, Grupo = grupo },
+                    commandType: CommandType.StoredProcedure,
+                    commandTimeout: 60
+                );
+
+                var programasRaw = (await sp2.ReadAsync<ReporteDashboardCalificacionProgramaRawDTO>()).ToList();
+                var criteriosRaw = (await sp2.ReadAsync<ReporteDashboardCalificacionCriterioRawDTO>()).ToList();
+
+                var alumnosRaw = (await conn.QueryAsync<ReporteDashboardCalificacionAlumnoRawDTO>(
+                    "pla.SP_ReporteDashboard_ObtenerAlumnosCalificacion",
+                    new
+                    {
+                        IdsPEspecifico_Lista = idsPaginaCsv,
+                        CodigoMatricula      = codigoMatN,
+                        Grupo                = grupo,
+                    },
+                    commandType: CommandType.StoredProcedure,
+                    commandTimeout: 60
+                )).ToList();
+
+                // ── Ensamblado en memoria sobre ≤20 programas ───────────────────
                 foreach (var prog in programasRaw)
                 {
                     var criteriosProg = criteriosRaw
@@ -681,11 +729,26 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                             Porcentaje = c.Porcentaje
                         }).ToList();
 
+                    // ══════════════════════════════════════════════════════════════
+                    // Ajustar ponderaciones en evaluaciones (para headers de tabla)
+                    // Si las ponderaciones suman menos de 100%, redistribuir a "Tareas"
+                    // ══════════════════════════════════════════════════════════════
+                    decimal sumaPonderacionesEval = criteriosProg.Sum(e => e.Porcentaje);
+                    decimal ponderacionFaltanteEval = 100 - sumaPonderacionesEval;
+
+                    if (ponderacionFaltanteEval > 0)
+                    {
+                        var criterioTareasEval = criteriosProg.FirstOrDefault(e => e.Nombre.Contains("Tareas"));
+                        if (criterioTareasEval != null)
+                        {
+                            criterioTareasEval.Porcentaje += ponderacionFaltanteEval;
+                        }
+                    }
+
                     var alumnosProg = alumnosRaw
                         .Where(a => a.IdPEspecifico == prog.IdPEspecifico)
                         .Select(a =>
                         {
-                            // Calcular notas desde columnas pivoteadas
                             var notasCriterio = criteriosProg.Select((evl, idx) =>
                             {
                                 decimal nota = idx switch
@@ -706,6 +769,25 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                 };
                             }).ToList();
 
+                            // ══════════════════════════════════════════════════════════════
+                            // Redistribuir ponderación faltante a "Tareas"
+                            // (Replica lógica del Portal Web - ConfiguracionEstructuraServiceImpl.cs)
+                            // Si las ponderaciones suman menos de 100%, la diferencia va a "Tareas"
+                            // ══════════════════════════════════════════════════════════════
+                            decimal sumaPonderaciones = notasCriterio.Sum(n => n.Porcentaje);
+                            decimal ponderacionFaltante = 100 - sumaPonderaciones;
+
+                            // Si hay ponderación faltante (ej: 80% en lugar de 100%), redistribuir a "Tareas"
+                            if (ponderacionFaltante > 0)
+                            {
+                                var criterioTareas = notasCriterio.FirstOrDefault(n => n.NombreCriterio.Contains("Tareas"));
+                                if (criterioTareas != null)
+                                {
+                                    criterioTareas.Porcentaje += ponderacionFaltante;
+                                }
+                            }
+
+                            // Calcular promedio con ponderaciones ajustadas
                             decimal promedio = notasCriterio.Sum(n => n.Nota * n.Porcentaje / 100);
 
                             return new ReporteDashboardNotaAlumnoDTO
@@ -746,7 +828,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                             PlazoCalificacion      = prog.PlazoCalificacion,
                             TotalAlumnos           = prog.TotalAlumnos,
                             TotalCriterios         = prog.TotalCriterios,
-                            AlumnosConNotaCompleta = prog.AlumnosConNotaCompleta,
+                            AlumnosConNotaCompleta = prog.AlumnosConNota,
                         },
                         Evaluaciones = criteriosProg,
                         Alumnos      = alumnosProg,
@@ -933,11 +1015,18 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 }
                 else
                 {
-                    notas = (await conn.QueryAsync<ReporteDashboardNotaRawDTO>(
+                    // SP retorna columna 'IdEvaluacion'; mapeamos manualmente a IdCriterioEvaluacion
+                    var notasRaw = (await conn.QueryAsync<dynamic>(
                         "pw.SP_PW_ObtenerNotaOnlinePorProgramaEspecificoV2",
                         new { IdPEspecifico = idPEspecifico },
                         commandType: CommandType.StoredProcedure
                     )).ToList();
+                    notas = notasRaw.Select(r => new ReporteDashboardNotaRawDTO
+                    {
+                        IdMatriculaCabecera  = (int)r.IdMatriculaCabecera,
+                        IdCriterioEvaluacion = (int)r.IdEvaluacion,
+                        Nota                 = (decimal)r.Nota
+                    }).ToList();
 
                     notasDetalle = (await conn.QueryAsync<ReporteDashboardNotaDetalleRawDTO>(
                         "pw.SP_PW_ObtenerDetalleNotaOnlinePorProgramaEspecificov2",
@@ -1099,8 +1188,20 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     // Enriquecer con datos del SP RS2
                     alumnosRawDict.TryGetValue(m.IdMatriculaCabecera, out var raw);
 
-                    // Estado nota alumno: calculado en base a criterios con nota != 0
-                    int criteriosConNota = notasCriterio.Count(n => n.Nota > 0);
+                    // Estado nota alumno: un criterio está calificado si:
+                    //   - Es asistencia y hay sesiones (siempre se calcula), o
+                    //   - Tiene registro en notas o notasDetalle (incluyendo nota=0)
+                    // Nota=0 es calificación válida; no es lo mismo que "sin nota".
+                    int criteriosConNota = notasCriterio.Count(nc =>
+                    {
+                        bool esAsistCrit = nc.NombreCriterio
+                            .IndexOf("ASISTENCIA", StringComparison.OrdinalIgnoreCase) >= 0;
+                        if (esAsistCrit) return totalSesiones > 0;
+                        return notas.Any(r => r.IdMatriculaCabecera == m.IdMatriculaCabecera
+                                           && r.IdCriterioEvaluacion == nc.IdEvaluacion)
+                            || notasDetalle.Any(r => r.IdMatriculaCabecera == m.IdMatriculaCabecera
+                                                  && r.IdCriterioEvaluacion == nc.IdEvaluacion);
+                    });
                     string estadoNota = criteriosConNota == 0
                         ? "Pendiente"
                         : criteriosConNota < evaluaciones.Count
@@ -1179,12 +1280,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     "pla.SP_ReporteDashboardResumenProgramasPorEstado",
                     new
                     {
-                        Anio                      = anio,
-                        Mes                       = mes,
-                        Semana                    = semana,
-                        DiaMes                    = diaMes,
-                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
-                        IdCentroCostoPadre        = idCentroCostoPadre
+                        FechaHoraInicio_Anio   = anio,
+                        FechaHoraInicio_Mes    = mes,
+                        FechaHoraInicio_Semana = semana,
+                        FechaHoraInicio_DiaMes = diaMes,
+                        IdPEspecifico_Padre    = idProgramaEspecificoPadre,
+                        IdCentroCosto_Padre    = idCentroCostoPadre
                     },
                     commandType: CommandType.StoredProcedure
                 );
@@ -1208,11 +1309,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     "pla.SP_ReporteDashboardObtenerResumenCursos",
                     new
                     {
-                        Anio                = anio,
-                        Mes                 = mes,
-                        Semana              = semana,
-                        DiaMes              = diaMes,
-                        IdCentroCostoPadre  = idCentroCostoPadre
+                        FechaHoraInicio_Anio   = anio,
+                        FechaHoraInicio_Mes    = mes,
+                        FechaHoraInicio_Semana = semana,
+                        FechaHoraInicio_DiaMes = diaMes,
+                        IdCentroCosto_Padre    = idCentroCostoPadre
                     },
                     commandType: CommandType.StoredProcedure
                 );
@@ -1236,13 +1337,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     "pla.SP_ReporteDashboardObtenerModalidadProgramas",
                     new
                     {
-                        Anio                      = anio,
-                        Mes                       = mes,
-                        Semana                    = semana,
-                        DiaMes                    = diaMes,
-                        IdEstadoPEspecifico       = idEstadoPEspecifico,
-                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
-                        IdCentroCostoPadre        = idCentroCostoPadre
+                        FechaHoraInicio_Anio   = anio,
+                        FechaHoraInicio_Mes    = mes,
+                        FechaHoraInicio_Semana = semana,
+                        FechaHoraInicio_DiaMes = diaMes,
+                        IdEstadoPEspecifico    = idEstadoPEspecifico,
+                        IdPEspecifico_Padre    = idProgramaEspecificoPadre,
+                        IdCentroCosto_Padre    = idCentroCostoPadre
                     },
                     commandType: CommandType.StoredProcedure
                 );
@@ -1266,12 +1367,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     "pla.SP_ReporteDashboardObtenerModalidadCursos",
                     new
                     {
-                        Anio                 = anio,
-                        Mes                  = mes,
-                        Semana               = semana,
-                        DiaMes               = diaMes,
-                        IdEstadoPEspecifico  = idEstadoPEspecifico,
-                        IdCentroCostoPadre   = idCentroCostoPadre
+                        FechaHoraInicio_Anio   = anio,
+                        FechaHoraInicio_Mes    = mes,
+                        FechaHoraInicio_Semana = semana,
+                        FechaHoraInicio_DiaMes = diaMes,
+                        IdEstadoPEspecifico    = idEstadoPEspecifico,
+                        IdCentroCosto_Padre    = idCentroCostoPadre
                     },
                     commandType: CommandType.StoredProcedure
                 );
@@ -1295,14 +1396,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     "pla.SP_ReporteDashboardObtenerGraficoPorMesProgramas",
                     new
                     {
-                        Anios                     = anios,
-                        Mes                       = mes,
-                        Semana                    = semana,
-                        DiaMes                    = diaMes,
-                        IdProgramaEspecificoPadre = idProgramaEspecificoPadre,
-                        IdCentroCostoPadre        = idCentroCostoPadre,
-                        IDPais                    = idPais,
-                        Estado                    = estado
+                        FechaHoraInicio_AnioLista = anios,
+                        FechaHoraInicio_Mes       = mes,
+                        FechaHoraInicio_Semana    = semana,
+                        FechaHoraInicio_DiaMes    = diaMes,
+                        IdPEspecifico_Padre       = idProgramaEspecificoPadre,
+                        IdCentroCosto_Padre       = idCentroCostoPadre,
+                        IdPais                    = idPais,
+                        EstadoPEspecifico         = estado
                     },
                     commandType: CommandType.StoredProcedure
                 );
@@ -1326,13 +1427,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     "pla.SP_ReporteDashboardObtenerGraficoPorMesCursos",
                     new
                     {
-                        Anios              = anios,
-                        Mes                = mes,
-                        Semana             = semana,
-                        DiaMes             = diaMes,
-                        IdCentroCostoPadre = idCentroCostoPadre,
-                        IDPais             = idPais,
-                        Estado             = estado
+                        FechaHoraInicio_AnioLista = anios,
+                        FechaHoraInicio_Mes       = mes,
+                        FechaHoraInicio_Semana    = semana,
+                        FechaHoraInicio_DiaMes    = diaMes,
+                        IdCentroCosto_Padre       = idCentroCostoPadre,
+                        IdPais                    = idPais,
+                        EstadoPEspecifico         = estado
                     },
                     commandType: CommandType.StoredProcedure
                 );
