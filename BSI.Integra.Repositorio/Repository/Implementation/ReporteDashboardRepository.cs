@@ -630,16 +630,16 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         }
 
         public async Task<ReporteDashboardCalificacionAlumnosDTO> ObtenerCalificacionAlumnosAsync(
-            string? filtroEstadoNotas = null,
-            string? filtroCentroCosto = null,
-            DateTime? filtroFechaDesde = null,
-            DateTime? filtroFechaHasta = null,
-            int? idProveedor = null,
-            string? codigoMatricula = null,
-            string? idsPEspecifico = null,
-            int grupo = 1,
-            int pagina = 1,
-            int tamanoPagina = 20)
+            string?   filtroEstadoNotas   = null,
+            int?      idCentroCosto       = null,
+            DateTime? fechaTermino_Inicio = null,
+            DateTime? fechaTermino_Fin    = null,
+            int?      idProveeedor        = null,
+            string?   codigoMatricula     = null,
+            string?   idsPEspecifico      = null,
+            int       grupo               = 1,
+            int       pagina              = 1,
+            int       tamanoPagina        = 20)
         {
             try
             {
@@ -647,34 +647,50 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
 
                 var paginaNorm     = pagina < 1 ? 1 : pagina;
                 var tamanoPaginaN  = tamanoPagina < 1 ? 20 : tamanoPagina;
+                var idsPEspecificN = string.IsNullOrWhiteSpace(idsPEspecifico) ? null : idsPEspecifico.Trim();
                 var codigoMatN     = string.IsNullOrWhiteSpace(codigoMatricula) ? null : codigoMatricula.Trim();
-                var idsPEspecificN = string.IsNullOrWhiteSpace(idsPEspecifico)  ? null : idsPEspecifico.Trim();
 
-                // ── SP1: Filtrar programas y obtener IDs paginados ──────────────
+                int? idMatriculaCabecera = null;
+                if (codigoMatN != null)
+                {
+                    idMatriculaCabecera = await conn.QueryFirstOrDefaultAsync<int?>(
+                        @"SELECT TOP 1 Id
+                          FROM   fin.T_MatriculaCabecera WITH (NOLOCK)
+                          WHERE  CodigoMatricula = @Codigo AND Estado = 1",
+                        new { Codigo = codigoMatN }
+                    );
+                    if (idMatriculaCabecera == null)
+                        return new ReporteDashboardCalificacionAlumnosDTO
+                        {
+                            TotalRegistros = 0,
+                            Pagina         = paginaNorm,
+                            TamanoPagina   = tamanoPaginaN,
+                            Programas      = new List<ReporteDashboardNotasPorPEspecificoDTO>()
+                        };
+                }
+
                 using var sp1 = await conn.QueryMultipleAsync(
-                    "pla.SP_ReporteDashboard_FiltrarProgramasCalificacion",
+                    "pla.SP_ReporteDashboardFiltrarProgramasCalificacion",
                     new
                     {
-                        FiltroEstadoNotas  = string.IsNullOrWhiteSpace(filtroEstadoNotas) ? null : filtroEstadoNotas.Trim(),
-                        FiltroCentroCosto  = string.IsNullOrWhiteSpace(filtroCentroCosto) ? null : filtroCentroCosto.Trim(),
-                        FiltroFechaDesde   = filtroFechaDesde.HasValue ? filtroFechaDesde.Value.Date : (DateTime?)null,
-                        FiltroFechaHasta   = filtroFechaHasta.HasValue ? filtroFechaHasta.Value.Date : (DateTime?)null,
-                        IdProveedor        = idProveedor,
-                        CodigoMatricula    = codigoMatN,
-                        IdsPEspecifico_padre = idsPEspecificN,
-                        Grupo              = grupo,
-                        Pagina             = paginaNorm,
-                        TamanoPagina       = tamanoPaginaN,
+                        FiltroEstadoNotas        = string.IsNullOrWhiteSpace(filtroEstadoNotas) ? null : filtroEstadoNotas.Trim(),
+                        IdCentroCosto            = idCentroCosto,
+                        FechaTermino_Inicio      = fechaTermino_Inicio.HasValue ? fechaTermino_Inicio.Value.Date : (DateTime?)null,
+                        FechaTermino_Fin         = fechaTermino_Fin.HasValue    ? fechaTermino_Fin.Value.Date    : (DateTime?)null,
+                        IdProveeedor             = idProveeedor,
+                        IdMatriculaCabecera      = idMatriculaCabecera,
+                        IdPEspecifico_PadreLista = idsPEspecificN,
+                        Grupo                    = grupo,
+                        Pagina                   = paginaNorm,
+                        TamanoPagina             = tamanoPaginaN,
                     },
                     commandType: CommandType.StoredProcedure,
                     commandTimeout: 60
                 );
 
-                // RS1 del SP1: total de registros
                 var totalRow       = await sp1.ReadFirstOrDefaultAsync<dynamic>();
                 int totalRegistros = totalRow != null ? (int)totalRow.TotalRegistros : 0;
 
-                // RS2 del SP1: IDs de la página
                 var idsPagina = (await sp1.ReadAsync<ReporteDashboardCalificacionFiltroResultDTO>()).ToList();
 
                 var resultado = new ReporteDashboardCalificacionAlumnosDTO
@@ -684,19 +700,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                     TamanoPagina   = tamanoPaginaN,
                 };
 
-                // Sin resultados: retornar inmediatamente sin llamar SP2 ni SP3
                 if (!idsPagina.Any())
                     return resultado;
 
-                // CSV de IDs de la página para pasar a SP2 y SP3
                 var idsPaginaCsv = string.Join(",", idsPagina.Select(x => x.IdPEspecifico));
 
-                // ── SP2 y SP3 en secuencia en la misma conexión ─────────────────
-                // Nota: ejecutar en paralelo sobre la misma conexión requiere MARS.
-                // En este entorno MARS está deshabilitado, por eso evitamos Task.WhenAll.
                 using var sp2 = await conn.QueryMultipleAsync(
-                    "pla.SP_ReporteDashboard_ObtenerDatosProgramasCalificacion",
-                    new { IdsPEspecificoPagina = idsPaginaCsv, Grupo = grupo },
+                    "pla.SP_ReporteDashboardObtenerDatosProgramasCalificacion",
+                    new { IdPEspecifico_PaginaLista = idsPaginaCsv, GrupoCurso = grupo },
                     commandType: CommandType.StoredProcedure,
                     commandTimeout: 60
                 );
@@ -705,18 +716,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var criteriosRaw = (await sp2.ReadAsync<ReporteDashboardCalificacionCriterioRawDTO>()).ToList();
 
                 var alumnosRaw = (await conn.QueryAsync<ReporteDashboardCalificacionAlumnoRawDTO>(
-                    "pla.SP_ReporteDashboard_ObtenerAlumnosCalificacion",
+                    "pla.SP_ReporteDashboardObtenerAlumnosCalificacion",
                     new
                     {
                         IdsPEspecifico_Lista = idsPaginaCsv,
-                        CodigoMatricula      = codigoMatN,
+                        IdMatriculaCabecera  = idMatriculaCabecera,
                         Grupo                = grupo,
                     },
                     commandType: CommandType.StoredProcedure,
                     commandTimeout: 60
                 )).ToList();
 
-                // ── Ensamblado en memoria sobre ≤20 programas ───────────────────
                 foreach (var prog in programasRaw)
                 {
                     var criteriosProg = criteriosRaw
@@ -729,10 +739,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                             Porcentaje = c.Porcentaje
                         }).ToList();
 
-                    // ══════════════════════════════════════════════════════════════
-                    // Ajustar ponderaciones en evaluaciones (para headers de tabla)
-                    // Si las ponderaciones suman menos de 100%, redistribuir a "Tareas"
-                    // ══════════════════════════════════════════════════════════════
                     decimal sumaPonderacionesEval = criteriosProg.Sum(e => e.Porcentaje);
                     decimal ponderacionFaltanteEval = 100 - sumaPonderacionesEval;
 
@@ -769,15 +775,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                 };
                             }).ToList();
 
-                            // ══════════════════════════════════════════════════════════════
-                            // Redistribuir ponderación faltante a "Tareas"
-                            // (Replica lógica del Portal Web - ConfiguracionEstructuraServiceImpl.cs)
-                            // Si las ponderaciones suman menos de 100%, la diferencia va a "Tareas"
-                            // ══════════════════════════════════════════════════════════════
                             decimal sumaPonderaciones = notasCriterio.Sum(n => n.Porcentaje);
                             decimal ponderacionFaltante = 100 - sumaPonderaciones;
 
-                            // Si hay ponderación faltante (ej: 80% en lugar de 100%), redistribuir a "Tareas"
                             if (ponderacionFaltante > 0)
                             {
                                 var criterioTareas = notasCriterio.FirstOrDefault(n => n.NombreCriterio.Contains("Tareas"));
@@ -786,8 +786,6 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                                     criterioTareas.Porcentaje += ponderacionFaltante;
                                 }
                             }
-
-                            // Calcular promedio con ponderaciones ajustadas
                             decimal promedio = notasCriterio.Sum(n => n.Nota * n.Porcentaje / 100);
 
                             return new ReporteDashboardNotaAlumnoDTO

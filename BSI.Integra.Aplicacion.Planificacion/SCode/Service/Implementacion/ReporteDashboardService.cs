@@ -393,22 +393,22 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
         }
 
         public async Task<ReporteDashboardCalificacionAlumnosDTO> ObtenerCalificacionAlumnosAsync(
-            string? filtroEstadoNotas = null,
-            string? filtroCentroCosto = null,
-            DateTime? filtroFechaDesde = null,
-            DateTime? filtroFechaHasta = null,
-            int? idProveedor = null,
-            string? codigoMatricula = null,
-            string? idsPEspecifico = null,
-            int grupo = 1,
-            int pagina = 1,
-            int tamanoPagina = 20)
+            string?   filtroEstadoNotas   = null,
+            int?      idCentroCosto       = null,
+            DateTime? fechaTermino_Inicio = null,
+            DateTime? fechaTermino_Fin    = null,
+            int?      idProveeedor        = null,
+            string?   codigoMatricula     = null,
+            string?   idsPEspecifico      = null,
+            int       grupo               = 1,
+            int       pagina              = 1,
+            int       tamanoPagina        = 20)
         {
             try
             {
                 return await _unitOfWork.ReporteDashboardRepository.ObtenerCalificacionAlumnosAsync(
-                    filtroEstadoNotas, filtroCentroCosto, filtroFechaDesde, filtroFechaHasta,
-                    idProveedor, codigoMatricula, idsPEspecifico, grupo, pagina, tamanoPagina);
+                    filtroEstadoNotas, idCentroCosto, fechaTermino_Inicio, fechaTermino_Fin,
+                    idProveeedor, codigoMatricula, idsPEspecifico, grupo, pagina, tamanoPagina);
             }
             catch (Exception) { throw; }
         }

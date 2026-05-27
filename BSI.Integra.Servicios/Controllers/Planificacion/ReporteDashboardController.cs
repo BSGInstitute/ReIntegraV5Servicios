@@ -864,24 +864,24 @@ namespace BSI.Integra.Servicios.Controllers.Planificacion
         [Route("[action]")]
         [HttpGet]
         public async Task<IActionResult> ObtenerCalificacionAlumnos(
-            [FromQuery] string? filtroEstadoNotas = null,
-            [FromQuery] string? filtroCentroCosto = null,
-            [FromQuery] DateTime? filtroFechaDesde = null,
-            [FromQuery] DateTime? filtroFechaHasta = null,
-            [FromQuery] int? idProveedor = null,
-            [FromQuery] string? codigoMatricula = null,
-            [FromQuery] string? idsPEspecifico = null,
-            [FromQuery] int grupo = 1,
-            [FromQuery] int pagina = 1,
-            [FromQuery] int tamanoPagina = 20)
+            [FromQuery] string?   filtroEstadoNotas   = null,
+            [FromQuery] int?      idCentroCosto       = null,
+            [FromQuery] DateTime? fechaTermino_Inicio = null,
+            [FromQuery] DateTime? fechaTermino_Fin    = null,
+            [FromQuery] int?      idProveeedor        = null,
+            [FromQuery] string?   codigoMatricula     = null,
+            [FromQuery] string?   idsPEspecifico      = null,
+            [FromQuery] int       grupo               = 1,
+            [FromQuery] int       pagina              = 1,
+            [FromQuery] int       tamanoPagina        = 20)
         {
             try
             {
                 IReporteDashboardService service = new ReporteDashboardService(_unitOfWork);
                 var resultado = await service.ObtenerCalificacionAlumnosAsync(
-                    filtroEstadoNotas, filtroCentroCosto,
-                    filtroFechaDesde, filtroFechaHasta,
-                    idProveedor, codigoMatricula, idsPEspecifico,
+                    filtroEstadoNotas, idCentroCosto,
+                    fechaTermino_Inicio, fechaTermino_Fin,
+                    idProveeedor, codigoMatricula, idsPEspecifico,
                     grupo, pagina, tamanoPagina);
                 return Ok(resultado);
             }
