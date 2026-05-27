@@ -97,6 +97,53 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
                 throw new Exception(Ex.Message);
             }
         }
+        /// Autor: Carlos Crispin Riquelme
+        /// Fecha: 27/05/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene Reporte de Cambio de Fase de Llamadas por Whatsapp consultando a IntegraDB
+        /// </summary>
+        /// <param name="filtros"> filtros de búsqueda para Reporte</param>
+        /// <returns> ObjetoDTO: ReporteCambioDeFaseDataDTO </returns>
+        public async Task<ReporteCambioDeFaseTasaContactoWhatsappDTO> GenerarReporteTasaContactoWhatsappAsync(ReporteCambioFaseFiltrosDTO filtros)
+        {
+            try
+            {
+                var nuevoFiltro = new ReporteCambioFaseFiltroProcesadoDTO();
+                nuevoFiltro.FechaFin = new DateTime(filtros.FechaFin.Year, filtros.FechaFin.Month, filtros.FechaFin.Day, 23, 59, 59);
+                nuevoFiltro.FechaInicio = new DateTime(filtros.FechaInicio.Year, filtros.FechaInicio.Month, filtros.FechaInicio.Day, 0, 0, 0);
+
+                var nuevoFiltroConsentimiento = new ReporteCambioFaseFiltroProcesadoDTO();
+                nuevoFiltroConsentimiento.FechaFin = new DateTime(filtros.FechaFin.Year, filtros.FechaFin.Month, filtros.FechaFin.Day, 23, 59, 59);
+                nuevoFiltroConsentimiento.FechaInicio = new DateTime(filtros.FechaInicio.Year, filtros.FechaInicio.Month, filtros.FechaInicio.Day, 0, 0, 0);
+
+                var queryFiltro = "";
+                var queryFiltroConsentimeinto = "";
+                if (filtros.Asesores.Count() > 0)
+                {
+                    queryFiltro += " AND IdPersonalAsignado IN (" + string.Join(",", filtros.Asesores) + ")";
+                    queryFiltroConsentimeinto += " AND WL.IdPersonal IN (" + string.Join(",", filtros.Asesores) + ")";
+                } 
+                if (filtros.CentroCostos.Count() > 0)
+                    queryFiltro += " AND IdCentroCosto IN (" + string.Join(",", filtros.CentroCostos) + ")";
+                nuevoFiltro.Filtro = queryFiltro;
+                nuevoFiltroConsentimiento.Filtro = queryFiltroConsentimeinto;
+
+                var fechaActualTemp = DateTime.Now;
+                var fechaActual = new DateTime(fechaActualTemp.Year, fechaActualTemp.Month, fechaActualTemp.Day, 0, 0, 0);
+                var task2 = _unitOfWork.ReportesRepository.ObtenerReporteConsentimientoWhatsappV2Async(nuevoFiltroConsentimiento);
+                var esHoy = (DateTime.Compare(nuevoFiltro.FechaInicio, fechaActual) == 0);
+                Task<ReporteTasaContactoDTO> task1 = _unitOfWork.ReportesRepository.ObtenerReporteTasaContactoWhatsappV2Async(nuevoFiltro, esHoy);
+                ReporteCambioDeFaseTasaContactoWhatsappDTO data = new();
+                data.ReporteTasaContactoLlamadasWhatsapp = await task1;
+                data.ReporteConsentimientosWhatsapp = await task2;
+                return data;
+            }
+            catch (Exception Ex)
+            {
+                throw new Exception(Ex.Message);
+            }
+        }
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 23/09/2022
         /// Versión: 1.0
