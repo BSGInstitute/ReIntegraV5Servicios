@@ -22,5 +22,12 @@ namespace BSI.Integra.Aplicacion.Interaccion.Service.Interface
         /// con distintos WABA numbers compartirían erróneamente el consent.
         /// </summary>
         LlamadaConsentimientoEstadoDTO ObtenerEstadoConsentimiento(string numeroWhatsApp, int idPais, int? idPersonal = null);
+
+        /// <summary>
+        /// Lista los consentimientos solicitados por un asesor (todos los estados). Usado por
+        /// el panel del header global para que el agente vea sus pendientes/aceptados/rechazados
+        /// aunque ya no esté en la ficha de origen.
+        /// </summary>
+        List<ConsentResumenDTO> ObtenerConsentsPorAsesor(int idPersonal);
     }
 }

@@ -39,5 +39,12 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         /// la llamada (MediaRecorder) y sube el blob a Azure.
         /// </summary>
         bool ActualizarGrabacion(int idWhatsappLlamada, string grabacionUrl, string grabacionBlobNombre, string usuarioModificacion);
+
+        /// <summary>
+        /// Lista todos los consentimientos solicitados por un asesor (TipoLlamada=2 con
+        /// ConsentimientoEstado seteado). Filtra adicionalmente por IdNumeroWhatsApp para
+        /// que solo aparezcan los del número de negocio que ese asesor usa.
+        /// </summary>
+        List<ConsentResumenDTO> ObtenerConsentsPorAsesor(int idPersonal);
     }
 }

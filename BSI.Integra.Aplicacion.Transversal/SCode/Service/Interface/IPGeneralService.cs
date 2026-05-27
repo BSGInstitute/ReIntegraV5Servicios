@@ -90,5 +90,8 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Interface
         List<PgeneralConfiguracionPlantillaDTO> ObtenerConfiguracionPlantilla(int IdPGeneral);
         ResultadoPVersionDTO ActualizarVersionPrograma(UpdateOnlyVersionProgramaDTO data, string usuario);
         IEnumerable<ComboDTO> ObtenerPGeneralActivo();
+        bool? ObtenerHabilitadoBsgTento(int idPGeneral);
+        void ActualizarHabilitadoBsgTento(int idPGeneral, bool habilitadoBsgTento, string usuarioModificacion);
+        List<PGeneralBsgTentoDTO> ObtenerTodosHabilitadoBsgTento();
     }
 }

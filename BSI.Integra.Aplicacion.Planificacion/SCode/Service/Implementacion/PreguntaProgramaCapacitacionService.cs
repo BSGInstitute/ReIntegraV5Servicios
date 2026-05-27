@@ -664,7 +664,7 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                         {
                             SesionProgramaCapacitacion = x.Key,
                             IdSesionProgramaCapacitacion = capitulo.GroupBy(z => new { z.OrdenFila, z.Sesion, z.SubSesion }).Where(z => z.Key.Sesion == x.Key).FirstOrDefault().Key.OrdenFila,
-                            ListaSubSeccionProgramaCapacitacion = capitulo.GroupBy(y => new { y.OrdenFila, y.Sesion, y.SubSesion }).Where(y => y.Key.Sesion == x.Key).Select(y => new SubSeccionProgramaCapacitacionDTO 
+                            ListaSubSeccionProgramaCapacitacion = capitulo.GroupBy(y => new { y.OrdenFila, y.Sesion, y.SubSesion }).Where(y => y.Key.Sesion == x.Key).Select(y => new SubSeccionProgramaCapacitacionDTO
                             {
                                 IdSesionProgramaCapacitacion = y.Key.OrdenFila,
                                 SubSeccionProgramaCapacitacion = y.Key.SubSesion
@@ -1194,6 +1194,39 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                 throw;
             }
         }
+
+        /// <summary>
+        /// Obtiene el listado de niveles de dificultad disponibles para preguntas
+        /// </summary>
+        /// <returns>Lista de objetos PreguntaProgramaCapacitacionDificultadDTO</returns>
+        public List<PreguntaProgramaCapacitacionDificultadDTO> ObtenerDificultades()
+        {
+            return _unitOfWork.PreguntaProgramaCapacitacionRepository.ObtenerDificultades();
+        }
+
+        /// <summary>
+        /// Actualiza el nivel de dificultad de una pregunta de programa de capacitacion
+        /// </summary>
+        /// <param name="dto">DTO con Id de la pregunta e Id del nivel de dificultad</param>
+        /// <param name="usuarioModificacion">Usuario que realiza la modificacion</param>
+        public void ActualizarDificultad(ActualizarDificultadPreguntaDTO dto, string usuarioModificacion)
+        {
+            _unitOfWork.PreguntaProgramaCapacitacionRepository.ActualizarDificultad(
+                dto.Id,
+                dto.IdPreguntaProgramaCapacitacionDificultad,
+                usuarioModificacion);
+        }
+
+        /// <summary>
+        /// Obtiene el nivel de dificultad asociado a una pregunta de programa de capacitacion
+        /// </summary>
+        /// <param name="id">Id de la pregunta (PK)</param>
+        /// <returns>Objeto de tipo DificultadPorPreguntaDTO o null si no existe</returns>
+        public DificultadPorPreguntaDTO ObtenerDificultadPorIdPregunta(int id)
+        {
+            return _unitOfWork.PreguntaProgramaCapacitacionRepository.ObtenerDificultadPorIdPregunta(id);
+        }
+
         /// Autor: Gilmer Qm
         /// Fecha: 01/08/2023
         /// Versión: 1.5

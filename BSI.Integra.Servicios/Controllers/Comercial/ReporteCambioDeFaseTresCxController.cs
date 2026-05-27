@@ -69,6 +69,26 @@ namespace BSI.Integra.Servicios.Controllers.Comercial
         /// Fecha: 04/01/2023
         /// Versión: 1.0
         /// <summary>
+        /// Genera el reporte de tasa de contacto sin restriccion de llamadas
+        /// </summary>
+        /// <param></param>
+        /// <returns> ReporteCambioDeFaseTasaContactoDTO </returns>
+        [Route("GenerarReporteTasaContactoWhatsappV2Async")]
+        [HttpPost]
+        public async Task<IActionResult> GenerarReporteTasaContactoWhatsappV2Async([FromBody] ReporteCambioFaseFiltrosDTO filtro)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var resultado = await _reporteCambiodeFaseTresCxService.GenerarReporteTasaContactoWhatsappAsync(filtro);
+            return Ok(resultado);
+        }
+        /// TipoFuncion: POST
+        /// Autor: Flavio R. Mamani Fabian
+        /// Fecha: 04/01/2023
+        /// Versión: 1.0
+        /// <summary>
         /// Genera el reporte de tasa de contacto por otro medio
         /// </summary>
         /// <param></param>

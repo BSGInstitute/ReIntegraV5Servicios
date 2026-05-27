@@ -10,6 +10,15 @@
 
         public int TotalLlamadasEjecutadasConLlamada { get; set; }
     }
+
+    public class ReporteConsentimientoWhatsappDTO
+    {
+        public int CantidadTotal { get; set; }
+        public int CantidadAprobados { get; set; }
+        public int CantidadRechazados { get; set; }
+        public int CantidadPendientes { get; set; }
+       
+    }
     public class ReporteTasaContactoConySinLlamadaDTO
     {
         public int CambiosFaseConLlamada { get; set; }

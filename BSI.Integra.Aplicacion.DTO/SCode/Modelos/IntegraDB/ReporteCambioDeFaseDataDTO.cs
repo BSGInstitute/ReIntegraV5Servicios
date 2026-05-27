@@ -60,4 +60,10 @@
         public ReporteTasaContactoDTO ReporteTasaContacto { get; set; }
         public ReporteTasaContactoConySinLlamadaDTO ReporteTasaContactoConySinLlamada { get; set; }
     }
+
+    public class ReporteCambioDeFaseTasaContactoWhatsappDTO
+    {
+        public ReporteTasaContactoDTO ReporteTasaContactoLlamadasWhatsapp { get; set; }
+        public ReporteConsentimientoWhatsappDTO ReporteConsentimientosWhatsapp { get; set; }
+    }
 }

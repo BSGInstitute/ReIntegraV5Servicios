@@ -6,6 +6,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Interface
     {
         Task<ReporteCambioDeFaseTasaContactoDTO> GenerarReporteTasaContactoTresCxAsync(ReporteCambioFaseFiltrosDTO filtros);
         Task<ReporteCambioDeFaseTasaContactoDTO> GenerarReporteTasaContactoTresCxTotalAsync(ReporteCambioFaseFiltrosDTO filtros);
+        Task<ReporteCambioDeFaseTasaContactoWhatsappDTO> GenerarReporteTasaContactoWhatsappAsync(ReporteCambioFaseFiltrosDTO filtros);
         Task<ReporteCambioDeFaseTasaContactoDTO> GenerarReporteTasaContactoTresCxV2Async(ReporteCambioFaseFiltrosDTO filtros);
         Task<ReporteCambioDeFaseTasaContactoDTO> GenerarReporteTasaContactoTresCxOtroMedioAsync(ReporteCambioFaseFiltrosDTO filtros);
         Task<ReporteCambioDeFaseDataV2DTO> ReporteCambioDeFaseV2Async(ReporteCambioFaseFiltrosDTO filtros);

@@ -389,6 +389,166 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 throw new Exception(e.Message);
             }
         }
+        /// Autor: Carlos H. Crispin Riquelme
+        /// Fecha: 27/05/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los datos para el reporte de tasa de contacto de whatsappp
+        /// </summary>
+        /// <param name="filtros"> Filtros de búsqueda </param>
+        /// <returns> Objeto DTO: ReporteTasaContactoDTO </returns>
+        public async Task<ReporteTasaContactoDTO> ObtenerReporteTasaContactoWhatsappV2Async(ReporteCambioFaseFiltroProcesadoDTO filtros, bool esHoy)
+        {
+            try
+            {
+                //string vista = esHoy ? "com.V_ReporteTasaContacto" : "com.V_ReporteTasaContactoCongelado";
+                //string vistaEjecutadas = esHoy ? "com.V_ReporteTasaContactoLlamadaTresCx" : "com.V_ReporteTasaContactoLlamadaCongeladoTresCx";
+
+                string vista = esHoy ? "com.V_ReporteTasaContactoV2_Resumido" : "com.V_ReporteTasaContactoCongeladoV2_Resumido";
+                //string vistaEjecutadas = esHoy ? "com.V_ReporteTasaContactoLlamadaTresCxV2_Resumido" : "com.V_ReporteTasaContactoLlamadaCongeladoTresCxV2_Resumido";
+                const int idEstadoOcurrenciaEjecutado = EstadoOcurrencia.Ejecutado;
+                const int idEstadoOcurrenciaNoEjecutado = EstadoOcurrencia.NoEjecutado;
+                const int idFaseOportunidadE = FaseOportunidad.E;
+                var queryTotalEjecutadas = $@"
+                    SELECT COUNT(*) AS CantidadTotal, 
+                           ISNULL(SUM(CASE
+                                   WHEN IdEstadoOcurrencia = @IdEstadoOcurrenciaEjecutado and IdOcurrencia not in (431)
+                                   THEN 1
+                                   ELSE 0
+                               END), 0) AS CantidadTotalEjecutada
+                    FROM {vista} 
+                    WHERE EstadoOcurrencia = 1
+                        AND EstadoOportunidad = 1
+                        AND EstadoActividad = 1
+                        AND OtroMedio = 0
+                        AND (IdEstadoOcurrencia = @idEstadoOcurrenciaEjecutado
+                            OR IdEstadoOcurrencia = @idEstadoOcurrenciaNoEjecutado)
+                        AND FechaReal BETWEEN @FechaInicio AND @FechaFin
+                        AND (ComentarioActividad<>'Asignacion Manual' OR ComentarioActividad IS NULL)
+                        AND Llamada != 0
+                        AND LlamadaWhatsapp != 0
+                        AND UsuarioModificacion NOT IN('UsuarioBic', 'UsuarioFaseX', 'UsuarioOM', 'system duplicado', 'sys duplicadoIP', 'CerradoBIC','AutomatizacionRN2') {filtros.Filtro}
+                  ";
+                //AND IdFaseOportunidad != @idFaseOportunidadE
+                var task1 = _dapperRepository.FirstOrDefaultAsync(queryTotalEjecutadas,
+                new
+                {
+                    idEstadoOcurrenciaEjecutado,
+                    idEstadoOcurrenciaNoEjecutado,
+                    idFaseOportunidadE,
+                    filtros.FechaInicio,
+                    filtros.FechaFin
+                });
+
+                //var queryEjecutadasConLlamadas = $@"
+                //    SELECT COUNT(*) AS Valor
+                //    FROM {vistaEjecutadas} 
+                //    WHERE EstadoOcurrencia = 1
+                //        AND EstadoOportunidad = 1
+                //        AND EstadoActividad = 1
+                //        AND OtroMedio = 0
+                //        AND FechaReal BETWEEN @FechaInicio AND @FechaFin
+                //        AND (ComentarioActividad<>'Asignacion Manual' OR ComentarioActividad IS NULL)
+                //        AND IdEstadoOcurrencia = @idEstadoOcurrenciaEjecutado
+                //        AND Llamada != 0
+                //        AND IdOcurrencia not in (431)
+                //        AND UsuarioModificacion NOT IN('UsuarioBic', 'UsuarioFaseX', 'UsuarioOM', 'system duplicado', 'sys duplicadoIP', 'CerradoBIC', 'AutomatizacionRN2') {filtros.Filtro}
+                //";
+                //AND IdFaseOportunidad NOT IN (4, 11,27)
+                //var task2 = _dapperRepository.FirstOrDefaultAsync(queryEjecutadasConLlamadas, new
+                //{
+                //    idEstadoOcurrenciaEjecutado,
+                //    idFaseOportunidadE,
+                //    filtros.FechaInicio,
+                //    filtros.FechaFin
+                //});
+
+                var respuestaDapperTotal_TotalEjecutadas = await task1;
+                //var respuestaDapperEjecutadasLlamada = await task2;
+
+                ReporteTasaContactoDTO rpta = new ReporteTasaContactoDTO();
+
+                if (!string.IsNullOrEmpty(respuestaDapperTotal_TotalEjecutadas) && !respuestaDapperTotal_TotalEjecutadas.Contains("[]"))
+                {
+                    var datosTotal = JsonConvert.DeserializeObject<TasaContactoEjecutadoDTO>(respuestaDapperTotal_TotalEjecutadas)!;
+                    //var datosEjecutadasLlamada = JsonConvert.DeserializeObject<IntDTO>(respuestaDapperEjecutadasLlamada)!;
+
+                    rpta.TotalLlamadas = datosTotal.CantidadTotal;
+                    rpta.TotalLlamadasEjecutadas = datosTotal.CantidadTotalEjecutada;
+                    //rpta.TotalLlamadasManual = datosTotal.CantidadTotalManual;
+                    //rpta.TotalLlamadasContestaCorta = datosTotal.CantidadTotalContestaCorta;
+                    //rpta.TotalLlamadasContestaOcupado = datosTotal.CantidadTotalContestaOcupado;
+                    //rpta.TotalLlamadasEjecutadasConLlamada = datosEjecutadasLlamada.Valor.GetValueOrDefault();
+                }
+                return rpta;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        /// Autor: Carlos H. Crispin Riquelme
+        /// Fecha: 27/05/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene los datos para el reporte de tasa de contacto de whatsappp
+        /// </summary>
+        /// <param name="filtros"> Filtros de búsqueda </param>
+        /// <returns> Objeto DTO: ReporteTasaContactoDTO </returns>
+        public async Task<ReporteConsentimientoWhatsappDTO> ObtenerReporteConsentimientoWhatsappV2Async(ReporteCambioFaseFiltroProcesadoDTO filtros)
+        {
+            try
+            {
+                var queryTotal = $@"
+                    SELECT COUNT(*) AS CantidadTotal,
+                       ISNULL(SUM(CASE
+				                    WHEN ConsentimientoEstado='aceptado' THEN 1
+				                    ELSE 0
+				                    END),0) AS CantidadAprobados,
+                       ISNULL(SUM(CASE
+				                    WHEN ConsentimientoEstado='rechazado' THEN 1
+				                    ELSE 0
+				                    END),0) AS CantidadRechazados,
+                       ISNULL(SUM(CASE
+				                    WHEN ConsentimientoEstado='pendiente' THEN 1
+				                    ELSE 0
+				                    END),0) AS CantidadPendientes
+                    FROM com.T_WhatsappLlamada WL
+                    LEFT JOIN com.T_ActividadDetalle AD ON WL.IdActividadDetalle=AD.Id
+                    LEFT JOIN mkt.T_Alumno ALU ON AD.IdAlumno=ALU.Id
+                    WHERE 
+                      WL.TipoLlamada = 2
+                      AND WL.ConsentimientoEstado IS NOT NULL
+                      AND ISNULL(WL.ConsentimientoFecha, WL.FechaCreacion) BETWEEN @FechaInicio AND @FechaFin {filtros.Filtro}
+                    ";
+
+                var task1 = _dapperRepository.FirstOrDefaultAsync(queryTotal,
+                new
+                {
+                    filtros.FechaInicio,
+                    filtros.FechaFin
+                });
+
+                
+                var respuestaDapperTotal_Consentimientos = await task1;
+
+                ReporteConsentimientoWhatsappDTO rpta = new ReporteConsentimientoWhatsappDTO();
+
+                if (!string.IsNullOrEmpty(respuestaDapperTotal_Consentimientos) && !respuestaDapperTotal_Consentimientos.Contains("[]"))
+                {
+                    var datosTotal = JsonConvert.DeserializeObject<ReporteConsentimientoWhatsappDTO>(respuestaDapperTotal_Consentimientos)!;
+                    rpta = datosTotal;
+                }
+                return rpta;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+
         /// Autor: Flavio R. Mamani Fabian
         /// Fecha: 04/01/2023
         /// Versión: 1.0

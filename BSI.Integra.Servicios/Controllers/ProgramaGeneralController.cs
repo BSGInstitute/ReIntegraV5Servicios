@@ -1284,6 +1284,50 @@ namespace BSI.Integra.Servicios.Controllers
             return Ok(resultado);
         }
 
+        [HttpGet("[action]/{idPGeneral}")]
+        public IActionResult ObtenerHabilitadoBsgTento(int idPGeneral)
+        {
+            try
+            {
+                var resultado = _pGeneralService.ObtenerHabilitadoBsgTento(idPGeneral);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize]
+        [Route("[action]/{idPGeneral}/{habilitadoBsgTento}")]
+        [HttpPut]
+        public IActionResult ActualizarHabilitadoBsgTento(int idPGeneral, bool habilitadoBsgTento)
+        {
+            try
+            {
+                _pGeneralService.ActualizarHabilitadoBsgTento(idPGeneral, habilitadoBsgTento, _tokenManager.UserName);
+                return Ok(true);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("[action]")]
+        public IActionResult ObtenerTodosHabilitadoBsgTento()
+        {
+            try
+            {
+                var resultado = _pGeneralService.ObtenerTodosHabilitadoBsgTento();
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 
 

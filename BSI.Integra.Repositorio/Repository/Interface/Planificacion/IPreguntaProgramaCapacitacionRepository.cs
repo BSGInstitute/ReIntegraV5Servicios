@@ -26,5 +26,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface.Planificacion
         IEnumerable<PreguntaProgramaCapacitacion> ObtenerPorIdPGeneralYGrupoPregunta(int idPGeneral, string grupoPregunta);
         IEnumerable<ListadoPreguntaPorEstructuraDTO> ObtenerPorEstructura(int idPgeneral, string grupoPregunta);
         List<PreguntaProgramaCapacitacionRegistradaDTO> ObtenerPreguntasRegistradas();
+        List<PreguntaProgramaCapacitacionDificultadDTO> ObtenerDificultades();
+        void ActualizarDificultad(int id, int idPreguntaProgramaCapacitacionDificultad, string usuarioModificacion);
+        DificultadPorPreguntaDTO ObtenerDificultadPorIdPregunta(int id);
     }
 }
