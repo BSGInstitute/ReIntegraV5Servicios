@@ -7,6 +7,9 @@
     }
   },
   "AllowedHosts": "*",
+  "Cors": {
+    "AllowedOrigins": "http://localhost:4200,https://your-domain.com"
+  },
   "MongoDBSettings": {
     "ConnectionString": "mongodb://YOUR_MONGO_USER:YOUR_MONGO_PASSWORD@YOUR_MONGO_HOST:27017/?authSource=admin",
     "DatabaseName": "YOUR_MONGO_DATABASE_NAME"
