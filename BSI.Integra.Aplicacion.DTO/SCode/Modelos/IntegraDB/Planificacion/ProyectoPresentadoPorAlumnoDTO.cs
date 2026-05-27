@@ -31,6 +31,14 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public string NombreArchivoRetroalimentacion { get; set; } = null;
         public string UrlArchivoSubidoRetroalimentacion { get; set; } = null;
         public bool? EstadoDevuelto { get; set; }
+        public string? EstadoCalificacion { get; set; }
+        public string? SubEstadoCalificacion { get; set; }
+        public string? EstadoEntrega { get; set; }
+        public string? SubEstadoEntrega { get; set; }
+        public string? EstadoRevisionProyecto { get; set; }
+        public string? PlazoCargaRevision { get; set; }
+        public DateTime? FechaEnvioOriginal { get; set; }
+        public DateTime? FechaCalificacionOriginal { get; set; }
     }
     public class ProyectoPresentadoPorAlumnoFiltroDTO
     {

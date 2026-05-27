@@ -81,7 +81,10 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             IdPeriodoLectivo,
             UrlCronogramaSemanal,
             IdTipoProgramaCarrera,
-            IdCiclo";
+            IdCiclo,
+            IdEstadoCupos,
+            TutorVirtualActivo,
+            ResumenClaseActivo";
         public PEspecificoRepository(IntegraDBContext context, IConnectionFactory connectionFactory, IDapperRepository dapperRepository) : base(context, connectionFactory, dapperRepository)
         {
             var config = new MapperConfiguration(cfg =>
@@ -1515,6 +1518,42 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             }
         }
 
+        /// Autor: Christopher Tumir
+        /// Fecha: 13/05/2026
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene datos frescos de un programa especifico padre por su ID
+        /// </summary>
+        public ProgramaEspecificoPadreIndividualDTO ObtenerProgramaEspecificoPadreIndividualPorId(int id)
+        {
+            try
+            {
+                string query = "pla.SP_ProgramaEspecificoPadreIndividualFiltro";
+                string resultado = _dapperRepository.QuerySPDapper(query, new
+                {
+                    IdProgramaEspecifico = id.ToString(),
+                    IdCentroCosto = "",
+                    CodigoBs = "",
+                    IdEstadoPEspecifico = "",
+                    IdModalidadCurso = "",
+                    IdPGeneral = "",
+                    IdArea = "",
+                    IdSubArea = "",
+                    IdCentroCostoD = 0
+                });
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                {
+                    var lista = JsonConvert.DeserializeObject<IEnumerable<ProgramaEspecificoPadreIndividualDTO>>(resultado)!;
+                    return lista.FirstOrDefault()!;
+                }
+                return null!;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"#PER-OPEPIPID-001@Error en ObtenerProgramaEspecificoPadreIndividualPorId: {ex.Message}", ex);
+            }
+        }
+
         /// Autor: Gretel Canasa
         /// Fecha: 29/08/2023
         /// Version: 1.0
@@ -2741,6 +2780,90 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             catch (Exception) { return null; }
         }
 
+        public string ObtenerDuracionProgramaEspecificoPorCentroCosto(int idCentroCosto)
+        {
+            try
+            {
+                string _query = @"
+                SELECT TOP 1 CAST(pe.Duracion AS VARCHAR) AS Valor
+                FROM pla.T_PEspecifico pe
+                WHERE pe.IdCentroCosto = @IdCentroCosto AND pe.Estado = 1";
+                var _queryRespuesta = _dapperRepository.FirstOrDefault(_query, new { IdCentroCosto = idCentroCosto });
+                if (_queryRespuesta != "null")
+                    return JsonConvert.DeserializeObject<dynamic>(_queryRespuesta)?.Valor;
+                return null;
+            }
+            catch (Exception) { return null; }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 13/05/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene la tarifa por hora del docente para el calculo de retenciones (Mexico).
+        /// Toma el PrecioUnitarioMonedaOrigen del FUR mas reciente del docente
+        /// en el centro de costo, filtrando productos cuyo nombre inicie con
+        /// "HONORARIOS DOCENTE" en fin.T_Producto.
+        /// </summary>
+        /// <param name="idCentroCosto">Id del centro de costo del programa especifico</param>
+        /// <param name="idClasificacionPersona">Id de clasificacion de persona del docente destinatario (IdTipoPersona = 4)</param>
+        /// <returns>Tarifa en formato string o null si no se encuentra</returns>
+        public string ObtenerTarifaHonorariosDocenteParaRetenciones(int idCentroCosto, int idClasificacionPersona)
+        {
+            try
+            {
+                string _query = @"
+                SELECT TOP 1 CAST(f.PrecioUnitarioMonedaOrigen AS VARCHAR(50)) AS Valor
+                FROM fin.T_Fur f
+                INNER JOIN fin.T_Producto prod ON prod.Id = f.IdProducto
+                INNER JOIN conf.T_ClasificacionPersona cp ON cp.IdTablaOriginal = f.IdProveedor AND cp.IdTipoPersona = 4
+                WHERE f.IdCentroCosto = @IdCentroCosto
+                  AND cp.Id = @IdClasificacionPersona
+                  AND f.Estado = 1
+                  AND f.Cancelado = 0
+                  AND prod.Estado = 1
+                  AND cp.Estado = 1
+                  AND prod.Nombre LIKE 'HONORARIOS DOCENTE%'
+                ORDER BY f.Id DESC";
+                var _queryRespuesta = _dapperRepository.FirstOrDefault(_query,
+                    new { IdCentroCosto = idCentroCosto, IdClasificacionPersona = idClasificacionPersona });
+                if (_queryRespuesta != "null")
+                    return JsonConvert.DeserializeObject<dynamic>(_queryRespuesta)?.Valor;
+                return null;
+            }
+            catch (Exception) { return null; }
+        }
+
+        /// Autor: Jose Vega
+        /// Fecha: 13/05/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el IdProveedor asociado a un IdClasificacionPersona de tipo proveedor docente.
+        /// Permite vincular el docente del flujo de planificacion (que opera con
+        /// IdClasificacionPersona) con su registro en fin.T_Proveedor para reutilizar
+        /// el SP existente ope.SP_ObtenerDetalleAccesoDocentePortalWeb.
+        /// </summary>
+        /// <param name="idClasificacionPersona">Id de clasificacion de persona del docente (IdTipoPersona = 4)</param>
+        /// <returns>IdProveedor o 0 si no se encuentra</returns>
+        public int ObtenerIdProveedorPorIdClasificacionPersona(int idClasificacionPersona)
+        {
+            try
+            {
+                string _query = @"
+                SELECT TOP 1 cp.IdTablaOriginal AS Valor
+                FROM conf.T_ClasificacionPersona cp
+                WHERE cp.Id = @IdClasificacionPersona AND cp.IdTipoPersona = 4 AND cp.Estado = 1";
+                var _queryRespuesta = _dapperRepository.FirstOrDefault(_query, new { IdClasificacionPersona = idClasificacionPersona });
+                if (_queryRespuesta != "null")
+                {
+                    var resultado = JsonConvert.DeserializeObject<dynamic>(_queryRespuesta);
+                    return (int)(resultado?.Valor ?? 0);
+                }
+                return 0;
+            }
+            catch (Exception) { return 0; }
+        }
+
         public string ObtenerMonedaDocentePorCentroCosto(int idCentroCosto)
         {
             try
@@ -2835,17 +2958,17 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 string _query = @"
                 SELECT
-                    DATEADD(HOUR, @IncrementoHoras, FechaHoraInicio) AS FechaSesion,
-                    CONVERT(VARCHAR(5), DATEADD(HOUR, @IncrementoHoras, FechaHoraInicio), 108) AS HoraInicio,
-                    CONVERT(VARCHAR(5), DATEADD(MINUTE, Duracion, DATEADD(HOUR, @IncrementoHoras, FechaHoraInicio)), 108) AS HoraFin,
-                    Grupo AS Tema
-                FROM
-                    pla.T_PEspecificoSesion
-                WHERE
-                    IdPEspecifico = (SELECT TOP 1 Id FROM pla.T_PEspecifico WHERE IdCentroCosto = @IdCentroCosto AND Estado = 1)
-                    AND Estado = 1
-                ORDER BY
-                    FechaHoraInicio ASC";
+                    pe.Nombre AS NombreCurso,
+                    ISNULL(ses.GrupoSesion, 0) AS NumeroSesion,
+                    DATEADD(HOUR, @IncrementoHoras, ses.FechaHoraInicio) AS FechaSesion,
+                    CONVERT(VARCHAR(5), DATEADD(HOUR, @IncrementoHoras, ses.FechaHoraInicio), 108) AS HoraInicio,
+                    CONVERT(VARCHAR(5), DATEADD(MINUTE, ses.Duracion, DATEADD(HOUR, @IncrementoHoras, ses.FechaHoraInicio)), 108) AS HoraFin,
+                    ses.Grupo AS Tema
+                FROM pla.T_PEspecificoSesion ses
+                INNER JOIN pla.T_PEspecifico pe ON ses.IdPEspecifico = pe.Id
+                WHERE ses.IdPEspecifico = (SELECT TOP 1 Id FROM pla.T_PEspecifico WHERE IdCentroCosto = @IdCentroCosto AND Estado = 1)
+                    AND ses.Estado = 1
+                ORDER BY ses.FechaHoraInicio ASC";
                 var _queryRespuesta = _dapperRepository.QueryDapper(_query, new { IdCentroCosto = idCentroCosto, IncrementoHoras = incrementoHoras });
                 if (_queryRespuesta != "null")
                     return JsonConvert.DeserializeObject<List<SesionPlanificacionDTO>>(_queryRespuesta);

@@ -299,6 +299,26 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
         }
 
+        /// Autor: Carlos Crispin
+        /// Fecha: 21/05/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Obtiene el chat entre chatbot y cliente por IdSolicitudAlumno
+        /// </summary>
+        /// <param name="idSolicitudAlumno">ID de la solicitud</param>
+        /// <returns>Lista de mensajes del chat</returns>
+        public IEnumerable<ChatbotMensajeDTO> ObtenerChatPorSolicitud(int idSolicitudAlumno)
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerChatPorSolicitud(idSolicitudAlumno);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         /// Autor: Jose Vega
         /// Fecha: 20/10/2025
         /// Versión: 1.0
@@ -326,12 +346,12 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         /// Obtiene hilos de chat con información de alumnos y matrículas
         /// </summary>
         /// <returns>Lista de hilos de chat con datos de alumnos</returns>
-        public PagedResponseDTO<ChatbotAlumnoChatPaginadoDTO> ObtenerHilosChatConAlumnos(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize, string? codigoMatricula)
+        public PagedResponseDTO<ChatbotAlumnoChatPaginadoDTO> ObtenerHilosChatConAlumnos(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize, string? codigoMatricula, int intervencionBot)
         {
             try
             {
                 var items = _unitOfWork.ChatDetalleIntegraRepository
-                    .ObtenerHilosChatConAlumnos(fechaInicio, fechaFin, pageNumber, pageSize, codigoMatricula)
+                    .ObtenerHilosChatConAlumnos(fechaInicio, fechaFin, pageNumber, pageSize, codigoMatricula, intervencionBot)
                     .ToList();
 
                 var totalCount = items.FirstOrDefault()?.TotalCount ?? 0;
@@ -369,12 +389,12 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
         }
 
-        public PagedResponseDTO<ChatbotHiloChatPorSegmentoPaginadoDTO> ObtenerHilosChatPorSegmentoPaginado(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize)
+        public PagedResponseDTO<ChatbotHiloChatPorSegmentoPaginadoDTO> ObtenerHilosChatPorSegmentoPaginado(DateTime? fechaInicio, DateTime? fechaFin, int pageNumber, int pageSize, int intervencionBot)
         {
             try
             {
                 var items = _unitOfWork.ChatDetalleIntegraRepository
-                    .ObtenerHilosChatPorSegmentoPaginado(fechaInicio, fechaFin, pageNumber, pageSize)
+                    .ObtenerHilosChatPorSegmentoPaginado(fechaInicio, fechaFin, pageNumber, pageSize, intervencionBot)
                     .ToList();
 
                 var totalCount = items.FirstOrDefault()?.TotalCount ?? 0;
@@ -596,7 +616,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
         /// <summary>
         /// Obtiene hilos paginados (Portal + WhatsApp) para un alumno desde una fecha de corte.
         /// </summary>
-        public PagedResponseDTO<HiloChatPaginadoDTO> ObtenerHilosPaginadosPorAlumno(
+        public PagedResponseDTO<HiloChatAlumnoPaginadoDTO> ObtenerHilosPaginadosPorAlumno(
             ObtenerHilosPaginadosRequestDTO request)
         {
             try
@@ -612,7 +632,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
 
                 var totalCount = items.FirstOrDefault()?.TotalCount ?? 0;
 
-                return new PagedResponseDTO<HiloChatPaginadoDTO>
+                return new PagedResponseDTO<HiloChatAlumnoPaginadoDTO>
                 {
                     Items      = items,
                     TotalCount = totalCount,
@@ -626,7 +646,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             }
         }
 
-        public PagedResponseDTO<HiloChatPaginadoDTO> ObtenerHilosPaginadosPorSegmento(
+        public PagedResponseDTO<HiloChatNoAlumnoPaginadoDTO> ObtenerHilosPaginadosPorSegmento(
             ObtenerHilosPaginadosPorSegmentoRequestDTO request)
         {
             try
@@ -642,7 +662,7 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
 
                 var totalCount = items.FirstOrDefault()?.TotalCount ?? 0;
 
-                return new PagedResponseDTO<HiloChatPaginadoDTO>
+                return new PagedResponseDTO<HiloChatNoAlumnoPaginadoDTO>
                 {
                     Items      = items,
                     TotalCount = totalCount,
@@ -1137,6 +1157,24 @@ namespace BSI.Integra.Aplicacion.Comercial.Service.Implementacion
             try
             {
                 return _unitOfWork.ChatDetalleIntegraRepository.ObtenerChatWhatsAppAtcPorAlumno(idAlumno);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// Autor: BSI Institute - Backend Team
+        /// Fecha: 2026-04-27
+        /// Version: 1.0
+        /// <summary>
+        /// Obtiene el historial de mensajes WhatsApp ATC de un alumno.
+        /// </summary>
+        public IEnumerable<ChatbotMensajeWhatsAppAtcDTO> ObtenerChatWhatsAppAtcPorSolicitudAlumno(int idSolicitudAlumno)
+        {
+            try
+            {
+                return _unitOfWork.ChatDetalleIntegraRepository.ObtenerChatWhatsAppAtcPorSolicitudAlumno(idSolicitudAlumno);
             }
             catch (Exception ex)
             {

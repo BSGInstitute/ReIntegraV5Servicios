@@ -436,6 +436,44 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
         /// </summary>
         /// <param name="idGestionContactoDocenteFlujo">ID del vínculo entre gestión contacto y flujo docente</param>
         /// <param name="fechaInicioFlujoCongelado">Fecha de inicio opcional (solo aplica para flujos categoría General)</param>
+        /// Autor: Joseph Llanque
+        /// Fecha: 07/05/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Crea una Oportunidad Docente completa (cabecera + flujo + congelamiento)
+        /// en una transacción atómica. Si cualquier paso falla, rollback total —
+        /// nunca queda data huérfana.
+        /// </summary>
+        public async Task<CrearOportunidadCompletaResponseDTO> CrearOportunidadCompletaAsync(CrearOportunidadCompletaRequestDTO dto)
+        {
+            try
+            {
+                return await _unitOfWork.GestionContactoRepository.CrearOportunidadCompletaAsync(dto);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 07/05/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Soft delete de Oportunidad Docente con validaciones de negocio.
+        /// </summary>
+        public async Task<EliminarOportunidadResponseDTO> EliminarOportunidadAsync(int idGestionContacto, string usuario)
+        {
+            try
+            {
+                return await _unitOfWork.GestionContactoRepository.EliminarOportunidadAsync(idGestionContacto, usuario);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public async Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo, DateTime? fechaInicioFlujoCongelado = null)
         {
             try

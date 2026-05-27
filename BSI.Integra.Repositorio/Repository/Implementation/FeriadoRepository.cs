@@ -175,7 +175,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var query = @"
                         SELECT Id, Tipo, Dia, Motivo, Frecuencia, IdTroncalCiudad, Estado, FechaCreacion, FechaModificacion, UsuarioCreacion, UsuarioModificacion, RowVersion, IdMigracion
-                        FROM pla.V_TFeriado_Activos
+                        FROM pla.V_TFeriado_Obtener
                         WHERE Id = @id";
                 var resultado = _dapperRepository.FirstOrDefault(query, new { id });
                 if (!string.IsNullOrEmpty(resultado) && resultado != "null")
@@ -202,7 +202,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var query = @"
                         SELECT Id, Tipo, Dia, Motivo, Frecuencia, IdTroncalCiudad, Estado, FechaCreacion, FechaModificacion, UsuarioCreacion, UsuarioModificacion, RowVersion, IdMigracion
-                        FROM pla.V_TFeriado_Activos
+                        FROM pla.V_TFeriado_Obtener
                         WHERE Id IN @ids";
                 var resultado = _dapperRepository.QueryDapper(query, new { ids });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
@@ -229,7 +229,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var query = @"
                         SELECT Id, Tipo, Dia, Motivo, Frecuencia, IdTroncalCiudad, Estado, FechaCreacion, FechaModificacion, UsuarioCreacion, UsuarioModificacion, RowVersion, IdMigracion
-                        FROM pla.V_TFeriado_Activos
+                        FROM pla.V_TFeriado_Obtener
                         WHERE Tipo = @tipo";
                 var resultado = _dapperRepository.QueryDapper(query, new { tipo });
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))

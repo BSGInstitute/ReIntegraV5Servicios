@@ -3116,6 +3116,29 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         ReemplazarAsuntoCorreo("{nombre_docente}", docente.NombreCompleto);
                 }
 
+                // Etiquetas de credenciales del docente para el portal web BSG
+                List<string> listaAccesoDocentePortalWebPla = new List<string>()
+                {
+                    "{T_Docente.UsuarioPortalWeb}",
+                    "{T_Docente.ClavePortalWeb}"
+                };
+                if (idClasificacionPersona > 0 && listaAccesoDocentePortalWebPla.Any(_plantillaCorreo.Cuerpo.Contains))
+                {
+                    int idProveedorDocente = _unitOfWork.PEspecificoRepository.ObtenerIdProveedorPorIdClasificacionPersona(idClasificacionPersona);
+                    if (idProveedorDocente > 0)
+                    {
+                        DetalleAccesoPortalWebDTO accesoPortalWeb = _unitOfWork.MatriculaCabeceraRepository.ObtenerDetalleAccesoDocentePortalWeb(idProveedorDocente);
+                        if (accesoPortalWeb != null)
+                        {
+                            if (_plantillaCorreo.Cuerpo.Contains("{T_Docente.UsuarioPortalWeb}"))
+                                ReemplazarCuerpoCorreoWhatsApp("{T_Docente.UsuarioPortalWeb}", accesoPortalWeb.Usuario);
+
+                            if (_plantillaCorreo.Cuerpo.Contains("{T_Docente.ClavePortalWeb}"))
+                                ReemplazarCuerpoCorreoWhatsApp("{T_Docente.ClavePortalWeb}", accesoPortalWeb.Clave);
+                        }
+                    }
+                }
+
                 // ── 5. Etiquetas del personal/coordinador ({tPersonal.*}) ──
                 if (personal != null)
                 {
@@ -3241,6 +3264,31 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                         string htmlTabla = GenerarTablaCriteriosHtml(criterios);
                         ReemplazarCuerpoCorreoWhatsApp("{tabla_criterios}", htmlTabla);
                     }
+
+                    if (_plantillaCorreo.Cuerpo.Contains("{tabla_retenciones_mexico}") || _plantillaCorreo.Cuerpo.Contains("{tabla_retenciones_mexico_resico}"))
+                    {
+                        var tarifaStr = _unitOfWork.PEspecificoRepository.ObtenerTarifaHonorariosDocenteParaRetenciones(idCentroCosto, idClasificacionPersona);
+                        var duracionStr = _unitOfWork.PEspecificoRepository.ObtenerDuracionProgramaEspecificoPorCentroCosto(idCentroCosto);
+
+                        decimal? montoBruto = null;
+                        if (decimal.TryParse(tarifaStr, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal tarifa)
+                            && decimal.TryParse(duracionStr, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal duracion)
+                            && tarifa > 0 && duracion > 0)
+                        {
+                            montoBruto = tarifa * duracion;
+                        }
+
+                        if (_plantillaCorreo.Cuerpo.Contains("{tabla_retenciones_mexico}"))
+                        {
+                            string htmlTablaNormal = GenerarTablaRetencionesNormalHtml(montoBruto);
+                            ReemplazarCuerpoCorreoWhatsApp("{tabla_retenciones_mexico}", htmlTablaNormal);
+                        }
+                        if (_plantillaCorreo.Cuerpo.Contains("{tabla_retenciones_mexico_resico}"))
+                        {
+                            string htmlTablaResico = GenerarTablaRetencionesResicoHtml(montoBruto);
+                            ReemplazarCuerpoCorreoWhatsApp("{tabla_retenciones_mexico_resico}", htmlTablaResico);
+                        }
+                    }
                 }
 
                 // ── 8. Etiqueta {nombre_pais} (requiere idClasificacionPersona) ──
@@ -3312,17 +3360,24 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
             StringBuilder sb = new StringBuilder();
             sb.Append("<table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; font-size: 12px;'>");
             sb.Append("<thead style='background-color: #f2f2f2;'>");
-            sb.Append("<tr><th>Fecha</th><th>Hora Inicio</th><th>Hora Fin</th><th>Tema</th></tr>");
+            sb.Append("<tr>");
+            sb.Append("<th>Curso</th>");
+            sb.Append("<th>Sesi&oacute;n</th>");
+            sb.Append("<th>Fecha inicio</th>");
+            sb.Append("<th>Hora Inicio</th>");
+            sb.Append("<th>Hora Fin</th>");
+            sb.Append("</tr>");
             sb.Append("</thead>");
             sb.Append("<tbody>");
 
             foreach (var sesion in sesiones)
             {
                 sb.Append("<tr>");
+                sb.Append($"<td>{sesion.NombreCurso}</td>");
+                sb.Append($"<td style='text-align: center;'>{sesion.NumeroSesion}</td>");
                 sb.Append($"<td>{(sesion.FechaSesion.HasValue ? sesion.FechaSesion.Value.ToString("dd/MM/yyyy") : "")}</td>");
                 sb.Append($"<td>{sesion.HoraInicio}</td>");
                 sb.Append($"<td>{sesion.HoraFin}</td>");
-                sb.Append($"<td>{sesion.Tema}</td>");
                 sb.Append("</tr>");
             }
 
@@ -3352,6 +3407,112 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                 sb.Append("</tr>");
             }
 
+            sb.Append("</tbody>");
+            sb.Append("</table>");
+
+            return sb.ToString();
+        }
+
+        private string GenerarTablaRetencionesNormalHtml(decimal? montoBruto)
+        {
+            var culture = new CultureInfo("es-ES");
+            string celdaBase, celdaIva, celdaSubtotal, celdaIsr, celdaIvaRet, celdaImporte;
+
+            if (montoBruto.HasValue && montoBruto.Value > 0)
+            {
+                decimal baseImponible = montoBruto.Value;
+                decimal iva = baseImponible * 0.16M;
+                decimal subtotal = baseImponible + iva;
+                decimal isr = baseImponible * 0.10M;
+                decimal ivaRetenciones = baseImponible * 0.16M * 2M / 3M;
+                decimal importePagar = subtotal - isr - ivaRetenciones;
+
+                celdaBase = baseImponible.ToString("N2", culture);
+                celdaIva = iva.ToString("N2", culture);
+                celdaSubtotal = subtotal.ToString("N2", culture);
+                celdaIsr = isr.ToString("N2", culture);
+                celdaIvaRet = ivaRetenciones.ToString("N2", culture);
+                celdaImporte = importePagar.ToString("N2", culture);
+            }
+            else
+            {
+                celdaBase = celdaIva = celdaSubtotal = celdaIsr = celdaIvaRet = celdaImporte = "Reemplazar";
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; font-size: 12px; text-align: center;'>");
+            sb.Append("<thead style='background-color: #d9d9d9;'>");
+            sb.Append("<tr>");
+            sb.Append("<th>BASE IMPONIBLE</th>");
+            sb.Append("<th>IVA (16%)</th>");
+            sb.Append("<th>SUBTOTAL</th>");
+            sb.Append("<th>ISR (10%)</th>");
+            sb.Append("<th>IVA (10,67%)</th>");
+            sb.Append("<th>IMPORTE A PAGAR</th>");
+            sb.Append("</tr>");
+            sb.Append("</thead>");
+            sb.Append("<tbody>");
+            sb.Append("<tr>");
+            sb.Append($"<td>{celdaBase}</td>");
+            sb.Append($"<td>{celdaIva}</td>");
+            sb.Append($"<td>{celdaSubtotal}</td>");
+            sb.Append($"<td>{celdaIsr}</td>");
+            sb.Append($"<td>{celdaIvaRet}</td>");
+            sb.Append($"<td>{celdaImporte}</td>");
+            sb.Append("</tr>");
+            sb.Append("</tbody>");
+            sb.Append("</table>");
+
+            return sb.ToString();
+        }
+
+        private string GenerarTablaRetencionesResicoHtml(decimal? montoBruto)
+        {
+            var culture = new CultureInfo("es-ES");
+            string celdaBase, celdaIva, celdaTotal, celdaIvaRet, celdaIsrRet, celdaNeto;
+
+            if (montoBruto.HasValue && montoBruto.Value > 0)
+            {
+                decimal baseImponible = montoBruto.Value;
+                decimal iva = baseImponible * 0.16M;
+                decimal total = baseImponible + iva;
+                decimal ivaRetenciones = baseImponible * 0.16M * 2M / 3M;
+                decimal isrRetenido = baseImponible * 0.0125M;
+                decimal neto = total - ivaRetenciones - isrRetenido;
+
+                celdaBase = baseImponible.ToString("N2", culture);
+                celdaIva = iva.ToString("N2", culture);
+                celdaTotal = total.ToString("N2", culture);
+                celdaIvaRet = ivaRetenciones.ToString("N2", culture);
+                celdaIsrRet = isrRetenido.ToString("N2", culture);
+                celdaNeto = neto.ToString("N2", culture);
+            }
+            else
+            {
+                celdaBase = celdaIva = celdaTotal = celdaIvaRet = celdaIsrRet = celdaNeto = "Reemplazar";
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; font-size: 12px; text-align: center;'>");
+            sb.Append("<thead style='background-color: #d9d9d9;'>");
+            sb.Append("<tr>");
+            sb.Append("<th>BASE IMPONIBLE</th>");
+            sb.Append("<th>IVA</th>");
+            sb.Append("<th>TOTAL</th>");
+            sb.Append("<th>IVA RETENCIONES</th>");
+            sb.Append("<th>ISR RETENIDO</th>");
+            sb.Append("<th>NETO</th>");
+            sb.Append("</tr>");
+            sb.Append("</thead>");
+            sb.Append("<tbody>");
+            sb.Append("<tr>");
+            sb.Append($"<td>{celdaBase}</td>");
+            sb.Append($"<td>{celdaIva}</td>");
+            sb.Append($"<td>{celdaTotal}</td>");
+            sb.Append($"<td>{celdaIvaRet}</td>");
+            sb.Append($"<td>{celdaIsrRet}</td>");
+            sb.Append($"<td>{celdaNeto}</td>");
+            sb.Append("</tr>");
             sb.Append("</tbody>");
             sb.Append("</table>");
 

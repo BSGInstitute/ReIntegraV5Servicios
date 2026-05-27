@@ -49,5 +49,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Primary key de tabla en V3
         /// </summary>
         public int? IdMigracion { get; set; }
+        /// <summary>
+        /// FK a T_ProcesoSeleccionEtapaPublica. Etapa publica asociada a esta etapa interna, visible al postulante externo en la bolsa de trabajo. Nullable: una etapa interna puede no tener etapa publica asignada.
+        /// </summary>
+        public int? IdProcesoSeleccionEtapaPublica { get; set; }
+
+        public virtual TProcesoSeleccionEtapaPublica? IdProcesoSeleccionEtapaPublicaNavigation { get; set; }
     }
 }

@@ -10,8 +10,10 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     {
         public TMedioComunicacion()
         {
+            TFormularioAplicadoChatbots = new HashSet<TFormularioAplicadoChatbot>();
             TPlantillaMedioComunicacions = new HashSet<TPlantillaMedioComunicacion>();
             TPreferenciaComunicacionAcademicas = new HashSet<TPreferenciaComunicacionAcademica>();
+            TVersionFormularioEvaluacionChatbots = new HashSet<TVersionFormularioEvaluacionChatbot>();
         }
 
         /// <summary>
@@ -47,7 +49,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
 
+        public virtual ICollection<TFormularioAplicadoChatbot> TFormularioAplicadoChatbots { get; set; }
         public virtual ICollection<TPlantillaMedioComunicacion> TPlantillaMedioComunicacions { get; set; }
         public virtual ICollection<TPreferenciaComunicacionAcademica> TPreferenciaComunicacionAcademicas { get; set; }
+        public virtual ICollection<TVersionFormularioEvaluacionChatbot> TVersionFormularioEvaluacionChatbots { get; set; }
     }
 }

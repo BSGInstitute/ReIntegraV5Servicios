@@ -15,26 +15,29 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.Configurac
         }
 
         /// Autor: Humberto Oscata
-        /// Fecha: 08/01/2026
-        /// Version: 1.0
+        /// Fecha: 07/05/2026
+        /// Version: 1.3
         /// <summary>
-        /// Obtiene el listado de programas configurados
+        /// Obtiene programas de pla.T_PGeneral que tienen al menos un argumento activo en mkt.T_ProgramaCategoriaArgumento (Estado = 1).
         /// </summary>
-        /// <returns>Listado de programas configurados</returns>
-        public List<ProgramaConfigurado> ObtenerListadoProgramaConfigurado()
+        /// <returns>Listado de programas con al menos un argumento activo</returns>
+        public List<ProgramaGeneralListadoDTO> ObtenerListadoProgramaConfigurado()
         {
             try
             {
-                List<ProgramaConfigurado> resultado = new List<ProgramaConfigurado>();
+                List<ProgramaGeneralListadoDTO> resultado = new List<ProgramaGeneralListadoDTO>();
 
-                var query = "SELECT Id, Nombre, UsuarioModificacion, FechaModificacion FROM [mkt].[T_ProgramaGeneralConfigurado] WHERE Estado = 1";
+                var query = "[mkt].[SP_PGeneralObtenerListadoConfigurados]";
 
-                var jsonResult = _dapperRepository.QueryDapper(query, null);
+                var jsonResult = _dapperRepository.QuerySPDapper(query, null);
 
                 if (!string.IsNullOrEmpty(jsonResult) && jsonResult != "null")
-                    resultado = JsonConvert.DeserializeObject<List<ProgramaConfigurado>>(jsonResult);
+                {
+                    var raw = JsonConvert.DeserializeObject<List<ProgramaGeneralRawDTO>>(jsonResult);
+                    resultado = raw.Select(r => new ProgramaGeneralListadoDTO { Id = r.IdPGeneral, Nombre = r.Nombre }).ToList();
+                }
 
-                return resultado.OrderByDescending(c => c.Id).ToList();
+                return resultado;
             }
             catch (Exception ex)
             {
@@ -43,31 +46,29 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.Configurac
         }
 
         /// Autor: Humberto Oscata
-        /// Fecha: 08/01/2026
-        /// Version: 1.0
+        /// Fecha: 07/05/2026
+        /// Version: 1.1
         /// <summary>
-        /// Crea un nuevo registro para programa configurado
+        /// Obtiene programas de pla.T_PGeneral que NO tienen ningún argumento activo en mkt.T_ProgramaCategoriaArgumento — disponibles para configurar por primera vez.
         /// </summary>
-        /// <param name="request">Cuerpo para crear nuevo programa</param>
-        /// <param name="usuario">usuario edicion</param>
-        /// <returns>Estado creacion</returns>
-        public int CrearProgramaConfigurado(CrearProgramaGeneralConfiguradoDTO request, string usuario)
+        /// <returns>Listado de programas disponibles para configurar</returns>
+        public List<ProgramaGeneralListadoDTO> ObtenerProgramasDisponiblesConfigurar()
         {
             try
             {
-                var query = "INSERT INTO [mkt].[T_ProgramaGeneralConfigurado] " +
-                                "([Nombre],[IdPGeneral],[Estado],[FechaCreacion],[FechaModificacion],[UsuarioCreacion],[UsuarioModificacion]) " +
-                                "VALUES (@Nombre, @IdPGeneral , 1, GETDATE() , GETDATE(), @Usuario, @Usuario); " +
-                                "SELECT CAST(SCOPE_IDENTITY() as int) as NewId;";
+                List<ProgramaGeneralListadoDTO> resultado = new List<ProgramaGeneralListadoDTO>();
 
-                var jsonResult = _dapperRepository.QueryDapper(query, new { Nombre = request.Nombre, IdPGeneral = request.IdProgramaGeneral, Usuario = usuario });
+                var query = "[mkt].[SP_PGeneralObtenerDisponiblesConfigurar]";
 
-                var resultado = JsonConvert.DeserializeObject<dynamic>(jsonResult);
+                var jsonResult = _dapperRepository.QuerySPDapper(query, null);
 
-                if (resultado != null && resultado.Count > 0)
-                    return (int)resultado[0].NewId;
+                if (!string.IsNullOrEmpty(jsonResult) && jsonResult != "null")
+                {
+                    var raw = JsonConvert.DeserializeObject<List<ProgramaGeneralRawDTO>>(jsonResult);
+                    resultado = raw.Select(r => new ProgramaGeneralListadoDTO { Id = r.IdPGeneral, Nombre = r.Nombre }).ToList();
+                }
 
-                return 0;
+                return resultado;
             }
             catch (Exception ex)
             {
@@ -90,7 +91,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.Configurac
             {
                 var query = "[mkt].[SP_EliminarDetalleProgramaConfigurado]";
 
-                var jsonResult = _dapperRepository.QuerySPDapper(query, new { IdProgramaGeneralConfigurado = id, UsuarioModificacion = usuario });
+                var jsonResult = _dapperRepository.QuerySPDapper(query, new { IdPGeneral = id, UsuarioModificacion = usuario });
 
                 return true;
             }
@@ -114,7 +115,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.Configurac
             {
                 var query = "[mkt].[SP_ObtenerDetalleProgramaConfigurado]";
 
-                var jsonResult = _dapperRepository.QuerySPDapper(query, new { IdProgramaGeneralConfigurado = id });
+                var jsonResult = _dapperRepository.QuerySPDapper(query, new { IdPGeneral = id });
 
                 // Deserializa resultado plano
                 var flatResult = JsonConvert.DeserializeObject<List<ProgramaDetallePlano>>(jsonResult);
@@ -125,21 +126,21 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.Configurac
                 // Construcción jerarquica
                 var programa = new ProgramaConfiguradoDetalleDTO
                 {
-                    Id = flatResult.First().ProgramaId,
-                    IdProgramaGeneral = flatResult.First().IdProgramaGeneral,
+                    Id = flatResult.First().IdPGeneral,
+                    IdProgramaGeneral = flatResult.First().IdPGeneral,
                     NombrePrograma = flatResult.First().NombrePrograma,
                     CategoriasArgumento = flatResult
-                        .GroupBy(x => new { x.CategoriaId, x.NombreCategoria })
+                        .GroupBy(x => new { x.IdCategoriaArgumentoConfigurado, x.NombreCategoria })
                         .Select(categoria => new CategoriaArgumentoPorProgramaDTO
                         {
-                            Id = categoria.Key.CategoriaId,
+                            Id = categoria.Key.IdCategoriaArgumentoConfigurado,
                             Nombre = categoria.Key.NombreCategoria,
                             Argumentos = categoria
-                                .Where(a => a.ArgumentoId.HasValue)
+                                .Where(a => a.IdRemarketingArgumento.HasValue)
                                 .OrderBy(a => a.PrioridadArgumento)
                                 .Select(a => new ArgumentoDTO
                                 {
-                                    Id = a.ArgumentoId.Value,
+                                    Id = a.IdRemarketingArgumento.Value,
                                     Nombre = a.NombreArgumento,
                                     Descripcion = a.DescripcionArgumento,
                                     Prioridad = a.PrioridadArgumento ?? 0
@@ -176,7 +177,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.Configurac
 
                 var jsonResult = _dapperRepository.QuerySPDapper(query, new
                 {
-                    IdProgramaGeneralConfigurado = request.IdProgramaConfigurado,
+                    IdPGeneral = request.IdProgramaConfigurado,
                     IdCategoriaArgumentoConfigurado = request.IdCategoria,
                     request.Nombre,
                     request.Prioridad,
@@ -237,7 +238,7 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Marketing.Configurac
                 request.UsuarioModificacion = usuario;
                 var query = "[mkt].[SP_EliminarArgumentoPorCategoria]";
 
-                var jsonResult = _dapperRepository.QuerySPDapper(query, new { IdProgramaGeneralConfigurado = request.IdProgramaConfigurado, IdRemarketingArgumento = request.IdArgumento, request.UsuarioModificacion });
+                var jsonResult = _dapperRepository.QuerySPDapper(query, new { IdPGeneral = request.IdProgramaConfigurado, IdRemarketingArgumento = request.IdArgumento, request.UsuarioModificacion });
 
                 return true;
             }

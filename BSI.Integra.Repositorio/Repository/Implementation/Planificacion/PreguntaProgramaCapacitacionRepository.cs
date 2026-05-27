@@ -373,6 +373,58 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                 throw new Exception(e.Message);
             }
         }
+
+        /// <summary>
+        /// Obtiene el listado de niveles de dificultad disponibles para preguntas
+        /// </summary>
+        /// <returns>Lista de objetos de tipo PreguntaProgramaCapacitacionDificultadDTO</returns>
+        public List<PreguntaProgramaCapacitacionDificultadDTO> ObtenerDificultades()
+        {
+            try
+            {
+                var res = _dapperRepository.QuerySPDapper("ope.SP_TPreguntaProgramaCapacitacionDificultad_Obtener", null);
+                if (!string.IsNullOrEmpty(res) && res != "null" && !res.Contains("[]"))
+                    return JsonConvert.DeserializeObject<List<PreguntaProgramaCapacitacionDificultadDTO>>(res)
+                                     .OrderBy(x => x.Id)
+                                     .ToList();
+                return new List<PreguntaProgramaCapacitacionDificultadDTO>();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Actualiza el nivel de dificultad de una pregunta de programa de capacitacion
+        /// </summary>
+        /// <param name="id">Id de la pregunta (PK)</param>
+        /// <param name="idPreguntaProgramaCapacitacionDificultad">Id del nivel de dificultad</param>
+        /// <param name="usuarioModificacion">Usuario que realiza la modificacion</param>
+        public void ActualizarDificultad(int id, int idPreguntaProgramaCapacitacionDificultad, string usuarioModificacion)
+        {
+            var parametros = new
+            {
+                IdPreguntaProgramaCapacitacion = id,
+                IdPreguntaProgramaCapacitacionDificultad = idPreguntaProgramaCapacitacionDificultad,
+                UsuarioModificacion = usuarioModificacion
+            };
+            _dapperRepository.QuerySPDapper("ope.SP_TPreguntaProgramaCapacitacion_ActualizarDificultad", parametros);
+        }
+
+        /// <summary>
+        /// Obtiene el nivel de dificultad asociado a una pregunta de programa de capacitacion
+        /// </summary>
+        /// <param name="id">Id de la pregunta (PK)</param>
+        /// <returns>Objeto de tipo DificultadPorPreguntaDTO o null si no existe</returns>
+        public DificultadPorPreguntaDTO ObtenerDificultadPorIdPregunta(int id)
+        {
+            var res = _dapperRepository.QuerySPFirstOrDefault("ope.SP_PreguntaProgramaCapacitacionObtenerDificultadPorIdPreguntaProgramaCapacitacion", new { IdPreguntaProgramaCapacitacion = id });
+            if (!string.IsNullOrEmpty(res) && res != "null")
+                return JsonConvert.DeserializeObject<DificultadPorPreguntaDTO>(res);
+            return null;
+        }
+
         /// <summary>
 		/// Obtiene todas las preguntas de programa de capacitacion registradas en el sistema
 		/// </summary>

@@ -375,5 +375,24 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Implementacion
                 })
                 .ToList();
         }
+
+        /// Autor: Joseph Llanque
+        /// Fecha: 07/05/2026
+        /// Versión: 1.0
+        /// <summary>
+        /// Endpoint dedicado del tab "Mensajes Recibidos": delega al repo
+        /// pasando el filtro opcional por personal asignado.
+        /// </summary>
+        public List<MensajeRecibidoAgendaDTO> ObtenerMensajesRecibidos(int idPersonalAsignado)
+        {
+            try
+            {
+                return _unitOfWork.GestionDocenteAgendaRepository.ObtenerMensajesRecibidos(idPersonalAsignado);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

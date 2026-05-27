@@ -2518,7 +2518,7 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
                     EstadoPid = dto.Pespecifico.EstadoPid,
                     TipoId = dto.Pespecifico.TipoId,
                     OrigenPrograma = dto.Pespecifico.OrigenPrograma,
-                    IdCiudad = dto.IdCiudad,
+                    IdCiudad = dto.Pespecifico.IdCiudad,    
                     Duracion = dto.Pespecifico.Duracion,
                     ActualizacionAutomatica = dto.Pespecifico.ActualizacionAutomatica,
                     IdCursoMoodle = dto.Pespecifico.IdCursoMoodle,

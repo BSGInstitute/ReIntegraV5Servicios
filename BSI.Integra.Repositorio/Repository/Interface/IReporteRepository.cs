@@ -12,6 +12,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         Task<ReporteTasaContactoDTO> ObtenerReporteTasaContactoAsync(ReporteCambioFaseFiltroProcesadoDTO filtros);
         Task<ReporteTasaContactoDTO> ObtenerReporteTasaContactoTresCxAsync(ReporteCambioFaseFiltroProcesadoDTO filtros, bool esHoy);
         Task<ReporteTasaContactoDTO> ObtenerReporteTasaContactoTresCxV2Async(ReporteCambioFaseFiltroProcesadoDTO filtros, bool esHoy);
+        Task<ReporteTasaContactoDTO> ObtenerReporteTasaContactoWhatsappV2Async(ReporteCambioFaseFiltroProcesadoDTO filtros, bool esHoy);
+        Task<ReporteConsentimientoWhatsappDTO> ObtenerReporteConsentimientoWhatsappV2Async(ReporteCambioFaseFiltroProcesadoDTO filtros);
         Task<ReporteTasaContactoDTO> ObtenerReporteTasaContactoTresCxOtroMedioAsync(ReporteCambioFaseFiltroProcesadoDTO filtros, bool esHoy);
         IEnumerable<ReporteCambiosDeFaseOportunidadDTO> ObtenerReporteCambiosDeFaseControlBICYEAcumulado(ReporteCambioFaseFiltroProcesadoDTO filtros);
         Task<IEnumerable<ReporteCambiosDeFaseOportunidadDTO>> ObtenerReporteCambiosDeFaseControlBICYEAcumuladoAsync(ReporteCambioFaseFiltroProcesadoDTO filtros);

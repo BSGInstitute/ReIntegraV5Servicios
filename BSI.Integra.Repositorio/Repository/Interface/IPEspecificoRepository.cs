@@ -61,6 +61,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         public List<ComboDTO> ObtenerPorNombreAutocomplete(string valor);
         public List<CursosCentroCostoDTO> ObtenerCursosCentroCosto(int idPEspecifico = 0);
         IEnumerable<ProgramaEspecificoPadreIndividualDTO> ObtenerProgramaEspecificoPadreIndividualFiltro(PEspecificoFiltroSPDTO filtro);
+        ProgramaEspecificoPadreIndividualDTO ObtenerProgramaEspecificoPadreIndividualPorId(int id);
         IEnumerable<ComboDTO> ObtenerProgramaEspecifico();
         IEnumerable<ComboDTO> ObtenerProgramaEspecificoPorIdPGeneral(List<int> idPGeneral);
         IEnumerable<PEspecificoPGeneralFiltroDTO> ObtenerFiltroPorTipo(bool aplicaTipo);
@@ -109,6 +110,9 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         string ObtenerNombrePaisDocentePlanificacion(int idClasificacionPersona);
         string ObtenerPlazoOtorgadoPorCentroCosto(int idCentroCosto);
         string ObtenerTarifaDocentePorCentroCosto(int idCentroCosto);
+        string ObtenerTarifaHonorariosDocenteParaRetenciones(int idCentroCosto, int idClasificacionPersona);
+        int ObtenerIdProveedorPorIdClasificacionPersona(int idClasificacionPersona);
+        string ObtenerDuracionProgramaEspecificoPorCentroCosto(int idCentroCosto);
         string ObtenerMonedaDocentePorCentroCosto(int idCentroCosto);
         string ObtenerPlazoPagoDocentePorCentroCosto(int idCentroCosto);
         int ObtenerIncrementoZonaHorariaDocente(int idClasificacionPersona);

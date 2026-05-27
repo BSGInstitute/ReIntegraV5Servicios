@@ -5659,5 +5659,20 @@ namespace BSI.Integra.Aplicacion.Transversal.Service.Implementacion
         {
             return _unitOfWork.PGeneralRepository.ObtenerPGeneralActivo();
         }
+
+        public bool? ObtenerHabilitadoBsgTento(int idPGeneral)
+        {
+            return _unitOfWork.PGeneralRepository.ObtenerHabilitadoBsgTento(idPGeneral);
+        }
+
+        public void ActualizarHabilitadoBsgTento(int idPGeneral, bool habilitadoBsgTento, string usuarioModificacion)
+        {
+            _unitOfWork.PGeneralRepository.ActualizarHabilitadoBsgTento(idPGeneral, habilitadoBsgTento, usuarioModificacion);
+        }
+
+        public List<PGeneralBsgTentoDTO> ObtenerTodosHabilitadoBsgTento()
+        {
+            return _unitOfWork.PGeneralRepository.ObtenerTodosHabilitadoBsgTento();
+        }
     }
 }

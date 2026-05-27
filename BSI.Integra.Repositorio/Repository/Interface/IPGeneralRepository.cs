@@ -109,5 +109,8 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         Task<List<ContenidoHijoDTO>> ContenidoEstructuraHijoPadreAsync(int idPGeneral);
         IEnumerable<PGeneralPublicoObjetivoParaAgendaDTO> ObtenerPublicoObjetivoProgramaParaAgendaNuevaV3PorAlumno(int idOportunidad);
         IEnumerable<ComboDTO> ObtenerPGeneralActivo();
+        bool? ObtenerHabilitadoBsgTento(int idPGeneral);
+        void ActualizarHabilitadoBsgTento(int idPGeneral, bool habilitadoBsgTento, string usuarioModificacion);
+        List<PGeneralBsgTentoDTO> ObtenerTodosHabilitadoBsgTento();
     }
 }

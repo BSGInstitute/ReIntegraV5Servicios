@@ -55,6 +55,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IPlantillaRepository PlantillaRepository { get; }
         IGmailCorreoRepository GmailCorreoRepository { get; }
         IWhatsAppMensajeEnviadoRepository WhatsAppMensajeEnviadoRepository { get; }
+        ILlamadasWhatsAppRepository LlamadasWhatsAppRepository { get; }
         ICentroCostoRepository CentroCostoRepository { get; }
         IMatriculaCabeceraDatosCertificadoMensajeRepository MatriculaCabeceraDatosCertificadoMensajeRepository { get; }
         IPlantillaClaveValorRepository PlantillaClaveValorRepository { get; }
@@ -1022,6 +1023,7 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IProveedorPEspecificoRepository ProveedorPEspecificoRepository { get; }
         IReporteDashboardRepository ReporteDashboardRepository { get; }
         IWhatsAppMensajeEnviadoApiAtcRepository WhatsAppMensajeEnviadoApiAtcRepository { get; }
+        IWhatsAppMensajeEnviadoApiPostulanteRepository WhatsAppMensajeEnviadoApiPostulanteRepository { get; }
         IFacebookResenaRepository FacebookResenaRepository { get; }
         IGoogleResenaRepository GoogleResenaRepository { get; }
         IGooglePlacesConfiguracionRepository GooglePlacesConfiguracionRepository { get; }
@@ -1034,5 +1036,11 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IFacebookConfiguracionRepository FacebookConfiguracionRepository { get; }
         ILinkedinConfiguracionRepository LinkedinConfiguracionRepository { get; }
         IModeloPredictivoProbabilidadEscalonadoRepository ModeloPredictivoProbabilidadEscalonadoRepository { get; }
+        IBsgTentoRepository BsgTentoRepository { get; }
+        IBsgTentoLogrosRepository BsgTentoLogrosRepository { get; }
+        IBsgTentoPowerUpRepository BsgTentoPowerUpRepository { get; }
+        IBsgTentoSocialRepository BsgTentoSocialRepository { get; }
+        IBsgTentoSuscripcionRepository BsgTentoSuscripcionRepository { get; }
+        IAlumnoCasoExitoRepository AlumnoCasoExitoRepository { get; }
     }
 }

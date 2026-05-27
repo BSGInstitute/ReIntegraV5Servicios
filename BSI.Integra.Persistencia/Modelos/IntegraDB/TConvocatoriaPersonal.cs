@@ -5,6 +5,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 {
     public partial class TConvocatoriaPersonal
     {
+        public TConvocatoriaPersonal()
+        {
+            TConvocatoriaPersonalDetallePuestos = new HashSet<TConvocatoriaPersonalDetallePuesto>();
+        }
+
         /// <summary>
         /// Pk de la tabla
         /// </summary>
@@ -162,11 +167,16 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         ///  id T_EstadoConvocatoria 
         /// </summary>
         public int? IdEstadoConvocatoria { get; set; }
+        /// <summary>
+        /// Indica si la convocatoria se precisa con urgencia. 1 = si, 0 o NULL = no. Se muestra como etiqueta destacada al postulante externo en el portal de bolsa de trabajo.
+        /// </summary>
+        public bool? RequiereUrgencia { get; set; }
 
         public virtual TPersonalAreaTrabajo? IdAreaNavigation { get; set; }
         public virtual TPersonal? IdPersonalNavigation { get; set; }
         public virtual TProcesoSeleccion IdProcesoSeleccionNavigation { get; set; } = null!;
         public virtual TProveedor IdProveedorNavigation { get; set; } = null!;
         public virtual TSedeTrabajo? IdSedeTrabajoNavigation { get; set; }
+        public virtual ICollection<TConvocatoriaPersonalDetallePuesto> TConvocatoriaPersonalDetallePuestos { get; set; }
     }
 }

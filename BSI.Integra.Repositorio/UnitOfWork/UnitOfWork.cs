@@ -380,6 +380,16 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private ILlamadasWhatsAppRepository _llamadasWhatsAppRepository;
+
+        ILlamadasWhatsAppRepository IUnitOfWork.LlamadasWhatsAppRepository
+        {
+            get
+            {
+                return _llamadasWhatsAppRepository ?? new LlamadasWhatsAppRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
         private ICentroCostoRepository _centroCostoRepository;
 
         ICentroCostoRepository IUnitOfWork.CentroCostoRepository
@@ -8539,6 +8549,15 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private IWhatsAppMensajeEnviadoApiPostulanteRepository _whatsAppMensajeEnviadoApiPostulanteRepository;
+        IWhatsAppMensajeEnviadoApiPostulanteRepository IUnitOfWork.WhatsAppMensajeEnviadoApiPostulanteRepository
+        {
+            get
+            {
+                return _whatsAppMensajeEnviadoApiPostulanteRepository ?? new WhatsAppMensajeEnviadoApiPostulanteRepository(_dapperRepository);
+            }
+        }
+
 
         private IFacebookResenaRepository _resenaFacebookRepository;
         IFacebookResenaRepository IUnitOfWork.FacebookResenaRepository
@@ -8646,6 +8665,57 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             {
                 return _modeloPredictivoProbabilidadEscalonadoRepository ?? new ModeloPredictivoProbabilidadEscalonadoRepository(_context, _connectionFactory, _dapperRepository);
             }
+        }
+
+        private IBsgTentoRepository _bsgTentoRepository;
+        IBsgTentoRepository IUnitOfWork.BsgTentoRepository
+        {
+            get
+            {
+                return _bsgTentoRepository ?? new BsgTentoRepository(_dapperRepository);
+            }
+        }
+
+        private IBsgTentoLogrosRepository _bsgTentoLogrosRepository;
+        IBsgTentoLogrosRepository IUnitOfWork.BsgTentoLogrosRepository
+        {
+            get
+            {
+                return _bsgTentoLogrosRepository ?? new BsgTentoLogrosRepository(_dapperRepository);
+            }
+        }
+
+        private IBsgTentoPowerUpRepository _bsgTentoPowerUpRepository;
+        IBsgTentoPowerUpRepository IUnitOfWork.BsgTentoPowerUpRepository
+        {
+            get
+            {
+                return _bsgTentoPowerUpRepository ?? new BsgTentoPowerUpRepository(_dapperRepository);
+            }
+        }
+
+        private IBsgTentoSocialRepository _bsgTentoSocialRepository;
+        IBsgTentoSocialRepository IUnitOfWork.BsgTentoSocialRepository
+        {
+            get
+            {
+                return _bsgTentoSocialRepository ?? new BsgTentoSocialRepository(_dapperRepository);
+            }
+        }
+
+        private IBsgTentoSuscripcionRepository _bsgTentoSuscripcionRepository;
+        IBsgTentoSuscripcionRepository IUnitOfWork.BsgTentoSuscripcionRepository
+        {
+            get
+            {
+                return _bsgTentoSuscripcionRepository ?? new BsgTentoSuscripcionRepository(_dapperRepository);
+            }
+        }
+
+        private IAlumnoCasoExitoRepository _alumnoCasoExitoRepository;
+        IAlumnoCasoExitoRepository IUnitOfWork.AlumnoCasoExitoRepository
+        {
+            get { return _alumnoCasoExitoRepository ?? new AlumnoCasoExitoRepository(_context, _connectionFactory, _dapperRepository); }
         }
 
     }

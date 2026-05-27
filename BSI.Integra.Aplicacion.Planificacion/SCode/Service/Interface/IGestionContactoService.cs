@@ -17,6 +17,15 @@ namespace BSI.Integra.Aplicacion.Planificacion.SCode.Service.Interface
         IEnumerable<ComboDTO> ObtenerGestionDocenteFlujos();
         Task<int> InsertarOportunidadDocenteAsync(CrearOportunidadDocenteDTO dto);
         Task<int> ActualizarOportunidadDocenteAsync(ActualizarOportunidadDocenteDTO dto);
+        /// <summary>
+        /// Crea Oportunidad Docente atómica (cabecera + vínculo flujo + congelamiento)
+        /// en UNA sola transacción. Reemplaza el orquestamiento de 3 llamadas HTTP.
+        /// </summary>
+        Task<CrearOportunidadCompletaResponseDTO> CrearOportunidadCompletaAsync(CrearOportunidadCompletaRequestDTO dto);
+        /// <summary>
+        /// Soft delete de Oportunidad. Bloquea si el flujo ya inició o hay ocurrencias marcadas.
+        /// </summary>
+        Task<EliminarOportunidadResponseDTO> EliminarOportunidadAsync(int idGestionContacto, string usuario);
         IEnumerable<EstadoGestionContactoDTO> ObtenerEstadosGestionContacto();
         Task<int> InsertarGestionContactoDocenteFlujoAsync(InsertarGestionContactoDocenteFlujoDTO dto);
         Task<int> CongelarFlujoDocenteAsync(int idGestionContactoDocenteFlujo, DateTime? fechaInicioFlujoCongelado = null);

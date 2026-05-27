@@ -509,7 +509,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                     RemitenteC = string.Concat(asesor.Nombres, ' ', asesor.Apellidos)
                 };
 
-                TMK_MailService serviceMail = new TMK_MailService();
+                TMK_MailServicePla serviceMail = new TMK_MailServicePla();
                 serviceMail.SetData(mailData);
                 if (Files != null && Files.Count() > 0)
                 {
