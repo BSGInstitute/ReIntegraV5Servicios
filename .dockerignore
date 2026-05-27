@@ -3,6 +3,7 @@
 **/.env
 **/.git
 **/.gitignore
+**/.idea
 **/.project
 **/.settings
 **/.toolstarget
@@ -11,6 +12,8 @@
 **/*.*proj.user
 **/*.dbmdl
 **/*.jfm
+**/*.md
+**/*.example
 **/azds.yaml
 **/bin
 **/charts
@@ -21,5 +24,18 @@
 **/obj
 **/secrets.dev.yaml
 **/values.dev.yaml
-LICENSE
-README.md
+**/appsettings.Development.json
+**/appsettings.json
+
+# Test projects
+BSI.Integra.PruebasUnitarias/
+BSI.Integra.Aplicacion.Transversal.Tests/
+PruebasUnitarias/
+TestResults/
+
+# CI/CD & docs
+IntegraV5ServiciosDespliegue.yml
+docs/
+
+# IDE & tools
+.claude

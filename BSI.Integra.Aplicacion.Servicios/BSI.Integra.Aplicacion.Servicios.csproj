@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <COMReference Include="PConnect">
+    <COMReference Include="PConnect" Condition="'$(OS)' == 'Windows_NT'">
       <WrapperTool>tlbimp</WrapperTool>
       <VersionMinor>0</VersionMinor>
       <VersionMajor>1</VersionMajor>
