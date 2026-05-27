@@ -22,6 +22,13 @@ jobs:
     runs-on: self-hosted
     timeout-minutes: 15
     steps:
+      - name: Cleanup root-owned build artifacts
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/src \
+            alpine \
+            sh -c "find /src -maxdepth 3 \( -name 'bin' -o -name 'obj' \) -type d -exec rm -rf {} + 2>/dev/null || true"
+
       - uses: actions/checkout@v4
 
       - name: Restore dependencies
