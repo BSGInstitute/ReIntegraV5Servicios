@@ -26,9 +26,13 @@ jobs:
 
       - name: Restore dependencies
         run: |
+          mkdir -p $HOME/.nuget/packages
           docker run --rm \
+            --user $(id -u):$(id -g) \
             -v ${{ github.workspace }}:/src \
-            -v $HOME/.nuget/packages:/root/.nuget/packages \
+            -v $HOME/.nuget/packages:/nuget-cache \
+            -e NUGET_PACKAGES=/nuget-cache \
+            -e DOTNET_CLI_HOME=/tmp \
             -w /src \
             mcr.microsoft.com/dotnet/sdk:8.0 \
             dotnet restore BSI.Integra.PruebasUnitarias/BSI.Integra.PruebasUnitarias.csproj \
@@ -37,8 +41,11 @@ jobs:
       - name: Run unit tests
         run: |
           docker run --rm \
+            --user $(id -u):$(id -g) \
             -v ${{ github.workspace }}:/src \
-            -v $HOME/.nuget/packages:/root/.nuget/packages \
+            -v $HOME/.nuget/packages:/nuget-cache \
+            -e NUGET_PACKAGES=/nuget-cache \
+            -e DOTNET_CLI_HOME=/tmp \
             -w /src \
             mcr.microsoft.com/dotnet/sdk:8.0 \
             dotnet test BSI.Integra.PruebasUnitarias/BSI.Integra.PruebasUnitarias.csproj \
