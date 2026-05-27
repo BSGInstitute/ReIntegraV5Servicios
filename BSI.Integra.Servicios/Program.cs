@@ -68,12 +68,15 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 //Add Cors
+var corsOrigins = (builder.Configuration["Cors:AllowedOrigins"] ?? string.Empty)
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsVista",
-        builder =>
+        policy =>
         {
-            builder.WithOrigins("http://localhost:4200", "http://localhost:51260", "https://localhost:7288", "https://integrav5.bsginstitute.com", "http://integrav5.bsginstitute.com", "https://integrav5-servicios.bsginstitute.com", "https://integrav5p.bsginstitute.com", "https://integrav4.bsginstitute.com", "https://integrav4-prepublicacion-interfaz.bsginstitute.com", "https://integrav5mejora.bsginstitute.com", "https://integrav5-mejora-servicios.bsginstitute.com", "https://integrav5prepublicacion.bsginstitute.com", "https://integrav5-prepublicacion-servicios.bsginstitute.com", "https://integrav5publicacion.bsginstitute.com", "https://integrav5-publicacion-servicios.bsginstitute.com", "https://integrav5pruebainterfaz.bsginstitute.com", "https://integrav5-3cx.bsginstitute.com", "https://webhook-facebook.bsginstitute.com", "http://ia-proceso-resumen-sesiones-api.bsginstitute.com", "https://integrav5-prepublicacion-eariasf.bsginstitute.com", "https://hook-whatsapp.bsginstitute.com", "https://nuevointegrav5.bsginstitute.com", "https://beta8.moontechnolabs.com", "https://prototipo.bsginstitute.com", "https://bsginstitute.com", "https://integrav5prepublicacionmarcador.bsginstitute.com", "https://integrav5-nuevaagenda.bsginstitute.com", "https://integrav5-nuevaagendaatc.bsginstitute.com", "https://integrav5-nuevaagendaia.bsginstitute.com", "http://ia-automatizacion-planificacion-api.bsginstitute.com")
+            policy.WithOrigins(corsOrigins)
                 .AllowAnyHeader().AllowAnyMethod();
         });
 });
