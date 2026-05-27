@@ -1814,6 +1814,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
                         // 1. Datos del perfil del alumno (idAlumno ya conocido — sin lookup por celular)
                         var datosAlumno = _unitOfWork.WhatsAppMensajeEnviadoRepository.ObtenerDatosAlumnoWhatsApp(idAlumno);
                         item.Alumno = datosAlumno;
+                        item.IdCodigoPais = (datosAlumno?.IdCodigoPais > 0) ? datosAlumno.IdCodigoPais : 51;
 
                         // 2. Celular desde perfil (para incluirlo en la respuesta)
                         if (datosAlumno != null)
@@ -1900,6 +1901,7 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
 
                         var datosAlumno = _unitOfWork.WhatsAppMensajeEnviadoRepository.ObtenerDatosAlumnoWhatsApp(idAlumno.Value);
                         item.Alumno = datosAlumno;
+                        item.IdCodigoPais = (datosAlumno?.IdCodigoPais > 0) ? datosAlumno.IdCodigoPais : 51;
 
                         item.IdCentroCosto = _unitOfWork.CampaniaGeneralWhatsAppRepository.ObtenerIdCentroCostoPorIdAlumno(idAlumno.Value);
                         if (item.IdCentroCosto.HasValue)

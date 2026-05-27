@@ -1036,5 +1036,6 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IFacebookConfiguracionRepository FacebookConfiguracionRepository { get; }
         ILinkedinConfiguracionRepository LinkedinConfiguracionRepository { get; }
         IModeloPredictivoProbabilidadEscalonadoRepository ModeloPredictivoProbabilidadEscalonadoRepository { get; }
+        IAlumnoCasoExitoRepository AlumnoCasoExitoRepository { get; }
     }
 }

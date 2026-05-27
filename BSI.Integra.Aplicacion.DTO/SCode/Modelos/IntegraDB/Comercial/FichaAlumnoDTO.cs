@@ -50,6 +50,8 @@
         public int IdAlumno { get; set; }
         public int? IdCentroCosto { get; set; }
         public string NombreCentroCosto { get; set; }
+        /// <summary>Código telefónico del país desde mkt.T_Alumno (57=CO, 51=PE, 56=CL, 52=MX).</summary>
+        public int? IdCodigoPais { get; set; }
         public object Alumno { get; set; }
         public List<MensajeChatMasivoDTO> Mensajes { get; set; }
         public List<object> HistorialOportunidades { get; set; }

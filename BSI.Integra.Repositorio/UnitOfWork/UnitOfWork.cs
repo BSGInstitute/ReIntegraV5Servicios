@@ -8667,5 +8667,11 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private IAlumnoCasoExitoRepository _alumnoCasoExitoRepository;
+        IAlumnoCasoExitoRepository IUnitOfWork.AlumnoCasoExitoRepository
+        {
+            get { return _alumnoCasoExitoRepository ?? new AlumnoCasoExitoRepository(_context, _connectionFactory, _dapperRepository); }
+        }
+
     }
 }
