@@ -24,11 +24,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore test dependencies
-        run: dotnet restore BSI.Integra.PruebasUnitarias/BSI.Integra.PruebasUnitarias.csproj
-
       - name: Run unit tests
-        run: dotnet test BSI.Integra.PruebasUnitarias/BSI.Integra.PruebasUnitarias.csproj --no-restore --verbosity normal
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/src \
+            -v $HOME/.nuget/packages:/root/.nuget/packages \
+            -w /src \
+            mcr.microsoft.com/dotnet/sdk:8.0 \
+            dotnet test BSI.Integra.PruebasUnitarias/BSI.Integra.PruebasUnitarias.csproj --verbosity normal
 
   # ── 2. Docker Build & Push ─────────────────────────────────────────────────
   build-push:
