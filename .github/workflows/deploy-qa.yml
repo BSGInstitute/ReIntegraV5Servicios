@@ -58,7 +58,7 @@ jobs:
               --no-restore \
               --verbosity normal \
               -p:TreatWarningsAsErrors=false \
-              -p:NoWarn=CS8618
+              -p:NoWarn=CS8618%3BCS0108
 
   # ── 2. Docker Build & Push ─────────────────────────────────────────────────
   build-push:

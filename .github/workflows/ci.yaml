@@ -53,4 +53,4 @@ jobs:
               -c Release \
               --no-restore \
               -p:TreatWarningsAsErrors=false \
-              -p:NoWarn=CS8618
+              -p:NoWarn=CS8618%3BCS0108
