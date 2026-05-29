@@ -59,13 +59,12 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
             {
                 var dto = new AlumnoCasoExitoDTO
                 {
-                    NombreAlumno      = entrada.NombreAlumno,
-                    NombrePrograma    = entrada.NombrePrograma,
-                    FotoPerfilAlf     = entrada.FotoPerfilAlf,
+                    Nombre            = entrada.Nombre,
+                    TituloTestimonio  = entrada.TituloTestimonio,
                     Testimonio        = entrada.Testimonio,
                     IdPais            = entrada.IdPais,
                     Posicion          = entrada.Posicion,
-                    EstadoVisibilidad = entrada.EstadoVisibilidad,
+                    Visibilidad       = entrada.Visibilidad,
                     FotoPerfil        = entrada.FotoPerfil
                 };
 
@@ -91,15 +90,14 @@ namespace BSI.Integra.Aplicacion.Marketing.Service.Implementacion
             {
                 var dto = new AlumnoCasoExitoDTO
                 {
-                    Id                = entrada.Id,
-                    NombreAlumno      = entrada.NombreAlumno,
-                    NombrePrograma    = entrada.NombrePrograma,
-                    FotoPerfilAlf     = entrada.FotoPerfilAlf,
-                    Testimonio        = entrada.Testimonio,
-                    IdPais            = entrada.IdPais,
-                    Posicion          = entrada.Posicion,
-                    EstadoVisibilidad = entrada.EstadoVisibilidad,
-                    FotoPerfil        = entrada.FotoPerfil
+                    Id               = entrada.Id,
+                    Nombre           = entrada.Nombre,
+                    TituloTestimonio = entrada.TituloTestimonio,
+                    Testimonio       = entrada.Testimonio,
+                    IdPais           = entrada.IdPais,
+                    Posicion         = entrada.Posicion,
+                    Visibilidad      = entrada.Visibilidad,
+                    FotoPerfil       = entrada.FotoPerfil
                 };
 
                 if (entrada.ArchivoFotoPerfil != null)
