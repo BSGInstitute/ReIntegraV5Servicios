@@ -130,3 +130,31 @@ jobs:
 
       - name: Prune old images
         run: docker image prune -f
+
+  # ── 4. Post-Deploy Healthcheck ────────────────────────────────────────────
+  healthcheck:
+    needs: [build-push, deploy]
+    uses: ./.github/workflows/post-deploy-healthcheck.yaml
+    with:
+      environment: qa
+      compose-file: docker-compose.qa.yml
+      healthcheck-url: ${{ vars.HEALTHCHECK_URL }}
+      image-tag: ${{ needs.build-push.outputs.image-tag }}
+
+  # ── 5. Notify ─────────────────────────────────────────────────────────────
+  notify:
+    needs: [test, build-push, deploy, healthcheck]
+    if: always()
+    uses: ./.github/workflows/notify-teams.yaml
+    with:
+      environment: qa
+      test-status:        ${{ needs.test.result }}
+      build-status:       ${{ needs.build-push.result }}
+      deploy-status:      ${{ needs.deploy.result }}
+      healthcheck-status: ${{ needs.healthcheck.result }}
+      commit-message:     ${{ github.event.head_commit.message }}
+      run-url:            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      branch:             ${{ github.ref_name }}
+      sha:                ${{ github.sha }}
+      actor:              ${{ github.actor }}
+    secrets: inherit
