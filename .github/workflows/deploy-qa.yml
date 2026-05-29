@@ -31,6 +31,19 @@ jobs:
 
       - uses: actions/checkout@v4
 
+      - name: Create CI build config
+        run: |
+          cat > ${{ github.workspace }}/Directory.Build.props << 'EOF'
+          <Project>
+            <PropertyGroup>
+              <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+              <Nullable>disable</Nullable>
+              <CodePage>1252</CodePage>
+              <NoWarn>$(NoWarn);CS0108;CS0168;CS0169;CS8632;CA2200</NoWarn>
+            </PropertyGroup>
+          </Project>
+          EOF
+
       - name: Restore dependencies
         run: |
           mkdir -p $HOME/.nuget/packages
@@ -56,11 +69,7 @@ jobs:
             mcr.microsoft.com/dotnet/sdk:8.0 \
             dotnet test BSI.Integra.PruebasUnitarias/BSI.Integra.PruebasUnitarias.csproj \
               --no-restore \
-              --verbosity normal \
-              -p:TreatWarningsAsErrors=false \
-              -p:Nullable=disable \
-              -p:CodePage=1252 \
-              "-p:NoWarn=CS0108;CS0168;CS0169;CS8632;CA2200"
+              --verbosity normal
 
   # ── 2. Docker Build & Push ─────────────────────────────────────────────────
   build-push:
