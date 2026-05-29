@@ -59,8 +59,8 @@ jobs:
               --verbosity normal \
               -p:TreatWarningsAsErrors=false \
               -p:Nullable=disable \
-              -p:NoWarn=CS0108 \
-              -p:CodePage=1252
+              -p:CodePage=1252 \
+              "-p:NoWarn=CS0108;CS0168;CS0169;CS8632;CA2200"
 
   # ── 2. Docker Build & Push ─────────────────────────────────────────────────
   build-push:
