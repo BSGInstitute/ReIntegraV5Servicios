@@ -7303,6 +7303,24 @@ namespace BSI.Integra.Repositorio.UnitOfWork
             }
         }
 
+        private ISubTipoEncuestaRepository _subTipoEncuestaRepository;
+        ISubTipoEncuestaRepository IUnitOfWork.SubTipoEncuestaRepository
+        {
+            get
+            {
+                return _subTipoEncuestaRepository ?? new SubTipoEncuestaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
+        private ITipoSubTipoEncuestaRepository _tipoSubTipoEncuestaRepository;
+        ITipoSubTipoEncuestaRepository IUnitOfWork.TipoSubTipoEncuestaRepository
+        {
+            get
+            {
+                return _tipoSubTipoEncuestaRepository ?? new TipoSubTipoEncuestaRepository(_context, _connectionFactory, _dapperRepository);
+            }
+        }
+
         private IEncuestaSesionProgramaRepository _encuestaSesionProgramaRepository;
         IEncuestaSesionProgramaRepository IUnitOfWork.EncuestaSesionProgramaRepository
         {

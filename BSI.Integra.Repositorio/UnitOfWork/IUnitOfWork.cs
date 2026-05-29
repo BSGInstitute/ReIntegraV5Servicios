@@ -710,6 +710,8 @@ namespace BSI.Integra.Repositorio.UnitOfWork
         IPreguntaEncuestaOnlineRepository PreguntaEncuestaOnlineRepository { get; }
         IEncuestaOnlineRepository EncuestaOnlineRepository { get; }
         ITipoEncuestumRepository TipoEncuestumRepository { get; }
+        ISubTipoEncuestaRepository SubTipoEncuestaRepository { get; }
+        ITipoSubTipoEncuestaRepository TipoSubTipoEncuestaRepository { get; }
         IEncuestaSesionProgramaRepository EncuestaSesionProgramaRepository { get; }
         ICampaniaGeneralWhatsAppRepository CampaniaGeneralWhatsAppRepository { get; }
         IPlantillaSendinblueImagenRepository PlantillaSendinblueImagenRepository { get; }
