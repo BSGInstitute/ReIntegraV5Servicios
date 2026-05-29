@@ -68,5 +68,50 @@ namespace BSI.Integra.Aplicacion.Operaciones.SCode.Service.Implementacion
             }
         }
 
+        public TipoEncuesta Add(TipoEncuesta entidad)
+        {
+            try
+            {
+                _unitOfWork.TipoEncuestumRepository.Add(entidad);
+                _unitOfWork.Commit();
+                return entidad;
+            }
+            catch (Exception ex) { throw ex; }
+        }
+
+        public TipoEncuesta Update(TipoEncuesta entidad)
+        {
+            try
+            {
+                _unitOfWork.TipoEncuestumRepository.Update(entidad);
+                _unitOfWork.Commit();
+                return entidad;
+            }
+            catch (Exception ex) { throw ex; }
+        }
+
+        public bool Delete(int id, string usuario)
+        {
+            try
+            {
+                var resultado = _unitOfWork.TipoEncuestumRepository.Delete(id, usuario);
+                _unitOfWork.Commit();
+                return resultado;
+            }
+            catch (Exception ex) { throw ex; }
+        }
+
+        public TipoEncuesta ObtenerPorId(int id)
+        {
+            try { return _unitOfWork.TipoEncuestumRepository.ObtenerPorId(id); }
+            catch (Exception ex) { throw ex; }
+        }
+
+        public List<TipoEncuestaDTO> ObtenerTodo()
+        {
+            try { return _unitOfWork.TipoEncuestumRepository.ObtenerTodo(); }
+            catch (Exception ex) { throw ex; }
+        }
+
     }
 }

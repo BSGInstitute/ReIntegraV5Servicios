@@ -1,21 +1,20 @@
-﻿using BSI.Integra.Aplicacion.DTO;
+using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.SCode.Modelos.IntegraDB;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
 using BSI.Integra.Persistencia.Modelos.IntegraDB;
 
 namespace BSI.Integra.Repositorio.Repository.Interface
 {
-    public interface ITipoEncuestumRepository : IGenericRepository<TTipoEncuestum>
+    public interface ISubTipoEncuestaRepository : IGenericRepository<TSubTipoEncuesta>
     {
         #region Metodos Base
-        TTipoEncuestum Add(TipoEncuesta entidad);
-        TTipoEncuestum Update(TipoEncuesta entidad);
+        TSubTipoEncuesta Add(SubTipoEncuesta entidad);
+        TSubTipoEncuesta Update(SubTipoEncuesta entidad);
         bool Delete(int id, string usuario);
         #endregion
 
-        TipoEncuesta ObtenerPorId(int id);
+        SubTipoEncuesta ObtenerPorId(int id);
         IEnumerable<ComboDTO> ObtenerCombo();
-        IEnumerable<ComboDTO> ObtenerComboTipoModalidad();
-        List<TipoEncuestaDTO> ObtenerTodo();
+        List<SubTipoEncuestaDTO> ObtenerTodo();
     }
 }

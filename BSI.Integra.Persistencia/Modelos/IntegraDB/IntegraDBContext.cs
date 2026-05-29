@@ -1049,6 +1049,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TTipoDocumentoAlumnoSubEstadoMatricula> TTipoDocumentoAlumnoSubEstadoMatriculas { get; set; } = null!;
         public virtual DbSet<TTipoDocumentoPersonal> TTipoDocumentoPersonals { get; set; } = null!;
         public virtual DbSet<TTipoEncuestum> TTipoEncuesta { get; set; } = null!;
+        public virtual DbSet<TSubTipoEncuesta> TSubTipoEncuesta { get; set; } = null!;
+        public virtual DbSet<TTipoSubTipoEncuesta> TTipoSubTipoEncuesta { get; set; } = null!;
         public virtual DbSet<TTipoEntradaEvaluacionChatbot> TTipoEntradaEvaluacionChatbots { get; set; } = null!;
         public virtual DbSet<TTipoEnvioAutomatico> TTipoEnvioAutomaticos { get; set; } = null!;
         public virtual DbSet<TTipoEstudio> TTipoEstudios { get; set; } = null!;
@@ -61658,6 +61660,78 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                 entity.Property(e => e.UsuarioModificacion)
                     .HasMaxLength(50)
                     .HasComment("Usuario modificacion de registro");
+            });
+
+            modelBuilder.Entity<TSubTipoEncuesta>(entity =>
+            {
+                entity.ToTable("T_SubTipoEncuesta", "pla");
+
+                entity.HasComment("Esta tabla almacena el subtipo de encuesta");
+
+                entity.Property(e => e.Id).HasComment("Pk de tabla");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(200)
+                    .HasComment("Nombre del subtipo de encuesta");
+
+                entity.Property(e => e.Estado).HasComment("Estado de registro");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha creacion de registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha modificacion de registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .HasComment("Usuario creacion de registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .HasComment("Usuario modificacion de registro");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Rowversion de registro");
+            });
+
+            modelBuilder.Entity<TTipoSubTipoEncuesta>(entity =>
+            {
+                entity.ToTable("T_TipoSubTipoEncuesta", "pla");
+
+                entity.HasComment("Esta tabla almacena la relacion entre tipo y subtipo de encuesta");
+
+                entity.Property(e => e.Id).HasComment("Pk de tabla");
+
+                entity.Property(e => e.IdTipoEncuesta).HasComment("FK a pla.T_TipoEncuesta");
+
+                entity.Property(e => e.IdSubTipoEncuesta).HasComment("FK a pla.T_SubTipoEncuesta");
+
+                entity.Property(e => e.Estado).HasComment("Estado de registro");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha creacion de registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha modificacion de registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .HasComment("Usuario creacion de registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .HasComment("Usuario modificacion de registro");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Rowversion de registro");
             });
 
             modelBuilder.Entity<TTipoEntradaEvaluacionChatbot>(entity =>
