@@ -42,8 +42,7 @@ jobs:
             -e DOTNET_CLI_HOME=/tmp \
             -w /src \
             mcr.microsoft.com/dotnet/sdk:8.0 \
-            dotnet restore BSI.Integra.PruebasUnitarias/BSI.Integra.PruebasUnitarias.csproj \
-              --verbosity detailed
+            dotnet restore BSI.Integra.PruebasUnitarias/BSI.Integra.PruebasUnitarias.csproj
 
       - name: Run unit tests
         run: |
@@ -57,7 +56,7 @@ jobs:
             mcr.microsoft.com/dotnet/sdk:8.0 \
             dotnet test BSI.Integra.PruebasUnitarias/BSI.Integra.PruebasUnitarias.csproj \
               --no-restore \
-              --verbosity detailed \
+              --verbosity normal \
               -p:TreatWarningsAsErrors=false
 
   # ── 2. Docker Build & Push ─────────────────────────────────────────────────
