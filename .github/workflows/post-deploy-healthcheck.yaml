@@ -10,8 +10,9 @@ on:
         required: true
         type: string
       healthcheck-url:
-        required: true
+        required: false
         type: string
+        default: ''
       image-tag:
         required: true
         type: string
@@ -29,6 +30,10 @@ jobs:
 
       - name: Health check
         run: |
+          if [[ -z "${{ inputs.healthcheck-url }}" ]]; then
+            echo "⚠️ No healthcheck URL configured (set vars.HEALTHCHECK_URL in the environment) — skipping"
+            exit 0
+          fi
           for i in 1 2 3; do
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "${{ inputs.healthcheck-url }}" || echo "000")
             if [[ "$STATUS" == "200" ]]; then
