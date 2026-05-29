@@ -33,7 +33,6 @@ jobs:
             <PropertyGroup>
               <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
               <Nullable>disable</Nullable>
-              <CodePage>1252</CodePage>
               <NoWarn>$(NoWarn);CS0108;CS0168;CS0169;CS8632;CA2200</NoWarn>
             </PropertyGroup>
           </Project>

@@ -38,11 +38,16 @@ jobs:
             <PropertyGroup>
               <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
               <Nullable>disable</Nullable>
-              <CodePage>1252</CodePage>
               <NoWarn>$(NoWarn);CS0108;CS0168;CS0169;CS8632;CA2200</NoWarn>
             </PropertyGroup>
           </Project>
           EOF
+
+      - name: Convert test files to UTF-8
+        run: |
+          find ${{ github.workspace }}/BSI.Integra.PruebasUnitarias -name "*.cs" | while read f; do
+            iconv -f cp1252 -t utf-8 "$f" > "$f.utf8" 2>/dev/null && mv "$f.utf8" "$f" || rm -f "$f.utf8"
+          done
 
       - name: Restore dependencies
         run: |
