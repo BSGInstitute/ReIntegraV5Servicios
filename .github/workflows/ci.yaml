@@ -28,12 +28,12 @@ jobs:
 
       - name: Create CI build config
         run: |
-          cat > ${{ github.workspace }}/Directory.Build.props << 'EOF'
+          cat > ${{ github.workspace }}/Directory.Build.targets << 'EOF'
           <Project>
             <PropertyGroup>
               <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
               <Nullable>disable</Nullable>
-              <NoWarn>$(NoWarn);CS0108;CS0168;CS0169;CS8632;CA2200</NoWarn>
+              <NoWarn>$(NoWarn);CS0108;CS0168;CS0169;CS0649;CS8632;CA2200</NoWarn>
             </PropertyGroup>
           </Project>
           EOF

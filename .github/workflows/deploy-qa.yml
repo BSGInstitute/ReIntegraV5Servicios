@@ -33,21 +33,33 @@ jobs:
 
       - name: Create CI build config
         run: |
-          cat > ${{ github.workspace }}/Directory.Build.props << 'EOF'
+          cat > ${{ github.workspace }}/Directory.Build.targets << 'EOF'
           <Project>
             <PropertyGroup>
               <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
               <Nullable>disable</Nullable>
-              <NoWarn>$(NoWarn);CS0108;CS0168;CS0169;CS8632;CA2200</NoWarn>
+              <NoWarn>$(NoWarn);CS0108;CS0168;CS0169;CS0649;CS8632;CA2200</NoWarn>
             </PropertyGroup>
           </Project>
           EOF
 
       - name: Convert test files to UTF-8
         run: |
-          find ${{ github.workspace }}/BSI.Integra.PruebasUnitarias -name "*.cs" | while read f; do
-            iconv -f cp1252 -t utf-8 "$f" > "$f.utf8" 2>/dev/null && mv "$f.utf8" "$f" || rm -f "$f.utf8"
-          done
+          python3 << 'PYEOF'
+          import os, glob, sys
+          base = os.environ.get('GITHUB_WORKSPACE', '.')
+          pattern = os.path.join(base, 'BSI.Integra.PruebasUnitarias', '**', '*.cs')
+          for f in glob.glob(pattern, recursive=True):
+              try:
+                  open(f, encoding='utf-8-sig').read()
+              except UnicodeDecodeError:
+                  try:
+                      content = open(f, encoding='cp1252').read()
+                      open(f, 'w', encoding='utf-8').write(content)
+                      print(f'Converted: {f}')
+                  except Exception as e:
+                      print(f'Error {f}: {e}', file=sys.stderr)
+          PYEOF
 
       - name: Restore dependencies
         run: |
