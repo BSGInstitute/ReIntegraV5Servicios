@@ -25,15 +25,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var query = @"
                     SELECT
                         ACE.Id,
-                        ACE.NombreAlumno,
-                        ACE.NombrePrograma,
+                        ACE.Nombre,
+                        ACE.TituloTestimonio,
                         ACE.FotoPerfil,
-                        ACE.FotoPerfilAlf,
                         ACE.Testimonio,
                         ACE.IdPais,
                         P.NombrePais,
                         ACE.Posicion,
-                        ACE.EstadoVisibilidad,
+                        ACE.Visibilidad,
                         ACE.Estado,
                         ACE.UsuarioCreacion,
                         ACE.UsuarioModificacion,
@@ -58,9 +57,9 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var rpta = new List<ComboDTO>();
                 var query = @"
-                    SELECT ACE.Id, ACE.NombreAlumno AS Nombre
+                    SELECT ACE.Id, ACE.Nombre
                     FROM [mkt].[T_AlumnoCasoExito] ACE
-                    WHERE ACE.Estado = 1 AND ACE.EstadoVisibilidad = 1
+                    WHERE ACE.Estado = 1 AND ACE.Visibilidad = 1
                     ORDER BY ACE.Posicion ASC";
                 var resultado = _dapperRepository.QueryDapper(query, null);
                 if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
@@ -77,15 +76,14 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
                 var query = @"
                     SELECT
                         ACE.Id,
-                        ACE.NombreAlumno,
-                        ACE.NombrePrograma,
+                        ACE.Nombre,
+                        ACE.TituloTestimonio,
                         ACE.FotoPerfil,
-                        ACE.FotoPerfilAlf,
                         ACE.Testimonio,
                         ACE.IdPais,
                         P.NombrePais,
                         ACE.Posicion,
-                        ACE.EstadoVisibilidad,
+                        ACE.Visibilidad,
                         ACE.Estado,
                         ACE.UsuarioCreacion,
                         ACE.UsuarioModificacion,
@@ -109,27 +107,25 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var query = @"
                     EXEC mkt.SP_TAlumnoCasoExito_Insertar
-                        @NombreAlumno        = @NombreAlumno,
-                        @NombrePrograma      = @NombrePrograma,
+                        @Nombre              = @Nombre,
+                        @TituloTestimonio    = @TituloTestimonio,
                         @FotoPerfil          = @FotoPerfil,
-                        @FotoPerfilAlf       = @FotoPerfilAlf,
                         @Testimonio          = @Testimonio,
                         @IdPais              = @IdPais,
                         @Posicion            = @Posicion,
-                        @EstadoVisibilidad   = @EstadoVisibilidad,
+                        @Visibilidad         = @Visibilidad,
                         @UsuarioCreacion     = @UsuarioCreacion,
                         @UsuarioModificacion = @UsuarioModificacion,
                         @IdMigracion         = @IdMigracion";
                 var resultado = _dapperRepository.FirstOrDefault(query, new
                 {
-                    dto.NombreAlumno,
-                    dto.NombrePrograma,
+                    dto.Nombre,
+                    dto.TituloTestimonio,
                     dto.FotoPerfil,
-                    dto.FotoPerfilAlf,
                     dto.Testimonio,
                     dto.IdPais,
                     dto.Posicion,
-                    dto.EstadoVisibilidad,
+                    dto.Visibilidad,
                     UsuarioCreacion     = usuario,
                     UsuarioModificacion = usuario,
                     IdMigracion         = (Guid?)null
@@ -150,27 +146,25 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var query = @"
                     EXEC mkt.SP_TAlumnoCasoExito_Actualizar
-                        @IdCasoExitoAlumno   = @IdCasoExitoAlumno,
-                        @NombreAlumno        = @NombreAlumno,
-                        @NombrePrograma      = @NombrePrograma,
+                        @IdAlumnoCasoExito   = @IdAlumnoCasoExito,
+                        @Nombre              = @Nombre,
+                        @TituloTestimonio    = @TituloTestimonio,
                         @FotoPerfil          = @FotoPerfil,
-                        @FotoPerfilAlf       = @FotoPerfilAlf,
                         @Testimonio          = @Testimonio,
                         @IdPais              = @IdPais,
                         @Posicion            = @Posicion,
-                        @EstadoVisibilidad   = @EstadoVisibilidad,
+                        @Visibilidad         = @Visibilidad,
                         @UsuarioModificacion = @UsuarioModificacion";
                 _dapperRepository.QueryDapper(query, new
                 {
-                    IdCasoExitoAlumno   = dto.Id,
-                    dto.NombreAlumno,
-                    dto.NombrePrograma,
+                    IdAlumnoCasoExito   = dto.Id,
+                    dto.Nombre,
+                    dto.TituloTestimonio,
                     dto.FotoPerfil,
-                    dto.FotoPerfilAlf,
                     dto.Testimonio,
                     dto.IdPais,
                     dto.Posicion,
-                    dto.EstadoVisibilidad,
+                    dto.Visibilidad,
                     UsuarioModificacion = usuario
                 });
                 return true;
@@ -184,11 +178,11 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var query = @"
                     EXEC mkt.SP_TAlumnoCasoExito_Eliminar
-                        @IdCasoExitoAlumno   = @IdCasoExitoAlumno,
+                        @IdAlumnoCasoExito   = @IdAlumnoCasoExito,
                         @UsuarioModificacion = @UsuarioModificacion";
                 _dapperRepository.QueryDapper(query, new
                 {
-                    IdCasoExitoAlumno   = id,
+                    IdAlumnoCasoExito   = id,
                     UsuarioModificacion = usuario
                 });
                 return true;
@@ -202,13 +196,13 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
             {
                 var query = @"
                     EXEC mkt.SP_TAlumnoCasoExito_ActualizarVisibilidad
-                        @IdCasoExitoAlumno   = @IdCasoExitoAlumno,
-                        @EstadoVisibilidad   = @EstadoVisibilidad,
+                        @IdAlumnoCasoExito   = @IdAlumnoCasoExito,
+                        @Visibilidad         = @Visibilidad,
                         @UsuarioModificacion = @UsuarioModificacion";
                 _dapperRepository.QueryDapper(query, new
                 {
-                    IdCasoExitoAlumno   = id,
-                    EstadoVisibilidad   = estadoVisibilidad,
+                    IdAlumnoCasoExito   = id,
+                    Visibilidad         = estadoVisibilidad,
                     UsuarioModificacion = usuario
                 });
                 return true;

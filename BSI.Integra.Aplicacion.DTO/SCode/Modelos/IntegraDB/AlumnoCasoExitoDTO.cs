@@ -7,18 +7,16 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     {
         public int Id { get; set; }
         [StringLength(150)]
-        public string NombreAlumno { get; set; } = null!;
+        public string Nombre { get; set; } = null!;
         [StringLength(300)]
-        public string NombrePrograma { get; set; } = null!;
+        public string TituloTestimonio { get; set; } = null!;
         [StringLength(150)]
         public string? FotoPerfil { get; set; }
-        [StringLength(150)]
-        public string? FotoPerfilAlf { get; set; }
         public string? Testimonio { get; set; }
         public int IdPais { get; set; }
         public string? NombrePais { get; set; }
         public int Posicion { get; set; }
-        public bool EstadoVisibilidad { get; set; }
+        public bool Visibilidad { get; set; }
         public bool Estado { get; set; }
         public string? UsuarioCreacion { get; set; }
         public string? UsuarioModificacion { get; set; }
@@ -32,17 +30,15 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     {
         public int Id { get; set; }
         [StringLength(150)]
-        public string NombreAlumno { get; set; } = null!;
+        public string Nombre { get; set; } = null!;
         [StringLength(300)]
-        public string NombrePrograma { get; set; } = null!;
+        public string TituloTestimonio { get; set; } = null!;
         [StringLength(150)]
         public string? FotoPerfil { get; set; }
-        [StringLength(150)]
-        public string? FotoPerfilAlf { get; set; }
         public string? Testimonio { get; set; }
         public int IdPais { get; set; }
         public int Posicion { get; set; }
-        public bool EstadoVisibilidad { get; set; }
+        public bool Visibilidad { get; set; }
         public IFormFile? ArchivoFotoPerfil { get; set; }
     }
 
@@ -55,6 +51,6 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB
     public class AlumnoCasoExitoVisibilidadDTO
     {
         public int Id { get; set; }
-        public bool EstadoVisibilidad { get; set; }
+        public bool Visibilidad { get; set; }
     }
 }

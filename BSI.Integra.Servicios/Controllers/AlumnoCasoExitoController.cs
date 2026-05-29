@@ -119,7 +119,7 @@ namespace BSI.Integra.Servicios.Controllers
         {
             try
             {
-                var resultado = _alumnoCasoExitoService.ActualizarVisibilidad(dto.Id, dto.EstadoVisibilidad, _tokenManager.UserName);
+                var resultado = _alumnoCasoExitoService.ActualizarVisibilidad(dto.Id, dto.Visibilidad, _tokenManager.UserName);
                 return Ok(resultado);
             }
             catch (Exception ex) { return BadRequest(ex.Message); }
