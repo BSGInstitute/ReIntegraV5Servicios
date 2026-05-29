@@ -27,7 +27,7 @@ jobs:
           docker run --rm \
             -v ${{ github.workspace }}:/src \
             alpine \
-            sh -c "find /src -maxdepth 3 \( -name 'bin' -o -name 'obj' \) -type d -exec rm -rf {} + 2>/dev/null || true"
+            sh -c "find /src -maxdepth 3 \( -name 'bin' -o -name 'obj' -o -name 'TestResults' \) -type d -exec rm -rf {} + 2>/dev/null || true"
 
       - uses: actions/checkout@v4
 
