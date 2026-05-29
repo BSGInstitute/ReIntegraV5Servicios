@@ -37,6 +37,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public string PGeneralMatricula { get; set; }
         public string FechaCreacion { get; set; }
         public string NombreDocente { get; set; }
+        public string? Area { get; set; }
+        public string? SubArea { get; set; }
     }
     public class ReporteEncuestasFiltroDTO
     {
@@ -84,6 +86,8 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public string FechaCreacion { get; set; }
         public List<AgrupadoPreguntasEncuestasDTO> Preguntas { get; set; }
         public string NombreDocente { get; set; }
+        public string? Area { get; set; }
+        public string? SubArea { get; set; }
     }
     public class AgrupadoPreguntasEncuestasDTO
     {

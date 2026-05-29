@@ -88,7 +88,9 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     x.NombrePersonal,
                     x.Encuesta,
                     x.NombreDocente,
-                    x.FechaCreacion
+                    x.FechaCreacion,
+                    x.Area,
+                    x.SubArea
 
                 }).Select(x => new AgrupadoEncuestasDTO
                 {
@@ -109,6 +111,8 @@ namespace BSI.Integra.Aplicacion.Planificacion.Service.Implementacion
                     Encuesta = x.Key.Encuesta,
                     NombreDocente = x.Key.NombreDocente,
                     FechaCreacion = x.Key.FechaCreacion,
+                    Area = x.Key.Area,
+                    SubArea = x.Key.SubArea,
                     Preguntas = x.GroupBy(s => new
                     {
                         s.IdPregunta,

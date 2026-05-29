@@ -174,6 +174,13 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public string Docente { get; set; }
         public DateTime FechaRealizada { get; set; }
         public DateTime FechaIngreso { get; set; }
+        public string? Area { get; set; }
+        public string? SubArea { get; set; }
+        public string? TipoEncuesta { get; set; }
+        public string? SubTipoEncuesta { get; set; }
+        public int? IdCoordinadorDocente { get; set; }
+        public string? CoordinadorDocente { get; set; }
+        public decimal? Promedio { get; set; }
         public string Pregunta1 { get; set; }
         public string Pregunta2 { get; set; }
         public string Pregunta3 { get; set; }
@@ -309,6 +316,12 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public string Valor { get; set; }
         public int IdPreguntaRespuestaEncuesta { get; set; }
         public int IdPreguntaEncuestaOnline { get; set; }
+        public string? Area { get; set; }
+        public string? SubArea { get; set; }
+        public string? TipoEncuesta { get; set; }
+        public string? SubTipoEncuesta { get; set; }
+        public int? IdCoordinador { get; set; }
+        public string? Coordinador { get; set; }
     }
 
     public class ReporteEncuestaAgrupadoDTO
@@ -328,6 +341,12 @@ namespace BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Planificacion
         public string AsesoraAcademica { get; set; }
         public int IdPEspecificoSesionEncuestaAlumno { get; set; }
         public string ComentarioAlumno { get; set; }
+        public string? Area { get; set; }
+        public string? SubArea { get; set; }
+        public string? TipoEncuesta { get; set; }
+        public string? SubTipoEncuesta { get; set; }
+        public int? IdCoordinador { get; set; }
+        public string? Coordinador { get; set; }
         public List<PreguntaAgrupadaDTO> RegistroPreguntas { get; set; }
     }
 

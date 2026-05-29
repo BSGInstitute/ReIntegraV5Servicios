@@ -111,6 +111,12 @@ namespace BSI.Integra.Repositorio.Repository.Implementation.Planificacion
                             Correo = grupoAlumno.First().Correo,
                             AsesoraAcademica = grupoAlumno.First().AsesoraAcademica,
                             ComentarioAlumno = grupoAlumno.First().ComentarioAlumno,
+                            Area = grupoAlumno.First().Area,
+                            SubArea = grupoAlumno.First().SubArea,
+                            TipoEncuesta = grupoAlumno.First().TipoEncuesta,
+                            SubTipoEncuesta = grupoAlumno.First().SubTipoEncuesta,
+                            IdCoordinador = grupoAlumno.First().IdCoordinador,
+                            Coordinador = grupoAlumno.First().Coordinador,
                             RegistroPreguntas = grupoAlumno
                             .GroupBy(p => new { p.IdPreguntaEncuesta })
                             .Select(grupoPregunta => new PreguntaAgrupadaDTO
