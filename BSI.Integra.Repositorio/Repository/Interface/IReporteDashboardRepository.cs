@@ -13,7 +13,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         /// <summary>
         /// Obtiene el resumen de KPIs principales del dashboard
         /// </summary>
-        Task<ReporteDashboardResumenDTO> ObtenerResumenAsync(int? anio, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
+        Task<ReporteDashboardResumenDTO> ObtenerResumenAsync(int? anio, int? mes = null, int? semana = null, string? modalidad = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
 
         /// <summary>
         /// Obtiene la distribucion de programas por estado
@@ -58,7 +58,7 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         /// <summary>
         /// Obtiene resumen semanal de sesiones
         /// </summary>
-        Task<List<ReporteDashboardSemanalDTO>> ObtenerResumenSemanalAsync(int? anio, int? mesInicio, int? mesFin, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
+        Task<List<ReporteDashboardSemanalDTO>> ObtenerResumenSemanalAsync(int? anio, int? mes = null, int? semana = null, int? diaMes = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
 
         /// <summary>
         /// Obtiene datos de sesiones para vista de calendario
@@ -68,12 +68,12 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         /// <summary>
         /// Obtiene resumen de sesiones agrupadas por estado de sesion
         /// </summary>
-        Task<List<ReporteDashboardEstadoSesionDTO>> ObtenerResumenPorEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
+        Task<List<ReporteDashboardEstadoSesionDTO>> ObtenerResumenPorEstadoSesionAsync(DateTime? fechaInicio = null, DateTime? fechaFin = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
 
         /// <summary>
         /// Obtiene detalle de sesiones filtradas por estado
         /// </summary>
-        Task<List<ReporteDashboardSesionDetalleDTO>> ObtenerSesionesPorEstadoAsync(int? anio, int? idEstadoSesion = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
+        Task<List<ReporteDashboardSesionDetalleDTO>> ObtenerSesionesPorEstadoAsync(DateTime? fechaInicio = null, DateTime? fechaFin = null, int? idEstadoSesion = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
 
         /// <summary>
         /// Obtiene evolucion mensual de estados de sesion
@@ -83,17 +83,17 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         /// <summary>
         /// Obtiene KPIs de estados de sesion
         /// </summary>
-        Task<ReporteDashboardKPIsEstadoSesionDTO> ObtenerKPIsEstadoSesionAsync(int? anio, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
+        Task<ReporteDashboardKPIsEstadoSesionDTO> ObtenerKPIsEstadoSesionAsync(DateTime? fechaInicio = null, DateTime? fechaFin = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
 
         /// <summary>
         /// Obtiene cambios de estado de programas basado en log (Lanzamiento->Ejecucion, Ejecucion->Concluido, *->Cancelado)
         /// </summary>
-        Task<List<ReporteDashboardCambioEstadoDTO>> ObtenerCambiosEstadoAsync(int? ultimasSemanas = null);
+        Task<List<ReporteDashboardCambioEstadoDTO>> ObtenerCambiosEstadoAsync(int? anio = null, int? mes = null, int? semanaDesde = null, int? semanaHasta = null, int? diaMes = null);
 
         /// <summary>
-        /// Obtiene estados de programas hijo agrupados por dia o semana
+        /// Obtiene estados de programas hijo agrupados por Anio, Mes, Semana o Dia
         /// </summary>
-        Task<List<ReporteDashboardEstadoPorDiaDTO>> ObtenerEstadosPorDiaAsync(string? idsPEspecificoHijo, string? estados, string? agrupacion, DateTime? fechaInicio, DateTime? fechaFin, int? ultimasSemanas = null);
+        Task<List<ReporteDashboardEstadoPorDiaDTO>> ObtenerEstadosPorDiaAsync(string? idsPEspecificoHijo, string? estados, string? anos = null, string? meses = null, int? semanaDesde = null, int? semanaHasta = null, int? diaMes = null);
 
         /// <summary>
         /// Obtiene detalle de cursos V3 con modalidad clasificada (Inhouse/Presencial/Online) y filtro por semana
@@ -113,17 +113,92 @@ namespace BSI.Integra.Repositorio.Repository.Interface
         /// </summary>
         Task<List<ReporteDashboardPEspecificoPorDocenteDTO>> ObtenerPEspecificoPorDocenteAsync(int idProveedor);
         Task<List<ReporteDashboardPEspecificoFiltroDTO>> ObtenerPEspecificoFiltroAsync(string? busqueda);
+        Task<List<ReporteDashboardCursoFiltroDTO>> ObtenerCursosPorProgramaAsync(int? idProgramaPadre, string? busqueda);
+        Task<List<ReporteDashboardPaisFiltroDTO>> ObtenerPaisesFiltroAsync();
         Task<ReporteDashboardSeguimientoDocenteDTO> ObtenerSeguimientoDocenteAsync(int? idDocente, int? idPEspecifico, int? anio, DateTime? fechaInicio, DateTime? fechaFin);
 
         /// <summary>
-        /// Obtiene notas de alumnos por PEspecifico usando SP_PW_ListadoNotaProcesarOnline
+        /// Obtiene notas de alumnos por PEspecifico.
+        /// La respuesta incluye IdPEspecifico y NombrePEspecifico para soporte multiselect en el frontend.
         /// </summary>
-        Task<ReporteDashboardNotasPorPEspecificoDTO> ObtenerNotasPorPEspecificoAsync(int idPEspecifico, int grupo);
+        Task<ReporteDashboardNotasPorPEspecificoDTO> ObtenerNotasPorPEspecificoAsync(
+            int idPEspecifico, int grupo,
+            string? filtroPGeneral    = null,
+            string? filtroEstadoNotas = null,
+            string? filtroCodigoMat   = null,
+            string? filtroCentroCosto = null,
+            DateTime? filtroFechaDesde = null,
+            DateTime? filtroFechaHasta = null);
 
         // ── Dashboard 3: Furs ─────────────────────────────────────────────────
         /// <summary>
         /// Obtiene FURs del area 19, tipo PO, estados 3 y 5 para Dashboard 3
         /// </summary>
         Task<List<FurDTO>> ObtenerFursDashboard3Async();
+
+        // ── Nuevos endpoints: Por Estado / Por Modalidad / Grafico Por Mes ───
+
+        /// <summary>
+        /// Obtiene KPIs de programas agrupados por estado con filtros de fecha
+        /// </summary>
+        Task<List<ReporteDashboardResumenProgramasDTO>> ObtenerResumenPorEstadoProgramasAsync(int? anio, int? mes, int? semana, int? diaMes, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
+
+        /// <summary>
+        /// Obtiene KPIs de cursos agrupados por estado con filtros de fecha
+        /// </summary>
+        Task<List<ReporteDashboardResumenCursosDTO>> ObtenerResumenPorEstadoCursosAsync(int? anio, int? mes, int? semana, int? diaMes, int? idCentroCostoPadre = null);
+
+        /// <summary>
+        /// Obtiene distribucion de programas por modalidad con filtros de fecha
+        /// </summary>
+        Task<List<ReporteDashboardModalidadProgramasDTO>> ObtenerResumenPorModalidadProgramasAsync(int? anio, int? mes, int? semana, int? diaMes, int? idEstadoPEspecifico = null, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null);
+
+        /// <summary>
+        /// Obtiene distribucion de cursos por modalidad con filtros de fecha
+        /// </summary>
+        Task<List<ReporteDashboardModalidadCursosDTO>> ObtenerResumenPorModalidadCursosAsync(int? anio, int? mes, int? semana, int? diaMes, int? idEstadoPEspecifico = null, int? idCentroCostoPadre = null);
+
+        /// <summary>
+        /// Obtiene evolucion mensual de programas por estado con filtros de fecha
+        /// </summary>
+        Task<List<ReporteDashboardGraficoPorMesProgramasDTO>> ObtenerGraficoPorMesProgramasAsync(string? anios, int? mes, int? semana, int? diaMes, int? idProgramaEspecificoPadre = null, int? idCentroCostoPadre = null, int? idPais = null, string? estado = null);
+
+        /// <summary>
+        /// Obtiene evolucion mensual de cursos por estado con filtros de fecha
+        /// </summary>
+        Task<List<ReporteDashboardGraficoPorMesCursosDTO>> ObtenerGraficoPorMesCursosAsync(string? anios, int? mes, int? semana, int? diaMes, int? idCentroCostoPadre = null, int? idPais = null, string? estado = null);
+
+        /// <summary>
+        /// Obtiene ProgramasGenerales que tienen PEspecificos activos (filtro cascada D2).
+        /// </summary>
+        Task<List<ReporteDashboardPGeneralFiltroDTO>> ObtenerPGeneralesFiltroAsync(string? busqueda = null);
+
+        /// <summary>
+        /// Busca PEspecificos que cumplan las condiciones de filtro de notas (estado, CC, fechas, docente).
+        /// Devuelve TOP 30 más recientes para el dashboard de Calificación de Alumnos.
+        /// </summary>
+        Task<List<ReporteDashboardPEspecificoFiltroDTO>> BuscarPEspecificosPorFiltroNotasAsync(
+            string? filtroEstadoNotas = null,
+            string? filtroCentroCosto = null,
+            DateTime? filtroFechaDesde = null,
+            DateTime? filtroFechaHasta = null,
+            int? idDocente = null,
+            string? codigoMatricula = null);
+
+        /// <summary>
+        /// SP unificado de Calificación de Alumnos con paginación.
+        /// Devuelve 4 RS: total, programas, alumnos, criterios.
+        /// </summary>
+        Task<ReporteDashboardCalificacionAlumnosDTO> ObtenerCalificacionAlumnosAsync(
+            string?   filtroEstadoNotas   = null,
+            int?      idCentroCosto       = null,
+            DateTime? fechaTermino_Inicio = null,
+            DateTime? fechaTermino_Fin    = null,
+            int?      idProveeedor        = null,
+            string?   codigoMatricula     = null,
+            string?   idsPEspecifico      = null,
+            int       grupo               = 1,
+            int       pagina              = 1,
+            int       tamanoPagina        = 20);
     }
 }

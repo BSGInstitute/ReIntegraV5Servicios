@@ -1,4 +1,5 @@
 using AutoMapper;
+using BSI.Integra.Aplicacion.DTO;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB;
 using BSI.Integra.Aplicacion.DTO.Modelos.IntegraDB.Linkedin;
 using BSI.Integra.Persistencia.Entidades.IntegraDB;
@@ -165,6 +166,30 @@ namespace BSI.Integra.Repositorio.Repository.Implementation
         /// <param name="idPEspecifico">Id del programa específico</param>
         /// <param name="filtroNombre">Filtro opcional por nombre del proveedor</param>
         /// <returns>Lista de proveedores para combo</returns>
+        /// Autor: [desarrollador]
+        /// Fecha: 2026-05-21
+        /// Version: 1.0
+        /// <summary>
+        /// Sugiere docentes activos para un PEspecifico filtrando por especialidad
+        /// (área/subárea del historial), asignación directa y disponibilidad de horario.
+        /// </summary>
+        public IEnumerable<ComboDTO> SugerirPorPEspecifico(int idPEspecifico)
+        {
+            try
+            {
+                string sp = "pla.SP_ProveedorPEspecifico_SugerirPorPEspecifico";
+                object parametros = new { IdPEspecifico = idPEspecifico };
+                string resultado = _dapperRepository.QuerySPDapper(sp, parametros);
+                if (!string.IsNullOrEmpty(resultado) && !resultado.Contains("[]"))
+                    return JsonConvert.DeserializeObject<IEnumerable<ComboDTO>>(resultado)!;
+                return new List<ComboDTO>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error en SugerirPorPEspecifico(): {ex.Message}", ex);
+            }
+        }
+
         public IEnumerable<ProveedorPorPEspecificoComboDTO> ObtenerProveedoresPorPEspecifico(int idPEspecifico, string? filtroNombre = null)
         {
             try

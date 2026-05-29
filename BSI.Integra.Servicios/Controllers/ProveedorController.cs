@@ -794,5 +794,25 @@ namespace BSI.Integra.Servicios.Controllers
             }
         }
 
+        /// Autor: [desarrollador]
+        /// Fecha: 2026-05-21
+        /// Version: 1.0
+        /// <summary>
+        /// Sugiere docentes activos para un PEspecifico filtrando por especialidad y disponibilidad.
+        /// </summary>
+        /// <param name="idPEspecifico">Id del programa específico</param>
+        [HttpGet("[action]/{idPEspecifico}")]
+        public IActionResult SugerirDocentesPorPEspecifico(int idPEspecifico)
+        {
+            try
+            {
+                return Ok(unitOfWork.ProveedorPEspecificoRepository.SugerirPorPEspecifico(idPEspecifico));
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }
