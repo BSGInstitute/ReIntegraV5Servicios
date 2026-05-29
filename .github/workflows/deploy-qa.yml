@@ -154,7 +154,8 @@ jobs:
       - name: Deploy
         env:
           IMAGE_TAG: ${{ needs.build-push.outputs.image-tag }}
-        run: docker compose -f docker-compose.qa.yml up -d
+          ENV_FILE: /srv/bsginstitute/envs/integra-v5-qa.env
+        run: docker compose -f docker-compose.qa.yml --env-file $ENV_FILE up -d
 
       - name: Prune old images
         run: docker image prune -f

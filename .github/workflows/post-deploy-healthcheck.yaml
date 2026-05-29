@@ -67,5 +67,5 @@ jobs:
 
           ROLLBACK_IMAGE="$REPO:$ROLLBACK_TAG"
           echo "Rolling back to: $ROLLBACK_IMAGE"
-          IMAGE_TAG=$ROLLBACK_IMAGE docker compose -f ${{ inputs.compose-file }} up -d
+          IMAGE_TAG=$ROLLBACK_IMAGE docker compose -f ${{ inputs.compose-file }} --env-file /srv/bsginstitute/envs/integra-v5-qa.env up -d
           echo "✅ Rollback complete — verify the app manually"
