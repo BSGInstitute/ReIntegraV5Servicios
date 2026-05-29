@@ -57,7 +57,8 @@ jobs:
             dotnet test BSI.Integra.PruebasUnitarias/BSI.Integra.PruebasUnitarias.csproj \
               --no-restore \
               --verbosity normal \
-              -p:TreatWarningsAsErrors=false
+              -p:TreatWarningsAsErrors=false \
+              -p:NoWarn=CS8618
 
   # ── 2. Docker Build & Push ─────────────────────────────────────────────────
   build-push:

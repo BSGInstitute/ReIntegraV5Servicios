@@ -52,4 +52,5 @@ jobs:
             dotnet build BSI.Integra.Servicios/BSI.Integra.Servicios.csproj \
               -c Release \
               --no-restore \
-              -p:TreatWarningsAsErrors=false
+              -p:TreatWarningsAsErrors=false \
+              -p:NoWarn=CS8618
