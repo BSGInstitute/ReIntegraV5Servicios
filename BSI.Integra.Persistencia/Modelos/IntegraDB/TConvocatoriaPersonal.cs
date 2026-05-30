@@ -8,6 +8,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public TConvocatoriaPersonal()
         {
             TConvocatoriaPersonalDetallePuestos = new HashSet<TConvocatoriaPersonalDetallePuesto>();
+            TLoteCurricula = new HashSet<TLoteCurriculum>();
         }
 
         /// <summary>
@@ -178,5 +179,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual TProveedor IdProveedorNavigation { get; set; } = null!;
         public virtual TSedeTrabajo? IdSedeTrabajoNavigation { get; set; }
         public virtual ICollection<TConvocatoriaPersonalDetallePuesto> TConvocatoriaPersonalDetallePuestos { get; set; }
+        public virtual ICollection<TLoteCurriculum> TLoteCurricula { get; set; }
     }
 }

@@ -9,7 +9,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         {
             TEtapaProcesoSeleccionCalificados = new HashSet<TEtapaProcesoSeleccionCalificado>();
             TExamenAsignadoEvaluadors = new HashSet<TExamenAsignadoEvaluador>();
+            TLoteCurriculumItems = new HashSet<TLoteCurriculumItem>();
             TPostulanteComparacions = new HashSet<TPostulanteComparacion>();
+            TPostulanteInformacionProfesionals = new HashSet<TPostulanteInformacionProfesional>();
         }
 
         /// <summary>
@@ -155,6 +157,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
 
         public virtual ICollection<TEtapaProcesoSeleccionCalificado> TEtapaProcesoSeleccionCalificados { get; set; }
         public virtual ICollection<TExamenAsignadoEvaluador> TExamenAsignadoEvaluadors { get; set; }
+        public virtual ICollection<TLoteCurriculumItem> TLoteCurriculumItems { get; set; }
         public virtual ICollection<TPostulanteComparacion> TPostulanteComparacions { get; set; }
+        public virtual ICollection<TPostulanteInformacionProfesional> TPostulanteInformacionProfesionals { get; set; }
     }
 }
