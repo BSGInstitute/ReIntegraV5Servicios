@@ -1083,7 +1083,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TTipoServicio> TTipoServicios { get; set; } = null!;
         public virtual DbSet<TTipoVistum> TTipoVista { get; set; } = null!;
         public virtual DbSet<TTitulo> TTitulos { get; set; } = null!;
+        public virtual DbSet<TTokenEstado> TTokenEstados { get; set; } = null!;
         public virtual DbSet<TTokenPostulanteProcesoSeleccion> TTokenPostulanteProcesoSeleccions { get; set; } = null!;
+        public virtual DbSet<TTokenWebex> TTokenWebices { get; set; } = null!;
         public virtual DbSet<TTranscripcionLlamadum> TTranscripcionLlamada { get; set; } = null!;
         public virtual DbSet<TTransicionFaseCriterioOportunidad> TTransicionFaseCriterioOportunidads { get; set; } = null!;
         public virtual DbSet<TTransicionFaseOportunidad> TTransicionFaseOportunidads { get; set; } = null!;
@@ -63218,6 +63220,50 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Sistema Automatico Usuario de modificacion");
             });
 
+            modelBuilder.Entity<TTokenEstado>(entity =>
+            {
+                entity.ToTable("T_TokenEstado", "conf");
+
+                entity.HasComment("Catalogo de estados del ciclo de vida de tokens OAuth de Webex (Activo, Renovado, Revocado, Expirado).");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico del estado de token.");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Descripción del estado del token.");
+
+                entity.Property(e => e.Estado).HasComment("Estado logico del registro. 1=Activo, 0=Inactivo.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creacion del registro.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la ultima modificacion del registro.");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Nombre descriptivo del estado (Activo, Renovado, Revocado, Expirado).");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Se actualiza automaticamente en cada modificacion.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creo el registro.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Ultimo usuario que modifico el registro.");
+            });
+
             modelBuilder.Entity<TTokenPostulanteProcesoSeleccion>(entity =>
             {
                 entity.ToTable("T_TokenPostulanteProcesoSeleccion", "gp");
@@ -63256,6 +63302,66 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Token de accesos del postulante");
 
                 entity.Property(e => e.TokenHash).IsUnicode(false);
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TTokenWebex>(entity =>
+            {
+                entity.ToTable("T_TokenWebex", "pla");
+
+                entity.HasComment("Esta tabla almacena los tokens de las cuentas Webex");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria");
+
+                entity.Property(e => e.AccessTokenJson)
+                    .IsUnicode(false)
+                    .HasComment("Objeto Json obtenido en la última actualización de Tokens");
+
+                entity.Property(e => e.CapacidadSimultanea).HasComment("Cantidad maxima de clases simultaneas permitidas en esta cuenta Webex. Default 2.");
+
+                entity.Property(e => e.Cuenta)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Informacion de la asociada al Token de Webex");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de modificacion");
+
+                entity.Property(e => e.IdMigracion).HasComment("Id de la tabla Original al migrar");
+
+                entity.Property(e => e.Password)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Guarda contrasenas utilizadas por los usuarios en el sistema");
+
+                entity.Property(e => e.RefreshToken)
+                    .IsUnicode(false)
+                    .HasComment("refresh_token generado a partir de la última actualización de Tokens");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.Token)
+                    .IsUnicode(false)
+                    .HasComment("Almacenamiento de codigos de acceso para la plataforma Webex");
 
                 entity.Property(e => e.UsuarioCreacion)
                     .HasMaxLength(50)
