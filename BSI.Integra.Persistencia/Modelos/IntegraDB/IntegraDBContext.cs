@@ -1104,6 +1104,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TVersionLineamientoCalificacion> TVersionLineamientoCalificacions { get; set; } = null!;
         public virtual DbSet<TVersionPrograma> TVersionProgramas { get; set; } = null!;
         public virtual DbSet<TVisualizacionBsPlay> TVisualizacionBsPlays { get; set; } = null!;
+        public virtual DbSet<TWebexToken> TWebexTokens { get; set; } = null!;
         public virtual DbSet<TWhatsAppConfiguracion> TWhatsAppConfiguracions { get; set; } = null!;
         public virtual DbSet<TWhatsAppConfiguracionApi> TWhatsAppConfiguracionApis { get; set; } = null!;
         public virtual DbSet<TWhatsAppConfiguracionEnvio> TWhatsAppConfiguracionEnvios { get; set; } = null!;
@@ -1129,7 +1130,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TWhatsappLlamadaEstadoLog> TWhatsappLlamadaEstadoLogs { get; set; } = null!;
         public virtual DbSet<TWhatsappLlamadum> TWhatsappLlamada { get; set; } = null!;
         public virtual DbSet<TZonaHorariaPai> TZonaHorariaPais { get; set; } = null!;
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.UseCollation("Modern_Spanish_CI_AS");
@@ -64309,6 +64309,78 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Ultimo usuario que modifico el registro");
+            });
+
+            modelBuilder.Entity<TWebexToken>(entity =>
+            {
+                entity.ToTable("T_WebexToken", "pla");
+
+                entity.HasComment("Almacena tokens OAuth emitidos por Webex. AccessToken y RefreshToken con fechas de expiracion y estado del ciclo de vida.");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico del registro de token Webex.");
+
+                entity.Property(e => e.AccessToken)
+                    .IsUnicode(false)
+                    .HasComment("Token de acceso OAuth emitido por Webex para autenticacion de API.");
+
+                entity.Property(e => e.Estado).HasComment("Estado logico del registro. 1=Activo, 0=Inactivo.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creacion del registro.");
+
+                entity.Property(e => e.FechaExpiracionAccess)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en que expira el AccessToken.");
+
+                entity.Property(e => e.FechaExpiracionRefresh)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en que expira el RefreshToken.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la ultima modificacion del registro.");
+
+                entity.Property(e => e.FechaUltimaRenovacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la ultima renovacion exitosa del token.");
+
+                entity.Property(e => e.IdTokenEstado).HasComment("FK a T_TokenEstado. Estado del ciclo de vida del token (1=Activo, 2=Renovado, 3=Revocado, 4=Expirado).");
+
+                entity.Property(e => e.MensajeError)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Mensaje de error capturado en caso de fallo durante renovacion o uso del token.");
+
+                entity.Property(e => e.RefreshToken)
+                    .IsUnicode(false)
+                    .HasComment("Token de renovacion OAuth para obtener nuevo AccessToken sin reautenticacion.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Se actualiza automaticamente en cada modificacion.");
+
+                entity.Property(e => e.Scopes)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Permisos (scopes) OAuth asociados al token, separados por espacio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creo el registro.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Ultimo usuario que modifico el registro.");
+
+                entity.HasOne(d => d.IdTokenEstadoNavigation)
+                    .WithMany(p => p.TWebexTokens)
+                    .HasForeignKey(d => d.IdTokenEstado)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_WebexToken_T_TokenEstado");
             });
 
             modelBuilder.Entity<TWhatsAppConfiguracion>(entity =>

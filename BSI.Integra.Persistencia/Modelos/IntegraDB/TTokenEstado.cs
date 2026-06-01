@@ -8,6 +8,11 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
     /// </summary>
     public partial class TTokenEstado
     {
+        public TTokenEstado()
+        {
+            TWebexTokens = new HashSet<TWebexToken>();
+        }
+
         /// <summary>
         /// Identificador unico del estado de token.
         /// </summary>
@@ -44,5 +49,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         /// Control de concurrencia optimista. Se actualiza automaticamente en cada modificacion.
         /// </summary>
         public byte[] RowVersion { get; set; } = null!;
+
+        public virtual ICollection<TWebexToken> TWebexTokens { get; set; }
     }
 }
