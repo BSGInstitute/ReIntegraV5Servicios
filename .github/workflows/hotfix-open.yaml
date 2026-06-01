@@ -1,0 +1,62 @@
+name: Hotfix — preparar backport
+
+on:
+  pull_request:
+    types: [opened]
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  prepare-backport:
+    if: startsWith(github.event.pull_request.head.ref, 'hotfix/')
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Etiquetar PR como hotfix urgente
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh label create "hotfix" --color "d93f0b" --description "Fix urgente a producción" 2>/dev/null || true
+          gh label create "urgent"  --color "e11d48" --description "Requiere atención inmediata" 2>/dev/null || true
+          gh pr edit "$PR_NUMBER" --add-label "hotfix,urgent"
+
+      - name: Crear PR de backport a dev
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          HOTFIX_BRANCH: ${{ github.event.pull_request.head.ref }}
+          HOTFIX_PR: ${{ github.event.pull_request.number }}
+          HOTFIX_TITLE: ${{ github.event.pull_request.title }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          EXISTING=$(gh pr list --base dev --head "$HOTFIX_BRANCH" --state open --json number --jq '.[0].number')
+
+          if [ -n "$EXISTING" ]; then
+            echo "PR de backport #$EXISTING ya existe"
+          else
+            BODY=$(printf '## Backport automático de hotfix\n\nEste PR fue generado automáticamente desde #%s.\n\n**Mergeá este PR a dev después de mergear el hotfix a main** para mantener la rama sincronizada.\n\n| Campo | Valor |\n|-------|-------|\n| Hotfix original | #%s |\n| Rama | `%s` |\n| Autor | @%s |' "$HOTFIX_PR" "$HOTFIX_PR" "$HOTFIX_BRANCH" "$AUTHOR")
+            gh pr create \
+              --base dev \
+              --head "$HOTFIX_BRANCH" \
+              --title "backport: ${HOTFIX_TITLE}" \
+              --label "hotfix" \
+              --body "$BODY"
+          fi
+
+      - name: Agregar comentario al PR de main
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HOTFIX_BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          BACKPORT_PR=$(gh pr list --base dev --head "$HOTFIX_BRANCH" --state open --json number,url --jq '.[0]')
+          BACKPORT_URL=$(echo "$BACKPORT_PR" | jq -r '.url')
+
+          COMMENT=$(printf '> Hotfix detectado\n\nPR de backport creado automáticamente: %s\n\n**Orden de merge recomendado:**\n1. Mergear este PR a `main` para deploy a producción\n2. Mergear el backport a `dev` para mantener la rama sincronizada' "$BACKPORT_URL")
+          gh pr comment "$PR_NUMBER" --body "$COMMENT"

@@ -1,0 +1,40 @@
+name: Auto PR qa → main al cerrar issue QA
+
+on:
+  issues:
+    types: [closed]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: write
+
+jobs:
+  create-pr:
+    if: contains(github.event.issue.labels.*.name, 'qa-validation')
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Crear PR qa → main
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          CLOSER: ${{ github.event.sender.login }}
+        run: |
+          EXISTING=$(gh pr list --base main --head qa --state open --json number --jq '.[0].number')
+
+          if [ -n "$EXISTING" ]; then
+            echo "PR #$EXISTING ya existe"
+            gh pr comment "$EXISTING" --body \
+              "Issue de validación #${ISSUE_NUMBER} cerrado por @${CLOSER} — listo para deploy a producción."
+          else
+            BODY=$(printf '## Release a producción\n\nValidación QA completada. Issue cerrado por @%s.\n\nRef: #%s\n\n## Checklist pre-merge\n- [ ] Issue QA cerrado\n- [ ] Tech Lead revisó los cambios\n- [ ] Sin conflictos con main' "$CLOSER" "$ISSUE_NUMBER")
+            gh pr create \
+              --base main \
+              --head qa \
+              --title "release: qa → main" \
+              --body "$BODY"
+          fi
