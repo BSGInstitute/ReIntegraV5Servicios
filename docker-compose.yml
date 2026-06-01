@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  backend:
+    image: ${IMAGE_TAG}
+    environment:
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "false"
+      Cors__AllowedOrigins: "http:localhost:4200,https://reintegra-v6-qa.bsginstitute.com"
+      ConnectionStrings__IntegraDB: ""
+      ConnectionStrings__IntegraDB_Interaccion: ""
+      ASPNETCORE_ENVIRONMENT: ""
+      TokenKey: ""
+      MongoDBSettings__ConnectionString: ""
+      MongoDBSettings__DatabaseName: ""
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    external: true

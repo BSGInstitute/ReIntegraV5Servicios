@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  backend:
+    image: ${IMAGE_TAG}
+    environment:
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "false"
+      ASPNETCORE_ENVIRONMENT: "Staging"
+      ASPNETCORE_URLS: "http://+:80"
+      Cors__AllowedOrigins: "${CORS_ALLOWED_ORIGINS}"
+      ConnectionStrings__IntegraDB: "${CONNECTION_STRING_INTEGRADB}"
+      ConnectionStrings__IntegraDB_Interaccion: "${CONNECTION_STRING_INTEGRADB_INTERACCION}"
+      TokenKey: "${TOKEN_KEY}"
+      MongoDBSettings__ConnectionString: "${MONGODB_CONNECTION_STRING}"
+      MongoDBSettings__DatabaseName: "${MONGODB_DATABASE_NAME}"
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    external: true
