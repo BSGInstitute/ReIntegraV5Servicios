@@ -1,0 +1,42 @@
+name: Crear issue de validación QA
+
+on:
+  push:
+    branches: [qa]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  create-issue:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Asegurar que existe el label qa-validation
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          gh label create "qa-validation" \
+            --description "Deploy pendiente de validación QA" \
+            --color "0075ca" 2>/dev/null || true
+
+      - name: Crear issue de validación
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          SHA: ${{ github.sha }}
+          ACTOR: ${{ github.actor }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          QA_ASSIGNEE: ${{ vars.QA_ASSIGNEE }}
+        run: |
+          SHA_SHORT=$(echo "$SHA" | cut -c1-7)
+          FIRST_LINE=$(echo "$COMMIT_MSG" | head -1)
+
+          BODY=$(printf '## Deploy listo para validación\n\n| Campo | Valor |\n|-------|-------|\n| Commit | `%s` |\n| Descripción | %s |\n| Publicado por | @%s |\n| Pipeline | [Ver ejecución](%s) |\n\n## Checklist de validación\n\n- [ ] Funcionalidades del sprint probadas\n- [ ] Sin regresiones visibles\n- [ ] Flujos críticos funcionando\n\n---\n\n> Cuando finalices la validación, **cerrá este issue** para generar el PR a producción automáticamente.' "$SHA_SHORT" "$FIRST_LINE" "$ACTOR" "$RUN_URL")
+          gh issue create \
+            --title "QA: validar deploy ${SHA_SHORT}" \
+            --label "qa-validation" \
+            --assignee "${QA_ASSIGNEE}" \
+            --body "$BODY"

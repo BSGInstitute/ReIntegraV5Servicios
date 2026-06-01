@@ -329,6 +329,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TEstadoOportunidad> TEstadoOportunidads { get; set; } = null!;
         public virtual DbSet<TEstadoPagoMatricula> TEstadoPagoMatriculas { get; set; } = null!;
         public virtual DbSet<TEstadoPespecifico> TEstadoPespecificos { get; set; } = null!;
+        public virtual DbSet<TEstadoProceso> TEstadoProcesos { get; set; } = null!;
         public virtual DbSet<TEstadoProyeccionFur> TEstadoProyeccionFurs { get; set; } = null!;
         public virtual DbSet<TEstadoSeguimientoPreProcesoListaWhatsApp> TEstadoSeguimientoPreProcesoListaWhatsApps { get; set; } = null!;
         public virtual DbSet<TEstadoSolicitud> TEstadoSolicituds { get; set; } = null!;
@@ -488,6 +489,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TGrupoFiltroProgramaCriticoCentroCosto> TGrupoFiltroProgramaCriticoCentroCostos { get; set; } = null!;
         public virtual DbSet<TGrupoFiltroProgramaCriticoPgeneral> TGrupoFiltroProgramaCriticoPgenerals { get; set; } = null!;
         public virtual DbSet<TGrupoFiltroProgramaCriticoPorAsesor> TGrupoFiltroProgramaCriticoPorAsesors { get; set; } = null!;
+        public virtual DbSet<THabilidad> THabilidads { get; set; } = null!;
+        public virtual DbSet<THabilidadNivel> THabilidadNivels { get; set; } = null!;
         public virtual DbSet<THistoricoProductoProveedor> THistoricoProductoProveedors { get; set; } = null!;
         public virtual DbSet<THoraBloqueadum> THoraBloqueada { get; set; } = null!;
         public virtual DbSet<THorarioGrupo> THorarioGrupos { get; set; } = null!;
@@ -526,6 +529,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TLogEnvioHelperWhatsApp> TLogEnvioHelperWhatsApps { get; set; } = null!;
         public virtual DbSet<TLogFiltroSegmentoEjecutado> TLogFiltroSegmentoEjecutados { get; set; } = null!;
         public virtual DbSet<TLogProyeccionFur> TLogProyeccionFurs { get; set; } = null!;
+        public virtual DbSet<TLoteCurriculum> TLoteCurricula { get; set; } = null!;
+        public virtual DbSet<TLoteCurriculumItem> TLoteCurriculumItems { get; set; } = null!;
+        public virtual DbSet<TLoteCurriculumModoProcesamiento> TLoteCurriculumModoProcesamientos { get; set; } = null!;
         public virtual DbSet<TMandril> TMandrils { get; set; } = null!;
         public virtual DbSet<TMandrilEnvioCorreo> TMandrilEnvioCorreos { get; set; } = null!;
         public virtual DbSet<TMandrilEnvioCorreoGestion> TMandrilEnvioCorreoGestions { get; set; } = null!;
@@ -770,6 +776,8 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TPostulanteFormacion> TPostulanteFormacions { get; set; } = null!;
         public virtual DbSet<TPostulanteFormacionLog> TPostulanteFormacionLogs { get; set; } = null!;
         public virtual DbSet<TPostulanteIdioma> TPostulanteIdiomas { get; set; } = null!;
+        public virtual DbSet<TPostulanteInformacionProfesional> TPostulanteInformacionProfesionals { get; set; } = null!;
+        public virtual DbSet<TPostulanteInformacionProfesionalHabilidad> TPostulanteInformacionProfesionalHabilidads { get; set; } = null!;
         public virtual DbSet<TPostulanteLog> TPostulanteLogs { get; set; } = null!;
         public virtual DbSet<TPostulanteNivelPotencial> TPostulanteNivelPotencials { get; set; } = null!;
         public virtual DbSet<TPostulanteProcesoSeleccion> TPostulanteProcesoSeleccions { get; set; } = null!;
@@ -1075,7 +1083,9 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TTipoServicio> TTipoServicios { get; set; } = null!;
         public virtual DbSet<TTipoVistum> TTipoVista { get; set; } = null!;
         public virtual DbSet<TTitulo> TTitulos { get; set; } = null!;
+        public virtual DbSet<TTokenEstado> TTokenEstados { get; set; } = null!;
         public virtual DbSet<TTokenPostulanteProcesoSeleccion> TTokenPostulanteProcesoSeleccions { get; set; } = null!;
+        public virtual DbSet<TTokenWebex> TTokenWebices { get; set; } = null!;
         public virtual DbSet<TTranscripcionLlamadum> TTranscripcionLlamada { get; set; } = null!;
         public virtual DbSet<TTransicionFaseCriterioOportunidad> TTransicionFaseCriterioOportunidads { get; set; } = null!;
         public virtual DbSet<TTransicionFaseOportunidad> TTransicionFaseOportunidads { get; set; } = null!;
@@ -1094,6 +1104,7 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TVersionLineamientoCalificacion> TVersionLineamientoCalificacions { get; set; } = null!;
         public virtual DbSet<TVersionPrograma> TVersionProgramas { get; set; } = null!;
         public virtual DbSet<TVisualizacionBsPlay> TVisualizacionBsPlays { get; set; } = null!;
+        public virtual DbSet<TWebexToken> TWebexTokens { get; set; } = null!;
         public virtual DbSet<TWhatsAppConfiguracion> TWhatsAppConfiguracions { get; set; } = null!;
         public virtual DbSet<TWhatsAppConfiguracionApi> TWhatsAppConfiguracionApis { get; set; } = null!;
         public virtual DbSet<TWhatsAppConfiguracionEnvio> TWhatsAppConfiguracionEnvios { get; set; } = null!;
@@ -1119,7 +1130,6 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
         public virtual DbSet<TWhatsappLlamadaEstadoLog> TWhatsappLlamadaEstadoLogs { get; set; } = null!;
         public virtual DbSet<TWhatsappLlamadum> TWhatsappLlamada { get; set; } = null!;
         public virtual DbSet<TZonaHorariaPai> TZonaHorariaPais { get; set; } = null!;
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.UseCollation("Modern_Spanish_CI_AS");
@@ -19654,6 +19664,53 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Sistema Automatico Usuario de modificacion");
             });
 
+            modelBuilder.Entity<TEstadoProceso>(entity =>
+            {
+                entity.ToTable("T_EstadoProceso", "conf");
+
+                entity.HasComment("Catalogo de estados de procesamiento para flujos en general");
+
+                entity.HasIndex(e => e.Nombre, "UQ_T_EstadoProceso_Nombre")
+                    .IsUnique();
+
+                entity.Property(e => e.Id).HasComment("Llave primaria de la tabla.");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Indicador logico del registro. 1 = activo, 0 = inactivo.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha y hora de creacion del registro.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha y hora de la ultima modificacion del registro.");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .HasComment("Nombre del estado de procesamiento. Valores validos: pendiente, procesando, finalizado, error.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista gestionado automaticamente por SQL Server.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creo el registro.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizo la ultima modificacion del registro.");
+            });
+
             modelBuilder.Entity<TEstadoProyeccionFur>(entity =>
             {
                 entity.ToTable("T_EstadoProyeccionFur", "fin");
@@ -29721,6 +29778,100 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Sistema Automatico Usuario de modificacion");
             });
 
+            modelBuilder.Entity<THabilidad>(entity =>
+            {
+                entity.ToTable("T_Habilidad", "gp");
+
+                entity.HasComment("Catalogo maestro de habilidades. Lista cerrada administrable de la cual los postulantes seleccionan sus habilidades.");
+
+                entity.HasIndex(e => e.Nombre, "UQ_T_Habilidad_Nombre")
+                    .IsUnique();
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(150)
+                    .IsUnicode(false)
+                    .HasComment("Nombre de la habilidad en el catalogo (unico)");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de creacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro");
+            });
+
+            modelBuilder.Entity<THabilidadNivel>(entity =>
+            {
+                entity.ToTable("T_HabilidadNivel", "gp");
+
+                entity.HasComment("Catalogo de niveles de dominio de una habilidad (Basico, Intermedio, Avanzado, Experto). Referenciado por T_PostulanteInformacionProfesionalHabilidad.");
+
+                entity.HasIndex(e => e.Nombre, "UQ_T_HabilidadNivel_Nombre")
+                    .IsUnique();
+
+                entity.Property(e => e.Id).HasComment("Identificador unico del nivel.");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Nombre descriptivo del nivel: Basico | Intermedio | Avanzado | Experto.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de creacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro");
+            });
+
             modelBuilder.Entity<THistoricoProductoProveedor>(entity =>
             {
                 entity.ToTable("T_HistoricoProductoProveedor", "fin");
@@ -32117,6 +32268,193 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TLoteCurriculum>(entity =>
+            {
+                entity.ToTable("T_LoteCurriculum", "gp");
+
+                entity.HasComment("Representa un lote de carga masiva de currículums asociado a una convocatoria. Agrupa N ítems y controla el estado global del procesamiento.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del lote.");
+
+                entity.Property(e => e.Estado).HasComment("1 = activo, 0 = eliminado lógico.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro.");
+
+                entity.Property(e => e.IdConvocatoriaPersonal).HasComment("FK a T_ConvocatoriaPersonal. Convocatoria para la cual se evalúan los currículums del lote.");
+
+                entity.Property(e => e.IdEstadoProceso).HasComment("FK a conf.T_EstadoProceso. Estado actual del lote.");
+
+                entity.Property(e => e.IdLoteCurriculumModoProcesamiento).HasComment("FK a T_LoteCurriculumModoProcesamiento. Determina si el lote es automático, asistido o híbrido.");
+
+                entity.Property(e => e.InstruccionesPrompt).HasComment("Instrucciones adicionales enviadas al modelo de IA para personalizar la evaluación de este lote. Nullable.");
+
+                entity.Property(e => e.ItemsCompletados).HasComment("Cantidad de currículums procesados y mergeados exitosamente a T_Postulante.");
+
+                entity.Property(e => e.ItemsError).HasComment("Cantidad de currículums que fallaron durante el procesamiento de la IA.");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Nombre descriptivo del lote");
+
+                entity.Property(e => e.OrigenDeclarado)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasComment("Origen declarado de los CVs del lote: portal | referido | bolsa | mixto. Nullable.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista generado automáticamente por SQL Server.");
+
+                entity.Property(e => e.TotalItems).HasComment("Cantidad total de currículums incluidos en el lote.");
+
+                entity.Property(e => e.UmbralConfianza).HasComment("Valor 0-100. Ítems cuyo ConfianzaGlobal sea mayor o igual a este umbral se procesan automáticamente sin revisión manual.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó la última modificación.");
+
+                entity.HasOne(d => d.IdConvocatoriaPersonalNavigation)
+                    .WithMany(p => p.TLoteCurricula)
+                    .HasForeignKey(d => d.IdConvocatoriaPersonal)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_LoteCurriculum_ConvocatoriaPersonal_IdConvocatoriaPersonal");
+
+                entity.HasOne(d => d.IdEstadoProcesoNavigation)
+                    .WithMany(p => p.TLoteCurricula)
+                    .HasForeignKey(d => d.IdEstadoProceso)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_LoteCurriculum_EstadoProceso_IdEstadoProceso");
+
+                entity.HasOne(d => d.IdLoteCurriculumModoProcesamientoNavigation)
+                    .WithMany(p => p.TLoteCurricula)
+                    .HasForeignKey(d => d.IdLoteCurriculumModoProcesamiento)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_LoteCurriculum_LoteCurriculumModoProcesamiento_IdLoteCurriculumModoProcesamiento");
+            });
+
+            modelBuilder.Entity<TLoteCurriculumItem>(entity =>
+            {
+                entity.ToTable("T_LoteCurriculumItem", "gp");
+
+                entity.HasComment("Representa un currículo individual dentro de un lote. Gestiona únicamente el ciclo de vida del procesamiento. Los datos evaluados y extraídos se almacenan en tablas relacionadas 1:1.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del ítem.");
+
+                entity.Property(e => e.ConfiabilidadIa)
+                    .HasColumnType("decimal(5, 2)")
+                    .HasColumnName("ConfiabilidadIA");
+
+                entity.Property(e => e.Estado).HasComment("1 = activo, 0 = eliminado lógico.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro.");
+
+                entity.Property(e => e.IdEstadoProceso).HasComment("FK a conf.T_EstadoProceso. Estado actual del item.");
+
+                entity.Property(e => e.IdLoteCurriculum).HasComment("FK a T_LoteCurriculum. Lote al que pertenece este ítem.");
+
+                entity.Property(e => e.IdPostulante).HasComment("FK a T_Postulante. Nulo mientras el ítem está en revisión. Se popula al confirmar el currículo, indicando que el merge a las tablas principales fue completado.");
+
+                entity.Property(e => e.MensajeError).HasComment("Detalle del error ocurrido durante el procesamiento. Nulo cuando IdLoteCurriculumEstadoItem es distinto de Error.");
+
+                entity.Property(e => e.NombreArchivo)
+                    .HasMaxLength(300)
+                    .IsUnicode(false)
+                    .HasComment("Nombre original del archivo subido por el usuario (ej. juan_perez_cv.pdf).");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista generado automáticamente por SQL Server.");
+
+                entity.Property(e => e.UrlArchivo).HasComment("Es la url que almacena el archivo del item de un lote");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó la última modificación.");
+
+                entity.HasOne(d => d.IdEstadoProcesoNavigation)
+                    .WithMany(p => p.TLoteCurriculumItems)
+                    .HasForeignKey(d => d.IdEstadoProceso)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_LoteCurriculumItem_EstadoProceso_IdEstadoProceso");
+
+                entity.HasOne(d => d.IdLoteCurriculumNavigation)
+                    .WithMany(p => p.TLoteCurriculumItems)
+                    .HasForeignKey(d => d.IdLoteCurriculum)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_LoteCurriculumItem_LoteCurriculum_IdLoteCurriculum");
+
+                entity.HasOne(d => d.IdPostulanteNavigation)
+                    .WithMany(p => p.TLoteCurriculumItems)
+                    .HasForeignKey(d => d.IdPostulante)
+                    .HasConstraintName("FK_T_LoteCurriculumItem_Postulante_IdPostulante");
+            });
+
+            modelBuilder.Entity<TLoteCurriculumModoProcesamiento>(entity =>
+            {
+                entity.ToTable("T_LoteCurriculumModoProcesamiento", "gp");
+
+                entity.HasComment("Catálogo de modos de procesamiento disponibles para un lote de currículums.");
+
+                entity.Property(e => e.Id).HasComment("Identificador único del modo de procesamiento.");
+
+                entity.Property(e => e.Estado).HasComment("1 = activo, 0 = inactivo.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creación del registro.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la última modificación del registro.");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Nombre descriptivo del modo: Automático | Asistido | Híbrido.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista generado automáticamente por SQL Server.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creó el registro.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que realizó la última modificación.");
             });
 
             modelBuilder.Entity<TMandril>(entity =>
@@ -46467,6 +46805,128 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TPostulanteInformacionProfesional>(entity =>
+            {
+                entity.ToTable("T_PostulanteInformacionProfesional", "gp");
+
+                entity.HasComment("Informacion profesional del postulante. Un postulante puede tener N registros distintos en paralelo (ej: uno orientado a cada rol o puesto al que aplica), cada uno con su propio titulo, contenido, habilidades y recursos asociados. Todos los registros activos son validos simultaneamente.");
+
+                entity.HasIndex(e => new { e.IdPostulante, e.Estado }, "INC_T_PostulanteInformacionProfesional_IdPostulante_Estado");
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.Contenido).HasComment("Texto del Resumen Profesional ingresado por el postulante desde la web. Respeta saltos de linea y parrafos");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.IdMigracion).HasComment("Id de la tabla Original al migrar");
+
+                entity.Property(e => e.IdPostulante).HasComment("Es clave foranea de T_Postulante");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.Titulo)
+                    .HasMaxLength(200)
+                    .HasComment("Titulo del Resumen Profesional ingresado por el postulante (ej: Resumen Comercial Senior)");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de creacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro");
+
+                entity.HasOne(d => d.IdPostulanteNavigation)
+                    .WithMany(p => p.TPostulanteInformacionProfesionals)
+                    .HasForeignKey(d => d.IdPostulante)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<TPostulanteInformacionProfesionalHabilidad>(entity =>
+            {
+                entity.ToTable("T_PostulanteInformacionProfesionalHabilidad", "gp");
+
+                entity.HasComment("Tabla puente entre la informacion profesional del postulante y el catalogo de habilidades. Cada fila representa una habilidad declarada por el postulante con su nivel y anios de experiencia. Una misma habilidad no puede repetirse dentro del mismo registro de informacion profesional.");
+
+                entity.HasIndex(e => new { e.IdPostulanteInformacionProfesional, e.IdHabilidad }, "UQ_T_PostulanteInformacionProfesionalHabilidad_Informacion_Habilidad")
+                    .IsUnique();
+
+                entity.Property(e => e.Id).HasComment("Es primary key");
+
+                entity.Property(e => e.AnioExperiencia).HasComment("Anios de experiencia del postulante en la habilidad");
+
+                entity.Property(e => e.Estado)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))")
+                    .HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de creacion del registro");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())")
+                    .HasComment("Fecha de modificacion del registro");
+
+                entity.Property(e => e.IdHabilidad).HasComment("Es clave foranea de T_Habilidad (catalogo)");
+
+                entity.Property(e => e.IdHabilidadNivel).HasComment("Es clave foranea de T_HabilidadNivel (nivel de dominio)");
+
+                entity.Property(e => e.IdMigracion).HasComment("Id de la tabla original al migrar");
+
+                entity.Property(e => e.IdPostulanteInformacionProfesional).HasComment("Es clave foranea de T_PostulanteInformacionProfesional");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de creacion del registro");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario de modificacion del registro");
+
+                entity.HasOne(d => d.IdHabilidadNavigation)
+                    .WithMany(p => p.TPostulanteInformacionProfesionalHabilidads)
+                    .HasForeignKey(d => d.IdHabilidad)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasOne(d => d.IdHabilidadNivelNavigation)
+                    .WithMany(p => p.TPostulanteInformacionProfesionalHabilidads)
+                    .HasForeignKey(d => d.IdHabilidadNivel);
+
+                entity.HasOne(d => d.IdPostulanteInformacionProfesionalNavigation)
+                    .WithMany(p => p.TPostulanteInformacionProfesionalHabilidads)
+                    .HasForeignKey(d => d.IdPostulanteInformacionProfesional)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
             modelBuilder.Entity<TPostulanteLog>(entity =>
@@ -62760,6 +63220,50 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Sistema Automatico Usuario de modificacion");
             });
 
+            modelBuilder.Entity<TTokenEstado>(entity =>
+            {
+                entity.ToTable("T_TokenEstado", "conf");
+
+                entity.HasComment("Catalogo de estados del ciclo de vida de tokens OAuth de Webex (Activo, Renovado, Revocado, Expirado).");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico del estado de token.");
+
+                entity.Property(e => e.Descripcion)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Descripción del estado del token.");
+
+                entity.Property(e => e.Estado).HasComment("Estado logico del registro. 1=Activo, 0=Inactivo.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creacion del registro.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la ultima modificacion del registro.");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Nombre descriptivo del estado (Activo, Renovado, Revocado, Expirado).");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Se actualiza automaticamente en cada modificacion.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creo el registro.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Ultimo usuario que modifico el registro.");
+            });
+
             modelBuilder.Entity<TTokenPostulanteProcesoSeleccion>(entity =>
             {
                 entity.ToTable("T_TokenPostulanteProcesoSeleccion", "gp");
@@ -62798,6 +63302,66 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasComment("Token de accesos del postulante");
 
                 entity.Property(e => e.TokenHash).IsUnicode(false);
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de creacion");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Sistema Automatico Usuario de modificacion");
+            });
+
+            modelBuilder.Entity<TTokenWebex>(entity =>
+            {
+                entity.ToTable("T_TokenWebex", "pla");
+
+                entity.HasComment("Esta tabla almacena los tokens de las cuentas Webex");
+
+                entity.Property(e => e.Id).HasComment("Llave primaria");
+
+                entity.Property(e => e.AccessTokenJson)
+                    .IsUnicode(false)
+                    .HasComment("Objeto Json obtenido en la última actualización de Tokens");
+
+                entity.Property(e => e.CapacidadSimultanea).HasComment("Cantidad maxima de clases simultaneas permitidas en esta cuenta Webex. Default 2.");
+
+                entity.Property(e => e.Cuenta)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Informacion de la asociada al Token de Webex");
+
+                entity.Property(e => e.Estado).HasComment("Estado del registro (creado o eliminado)");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de creacion");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Sistema Automatico Fecha de modificacion");
+
+                entity.Property(e => e.IdMigracion).HasComment("Id de la tabla Original al migrar");
+
+                entity.Property(e => e.Password)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasComment("Guarda contrasenas utilizadas por los usuarios en el sistema");
+
+                entity.Property(e => e.RefreshToken)
+                    .IsUnicode(false)
+                    .HasComment("refresh_token generado a partir de la última actualización de Tokens");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Campo de sistema automatico que guarda la version del registro");
+
+                entity.Property(e => e.Token)
+                    .IsUnicode(false)
+                    .HasComment("Almacenamiento de codigos de acceso para la plataforma Webex");
 
                 entity.Property(e => e.UsuarioCreacion)
                     .HasMaxLength(50)
@@ -63745,6 +64309,78 @@ namespace BSI.Integra.Persistencia.Modelos.IntegraDB
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasComment("Ultimo usuario que modifico el registro");
+            });
+
+            modelBuilder.Entity<TWebexToken>(entity =>
+            {
+                entity.ToTable("T_WebexToken", "pla");
+
+                entity.HasComment("Almacena tokens OAuth emitidos por Webex. AccessToken y RefreshToken con fechas de expiracion y estado del ciclo de vida.");
+
+                entity.Property(e => e.Id).HasComment("Identificador unico del registro de token Webex.");
+
+                entity.Property(e => e.AccessToken)
+                    .IsUnicode(false)
+                    .HasComment("Token de acceso OAuth emitido por Webex para autenticacion de API.");
+
+                entity.Property(e => e.Estado).HasComment("Estado logico del registro. 1=Activo, 0=Inactivo.");
+
+                entity.Property(e => e.FechaCreacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de creacion del registro.");
+
+                entity.Property(e => e.FechaExpiracionAccess)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en que expira el AccessToken.");
+
+                entity.Property(e => e.FechaExpiracionRefresh)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora en que expira el RefreshToken.");
+
+                entity.Property(e => e.FechaModificacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la ultima modificacion del registro.");
+
+                entity.Property(e => e.FechaUltimaRenovacion)
+                    .HasColumnType("datetime")
+                    .HasComment("Fecha y hora de la ultima renovacion exitosa del token.");
+
+                entity.Property(e => e.IdTokenEstado).HasComment("FK a T_TokenEstado. Estado del ciclo de vida del token (1=Activo, 2=Renovado, 3=Revocado, 4=Expirado).");
+
+                entity.Property(e => e.MensajeError)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Mensaje de error capturado en caso de fallo durante renovacion o uso del token.");
+
+                entity.Property(e => e.RefreshToken)
+                    .IsUnicode(false)
+                    .HasComment("Token de renovacion OAuth para obtener nuevo AccessToken sin reautenticacion.");
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .IsConcurrencyToken()
+                    .HasComment("Control de concurrencia optimista. Se actualiza automaticamente en cada modificacion.");
+
+                entity.Property(e => e.Scopes)
+                    .HasMaxLength(500)
+                    .IsUnicode(false)
+                    .HasComment("Permisos (scopes) OAuth asociados al token, separados por espacio.");
+
+                entity.Property(e => e.UsuarioCreacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Usuario que creo el registro.");
+
+                entity.Property(e => e.UsuarioModificacion)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasComment("Ultimo usuario que modifico el registro.");
+
+                entity.HasOne(d => d.IdTokenEstadoNavigation)
+                    .WithMany(p => p.TWebexTokens)
+                    .HasForeignKey(d => d.IdTokenEstado)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_T_WebexToken_T_TokenEstado");
             });
 
             modelBuilder.Entity<TWhatsAppConfiguracion>(entity =>
