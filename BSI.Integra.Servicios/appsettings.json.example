@@ -1,0 +1,37 @@
+{
+  "TokenKey": "YOUR_JWT_SECRET_KEY_MIN_16_CHARS",
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "Cors": {
+    "AllowedOrigins": "http://localhost:4200,https://your-domain.com"
+  },
+  "MongoDBSettings": {
+    "ConnectionString": "mongodb://YOUR_MONGO_USER:YOUR_MONGO_PASSWORD@YOUR_MONGO_HOST:27017/?authSource=admin",
+    "DatabaseName": "YOUR_MONGO_DATABASE_NAME"
+  },
+  "ConnectionStrings": {
+    "IntegraDB": "Server=YOUR_SQL_SERVER_HOST;Initial Catalog=YOUR_DATABASE_NAME;Persist Security Info=False;User ID=YOUR_SQL_USER;password=YOUR_SQL_PASSWORD;multipleactiveresultsets=false;encrypt=true;trustservercertificate=true;connection timeout=30;",
+    "IntegraDB_Interaccion": "Server=YOUR_SQL_SERVER_HOST;Initial Catalog=YOUR_INTERACCION_DATABASE_NAME;Persist Security Info=False;User ID=YOUR_INTERACCION_SQL_USER;password=YOUR_INTERACCION_SQL_PASSWORD;multipleactiveresultsets=false;encrypt=true;trustservercertificate=true;connection timeout=30;"
+  },
+  "GoogleAdsApi": {
+    "DeveloperToken": "YOUR_GOOGLE_ADS_DEVELOPER_TOKEN",
+    "OAuth2Mode": "APPLICATION",
+    "OAuth2ClientId": "YOUR_GOOGLE_OAUTH2_CLIENT_ID.apps.googleusercontent.com",
+    "OAuth2ClientSecret": "YOUR_GOOGLE_OAUTH2_CLIENT_SECRET",
+    "OAuth2RefreshToken": "YOUR_GOOGLE_OAUTH2_REFRESH_TOKEN",
+    "LoginCustomerId": "YOUR_GOOGLE_ADS_CUSTOMER_ID"
+  },
+  "Facebook": {
+    "AccessToken": "YOUR_FACEBOOK_ACCESS_TOKEN",
+    "PixelId": "YOUR_FACEBOOK_PIXEL_ID"
+  },
+  "FacebookFaseMaximaConstruccion": {
+    "AccessToken": "YOUR_FACEBOOK_FASE_MAXIMA_ACCESS_TOKEN",
+    "PixelId": "YOUR_FACEBOOK_FASE_MAXIMA_PIXEL_ID"
+  }
+}

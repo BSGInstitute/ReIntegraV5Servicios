@@ -1,0 +1,189 @@
+name: Deploy QA - IntegraV5Servicios
+
+on:
+  push:
+    branches: [qa]
+
+concurrency:
+  group: deploy-qa
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ── 1. Tests ───────────────────────────────────────────────────────────────
+  test:
+    runs-on: self-hosted
+    timeout-minutes: 15
+    steps:
+      - name: Cleanup root-owned build artifacts
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/src \
+            alpine \
+            sh -c "find /src -maxdepth 3 \( -name 'bin' -o -name 'obj' -o -name 'TestResults' \) -type d -exec rm -rf {} + 2>/dev/null || true"
+
+      - uses: actions/checkout@v4
+
+      - name: Create CI build config
+        run: |
+          cat > ${{ github.workspace }}/Directory.Build.targets << 'EOF'
+          <Project>
+            <PropertyGroup>
+              <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+              <Nullable>disable</Nullable>
+              <NoWarn>$(NoWarn);CS0108;CS0168;CS0169;CS0649;CS8632;CA2200</NoWarn>
+            </PropertyGroup>
+          </Project>
+          EOF
+
+      - name: Convert test files to UTF-8
+        run: |
+          python3 << 'PYEOF'
+          import os, glob, sys
+          base = os.environ.get('GITHUB_WORKSPACE', '.')
+          pattern = os.path.join(base, 'BSI.Integra.PruebasUnitarias', '**', '*.cs')
+          for f in glob.glob(pattern, recursive=True):
+              try:
+                  open(f, encoding='utf-8-sig').read()
+              except UnicodeDecodeError:
+                  try:
+                      content = open(f, encoding='cp1252').read()
+                      open(f, 'w', encoding='utf-8').write(content)
+                      print(f'Converted: {f}')
+                  except Exception as e:
+                      print(f'Error {f}: {e}', file=sys.stderr)
+          PYEOF
+
+      - name: Restore dependencies
+        run: |
+          mkdir -p $HOME/.nuget/packages
+          docker run --rm \
+            --user $(id -u):$(id -g) \
+            -v ${{ github.workspace }}:/src \
+            -v $HOME/.nuget/packages:/nuget-cache \
+            -e NUGET_PACKAGES=/nuget-cache \
+            -e DOTNET_CLI_HOME=/tmp \
+            -w /src \
+            mcr.microsoft.com/dotnet/sdk:8.0 \
+            dotnet restore BSI.Integra.PruebasUnitarias/BSI.Integra.PruebasUnitarias.csproj
+
+      - name: Run unit tests
+        run: |
+          docker run --rm \
+            --user $(id -u):$(id -g) \
+            -v ${{ github.workspace }}:/src \
+            -v $HOME/.nuget/packages:/nuget-cache \
+            -e NUGET_PACKAGES=/nuget-cache \
+            -e DOTNET_CLI_HOME=/tmp \
+            -w /src \
+            mcr.microsoft.com/dotnet/sdk:8.0 \
+            dotnet test BSI.Integra.PruebasUnitarias/BSI.Integra.PruebasUnitarias.csproj \
+              --no-restore \
+              --verbosity normal
+
+  # ── 2. Docker Build & Push ─────────────────────────────────────────────────
+  build-push:
+    needs: test
+    runs-on: self-hosted
+    timeout-minutes: 20
+    outputs:
+      image-tag: ${{ steps.sha-tag.outputs.value }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lowercase image name
+        run: echo "IMAGE_LOWER=${{ env.REGISTRY }}/$(echo '${{ env.IMAGE_NAME }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_LOWER }}
+          tags: |
+            type=raw,value=qa
+            type=sha,prefix=qa-,format=short
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.IMAGE_LOWER }}:buildcache-qa
+          cache-to: type=registry,ref=${{ env.IMAGE_LOWER }}:buildcache-qa,mode=max
+
+      - name: Compute SHA image tag
+        id: sha-tag
+        run: echo "value=${{ env.IMAGE_LOWER }}:qa-$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+  # ── 3. Deploy (self-hosted runner en el servidor QA) ──────────────────────
+  deploy:
+    needs: build-push
+    runs-on: self-hosted
+    timeout-minutes: 10
+    environment: qa
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Pull image
+        run: docker pull ${{ needs.build-push.outputs.image-tag }}
+
+      - name: Deploy
+        env:
+          IMAGE_TAG: ${{ needs.build-push.outputs.image-tag }}
+          ENV_FILE: /srv/bsginstitute/envs/integra-v5-qa.env
+        run: docker compose -f docker-compose.qa.yml --env-file $ENV_FILE up -d
+
+      - name: Prune old images
+        run: docker image prune -f
+
+  # ── 4. Post-Deploy Healthcheck ────────────────────────────────────────────
+  healthcheck:
+    needs: [build-push, deploy]
+    uses: ./.github/workflows/post-deploy-healthcheck.yaml
+    with:
+      environment: qa
+      compose-file: docker-compose.qa.yml
+      healthcheck-url: ${{ vars.HEALTHCHECK_URL }}
+      image-tag: ${{ needs.build-push.outputs.image-tag }}
+
+  # ── 5. Notify ─────────────────────────────────────────────────────────────
+  notify:
+    needs: [test, build-push, deploy, healthcheck]
+    if: always()
+    uses: ./.github/workflows/notify-teams.yaml
+    with:
+      environment: qa
+      test-status:        ${{ needs.test.result }}
+      build-status:       ${{ needs.build-push.result }}
+      deploy-status:      ${{ needs.deploy.result }}
+      healthcheck-status: ${{ needs.healthcheck.result }}
+      commit-message:     ${{ github.event.head_commit.message }}
+      run-url:            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      branch:             ${{ github.ref_name }}
+      sha:                ${{ github.sha }}
+      actor:              ${{ github.actor }}
+    secrets: inherit

@@ -1,0 +1,66 @@
+name: CI - IntegraV5Servicios
+
+on:
+  pull_request:
+    branches: [qa, main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: self-hosted
+    timeout-minutes: 15
+
+    steps:
+      - name: Cleanup root-owned build artifacts
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/src \
+            alpine \
+            sh -c "find /src -maxdepth 3 \( -name 'bin' -o -name 'obj' -o -name 'TestResults' \) -type d -exec rm -rf {} + 2>/dev/null || true"
+
+      - uses: actions/checkout@v4
+
+      - name: Create CI build config
+        run: |
+          cat > ${{ github.workspace }}/Directory.Build.targets << 'EOF'
+          <Project>
+            <PropertyGroup>
+              <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+              <Nullable>disable</Nullable>
+              <NoWarn>$(NoWarn);CS0108;CS0168;CS0169;CS0649;CS8632;CA2200</NoWarn>
+            </PropertyGroup>
+          </Project>
+          EOF
+
+      - name: Restore dependencies
+        run: |
+          mkdir -p $HOME/.nuget/packages
+          docker run --rm \
+            --user $(id -u):$(id -g) \
+            -v ${{ github.workspace }}:/src \
+            -v $HOME/.nuget/packages:/nuget-cache \
+            -e NUGET_PACKAGES=/nuget-cache \
+            -e DOTNET_CLI_HOME=/tmp \
+            -w /src \
+            mcr.microsoft.com/dotnet/sdk:8.0 \
+            dotnet restore BSI.Integra.Servicios/BSI.Integra.Servicios.csproj
+
+      - name: Build
+        run: |
+          docker run --rm \
+            --user $(id -u):$(id -g) \
+            -v ${{ github.workspace }}:/src \
+            -v $HOME/.nuget/packages:/nuget-cache \
+            -e NUGET_PACKAGES=/nuget-cache \
+            -e DOTNET_CLI_HOME=/tmp \
+            -w /src \
+            mcr.microsoft.com/dotnet/sdk:8.0 \
+            dotnet build BSI.Integra.Servicios/BSI.Integra.Servicios.csproj \
+              -c Release \
+              --no-restore

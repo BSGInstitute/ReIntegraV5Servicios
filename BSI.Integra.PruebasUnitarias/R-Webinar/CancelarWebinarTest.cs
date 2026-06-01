@@ -17,6 +17,10 @@ public class CancelarWebinarTest
     {
         _unitOfWorkMock = new Mock<IUnitOfWork>();
 
+        var pespecificoRepoMock = new Mock<IPEspecificoRepository>();
+        pespecificoRepoMock.Setup(r => r.ObtenerNombrePEspecifico(It.IsAny<int>())).Returns("Webinar Test");
+        _unitOfWorkMock.Setup(u => u.PEspecificoRepository).Returns(pespecificoRepoMock.Object);
+
         _service = new AsistenciaWebinarService(_unitOfWorkMock.Object);
     }
     [TestMethod]
@@ -148,7 +152,7 @@ public class CancelarWebinarTest
         var sesionRepoMock = new Mock<IPEspecificoSesionRepository>();
         sesionRepoMock
         .Setup(r => r.ObtenerPorId(It.IsAny<int>()))
-        .Throws(new Exception("Error al obtener la sesión"));
+        .Throws(new Exception("Error al obtener la sesiï¿½n"));
 
         _unitOfWorkMock.Setup(u => u.PEspecificoSesionRepository)
                        .Returns(sesionRepoMock.Object);
